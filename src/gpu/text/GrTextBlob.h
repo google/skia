@@ -137,8 +137,8 @@ public:
     Run* pushBackRun() {
         SkASSERT(fRunCount < fRunCountLimit);
         if (fRunCount > 0) {
-            Run::SubRunInfo& newRun = fRuns[fRunCount].fSubRunInfo.back();
-            Run::SubRunInfo& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
+            SubRun& newRun = fRuns[fRunCount].fSubRunInfo.back();
+            SubRun& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
             newRun.setAsSuccessor(lastRun);
         }
 
@@ -181,7 +181,7 @@ public:
         // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
         // from one blob then we are going to pay the price here of mapping the rect for each run.
         const Run& run = fRuns[runIndex];
-        const Run::SubRunInfo& subRun = run.fSubRunInfo[subRunIndex];
+        const SubRun& subRun = run.fSubRunInfo[subRunIndex];
         *outBounds = subRun.vertexBounds();
         if (needsGlyphTransform) {
             // Distance field text is positioned with the (X,Y) as part of the glyph position,
@@ -273,6 +273,135 @@ private:
         }
     }
 
+    class SubRun {
+    public:
+        SubRun()
+                : fAtlasGeneration(GrDrawOpAtlas::kInvalidAtlasGeneration)
+                , fVertexStartIndex(0)
+                , fVertexEndIndex(0)
+                , fGlyphStartIndex(0)
+                , fGlyphEndIndex(0)
+                , fColor(GrColor_ILLEGAL)
+                , fMaskFormat(kA8_GrMaskFormat)
+                , fFlags(0) {
+            fVertexBounds = SkRectPriv::MakeLargestInverted();
+        }
+        SubRun(const SubRun& that)
+                : fBulkUseToken(that.fBulkUseToken)
+                , fStrike(SkSafeRef(that.fStrike.get()))
+                , fCurrentViewMatrix(that.fCurrentViewMatrix)
+                , fVertexBounds(that.fVertexBounds)
+                , fAtlasGeneration(that.fAtlasGeneration)
+                , fVertexStartIndex(that.fVertexStartIndex)
+                , fVertexEndIndex(that.fVertexEndIndex)
+                , fGlyphStartIndex(that.fGlyphStartIndex)
+                , fGlyphEndIndex(that.fGlyphEndIndex)
+                , fX(that.fX)
+                , fY(that.fY)
+                , fColor(that.fColor)
+                , fMaskFormat(that.fMaskFormat)
+                , fFlags(that.fFlags) {
+        }
+
+        // TODO when this object is more internal, drop the privacy
+        void resetBulkUseToken() { fBulkUseToken.reset(); }
+        GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
+        void setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
+        GrTextStrike* strike() const { return fStrike.get(); }
+        sk_sp<GrTextStrike> refStrike() const { return fStrike; }
+
+        void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
+        uint64_t atlasGeneration() const { return fAtlasGeneration; }
+
+        size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
+        size_t vertexStartIndex() const { return fVertexStartIndex; }
+        size_t vertexEndIndex() const { return fVertexEndIndex; }
+        void appendVertices(size_t vertexStride) {
+            fVertexEndIndex += vertexStride * kVerticesPerGlyph;
+        }
+
+        uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
+        uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
+        uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
+        void glyphAppended() { fGlyphEndIndex++; }
+        void setColor(GrColor color) { fColor = color; }
+        GrColor color() const { return fColor; }
+        void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
+        GrMaskFormat maskFormat() const { return fMaskFormat; }
+
+        void setAsSuccessor(const SubRun& prev) {
+            fGlyphStartIndex = prev.glyphEndIndex();
+            fGlyphEndIndex = prev.glyphEndIndex();
+
+            fVertexStartIndex = prev.vertexEndIndex();
+            fVertexEndIndex = prev.vertexEndIndex();
+
+            // copy over viewmatrix settings
+            this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
+        }
+
+        const SkRect& vertexBounds() const { return fVertexBounds; }
+        void joinGlyphBounds(const SkRect& glyphBounds) {
+            fVertexBounds.joinNonEmptyArg(glyphBounds);
+        }
+
+        void init(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+            fCurrentViewMatrix = viewMatrix;
+            fX = x;
+            fY = y;
+        }
+
+        // This function assumes the translation will be applied before it is called again
+        void computeTranslation(const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                SkScalar* transX, SkScalar* transY);
+
+        // df properties
+        void setDrawAsDistanceFields() { fFlags |= kDrawAsSDF_Flag; }
+        bool drawAsDistanceFields() const { return SkToBool(fFlags & kDrawAsSDF_Flag); }
+        void setUseLCDText(bool useLCDText) {
+            fFlags = useLCDText ? fFlags | kUseLCDText_Flag : fFlags & ~kUseLCDText_Flag;
+        }
+        bool hasUseLCDText() const { return SkToBool(fFlags & kUseLCDText_Flag); }
+        void setAntiAliased(bool antiAliased) {
+            fFlags = antiAliased ? fFlags | kAntiAliased_Flag : fFlags & ~kAntiAliased_Flag;
+        }
+        bool isAntiAliased() const { return SkToBool(fFlags & kAntiAliased_Flag); }
+        void setHasWCoord(bool hasW) {
+            fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
+        }
+        bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
+        void setNeedsTransform(bool needsTransform) {
+            fFlags  = needsTransform ? (fFlags | kNeedsTransform_Flag)
+                                     : fFlags & ~kNeedsTransform_Flag;
+        }
+        bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
+
+    private:
+        enum Flag {
+            kDrawAsSDF_Flag = 0x01,
+            kUseLCDText_Flag = 0x02,
+            kAntiAliased_Flag = 0x04,
+            kHasWCoord_Flag = 0x08,
+            kNeedsTransform_Flag = 0x10
+        };
+
+        GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
+        sk_sp<GrTextStrike> fStrike;
+        SkMatrix fCurrentViewMatrix;
+        SkRect fVertexBounds;
+        uint64_t fAtlasGeneration;
+        size_t fVertexStartIndex;
+        size_t fVertexEndIndex;
+        uint32_t fGlyphStartIndex;
+        uint32_t fGlyphEndIndex;
+        SkScalar fX;
+        SkScalar fY;
+        GrColor fColor;
+        GrMaskFormat fMaskFormat;
+        uint32_t fFlags;
+    };  // SubRunInfo
+
+
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
      * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
@@ -302,136 +431,10 @@ private:
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
-        struct SubRunInfo {
-            SubRunInfo()
-                    : fAtlasGeneration(GrDrawOpAtlas::kInvalidAtlasGeneration)
-                    , fVertexStartIndex(0)
-                    , fVertexEndIndex(0)
-                    , fGlyphStartIndex(0)
-                    , fGlyphEndIndex(0)
-                    , fColor(GrColor_ILLEGAL)
-                    , fMaskFormat(kA8_GrMaskFormat)
-                    , fFlags(0) {
-                fVertexBounds = SkRectPriv::MakeLargestInverted();
-            }
-            SubRunInfo(const SubRunInfo& that)
-                : fBulkUseToken(that.fBulkUseToken)
-                , fStrike(SkSafeRef(that.fStrike.get()))
-                , fCurrentViewMatrix(that.fCurrentViewMatrix)
-                , fVertexBounds(that.fVertexBounds)
-                , fAtlasGeneration(that.fAtlasGeneration)
-                , fVertexStartIndex(that.fVertexStartIndex)
-                , fVertexEndIndex(that.fVertexEndIndex)
-                , fGlyphStartIndex(that.fGlyphStartIndex)
-                , fGlyphEndIndex(that.fGlyphEndIndex)
-                , fX(that.fX)
-                , fY(that.fY)
-                , fColor(that.fColor)
-                , fMaskFormat(that.fMaskFormat)
-                , fFlags(that.fFlags) {
-            }
-
-            // TODO when this object is more internal, drop the privacy
-            void resetBulkUseToken() { fBulkUseToken.reset(); }
-            GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
-            void setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
-            GrTextStrike* strike() const { return fStrike.get(); }
-            sk_sp<GrTextStrike> refStrike() const { return fStrike; }
-
-            void setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
-            uint64_t atlasGeneration() const { return fAtlasGeneration; }
-
-            size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
-            size_t vertexStartIndex() const { return fVertexStartIndex; }
-            size_t vertexEndIndex() const { return fVertexEndIndex; }
-            void appendVertices(size_t vertexStride) {
-                fVertexEndIndex += vertexStride * kVerticesPerGlyph;
-            }
-
-            uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
-            uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
-            uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
-            void glyphAppended() { fGlyphEndIndex++; }
-            void setColor(GrColor color) { fColor = color; }
-            GrColor color() const { return fColor; }
-            void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
-            GrMaskFormat maskFormat() const { return fMaskFormat; }
-
-            void setAsSuccessor(const SubRunInfo& prev) {
-                fGlyphStartIndex = prev.glyphEndIndex();
-                fGlyphEndIndex = prev.glyphEndIndex();
-
-                fVertexStartIndex = prev.vertexEndIndex();
-                fVertexEndIndex = prev.vertexEndIndex();
-
-                // copy over viewmatrix settings
-                this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
-            }
-
-            const SkRect& vertexBounds() const { return fVertexBounds; }
-            void joinGlyphBounds(const SkRect& glyphBounds) {
-                fVertexBounds.joinNonEmptyArg(glyphBounds);
-            }
-
-            void init(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-                fCurrentViewMatrix = viewMatrix;
-                fX = x;
-                fY = y;
-            }
-
-            // This function assumes the translation will be applied before it is called again
-            void computeTranslation(const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                    SkScalar* transX, SkScalar* transY);
-
-            // df properties
-            void setDrawAsDistanceFields() { fFlags |= kDrawAsSDF_Flag; }
-            bool drawAsDistanceFields() const { return SkToBool(fFlags & kDrawAsSDF_Flag); }
-            void setUseLCDText(bool useLCDText) {
-                fFlags = useLCDText ? fFlags | kUseLCDText_Flag : fFlags & ~kUseLCDText_Flag;
-            }
-            bool hasUseLCDText() const { return SkToBool(fFlags & kUseLCDText_Flag); }
-            void setAntiAliased(bool antiAliased) {
-                fFlags = antiAliased ? fFlags | kAntiAliased_Flag : fFlags & ~kAntiAliased_Flag;
-            }
-            bool isAntiAliased() const { return SkToBool(fFlags & kAntiAliased_Flag); }
-            void setHasWCoord(bool hasW) {
-                fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
-            }
-            bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
-            void setNeedsTransform(bool needsTransform) {
-                fFlags  = needsTransform ? (fFlags | kNeedsTransform_Flag)
-                                          : fFlags & ~kNeedsTransform_Flag;
-            }
-            bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
-
-        private:
-            enum Flag {
-                kDrawAsSDF_Flag = 0x01,
-                kUseLCDText_Flag = 0x02,
-                kAntiAliased_Flag = 0x04,
-                kHasWCoord_Flag = 0x08,
-                kNeedsTransform_Flag = 0x10
-            };
-
-            GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-            sk_sp<GrTextStrike> fStrike;
-            SkMatrix fCurrentViewMatrix;
-            SkRect fVertexBounds;
-            uint64_t fAtlasGeneration;
-            size_t fVertexStartIndex;
-            size_t fVertexEndIndex;
-            uint32_t fGlyphStartIndex;
-            uint32_t fGlyphEndIndex;
-            SkScalar fX;
-            SkScalar fY;
-            GrColor fColor;
-            GrMaskFormat fMaskFormat;
-            uint32_t fFlags;
-        };  // SubRunInfo
 
         // sets the last subrun of runIndex to use w values
         void setSubRunHasW(bool hasWCoord) {
-            Run::SubRunInfo& subRun = this->fSubRunInfo.back();
+            SubRun& subRun = this->fSubRunInfo.back();
             subRun.setHasWCoord(hasWCoord);
         }
 
@@ -467,24 +470,24 @@ private:
 
         // sets the last subrun of runIndex to use distance field text
         void setSubRunHasDistanceFields(bool hasLCD, bool isAntiAlias, bool hasWCoord) {
-            Run::SubRunInfo& subRun = fSubRunInfo.back();
+            SubRun& subRun = fSubRunInfo.back();
             subRun.setUseLCDText(hasLCD);
             subRun.setAntiAliased(isAntiAlias);
             subRun.setDrawAsDistanceFields();
             subRun.setHasWCoord(hasWCoord);
         }
 
-        SubRunInfo& pushBackSubRun() {
+        SubRun& pushBackSubRun() {
             // Forward glyph / vertex information to seed the new sub run
-            SubRunInfo& newSubRun = fSubRunInfo.push_back();
-            const SubRunInfo& prevSubRun = fSubRunInfo.fromBack(1);
+            SubRun& newSubRun = fSubRunInfo.push_back();
+            const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
 
             newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
         sk_sp<SkTypeface> fTypeface;
-        SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
+        SkSTArray<kMinSubRuns, SubRun> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
 
         // Effects from the paint that are used to build a SkScalerContext.
@@ -524,7 +527,7 @@ private:
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
-            const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
+            const SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
@@ -617,7 +620,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkExclusiveStrikePtr* fLazyCache;
     Run* fRun;
-    Run::SubRunInfo* fSubRun;
+    SubRun* fSubRun;
     GrColor fColor;
     SkScalar fTransX;
     SkScalar fTransY;
