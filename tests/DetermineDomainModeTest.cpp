@@ -118,10 +118,11 @@ private:
 
 };
 
-static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
+static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
                                           bool isPowerOfTwo,
                                           bool isExact,
                                           RectInfo* rect) {
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     int size = isPowerOfTwo ? 128 : 100;
     SkBackingFit fit = isExact ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
@@ -129,6 +130,9 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
     desc.fWidth = size;
     desc.fHeight = size;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+    GrBackendFormat format =
+            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     static const char* name = "proxy";
 
@@ -140,7 +144,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return proxyProvider->createProxy(desc, kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
+    return proxyProvider->createProxy(format, desc, kTopLeft_GrSurfaceOrigin, fit,
+                                      SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,
@@ -313,7 +318,7 @@ static const SkRect* no_inset(const RectInfo& enclosing,
                          insetAmount, halfFilterWidth, 0, name);
 }
 
-static void proxy_test(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider) {
+static void proxy_test(skiatest::Reporter* reporter, GrContext* context) {
     GrTextureProducer_TestAccess::DomainMode actualMode, expectedMode;
     SkRect actualDomainRect;
 
@@ -332,7 +337,7 @@ static void proxy_test(skiatest::Reporter* reporter, GrProxyProvider* proxyProvi
         for (auto isExact : { true, false }) {
             RectInfo outermost;
 
-            sk_sp<GrTextureProxy> proxy = create_proxy(proxyProvider, isPowerOfTwoSized,
+            sk_sp<GrTextureProxy> proxy = create_proxy(context, isPowerOfTwoSized,
                                                        isExact, &outermost);
             SkASSERT(outermost.isHardOrBadAllAround());
 
@@ -386,5 +391,5 @@ static void proxy_test(skiatest::Reporter* reporter, GrProxyProvider* proxyProvi
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    proxy_test(reporter, context->contextPriv().proxyProvider());
+    proxy_test(reporter, context);
 }

@@ -112,8 +112,13 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, SkToBool(tex) == ict,
                             "config:%d, tex:%d, isConfigTexturable:%d", config, SkToBool(tex), ict);
 
+            GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
+            GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
+            const GrBackendFormat format =
+                    caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+
             sk_sp<GrTextureProxy> proxy =
-                    proxyProvider->createMipMapProxy(desc, origin, SkBudgeted::kNo);
+                    proxyProvider->createMipMapProxy(format, desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
                             (caps->isConfigTexturable(desc.fConfig) &&
                              caps->mipMapSupport()));
@@ -146,16 +151,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
     std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
 
     GrContext* context = context_info.grContext();
+    const GrCaps* caps = context->contextPriv().caps();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
-        if (!context->contextPriv().caps()->isConfigTexturable(desc.fConfig)) {
+        if (!caps->isConfigTexturable(desc.fConfig)) {
             continue;
         }
         desc.fFlags = kPerformInitialClear_GrSurfaceFlag;
         for (bool rt : {false, true}) {
-            if (rt && !context->contextPriv().caps()->isConfigRenderable(desc.fConfig)) {
+            if (rt && !caps->isConfigRenderable(desc.fConfig)) {
                 continue;
             }
             desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
@@ -193,10 +199,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     }
                     context->contextPriv().purgeAllUnlockedResources_ForTesting();
 
+                    GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
+                    GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(desc.fConfig,
+                                                                                &srgbEncoded);
+                    const GrBackendFormat format =
+                            caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
+
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
-                                desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes);
+                                format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes);
                         if (!surfCtx) {
                             continue;
                         }
