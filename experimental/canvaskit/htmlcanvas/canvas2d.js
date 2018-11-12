@@ -6,6 +6,8 @@
 
   var isNode = typeof btoa === undefined;
 
+  CanvasKit._testing = {};
+
   function HTMLCanvas(skSurface) {
     this._surface = skSurface;
     this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
@@ -53,15 +55,16 @@
     Object.defineProperty(this, 'font', {
       enumerable: true,
       set: function(newStyle) {
-        //TODO
-        this._paint.setTextSize(30);
+        var size = parseFontSize(newStyle);
+        // TODO styles
+        this._paint.setTextSize(size);
       }
     });
 
     Object.defineProperty(this, 'strokeStyle', {
       enumerable: true,
       set: function(newStyle) {
-        // TODO
+        this._paint.setColor(parseColor(newStyle));
       }
     });
 
@@ -166,5 +169,96 @@
     }
     return null;
   }
+
+
+  var units = 'px|pt|pc|in|cm|mm|%|em|ex|ch|rem|q';
+  var fontSizeRegex = new RegExp('([\\d\\.]+)(' + units + ')');
+  var defaultHeight = 12;
+  // Based off of node-canvas's parseFont
+  // returns font size in *points* (original impl was in px);
+  function parseFontSize(fontStr) {
+    // This is naive and doesn't account for line-height yet
+    // (but neither does node-canvas's?)
+    var fontSize = fontSizeRegex.exec(fontStr);
+    if (!fontSize) {
+      console.err('Could not parse font size', fontStr);
+      return 16;
+    }
+    var size = fontSize[1];
+    var unit = fontSize[2];
+    switch (unit) {
+      // TODO are these correctly in points?
+      case 'pt':
+        return size;
+      case 'px':
+        return size * 3/4;
+      case 'pc':
+        return size * 12;
+      case 'in':
+        return size * 72;
+      case 'cm':
+        return size * 72.0 / 2.54;
+      case 'mm':
+        return size * (72.0 / 25.4);
+      case '%':
+        return size * (defaultHeight / 100);
+      case 'em':
+      case 'rem':
+        return size * defaultHeight;
+      case 'q':
+        return size * (96 / 25.4 / 3);
+    }
+  }
+
+  function valueOrPercent(aStr) {
+    var a = parseFloat(aStr) || 1;
+    if (aStr && aStr.indexOf('%') !== -1) {
+      return a / 100;
+    }
+    return a;
+  }
+
+  function parseColor(colorStr) {
+    // See https://drafts.csswg.org/css-color/#typedef-hex-color
+    if (colorStr.startsWith('#')) {
+      var r, g, b, a = 255;
+      switch (colorStr.length) {
+        case 9: // 8 hex chars #RRGGBBAA
+          a = parseInt(colorStr.slice(7, 9), 16);
+        case 7: // 6 hex chars #RRGGBB
+          r = parseInt(colorStr.slice(1, 3), 16);
+          g = parseInt(colorStr.slice(3, 5), 16);
+          b = parseInt(colorStr.slice(5, 7), 16);
+          break;
+        case 5: // 4 hex chars #RGBA
+          // multiplying by 17 is the same effect as
+          // appending another character of the same value
+          // e.g. e => ee == 14 => 238
+          a = parseInt(colorStr.slice(4, 5), 16) * 17;
+        case 4: // 6 hex chars #RGB
+          r = parseInt(colorStr.slice(1, 2), 16) * 17;
+          g = parseInt(colorStr.slice(2, 3), 16) * 17;
+          b = parseInt(colorStr.slice(3, 4), 16) * 17;
+          break;
+      }
+      return CanvasKit.Color(r, g, b, a/255);
+
+    } else if (colorStr.startsWith('rgba')) {
+      // Trim off rgba( and the closing )
+      colorStr = colorStr.slice(5, -1);
+      var nums = colorStr.split(',');
+      return CanvasKit.Color(+nums[0], +nums[1], +nums[2],
+                             valueOrPercent(nums[3]));
+    } else if (colorStr.startsWith('rgb')) {
+      // Trim off rgba( and the closing )
+      colorStr = colorStr.slice(4, -1);
+      var nums = colorStr.split(',');
+      // rgb can take 3 or 4 arguments
+      return CanvasKit.Color(+nums[0], +nums[1], +nums[2],
+                             valueOrPercent(nums[3]));
+    } //TODO grey(), hsl[a], hwb, named-color
+  }
+
+  CanvasKit._testing['parseColor'] = parseColor;
 
 }(Module)); // When this file is loaded in, the high level object is "Module";

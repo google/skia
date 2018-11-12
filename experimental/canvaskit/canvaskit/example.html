@@ -16,7 +16,7 @@
 
 </style>
 
-<h2> CanvasKit draws Paths to the browser</h2>
+<!-- <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
 <canvas id=vertex2 width=300 height=300></canvas>
 <canvas id=gradient1 width=300 height=300></canvas>
@@ -30,12 +30,12 @@
 <canvas id=sk_party width=500 height=500></canvas>
 <canvas id=sk_onboarding width=500 height=500></canvas>
 
-<!-- Doesn't work yet. -->
+<!- Doesn't work yet. ->
 <button id=lego_btn>Take a picture of the legos</button>
 
 <h2> Nima </h2>
 
-<canvas id=nima_example width=300 height=300></canvas>
+<c anvas id=nima_example width=300 height=300></canvas>-->
 
 <h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
 <img id=api1 width=300 height=300/>
@@ -67,9 +67,9 @@
     setTimeout(() => {
       CK.initFonts();
       CanvasKit = CK;
-      DrawingExample(CanvasKit);
-      PathExample(CanvasKit);
-      InkExample(CanvasKit);
+      //DrawingExample(CanvasKit);
+      //PathExample(CanvasKit);
+      //InkExample(CanvasKit);
       // Set bounds to fix the 4:3 resolution of the legos
       addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
                               {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
@@ -82,74 +82,74 @@
 
       CanvasAPI1(CanvasKit);
 
-      VertexAPI1(CanvasKit);
-      VertexAPI2(CanvasKit, bonesImage);
+      // VertexAPI1(CanvasKit);
+      // VertexAPI2(CanvasKit, bonesImage);
 
-      GradiantAPI1(CanvasKit);
+      // GradiantAPI1(CanvasKit);
     }, 0);
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
-    resp.text().then((str) => {
-      legoJSON = str;
-      addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                            {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     legoJSON = str;
+  //     addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+  //                           {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
-    resp.text().then((str) => {
-      drinksJSON = str;
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     drinksJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
-    resp.text().then((str) => {
-      confettiJSON = str;
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     confettiJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
-    resp.text().then((str) => {
-      onboardingJSON = str;
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+  //   resp.text().then((str) => {
+  //     onboardingJSON = str;
+  //     SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          nimaFile = reader.result;
-          NimaExample(CanvasKit, nimaFile, nimaTexture);
-      });
-      reader.readAsArrayBuffer(blob);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima').then((resp) => {
+  //   resp.blob().then((blob) => {
+  //     let reader = new FileReader();
+  //     reader.addEventListener("loadend", function() {
+  //         nimaFile = reader.result;
+  //         NimaExample(CanvasKit, nimaFile, nimaTexture);
+  //     });
+  //     reader.readAsArrayBuffer(blob);
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima.png').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          nimaTexture = reader.result;
-          NimaExample(CanvasKit, nimaFile, nimaTexture);
-      });
-      reader.readAsArrayBuffer(blob);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima.png').then((resp) => {
+  //   resp.blob().then((blob) => {
+  //     let reader = new FileReader();
+  //     reader.addEventListener("loadend", function() {
+  //         nimaTexture = reader.result;
+  //         NimaExample(CanvasKit, nimaFile, nimaTexture);
+  //     });
+  //     reader.readAsArrayBuffer(blob);
+  //   });
+  // });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          bonesImage = reader.result;
-          VertexAPI2(CanvasKit, bonesImage);
-      });
-      reader.readAsArrayBuffer(blob);
-    });
-  });
+  // fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
+  //   resp.blob().then((blob) => {
+  //     let reader = new FileReader();
+  //     reader.addEventListener("loadend", function() {
+  //         bonesImage = reader.result;
+  //         VertexAPI2(CanvasKit, bonesImage);
+  //     });
+  //     reader.readAsArrayBuffer(blob);
+  //   });
+  // });
 
   function addScreenshotListener(surface) {
     if (!surface) {
@@ -424,6 +424,7 @@
 
   function CanvasAPI1(CanvasKit) {
     if (CanvasKit.gpu) {
+      console.warn("Skipping canvas example because its GPU build");
       return;
     }
     let canvas = CanvasKit.MakeCanvas(300, 300);
