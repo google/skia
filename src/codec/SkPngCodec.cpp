@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAndroidFrameworkUtils.h"
 #include "SkBitmap.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
@@ -478,6 +479,14 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
     }
 }
 
+static SkCodec::Result log_and_return_error(bool success) {
+    if (success) return SkCodec::kIncompleteInput;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    SkAndroidFrameworkUtils::SafetyNetLog("117838472");
+#endif
+    return SkCodec::kErrorInInput;
+}
+
 class SkPngNormalDecoder : public SkPngCodec {
 public:
     SkPngNormalDecoder(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
@@ -533,7 +542,7 @@ private:
             *rowsDecoded = fRowsWrittenToOutput;
         }
 
-        return success ? kIncompleteInput : kErrorInInput;
+        return log_and_return_error(success);
     }
 
     void allRowsCallback(png_bytep row, int rowNum) {
@@ -568,7 +577,7 @@ private:
             *rowsDecoded = fRowsWrittenToOutput;
         }
 
-        return success ? kIncompleteInput : kErrorInInput;
+        return log_and_return_error(success);
     }
 
     void rowCallback(png_bytep row, int rowNum) {
@@ -686,7 +695,7 @@ private:
             *rowsDecoded = fLinesDecoded;
         }
 
-        return success ? kIncompleteInput : kErrorInInput;
+        return log_and_return_error(success);
     }
 
     void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) override {
@@ -708,7 +717,7 @@ private:
             if (rowsDecoded) {
                 *rowsDecoded = 0;
             }
-            return success ? kIncompleteInput : kErrorInInput;
+            return log_and_return_error(success);
         }
 
         const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
@@ -738,7 +747,7 @@ private:
         if (rowsDecoded) {
             *rowsDecoded = rowsWrittenToOutput;
         }
-        return success ? kIncompleteInput : kErrorInInput;
+        return log_and_return_error(success);
     }
 
     void setUpInterlaceBuffer(int height) {

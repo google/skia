@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 class SkCanvas;
 
@@ -31,8 +31,10 @@ public:
      */
     static bool clipWithStencil(SkCanvas* canvas);
 #endif //SK_SUPPORT_GPU
+
+    static void SafetyNetLog(const char*);
 };
 
-#endif // SK_BUILD_FOR_ANDROID
+#endif // SK_BUILD_FOR_ANDROID_ANDROID
 
 #endif // SkAndroidFrameworkUtils_DEFINED
