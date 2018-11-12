@@ -594,6 +594,11 @@ public:
     //   is residing in dst's memory.
     static constexpr int kNoFrame = -1;
 
+    // This transitional definition was added in August 2018, and will eventually be removed.
+#ifdef SK_LEGACY_SKCODEC_NONE_ENUM
+    static constexpr int kNone = kNoFrame;
+#endif
+
     /**
      *  Information about individual frames in a multi-framed image.
      */
