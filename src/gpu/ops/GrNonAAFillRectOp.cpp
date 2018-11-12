@@ -188,10 +188,7 @@ private:
             return;
         }
 
-        static constexpr size_t kVertexStride =
-                sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr);
-        SkASSERT(kVertexStride == gp->debugOnly_vertexStride());
-
+        size_t kVertexStride = gp->vertexStride();
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
@@ -322,11 +319,7 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        size_t vertexStride = fHasLocalRect
-                                      ? sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr)
-                                      : sizeof(GrDefaultGeoProcFactory::PositionColorAttr);
-        SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-
+        size_t vertexStride = gp->vertexStride();
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();

@@ -395,7 +395,7 @@ void GrCCCoverageProcessor::initGS() {
         GR_STATIC_ASSERT(offsetof(TriPointInstance, fY) ==
                          GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
     }
-    this->setVertexAttributeCnt(1);
+    this->setVertexAttributes(&fVertexAttribute, 1);
     this->setWillUseGeoShader();
 }
 

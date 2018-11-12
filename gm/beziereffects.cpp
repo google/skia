@@ -100,7 +100,7 @@ private:
     };
 
     void onPrepareDraws(Target* target) override {
-        SkASSERT(this->gp()->debugOnly_vertexStride() == sizeof(Vertex));
+        SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
@@ -322,7 +322,7 @@ private:
     };
 
     void onPrepareDraws(Target* target) override {
-        SkASSERT(this->gp()->debugOnly_vertexStride() == sizeof(Vertex));
+        SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {

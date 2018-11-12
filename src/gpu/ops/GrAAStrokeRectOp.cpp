@@ -274,11 +274,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    size_t vertexStride = fHelper.compatibleWithAlphaAsCoverage()
-                                  ? sizeof(GrDefaultGeoProcFactory::PositionColorAttr)
-                                  : sizeof(GrDefaultGeoProcFactory::PositionColorCoverageAttr);
-
-    SkASSERT(vertexStride == gp->debugOnly_vertexStride());
+    size_t vertexStride = gp->vertexStride();
     int innerVertexNum = 4;
     int outerVertexNum = this->miterStroke() ? 4 : 8;
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
