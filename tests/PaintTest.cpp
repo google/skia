@@ -7,6 +7,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkBlurMask.h"
+#include "SkFont.h"
 #include "SkLayerDrawLooper.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -359,4 +360,39 @@ DEF_TEST(Paint_nothingToDraw, r) {
     cm.postTranslate(0, 0, 0, 1);    // wacks alpha
     paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
+}
+
+DEF_TEST(Paint_getwidths, r) {
+    SkPaint paint;
+    const char text[] = "Hamburgefons!@#!#23425,./;'[]";
+    int count = paint.countText(text, strlen(text));
+    SkAutoTArray<uint16_t> glyphStorage(count * 2);
+    uint16_t* glyphs = glyphStorage.get();
+
+    (void)paint.textToGlyphs(text, strlen(text), glyphs);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    SkAutoTArray<SkScalar> widthStorage(count * 2);
+    SkScalar* widths = widthStorage.get();
+    SkAutoTArray<SkRect> rectStorage(count * 2);
+    SkRect* bounds = rectStorage.get();
+
+    for (bool subpix : { false, true }) {
+        paint.setSubpixelText(subpix);
+        for (auto hint : { kNo_SkFontHinting, kSlight_SkFontHinting, kNormal_SkFontHinting, kFull_SkFontHinting}) {
+            paint.setHinting(hint);
+            for (auto size : { 1.0f, 12.0f, 100.0f }) {
+                paint.setTextSize(size);
+                paint.getTextWidths(glyphs, count * 2, widths, bounds);
+
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+                font.getWidths(glyphs, count, widths + count, bounds + count);
+
+                for (int i = 0; i < count; ++i) {
+                    REPORTER_ASSERT(r, widths[i] == widths[i + count]);
+                    REPORTER_ASSERT(r, bounds[i] == bounds[i + count]);
+                }
+            }
+        }
+    }
 }
