@@ -82,7 +82,7 @@ protected:
 
         // draw text at different point sizes
         constexpr SkScalar textSizes[] = { 10, 30, 50, };
-        SkPaint::FontMetrics metrics;
+        SkFontMetrics metrics;
         SkScalar y = 0;
         for (const bool& fakeBold : { false, true }) {
             paint.setFakeBoldText(fakeBold);

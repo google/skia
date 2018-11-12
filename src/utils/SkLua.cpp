@@ -911,7 +911,7 @@ struct FontMetrics {
 };
 
 static int lpaint_getFontMetrics(lua_State* L) {
-    SkPaint::FontMetrics fm;
+    SkFontMetrics fm;
     SkScalar height = get_obj<SkPaint>(L, 1)->getFontMetrics(&fm);
 
     lua_newtable(L);

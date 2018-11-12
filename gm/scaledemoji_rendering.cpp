@@ -46,7 +46,7 @@ protected:
             SkPaint paint;
             paint.setTypeface(typeface);
             const char* text = sk_tool_utils::emoji_sample_text();
-            SkPaint::FontMetrics metrics;
+            SkFontMetrics metrics;
 
             for (SkScalar textSize : { 70, 150 }) {
                 paint.setTextSize(textSize);

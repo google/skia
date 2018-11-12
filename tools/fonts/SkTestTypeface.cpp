@@ -107,7 +107,7 @@ void SkTestTypeface::getAdvance(SkGlyph* glyph) {
     glyph->fAdvanceY = 0;
 }
 
-void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
+void SkTestTypeface::getFontMetrics(SkFontMetrics* metrics) {
     *metrics = fTestFont->fMetrics;
 }
 
@@ -221,7 +221,7 @@ protected:
         return true;
     }
 
-    void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
+    void generateFontMetrics(SkFontMetrics* metrics) override {
         this->getTestTypeface()->getFontMetrics(metrics);
         SkPaintPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
     }

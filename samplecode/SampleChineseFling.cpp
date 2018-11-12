@@ -121,7 +121,7 @@ private:
 
     bool                        fInitialized = false;
     sk_sp<SkTypeface>           fTypeface;
-    SkPaint::FontMetrics        fMetrics;
+    SkFontMetrics               fMetrics;
     SkTArray<sk_sp<SkTextBlob>> fBlobs;
     SkRandom                    fRand;
     int                         fIndex;
@@ -253,7 +253,7 @@ private:
 
     bool                        fInitialized = false;
     sk_sp<SkTypeface>           fTypeface;
-    SkPaint::FontMetrics        fMetrics;
+    SkFontMetrics               fMetrics;
     SkTArray<sk_sp<SkTextBlob>> fBlobs;
     SkRandom                    fRand;
     SkScalar                    fScale;

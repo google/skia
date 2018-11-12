@@ -49,7 +49,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         return point;
     }
     SkRect bounds;
-    SkPaint::FontMetrics metrics;
+    SkFontMetrics metrics;
     paint.getFontMetrics(&metrics);
     point.fY -= metrics.fAscent;
     (void)paint.measureText(utf8text, textBytes, &bounds);

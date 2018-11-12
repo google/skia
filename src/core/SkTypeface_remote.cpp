@@ -100,7 +100,7 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
     return foundPath;
 }
 
-void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
+void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
     TRACE_EVENT1(
             "skia", "generateFontMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
