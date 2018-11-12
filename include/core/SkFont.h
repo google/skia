@@ -12,11 +12,15 @@
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
+// TODO: remove this, and opt in/out per client
+#define SK_SUPPORT_LEGACY_FONT_FLAGS
+
 class SkPaint;
 struct SkFontMetrics;
 
 class SK_API SkFont {
 public:
+#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
     enum Flags {
         /**
          *  Use the system's automatic hinting mechanism to hint the typeface.
@@ -37,6 +41,13 @@ public:
         kDEPRECATED_Antialias_Flag  = 1 << 5,
         kDEPRECATED_LCDRender_Flag  = 1 << 6,
     };
+#endif
+
+    enum class Edging {
+        kAlias,
+        kAntiAlias,
+        kSubpixelAntiAlias,
+    };
 
     enum Hinting : uint8_t {
         kNo_Hinting     = 0, //!< glyph outlines unchanged
@@ -46,17 +57,18 @@ public:
     };
 
     SkFont();
+    SkFont(sk_sp<SkTypeface>, SkScalar size);
+    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX);
+#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
     SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags);
+#endif
 
-    bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_Flag); }
-    bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_Flag); }
-    bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_Flag); }
-    bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_Flag); }
-    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
-
-    bool DEPRECATED_isAntiAlias() const { return SkToBool(fFlags & kDEPRECATED_Antialias_Flag); }
-    bool DEPRECATED_isLCDRender() const { return SkToBool(fFlags & kDEPRECATED_LCDRender_Flag); }
+    bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_PrivFlag); }
+    bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
+    bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
+    bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
+    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_PrivFlag); }
 
     void setForceAutoHinting(bool);
     void setEmbeddedBitmaps(bool);
@@ -64,8 +76,8 @@ public:
     void setLinearMetrics(bool);
     void setEmbolden(bool);
 
-    void DEPRECATED_setAntiAlias(bool);
-    void DEPRECATED_setLCDRender(bool);
+    Edging getEdging() const { return (Edging)fEdging; }
+    void setEdging(Edging);
 
     void setHinting(SkFontHinting);
 
@@ -84,16 +96,25 @@ public:
      */
     SkFont makeWithSize(SkScalar size) const;
 
+#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
+    bool DEPRECATED_isAntiAlias() const { return SkToBool(fFlags & kDEPRECATED_Antialias_Flag); }
+    bool DEPRECATED_isLCDRender() const { return SkToBool(fFlags & kDEPRECATED_LCDRender_Flag); }
+
+    void DEPRECATED_setAntiAlias(bool);
+    void DEPRECATED_setLCDRender(bool);
+
     /**
      *  Return a font with the same attributes of this font, but with the flags.
      */
     SkFont makeWithFlags(uint32_t newFlags) const;
+    uint32_t    getFlags() const { return fFlags; }
+    void setFlags(uint32_t);
+#endif
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
     SkScalar    getSize() const { return fSize; }
     SkScalar    getScaleX() const { return fScaleX; }
     SkScalar    getSkewX() const { return fSkewX; }
-    uint32_t    getFlags() const { return fFlags; }
 
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
@@ -101,7 +122,6 @@ public:
     void setSize(SkScalar);
     void setScaleX(SkScalar);
     void setSkewX(SkScalar);
-    void setFlags(uint32_t);
 
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
@@ -149,6 +169,14 @@ public:
     static SkFont LEGACY_ExtractFromPaint(const SkPaint&);
 
 private:
+    enum PrivFlags {
+        kForceAutoHinting_PrivFlag      = 1 << 0,
+        kEmbeddedBitmaps_PrivFlag       = 1 << 1,
+        kSubpixel_PrivFlag              = 1 << 2,
+        kLinearMetrics_PrivFlag         = 1 << 3,
+        kEmbolden_PrivFlag              = 1 << 4,
+    };
+
     static constexpr unsigned kAllFlags = 0x07F;
 
     sk_sp<SkTypeface> fTypeface;
@@ -156,6 +184,7 @@ private:
     SkScalar    fScaleX;
     SkScalar    fSkewX;
     uint8_t     fFlags;
+    uint8_t     fEdging;
     uint8_t     fHinting;
 
     SkScalar setupForAsPaths(SkPaint*);
