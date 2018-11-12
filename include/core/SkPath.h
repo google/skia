@@ -160,13 +160,6 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /** To be deprecated soon.
-        Only valid for Android framework.
-    */
-    bool unique() const { return fPathRef->unique(); }
-#endif
-
     /** \enum SkPath::FillType
         FillType selects the rule used to fill SkPath. SkPath set to kWinding_FillType
         fills if the sum of contour edges is not zero, where clockwise edges add one, and
