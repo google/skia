@@ -21,21 +21,22 @@
 // Constructor for wrapped render targets.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    const GrSurfaceDesc& desc,
+                                   GrGLenum format,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, stencil) {
     this->setFlags(gpu->glCaps(), idDesc);
-    this->init(desc, idDesc);
+    this->init(desc, format, idDesc);
     this->registerWithCacheWrapped();
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc, GrGLenum format,
                                    const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc) {
     this->setFlags(gpu->glCaps(), idDesc);
-    this->init(desc, idDesc);
+    this->init(desc, format, idDesc);
 }
 
 inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idDesc) {
@@ -51,11 +52,13 @@ inline void GrGLRenderTarget::setFlags(const GrGLCaps& glCaps, const IDDesc& idD
     }
 }
 
-void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
+void GrGLRenderTarget::init(const GrSurfaceDesc& desc, GrGLenum format, const IDDesc& idDesc) {
     fRTFBOID                = idDesc.fRTFBOID;
     fTexFBOID               = idDesc.fTexFBOID;
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
     fRTFBOOwnership         = idDesc.fRTFBOOwnership;
+
+    fRTFormat               = format;
 
     fViewport.fLeft   = 0;
     fViewport.fBottom = 0;
@@ -67,6 +70,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       const GrSurfaceDesc& desc,
+                                                      GrGLenum format,
                                                       const IDDesc& idDesc,
                                                       int stencilBits) {
     GrGLStencilAttachment* sb = nullptr;
@@ -81,7 +85,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
                                        desc.fSampleCnt, format);
     }
-    return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, idDesc, sb));
+    return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, format, idDesc, sb));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
@@ -95,6 +99,12 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
 
     return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
                                  numStencilBits, fbi);
+}
+
+GrBackendFormat GrGLRenderTarget::backendFormat() const {
+    // We should never have a GrGLRenderTarget (even a textureable one with a target that is not
+    // texture 2D.
+    return GrBackendFormat::MakeGL(fRTFormat, GR_GL_TEXTURE_2D);
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {

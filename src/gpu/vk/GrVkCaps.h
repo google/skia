@@ -165,6 +165,9 @@ public:
     bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
                                         GrPixelConfig*) const override;
 
+    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
+                                                    GrSRGBEncoded srgbEncoded) const override;
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
@@ -185,9 +188,7 @@ private:
                     const GrVkExtensions&);
     void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
-#ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
-#endif
 
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);

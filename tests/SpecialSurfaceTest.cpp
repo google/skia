@@ -79,10 +79,16 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     for (auto config : { kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
-        if (!ctxInfo.grContext()->contextPriv().caps()->isConfigRenderable(config)) {
+        const GrCaps* caps = ctxInfo.grContext()->contextPriv().caps();
+        if (!caps->isConfigRenderable(config)) {
             continue;
         }
+        GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
+        GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(config, &srgbEncoded);
+        const GrBackendFormat format =
+                caps->getBackendFormatFromGrColorType(colorType, srgbEncoded);
         sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
+                                                                        format,
                                                                         kSmallerSize, kSmallerSize,
                                                                         config, nullptr));
         test_surface(surf, reporter, 0);

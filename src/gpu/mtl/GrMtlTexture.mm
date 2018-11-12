@@ -90,3 +90,7 @@ GrBackendTexture GrMtlTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
 
+GrBackendFormat GrMtlTexture::backendFormat() const {
+    return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
+}
+

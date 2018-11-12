@@ -43,6 +43,8 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
+    GrBackendFormat backendFormat() const override;
+
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,

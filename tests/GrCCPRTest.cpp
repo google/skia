@@ -60,9 +60,9 @@ public:
             : fCtx(ctx)
             , fCCPR(fCtx->contextPriv().drawingManager()->getCoverageCountingPathRenderer())
             , fRTC(fCtx->contextPriv().makeDeferredRenderTargetContext(
-                                                         SkBackingFit::kExact, kCanvasSize,
-                                                         kCanvasSize, kRGBA_8888_GrPixelConfig,
-                                                         nullptr))
+                ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType),
+                SkBackingFit::kExact, kCanvasSize, kCanvasSize, kRGBA_8888_GrPixelConfig,
+                nullptr))
             , fDoStroke(doStroke) {
         if (!fCCPR) {
             ERRORF(reporter, "ccpr not enabled in GrContext for ccpr tests");
