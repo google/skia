@@ -303,6 +303,47 @@ private:
                 , fFlags(that.fFlags) {
         }
 
+        void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect) {
+
+            this->joinGlyphBounds(dstRect);
+
+            bool hasW = this->hasWCoord();
+            // glyphs drawn in perspective must always have a w coord.
+            SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
+            auto maskFormat = this->maskFormat();
+            size_t vertexStride = GetVertexStride(maskFormat, hasW);
+
+            intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + fVertexEndIndex);
+
+            // We always write the third position component used by SDFs. If it is unused it gets
+            // overwritten. Similarly, we always write the color and the blob will later overwrite it
+            // with texture coords if it is unused.
+            size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+            // V0
+            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
+            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+            vertex += vertexStride;
+
+            // V1
+            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
+            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+            vertex += vertexStride;
+
+            // V2
+            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
+            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+            vertex += vertexStride;
+
+            // V3
+            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
+            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+
+            fVertexEndIndex += vertexStride * kVerticesPerGlyph;
+            blob->fGlyphs[fGlyphEndIndex++] = glyph;
+        }
+
+
+
         // TODO when this object is more internal, drop the privacy
         void resetBulkUseToken() { fBulkUseToken.reset(); }
         GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken() { return &fBulkUseToken; }
@@ -316,14 +357,10 @@ private:
         size_t byteCount() const { return fVertexEndIndex - fVertexStartIndex; }
         size_t vertexStartIndex() const { return fVertexStartIndex; }
         size_t vertexEndIndex() const { return fVertexEndIndex; }
-        void appendVertices(size_t vertexStride) {
-            fVertexEndIndex += vertexStride * kVerticesPerGlyph;
-        }
 
         uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
         uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
         uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
-        void glyphAppended() { fGlyphEndIndex++; }
         void setColor(GrColor color) { fColor = color; }
         GrColor color() const { return fColor; }
         void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
