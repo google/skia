@@ -764,7 +764,6 @@ static void add_type3_font_info(SkPDFCanon* canon,
                     SkDynamicMemoryWStream content;
                     setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
                                                 &content);
-                    content.writeText("m 0 0\nf\n"); // fill an empty path.
                     charProcs->insertObjRef(
                         characterName, sk_make_sp<SkPDFStream>(
                                 std::unique_ptr<SkStreamAsset>(content.detachAsStream())));
