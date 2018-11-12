@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c8f7a28_93326e49",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-12T21:56:30Z",
+      "side": 1,
+      "message": "For ops like this, where the attributes were previously constexprs, each op is going to be larger per instance (beyond just the AttributeSet overhead). Could we instead have a statically initialized Attribute array that still guarantees the contiguous memory required for setVertexAttributes? The dash op and oval op, etc. could then more closely match what was done in tests/GrPipelineDynamicStateTest.cpp.\n\nOr does this conflict with Chrome\u0027s static policy? Or are we leaving open the possibility of adding offsets to attributes? Or is the size concern not so warranted at the scale of 2-3 attributes?",
+      "range": {
+        "startLine": 656,
+        "startChar": 4,
+        "endLine": 658,
+        "endChar": 26
+      },
+      "revId": "a8ef0736199ff0edae200a6f36529f4ec7a603ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
