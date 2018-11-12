@@ -24,39 +24,50 @@ const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler
     return this->onTextureSampler(i);
 }
 
+// TODO: Switch this to an iterator pattern!
 const GrPrimitiveProcessor::Attribute& GrPrimitiveProcessor::vertexAttribute(int i) const {
     SkASSERT(i >= 0 && i < this->numVertexAttributes());
-    const auto& result = this->onVertexAttribute(i);
+    int j = 0;
+    while (!fVertexAttributes[j].isInitialized()) {
+        j++;
+    }
+    while (i --> 0) {
+        do {
+            j++;
+        } while (!fVertexAttributes[j].isInitialized());
+    }
+    const auto& result = fVertexAttributes[j];
     SkASSERT(result.isInitialized());
     return result;
 }
 
 const GrPrimitiveProcessor::Attribute& GrPrimitiveProcessor::instanceAttribute(int i) const {
     SkASSERT(i >= 0 && i < this->numInstanceAttributes());
-    const auto& result = this->onInstanceAttribute(i);
+    int j = 0;
+    while (!fInstanceAttributes[j].isInitialized()) {
+        j++;
+    }
+    while (i-- > 0) {
+        do {
+            j++;
+        } while (!fInstanceAttributes[j].isInitialized());
+    }
+    const auto& result = fInstanceAttributes[j];
     SkASSERT(result.isInitialized());
     return result;
 }
 
 #ifdef SK_DEBUG
 size_t GrPrimitiveProcessor::debugOnly_vertexStride() const {
-    size_t stride = 0;
-    for (int i = 0; i < fVertexAttributeCnt; ++i) {
-        stride += this->vertexAttribute(i).sizeAlign4();
-    }
-    return stride;
+    return fVertexStride;
 }
 
 size_t GrPrimitiveProcessor::debugOnly_instanceStride() const {
-    size_t stride = 0;
-    for (int i = 0; i < fInstanceAttributeCnt; ++i) {
-        stride += this->instanceAttribute(i).sizeAlign4();
-    }
-    return stride;
+    return fInstanceStride;
 }
 
 size_t GrPrimitiveProcessor::debugOnly_vertexAttributeOffset(int i) const {
-    SkASSERT(i >= 0 && i < fVertexAttributeCnt);
+    SkASSERT(i >= 0 && i < fVertexAttributeCount);
     size_t offset = 0;
     for (int j = 0; j < i; ++j) {
         offset += this->vertexAttribute(j).sizeAlign4();
@@ -65,7 +76,7 @@ size_t GrPrimitiveProcessor::debugOnly_vertexAttributeOffset(int i) const {
 }
 
 size_t GrPrimitiveProcessor::debugOnly_instanceAttributeOffset(int i) const {
-    SkASSERT(i >= 0 && i < fInstanceAttributeCnt);
+    SkASSERT(i >= 0 && i < fInstanceAttributeCount);
     size_t offset = 0;
     for (int j = 0; j < i; ++j) {
         offset += this->instanceAttribute(j).sizeAlign4();
