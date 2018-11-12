@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 import("gn/flutter_defines.gni")
+import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 
 if (is_fuchsia) {
@@ -133,6 +134,9 @@ config("skia_public") {
   }
   if (skia_enable_atlas_text) {
     defines += [ "SK_SUPPORT_ATLAS_TEXT=1" ]
+  }
+  if (is_fuchsia) {
+    defines += fuchsia_defines
   }
 }
 
