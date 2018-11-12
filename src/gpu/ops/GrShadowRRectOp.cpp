@@ -236,6 +236,7 @@ public:
 
     const char* name() const override { return "ShadowCircularRRectOp"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
@@ -250,6 +251,7 @@ public:
         string.append(INHERITED::dumpInfo());
         return string;
     }
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 

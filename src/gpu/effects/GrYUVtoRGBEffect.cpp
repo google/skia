@@ -66,6 +66,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
             proxies, scales, filterModes, numPlanes, yuvaIndices, mat));
 }
 
+#ifdef SK_DEBUG
 SkString GrYUVtoRGBEffect::dumpInfo() const {
     SkString str;
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
@@ -77,6 +78,8 @@ SkString GrYUVtoRGBEffect::dumpInfo() const {
 
     return str;
 }
+#endif
+
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"

@@ -1142,6 +1142,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.count(); ++i) {
@@ -1157,6 +1158,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fCircles.front().fColor;
@@ -1500,6 +1502,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.count(); ++i) {
@@ -1517,6 +1520,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fCircles.front().fColor;
@@ -1818,6 +1822,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Stroked: %d\n", fStroked);
@@ -1833,6 +1838,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fEllipses.front().fColor;
@@ -2055,6 +2061,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fEllipses) {
@@ -2070,6 +2077,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fEllipses.front().fColor;
@@ -2389,6 +2397,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fRRects.count(); ++i) {
@@ -2404,6 +2413,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fRRects.front().fColor;
@@ -2754,6 +2764,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Stroked: %d\n", fStroked);
@@ -2769,6 +2780,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkPMColor4f* color = &fRRects.front().fColor;

@@ -70,7 +70,9 @@ public:
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override;
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 

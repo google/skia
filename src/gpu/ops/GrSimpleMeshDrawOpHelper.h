@@ -109,7 +109,9 @@ public:
         }
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const;
+#endif
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
 protected:
@@ -168,7 +170,9 @@ public:
     PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*,
                                               int numPrimitiveProcessorTextures = 0);
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const;
+#endif
     GrAAType aaType() const { return INHERITED::aaType(); }
 
 private:

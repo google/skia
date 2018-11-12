@@ -101,6 +101,7 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
     return result;
 }
 
+#ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
     const GrProcessorSet& processors = fProcessors ? *fProcessors : GrProcessorSet::EmptySet();
     SkString result = processors.dumpProcessors();
@@ -122,6 +123,7 @@ SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
     result.append(GrPipeline::DumpFlags(fPipelineFlags));
     return result;
 }
+#endif
 
 GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
         GrMeshDrawOp::Target* target) const {
@@ -189,8 +191,10 @@ auto GrSimpleMeshDrawOpHelperWithStencil::makePipeline(GrMeshDrawOp::Target* tar
     return this->internalMakePipeline(target, args, numPrimitiveProcessorTextures);
 }
 
+#ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
     SkString result = INHERITED::dumpInfo();
     result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
     return result;
 }
+#endif

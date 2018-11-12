@@ -55,7 +55,9 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 

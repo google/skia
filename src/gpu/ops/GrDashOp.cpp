@@ -283,6 +283,7 @@ public:
         fProcessorSet.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fLines) {
@@ -299,6 +300,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     FixedFunctionFlags fixedFunctionFlags() const override {
         FixedFunctionFlags flags = FixedFunctionFlags::kNone;

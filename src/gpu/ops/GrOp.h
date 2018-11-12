@@ -179,12 +179,16 @@ public:
     }
 
     /** Used for spewing information about ops when debugging. */
+#ifdef SK_DEBUG
     virtual SkString dumpInfo() const {
         SkString string;
         string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                        fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
+#else
+    SkString dumpInfo() const { return SkString("<Op information unavailable>"); }
+#endif
 
     /**
      * A helper for iterating over an op chain in a range for loop that also downcasts to a GrOp

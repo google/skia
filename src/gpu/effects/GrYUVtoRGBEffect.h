@@ -21,7 +21,9 @@ public:
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,
                                                      GrSamplerState::Filter filterMode);
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
+#endif
 
     const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }
     const SkYUVAIndex& yuvaIndex(int i) const { return fYUVAIndices[i]; }

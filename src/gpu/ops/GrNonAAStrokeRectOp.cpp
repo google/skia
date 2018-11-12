@@ -67,6 +67,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf(
@@ -78,6 +79,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&& paint,

@@ -23,11 +23,13 @@ public:
 
     const char* name() const override { return "DebugMarker"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
         return string;
     }
+#endif
 
 private:
     friend class GrOpMemoryPool; // for ctor

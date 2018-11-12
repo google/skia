@@ -38,6 +38,7 @@ public:
 
     const char* name() const override { return "ComposeTwo"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
 
@@ -49,6 +50,7 @@ public:
         }
         return str;
     }
+#endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -276,6 +278,7 @@ public:
 
     const char* name() const override { return "ComposeOne"; }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
 
@@ -288,6 +291,7 @@ public:
         }
         return str;
     }
+#endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 

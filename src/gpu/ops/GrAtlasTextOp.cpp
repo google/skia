@@ -117,6 +117,7 @@ void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func, VisitorType) const 
     fProcessors.visitProxies(func);
 }
 
+#ifdef SK_DEBUG
 SkString GrAtlasTextOp::dumpInfo() const {
     SkString str;
 
@@ -133,6 +134,7 @@ SkString GrAtlasTextOp::dumpInfo() const {
     str += INHERITED::dumpInfo();
     return str;
 }
+#endif
 
 GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
     return FixedFunctionFlags::kNone;
