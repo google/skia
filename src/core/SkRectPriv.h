@@ -36,7 +36,7 @@ public:
         return { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
     }
 
-    static SkRect MakeLargestInverted() {
+    static constexpr SkRect MakeLargestInverted() {
         return { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
     }
 
