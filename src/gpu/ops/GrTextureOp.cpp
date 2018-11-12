@@ -263,6 +263,7 @@ public:
         }
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# draws: %d\n", fQuads.count());
@@ -285,6 +286,7 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
+#endif
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkASSERT(!fFinalized);

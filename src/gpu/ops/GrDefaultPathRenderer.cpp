@@ -361,6 +361,7 @@ public:
         fHelper.visitProxies(func);
     }
 
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color: 0x%08x Count: %d\n", fColor.toBytes_RGBA(), fPaths.count());
@@ -371,6 +372,7 @@ public:
         string += INHERITED::dumpInfo();
         return string;
     }
+#endif
 
     DefaultPathOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkPath& path,
                   SkScalar tolerance, uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
