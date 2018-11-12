@@ -128,7 +128,8 @@ private:
         SkTextBlobBuilder builder;
 
         SkFont font;
-        font.setFlags(font.getFlags() | SkFont::kSubpixel_Flag|SkFont::kDEPRECATED_Antialias_Flag);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kAntiAlias);
         font.setTypeface(fTypeface);
 
         for (unsigned l = 0; l < SK_ARRAY_COUNT(blobConfigs[blobIndex]); ++l) {

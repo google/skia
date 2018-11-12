@@ -31,7 +31,8 @@ protected:
 
     void onOnceBeforeDraw() override {
         SkFont font;
-        font.setFlags(font.getFlags() | SkFont::kSubpixel_Flag | SkFont::kDEPRECATED_Antialias_Flag);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSize(30);
         font.setTypeface(sk_tool_utils::create_portable_typeface());
 
