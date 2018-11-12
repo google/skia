@@ -25,7 +25,7 @@ SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
 struct SkStrikeCache::Node {
     Node(const SkDescriptor& desc,
         std::unique_ptr<SkScalerContext> scaler,
-        const SkPaint::FontMetrics& metrics,
+        const SkFontMetrics& metrics,
         std::unique_ptr<SkStrikePinner> pinner)
         : fCache{desc, std::move(scaler), metrics}
         , fPinner{std::move(pinner)} {}
@@ -350,7 +350,7 @@ bool SkStrikeCache::desperationSearchForPath(
 SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
         const SkDescriptor& desc,
         std::unique_ptr<SkScalerContext> scaler,
-        SkPaint::FontMetrics* maybeMetrics,
+        SkFontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner)
 {
     return GlobalStrikeCache()->createStrikeExclusive(
@@ -360,10 +360,10 @@ SkExclusiveStrikePtr SkStrikeCache::CreateStrikeExclusive(
 SkExclusiveStrikePtr SkStrikeCache::createStrikeExclusive(
         const SkDescriptor& desc,
         std::unique_ptr<SkScalerContext> scaler,
-        SkPaint::FontMetrics* maybeMetrics,
+        SkFontMetrics* maybeMetrics,
         std::unique_ptr<SkStrikePinner> pinner)
 {
-    SkPaint::FontMetrics fontMetrics;
+    SkFontMetrics fontMetrics;
     if (maybeMetrics != nullptr) {
         fontMetrics = *maybeMetrics;
     } else {

@@ -459,9 +459,9 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
     // Write FontMetrics.
     // TODO(khushalsagar): Do we need to re-send each time?
-    SkPaint::FontMetrics fontMetrics;
+    SkFontMetrics fontMetrics;
     fContext->getFontMetrics(&fontMetrics);
-    serializer->write<SkPaint::FontMetrics>(fontMetrics);
+    serializer->write<SkFontMetrics>(fontMetrics);
 
     // Write glyphs images.
     serializer->emplace<uint64_t>(fPendingGlyphImages.size());
@@ -622,8 +622,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         SkAutoDescriptor sourceAd;
         if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
 
-        SkPaint::FontMetrics fontMetrics;
-        if (!deserializer.read<SkPaint::FontMetrics>(&fontMetrics)) READ_FAILURE
+        SkFontMetrics fontMetrics;
+        if (!deserializer.read<SkFontMetrics>(&fontMetrics)) READ_FAILURE
 
         // Get the local typeface from remote fontID.
         auto* tf = fRemoteFontIdToTypeface.find(spec.typefaceID)->get();

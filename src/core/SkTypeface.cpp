@@ -413,7 +413,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
         return false;
     }
 
-    SkPaint::FontMetrics fm;
+    SkFontMetrics fm;
     ctx->getFontMetrics(&fm);
     bounds->set(fm.fXMin * invTextSize, fm.fTop * invTextSize,
                 fm.fXMax * invTextSize, fm.fBottom * invTextSize);

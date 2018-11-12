@@ -50,7 +50,7 @@ protected:
         // draw text at different point sizes
         // Testing GPU bitmap path, SDF path with no scaling,
         // SDF path with scaling, path rendering with scaling
-        SkPaint::FontMetrics metrics;
+        SkFontMetrics metrics;
         SkScalar y = 0;
         for (SkScalar textSize : { 70, 180, 270, 340 }) {
             paint.setTextSize(textSize);
@@ -100,7 +100,7 @@ protected:
         // draw text at different point sizes
         // Testing GPU bitmap path, SDF path with no scaling,
         // SDF path with scaling, path rendering with scaling
-        SkPaint::FontMetrics metrics;
+        SkFontMetrics metrics;
         SkScalar y = 0;
         for (SkScalar textSize : { 70, 180, 270, 340 }) {
             paint.setTextSize(textSize);

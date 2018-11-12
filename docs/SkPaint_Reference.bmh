@@ -3733,7 +3733,7 @@ void draw(SkCanvas* canvas) {
 
 #Example
     SkPaint paint;
-    SkPaint::FontMetrics fm;
+    SkFontMetrics fm;
     paint.getFontMetrics(&fm);
     SkRect fb = paint.getFontBounds();
     SkDebugf("metrics bounds = { %g, %g, %g, %g }\n", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );

@@ -96,7 +96,7 @@ protected:
         canvas->drawLine(0, 0, D, D, *paint);
         canvas->drawLine(0, D, D, 0, *paint);
 
-        SkPaint::FontMetrics fm;
+        SkFontMetrics fm;
         paint->getFontMetrics(&fm);
         paint->setColor(SK_ColorRED);
         paint->setStyle(SkPaint::kFill_Style);

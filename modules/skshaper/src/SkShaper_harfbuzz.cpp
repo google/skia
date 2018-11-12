@@ -723,7 +723,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         ShapedGlyph* nextGlyph = glyphIterator.next();
 
         if (previousRunIndex != runIndex) {
-            SkPaint::FontMetrics metrics;
+            SkFontMetrics metrics;
             runs[runIndex].fPaint.getFontMetrics(&metrics);
             maxAscent = SkTMin(maxAscent, metrics.fAscent);
             maxDescent = SkTMax(maxDescent, metrics.fDescent);

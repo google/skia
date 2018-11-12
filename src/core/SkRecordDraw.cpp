@@ -495,7 +495,7 @@ private:
                        xPad = 4.0f * yPad;
         rect->outset(xPad, yPad);
 #ifdef SK_DEBUG
-        SkPaint::FontMetrics metrics;
+        SkFontMetrics metrics;
         paint.getFontMetrics(&metrics);
         correct.fLeft   += metrics.fXMin;
         correct.fTop    += metrics.fTop;

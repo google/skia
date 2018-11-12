@@ -56,7 +56,7 @@ bool SkPaintPriv::Overwrites(const SkImage* image, const SkPaint* paint) {
                                                : kNotOpaque_ShaderOverrideOpacity);
 }
 
-void SkPaintPriv::ScaleFontMetrics(SkPaint::FontMetrics* metrics, SkScalar scale) {
+void SkPaintPriv::ScaleFontMetrics(SkFontMetrics* metrics, SkScalar scale) {
     metrics->fTop *= scale;
     metrics->fAscent *= scale;
     metrics->fDescent *= scale;
