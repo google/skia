@@ -138,18 +138,15 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
 
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType };
-    int cnt = 2;
-
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
                           kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
         fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-        ++cnt;
     }
 
-    this->setVertexAttributeCnt(cnt);
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
+                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    this->setVertexAttributes(&fInPosition, 3);
 
     if (numActiveProxies) {
         fAtlasSize = proxies[0]->isize();
@@ -160,10 +157,6 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
         fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
     }
     this->setTextureSamplerCnt(numActiveProxies);
-}
-
-const GrPrimitiveProcessor::Attribute& GrBitmapTextGeoProc::onVertexAttribute(int i) const {
-    return IthInitializedAttribute(i, fInPosition, fInColor, fInTextureCoords);
 }
 
 void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,

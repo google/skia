@@ -322,19 +322,15 @@ private:
             , fBones(bones)
             , fBoneCount(boneCount) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        int cnt = 1;
         if (fFlags & kColorAttribute_GPFlag) {
             fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            ++cnt;
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
             fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
                                               kFloat2_GrSLType};
-            ++cnt;
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
             fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
-            ++cnt;
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
@@ -346,22 +342,10 @@ private:
                 indicesGPUType = kHalf4_GrSLType;
             }
             fInBoneIndices = {"inBoneIndices", indicesCPUType, indicesGPUType};
-            ++cnt;
             fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType,
                                                kHalf4_GrSLType};
-            ++cnt;
         }
-        this->setVertexAttributeCnt(cnt);
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i,
-                                       fInPosition,
-                                       fInColor,
-                                       fInLocalCoords,
-                                       fInCoverage,
-                                       fInBoneIndices,
-                                       fInBoneWeights);
+        this->setVertexAttributes(&fInPosition, 6);
     }
 
     Attribute fInPosition;

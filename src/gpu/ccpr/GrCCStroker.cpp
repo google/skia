@@ -70,7 +70,7 @@ inline void CubicStrokeInstance::set(const Sk4f& X, const Sk4f& Y, float dx, flo
 class LinearStrokeProcessor : public GrGeometryProcessor {
 public:
     LinearStrokeProcessor() : GrGeometryProcessor(kLinearStrokeProcessor_ClassID) {
-        this->setInstanceAttributeCnt(2);
+        this->setInstanceAttributes(kInstanceAttribs, 2);
 #ifdef SK_DEBUG
         // Check that instance attributes exactly match the LinearStrokeInstance struct layout.
         using Instance = LinearStrokeInstance;
@@ -90,8 +90,6 @@ private:
             {"endpts", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"stroke_radius", kFloat_GrVertexAttribType, kFloat_GrSLType}
     };
-
-    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
@@ -167,7 +165,7 @@ constexpr GrPrimitiveProcessor::Attribute LinearStrokeProcessor::kInstanceAttrib
 class CubicStrokeProcessor : public GrGeometryProcessor {
 public:
     CubicStrokeProcessor() : GrGeometryProcessor(kCubicStrokeProcessor_ClassID) {
-        this->setInstanceAttributeCnt(3);
+        this->setInstanceAttributes(kInstanceAttribs, 3);
 #ifdef SK_DEBUG
         // Check that instance attributes exactly match the CubicStrokeInstance struct layout.
         using Instance = CubicStrokeInstance;
@@ -190,8 +188,6 @@ private:
             {"Y", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"stroke_info", kFloat2_GrVertexAttribType, kFloat2_GrSLType}
     };
-
-    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,

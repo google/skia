@@ -125,13 +125,7 @@ private:
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fSampler(textureType, textureConfig, filter) {
         this->setTextureSamplerCnt(1);
-        this->setVertexAttributeCnt(fAttrs.vertexAttributeCount());
-    }
-
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, fAttrs.positions(), fAttrs.colors(), fAttrs.localCoords(),
-                                       fAttrs.domain(), fAttrs.edges(0), fAttrs.edges(1),
-                                       fAttrs.edges(2), fAttrs.edges(3));
+        this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
