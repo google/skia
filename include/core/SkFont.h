@@ -139,6 +139,9 @@ public:
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding,
                          SkRect* bounds = nullptr) const;
 
+    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
+                   SkRect bounds[] = nullptr) const;
+
     SkScalar getMetrics(SkFontMetrics* metrics) const;
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
 
