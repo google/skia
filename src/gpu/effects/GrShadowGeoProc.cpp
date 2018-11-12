@@ -63,7 +63,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRRectShadowGeoProc::GrRRectShadowGeoProc() : INHERITED(kGrRRectShadowGeoProc_ClassID) {
-    this->setVertexAttributeCnt(3);
+    this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -72,9 +72,7 @@ GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShade
 
 ///////////////////////////////////////////////////////////////////////////////
 
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInColor;
-constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kInShadowParams;
+constexpr GrPrimitiveProcessor::Attribute GrRRectShadowGeoProc::kAttributes[];
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 

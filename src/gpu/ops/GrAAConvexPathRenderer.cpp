@@ -577,21 +577,21 @@ public:
 
             GrGLSLVarying v(kHalf4_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
-            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.kInQuadEdge.name());
+            vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.inQuadEdge().name());
 
             // Setup pass through color
-            varyingHandler->addPassThroughAttribute(qe.kInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(qe.inColor(), args.fOutputColor);
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
-            this->writeOutputPosition(vertBuilder, gpArgs, qe.kInPosition.name());
+            this->writeOutputPosition(vertBuilder, gpArgs, qe.inPosition().name());
 
             // emit transforms
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 qe.kInPosition.asShaderVar(),
+                                 qe.inPosition().asShaderVar(),
                                  qe.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
@@ -642,23 +642,24 @@ public:
         return new GLSLProcessor();
     }
 
+    inline const Attribute& inPosition() const { return kAttributes[0]; }
+    inline const Attribute& inColor() const { return kAttributes[1]; }
+    inline const Attribute& inQuadEdge() const { return kAttributes[2]; }
+
 private:
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords)
             : INHERITED(kQuadEdgeEffect_ClassID)
             , fLocalMatrix(localMatrix)
             , fUsesLocalCoords(usesLocalCoords) {
-        this->setVertexAttributeCnt(3);
+        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
     }
 
-    const Attribute& onVertexAttribute(int i) const override {
-        return IthAttribute(i, kInPosition, kInColor, kInQuadEdge);
-    }
-    static constexpr Attribute kInPosition =
-            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    static constexpr Attribute kInColor =
-            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    static constexpr Attribute kInQuadEdge =
-            {"inQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kAttributes[] = {
+        {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+        {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType},
+        {"inQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType},
+    };
+
     SkMatrix fLocalMatrix;
     bool fUsesLocalCoords;
 
@@ -666,9 +667,7 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInPosition;
-constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInColor;
-constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kInQuadEdge;
+constexpr GrPrimitiveProcessor::Attribute QuadEdgeEffect::kAttributes[];
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 

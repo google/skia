@@ -65,7 +65,7 @@ private:
                     fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType,
                                                                kFloat2_GrSLType};
                 }
-                this->setVertexAttributeCnt(numAttribs);
+                this->setVertexAttributes(fAttributes.get(), numAttribs);
             }
             const char* name() const override { return "Dummy GP"; }
 
@@ -93,10 +93,6 @@ private:
             }
 
         private:
-            const GrPrimitiveProcessor::Attribute& onVertexAttribute(int i) const override {
-                return fAttributes[i];
-            }
-
             int fNumAttribs;
             std::unique_ptr<SkString[]> fAttribNames;
             std::unique_ptr<Attribute[]> fAttributes;

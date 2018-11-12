@@ -516,9 +516,9 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     }
     fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType, xySLType};
     fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType, xySLType};
-    this->setInstanceAttributeCnt(2);
+    this->setInstanceAttributes(fInstanceAttributes, 2);
     fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
-    this->setVertexAttributeCnt(1);
+    this->setVertexAttributes(&fVertexAttribute, 1);
 
     if (caps.usePrimitiveRestart()) {
         fVSTriangleType = GrPrimitiveType::kTriangleStrip;
