@@ -521,6 +521,114 @@ void GrTextContext::drawGlyphRunList(
                      clip, viewMatrix, origin.x(), origin.y());
 }
 
+void GrTextBlob::SubRun::appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect) {
+
+    this->joinGlyphBounds(dstRect);
+
+    bool hasW = this->hasWCoord();
+    // glyphs drawn in perspective must always have a w coord.
+    SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
+    auto maskFormat = this->maskFormat();
+    size_t vertexStride = GetVertexStride(maskFormat, hasW);
+
+    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + fVertexEndIndex);
+
+    // We always write the third position component used by SDFs. If it is unused it gets
+    // overwritten. Similarly, we always write the color and the blob will later overwrite it
+    // with texture coords if it is unused.
+    size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+    // V0
+    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+    vertex += vertexStride;
+
+    // V1
+    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+    vertex += vertexStride;
+
+    // V2
+    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+    vertex += vertexStride;
+
+    // V3
+    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+
+    fVertexEndIndex += vertexStride * kVerticesPerGlyph;
+    blob->fGlyphs[fGlyphEndIndex++] = glyph;
+}
+
+static SkRect rect_to_draw(
+        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, bool isDFT) {
+
+    SkScalar dx = SkIntToScalar(glyph.fLeft);
+    SkScalar dy = SkIntToScalar(glyph.fTop);
+    SkScalar width = SkIntToScalar(glyph.fWidth);
+    SkScalar height = SkIntToScalar(glyph.fHeight);
+
+    if (isDFT) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
+    }
+
+    dx *= textScale;
+    dy *= textScale;
+    width *= textScale;
+    height *= textScale;
+
+    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
+}
+
+void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
+                                  const sk_sp<GrTextStrike>& strike,
+                                  const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
+                                  SkPoint origin,
+                                  const SkPMColor4f& color4f, SkGlyphCache* skGlyphCache,
+                                  SkScalar textRatio, bool needsTransform) {
+
+    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
+                                         skGlyph.getSubXFixed(),
+                                         skGlyph.getSubYFixed(),
+                                         maskStyle);
+    GrGlyph* glyph = strike->getGlyph(skGlyph, id, skGlyphCache);
+    if (!glyph) {
+        return;
+    }
+
+    SkASSERT(skGlyph.fWidth == glyph->width());
+    SkASSERT(skGlyph.fHeight == glyph->height());
+
+    bool isDFT = maskStyle == GrGlyph::kDistance_MaskStyle;
+
+    SkRect glyphRect = rect_to_draw(skGlyph, origin, textRatio, isDFT);
+    if (!glyphRect.isEmpty()) {
+        // TODO4F: Preserve float colors
+        GrColor color = color4f.toBytes_RGBA();
+
+        GrMaskFormat format = glyph->fMaskFormat;
+
+        SubRun* subRun = &fSubRunInfo.back();
+        if (fInitialized && subRun->maskFormat() != format) {
+            subRun = &pushBackSubRun();
+            subRun->setStrike(strike);
+        } else if (!fInitialized) {
+            subRun->setStrike(strike);
+        }
+
+        fInitialized = true;
+        subRun->setMaskFormat(format);
+        subRun->setColor(color);
+        subRun->setNeedsTransform(needsTransform);
+
+        subRun->appendGlyph(blob, glyph, glyphRect);
+    }
+}
+
+
 void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                           const GrShaderCaps& shaderCaps,
                                           const GrTextContext::Options& options,
