@@ -466,13 +466,6 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
-
-#Method bool unique() const
-#Deprecated soon
-Only valid for Android framework.
-##
-
-# ------------------------------------------------------------------------------
 #Subtopic Fill_Type
 #Line # fill rule, normal and inverted ##
 
