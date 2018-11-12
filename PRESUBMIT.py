@@ -40,21 +40,6 @@ AUTHORS_FILE_NAME = 'AUTHORS'
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
-# Path to CQ bots feature is described in https://bug.skia.org/4364
-PATH_PREFIX_TO_EXTRA_TRYBOTS = {
-    'src/opts/': ('skia.primary:'
-      'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD'),
-    'include/private/SkAtomics.h': ('skia.primary:'
-      'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN,'
-      'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN'
-    ),
-
-    # Below are examples to show what is possible with this feature.
-    # 'src/svg/': 'master1:abc;master2:def',
-    # 'src/svg/parser/': 'master3:ghi,jkl;master4:mno',
-    # 'src/image/SkImage_Base.h': 'master5:pqr,stu;master1:abc1;master2:def',
-}
-
 SERVICE_ACCOUNT_SUFFIX = [
     '@%s.iam.gserviceaccount.com' % project for project in [
         'skia-buildbots.google.com', 'skia-swarming-bots', 'skia-public',
@@ -493,7 +478,6 @@ def PostUploadHook(cl, change, output_api):
     work on them.
   * Adds 'No-Presubmit: true' for non master branch changes since those don't
     run the presubmit checks.
-  * Adds extra trybots for the paths defined in PATH_TO_EXTRA_TRYBOTS.
   """
 
   results = []
@@ -566,22 +550,6 @@ def PostUploadHook(cl, change, output_api):
         results.append(
             output_api.PresubmitNotifyResult(
                 'Branch changes do not run the presubmit checks.'))
-
-    # Automatically set Cq-Include-Trybots if any of the changed files here
-    # begin with the paths of interest.
-    bots_to_include = []
-    for affected_file in change.AffectedFiles():
-      affected_file_path = affected_file.LocalPath()
-      for path_prefix, extra_bots in PATH_PREFIX_TO_EXTRA_TRYBOTS.iteritems():
-        if affected_file_path.startswith(path_prefix):
-          results.append(
-              output_api.PresubmitNotifyResult(
-                  'Your CL modifies the path %s.\nAutomatically adding %s to '
-                  'the CL description.' % (affected_file_path, extra_bots)))
-          bots_to_include.append(extra_bots)
-    if bots_to_include:
-      output_api.EnsureCQIncludeTrybotsAreAdded(
-          cl, bots_to_include, new_description_lines)
 
     # If the description has changed update it.
     if new_description_lines != original_description_lines:
