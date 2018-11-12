@@ -70,15 +70,10 @@ inline void CubicStrokeInstance::set(const Sk4f& X, const Sk4f& Y, float dx, flo
 class LinearStrokeProcessor : public GrGeometryProcessor {
 public:
     LinearStrokeProcessor() : GrGeometryProcessor(kLinearStrokeProcessor_ClassID) {
-        this->setInstanceAttributeCnt(2);
+        this->setInstanceAttributes(kInstanceAttribs, 2);
 #ifdef SK_DEBUG
-        // Check that instance attributes exactly match the LinearStrokeInstance struct layout.
         using Instance = LinearStrokeInstance;
-        SkASSERT(!strcmp(this->instanceAttribute(0).name(), "endpts"));
-        SkASSERT(this->debugOnly_instanceAttributeOffset(0) == offsetof(Instance, fEndpoints));
-        SkASSERT(!strcmp(this->instanceAttribute(1).name(), "stroke_radius"));
-        SkASSERT(this->debugOnly_instanceAttributeOffset(1) == offsetof(Instance, fStrokeRadius));
-        SkASSERT(this->debugOnly_instanceStride() == sizeof(Instance));
+        SkASSERT(this->instanceStride() == sizeof(Instance));
 #endif
     }
 
@@ -90,8 +85,6 @@ private:
             {"endpts", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"stroke_radius", kFloat_GrVertexAttribType, kFloat_GrSLType}
     };
-
-    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
@@ -167,17 +160,10 @@ constexpr GrPrimitiveProcessor::Attribute LinearStrokeProcessor::kInstanceAttrib
 class CubicStrokeProcessor : public GrGeometryProcessor {
 public:
     CubicStrokeProcessor() : GrGeometryProcessor(kCubicStrokeProcessor_ClassID) {
-        this->setInstanceAttributeCnt(3);
+        this->setInstanceAttributes(kInstanceAttribs, 3);
 #ifdef SK_DEBUG
-        // Check that instance attributes exactly match the CubicStrokeInstance struct layout.
         using Instance = CubicStrokeInstance;
-        SkASSERT(!strcmp(this->instanceAttribute(0).name(), "X"));
-        SkASSERT(this->debugOnly_instanceAttributeOffset(0) == offsetof(Instance, fX));
-        SkASSERT(!strcmp(this->instanceAttribute(1).name(), "Y"));
-        SkASSERT(this->debugOnly_instanceAttributeOffset(1) == offsetof(Instance, fY));
-        SkASSERT(!strcmp(this->instanceAttribute(2).name(), "stroke_info"));
-        SkASSERT(this->debugOnly_instanceAttributeOffset(2) == offsetof(Instance, fStrokeRadius));
-        SkASSERT(this->debugOnly_instanceStride() == sizeof(Instance));
+        SkASSERT(this->instanceStride() == sizeof(Instance));
 #endif
     }
 
@@ -190,8 +176,6 @@ private:
             {"Y", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"stroke_info", kFloat2_GrVertexAttribType, kFloat2_GrSLType}
     };
-
-    const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
