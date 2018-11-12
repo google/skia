@@ -12,8 +12,6 @@
 #include "SkGlyphCache.h"
 #include "ops/GrAtlasTextOp.h"
 
-using Regenerator = GrTextBlob::VertexRegenerator;
-
 enum RegenMask {
     kNoRegen    = 0x0,
     kRegenPos   = 0x1,
@@ -191,11 +189,15 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
     }
 }
 
-Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrTextBlob* blob,
-                               int runIdx, int subRunIdx,
-                               const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                               GrDeferredUploadTarget* uploadTarget, GrGlyphCache* glyphCache,
-                               GrAtlasManager* fullAtlasManager, SkExclusiveStrikePtr* lazyCache)
+GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
+                                                 GrTextBlob* blob,
+                                                 int runIdx, int subRunIdx,
+                                                 const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                                 GrColor color,
+                                                 GrDeferredUploadTarget* uploadTarget,
+                                                 GrGlyphCache* glyphCache,
+                                                 GrAtlasManager* fullAtlasManager,
+                                                 SkExclusiveStrikePtr* lazyCache)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
@@ -230,7 +232,7 @@ Regenerator::VertexRegenerator(GrResourceProvider* resourceProvider, GrTextBlob*
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-bool Regenerator::doRegen(Regenerator::Result* result) {
+bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
     static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
     sk_sp<GrTextStrike> strike;
     if (regenTexCoords) {
@@ -319,7 +321,7 @@ bool Regenerator::doRegen(Regenerator::Result* result) {
     return true;
 }
 
-bool Regenerator::regenerate(Regenerator::Result* result) {
+bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.

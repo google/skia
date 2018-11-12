@@ -136,6 +136,8 @@ public:
 
     Run* pushBackRun() {
         SkASSERT(fRunCount < fRunCountLimit);
+
+        // If there is more run, then connect up the subruns.
         if (fRunCount > 0) {
             SubRun& newRun = fRuns[fRunCount].fSubRunInfo.back();
             SubRun& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
@@ -254,7 +256,6 @@ private:
         , fMinMaxScale(SK_ScalarMax)
         , fTextType(0) {}
 
-
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
     // these numbers.  When blobs are reused with new matrices, we need to return to model space so
@@ -275,74 +276,9 @@ private:
 
     class SubRun {
     public:
-        SubRun()
-                : fAtlasGeneration(GrDrawOpAtlas::kInvalidAtlasGeneration)
-                , fVertexStartIndex(0)
-                , fVertexEndIndex(0)
-                , fGlyphStartIndex(0)
-                , fGlyphEndIndex(0)
-                , fColor(GrColor_ILLEGAL)
-                , fMaskFormat(kA8_GrMaskFormat)
-                , fFlags(0) {
-            fVertexBounds = SkRectPriv::MakeLargestInverted();
-        }
-        SubRun(const SubRun& that)
-                : fBulkUseToken(that.fBulkUseToken)
-                , fStrike(SkSafeRef(that.fStrike.get()))
-                , fCurrentViewMatrix(that.fCurrentViewMatrix)
-                , fVertexBounds(that.fVertexBounds)
-                , fAtlasGeneration(that.fAtlasGeneration)
-                , fVertexStartIndex(that.fVertexStartIndex)
-                , fVertexEndIndex(that.fVertexEndIndex)
-                , fGlyphStartIndex(that.fGlyphStartIndex)
-                , fGlyphEndIndex(that.fGlyphEndIndex)
-                , fX(that.fX)
-                , fY(that.fY)
-                , fColor(that.fColor)
-                , fMaskFormat(that.fMaskFormat)
-                , fFlags(that.fFlags) {
-        }
+        SubRun() = default;
 
-        void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect) {
-
-            this->joinGlyphBounds(dstRect);
-
-            bool hasW = this->hasWCoord();
-            // glyphs drawn in perspective must always have a w coord.
-            SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
-            auto maskFormat = this->maskFormat();
-            size_t vertexStride = GetVertexStride(maskFormat, hasW);
-
-            intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + fVertexEndIndex);
-
-            // We always write the third position component used by SDFs. If it is unused it gets
-            // overwritten. Similarly, we always write the color and the blob will later overwrite it
-            // with texture coords if it is unused.
-            size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-            // V0
-            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
-            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-            vertex += vertexStride;
-
-            // V1
-            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
-            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-            vertex += vertexStride;
-
-            // V2
-            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
-            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-            vertex += vertexStride;
-
-            // V3
-            *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
-            *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-
-            fVertexEndIndex += vertexStride * kVerticesPerGlyph;
-            blob->fGlyphs[fGlyphEndIndex++] = glyph;
-        }
-
-
+        void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
         // TODO when this object is more internal, drop the privacy
         void resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -368,10 +304,10 @@ private:
 
         void setAsSuccessor(const SubRun& prev) {
             fGlyphStartIndex = prev.glyphEndIndex();
-            fGlyphEndIndex = prev.glyphEndIndex();
+            fGlyphEndIndex = fGlyphStartIndex;
 
             fVertexStartIndex = prev.vertexEndIndex();
-            fVertexEndIndex = prev.vertexEndIndex();
+            fVertexEndIndex = fVertexStartIndex;
 
             // copy over viewmatrix settings
             this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
@@ -425,17 +361,17 @@ private:
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
         sk_sp<GrTextStrike> fStrike;
         SkMatrix fCurrentViewMatrix;
-        SkRect fVertexBounds;
-        uint64_t fAtlasGeneration;
-        size_t fVertexStartIndex;
-        size_t fVertexEndIndex;
-        uint32_t fGlyphStartIndex;
-        uint32_t fGlyphEndIndex;
+        SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
+        uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+        size_t fVertexStartIndex{0};
+        size_t fVertexEndIndex{0};
+        uint32_t fGlyphStartIndex{0};
+        uint32_t fGlyphEndIndex{0};
         SkScalar fX;
         SkScalar fY;
-        GrColor fColor;
-        GrMaskFormat fMaskFormat;
-        uint32_t fFlags;
+        GrColor fColor{GrColor_ILLEGAL};
+        GrMaskFormat fMaskFormat{kA8_GrMaskFormat};
+        uint32_t fFlags{0};
     };  // SubRunInfo
 
 
@@ -522,9 +458,8 @@ private:
             newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
-        static const int kMinSubRuns = 1;
         sk_sp<SkTypeface> fTypeface;
-        SkSTArray<kMinSubRuns, SubRun> fSubRunInfo;
+        SkSTArray<1, SubRun> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
 
         // Effects from the paint that are used to build a SkScalerContext.
