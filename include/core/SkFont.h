@@ -38,6 +38,12 @@ public:
         kDEPRECATED_LCDRender_Flag  = 1 << 6,
     };
 
+    enum class Edging {
+        kAlias,
+        kAntiAlias,
+        kLCDAntiAlias,
+    };
+
     enum Hinting : uint8_t {
         kNo_Hinting     = 0, //!< glyph outlines unchanged
         kSlight_Hinting = 1, //!< minimal modification to improve constrast
@@ -66,6 +72,9 @@ public:
 
     void DEPRECATED_setAntiAlias(bool);
     void DEPRECATED_setLCDRender(bool);
+
+    Edging getEdging() const { return (Edging)fEdging; }
+    void setEdging(Edging);
 
     void setHinting(SkFontHinting);
 
@@ -156,6 +165,7 @@ private:
     SkScalar    fScaleX;
     SkScalar    fSkewX;
     uint8_t     fFlags;
+    uint8_t     fEdging;
     uint8_t     fHinting;
 
     SkScalar setupForAsPaths(SkPaint*);
