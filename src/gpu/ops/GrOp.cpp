@@ -31,36 +31,50 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
-GrOp::~GrOp() {}
-
 GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
+    SkASSERT(this != that);
     if (this->classID() != that->classID()) {
         return CombineResult::kCannotCombine;
     }
-    SkDEBUGCODE(bool thatWasChained = that->isChained());
     auto result = this->onCombineIfPossible(that, caps);
-    // Merging a chained 'that' would cause problems given the way op lists currently manage chains.
-    SkASSERT(!(thatWasChained && result == CombineResult::kMerged));
     if (result == CombineResult::kMerged) {
         this->joinBounds(*that);
-        if (fChainHead) {
-            fChainHead->joinBounds(*that);
-        }
     }
     return result;
 }
 
-void GrOp::setNextInChain(GrOp* next) {
+void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
     SkASSERT(next);
     SkASSERT(this->classID() == next->classID());
-    // Each op begins life as a 1 element list. We assume lists are appended only with
     SkASSERT(this->isChainTail());
-    SkASSERT(!next->isChained());
-    if (!fChainHead) {
-        // We were using null to mark 'this' as unchained. Now 'this' is the head of the new chain.
-        fChainHead = this;
-    }
-    fNextInChain = next;
-    fChainHead->joinBounds(*next);
-    next->fChainHead = this->fChainHead;
+    SkASSERT(next->isChainHead());
+    fNextInChain = std::move(next);
+    fNextInChain->fPrevInChain = this;
 }
+
+std::unique_ptr<GrOp> GrOp::cutChain() {
+    if (fNextInChain) {
+        fNextInChain->fPrevInChain = nullptr;
+        return std::move(fNextInChain);
+    }
+    return nullptr;
+}
+
+#ifdef SK_DEBUG
+void GrOp::validateChain(GrOp* expectedTail) const {
+    SkASSERT(this->isChainHead());
+    uint32_t classID = this->classID();
+    const GrOp* op = this;
+    while (op) {
+        SkASSERT(op == this || (op->prevInChain() && op->prevInChain()->nextInChain() == op));
+        SkASSERT(classID == op->classID());
+        if (op->nextInChain()) {
+            SkASSERT(op->nextInChain()->prevInChain() == op);
+            SkASSERT(op != expectedTail);
+        } else {
+            SkASSERT(!expectedTail || op == expectedTail);
+        }
+        op = op->nextInChain();
+    }
+}
+#endif

@@ -27,7 +27,7 @@ std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
                                            hasStencilClip, scissor, path);
 }
 
-void GrStencilPathOp::onExecute(GrOpFlushState* state) {
+void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrRenderTarget* rt = state->drawOpArgs().renderTarget();
     SkASSERT(rt);
 
@@ -39,4 +39,3 @@ void GrStencilPathOp::onExecute(GrOpFlushState* state) {
                                           &fViewMatrix, &fScissor, &stencil);
     state->gpu()->pathRendering()->stencilPath(args, fPath.get());
 }
-

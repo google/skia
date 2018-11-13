@@ -28,8 +28,7 @@ GrDrawableOp::GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-void GrDrawableOp::onExecute(GrOpFlushState* state) {
+void GrDrawableOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->commandBuffer());
     state->rtCommandBuffer()->executeDrawable(std::move(fDrawable));
 }
-

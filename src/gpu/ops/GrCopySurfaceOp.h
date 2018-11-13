@@ -55,7 +55,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
     SkIRect                                              fSrcRect;
