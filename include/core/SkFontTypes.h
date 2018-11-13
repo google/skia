@@ -11,12 +11,28 @@
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
+// TODO: add to clients, and then remove from here.
+#define SK_SUPPORT_LEGACY_TEXTENCODINGENUM
+
+#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
 enum SkTextEncoding : uint8_t {
     kUTF8_SkTextEncoding,
     kUTF16_SkTextEncoding,
     kUTF32_SkTextEncoding,
     kGlyphID_SkTextEncoding,
 };
+#else
+enum class SkTextEncoding {
+    kUTF8,
+    kUTF16,
+    kUTF32,
+    kGlyphID,
+};
+#define kUTF8_SkTextEncoding    SkTextEncoding::kUTF8
+#define kUTF16_SkTextEncoding   SkTextEncoding::kUTF16
+#define kUTF32_SkTextEncoding   SkTextEncoding::kUTF32
+#define kGlyphID_SkTextEncoding SkTextEncoding::kGlyphID
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_NONCLASS_HINTINGENUM
 enum SkFontHinting : uint8_t {
