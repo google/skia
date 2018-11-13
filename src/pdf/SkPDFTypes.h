@@ -145,6 +145,8 @@ public:
     static SkPDFUnion Object(sk_sp<SkPDFObject>);
     static SkPDFUnion ObjRef(sk_sp<SkPDFObject>);
 
+    static SkPDFUnion Ref(SkPDFIndirectReference);
+
     /** These two non-virtual methods mirror SkPDFObject's
         corresponding virtuals. */
     void emitObject(SkWStream*) const;
@@ -176,6 +178,7 @@ private:
         kStringSkS,
         kObjRef,
         kObject,
+        kRef,
     };
     Type fType;
 
@@ -252,6 +255,7 @@ public:
     void appendString(const SkString&);
     void appendObject(sk_sp<SkPDFObject>);
     void appendObjRef(sk_sp<SkPDFObject>);
+    void appendRef(SkPDFIndirectReference);
 
 private:
     std::vector<SkPDFUnion> fValues;
@@ -310,6 +314,7 @@ public:
     void insertObject(const SkString& key, sk_sp<SkPDFObject>);
     void insertObjRef(const char key[], sk_sp<SkPDFObject>);
     void insertObjRef(const SkString& key, sk_sp<SkPDFObject>);
+    void insertRef(const char key[], SkPDFIndirectReference);
 
     /** Add the value to the dictionary with the given key.
      *  @param key   The text of the key for this dictionary entry.
