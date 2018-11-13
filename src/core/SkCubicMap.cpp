@@ -163,7 +163,7 @@ static float compute_t_from_x(float A, float B, float C, float x) {
 }
 
 float SkCubicMap::computeYFromX(float x) const {
-    SkASSERT(valid(x));
+    x = SkScalarPin(x, 0, 1);
 
     if (nearly_zero(x) || nearly_zero(1 - x)) {
         return x;
