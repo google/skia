@@ -536,6 +536,7 @@ float4 imageLoad(image2D image, int2 P);
 int4 imageLoad(iimage2D image, int2 P);
 $genType dFdx($genType p);
 $genType dFdy($genType p);
+$genType fwidth($genType p);
 float interpolateAtSample(float interpolant, int sample);
 float2 interpolateAtSample(float2 interpolant, int sample);
 float3 interpolateAtSample(float3 interpolant, int sample);
