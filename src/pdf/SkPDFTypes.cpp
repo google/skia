@@ -162,8 +162,7 @@ void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len) {
     write_string(wStream, cin, len);
 }
 
-void SkPDFUnion::emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap) const {
+void SkPDFUnion::emitObject(SkWStream* stream) const {
     switch (fType) {
         case Type::kInt:
             stream->writeDecAsText(fIntValue);
@@ -197,11 +196,11 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             write_string(stream, fSkString.get().c_str(), fSkString.get().size());
             return;
         case Type::kObjRef:
-            stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
+            stream->writeDecAsText(fObject->fIndirectReference.fValue);
             stream->writeText(" 0 R");  // Generation number is always 0.
             return;
         case Type::kObject:
-            fObject->emitObject(stream, objNumMap);
+            fObject->emitObject(stream);
             return;
         default:
             SkDEBUGFAIL("SkPDFUnion::emitObject with bad type");
@@ -285,9 +284,8 @@ SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
 ////////////////////////////////////////////////////////////////////////////////
 
 #if 0  // Enable if needed.
-void SkPDFAtom::emitObject(SkWStream* stream,
-                           const SkPDFObjNumMap& objNumMap) const {
-    fValue.emitObject(stream, objNumMap);
+void SkPDFAtom::emitObject(SkWStream* stream) const {
+    fValue.emitObject(stream);
 }
 void SkPDFAtom::addResources(SkPDFObjNumMap* map) const {
     fValue.addResources(map);
@@ -311,12 +309,11 @@ void SkPDFArray::reserve(int length) {
     fValues.reserve(length);
 }
 
-void SkPDFArray::emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap) const {
+void SkPDFArray::emitObject(SkWStream* stream) const {
     SkASSERT(!fDumped);
     stream->writeText("[");
     for (size_t i = 0; i < fValues.size(); i++) {
-        fValues[i].emitObject(stream, objNumMap);
+        fValues[i].emitObject(stream);
         if (i + 1 < fValues.size()) {
             stream->writeText(" ");
         }
@@ -391,20 +388,18 @@ SkPDFDict::SkPDFDict(const char type[]) {
     }
 }
 
-void SkPDFDict::emitObject(SkWStream* stream,
-                           const SkPDFObjNumMap& objNumMap) const {
+void SkPDFDict::emitObject(SkWStream* stream) const {
     stream->writeText("<<");
-    this->emitAll(stream, objNumMap);
+    this->emitAll(stream);
     stream->writeText(">>");
 }
 
-void SkPDFDict::emitAll(SkWStream* stream,
-                        const SkPDFObjNumMap& objNumMap) const {
+void SkPDFDict::emitAll(SkWStream* stream) const {
     SkASSERT(!fDumped);
     for (size_t i = 0; i < fRecords.size(); i++) {
-        fRecords[i].fKey.emitObject(stream, objNumMap);
+        fRecords[i].fKey.emitObject(stream);
         stream->writeText(" ");
-        fRecords[i].fValue.emitObject(stream, objNumMap);
+        fRecords[i].fValue.emitObject(stream);
         if (i + 1 < fRecords.size()) {
             stream->writeText("\n");
         }
@@ -491,27 +486,23 @@ void SkPDFSharedStream::drop() {
 }
 
 #ifdef SK_PDF_LESS_COMPRESSION
-void SkPDFSharedStream::emitObject(
-        SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap) const {
+void SkPDFSharedStream::emitObject(SkWStream* stream) const {
     SkASSERT(fAsset);
     std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
     SkASSERT(dup && dup->hasLength());
     size_t length = dup->getLength();
     stream->writeText("<<");
-    fDict.emitAll(stream, objNumMap);
+    fDict.emitAll(stream);
     stream->writeText("\n");
-    SkPDFUnion::Name("Length").emitObject(stream, objNumMap);
+    SkPDFUnion::Name("Length").emitObject(stream);
     stream->writeText(" ");
-    SkPDFUnion::Int(length).emitObject(stream, objNumMap);
+    SkPDFUnion::Int(length).emitObject(stream);
     stream->writeText("\n>>stream\n");
     SkStreamCopy(stream, dup.get());
     stream->writeText("\nendstream");
 }
 #else
-void SkPDFSharedStream::emitObject(
-        SkWStream* stream,
-        const SkPDFObjNumMap& objNumMap) const {
+void SkPDFSharedStream::emitObject(SkWStream* stream) const {
     SkASSERT(fAsset);
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
@@ -522,15 +513,15 @@ void SkPDFSharedStream::emitObject(
     deflateWStream.finalize();
     size_t length = buffer.bytesWritten();
     stream->writeText("<<");
-    fDict.emitAll(stream, objNumMap);
+    fDict.emitAll(stream);
     stream->writeText("\n");
-    SkPDFUnion::Name("Length").emitObject(stream, objNumMap);
+    SkPDFUnion::Name("Length").emitObject(stream);
     stream->writeText(" ");
-    SkPDFUnion::Int(length).emitObject(stream, objNumMap);
+    SkPDFUnion::Int(length).emitObject(stream);
     stream->writeText("\n");
-    SkPDFUnion::Name("Filter").emitObject(stream, objNumMap);
+    SkPDFUnion::Name("Filter").emitObject(stream);
     stream->writeText(" ");
-    SkPDFUnion::Name("FlateDecode").emitObject(stream, objNumMap);
+    SkPDFUnion::Name("FlateDecode").emitObject(stream);
     stream->writeText(">>");
     stream->writeText(" stream\n");
     buffer.writeToAndReset(stream);
@@ -569,10 +560,9 @@ void SkPDFStream::drop() {
     fDict.drop();
 }
 
-void SkPDFStream::emitObject(SkWStream* stream,
-                             const SkPDFObjNumMap& objNumMap) const {
+void SkPDFStream::emitObject(SkWStream* stream) const {
     SkASSERT(fCompressedData);
-    fDict.emitObject(stream, objNumMap);
+    fDict.emitObject(stream);
     // duplicate (a cheap operation) preserves const on fCompressedData.
     std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
     SkASSERT(dup);
@@ -618,17 +608,11 @@ void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
-    if (obj && !fObjectNumbers.find(obj)) {
-        fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
+    if (obj && obj->fIndirectReference.fValue == -1) {
+        obj->fIndirectReference.fValue = fNextObjectNumber++;
         fObjects.emplace_back(sk_ref_sp(obj));
         obj->addResources(this);
     }
-}
-
-int32_t SkPDFObjNumMap::getObjectNumber(SkPDFObject* obj) const {
-    int32_t* objectNumberFound = fObjectNumbers.find(obj);
-    SkASSERT(objectNumberFound);
-    return *objectNumberFound;
 }
 
 #ifdef SK_PDF_IMAGE_STATS

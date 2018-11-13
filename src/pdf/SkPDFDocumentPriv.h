@@ -18,14 +18,23 @@ class SkPDFTag;
 
 const char* SkPDFGetNodeIdKey();
 
+struct SkPDFFileOffset {
+    int fValue;
+};
+
+struct SkPDFOffsetMap {
+    void set(SkPDFIndirectReference, SkPDFFileOffset);
+    SkPDFFileOffset get(SkPDFIndirectReference r);
+    std::vector<SkPDFFileOffset> fOffsets;
+};
+
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
 struct SkPDFObjectSerializer {
-    SkPDFObjNumMap fObjNumMap;
-    std::vector<int32_t> fOffsets;
+    int fNextObjectNumber = 1;
+    SkPDFOffsetMap fOffsets;
     sk_sp<SkPDFObject> fInfoDict;
-    size_t fBaseOffset;
-    size_t fNextToBeSerialized;  // index in fObjNumMap
+    size_t fBaseOffset = SIZE_MAX;
 
     SkPDFObjectSerializer();
     ~SkPDFObjectSerializer();
@@ -34,11 +43,10 @@ struct SkPDFObjectSerializer {
     SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
     SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 
-    void addObjectRecursively(const sk_sp<SkPDFObject>&);
     void serializeHeader(SkWStream*, const SkPDF::Metadata&);
-    void serializeObjects(SkWStream*);
+    void serializeObject(const sk_sp<SkPDFObject>&, SkWStream*);
     void serializeFooter(SkWStream*, const sk_sp<SkPDFObject>, sk_sp<SkPDFObject>);
-    int32_t offset(SkWStream*);
+    SkPDFFileOffset offset(SkWStream*);
 };
 
 /** Concrete implementation of SkDocument that creates PDF files. This
