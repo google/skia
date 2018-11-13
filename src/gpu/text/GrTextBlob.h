@@ -278,6 +278,13 @@ private:
     public:
         explicit SubRun(Run* run) : fRun{run} {}
 
+        SubRun(GrMaskFormat format, size_t vertexStart, uint32_t glyphStart)
+            : fVertexStartIndex{vertexStart}
+            , fVertexEndIndex{vertexStart}
+            , fGlyphStartIndex{glyphStart}
+            , fGlyphEndIndex{glyphStart}
+            , fMaskFormat{format}{ }
+
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
         // TODO when this object is more internal, drop the privacy
