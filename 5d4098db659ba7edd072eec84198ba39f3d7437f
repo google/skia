@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f4a0364d_c1f7dc70",
+        "filename": "include/utils/SkTextUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-13T22:55:21Z",
+      "side": 1,
+      "message": "Just simulating the existing SkPaint::getTextPath()",
+      "parentUuid": "85543749_3c8bc47a",
+      "range": {
+        "startLine": 36,
+        "startChar": 16,
+        "endLine": 36,
+        "endChar": 27
+      },
+      "revId": "5d4098db659ba7edd072eec84198ba39f3d7437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "085ade18_4b47e0f6",
         "filename": "src/core/SkFont.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-13T22:46:05Z",
       "side": 1,
       "message": "This loses information. Any new API should let the user know the difference between the empty path (it\u0027s a space or empty or something) and no path (it\u0027s a bitmap and there is no path, not even the empty one).",
+      "range": {
+        "startLine": 370,
+        "startChar": 12,
+        "endLine": 370,
+        "endChar": 25
+      },
+      "revId": "5d4098db659ba7edd072eec84198ba39f3d7437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dce7a98a_b7c7f0d3",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-13T22:55:21Z",
+      "side": 1,
+      "message": "The general call-back version preserves this. This was just an idea of a helper version.\n\nWe could return a bool, and ignore the out-param if there is no path...?",
+      "parentUuid": "085ade18_4b47e0f6",
       "range": {
         "startLine": 370,
         "startChar": 12,

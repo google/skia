@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e7d3b914_abf346e3",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-13T22:55:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "65237f97_2b599c73",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 8
+      },
+      "revId": "2bf6589b94f6e4cc74823dc03609df2c7f1a95d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92b1be87_f7b97972",
         "filename": "include/core/SkFont.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-13T22:46:05Z",
       "side": 1,
       "message": "This does allow distinguishing empty path from no path, which is good.",
+      "range": {
+        "startLine": 168,
+        "startChar": 58,
+        "endLine": 168,
+        "endChar": 82
+      },
+      "revId": "2bf6589b94f6e4cc74823dc03609df2c7f1a95d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71f5b1ce_7a53a1b7",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-13T22:55:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "92b1be87_f7b97972",
       "range": {
         "startLine": 168,
         "startChar": 58,
