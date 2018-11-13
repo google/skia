@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "61288db4_b2ce09f6",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-13T15:27:21Z",
+      "side": 1,
+      "message": "Not sure. FWIW, we currently make SK_BUILD_FOR_ANDROID_FRAMEWORK imply SK_BUILD_FOR_ANDROID, but in https://googleplex-android-review.git.corp.google.com/c/platform/external/skia/+/5482397/2//COMMIT_MSG#48, we\u0027re discussing that we may need to stop making that assumption.",
+      "parentUuid": "bfdf90de_e6acc13a",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 13,
+        "endChar": 37
+      },
+      "revId": "9fef73da7f992ee3a528ac7e437b09dfdea4e806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "93f53219_2b749420",
         "filename": "include/android/SkAndroidFrameworkUtils.h",
         "patchSetId": 1
