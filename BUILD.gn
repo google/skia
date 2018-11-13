@@ -43,7 +43,6 @@ declare_args() {
   skia_enable_ccpr = true
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_discrete_gpu = true
-  skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_nima = false
   skia_enable_pdf = true
@@ -69,6 +68,11 @@ declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
   skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
+  skia_enable_fontmgr_empty = false
+  skia_enable_fontmgr_custom = (is_linux || target_cpu == "wasm") &&
+                               skia_use_freetype && !skia_use_fontconfig
+  skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
+  skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
@@ -91,8 +95,6 @@ if (defined(skia_settings)) {
 
 # Our tools require static linking (they use non-exported symbols), and the GPU backend.
 skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
-
-fontmgr_android_enabled = skia_use_expat && skia_use_freetype
 
 skia_public_includes = [
   "include/android",
@@ -379,7 +381,7 @@ template("optional") {
 }
 
 optional("fontmgr_android") {
-  enabled = fontmgr_android_enabled
+  enabled = skia_enable_fontmgr_android
 
   deps = [
     ":typeface_freetype",
@@ -393,8 +395,7 @@ optional("fontmgr_android") {
 }
 
 optional("fontmgr_custom") {
-  enabled = (is_linux || target_cpu == "wasm") && skia_use_freetype &&
-            !skia_use_fontconfig
+  enabled = skia_enable_fontmgr_custom
 
   deps = [
     ":typeface_freetype",
@@ -433,8 +434,8 @@ optional("fontmgr_fontconfig") {
   ]
 }
 
-optional("fontmgr_fuchsia") {
-  enabled = is_fuchsia && skia_use_freetype
+optional("fontmgr_custom_empty") {
+  enabled = skia_enable_fontmgr_custom_empty
 
   deps = [
     ":typeface_freetype",
@@ -849,9 +850,9 @@ component("skia") {
     ":crc32",
     ":fontmgr_android",
     ":fontmgr_custom",
+    ":fontmgr_custom_empty",
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
-    ":fontmgr_fuchsia",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -1519,7 +1520,7 @@ if (skia_enable_tools) {
   test_lib("tests") {
     public_include_dirs = [ "tests" ]
     sources = tests_sources + pathops_tests_sources
-    if (!fontmgr_android_enabled) {
+    if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     if (!(skia_use_freetype && skia_use_fontconfig)) {
