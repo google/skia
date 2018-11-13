@@ -99,7 +99,7 @@ public:
     /** Subset the font based on current usage.
      *  Must be called before emitObject().
      */
-    virtual void getFontSubset(SkPDFCanon*) = 0;
+    virtual void getFontSubset(SkPDFDocument*) = 0;
 
     /**
      *  Return false iff the typeface has its NotEmbeddable flag set.

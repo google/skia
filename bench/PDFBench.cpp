@@ -119,12 +119,9 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage);
-            SkASSERT(object);
-            if (!object) {
-                return;
-            }
-            test_pdf_object_serialization(object);
+            SkNullWStream nullStream;
+            SkPDFDocument doc(&nullStream, SkPDF::Metadata());
+            (void)SkPDFSerializeImage(*fImage, &doc);
         }
     }
 
@@ -156,12 +153,9 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage);
-            SkASSERT(object);
-            if (!object) {
-                return;
-            }
-            test_pdf_object_serialization(object);
+            SkNullWStream nullStream;
+            SkPDFDocument doc(&nullStream, SkPDF::Metadata());
+            (void)SkPDFSerializeImage(*fImage, &doc);
         }
     }
 
