@@ -32,6 +32,10 @@ class SkWStream;
     #include <atomic>
 #endif
 
+struct SkPDFIndirectReference {
+    int fValue = -1;
+};
+
 /** \class SkPDFObject
 
     A PDF Object is the base class for primitive elements in a PDF file.  A
@@ -46,8 +50,7 @@ public:
      *  @param catalog  The object catalog to use.
      *  @param stream   The writable output stream to send the output to.
      */
-    virtual void emitObject(SkWStream* stream,
-                            const SkPDFObjNumMap& objNumMap) const = 0;
+    virtual void emitObject(SkWStream* stream) const = 0;
 
     /**
      *  Adds all transitive dependencies of this object to the
@@ -64,6 +67,9 @@ public:
     virtual void drop() {}
 
     virtual ~SkPDFObject() {}
+
+    SkPDFIndirectReference fIndirectReference;
+
 private:
     typedef SkRefCnt INHERITED;
 };
@@ -141,7 +147,7 @@ public:
 
     /** These two non-virtual methods mirror SkPDFObject's
         corresponding virtuals. */
-    void emitObject(SkWStream*, const SkPDFObjNumMap&) const;
+    void emitObject(SkWStream*) const;
     void addResources(SkPDFObjNumMap*) const;
 
     bool isName() const;
@@ -196,8 +202,7 @@ void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len);
     referenced indirectly. */
 class SkPDFAtom final : public SkPDFObject {
 public:
-    void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap) final;
+    void emitObject(SkWStream* stream) final;
     void addResources(SkPDFObjNumMap* const final;
     SkPDFAtom(SkPDFUnion&& v) : fValue(std::move(v) {}
 
@@ -221,8 +226,7 @@ public:
     ~SkPDFArray() override;
 
     // The SkPDFObject interface.
-    void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap) const override;
+    void emitObject(SkWStream* stream) const override;
     void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
@@ -287,8 +291,7 @@ public:
     ~SkPDFDict() override;
 
     // The SkPDFObject interface.
-    void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap) const override;
+    void emitObject(SkWStream* stream) const override;
     void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
@@ -324,8 +327,7 @@ public:
 
     /** Emit the dictionary, without the "<<" and ">>".
      */
-    void emitAll(SkWStream* stream,
-                 const SkPDFObjNumMap& objNumMap) const;
+    void emitAll(SkWStream* stream) const;
 
 private:
     struct Record {
@@ -348,8 +350,7 @@ public:
     SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data);
     ~SkPDFSharedStream() override;
     SkPDFDict* dict() { return &fDict; }
-    void emitObject(SkWStream*,
-                    const SkPDFObjNumMap&) const override;
+    void emitObject(SkWStream*) const override;
     void addResources(SkPDFObjNumMap*) const override;
     void drop() override;
 
@@ -380,8 +381,7 @@ public:
     SkPDFDict* dict() { return &fDict; }
 
     // The SkPDFObject interface.
-    void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap) const override;
+    void emitObject(SkWStream* stream) const override;
     void addResources(SkPDFObjNumMap*) const final;
     void drop() override;
 
@@ -417,13 +417,15 @@ public:
     /** Get the object number for the passed object.
      *  @param obj         The object of interest.
      */
-    int32_t getObjectNumber(SkPDFObject* obj) const;
-
+    int getObjectNumber(SkPDFObject* obj) const {
+        return SkASSERT(obj), obj->fIndirectReference.fValue;
+    }
     const std::vector<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
 
 private:
+    friend struct SkPDFObjectSerializer;
     std::vector<sk_sp<SkPDFObject>> fObjects;
-    SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
+    int fNextObjectNumber = 1;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
