@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b953044_290dd540",
+        "filename": "src/gpu/GrVertexWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-13T21:00:15Z",
+      "side": 1,
+      "message": "you basically don\u0027t need this constructor if you just use {} instead.\n\nIf you do keep it, better make it explicit?",
+      "range": {
+        "startLine": 24,
+        "startChar": 3,
+        "endLine": 24,
+        "endChar": 44
+      },
+      "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3181bd18_be5a70a1",
+        "filename": "src/gpu/GrVertexWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-13T21:00:15Z",
+      "side": 1,
+      "message": "These are all implicitly inline because they\u0027re inside the struct definition.  I think it\u0027s fine to leave them if it makes you feel cozy.",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 10
+      },
+      "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d13e3408_aee185f4",
+        "filename": "src/gpu/GrVertexWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-13T21:00:15Z",
+      "side": 1,
+      "message": "I do like that this is semantically non-const, even though it does nothing.",
+      "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
