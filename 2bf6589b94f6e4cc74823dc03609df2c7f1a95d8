@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65237f97_2b599c73",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-13T22:46:05Z",
+      "side": 1,
+      "message": "How does this return \u0027there is no path\u0027 vs \u0027empty path\u0027. (We have a bug about the existing API not being able to allow the user to tell the difference.)",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 8
+      },
+      "revId": "2bf6589b94f6e4cc74823dc03609df2c7f1a95d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92b1be87_f7b97972",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-13T22:46:05Z",
+      "side": 1,
+      "message": "This does allow distinguishing empty path from no path, which is good.",
+      "range": {
+        "startLine": 168,
+        "startChar": 58,
+        "endLine": 168,
+        "endChar": 82
+      },
+      "revId": "2bf6589b94f6e4cc74823dc03609df2c7f1a95d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
