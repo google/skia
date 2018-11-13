@@ -45,6 +45,30 @@
       "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0e85255_4f299215",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1797,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T14:14:39Z",
+      "side": 1,
+      "message": "Yeah, these could just be the list of individual floats, without any structure. If anything, they should be structs or arrays of four floats (to match the attribute declarations). I think I\u0027ve decided that error checking vertex writing against attributes isn\u0027t real important (the errors are egregious as soon as you make them), but if we ever wanted to track the data being written to ensure it lines up with the attributes from the GP, these would have to be grouped differently.",
+      "parentUuid": "ae37f9c2_6acaacd8",
+      "range": {
+        "startLine": 1797,
+        "startChar": 36,
+        "endLine": 1797,
+        "endChar": 49
+      },
+      "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
