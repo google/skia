@@ -116,7 +116,7 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
             GrXferProcessor::DstProxy()
         };
         flushState->setOpArgs(&opArgs);
-        fRecordedOps[i]->execute(flushState);
+        fRecordedOps[i]->execute(flushState, fRecordedOps[i].get()->bounds());
         flushState->setOpArgs(nullptr);
     }
 

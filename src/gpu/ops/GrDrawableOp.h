@@ -40,7 +40,7 @@ private:
     }
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     std::unique_ptr<SkDrawable::GpuDrawHandler> fDrawable;
 
