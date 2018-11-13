@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82e383b0_8a5088ab",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-13T23:30:21Z",
+      "side": 1,
+      "message": "Can we make a FindOrCreateStrikeExclusive that just takes a SkFont? That it can be used uniformly everywhere in these situations. That way we can get rid of the CreateDescriptor... variants.",
+      "range": {
+        "startLine": 349,
+        "startChar": 36,
+        "endLine": 349,
+        "endChar": 63
+      },
+      "revId": "d14ddc14b1061720db71913fe8f6ec1fc3ebd885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
