@@ -9,6 +9,7 @@
 
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
+#include "ops/GrMeshDrawOp.h"
 
 #include "SkArenaAlloc.h"
 #include "SkGeometry.h"
@@ -200,23 +201,14 @@ struct Comparator {
 
 inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     if (!aaParams) {
-        SkPoint* d = static_cast<SkPoint*>(data);
-        *d++ = v->fPoint;
-        return d;
+        return GrMeshDrawOp::WriteVertexData(data, v->fPoint);
     }
     if (aaParams->fTweakAlpha) {
-        auto d = static_cast<GrDefaultGeoProcFactory::PositionColorAttr*>(data);
-        d->fPosition = v->fPoint;
-        d->fColor = SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha));
-        d++;
-        return d;
+        GrColor color = SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha));
+        return GrMeshDrawOp::WriteVertexData(data, v->fPoint, color);
     }
-    auto d = static_cast<GrDefaultGeoProcFactory::PositionColorCoverageAttr*>(data);
-    d->fPosition = v->fPoint;
-    d->fColor = aaParams->fColor;
-    d->fCoverage = GrNormalizeByteToFloat(v->fAlpha);
-    d++;
-    return d;
+    float coverage = GrNormalizeByteToFloat(v->fAlpha);
+    return GrMeshDrawOp::WriteVertexData(data, v->fPoint, aaParams->fColor, coverage);
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {
