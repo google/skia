@@ -147,6 +147,7 @@ public:
         kGrYUVtoRGBEffect_ClassID,
         kHighContrastFilterEffect_ClassID,
         kInstanceProcessor_ClassID,
+        kAARoundRectProcessor_ClassID,
         kLatticeGP_ClassID,
         kLumaColorFilterEffect_ClassID,
         kMSAAQuadProcessor_ClassID,
