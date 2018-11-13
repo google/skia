@@ -206,12 +206,15 @@ cc_test {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
-  'is_official_build':   'true',
-  'skia_enable_tools':   'true',
-  'skia_use_libheif':    'true',
-  'skia_use_vulkan':     'true',
-  'target_cpu':          '"none"',
-  'target_os':           '"android"',
+  'is_official_build':                  'true',
+  'skia_enable_tools':                  'true',
+  'skia_use_libheif':                   'true',
+  'skia_use_vulkan':                    'true',
+  'target_cpu':                         '"none"',
+  'target_os':                          '"android"',
+  'skia_enable_fontmgr_custom':         'false',
+  'skia_enable_fontmgr_custom_empty':   'true',
+  'skia_enable_fontmgr_android':        'false',
 }
 
 extra_userconfig_defines = [
