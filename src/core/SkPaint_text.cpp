@@ -263,7 +263,7 @@ SkFontPriv::GlyphCacheProc SkFontPriv::GetGlyphCacheProc(SkTextEncoding encoding
         sk_getAdvance_glyph_next,
     };
 
-    unsigned index = encoding;
+    unsigned index = static_cast<unsigned>(encoding);
 
     if (!needFullMetrics) {
         index += 4;
