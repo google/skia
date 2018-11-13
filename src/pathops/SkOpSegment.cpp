@@ -934,7 +934,7 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end,
                 }
             } else {
                 FAIL_IF(spanStart->windSum() != oppWinding);
-                SkASSERT(spanStart->oppSum() == winding);
+                FAIL_IF(spanStart->oppSum() != winding);
             }
             SkASSERT(!last);
             break;
