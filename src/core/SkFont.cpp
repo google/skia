@@ -9,6 +9,7 @@
 #include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkStrikeCache.h"
 #include "SkTo.h"
@@ -332,6 +333,43 @@ void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], Sk
             set_bounds(g, bounds++, scale);
         }
     }
+}
+
+void SkFont::getPaths(const uint16_t glyphs[], int count,
+                      void (*proc)(uint16_t, const SkPath*, void*), void* ctx) const {
+    SkFont font(*this);
+    SkScalar scale = font.setupForAsPaths(nullptr);
+
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
+                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
+                         SkMatrix::I(), &ad, &effects);
+    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    auto exclusive = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+    auto cache = exclusive.get();
+
+    for (int i = 0; i < count; ++i) {
+        const SkPath* orig = cache->findPath(cache->getGlyphIDMetrics(glyphs[i]));
+        if (orig && scale) {
+            SkPath tmp;
+            orig->transform(SkMatrix::MakeScale(scale, scale), &tmp);
+            proc(glyphs[i], &tmp, ctx);
+        } else {
+            proc(glyphs[i], orig, ctx);
+        }
+    }
+}
+
+void SkFont::getPath(uint16_t glyphID, SkPath* path) const {
+    this->getPaths(&glyphID, 1, [](uint16_t, const SkPath* orig, void* ctx) {
+        SkPath* dst = static_cast<SkPath*>(ctx);
+        if (orig) {
+            *dst = *orig;
+        } else {
+            dst->reset();
+        }
+    }, path);
 }
 
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
