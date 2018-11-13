@@ -466,6 +466,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["determinant"] = FunctionClass::kDeterminant;
         (*fFunctionClasses)["dFdx"]        = FunctionClass::kDerivative;
         (*fFunctionClasses)["dFdy"]        = FunctionClass::kDerivative;
+        (*fFunctionClasses)["fwidth"]      = FunctionClass::kDerivative;
         (*fFunctionClasses)["fract"]       = FunctionClass::kFract;
         (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
         (*fFunctionClasses)["inverseSqrt"] = FunctionClass::kInverseSqrt;
