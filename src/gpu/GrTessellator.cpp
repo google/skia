@@ -9,7 +9,7 @@
 
 #include "GrDefaultGeoProcFactory.h"
 #include "GrPathUtils.h"
-#include "ops/GrMeshDrawOp.h"
+#include "GrVertexWriter.h"
 
 #include "SkArenaAlloc.h"
 #include "SkGeometry.h"
@@ -200,15 +200,17 @@ struct Comparator {
 };
 
 inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
-    if (!aaParams) {
-        return GrMeshDrawOp::WriteVertexData(data, v->fPoint);
+    GrVertexWriter verts{data};
+    verts.write(v->fPoint);
+
+    if (aaParams) {
+        if (aaParams->fTweakAlpha) {
+            verts.write(SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha)));
+        } else {
+            verts.write(aaParams->fColor, GrNormalizeByteToFloat(v->fAlpha));
+        }
     }
-    if (aaParams->fTweakAlpha) {
-        GrColor color = SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha));
-        return GrMeshDrawOp::WriteVertexData(data, v->fPoint, color);
-    }
-    float coverage = GrNormalizeByteToFloat(v->fAlpha);
-    return GrMeshDrawOp::WriteVertexData(data, v->fPoint, aaParams->fColor, coverage);
+    return verts.fPtr;
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {

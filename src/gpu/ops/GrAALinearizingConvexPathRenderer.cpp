@@ -17,6 +17,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrStyle.h"
+#include "GrVertexWriter.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
@@ -80,21 +81,22 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 
 // extract the result vertices and indices from the GrAAConvexTessellator
 static void extract_verts(const GrAAConvexTessellator& tess,
-                          void* vertices,
+                          void* vertData,
                           size_t vertexStride,
                           GrColor color,
                           uint16_t firstIndex,
                           uint16_t* idxs,
                           bool tweakAlphaForCoverage) {
+    GrVertexWriter verts{vertData};
     for (int i = 0; i < tess.numPts(); ++i) {
-        vertices = GrMeshDrawOp::WriteVertexData(vertices, tess.point(i));
+        verts.write(tess.point(i));
         if (tweakAlphaForCoverage) {
             SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
             unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
             GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-            vertices = GrMeshDrawOp::WriteVertexData(vertices, scaledColor);
+            verts.write(scaledColor);
         } else {
-            vertices = GrMeshDrawOp::WriteVertexData(vertices, color, tess.coverage(i));
+            verts.write(color, tess.coverage(i));
         }
     }
 
