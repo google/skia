@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c1627c03_2bf9c11b",
+        "filename": "src/gpu/GrVertexWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T21:12:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b953044_290dd540",
+      "range": {
+        "startLine": 24,
+        "startChar": 3,
+        "endLine": 24,
+        "endChar": 44
+      },
+      "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3181bd18_be5a70a1",
         "filename": "src/gpu/GrVertexWriter.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eecbd376_10448239",
+        "filename": "src/gpu/GrVertexWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T21:12:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3181bd18_be5a70a1",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 10
+      },
+      "revId": "da2c78509cfc812a4ba22a43a70d30609cb1ef64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
