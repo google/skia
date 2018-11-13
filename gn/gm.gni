@@ -147,6 +147,7 @@ gm_sources = [
   "$_gm/fontmgr.cpp",
   "$_gm/fontscaler.cpp",
   "$_gm/fontscalerdistortable.cpp",
+  "$_gm/fwidth_squircle.cpp",
   "$_gm/gamma.cpp",
   "$_gm/gammatext.cpp",
   "$_gm/gamut.cpp",
