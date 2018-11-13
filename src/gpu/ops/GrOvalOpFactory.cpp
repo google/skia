@@ -13,6 +13,7 @@
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
+#include "GrVertexWriter.h"
 #include "SkRRectPriv.h"
 #include "SkStrokeRec.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -1163,9 +1164,9 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        void* vertices = target->makeVertexSpace(gp->vertexStride(), fVertCount, &vertexBuffer,
-                                                 &firstVertex);
-        if (!vertices) {
+        GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
+                                                        &vertexBuffer, &firstVertex)};
+        if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1188,6 +1189,7 @@ private:
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
+            SkPoint radii = { outerRadius, innerRadius };
 
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f * bounds.width();
@@ -1212,19 +1214,21 @@ private:
                 // compute the vertex position from this.
                 SkScalar dist = SkTMin(kOctagonOuter[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
                 SkVector offset = kOctagonOuter[i] - geoClipPlane * dist;
-                vertices = WriteVertexData(vertices, center + offset * halfWidth, color, offset,
-                                           outerRadius, innerRadius);
+                vertices.write(center + offset * halfWidth,
+                               color,
+                               offset,
+                               radii);
                 if (fClipPlane) {
-                    vertices = WriteVertexData(vertices, circle.fClipPlane);
+                    vertices.write(circle.fClipPlane);
                 }
                 if (fClipPlaneIsect) {
-                    vertices = WriteVertexData(vertices, circle.fIsectPlane);
+                    vertices.write(circle.fIsectPlane);
                 }
                 if (fClipPlaneUnion) {
-                    vertices = WriteVertexData(vertices, circle.fUnionPlane);
+                    vertices.write(circle.fUnionPlane);
                 }
                 if (fRoundCaps) {
-                    vertices = WriteVertexData(vertices, circle.fRoundCapCenters);
+                    vertices.write(circle.fRoundCapCenters);
                 }
             }
 
@@ -1232,36 +1236,34 @@ private:
                 // compute the inner ring
 
                 for (int i = 0; i < 8; ++i) {
-                    vertices = WriteVertexData(vertices,
-                                               center + kOctagonInner[i] * circle.fInnerRadius,
-                                               color,
-                                               kOctagonInner[i] * innerRadius,
-                                               outerRadius, innerRadius);
+                    vertices.write(center + kOctagonInner[i] * circle.fInnerRadius,
+                                   color,
+                                   kOctagonInner[i] * innerRadius,
+                                   radii);
                     if (fClipPlane) {
-                        vertices = WriteVertexData(vertices, circle.fClipPlane);
+                        vertices.write(circle.fClipPlane);
                     }
                     if (fClipPlaneIsect) {
-                        vertices = WriteVertexData(vertices, circle.fIsectPlane);
+                        vertices.write(circle.fIsectPlane);
                     }
                     if (fClipPlaneUnion) {
-                        vertices = WriteVertexData(vertices, circle.fUnionPlane);
+                        vertices.write(circle.fUnionPlane);
                     }
                     if (fRoundCaps) {
-                        vertices = WriteVertexData(vertices, circle.fRoundCapCenters);
+                        vertices.write(circle.fRoundCapCenters);
                     }
                 }
             } else {
                 // filled
-                vertices = WriteVertexData(vertices, center, color, SkPoint::Make(0, 0),
-                                           outerRadius, innerRadius);
+                vertices.write(center, color, SkPoint::Make(0, 0), radii);
                 if (fClipPlane) {
-                    vertices = WriteVertexData(vertices, circle.fClipPlane);
+                    vertices.write(circle.fClipPlane);
                 }
                 if (fClipPlaneIsect) {
-                    vertices = WriteVertexData(vertices, circle.fIsectPlane);
+                    vertices.write(circle.fIsectPlane);
                 }
                 if (fClipPlaneUnion) {
-                    vertices = WriteVertexData(vertices, circle.fUnionPlane);
+                    vertices.write(circle.fUnionPlane);
                 }
                 SkASSERT(!fRoundCaps);
             }
@@ -1482,9 +1484,9 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        void* vertices = target->makeVertexSpace(gp->vertexStride(), fVertCount, &vertexBuffer,
-                                                 &firstVertex);
-        if (!vertices) {
+        GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
+                                                        &vertexBuffer, &firstVertex)};
+        if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
@@ -1529,24 +1531,22 @@ private:
             };
 
             for (int i = 0; i < 8; ++i) {
-                vertices = WriteVertexData(vertices,
-                                           center + kOctagonOuter[i] * halfWidth,
-                                           color,
-                                           reflectY(kOctagonOuter[i]),
-                                           circle.fOuterRadius,
-                                           normInnerRadius,
-                                           dashParams);
+                vertices.write(center + kOctagonOuter[i] * halfWidth,
+                               color,
+                               reflectY(kOctagonOuter[i]),
+                               circle.fOuterRadius,
+                               normInnerRadius,
+                               dashParams);
             }
 
             // Compute the vertices of the inner octagon.
             for (int i = 0; i < 8; ++i) {
-                vertices = WriteVertexData(vertices,
-                                           center + kOctagonInner[i] * circle.fInnerRadius,
-                                           color,
-                                           reflectY(kOctagonInner[i]) * normInnerRadius,
-                                           circle.fOuterRadius,
-                                           normInnerRadius,
-                                           dashParams);
+                vertices.write(center + kOctagonInner[i] * circle.fInnerRadius,
+                               color,
+                               reflectY(kOctagonInner[i]) * normInnerRadius,
+                               circle.fOuterRadius,
+                               normInnerRadius,
+                               dashParams);
             }
 
             const uint16_t* primIndices = circle_type_to_indices(true);
@@ -1758,8 +1758,8 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
         QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
-        void* verts = helper.vertices();
-        if (!verts) {
+        GrVertexWriter verts{helper.vertices()};
+        if (!verts.fPtr) {
             return;
         }
 
@@ -1788,29 +1788,25 @@ private:
             }
 
             // The inner radius in the vertex data must be specified in normalized space.
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fLeft, bounds.fTop),
-                                    color,
-                                    SkPoint::Make(-xMaxOffset, -yMaxOffset),
-                                    invRadii);
+            verts.write(SkPoint::Make(bounds.fLeft, bounds.fTop),
+                        color,
+                        SkPoint::Make(-xMaxOffset, -yMaxOffset),
+                        invRadii);
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fLeft, bounds.fBottom),
-                                    color,
-                                    SkPoint::Make(-xMaxOffset, yMaxOffset),
-                                    invRadii);
+            verts.write(SkPoint::Make(bounds.fLeft, bounds.fBottom),
+                        color,
+                        SkPoint::Make(-xMaxOffset, yMaxOffset),
+                        invRadii);
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fRight, bounds.fTop),
-                                    color,
-                                    SkPoint::Make(xMaxOffset, -yMaxOffset),
-                                    invRadii);
+            verts.write(SkPoint::Make(bounds.fRight, bounds.fTop),
+                        color,
+                        SkPoint::Make(xMaxOffset, -yMaxOffset),
+                        invRadii);
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fRight, bounds.fBottom),
-                                    color,
-                                    SkPoint::Make(xMaxOffset, yMaxOffset),
-                                    invRadii);
+            verts.write(SkPoint::Make(bounds.fRight, bounds.fBottom),
+                        color,
+                        SkPoint::Make(xMaxOffset, yMaxOffset),
+                        invRadii);
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
@@ -1993,8 +1989,8 @@ private:
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
 
         QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
-        void* verts = helper.vertices();
-        if (!verts) {
+        GrVertexWriter verts{helper.vertices()};
+        if (!verts.fPtr) {
             return;
         }
 
@@ -2020,33 +2016,29 @@ private:
                 innerRatioY = yRadius / ellipse.fInnerYRadius;
             }
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fLeft, bounds.fTop),
-                                    color,
-                                    SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy),
-                                    SkPoint::Make(-innerRatioX - offsetDx,
-                                                  -innerRatioY - offsetDy));
+            verts.write(SkPoint::Make(bounds.fLeft, bounds.fTop),
+                        color,
+                        SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy),
+                        SkPoint::Make(-innerRatioX - offsetDx,
+                                      -innerRatioY - offsetDy));
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fLeft, bounds.fBottom),
-                                    color,
-                                    SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy),
-                                    SkPoint::Make(-innerRatioX - offsetDx,
-                                                   innerRatioY + offsetDy));
+            verts.write(SkPoint::Make(bounds.fLeft, bounds.fBottom),
+                        color,
+                        SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy),
+                        SkPoint::Make(-innerRatioX - offsetDx,
+                                       innerRatioY + offsetDy));
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fRight, bounds.fTop),
-                                    color,
-                                    SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy),
-                                    SkPoint::Make( innerRatioX + offsetDx,
-                                                  -innerRatioY - offsetDy));
+            verts.write(SkPoint::Make(bounds.fRight, bounds.fTop),
+                        color,
+                        SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy),
+                        SkPoint::Make( innerRatioX + offsetDx,
+                                      -innerRatioY - offsetDy));
 
-            verts = WriteVertexData(verts,
-                                    SkPoint::Make(bounds.fRight, bounds.fBottom),
-                                    color,
-                                    SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy),
-                                    SkPoint::Make(innerRatioX + offsetDx,
-                                                  innerRatioY + offsetDy));
+            verts.write(SkPoint::Make(bounds.fRight, bounds.fBottom),
+                        color,
+                        SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy),
+                        SkPoint::Make(innerRatioX + offsetDx,
+                                      innerRatioY + offsetDy));
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
