@@ -32,6 +32,9 @@ public:
                            const SkPaint& paint, Align align = kLeft_Align) {
         DrawText(canvas, str.c_str(), str.size(), x, y, paint, align);
     }
+
+    static void GetTextPath(const SkFont&, const void* text, size_t size, SkTextEncoding,
+                            SkScalar x, SkScalar y, SkPath*);
 };
 
 #endif

@@ -565,6 +565,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkDraw.h"
+#include "SkTextUtils.h"
 
 void SkPaint::getTextPath(const void* textData, size_t length,
                           SkScalar x, SkScalar y, SkPath* path) const {
@@ -572,6 +573,14 @@ void SkPaint::getTextPath(const void* textData, size_t length,
 
     const char* text = (const char*)textData;
     if (text == nullptr || length == 0 || path == nullptr) {
+        return;
+    }
+
+    // For compatibility testing
+    if (false) {
+        SkTextEncoding encoding = (SkTextEncoding)this->getTextEncoding();
+        SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
+        SkTextUtils::GetTextPath(font, textData, length, encoding, x, y, path);
         return;
     }
 
