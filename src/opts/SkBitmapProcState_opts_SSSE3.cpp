@@ -112,15 +112,11 @@ inline __m128i ProcessPixelPairHelper(uint32_t pixel0,
 
 // Scale back the results after multiplications to the [0:255] range, and scale
 // by alpha when has_alpha is true.
-// Depending on whether one set or two sets of multiplications had been applied,
-// the results have to be shifted by four places (dividing by 16), or shifted
-// by eight places (dividing by 256), since each multiplication is by a quantity
-// in the range [0:16].
-template<bool has_alpha, int scale>
+template<bool has_alpha>
 inline __m128i ScaleFourPixels(__m128i* pixels,
                                const __m128i& alpha) {
-    // Divide each 16 bit component by 16 (or 256 depending on scale).
-    *pixels = _mm_srli_epi16(*pixels, scale);
+    // Divide each 16 bit component by 256.
+    *pixels = _mm_srli_epi16(*pixels, 8);
 
     if (has_alpha) {
         // Multiply by alpha.
@@ -131,56 +127,6 @@ inline __m128i ScaleFourPixels(__m128i* pixels,
     }
     return *pixels;
 }
-
-// Wrapper to calculate two output pixels from four input pixels. The
-// arguments are the same as ProcessPixelPairHelper. Technically, there are
-// eight input pixels, but since sub_y == 0, the factors applied to half of the
-// pixels is zero (sub_y), and are therefore omitted here to save on some
-// processing.
-// @param alpha when has_alpha is true, scale all resulting components by this
-//              value.
-// @return a vector of 16 bit components containing:
-// ((Aa2 * (16 - x1) + Aa3 * x1) * alpha, ...,
-// (Ra0 * (16 - x0) + Ra1 * x0) * alpha) (when has_alpha is true)
-// otherwise
-// (Aa2 * (16 - x1) + Aa3 * x1, ... , Ra0 * (16 - x0) + Ra1 * x0)
-// In both cases, the results are renormalized (divided by 16) to match the
-// expected formats when storing back the results into memory.
-template<bool has_alpha>
-inline __m128i ProcessPixelPairZeroSubY(uint32_t pixel0,
-                                        uint32_t pixel1,
-                                        uint32_t pixel2,
-                                        uint32_t pixel3,
-                                        const __m128i& scale_x,
-                                        const __m128i& alpha) {
-    __m128i sum = ProcessPixelPairHelper(pixel0, pixel1, pixel2, pixel3,
-                                         scale_x);
-    return ScaleFourPixels<has_alpha, 4>(&sum, alpha);
-}
-
-// Same as ProcessPixelPairZeroSubY, expect processing one output pixel at a
-// time instead of two. As in the above function, only two pixels are needed
-// to generate a single pixel since sub_y == 0.
-// @return same as ProcessPixelPairZeroSubY, except that only the bottom 4
-// 16 bit components are set.
-template<bool has_alpha>
-inline __m128i ProcessOnePixelZeroSubY(uint32_t pixel0,
-                                       uint32_t pixel1,
-                                       __m128i scale_x,
-                                       __m128i alpha) {
-    __m128i a0 = _mm_cvtsi32_si128(pixel0);
-    __m128i a1 = _mm_cvtsi32_si128(pixel1);
-
-    // Interleave
-    a0 = _mm_unpacklo_epi8(a0, a1);
-
-    // (a0 * (16-x) + a1 * x)
-    __m128i sum = _mm_maddubs_epi16(a0, scale_x);
-
-    return ScaleFourPixels<has_alpha, 4>(&sum, alpha);
-}
-
-// Methods when sub_y != 0
 
 
 // Same as ProcessPixelPairHelper, except that the values are scaled by y.
@@ -252,7 +198,7 @@ inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
     // Each component, again can be at most 256 * 255 = 65280, so no overflow.
     sum0 = _mm_add_epi16(sum0, sum1);
 
-    return ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
+    return ScaleFourPixels<has_alpha>(&sum0, alpha);
 }
 
 // Same as ProcessPixelPair, except that performing the math one output pixel
@@ -274,13 +220,6 @@ inline __m128i ProcessOnePixel(uint32_t pixel0, uint32_t pixel1,
 }
 
 // Notes about the various tricks that are used in this implementation:
-// - specialization for sub_y == 0.
-// Statistically, 1/16th of the samples will have sub_y == 0. When this
-// happens, the math goes from:
-// (16 - x)*(16 - y)*a00 + x*(16 - y)*a01 + (16 - x)*y*a10 + x*y*a11
-// to:
-// (16 - x)*a00 + 16*x*a01
-// much simpler. The simplification makes for an easy boost in performance.
 // - calculating 4 output pixels at a time.
 //  This allows loading the coefficients x0 and x1 and shuffling them to the
 // optimum location only once per loop, instead of twice per loop.
@@ -320,7 +259,6 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
             reinterpret_cast<const uint32_t*>(src_addr + (y0 >> 4) * rb);
     const uint32_t* row1 =
             reinterpret_cast<const uint32_t*>(src_addr + (XY & 0x3FFF) * rb);
-    const unsigned sub_y = y0 & 0xF;
 
     // vector constants
     const __m128i mask_dist_select = _mm_set_epi8(12, 12, 12, 12,
@@ -339,150 +277,85 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         alpha = _mm_set1_epi16(s.fAlphaScale);
     }
 
-    if (sub_y == 0) {
-        // Unroll 4x, interleave bytes, use pmaddubsw (all_x is small)
-        while (count > 3) {
-            count -= 4;
+    // 8x(16)
+    const __m128i sixteen_16bit = _mm_set1_epi16(16);
 
-            int x0[4];
-            int x1[4];
-            __m128i all_x, sixteen_minus_x;
-            PrepareConstantsTwoPixelPairs(xy, mask_3FFF, mask_000F,
-                                          sixteen_8bit, mask_dist_select,
-                                          &all_x, &sixteen_minus_x, x0, x1);
-            xy += 4;
+    // 8x (y)
+    const __m128i all_y = _mm_set1_epi16(y0 & 0xF);
 
-            // First pair of pixel pairs.
-            // (4x(x1, 16-x1), 4x(x0, 16-x0))
-            __m128i scale_x;
-            scale_x = _mm_unpacklo_epi8(sixteen_minus_x, all_x);
+    // 8x (16-y)
+    const __m128i neg_y = _mm_sub_epi16(sixteen_16bit, all_y);
 
-            __m128i sum0 = ProcessPixelPairZeroSubY<has_alpha>(
-                row0[x0[0]], row0[x1[0]], row0[x0[1]], row0[x1[1]],
-                scale_x, alpha);
+    // Unroll 4x, interleave bytes, use pmaddubsw (all_x is small)
+    while (count > 3) {
+        count -= 4;
 
-            // second pair of pixel pairs
-            // (4x (x3, 16-x3), 4x (16-x2, x2))
-            scale_x = _mm_unpackhi_epi8(sixteen_minus_x, all_x);
+        int x0[4];
+        int x1[4];
+        __m128i all_x, sixteen_minus_x;
+        PrepareConstantsTwoPixelPairs(xy, mask_3FFF, mask_000F,
+                sixteen_8bit, mask_dist_select,
+                &all_x, &sixteen_minus_x, x0, x1);
+        xy += 4;
 
-            __m128i sum1 = ProcessPixelPairZeroSubY<has_alpha>(
-                row0[x0[2]], row0[x1[2]], row0[x0[3]], row0[x1[3]],
-                scale_x, alpha);
+        // First pair of pixel pairs
+        // (4x(x1, 16-x1), 4x(x0, 16-x0))
+        __m128i scale_x;
+        scale_x = _mm_unpacklo_epi8(sixteen_minus_x, all_x);
 
-            // Pack lower 4 16 bit values of sum into lower 4 bytes.
-            sum0 = _mm_packus_epi16(sum0, sum1);
-
-            // Extract low int and store.
-            _mm_storeu_si128(reinterpret_cast<__m128i *>(colors), sum0);
-
-            colors += 4;
-        }
-
-        // handle remainder
-        while (count-- > 0) {
-            uint32_t xx = *xy++;  // x0:14 | 4 | x1:14
-            unsigned x0 = xx >> 18;
-            unsigned x1 = xx & 0x3FFF;
-
-            // 16x(x)
-            const __m128i all_x = _mm_set1_epi8((xx >> 14) & 0x0F);
-
-            // (16x(16-x))
-            __m128i scale_x = _mm_sub_epi8(sixteen_8bit, all_x);
-
-            scale_x = _mm_unpacklo_epi8(scale_x, all_x);
-
-            __m128i sum = ProcessOnePixelZeroSubY<has_alpha>(
-                row0[x0], row0[x1],
-                scale_x, alpha);
-
-            // Pack lower 4 16 bit values of sum into lower 4 bytes.
-            sum = _mm_packus_epi16(sum, zero);
-
-            // Extract low int and store.
-            *colors++ = _mm_cvtsi128_si32(sum);
-        }
-    } else {  // more general case, y != 0
-        // 8x(16)
-        const __m128i sixteen_16bit = _mm_set1_epi16(16);
-
-        // 8x (y)
-        const __m128i all_y = _mm_set1_epi16(sub_y);
-
-        // 8x (16-y)
-        const __m128i neg_y = _mm_sub_epi16(sixteen_16bit, all_y);
-
-        // Unroll 4x, interleave bytes, use pmaddubsw (all_x is small)
-        while (count > 3) {
-            count -= 4;
-
-            int x0[4];
-            int x1[4];
-            __m128i all_x, sixteen_minus_x;
-            PrepareConstantsTwoPixelPairs(xy, mask_3FFF, mask_000F,
-                                          sixteen_8bit, mask_dist_select,
-                                          &all_x, &sixteen_minus_x, x0, x1);
-            xy += 4;
-
-            // First pair of pixel pairs
-            // (4x(x1, 16-x1), 4x(x0, 16-x0))
-            __m128i scale_x;
-            scale_x = _mm_unpacklo_epi8(sixteen_minus_x, all_x);
-
-            __m128i sum0 = ProcessTwoPixelPairs<has_alpha>(
+        __m128i sum0 = ProcessTwoPixelPairs<has_alpha>(
                 row0, row1, x0, x1,
                 scale_x, all_y, neg_y, alpha);
 
-            // second pair of pixel pairs
-            // (4x (x3, 16-x3), 4x (16-x2, x2))
-            scale_x = _mm_unpackhi_epi8(sixteen_minus_x, all_x);
+        // second pair of pixel pairs
+        // (4x (x3, 16-x3), 4x (16-x2, x2))
+        scale_x = _mm_unpackhi_epi8(sixteen_minus_x, all_x);
 
-            __m128i sum1 = ProcessTwoPixelPairs<has_alpha>(
+        __m128i sum1 = ProcessTwoPixelPairs<has_alpha>(
                 row0, row1, x0 + 2, x1 + 2,
                 scale_x, all_y, neg_y, alpha);
 
-            // Do the final packing of the two results
+        // Do the final packing of the two results
 
-            // Pack lower 4 16 bit values of sum into lower 4 bytes.
-            sum0 = _mm_packus_epi16(sum0, sum1);
+        // Pack lower 4 16 bit values of sum into lower 4 bytes.
+        sum0 = _mm_packus_epi16(sum0, sum1);
 
-            // Extract low int and store.
-            _mm_storeu_si128(reinterpret_cast<__m128i *>(colors), sum0);
+        // Extract low int and store.
+        _mm_storeu_si128(reinterpret_cast<__m128i *>(colors), sum0);
 
-            colors += 4;
-        }
+        colors += 4;
+    }
 
-        // Left over.
-        while (count-- > 0) {
-            const uint32_t xx = *xy++;  // x0:14 | 4 | x1:14
-            const unsigned x0 = xx >> 18;
-            const unsigned x1 = xx & 0x3FFF;
+    // Left over.
+    while (count-- > 0) {
+        const uint32_t xx = *xy++;  // x0:14 | 4 | x1:14
+        const unsigned x0 = xx >> 18;
+        const unsigned x1 = xx & 0x3FFF;
 
-            // 16x(x)
-            const __m128i all_x = _mm_set1_epi8((xx >> 14) & 0x0F);
+        // 16x(x)
+        const __m128i all_x = _mm_set1_epi8((xx >> 14) & 0x0F);
 
-            // 16x (16-x)
-            __m128i scale_x = _mm_sub_epi8(sixteen_8bit, all_x);
+        // 16x (16-x)
+        __m128i scale_x = _mm_sub_epi8(sixteen_8bit, all_x);
 
-            // (8x (x, 16-x))
-            scale_x = _mm_unpacklo_epi8(scale_x, all_x);
+        // (8x (x, 16-x))
+        scale_x = _mm_unpacklo_epi8(scale_x, all_x);
 
-            // first row.
-            __m128i sum0 = ProcessOnePixel(row0[x0], row0[x1], scale_x, neg_y);
-            // second row.
-            __m128i sum1 = ProcessOnePixel(row1[x0], row1[x1], scale_x, all_y);
+        // first row.
+        __m128i sum0 = ProcessOnePixel(row0[x0], row0[x1], scale_x, neg_y);
+        // second row.
+        __m128i sum1 = ProcessOnePixel(row1[x0], row1[x1], scale_x, all_y);
 
-            // Add both rows for full sample
-            sum0 = _mm_add_epi16(sum0, sum1);
+        // Add both rows for full sample
+        sum0 = _mm_add_epi16(sum0, sum1);
 
-            sum0 = ScaleFourPixels<has_alpha, 8>(&sum0, alpha);
+        sum0 = ScaleFourPixels<has_alpha>(&sum0, alpha);
 
-            // Pack lower 4 16 bit values of sum into lower 4 bytes.
-            sum0 = _mm_packus_epi16(sum0, zero);
+        // Pack lower 4 16 bit values of sum into lower 4 bytes.
+        sum0 = _mm_packus_epi16(sum0, zero);
 
-            // Extract low int and store.
-            *colors++ = _mm_cvtsi128_si32(sum0);
-        }
+        // Extract low int and store.
+        *colors++ = _mm_cvtsi128_si32(sum0);
     }
 }
 
