@@ -12,17 +12,7 @@
 
 #include <tmmintrin.h>  // SSSE3
 
-// adding anonymous namespace seemed to force gcc to inline directly the
-// instantiation, instead of creating the functions
-// S32_generic_D32_filter_DX_SSSE3<true> and
-// S32_generic_D32_filter_DX_SSSE3<false> which were then called by the
-// external functions.
 namespace {
-// In this file, variations for alpha and non alpha versions are implemented
-// with a template, as it makes the code more compact and a bit easier to
-// maintain, while making the compiler generate the same exact code as with
-// two functions that only differ by a few lines.
-
 
 // Prepare all necessary constants for a round of processing for two pixel
 // pairs.
@@ -110,21 +100,17 @@ inline __m128i ProcessPixelPairHelper(uint32_t pixel0,
     return _mm_maddubs_epi16(a0, scale_x);
 }
 
-// Scale back the results after multiplications to the [0:255] range, and scale
-// by alpha when has_alpha is true.
-template<bool has_alpha>
-inline __m128i ScaleFourPixels(__m128i* pixels,
-                               const __m128i& alpha) {
+// Scale back the results after multiplications to the [0:255] range, and scale by alpha.
+inline __m128i ScaleFourPixels(__m128i* pixels, const __m128i& alpha) {
     // Divide each 16 bit component by 256.
     *pixels = _mm_srli_epi16(*pixels, 8);
 
-    if (has_alpha) {
-        // Multiply by alpha.
-        *pixels = _mm_mullo_epi16(*pixels, alpha);
+    // Multiply by alpha.
+    *pixels = _mm_mullo_epi16(*pixels, alpha);
 
-        // Divide each 16 bit component by 256.
-        *pixels = _mm_srli_epi16(*pixels, 8);
-    }
+    // Divide each 16 bit component by 256.
+    *pixels = _mm_srli_epi16(*pixels, 8);
+
     return *pixels;
 }
 
@@ -163,17 +149,15 @@ inline __m128i ProcessPixelPair(uint32_t pixel0,
 // @param all_y vector of 16 bit components containing the constant sub_y
 // @param neg_y vector of 16 bit components containing the constant 16 - sub_y
 // @param alpha vector of 16 bit components containing the alpha value to scale
-//        the results by, when has_alpha is true.
+//        the results by
 // @return
 // (alpha * ((16-y) * (Aa2  * (16-x1) + Aa3  * x1) +
 //             y    * (Aa2' * (16-x1) + Aa3' * x1)),
 // ...
 //  alpha * ((16-y) * (Ra0  * (16-x0) + Ra1 * x0) +
 //             y    * (Ra0' * (16-x0) + Ra1' * x0))
-// With the factor alpha removed when has_alpha is false.
 // The values are scaled back to 16 bit components, but with only the bottom
 // 8 bits being set.
-template<bool has_alpha>
 inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
                                     const uint32_t* row1,
                                     const int* x0,
@@ -198,7 +182,7 @@ inline __m128i ProcessTwoPixelPairs(const uint32_t* row0,
     // Each component, again can be at most 256 * 255 = 65280, so no overflow.
     sum0 = _mm_add_epi16(sum0, sum1);
 
-    return ScaleFourPixels<has_alpha>(&sum0, alpha);
+    return ScaleFourPixels(&sum0, alpha);
 }
 
 // Same as ProcessPixelPair, except that performing the math one output pixel
@@ -219,6 +203,8 @@ inline __m128i ProcessOnePixel(uint32_t pixel0, uint32_t pixel1,
     return _mm_mullo_epi16(a0, y);
 }
 
+}  // namespace
+
 // Notes about the various tricks that are used in this implementation:
 // - calculating 4 output pixels at a time.
 //  This allows loading the coefficients x0 and x1 and shuffling them to the
@@ -237,18 +223,12 @@ inline __m128i ProcessOnePixel(uint32_t pixel0, uint32_t pixel1,
 //
 // As a result, this method behaves faster than the traditional SSE2. The actual
 // boost varies greatly on the underlying architecture.
-template<bool has_alpha>
-void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
-                                     const uint32_t* xy,
-                                     int count, uint32_t* colors) {
+void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
+                                   const uint32_t* xy,
+                                   int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
-    if (has_alpha) {
-        SkASSERT(s.fAlphaScale < 256);
-    } else {
-        SkASSERT(s.fAlphaScale == 256);
-    }
 
     const uint8_t* src_addr =
             static_cast<const uint8_t*>(s.fPixmap.addr());
@@ -271,11 +251,8 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
     // (0, 0, 0, 0, 0, 0, 0, 0)
     const __m128i zero = _mm_setzero_si128();
 
-    __m128i alpha = _mm_setzero_si128();
-    if (has_alpha) {
-        // 8x(alpha)
-        alpha = _mm_set1_epi16(s.fAlphaScale);
-    }
+    // 8x(alpha)
+    const __m128i alpha = _mm_set1_epi16(s.fAlphaScale);
 
     // 8x(16)
     const __m128i sixteen_16bit = _mm_set1_epi16(16);
@@ -303,7 +280,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         __m128i scale_x;
         scale_x = _mm_unpacklo_epi8(sixteen_minus_x, all_x);
 
-        __m128i sum0 = ProcessTwoPixelPairs<has_alpha>(
+        __m128i sum0 = ProcessTwoPixelPairs(
                 row0, row1, x0, x1,
                 scale_x, all_y, neg_y, alpha);
 
@@ -311,7 +288,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         // (4x (x3, 16-x3), 4x (16-x2, x2))
         scale_x = _mm_unpackhi_epi8(sixteen_minus_x, all_x);
 
-        __m128i sum1 = ProcessTwoPixelPairs<has_alpha>(
+        __m128i sum1 = ProcessTwoPixelPairs(
                 row0, row1, x0 + 2, x1 + 2,
                 scale_x, all_y, neg_y, alpha);
 
@@ -349,7 +326,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         // Add both rows for full sample
         sum0 = _mm_add_epi16(sum0, sum1);
 
-        sum0 = ScaleFourPixels<has_alpha>(&sum0, alpha);
+        sum0 = ScaleFourPixels(&sum0, alpha);
 
         // Pack lower 4 16 bit values of sum into lower 4 bytes.
         sum0 = _mm_packus_epi16(sum0, zero);
@@ -357,18 +334,4 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
         // Extract low int and store.
         *colors++ = _mm_cvtsi128_si32(sum0);
     }
-}
-
-}  // namespace
-
-void S32_opaque_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
-                                    const uint32_t* xy,
-                                    int count, uint32_t* colors) {
-    S32_generic_D32_filter_DX_SSSE3<false>(s, xy, count, colors);
-}
-
-void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
-                                   const uint32_t* xy,
-                                   int count, uint32_t* colors) {
-    S32_generic_D32_filter_DX_SSSE3<true>(s, xy, count, colors);
 }
