@@ -145,8 +145,7 @@ static void image_alpha_to_a8(const SkImage* image, SkWStream* out) {
 static void emit_image_xobject(SkWStream* stream,
                                const SkImage* image,
                                bool alpha,
-                               const sk_sp<SkPDFObject>& smask,
-                               const SkPDFObjNumMap& objNumMap) {
+                               const sk_sp<SkPDFObject>& smask) {
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
     SkDeflateWStream deflateWStream(&buffer);
@@ -174,7 +173,7 @@ static void emit_image_xobject(SkWStream* stream,
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
     pdfDict.insertInt("Length", buffer.bytesWritten());
-    pdfDict.emitObject(stream, objNumMap);
+    pdfDict.emitObject(stream);
 
     stream->writeText(kStreamBegin);
     buffer.writeToAndReset(stream);
@@ -188,10 +187,9 @@ namespace {
 class PDFAlphaBitmap final : public SkPDFObject {
 public:
     PDFAlphaBitmap(sk_sp<SkImage> image) : fImage(std::move(image)) { SkASSERT(fImage); }
-    void emitObject(SkWStream*  stream,
-                    const SkPDFObjNumMap& objNumMap) const override {
+    void emitObject(SkWStream* stream) const override {
         SkASSERT(fImage);
-        emit_image_xobject(stream, fImage.get(), true, nullptr, objNumMap);
+        emit_image_xobject(stream, fImage.get(), true, nullptr);
     }
     void drop() override { fImage = nullptr; }
 
@@ -206,10 +204,9 @@ private:
 namespace {
 class PDFDefaultBitmap final : public SkPDFObject {
 public:
-    void emitObject(SkWStream* stream,
-                    const SkPDFObjNumMap& objNumMap) const override {
+    void emitObject(SkWStream* stream) const override {
         SkASSERT(fImage);
-        emit_image_xobject(stream, fImage.get(), false, fSMask, objNumMap);
+        emit_image_xobject(stream, fImage.get(), false, fSMask);
     }
     void addResources(SkPDFObjNumMap* catalog) const override {
         catalog->addObjectRecursively(fSMask.get());
@@ -239,12 +236,11 @@ public:
     bool fIsYUV;
     PDFJpegBitmap(SkISize size, sk_sp<SkData> data, bool isYUV)
         : fSize(size), fData(std::move(data)), fIsYUV(isYUV) { SkASSERT(fData); }
-    void emitObject(SkWStream*, const SkPDFObjNumMap&) const override;
+    void emitObject(SkWStream*) const override;
     void drop() override { fData = nullptr; }
 };
 
-void PDFJpegBitmap::emitObject(SkWStream* stream,
-                               const SkPDFObjNumMap& objNumMap) const {
+void PDFJpegBitmap::emitObject(SkWStream* stream) const {
     SkASSERT(fData);
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
@@ -259,7 +255,7 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
     pdfDict.insertName("Filter", "DCTDecode");
     pdfDict.insertInt("ColorTransform", 0);
     pdfDict.insertInt("Length", SkToInt(fData->size()));
-    pdfDict.emitObject(stream, objNumMap);
+    pdfDict.emitObject(stream);
     stream->writeText(kStreamBegin);
     stream->write(fData->data(), fData->size());
     stream->writeText(kStreamEnd);

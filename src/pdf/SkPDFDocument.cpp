@@ -24,21 +24,37 @@ const char* SkPDFGetNodeIdKey() {
     return key;
 }
 
-SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
-
-SkPDFObjectSerializer::~SkPDFObjectSerializer() {
-    for (const sk_sp<SkPDFObject>& obj: fObjNumMap.objects()) {
-        obj->drop();
-    }
+void SkPDFOffsetMap::set(SkPDFIndirectReference iRef, SkPDFFileOffset offset) {
+    SkASSERT(iRef.fValue > 0);
+    SkASSERT(SkToSizeT(iRef.fValue - 1) == fOffsets.size());
+    fOffsets.push_back(offset);
+    // The following logic can be used in a later CL when we serialize objects
+    // out of order:
+    //size_t index = SkToSizeT(iRef.fValue - 1);
+    //if (index == fOffsets.size()) {
+    //    fOffsets.push_back(offset);
+    //} else if (index < fOffsets.size()) {
+    //    fOffsets[index] = offset;
+    //} else {
+    //    fOffsets.resize(index + 1);
+    //    fOffsets[index] = offset;
+    //}
 }
+
+SkPDFFileOffset SkPDFOffsetMap::get(SkPDFIndirectReference r) {
+    return SkASSERT(r.fValue > 0),
+           SkASSERT(r.fValue <= (int)fOffsets.size()),
+           fOffsets[r.fValue - 1];
+}
+
+SkPDFObjectSerializer::SkPDFObjectSerializer() = default;
+
+SkPDFObjectSerializer::~SkPDFObjectSerializer() = default;
 
 SkPDFObjectSerializer::SkPDFObjectSerializer(SkPDFObjectSerializer&&) = default;
 
 SkPDFObjectSerializer& SkPDFObjectSerializer::operator=(SkPDFObjectSerializer&&) = default;
 
-void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
-    fObjNumMap.addObjectRecursively(object.get());
-}
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
 #ifndef SK_BUILD_FOR_WIN
@@ -56,45 +72,40 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.
     fInfoDict = SkPDFMetadata::MakeDocumentInformationDict(md);
-    this->addObjectRecursively(fInfoDict);
-    this->serializeObjects(wStream);
+    this->serializeObject(fInfoDict, wStream);
 }
 #undef SKPDF_MAGIC
 
-// Serialize all objects in the fObjNumMap that have not yet been serialized;
-void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
-    const std::vector<sk_sp<SkPDFObject>>& objects = fObjNumMap.objects();
-    while (fNextToBeSerialized < objects.size()) {
-        SkPDFObject* object = objects[fNextToBeSerialized].get();
-        // Maximum number of indirect objects is 2^23-1.
-        int32_t index = SkToS32(fNextToBeSerialized + 1);  // Skip object 0.
-        // "The first entry in the [XREF] table (object number 0) is
-        // always free and has a generation number of 65,535; it is
-        // the head of the linked list of free objects."
-        SkASSERT(fOffsets.size() == fNextToBeSerialized);
-        fOffsets.push_back(this->offset(wStream));
-        wStream->writeDecAsText(index);
+void SkPDFObjectSerializer::serializeObject(const sk_sp<SkPDFObject>& object,
+                                            SkWStream* wStream) {
+    SkPDFObjNumMap objNumMap;
+    objNumMap.fNextObjectNumber = fNextObjectNumber;
+    objNumMap.addObjectRecursively(object.get());
+
+    for (const sk_sp<SkPDFObject>& object : objNumMap.fObjects) {
+        fOffsets.set(object->fIndirectReference, this->offset(wStream));
+        wStream->writeDecAsText(object->fIndirectReference.fValue);
         wStream->writeText(" 0 obj\n");  // Generation number is always 0.
-        object->emitObject(wStream, fObjNumMap);
+        object->emitObject(wStream);
         wStream->writeText("\nendobj\n");
         object->drop();
-        ++fNextToBeSerialized;
     }
+    fNextObjectNumber = objNumMap.fNextObjectNumber; // save for later.
 }
 
 // Xref table and footer
 void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
                                             const sk_sp<SkPDFObject> docCatalog,
                                             sk_sp<SkPDFObject> id) {
-    this->serializeObjects(wStream);
-    int32_t xRefFileOffset = this->offset(wStream);
+    int xRefFileOffset = this->offset(wStream).fValue;
     // Include the special zeroth object in the count.
-    int32_t objCount = SkToS32(fOffsets.size() + 1);
+
+    int objCount = SkToS32(fNextObjectNumber);
     wStream->writeText("xref\n0 ");
     wStream->writeDecAsText(objCount);
     wStream->writeText("\n0000000000 65535 f \n");
-    for (size_t i = 0; i < fOffsets.size(); i++) {
-        wStream->writeBigDecAsText(fOffsets[i], 10);
+    for (int i = 1; i < objCount; ++i) {
+        wStream->writeBigDecAsText(fOffsets.get(SkPDFIndirectReference{i}).fValue, 10);
         wStream->writeText(" 00000 n \n");
     }
     SkPDFDict trailerDict;
@@ -107,16 +118,17 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
         trailerDict.insertObject("ID", std::move(id));
     }
     wStream->writeText("trailer\n");
-    trailerDict.emitObject(wStream, fObjNumMap);
+    trailerDict.emitObject(wStream);
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
     wStream->writeText("\n%%EOF");
 }
 
-int32_t SkPDFObjectSerializer::offset(SkWStream* wStream) {
+SkPDFFileOffset SkPDFObjectSerializer::offset(SkWStream* wStream) {
     size_t offset = wStream->bytesWritten();
+    SkASSERT(fBaseOffset != SIZE_MAX);
     SkASSERT(offset > fBaseOffset);
-    return SkToS32(offset - fBaseOffset);
+    return SkPDFFileOffset{SkToInt(offset - fBaseOffset)};
 }
 
 static sk_sp<SkPDFDict> generate_page_tree(const std::vector<sk_sp<SkPDFDict>>& pages) {
@@ -204,8 +216,7 @@ SkPDFDocument::~SkPDFDocument() {
 }
 
 void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
-    fObjectSerializer.addObjectRecursively(object);
-    fObjectSerializer.serializeObjects(this->getStream());
+    fObjectSerializer.serializeObject(object, this->getStream());
 }
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -226,8 +237,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             // works best with reproducible outputs.
             fID = SkPDFMetadata::MakePdfId(uuid, uuid);
             fXMP = SkPDFMetadata::MakeXMPObject(fMetadata, uuid, uuid);
-            fObjectSerializer.addObjectRecursively(fXMP);
-            fObjectSerializer.serializeObjects(this->getStream());
+            fObjectSerializer.serializeObject(fXMP, this->getStream());
         }
     }
     // By scaling the page at the device level, we will create bitmap layer
@@ -547,8 +557,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     // Build font subsetting info before calling addObjectRecursively().
     SkPDFCanon* canon = &fCanon;
     fFonts.foreach([canon](SkPDFFont* p){ p->getFontSubset(canon); });
-    fObjectSerializer.addObjectRecursively(docCatalog);
-    fObjectSerializer.serializeObjects(this->getStream());
+    fObjectSerializer.serializeObject(docCatalog, this->getStream());
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     this->reset();
 }

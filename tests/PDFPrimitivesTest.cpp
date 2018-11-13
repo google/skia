@@ -40,13 +40,9 @@
 #define DUMMY_TEXT "DCT compessed stream."
 
 template <typename T>
-static SkString emit_to_string(T& obj, SkPDFObjNumMap* catPtr = nullptr) {
-    SkPDFObjNumMap catalog;
+static SkString emit_to_string(T& obj) {
     SkDynamicMemoryWStream buffer;
-    if (!catPtr) {
-        catPtr = &catalog;
-    }
-    obj.emitObject(&buffer, *catPtr);
+    obj.emitObject(&buffer);
     SkString tmp(buffer.bytesWritten());
     buffer.copyTo(tmp.writable_str());
     return tmp;
@@ -153,7 +149,7 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     catalog.addObjectRecursively(a1.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
 
-    SkString result = emit_to_string(*a2, &catalog);
+    SkString result = emit_to_string(*a2);
     // If appendObjRef misbehaves, then the result would
     // be [[]], not [1 0 R].
     assert_eq(reporter, result, "[1 0 R]");
@@ -274,7 +270,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
                             referencedArray.get()) == 1);
     array->appendObjRef(std::move(referencedArray));
 
-    SkString result = emit_to_string(*array, &catalog);
+    SkString result = emit_to_string(*array);
     assert_eq(reporter, result,
               "[42 .5 0 true /ThisName /AnotherName (This String) "
               "(Another String) [-1] 1 0 R]");
@@ -337,7 +333,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     dict->insertObjRef("n1", std::move(referencedArray));
-    SkString result = emit_to_string(*dict, &catalog);
+    SkString result = emit_to_string(*dict);
     assert_eq(reporter, result, "<</Type /DType\n/n1 1 0 R>>");
 }
 

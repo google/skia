@@ -60,7 +60,7 @@ struct SkPDFType0Font final : public SkPDFFont {
     ~SkPDFType0Font() override;
     void getFontSubset(SkPDFCanon*) override;
 #ifdef SK_DEBUG
-    void emitObject(SkWStream*, const SkPDFObjNumMap&) const override;
+    void emitObject(SkWStream*) const override;
     bool fPopulated;
 #endif
     typedef SkPDFDict INHERITED;
@@ -323,10 +323,9 @@ SkPDFType0Font::~SkPDFType0Font() {}
 
 
 #ifdef SK_DEBUG
-void SkPDFType0Font::emitObject(SkWStream* stream,
-                                const SkPDFObjNumMap& objNumMap) const {
+void SkPDFType0Font::emitObject(SkWStream* stream) const {
     SkASSERT(fPopulated);
-    return INHERITED::emitObject(stream, objNumMap);
+    return INHERITED::emitObject(stream);
 }
 #endif
 
