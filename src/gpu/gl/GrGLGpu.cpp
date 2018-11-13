@@ -1953,7 +1953,8 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
 
     if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
-        size_t bufferOffset = vertexBuffer->baseOffset() + baseVertex * vertexStride;
+        size_t bufferOffset = vertexBuffer->baseOffset();
+        bufferOffset += baseVertex * static_cast<size_t>(vertexStride);
         for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
             const auto& attrib = fHWProgram->vertexAttribute(i);
             static constexpr int kDivisor = 0;
@@ -1963,7 +1964,8 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
     }
     if (int instanceStride = fHWProgram->instanceStride()) {
         SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
-        size_t bufferOffset = instanceBuffer->baseOffset() + baseInstance * instanceStride;
+        size_t bufferOffset = instanceBuffer->baseOffset();
+        bufferOffset += baseInstance * static_cast<size_t>(instanceStride);
         int attribIdx = fHWProgram->numVertexAttributes();
         for (int i = 0; i < fHWProgram->numInstanceAttributes(); ++i, ++attribIdx) {
             const auto& attrib = fHWProgram->instanceAttribute(i);
