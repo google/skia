@@ -840,12 +840,11 @@ private:
     }
 
     void onPrepareDraws(Target* target) override {
-#ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
         if (fLinesOnly) {
             this->prepareLinesOnlyDraws(target);
             return;
         }
-#endif
+
         auto pipe = fHelper.makePipeline(target);
         int instanceCount = fPaths.count();
 
