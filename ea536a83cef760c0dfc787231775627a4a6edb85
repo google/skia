@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71565d77_2f733e8e",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1795,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-13T14:05:07Z",
+      "side": 1,
+      "message": "I notice that all these SkPoint::Make() calls are now purely expository.  That\u0027s neat.",
+      "range": {
+        "startLine": 1795,
+        "startChar": 36,
+        "endLine": 1795,
+        "endChar": 49
+      },
+      "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae37f9c2_6acaacd8",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1797,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-13T14:05:07Z",
+      "side": 1,
+      "message": "Don\u0027t know how far you want to take it, but these offset and radius \"points\" aren\u0027t really points.",
+      "range": {
+        "startLine": 1797,
+        "startChar": 36,
+        "endLine": 1797,
+        "endChar": 49
+      },
+      "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
