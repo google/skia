@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "411fa249_2dc6b5b1",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T22:03:19Z",
+      "side": 1,
+      "message": "Also SkASSERT(op-\u003eisChainHead()) ? Or you\u0027re relying on chainConcat to check that here?",
+      "revId": "3abb80b364347d112dcf9ef620c8193ec5e1d32a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10487d0a_fd8b9370",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T22:03:19Z",
+      "side": 1,
+      "message": "Write this as one long condition, maybe? The tuple return is already noisy, having 5 copies is very noisy.",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 250,
+        "endChar": 5
+      },
+      "revId": "3abb80b364347d112dcf9ef620c8193ec5e1d32a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e5e53ef_bd5bfc49",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T22:03:19Z",
+      "side": 1,
+      "message": "applied",
+      "range": {
+        "startLine": 303,
+        "startChar": 83,
+        "endLine": 303,
+        "endChar": 89
+      },
+      "revId": "3abb80b364347d112dcf9ef620c8193ec5e1d32a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0987f104_ae3df9dd",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-13T22:03:19Z",
+      "side": 1,
+      "message": "Head",
+      "range": {
+        "startLine": 311,
+        "startChar": 24,
+        "endLine": 311,
+        "endChar": 28
+      },
+      "revId": "3abb80b364347d112dcf9ef620c8193ec5e1d32a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
