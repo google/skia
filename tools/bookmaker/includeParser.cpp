@@ -577,15 +577,15 @@ bool IncludeParser::checkForWord() {
         break;
         // these continue a # directive link
         case KeyWord::kElif:
-        case KeyWord::kElse: {
+        case KeyWord::kElse:
             this->popObject();  // pop elif
             if (Bracket::kPound != fParent->fBracket) {
                 return this->reportError<bool>("expected preprocessor directive");
             }
             this->popBracket();  // pop if
             poundDef->fParent = fParent;
-            this->addDefinition(poundDef);  // push elif back
-        } break;
+            fParent = poundDef;  // push elif back
+        break;
         // this ends a # directive link
         case KeyWord::kEndif:
         // FIXME : should this be calling popBracket() instead?
@@ -644,6 +644,9 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
         }
     }
     for (auto& classMapper : fIClassMap) {
+        if (classMapper.second.fUndocumented) {
+           continue;
+        }
         string className = classMapper.first;
         std::istringstream iss(className);
         string classStr;
@@ -769,17 +772,17 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def = root->find(withParens, RootDefinition::AllowParens::kNo);
                     }
                     if (!def) {
-                        if (!root->fDeprecated) {
+                        if (!token.fUndocumented) {
                             SkDebugf("method missing from bmh: %s\n", fullName.c_str());
                             fFailed = true;
                         }
                         break;
                     }
+                    if (token.fUndocumented) {
+                        break;
+                    }
                     if (def->crossCheck2(token)) {
                         def->fVisited = true;
-                        if (token.fDeprecated && !def->fDeprecated) {
-                            fFailed = !def->reportError<bool>("expect bmh to be marked deprecated");
-                        }
                     } else {
                        SkDebugf("method differs from bmh: %s\n", fullName.c_str());
                        fFailed = true;
@@ -818,7 +821,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             def = root->find(anonName, RootDefinition::AllowParens::kYes);
                         }
                         if (!def) {
-                            if (!root->fDeprecated) {
+                            if (!token.fUndocumented) {
                                 SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
                                 fFailed = true;
                             }
@@ -841,10 +844,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (!hasCode) {
-                        if (!root->fDeprecated) {
-                            SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
-                        }
+                        SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                         break;
                     }
                     if (!hasPopulate) {
@@ -865,11 +866,9 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             def = root->find(innerName, RootDefinition::AllowParens::kYes);
                         }
                         if (!def) {
-                            if (string::npos == child->fName.find("Legacy_")) {
-                                if (!root->fDeprecated) {
-                                    SkDebugf("const missing from bmh: %s\n", constName.c_str());
-                                    fFailed = true;
-                                }
+                            if (!child->fUndocumented) {
+                                SkDebugf("const missing from bmh: %s\n", constName.c_str());
+                                fFailed = true;
                             }
                         } else {
                             def->fVisited = true;
@@ -879,7 +878,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kMember:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
+                    } else {
                         SkDebugf("member missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -887,7 +886,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kTypedef:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
+                    } else {
                         SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -895,9 +894,11 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kConst:
                     if (def) {
                         def->fVisited = true;
-                    } else if (!root->fDeprecated) {
-                        SkDebugf("const missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
+                    } else {
+                        if (!token.fUndocumented) {
+                            SkDebugf("const missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
+                        }
                     }
                     break;
                 default:
@@ -966,6 +967,11 @@ IClassDefinition* IncludeParser::defineClass(const Definition& includeDef,
             MarkType::kStruct : MarkType::kClass;
     markupDef.fKeyWord = includeDef.fKeyWord;
     markupDef.fType = Definition::Type::kMark;
+    auto tokenIter = includeDef.fParent->fTokens.begin();
+    SkASSERT(includeDef.fParentIndex > 0);
+    std::advance(tokenIter, includeDef.fParentIndex - 1);
+    const Definition* priorComment = &*tokenIter;
+    markupDef.fUndocumented = priorComment->fUndocumented;
     fParent = &markupDef;
     return &markupDef;
 }
@@ -1625,6 +1631,9 @@ bool IncludeParser::dumpTokens(string skClassName, string globalFileName, long i
         if (this->isInternalName(token)) {
             continue;
         }
+        if (token.fUndocumented) {
+            continue;
+        }
         if (this->isConstructor(token, skClassName)) {
             hasConstructor = true;
             continue;
@@ -1783,9 +1792,32 @@ string IncludeParser::elidedCodeBlock(const Definition& iDef) {
     return result;
 }
 
+bool IncludeParser::findCommentAfter(const Definition& includeDef, Definition* markupDef) {
+    const Definition* parent = includeDef.fParent;
+    int index = includeDef.fParentIndex;
+    auto wordIter = parent->fTokens.begin();
+    std::advance(wordIter, index);
+    SkASSERT(&*wordIter == &includeDef);
+    int commentLine = -1;
+    do {
+        wordIter = std::next(wordIter);
+        if (parent->fTokens.end() == wordIter) {
+            break;
+        }
+        commentLine = wordIter->fLineCount;
+    } while (Punctuation::kSemicolon != wordIter->fPunctuation);
+    wordIter = std::next(wordIter);
+    if (parent->fTokens.end() != wordIter && Bracket::kSlashSlash == wordIter->fBracket
+            && wordIter->fLineCount == commentLine) {
+        return this->parseComment(wordIter->fFileName, wordIter->fContentStart,
+                wordIter->fContentEnd, wordIter->fLineCount, markupDef);
+    }
+    return true;
+}
+
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
     // add comment preceding class, if any
-    const Definition* parent = includeDef.fParent;
+    Definition* parent = includeDef.fParent;
     int index = includeDef.fParentIndex;
     auto wordIter = parent->fTokens.begin();
     std::advance(wordIter, index);
@@ -1818,6 +1850,7 @@ bool IncludeParser::findComments(const Definition& includeDef, Definition* marku
                 commentIter->fContentEnd, commentIter->fLineCount, markupDef)) {
             return false;
         }
+        commentIter->fUndocumented = markupDef->fUndocumented;
         commentIter = std::next(commentIter);
     }
     return true;
@@ -1854,10 +1887,6 @@ Definition* IncludeParser::findIncludeObject(const Definition& includeDef, MarkT
 }
 
 Definition* IncludeParser::findMethod(const Definition& bmhDef) {
-    if (std::any_of(bmhDef.fChildren.begin(), bmhDef.fChildren.end(), [](Definition* def) {
-            return MarkType::kDeprecated == def->fMarkType; } )) {
-        return nullptr;
-    }
     auto doubleColon = bmhDef.fName.rfind("::");
     if (string::npos == doubleColon) {
         const auto& iGlobalMethod = fIFunctionMap.find(bmhDef.fName);
@@ -1874,6 +1903,7 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     const auto& iMethod = std::find_if(iTokens.begin(), iTokens.end(),
             [methodName](Definition& token) {
             return MarkType::kMethod == token.fMarkType
+                    && !token.fUndocumented
                     && (methodName == token.fName
                     || methodName == token.fName + "()"); } );
     if (iTokens.end() != iMethod) {
@@ -1908,6 +1938,9 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
     const auto& cMethod = std::find_if(iTokens.begin(), iTokens.end(),
             [className, methodName, stripper, strippedMethodName](Definition& token) {
         if (MarkType::kMethod != token.fMarkType) {
+            return false;
+        }
+        if (token.fUndocumented) {
             return false;
         }
         TextParser parser(&token);
@@ -2027,6 +2060,9 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     if (!this->findComments(*includeDef, markupDef)) {
         return iter->reportError<bool>("find comments failed");
     }
+    if (markupDef->fUndocumented) {
+        includeDef->fUndocumented = true;
+    }
 //    if (1 != includeDef->fChildren.size()) {
 //        return false;  // fix me: SkCanvasClipVisitor isn't correctly parsed
 //    }
@@ -2107,10 +2143,27 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     return true;
 }
 
+bool IncludeParser::isUndocumentable(string filename, const char* start, const char* end,
+        int lineCount) {
+    TextParser parser(filename, start, end, lineCount);
+    const vector<string> skipWords = { "experimental",  "deprecated", "private" };
+    const vector<string> butNot = { "to be deprecated", "may be deprecated" };
+    string match = parser.anyWord(skipWords, 0);
+    if ("" != match) {
+        if ("deprecated" != match || "" == parser.anyWord(butNot, 2)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool IncludeParser::parseComment(string filename, const char* start, const char* end,
         int lineCount, Definition* markupDef) {
-    TextParser parser(filename, start, end, lineCount);
+    if (this->isUndocumentable(filename, start, end, lineCount)) {
+        markupDef->fUndocumented = true;
+    }
     // parse doxygen if present
+    TextParser parser(filename, start, end, lineCount);
     if (parser.startsWith("**")) {
         parser.next();
         parser.next();
@@ -2141,6 +2194,7 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
     }
     // remove leading '*' if present
     Definition* parent = markupDef->fTokens.size() ? &markupDef->fTokens.back() : markupDef;
+    bool undocumented = false;
     while (!parser.eof() && parser.skipWhiteSpace()) {
         while ('*' == parser.peek()) {
             parser.next();
@@ -2160,6 +2214,10 @@ bool IncludeParser::parseComment(string filename, const char* start, const char*
     return true;
 }
 
+/*
+    find comment either in front of or after the const def and then extract if the
+    const is undocumented
+ */
 bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
     if (!markupDef) {
         fGlobals.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
@@ -2170,7 +2228,14 @@ bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
         if (!this->findComments(*child, globalMarkupChild)) {
             return false;
         }
-        fIConstMap[globalUniqueName] = globalMarkupChild;
+        if (!this->findCommentAfter(*child, globalMarkupChild)) {
+            return false;
+        }
+        if (globalMarkupChild->fUndocumented) {
+            child->fUndocumented = true;
+        } else {
+            fIConstMap[globalUniqueName] = globalMarkupChild;
+        }
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kConst, child->fContentStart, child->fContentEnd,
@@ -2180,7 +2245,17 @@ bool IncludeParser::parseConst(Definition* child, Definition* markupDef) {
     markupChild->fTerminator = markupChild->fContentEnd;
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     classDef.fConsts[child->fName] = markupChild;
-    fIConstMap[child->fName] = markupChild;
+    if (!this->findComments(*child, markupChild)) {
+        return false;
+    }
+    if (!this->findCommentAfter(*child, markupChild)) {
+        return false;
+    }
+    if (markupChild->fUndocumented) {
+        child->fUndocumented = true;
+    } else {
+        fIConstMap[child->fName] = markupChild;
+    }
     return true;
 }
 
@@ -2245,7 +2320,9 @@ bool IncludeParser::parseDefine(Definition* child, Definition* markupDef) {
         if (!this->findComments(*child, globalMarkupChild)) {
             return false;
         }
-        fIDefineMap[globalUniqueName] = globalMarkupChild;
+        if (!globalMarkupChild->fUndocumented) {
+            fIDefineMap[globalUniqueName] = globalMarkupChild;
+        }
         for (Param param : params) {
             globalMarkupChild->fTokens.emplace_back(MarkType::kParam, param.fStart, param.fEnd,
                     child->fLineCount, globalMarkupChild, '\0');
@@ -2264,8 +2341,12 @@ bool IncludeParser::parseDefine(Definition* child, Definition* markupDef) {
     if (!this->findComments(*child, markupChild)) {
         return false;
     }
-    classDef.fDefines[nameStr] = markupChild;
-    fIDefineMap[nameStr] = markupChild;
+    if (markupChild->fUndocumented) {
+        child->fUndocumented = true;
+    } else {
+        classDef.fDefines[nameStr] = markupChild;
+        fIDefineMap[nameStr] = markupChild;
+    }
     return true;
 }
 
@@ -2277,14 +2358,20 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
 	}
 	parser.next();
 	string nameStr;
+    Definition* enumMembers = nullptr;
+    bool isEnumClass = false;
     if (child->fTokens.size() > 0) {
-        auto token = child->fTokens.begin();
+        Definition* parent = child;
+        auto token = parent->fTokens.begin();
         if (Definition::Type::kKeyWord == token->fType && KeyWord::kClass == token->fKeyWord) {
-            token = token->fTokens.begin();
+            isEnumClass = true;
+            parent = &*token;
+            token = parent->fTokens.begin();
         }
         if (Definition::Type::kWord == token->fType) {
             nameStr += string(token->fStart, token->fContentEnd - token->fStart);
         }
+        enumMembers = parent->fChildren.front();
     }
     Definition* markupChild;
     if (!markupDef) {
@@ -2294,7 +2381,9 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         string globalUniqueName = this->uniqueName(fIEnumMap, nameStr);
         markupChild->fName = globalUniqueName;
         markupChild->fTerminator = child->fContentEnd;
-        fIEnumMap[globalUniqueName] = markupChild;
+        if (!markupChild->fUndocumented) {
+            fIEnumMap[globalUniqueName] = markupChild;
+        }
     } else {
         markupDef->fTokens.emplace_back(MarkType::kEnum, child->fContentStart, child->fContentEnd,
             child->fLineCount, markupDef, '\0');
@@ -2302,115 +2391,32 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
     }
     SkASSERT(KeyWord::kNone == markupChild->fKeyWord);
     markupChild->fKeyWord = KeyWord::kEnum;
-    TextParser enumName(child);
-    enumName.skipExact("enum ");
-    enumName.skipWhiteSpace();
-    if (enumName.skipExact("class ")) {
-        enumName.skipWhiteSpace();
+    if (isEnumClass) {
         markupChild->fMarkType = MarkType::kEnumClass;
     }
-    const char* nameStart = enumName.fChar;
-    enumName.skipToSpace();
     if (markupDef) {
-        markupChild->fName = markupDef->fName + "::" +
-                string(nameStart, (size_t) (enumName.fChar - nameStart));
+        markupChild->fName = markupDef->fName + "::" + nameStr;
     }
     if (!this->findComments(*child, markupChild)) {
         return false;
     }
-    const char* dataEnd;
+    if (markupChild->fUndocumented) {
+        child->fUndocumented = true;
+    }
     do {
         parser.skipWhiteSpace();
         if ('}' == parser.peek()) {
             break;
         }
-        Definition* comment = nullptr;
-        // note that comment, if any, can be before or after (on the same line, though) as member
-        if ('#' == parser.peek()) {
-            // fixme: handle preprecessor, but just skip it for now
-            parser.skipToLineStart();
+        ParseConst result = this->parseEnumConst(parser, markupChild);
+        if (ParseConst::kFail == result) {
+            return false;
         }
-        while (parser.startsWith("/*") || parser.startsWith("//")) {
-            parser.next();
-            const char* start = parser.fChar;
-            const char* end;
-            if ('*' == parser.peek()) {
-                end = parser.strnstr("*/", parser.fEnd);
-                parser.fChar = end;
-                parser.next();
-                parser.next();
-            } else {
-                end = parser.trimmedLineEnd();
-                parser.skipToLineStart();
-            }
-            markupChild->fTokens.emplace_back(MarkType::kComment, start, end, parser.fLineCount,
-                    markupChild, '\0');
-            comment = &markupChild->fTokens.back();
-            comment->fTerminator = end;
-            if (!this->parseComment(parser.fFileName, start, end, parser.fLineCount, comment)) {
-                return false;
-            }
-            parser.skipWhiteSpace();
-        }
-        parser.skipWhiteSpace();
-        const char* memberStart = parser.fChar;
-        if ('}' == memberStart[0]) {
-            break;
-        }
-        // if there's comment on same the line as member def, output first as if it was before
-
-        parser.skipToNonName();
-        string memberName(memberStart, parser.fChar);
-        if (parser.eof() || !parser.skipWhiteSpace()) {
-            return parser.reportError<bool>("enum member must end with comma 1");
-        }
-        const char* dataStart = parser.fChar;
-        if ('=' == parser.peek()) {
-            parser.skipToEndBracket(',');
-        }
-        if (!parser.eof() && '#' == parser.peek()) {
-            // fixme: handle preprecessor, but just skip it for now
+        if (ParseConst::kContinue == result) {
             continue;
         }
-        if (parser.eof() || ',' != parser.peek()) {
-            return parser.reportError<bool>("enum member must end with comma 2");
-        }
-        dataEnd = parser.fChar;
-        const char* start = parser.anyOf("/\n");
-        SkASSERT(start);
-        parser.skipTo(start);
-        if ('/' == parser.next()) {
-            char slashStar = parser.next();
-            if ('/' == slashStar || '*' == slashStar) {
-                TextParserSave save(&parser);
-                char doxCheck = parser.next();
-                if ((slashStar != doxCheck && '!' != doxCheck) || '<' != parser.next()) {
-                    save.restore();
-                }
-            }
-            parser.skipWhiteSpace();
-            const char* commentStart = parser.fChar;
-            if ('/' == slashStar) {
-                parser.skipToEndBracket('\n');
-            } else {
-                parser.skipToEndBracket("*/");
-            }
-            SkASSERT(!parser.eof());
-            const char* commentEnd = parser.fChar;
-            markupChild->fTokens.emplace_back(MarkType::kComment, commentStart, commentEnd,
-                    parser.fLineCount, markupChild, '\0');
-            comment = &markupChild->fTokens.back();
-            comment->fTerminator = commentEnd;
-        }
-        markupChild->fTokens.emplace_back(MarkType::kMember, dataStart, dataEnd, parser.fLineCount,
-                markupChild, '\0');
-        Definition* member = &markupChild->fTokens.back();
-        member->fName = memberName;
-        if (comment) {
-            member->fChildren.push_back(comment);
-            comment->fPrivate = true;
-        }
-        markupChild->fChildren.push_back(member);
+        SkASSERT(ParseConst::kDone == result);
+        break;
     } while (true);
     for (auto outsideMember : child->fChildren) {
         if (Definition::Type::kBracket == outsideMember->fType) {
@@ -2435,9 +2441,150 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         string fullName = markupChild->fName;
         markupChild->fName = uniqueName;
         classDef.fEnums[uniqueName] = markupChild;
-        fIEnumMap[fullName] = markupChild;
+        if (!markupChild->fUndocumented) {
+            fIEnumMap[fullName] = markupChild;
+        }
     }
     return true;
+}
+
+IncludeParser::ParseConst IncludeParser::parseEnumConst(TextParser& parser, Definition* markupChild) {
+    Definition* comment = nullptr;
+    // note that comment, if any, can be before or after (on the same line, though) as member
+    if ('#' == parser.peek()) {
+        // fixme: handle preprecessor, but just skip it for now
+        parser.skipToLineStart();
+    }
+    while (parser.startsWith("/*") || parser.startsWith("//")) {
+        parser.next();
+        const char* start = parser.fChar;
+        const char* end;
+        if ('*' == parser.peek()) {
+            end = parser.strnstr("*/", parser.fEnd);
+            parser.fChar = end;
+            parser.next();
+            parser.next();
+        } else {
+            end = parser.trimmedLineEnd();
+            parser.skipToLineStart();
+        }
+        markupChild->fTokens.emplace_back(MarkType::kComment, start, end, parser.fLineCount,
+                markupChild, '\0');
+        comment = &markupChild->fTokens.back();
+        comment->fTerminator = end;
+        if (!this->parseComment(parser.fFileName, start, end, parser.fLineCount, comment)) {
+            return ParseConst::kFail;
+        }
+        if (comment->fUndocumented) {
+            markupChild->fUndocumented = true;
+        }
+        parser.skipWhiteSpace();
+    }
+    parser.skipWhiteSpace();
+    const char* memberStart = parser.fChar;
+    if ('}' == memberStart[0]) {
+        return ParseConst::kDone;
+    }
+    // if there's comment on same the line as member def, output first as if it was before
+    parser.skipToNonName();
+    string memberName(memberStart, parser.fChar);
+    if (parser.eof() || !parser.skipWhiteSpace()) {
+        return parser.reportError<ParseConst>("enum member must end with comma 1");
+    }
+    const char* dataStart = parser.fChar;
+    if ('=' == parser.peek()) {
+        parser.skipToEndBracket(',');
+    }
+    if (!parser.eof() && '#' == parser.peek()) {
+        // fixme: handle preprecessor, but just skip it for now
+        return ParseConst::kContinue;
+    }
+    if (parser.eof() || ',' != parser.peek()) {
+        return parser.reportError<ParseConst>("enum member must end with comma 2");
+    }
+    const char* dataEnd = parser.fChar;
+    const char* start = parser.anyOf("/\n");
+    SkASSERT(start);
+    parser.skipTo(start);
+    if ('/' == parser.next()) {
+        char slashStar = parser.next();
+        if ('/' == slashStar || '*' == slashStar) {
+            TextParserSave save(&parser);
+            char doxCheck = parser.next();
+            if ((slashStar != doxCheck && '!' != doxCheck) || '<' != parser.next()) {
+                save.restore();
+            }
+        }
+        parser.skipWhiteSpace();
+        const char* commentStart = parser.fChar;
+        if ('/' == slashStar) {
+            parser.skipToEndBracket('\n');
+        } else {
+            parser.skipToEndBracket("*/");
+        }
+        SkASSERT(!parser.eof());
+        const char* commentEnd = parser.fChar;
+        markupChild->fTokens.emplace_back(MarkType::kComment, commentStart, commentEnd,
+                parser.fLineCount, markupChild, '\0');
+        comment = &markupChild->fTokens.back();
+        if (this->isUndocumentable(comment->fFileName, comment->fContentStart,
+                comment->fContentEnd, comment->fLineCount)) {
+            comment->fUndocumented = true;
+        }
+        comment->fTerminator = commentEnd;
+    }
+    markupChild->fTokens.emplace_back(MarkType::kMember, dataStart, dataEnd, parser.fLineCount,
+            markupChild, '\0');
+    Definition* member = &markupChild->fTokens.back();
+    member->fName = memberName;
+    if (comment) {
+        member->fChildren.push_back(comment);
+        member->fUndocumented = comment->fUndocumented;
+        comment->fPrivate = true;
+    }
+    markupChild->fChildren.push_back(member);
+    return ParseConst::kContinue;
+}
+
+IncludeParser::ParseConst IncludeParser::parseEnumConst2(Definition* child,
+        Definition* markupChild) {
+    // token array has parse atoms; child array has comments
+    auto childIter = child->fChildren.begin();
+    auto tokenIter = child->fTokens.begin();
+    while (child->fTokens.end() != tokenIter) {
+        if (Bracket::kSlashStar == tokenIter->fBracket) {
+            if (!this->parseComment(tokenIter->fFileName, tokenIter->fContentStart,
+                    tokenIter->fContentEnd, tokenIter->fLineCount, markupChild)) {
+                return ParseConst::kFail;
+            }
+        }
+        while (Definition::Type::kWord != tokenIter->fType) {
+            tokenIter = std::next(tokenIter);
+            if (child->fTokens.end() == tokenIter) {
+                return ParseConst::kFail;
+            }
+        }
+        auto memberStart = tokenIter;
+        Definition* memberEnd = nullptr;
+        const char* last = tokenIter->fContentEnd;
+        do {
+            tokenIter = std::next(tokenIter);
+            if (child->fTokens.end() == tokenIter) {
+                return ParseConst::kFail;
+            }
+            memberEnd = &*tokenIter;
+        } while (string::npos == string(last, tokenIter->fContentStart).find(','));
+
+        if (Bracket::kSlashSlash == tokenIter->fBracket) {
+            if (!this->parseComment(tokenIter->fFileName, tokenIter->fContentStart,
+                    tokenIter->fContentEnd, tokenIter->fLineCount, markupChild)) {
+                return ParseConst::kFail;
+            }
+        }
+        markupChild->fTokens.emplace_back(MarkType::kMember, memberStart->fContentStart,
+                memberEnd->fContentEnd, memberStart->fLineCount, markupChild, '\0');
+    }
+    return ParseConst::kContinue;
 }
 
 bool IncludeParser::parseInclude(string name) {
@@ -2473,7 +2620,9 @@ bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
     string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
     markupChild->fName = uniqueName;
     markupChild->fTerminator = markupChild->fContentEnd;
-    classDef.fMembers[uniqueName] = markupChild;
+    if (!markupChild->fUndocumented) {
+        classDef.fMembers[uniqueName] = markupChild;
+    }
     if (child->fParentIndex >= 2) {
         auto comment = child->fParent->fTokens.begin();
         std::advance(comment, child->fParentIndex - 2);
@@ -2633,7 +2782,11 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         if (!this->findComments(*child, globalMarkupChild)) {
             return false;
         }
-        fIFunctionMap[globalUniqueName] = globalMarkupChild;
+        if (globalMarkupChild->fUndocumented) {
+            child->fUndocumented = true;
+        } else {
+            fIFunctionMap[globalUniqueName] = globalMarkupChild;
+        }
         return true;
     }
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
@@ -2649,7 +2802,11 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         if (!this->findComments(*child, markupChild)) {
             return false;
         }
-        classDef.fMethods[uniqueName] = markupChild;
+        if (markupChild->fUndocumented) {
+            tokenIter->fUndocumented = true;
+        } else {
+            classDef.fMethods[uniqueName] = markupChild;
+        }
     }
     return true;
 }
@@ -2780,6 +2937,10 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                             // ignored for now
                             break;
                         case KeyWord::kElse:
+                            if (!this->parseObjects(child, markupDef)) {
+                                return false;
+                            }
+                            break;
                         case KeyWord::kElif:
                             // todo: handle these
                             break;
@@ -2841,7 +3002,11 @@ bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
         if (!this->findComments(*child, globalMarkupChild)) {
             return false;
         }
-        fITypedefMap[globalUniqueName] = globalMarkupChild;
+        if (globalMarkupChild->fUndocumented) {
+            child->fUndocumented = true;
+        } else {
+            fITypedefMap[globalUniqueName] = globalMarkupChild;
+        }
         child->fName = nameStr;
         return true;
     }

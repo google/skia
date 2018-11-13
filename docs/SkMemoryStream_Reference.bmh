@@ -173,27 +173,6 @@ if copyData is true, the stream makes a private copy of the data
 
 # ------------------------------------------------------------------------------
 
-#Method void setMemoryOwned(const void* data, size_t length)
-#In incomplete
-#Line # incomplete ##
-
-#Private
-Internal use only.
-##
-
-#Param data  incomplete ##
-#Param length  incomplete ##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method sk_sp<SkData> asData() const
 #In incomplete
 #Line # incomplete ##

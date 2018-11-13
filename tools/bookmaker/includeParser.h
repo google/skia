@@ -36,6 +36,12 @@ public:
         kYes,
     };
 
+    enum class ParseConst {
+        kFail,
+        kContinue,
+        kDone,
+    };
+
     struct CheckCode {
         enum class State {
             kNone,
@@ -163,6 +169,7 @@ public:
 
     string elidedCodeBlock(const Definition& );
     string filteredBlock(string inContents, string filterContents);
+    bool findCommentAfter(const Definition& includeDef, Definition* markupDef);
     bool findComments(const Definition& includeDef, Definition* markupDef);
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
@@ -175,6 +182,7 @@ public:
     bool isInternalName(const Definition& token);
     bool isMember(const Definition& token) const;
     bool isOperator(const Definition& token);
+    bool isUndocumentable(string filename, const char* start, const char* end, int lineCount);
     Definition* parentBracket(Definition* parent) const;
     bool parseChar();
     bool parseComment(string filename, const char* start, const char* end, int lineCount,
@@ -183,6 +191,8 @@ public:
     bool parseConst(Definition* child, Definition* markupDef);
     bool parseDefine(Definition* child, Definition* markupDef);
     bool parseEnum(Definition* child, Definition* markupDef);
+    ParseConst parseEnumConst(TextParser& parser, Definition* markupChild);
+    ParseConst parseEnumConst2(Definition* child, Definition* markupChild);
 
     bool parseFromFile(const char* path) override {
         this->reset();
@@ -215,6 +225,9 @@ public:
     }
 
     void pushBracket(Bracket bracket) {
+        if ("#else" == string(fChar, 5)) {
+            SkDebugf("");
+        }
         this->setBracketShortCuts(bracket);
         fParent->fTokens.emplace_back(bracket, fChar, fLineCount, fParent, '\0');
         Definition* container = &fParent->fTokens.back();
