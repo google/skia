@@ -26,19 +26,15 @@ const char* SkPDFGetNodeIdKey() {
 
 void SkPDFOffsetMap::set(SkPDFIndirectReference iRef, SkPDFFileOffset offset) {
     SkASSERT(iRef.fValue > 0);
-    SkASSERT(SkToSizeT(iRef.fValue - 1) == fOffsets.size());
-    fOffsets.push_back(offset);
-    // The following logic can be used in a later CL when we serialize objects
-    // out of order:
-    //size_t index = SkToSizeT(iRef.fValue - 1);
-    //if (index == fOffsets.size()) {
-    //    fOffsets.push_back(offset);
-    //} else if (index < fOffsets.size()) {
-    //    fOffsets[index] = offset;
-    //} else {
-    //    fOffsets.resize(index + 1);
-    //    fOffsets[index] = offset;
-    //}
+    size_t index = SkToSizeT(iRef.fValue - 1);
+    if (index == fOffsets.size()) {
+        fOffsets.push_back(offset);
+    } else if (index < fOffsets.size()) {
+        fOffsets[index] = offset;
+    } else {
+        fOffsets.resize(index + 1);
+        fOffsets[index] = offset;
+    }
 }
 
 SkPDFFileOffset SkPDFOffsetMap::get(SkPDFIndirectReference r) {
@@ -76,6 +72,18 @@ void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
 }
 #undef SKPDF_MAGIC
 
+SkWStream* SkPDFObjectSerializer::beginObject(SkPDFIndirectReference ref, SkWStream* wStream) {
+    SkASSERT(ref.fValue > 0);
+    fOffsets.set(ref, this->offset(wStream));
+    wStream->writeDecAsText(ref.fValue);
+    wStream->writeText(" 0 obj\n");  // Generation number is always 0.
+    return wStream;
+}
+
+void SkPDFObjectSerializer::endObject(SkWStream* wStream) {
+    wStream->writeText("\nendobj\n");
+}
+
 void SkPDFObjectSerializer::serializeObject(const sk_sp<SkPDFObject>& object,
                                             SkWStream* wStream) {
     SkPDFObjNumMap objNumMap;
@@ -83,15 +91,14 @@ void SkPDFObjectSerializer::serializeObject(const sk_sp<SkPDFObject>& object,
     objNumMap.addObjectRecursively(object.get());
 
     for (const sk_sp<SkPDFObject>& object : objNumMap.fObjects) {
-        fOffsets.set(object->fIndirectReference, this->offset(wStream));
-        wStream->writeDecAsText(object->fIndirectReference.fValue);
-        wStream->writeText(" 0 obj\n");  // Generation number is always 0.
+        this->beginObject(object->fIndirectReference, wStream);
         object->emitObject(wStream);
-        wStream->writeText("\nendobj\n");
+        this->endObject(wStream);
         object->drop();
     }
     fNextObjectNumber = objNumMap.fNextObjectNumber; // save for later.
 }
+
 
 // Xref table and footer
 void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
@@ -105,6 +112,7 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
     wStream->writeDecAsText(objCount);
     wStream->writeText("\n0000000000 65535 f \n");
     for (int i = 1; i < objCount; ++i) {
+        SkASSERT(fOffsets.get(SkPDFIndirectReference{i}).fValue > 0);
         wStream->writeBigDecAsText(fOffsets.get(SkPDFIndirectReference{i}).fValue, 10);
         wStream->writeText(" 00000 n \n");
     }
@@ -218,6 +226,19 @@ SkPDFDocument::~SkPDFDocument() {
 void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
     fObjectSerializer.serializeObject(object, this->getStream());
 }
+
+SkPDFIndirectReference SkPDFDocument::reserve() {
+    ++fOutstandingRefs;
+    return SkPDFIndirectReference{fObjectSerializer.fNextObjectNumber++};
+};
+
+SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) {
+    --fOutstandingRefs;
+    return fObjectSerializer.beginObject(ref, this->getStream());
+};
+void SkPDFDocument::endObject() {
+    fObjectSerializer.endObject(this->getStream());
+};
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
 static SkSize operator*(SkSize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -554,10 +575,11 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         }
     }
 
-    // Build font subsetting info before calling addObjectRecursively().
-    SkPDFCanon* canon = &fCanon;
-    fFonts.foreach([canon](SkPDFFont* p){ p->getFontSubset(canon); });
+    // Build font subsetting info before serializing the catalog and all of
+    // its transitive dependecies.
+    fFonts.foreach([this](SkPDFFont* p){ p->getFontSubset(this); });
     fObjectSerializer.serializeObject(docCatalog, this->getStream());
+    SkASSERT(fOutstandingRefs == 0);
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     this->reset();
 }
