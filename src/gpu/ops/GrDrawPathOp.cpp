@@ -74,7 +74,7 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrContext* context,
     return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aaType, path);
 }
 
-void GrDrawPathOp::onExecute(GrOpFlushState* state) {
+void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrAppliedClip appliedClip = state->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(appliedClip.scissorState().rect());
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),

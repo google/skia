@@ -22,7 +22,7 @@ std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrContext* context,
     return pool->allocate<GrDebugMarkerOp>(proxy, str);
 }
 
-void GrDebugMarkerOp::onExecute(GrOpFlushState* state) {
+void GrDebugMarkerOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     //SkDebugf("%s\n", fStr.c_str());
     if (state->caps().gpuTracingSupport()) {
         state->commandBuffer()->insertEventMarker(fStr.c_str());
