@@ -150,7 +150,6 @@ static bool gen_meta_key(const GrXferProcessor& xp,
     if ((processorKeySize | classID) & kMetaKeyInvalidMask) {
         return false;
     }
-
     b->add32((classID << 16) | SkToU32(processorKeySize));
     return true;
 }
