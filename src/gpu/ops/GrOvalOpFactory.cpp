@@ -37,13 +37,6 @@ struct EllipseVertex {
     SkPoint fInnerRadii;
 };
 
-struct DIEllipseVertex {
-    SkPoint fPos;
-    GrColor fColor;
-    SkPoint fOuterOffset;
-    SkPoint fInnerOffset;
-};
-
 static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
 }
 
@@ -843,6 +836,33 @@ static const uint16_t gStrokeCircleIndices[] = {
         // clang-format on
 };
 
+// Normalized geometry for octagons that circumscribe and lie on a circle:
+
+static constexpr SkScalar kOctOffset = 0.41421356237f;  // sqrt(2) - 1
+static constexpr SkPoint kOctagonOuter[] = {
+    SkPoint::Make(-kOctOffset, -1),
+    SkPoint::Make( kOctOffset, -1),
+    SkPoint::Make( 1, -kOctOffset),
+    SkPoint::Make( 1,  kOctOffset),
+    SkPoint::Make( kOctOffset, 1),
+    SkPoint::Make(-kOctOffset, 1),
+    SkPoint::Make(-1,  kOctOffset),
+    SkPoint::Make(-1, -kOctOffset),
+};
+
+// cosine and sine of pi/8
+static constexpr SkScalar kCosPi8 = 0.923579533f;
+static constexpr SkScalar kSinPi8 = 0.382683432f;
+static constexpr SkPoint kOctagonInner[] = {
+    SkPoint::Make(-kSinPi8, -kCosPi8),
+    SkPoint::Make( kSinPi8, -kCosPi8),
+    SkPoint::Make( kCosPi8, -kSinPi8),
+    SkPoint::Make( kCosPi8,  kSinPi8),
+    SkPoint::Make( kSinPi8,  kCosPi8),
+    SkPoint::Make(-kSinPi8,  kCosPi8),
+    SkPoint::Make(-kCosPi8,  kSinPi8),
+    SkPoint::Make(-kCosPi8, -kSinPi8),
+};
 
 static const int kIndicesPerFillCircle = SK_ARRAY_COUNT(gFillCircleIndices);
 static const int kIndicesPerStrokeCircle = SK_ARRAY_COUNT(gStrokeCircleIndices);
@@ -1141,12 +1161,10 @@ private:
         sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(
                 !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, localMatrix));
 
-        size_t vertexStride = gp->vertexStride();
-
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        void* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount, &vertexBuffer,
-                                                        &firstVertex);
+        void* vertices = target->makeVertexSpace(gp->vertexStride(), fVertCount, &vertexBuffer,
+                                                 &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1189,23 +1207,11 @@ private:
                 offsetClipDist = 0.5f / halfWidth;
             }
 
-            constexpr SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
-            static constexpr SkPoint kOffsets[] = {
-                SkPoint::Make(-octOffset, -1),
-                SkPoint::Make(octOffset, -1),
-                SkPoint::Make(1, -octOffset),
-                SkPoint::Make(1, octOffset),
-                SkPoint::Make(octOffset, 1),
-                SkPoint::Make(-octOffset, 1),
-                SkPoint::Make(-1, octOffset),
-                SkPoint::Make(-1, -octOffset),
-            };
-
             for (int i = 0; i < 8; ++i) {
                 // This clips the normalized offset to the half-plane we computed above. Then we
                 // compute the vertex position from this.
-                SkScalar dist = SkTMin(kOffsets[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
-                SkVector offset = kOffsets[i] - geoClipPlane * dist;
+                SkScalar dist = SkTMin(kOctagonOuter[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
+                SkVector offset = kOctagonOuter[i] - geoClipPlane * dist;
                 vertices = WriteVertexData(vertices, center + offset * halfWidth, color, offset,
                                            outerRadius, innerRadius);
                 if (fClipPlane) {
@@ -1225,25 +1231,11 @@ private:
             if (circle.fStroked) {
                 // compute the inner ring
 
-                // cosine and sine of pi/8
-                constexpr SkScalar c = 0.923579533f;
-                constexpr SkScalar s = 0.382683432f;
-                static constexpr SkPoint kRingPoints[] = {
-                    SkPoint::Make( -s, -c ),
-                    SkPoint::Make(  s, -c ),
-                    SkPoint::Make(  c, -s ),
-                    SkPoint::Make(  c,  s ),
-                    SkPoint::Make(  s,  c ),
-                    SkPoint::Make( -s,  c ),
-                    SkPoint::Make( -c,  s ),
-                    SkPoint::Make( -c, -s ),
-                };
-
                 for (int i = 0; i < 8; ++i) {
                     vertices = WriteVertexData(vertices,
-                                               center + kRingPoints[i] * circle.fInnerRadius,
+                                               center + kOctagonInner[i] * circle.fInnerRadius,
                                                color,
-                                               kRingPoints[i] * innerRadius,
+                                               kOctagonInner[i] * innerRadius,
                                                outerRadius, innerRadius);
                     if (fClipPlane) {
                         vertices = WriteVertexData(vertices, circle.fClipPlane);
@@ -1488,25 +1480,10 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new ButtCapDashedCircleGeometryProcessor(localMatrix));
 
-        struct CircleVertex {
-            SkPoint fPos;
-            GrColor fColor;
-            SkPoint fOffset;
-            SkScalar fOuterRadius;
-            SkScalar fInnerRadius;
-            SkScalar fOnAngle;
-            SkScalar fTotalAngle;
-            SkScalar fStartAngle;
-            SkScalar fPhaseAngle;
-        };
-
-        static constexpr size_t kVertexStride = sizeof(CircleVertex);
-        SkASSERT(kVertexStride == gp->vertexStride());
-
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        char* vertices = (char*)target->makeVertexSpace(kVertexStride, fVertCount, &vertexBuffer,
-                                                        &firstVertex);
+        void* vertices = target->makeVertexSpace(gp->vertexStride(), fVertCount, &vertexBuffer,
+                                                 &firstVertex);
         if (!vertices) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1528,10 +1505,13 @@ private:
             auto normInnerRadius = circle.fInnerRadius / circle.fOuterRadius;
             const SkRect& bounds = circle.fDevBounds;
             bool reflect = false;
-            SkScalar totalAngle = circle.fTotalAngle;
-            if (totalAngle < 0) {
+            struct { float onAngle, totalAngle, startAngle, phaseAngle; } dashParams = {
+                circle.fOnAngle, circle.fTotalAngle, circle.fStartAngle, circle.fPhaseAngle
+            };
+            if (dashParams.totalAngle < 0) {
                 reflect = true;
-                totalAngle = -totalAngle;
+                dashParams.totalAngle = -dashParams.totalAngle;
+                dashParams.startAngle = -dashParams.startAngle;
             }
 
             // TODO4F: Preserve float colors
@@ -1540,61 +1520,34 @@ private:
             // The bounding geometry for the circle is composed of an outer bounding octagon and
             // an inner bounded octagon.
 
-            // Initializes the attributes that are the same at each vertex. Also applies reflection.
-            auto init_const_attrs_and_reflect = [&](CircleVertex* v) {
-                v->fColor = color;
-                v->fOuterRadius = circle.fOuterRadius;
-                v->fInnerRadius = normInnerRadius;
-                v->fOnAngle = circle.fOnAngle;
-                v->fTotalAngle = totalAngle;
-                v->fStartAngle = circle.fStartAngle;
-                v->fPhaseAngle = circle.fPhaseAngle;
-                if (reflect) {
-                    v->fStartAngle = -v->fStartAngle;
-                    v->fOffset.fY = -v->fOffset.fY;
-                }
-            };
-
             // Compute the vertices of the outer octagon.
             SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
             SkScalar halfWidth = 0.5f * bounds.width();
-            auto init_outer_vertex = [&](int idx, SkScalar x, SkScalar y) {
-                CircleVertex* v = reinterpret_cast<CircleVertex*>(vertices + idx * kVertexStride);
-                v->fPos = center + SkPoint{x * halfWidth, y * halfWidth};
-                v->fOffset = {x, y};
-                init_const_attrs_and_reflect(v);
+
+            auto reflectY = [=](const SkPoint& p) {
+                return SkPoint{ p.fX, reflect ? -p.fY : p.fY };
             };
-            static constexpr SkScalar kOctOffset = 0.41421356237f;  // sqrt(2) - 1
-            init_outer_vertex(0, -kOctOffset, -1);
-            init_outer_vertex(1, kOctOffset, -1);
-            init_outer_vertex(2, 1, -kOctOffset);
-            init_outer_vertex(3, 1, kOctOffset);
-            init_outer_vertex(4, kOctOffset, 1);
-            init_outer_vertex(5, -kOctOffset, 1);
-            init_outer_vertex(6, -1, kOctOffset);
-            init_outer_vertex(7, -1, -kOctOffset);
+
+            for (int i = 0; i < 8; ++i) {
+                vertices = WriteVertexData(vertices,
+                                           center + kOctagonOuter[i] * halfWidth,
+                                           color,
+                                           reflectY(kOctagonOuter[i]),
+                                           circle.fOuterRadius,
+                                           normInnerRadius,
+                                           dashParams);
+            }
 
             // Compute the vertices of the inner octagon.
-            auto init_inner_vertex = [&](int idx, SkScalar x, SkScalar y) {
-                CircleVertex* v =
-                        reinterpret_cast<CircleVertex*>(vertices + (idx + 8) * kVertexStride);
-                v->fPos = center + SkPoint{x * circle.fInnerRadius, y * circle.fInnerRadius};
-                v->fOffset = {x * normInnerRadius, y * normInnerRadius};
-                init_const_attrs_and_reflect(v);
-            };
-
-            // cosine and sine of pi/8
-            static constexpr SkScalar kCos = 0.923579533f;
-            static constexpr SkScalar kSin = 0.382683432f;
-
-            init_inner_vertex(0, -kSin, -kCos);
-            init_inner_vertex(1,  kSin, -kCos);
-            init_inner_vertex(2,  kCos, -kSin);
-            init_inner_vertex(3,  kCos,  kSin);
-            init_inner_vertex(4,  kSin,  kCos);
-            init_inner_vertex(5, -kSin,  kCos);
-            init_inner_vertex(6, -kCos,  kSin);
-            init_inner_vertex(7, -kCos, -kSin);
+            for (int i = 0; i < 8; ++i) {
+                vertices = WriteVertexData(vertices,
+                                           center + kOctagonInner[i] * circle.fInnerRadius,
+                                           color,
+                                           reflectY(kOctagonInner[i]) * normInnerRadius,
+                                           circle.fOuterRadius,
+                                           normInnerRadius,
+                                           dashParams);
+            }
 
             const uint16_t* primIndices = circle_type_to_indices(true);
             const int primIndexCount = circle_type_to_index_count(true);
@@ -1603,7 +1556,6 @@ private:
             }
 
             currStartVertex += circle_type_to_vert_count(true);
-            vertices += circle_type_to_vert_count(true) * kVertexStride;
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
@@ -1805,10 +1757,8 @@ private:
 
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
-
-        SkASSERT(sizeof(EllipseVertex) == gp->vertexStride());
-        QuadHelper helper(target, sizeof(EllipseVertex), fEllipses.count());
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
+        QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
+        void* verts = helper.vertices();
         if (!verts) {
             return;
         }
@@ -1818,12 +1768,15 @@ private:
             GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
+            const SkRect& bounds = ellipse.fDevBounds;
 
             // Compute the reciprocals of the radii here to save time in the shader
-            SkScalar xRadRecip = SkScalarInvert(xRadius);
-            SkScalar yRadRecip = SkScalarInvert(yRadius);
-            SkScalar xInnerRadRecip = SkScalarInvert(ellipse.fInnerXRadius);
-            SkScalar yInnerRadRecip = SkScalarInvert(ellipse.fInnerYRadius);
+            struct { float xOuter, yOuter, xInner, yInner; } invRadii = {
+                SkScalarInvert(xRadius),
+                SkScalarInvert(yRadius),
+                SkScalarInvert(ellipse.fInnerXRadius),
+                SkScalarInvert(ellipse.fInnerYRadius)
+            };
             SkScalar xMaxOffset = xRadius + SK_ScalarHalf;
             SkScalar yMaxOffset = yRadius + SK_ScalarHalf;
 
@@ -1835,31 +1788,29 @@ private:
             }
 
             // The inner radius in the vertex data must be specified in normalized space.
-            verts[0].fPos = SkPoint::Make(ellipse.fDevBounds.fLeft, ellipse.fDevBounds.fTop);
-            verts[0].fColor = color;
-            verts[0].fOffset = SkPoint::Make(-xMaxOffset, -yMaxOffset);
-            verts[0].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
-            verts[0].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fLeft, bounds.fTop),
+                                    color,
+                                    SkPoint::Make(-xMaxOffset, -yMaxOffset),
+                                    invRadii);
 
-            verts[1].fPos = SkPoint::Make(ellipse.fDevBounds.fLeft, ellipse.fDevBounds.fBottom);
-            verts[1].fColor = color;
-            verts[1].fOffset = SkPoint::Make(-xMaxOffset, yMaxOffset);
-            verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
-            verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fLeft, bounds.fBottom),
+                                    color,
+                                    SkPoint::Make(-xMaxOffset, yMaxOffset),
+                                    invRadii);
 
-            verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
-            verts[2].fColor = color;
-            verts[2].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
-            verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
-            verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fRight, bounds.fTop),
+                                    color,
+                                    SkPoint::Make(xMaxOffset, -yMaxOffset),
+                                    invRadii);
 
-            verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
-            verts[3].fColor = color;
-            verts[3].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
-            verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
-            verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
-
-            verts += kVerticesPerQuad;
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fRight, bounds.fBottom),
+                                    color,
+                                    SkPoint::Make(xMaxOffset, yMaxOffset),
+                                    invRadii);
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
@@ -2041,9 +1992,8 @@ private:
         sk_sp<GrGeometryProcessor> gp(
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
 
-        SkASSERT(sizeof(DIEllipseVertex) == gp->vertexStride());
-        QuadHelper helper(target, sizeof(DIEllipseVertex), fEllipses.count());
-        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(helper.vertices());
+        QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
+        void* verts = helper.vertices();
         if (!verts) {
             return;
         }
@@ -2060,41 +2010,43 @@ private:
             SkScalar offsetDx = ellipse.fGeoDx / xRadius;
             SkScalar offsetDy = ellipse.fGeoDy / yRadius;
 
-            verts[0].fPos = SkPoint::Make(bounds.fLeft, bounds.fTop);
-            verts[0].fColor = color;
-            verts[0].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy);
-            verts[0].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
+            // By default, constructed so that inner offset is (0, 0) for all points
+            SkScalar innerRatioX = -offsetDx;
+            SkScalar innerRatioY = -offsetDy;
 
-            verts[1].fPos = SkPoint::Make(bounds.fLeft, bounds.fBottom);
-            verts[1].fColor = color;
-            verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
-            verts[1].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
-
-            verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
-            verts[2].fColor = color;
-            verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
-            verts[2].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
-
-            verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
-            verts[3].fColor = color;
-            verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
-            verts[3].fInnerOffset = SkPoint::Make(0.0f, 0.0f);
-
+            // ... unless we're stroked
             if (DIEllipseStyle::kStroke == this->style()) {
-                SkScalar innerRatioX = xRadius / ellipse.fInnerXRadius;
-                SkScalar innerRatioY = yRadius / ellipse.fInnerYRadius;
-
-                verts[0].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx,
-                                                      -innerRatioY - offsetDy);
-                verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx,
-                                                      innerRatioY + offsetDy);
-                verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx,
-                                                      -innerRatioY - offsetDy);
-                verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx,
-                                                      innerRatioY + offsetDy);
+                innerRatioX = xRadius / ellipse.fInnerXRadius;
+                innerRatioY = yRadius / ellipse.fInnerYRadius;
             }
 
-            verts += kVerticesPerQuad;
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fLeft, bounds.fTop),
+                                    color,
+                                    SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy),
+                                    SkPoint::Make(-innerRatioX - offsetDx,
+                                                  -innerRatioY - offsetDy));
+
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fLeft, bounds.fBottom),
+                                    color,
+                                    SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy),
+                                    SkPoint::Make(-innerRatioX - offsetDx,
+                                                   innerRatioY + offsetDy));
+
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fRight, bounds.fTop),
+                                    color,
+                                    SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy),
+                                    SkPoint::Make( innerRatioX + offsetDx,
+                                                  -innerRatioY - offsetDy));
+
+            verts = WriteVertexData(verts,
+                                    SkPoint::Make(bounds.fRight, bounds.fBottom),
+                                    color,
+                                    SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy),
+                                    SkPoint::Make(innerRatioX + offsetDx,
+                                                  innerRatioY + offsetDy));
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
