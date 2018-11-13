@@ -19,51 +19,6 @@ constexpr int kMaxBones = 80; // Supports up to 80 bones per mesh.
  * view matrix and wire through color, coverage, UV coords if requested.
  */
 namespace GrDefaultGeoProcFactory {
-    // Structs for adding vertex attributes
-    struct PositionAttr {
-        SkPoint fPosition;
-    };
-
-    struct PositionCoverageAttr {
-        SkPoint fPosition;
-        float   fCoverage;
-    };
-
-    struct PositionColorAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-    };
-
-    struct PositionColorCoverageAttr {
-        SkPoint fPosition;
-        SkColor fColor;
-        float   fCoverage;
-    };
-
-    struct PositionLocalCoordAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionLocalCoordCoverageAttr {
-        SkPoint fPosition;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
-    struct PositionColorLocalCoordAttr {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-    };
-
-    struct PositionColorLocalCoordCoverageAttr {
-        SkPoint fPosition;
-        GrColor fColor;
-        SkPoint fLocalCoord;
-        float   fCoverage;
-    };
-
     struct Color {
         enum Type {
             kPremulGrColorUniform_Type,
