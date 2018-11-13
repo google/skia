@@ -420,12 +420,7 @@ static SkCachedData* add_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle 
     return cache;
 }
 
-#ifdef SK_IGNORE_FAST_RRECT_BLUR
-  // Use the faster analytic blur approach for ninepatch round rects
-  static const bool c_analyticBlurRRect{false};
-#else
-  static const bool c_analyticBlurRRect{true};
-#endif
+static const bool c_analyticBlurRRect{true};
 
 SkMaskFilterBase::FilterReturn
 SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& matrix,
