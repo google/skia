@@ -1801,6 +1801,15 @@ static bool is_integral(const SkRect& r) {
            is_integer(r.bottom());
 }
 
+namespace {
+// This struct will go away when fIndirectReference goes away.
+struct PDFObj final : public SkPDFObject {
+    PDFObj(SkPDFIndirectReference ref) { fIndirectReference = ref; }
+    // emitObject() is never called since the Object already has a indirect ref.
+    void emitObject(SkWStream*) const override { SK_ABORT("DO NOT REACH HERE"); }
+};
+} // namespace
+
 void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                         const SkRect* src,
                                         const SkRect& dst,
@@ -2028,12 +2037,10 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     sk_sp<SkPDFObject> pdfimage = pdfimagePtr ? *pdfimagePtr : nullptr;
     if (!pdfimage) {
         SkASSERT(imageSubset);
-        pdfimage = SkPDFCreateBitmapObject(imageSubset.release(),
-                                           fDocument->metadata().fEncodingQuality);
-        if (!pdfimage) {
-            return;
-        }
-        fDocument->serialize(pdfimage);  // serialize images early.
+        auto ref = SkPDFSerializeImage(imageSubset.image().get(), fDocument,
+                                       fDocument->metadata().fEncodingQuality);
+        SkASSERT(ref.fValue > 0);
+        pdfimage = sk_make_sp<PDFObj>(ref);
         SkASSERT((key != SkBitmapKey{{0, 0, 0, 0}, 0}));
         fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
     }

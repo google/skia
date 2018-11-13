@@ -16,6 +16,7 @@
 #include "SkPDFCanon.h"
 #include "SkPDFConvertType1FontStream.h"
 #include "SkPDFDevice.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 #include "SkPDFMakeToUnicodeCmap.h"
 #include "SkPDFResourceDict.h"
@@ -55,7 +56,7 @@ static const int32_t kPdfSymbolic = 4;
 struct SkPDFType0Font final : public SkPDFFont {
     SkPDFType0Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&);
     ~SkPDFType0Font() override;
-    void getFontSubset(SkPDFCanon*) override;
+    void getFontSubset(SkPDFDocument*) override;
 #ifdef SK_DEBUG
     void emitObject(SkWStream*) const override;
     bool fPopulated;
@@ -66,13 +67,13 @@ struct SkPDFType0Font final : public SkPDFFont {
 struct SkPDFType1Font final : public SkPDFFont {
     SkPDFType1Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&, SkPDFCanon*);
     ~SkPDFType1Font() override {}
-    void getFontSubset(SkPDFCanon*) override {} // TODO(halcanary): implement
+    void getFontSubset(SkPDFDocument*) override {} // TODO(halcanary): implement
 };
 
 struct SkPDFType3Font final : public SkPDFFont {
     SkPDFType3Font(SkPDFFont::Info, const SkAdvancedTypefaceMetrics&);
     ~SkPDFType3Font() override {}
-    void getFontSubset(SkPDFCanon*) override;
+    void getFontSubset(SkPDFDocument*) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -343,7 +344,8 @@ static sk_sp<SkData> stream_to_data(std::unique_ptr<SkStreamAsset> stream) {
 }
 #endif  // SK_PDF_SUBSET_SUPPORTED
 
-void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
+void SkPDFType0Font::getFontSubset(SkPDFDocument* doc) {
+    SkPDFCanon* canon = doc->canon();
     const SkAdvancedTypefaceMetrics* metricsPtr =
         SkPDFFont::GetMetrics(this->typeface(), canon);
     SkASSERT(metricsPtr);
@@ -644,12 +646,13 @@ static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
     }
 }
 
-static void add_type3_font_info(SkPDFCanon* canon,
+static void add_type3_font_info(SkPDFDocument* doc,
                                 SkPDFDict* font,
                                 SkTypeface* typeface,
                                 const SkPDFGlyphUse& subset,
                                 SkGlyphID firstGlyphID,
                                 SkGlyphID lastGlyphID) {
+    SkPDFCanon* canon = doc->canon();
     const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, canon);
     SkASSERT(lastGlyphID >= firstGlyphID);
     // Remove unused glyphs at the end of the range.
@@ -734,7 +737,7 @@ static void add_type3_font_info(SkPDFCanon* canon,
                     content.writeText("/X Do\n");
                     auto proc = sk_make_sp<SkPDFStream>(content.detachAsStream());
                     auto d0 = sk_make_sp<SkPDFDict>();
-                    d0->insertObjRef("X", SkPDFCreateBitmapObject(std::move(pimg.fImage)));
+                    d0->insertRef("X", SkPDFSerializeImage(pimg.fImage.get(), doc));
                     auto d1 = sk_make_sp<SkPDFDict>();
                     d1->insertObject("XObject", std::move(d0));
                     proc->dict()->insertObject("Resources", std::move(d1));
@@ -796,8 +799,8 @@ SkPDFType3Font::SkPDFType3Font(SkPDFFont::Info info,
                                const SkAdvancedTypefaceMetrics& metrics)
     : SkPDFFont(std::move(info)) {}
 
-void SkPDFType3Font::getFontSubset(SkPDFCanon* canon) {
-    add_type3_font_info(canon, this, this->typeface(), this->glyphUsage(),
+void SkPDFType3Font::getFontSubset(SkPDFDocument* doc) {
+    add_type3_font_info(doc, this, this->typeface(), this->glyphUsage(),
                         this->firstGlyphID(), this->lastGlyphID());
 }
 
