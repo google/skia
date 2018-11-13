@@ -69,6 +69,30 @@
       "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad28a34a_e1cdb31b",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1797,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-13T14:53:12Z",
+      "side": 1,
+      "message": "I agree that error checking isn\u0027t really important. You\u0027ll notice right away when things render all crazy.\n\nI might prefer {-xMaxOffset, -yMaxOffset, xRadRecip, yRadRecip, xInnerRadRecip, yInnerRadRecip} \n\nor even something like\n\nstruct { float xOuter, yOuter, xInner, yInner} invRadii \u003d {SkScalarInvert(epplise.fInnerXadius), /* ... */};\n\nand then\nWriteVertexData{SkPoint::Make(/* bounds point */), {/*max offsets*/}, invRadii};\n\nto emphasize the commonality of the last four values.",
+      "parentUuid": "c0e85255_4f299215",
+      "range": {
+        "startLine": 1797,
+        "startChar": 36,
+        "endLine": 1797,
+        "endChar": 49
+      },
+      "revId": "ea536a83cef760c0dfc787231775627a4a6edb85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
