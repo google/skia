@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "61c7209e_da58d77d",
+        "filename": "include/utils/SkTextUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-14T15:28:53Z",
+      "side": 1,
+      "message": "That\u0027s true, but the only actual use I know of SkPaint::getTextPath is to try to do what SkFont::getPath is doing. I think modern blink uses measureText (with a single glyph) to get glyph bounds. It just seems very odd to have this API which looks like DrawText above, but will just drop some glyphs (since they don\u0027t have paths) and not let the user know about it. In other words, it seems impossible to use this correctly for anything in particular. Note that Android uses getPosTextPath and has similar issues with any emoji, which will simply be dropped without notificaton.",
+      "parentUuid": "f4a0364d_c1f7dc70",
+      "range": {
+        "startLine": 36,
+        "startChar": 16,
+        "endLine": 36,
+        "endChar": 27
+      },
+      "revId": "5d4098db659ba7edd072eec84198ba39f3d7437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "085ade18_4b47e0f6",
         "filename": "src/core/SkFont.cpp",
         "patchSetId": 1
