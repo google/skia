@@ -138,9 +138,10 @@ public:
 
         // If there is more run, then connect up the subruns.
         if (fRunCount > 0) {
-            SubRun& newRun = fRuns[fRunCount].fSubRunInfo.back();
-            SubRun& lastRun = fRuns[fRunCount - 1].fSubRunInfo.back();
-            newRun.setAsSuccessor(lastRun);
+            SubRun& newSubRun = fRuns[fRunCount].fSubRunInfo.back();
+            newSubRun.SubRun::~SubRun();
+            SubRun& lastSubRun = fRuns[fRunCount - 1].fSubRunInfo.back();
+            new (&newSubRun) SubRun{lastSubRun, SubRun::kLinkToLast};
         }
 
         fRunCount++;
@@ -227,10 +228,6 @@ public:
         this->setupViewMatrix(viewMatrix, x, y);
     }
 
-    void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        this->setupViewMatrix(viewMatrix, x, y);
-    }
-
     const Key& key() const { return fKey; }
 
     size_t size() const { return fSize; }
@@ -275,11 +272,23 @@ private:
 
     class SubRun {
     public:
-        SubRun() = delete;
-        SubRun(GrColor color) : fColor{color} {}
-        // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
-        SubRun(SkSTArray<1, SubRun>* subRunList)
-            : fColor{subRunList->fromBack(1).fColor} { }
+        SubRun() = default;
+        SubRun(GrColor color)
+            : fColor{color} {}
+
+        // Make sure this is different than the copy ctor so it will not be called by the TArray op
+        // SubRuns.
+        struct LinkToLast {};
+        static LinkToLast kLinkToLast;
+        SubRun(const SubRun& subRun, LinkToLast)
+        : fCurrentViewMatrix{subRun.fCurrentViewMatrix}
+        , fVertexStartIndex{subRun.fVertexEndIndex}
+        , fVertexEndIndex{fVertexStartIndex}
+        , fGlyphStartIndex{subRun.fGlyphEndIndex}
+        , fGlyphEndIndex{fGlyphStartIndex}
+        , fX{subRun.fX}
+        , fY{subRun.fY}
+        , fColor{subRun.fColor} {}
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -304,17 +313,6 @@ private:
         GrColor color() const { return fColor; }
         void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
         GrMaskFormat maskFormat() const { return fMaskFormat; }
-
-        void setAsSuccessor(const SubRun& prev) {
-            fGlyphStartIndex = prev.glyphEndIndex();
-            fGlyphEndIndex = fGlyphStartIndex;
-
-            fVertexStartIndex = prev.vertexEndIndex();
-            fVertexEndIndex = fVertexStartIndex;
-
-            // copy over viewmatrix settings
-            this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
-        }
 
         const SkRect& vertexBounds() const { return fVertexBounds; }
         void joinGlyphBounds(const SkRect& glyphBounds) {
@@ -454,17 +452,14 @@ private:
         }
 
         SubRun& pushBackSubRun() {
-            // Create a new subrun from the end of the list. This can't be done in the usual way,
-            // because emplace_back can move the location of the last SubRun. We know that there
-            // is a previous SubRun because a Run is always created with a SubRun.
-            SubRun& newSubRun = fSubRunInfo.emplace_back(&fSubRunInfo);
-
+            SubRun& newSubRun = fSubRunInfo.push_back();
+            newSubRun.SubRun::~SubRun();
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
+            new (&newSubRun) SubRun{prevSubRun, SubRun::kLinkToLast};
 
-            // Forward glyph / vertex information to seed the new sub run
-            newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
+
         sk_sp<SkTypeface> fTypeface;
         SkSTArray<1, SubRun> fSubRunInfo;
         SkAutoDescriptor fDescriptor;

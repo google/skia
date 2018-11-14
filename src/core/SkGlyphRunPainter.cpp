@@ -438,7 +438,7 @@ void GrTextContext::drawGlyphRunList(
     const SkPaint& listPaint = glyphRunList.paint();
 
     SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorSpaceInfo());
-    GrColor color = generate_filtered_color(listPaint, target->colorSpaceInfo()).toBytes_RGBA();
+    GrColor color = filteredColor.toBytes_RGBA();
 
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
@@ -662,6 +662,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
     };
 
     SkPoint origin = glyphRunList.origin();
+
     this->initReusableBlob(
             glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
