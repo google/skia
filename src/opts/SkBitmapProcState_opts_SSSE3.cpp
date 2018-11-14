@@ -73,9 +73,8 @@ static inline __m128i interpolate_in_x_and_y(uint32_t A0, uint32_t A1,
 }
 
 
-void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
-                                   const uint32_t* xy,
-                                   int count, uint32_t* colors) {
+void S32_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
+                             const uint32_t* xy, int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != nullptr);
     SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
