@@ -94,7 +94,7 @@ private:
         return RequiresDstTexture::kNo;
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState*) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     CCPRGeometryView* fView;
 
@@ -318,7 +318,8 @@ void CCPRGeometryView::updateGpuData() {
     }
 }
 
-void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
+void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
+                                                      const SkRect& chainBounds) {
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
     GrGLGpu* glGpu = GrBackendApi::kOpenGL == context->contextPriv().getBackend()

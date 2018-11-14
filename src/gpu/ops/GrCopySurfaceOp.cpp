@@ -83,7 +83,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrContext* context,
     return pool->allocate<GrCopySurfaceOp>(dstProxy, srcProxy, clippedSrcRect, clippedDstPoint);
 }
 
-void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
+void GrCopySurfaceOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     if (!fSrc.get()->instantiate(state->resourceProvider())) {
         return;
     }

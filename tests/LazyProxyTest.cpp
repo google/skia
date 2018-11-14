@@ -68,7 +68,7 @@ public:
             func(fProxy.get());
         }
 
-        void onExecute(GrOpFlushState*) override {
+        void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
             REPORTER_ASSERT(fTest->fReporter, fTest->fHasOpTexture);
             REPORTER_ASSERT(fTest->fReporter, fTest->fHasClipTexture);
         }
@@ -324,7 +324,7 @@ private:
         return RequiresDstTexture::kNo;
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         *fTestExecuteValue = 2;
     }
 
@@ -398,7 +398,7 @@ private:
         return RequiresDstTexture::kNo;
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state) override {}
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {}
 
     sk_sp<GrSurfaceProxy> fLazyProxy;
 

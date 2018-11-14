@@ -71,7 +71,7 @@ protected:
 
 private:
     void onPrepare(GrOpFlushState* state) final;
-    void onExecute(GrOpFlushState* state) final;
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) final;
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;
 };

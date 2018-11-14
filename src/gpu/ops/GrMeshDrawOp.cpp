@@ -14,8 +14,8 @@ GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
-void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
-    state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), this->bounds());
+void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
+    state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), chainBounds);
 }
 
 //////////////////////////////////////////////////////////////////////////////

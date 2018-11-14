@@ -66,7 +66,7 @@ public:
     //       convertCopiesToRenders() on the GrCCPerFlushResourceSpecs.
     void setupResources(GrOnFlushResourceProvider*, GrCCPerFlushResources*, DoCopiesToCache);
 
-    void onExecute(GrOpFlushState*) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 private:
     friend class GrOpMemoryPool;

@@ -91,7 +91,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override;
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
 
     GrFixedClip fClip;
     SkPMColor4f fColor;

@@ -46,14 +46,44 @@ static constexpr unsigned result_width() {
 static constexpr int kNumCombinableValues = fact(kNumOps) / fact(kNumOps - 2);
 using Combinable = std::array<GrOp::CombineResult, kNumCombinableValues>;
 
-/** What should the result be for combining op with value a with op with value b. */
-static GrOp::CombineResult combine_result(int a, int b, const Combinable& combinable) {
+/**
+ * The index in Combinable for the result for combining op 'b' into op 'a', i.e. the result of
+ * op[a]->combineIfPossible(op[b]).
+ */
+int64_t combinable_index(int a, int b) {
     SkASSERT(b != a);
     // Each index gets kNumOps - 1 contiguous bools
-    int aOffset = a * (kNumOps - 1);
+    int64_t aOffset = a * (kNumOps - 1);
     // Within a's range we have one value each other op, but not one for a itself.
     int64_t bIdxInA = b < a ? b : b - 1;
-    return combinable[aOffset + bIdxInA];
+    return aOffset + bIdxInA;
+}
+
+/**
+ * Creates a legal set of combinability results for the ops. The likelihood that any two ops
+ * in a group can merge is randomly chosen.
+ */
+static void init_combinable(int numGroups, Combinable* combinable, SkRandom* random) {
+    SkScalar mergeProbability = random->nextUScalar1();
+    std::fill_n(combinable->begin(), kNumCombinableValues, GrOp::CombineResult::kCannotCombine);
+    SkTDArray<int> groups[kNumOps];
+    for (int i = 0; i < kNumOps; ++i) {
+        auto& group = groups[random->nextULessThan(numGroups)];
+        for (int g = 0; g < group.count(); ++g) {
+            int j = group[g];
+            if (random->nextUScalar1() < mergeProbability) {
+                (*combinable)[combinable_index(i, j)] = GrOp::CombineResult::kMerged;
+            } else {
+                (*combinable)[combinable_index(i, j)] = GrOp::CombineResult::kMayChain;
+            }
+            if (random->nextUScalar1() < mergeProbability) {
+                (*combinable)[combinable_index(j, i)] = GrOp::CombineResult::kMerged;
+            } else {
+                (*combinable)[combinable_index(j, i)] = GrOp::CombineResult::kMayChain;
+            }
+        }
+        group.push_back(i);
+    }
 }
 
 /**
@@ -94,7 +124,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState*) override {
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
         for (auto& op : ChainRange<TestOp>(this)) {
             op.writeResult(fResult);
         }
@@ -102,12 +132,9 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
         auto that = t->cast<TestOp>();
-        auto result =
-                combine_result(fValueRanges[0].fValue, that->fValueRanges[0].fValue, *fCombinable);
-        // Op chaining rules bar us from merging a chained that. GrOp asserts this.
-        if (that->isChained() && result == CombineResult::kMerged) {
-            return CombineResult::kCannotCombine;
-        }
+        int v0 = fValueRanges[0].fValue;
+        int v1 = that->fValueRanges[0].fValue;
+        auto result = (*fCombinable)[combinable_index(v0, v1)];
         if (result == GrOp::CombineResult::kMerged) {
             std::move(that->fValueRanges.begin(), that->fValueRanges.end(),
                       std::back_inserter(fValueRanges));
@@ -153,8 +180,11 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     for (int i = 0; i < kNumOps; ++i) {
         permutation[i] = i;
     }
+    // Op order permutations.
     static constexpr int kNumPermutations = 100;
-    static constexpr int kNumCombinabilities = 100;
+    // For a given number of chainability groups, this is the number of random combinability reuslts
+    // we will test.
+    static constexpr int kNumCombinabilitiesPerGrouping = 20;
     SkRandom random;
     bool repeat = false;
     Combinable combinable;
@@ -164,44 +194,45 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
             unsigned j = i + random.nextULessThan(kNumOps - i);
             std::swap(permutation[i], permutation[j]);
         }
-        for (int c = 0; c < kNumCombinabilities; ++c) {
-            for (int i = 0; i < kNumCombinableValues && !repeat; ++i) {
-                combinable[i] = static_cast<GrOp::CombineResult>(random.nextULessThan(3));
-            }
-            GrTokenTracker tracker;
-            GrOpFlushState flushState(context->contextPriv().getGpu(),
-                                      context->contextPriv().resourceProvider(), &tracker, nullptr,
-                                      nullptr);
-            GrRenderTargetOpList opList(context->contextPriv().resourceProvider(),
-                                        sk_ref_sp(context->contextPriv().opMemoryPool()),
-                                        proxy->asRenderTargetProxy(),
-                                        context->contextPriv().getAuditTrail());
-            // This assumes the particular values of kRanges.
-            std::fill_n(result, result_width(), -1);
-            std::fill_n(validResult, result_width(), -1);
-            for (int i = 0; i < kNumOps; ++i) {
-                int value = permutation[i];
-                // factor out the repeats and then use the canonical starting position and range
-                // to determine an actual range.
-                int j = value % (kNumRanges * kNumOpPositions);
-                int pos = j % kNumOpPositions;
-                Range range = kRanges[j / kNumOpPositions];
-                range.fOffset += pos;
-                auto op = TestOp::Make(context.get(), value, range, result, &combinable);
-                op->writeResult(validResult);
-                opList.addOp(std::move(op), *context->contextPriv().caps());
-            }
-            opList.makeClosed(*context->contextPriv().caps());
-            opList.prepare(&flushState);
-            opList.execute(&flushState);
-            opList.endFlush();
+        // g is the number of chainable groups that we partition the ops into.
+        for (int g = 1; g < kNumOps; ++g) {
+            for (int c = 0; c < kNumCombinabilitiesPerGrouping; ++c) {
+                init_combinable(g, &combinable, &random);
+                GrTokenTracker tracker;
+                GrOpFlushState flushState(context->contextPriv().getGpu(),
+                                          context->contextPriv().resourceProvider(), &tracker,
+                                          nullptr, nullptr);
+                GrRenderTargetOpList opList(context->contextPriv().resourceProvider(),
+                                            sk_ref_sp(context->contextPriv().opMemoryPool()),
+                                            proxy->asRenderTargetProxy(),
+                                            context->contextPriv().getAuditTrail());
+                // This assumes the particular values of kRanges.
+                std::fill_n(result, result_width(), -1);
+                std::fill_n(validResult, result_width(), -1);
+                for (int i = 0; i < kNumOps; ++i) {
+                    int value = permutation[i];
+                    // factor out the repeats and then use the canonical starting position and range
+                    // to determine an actual range.
+                    int j = value % (kNumRanges * kNumOpPositions);
+                    int pos = j % kNumOpPositions;
+                    Range range = kRanges[j / kNumOpPositions];
+                    range.fOffset += pos;
+                    auto op = TestOp::Make(context.get(), value, range, result, &combinable);
+                    op->writeResult(validResult);
+                    opList.addOp(std::move(op), *context->contextPriv().caps());
+                }
+                opList.makeClosed(*context->contextPriv().caps());
+                opList.prepare(&flushState);
+                opList.execute(&flushState);
+                opList.endFlush();
 #if 0  // Useful to repeat a random configuration that fails the test while debugger attached.
-            if (!std::equal(result, result + result_width(), validResult)) {
-                repeat = true;
-            }
+                if (!std::equal(result, result + result_width(), validResult)) {
+                    repeat = true;
+                }
 #endif
-            (void)repeat;
-            REPORTER_ASSERT(reporter, std::equal(result, result + result_width(), validResult));
+                (void)repeat;
+                REPORTER_ASSERT(reporter, std::equal(result, result + result_width(), validResult));
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrContext* context,
     return pool->allocate<GrClearStencilClipOp>(clip, insideStencilMask, proxy);
 }
 
-void GrClearStencilClipOp::onExecute(GrOpFlushState* state) {
+void GrClearStencilClipOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->rtCommandBuffer());
     state->rtCommandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
 }

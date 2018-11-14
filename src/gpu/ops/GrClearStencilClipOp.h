@@ -56,7 +56,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override;
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     const GrFixedClip fClip;
     const bool        fInsideStencilMask;

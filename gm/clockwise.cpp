@@ -108,7 +108,7 @@ private:
         return RequiresDstTexture::kNo;
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* flushState) override {
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkPoint vertices[4] = {
             {100, fY},
             {0, fY+100},

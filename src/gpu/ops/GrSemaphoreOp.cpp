@@ -35,7 +35,7 @@ private:
                                  bool forceFlush)
             : INHERITED(ClassID(), std::move(semaphore), proxy), fForceFlush(forceFlush) {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         state->gpu()->insertSemaphore(fSemaphore, fForceFlush);
     }
 
@@ -64,7 +64,7 @@ private:
     explicit GrWaitSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
             : INHERITED(ClassID(), std::move(semaphore), proxy) {}
 
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         state->gpu()->waitSemaphore(fSemaphore);
     }
 

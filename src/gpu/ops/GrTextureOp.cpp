@@ -594,9 +594,8 @@ private:
         auto thisProxy = fProxies[0].fProxy;
         auto thatProxy = that->fProxies[0].fProxy;
         if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
-            thisProxy->uniqueID() != thatProxy->uniqueID() || that->isChained()) {
-            // We can't merge across different proxies (and we're disallowed from merging when
-            // 'that' is chained. Check if we can be chained with 'that'.
+            thisProxy->uniqueID() != thatProxy->uniqueID()) {
+            // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (thisProxy->config() == thatProxy->config() &&
                 thisProxy->textureType() == thatProxy->textureType() &&
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
