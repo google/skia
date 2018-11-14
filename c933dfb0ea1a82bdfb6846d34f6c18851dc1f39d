@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01094ab0_d2aeec06",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-11-14T14:16:04Z",
+      "side": 1,
+      "message": "The edges don\u0027t seem to share a center vertex. Is it duplicated?",
+      "range": {
+        "startLine": 176,
+        "startChar": 20,
+        "endLine": 176,
+        "endChar": 29
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
