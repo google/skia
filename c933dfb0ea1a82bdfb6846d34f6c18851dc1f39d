@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0886f8e5_a8cb709e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done\n\nAs far as supporing non-AA, I think it will be easy enough to add if we encounter a future case where we actually care about it. Until then I\u0027d rather not complicate the code..",
+      "parentUuid": "cfb6c15f_dc2fd2fa",
+      "range": {
+        "startLine": 9,
+        "startChar": 7,
+        "endLine": 9,
+        "endChar": 23
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67434f11_541a14fc",
         "filename": "src/core/SkRRectPriv.h",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8beb188_dc9270ce",
+        "filename": "src/core/SkRRectPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67434f11_541a14fc",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "97938a28_f72236e2",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fed2ead_1d32e556",
+      "range": {
+        "startLine": 32,
+        "startChar": 14,
+        "endLine": 32,
+        "endChar": 24
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1a2f03d_17eace24",
         "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc06f6f_0d65fa7e",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1a2f03d_17eace24",
+      "range": {
+        "startLine": 61,
+        "startChar": 20,
+        "endLine": 61,
+        "endChar": 23
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -129,6 +225,30 @@
       "side": 1,
       "message": "I think such a comment would be very helpful.",
       "parentUuid": "2a93da32_767d7ea3",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 90
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf0964f1_54405a4c",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "I added a short comment. Let me know if something longer is necessary.",
+      "parentUuid": "2fde8af1_5d2fce79",
       "range": {
         "startLine": 126,
         "startChar": 0,
@@ -187,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "e42d1149_7bc8e522",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2229b30_ff1f1be2",
+      "range": {
+        "startLine": 290,
+        "startChar": 11,
+        "endLine": 290,
+        "endChar": 62
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50427473_6f3d4c4f",
         "filename": "src/gpu/ops/GrAARoundRectOp.h",
         "patchSetId": 6
@@ -207,6 +351,30 @@
       "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d52480f_1ea99796",
+        "filename": "src/gpu/ops/GrAARoundRectOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50427473_6f3d4c4f",
+      "range": {
+        "startLine": 21,
+        "startChar": 45,
+        "endLine": 21,
+        "endChar": 51
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -233,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "f0cbf77f_d7b59c68",
+        "filename": "src/gpu/ops/GrAARoundRectOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4329aa0f_52168969",
+      "range": {
+        "startLine": 38,
+        "startChar": 26,
+        "endLine": 38,
+        "endChar": 32
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e85ae89b_9776c4b7",
         "filename": "src/gpu/ops/GrAARoundRectOp.h",
         "patchSetId": 6
@@ -253,6 +445,30 @@
       "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "586edff2_2785f901",
+        "filename": "src/gpu/ops/GrAARoundRectOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-14T19:29:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e85ae89b_9776c4b7",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 13
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
