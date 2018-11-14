@@ -1823,9 +1823,12 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     clip.getConservativeBounds(rtProxy->width(), rtProxy->height(), &clippedRect);
     SkIRect drawIBounds;
     opBounds.roundOut(&drawIBounds);
-    // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
+    // Cover up for any precision issues or AA by outsetting the op bounds a pixel in each
+    // direction for both the clip and the draw.
     drawIBounds.outset(1, 1);
-    if (!clippedRect.intersect(drawIBounds)) {
+    clippedRect.outset(1, 1);
+    if (!clippedRect.intersect(SkIRect::MakeWH(rtProxy->width(), rtProxy->height())) ||
+        !clippedRect.intersect(drawIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "setupDstTexture: Missed an early reject bailing on draw.");
 #endif
