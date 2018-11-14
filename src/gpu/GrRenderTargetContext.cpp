@@ -1790,7 +1790,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     GrXferProcessor::DstProxy dstProxy;
     if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip)) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
+        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, *op, &dstProxy)) {
             fContext->contextPriv().opMemoryPool()->release(std::move(op));
             return;
         }
@@ -1805,7 +1805,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
-                                          const SkRect& opBounds,
+                                          const GrOp& op,
                                           GrXferProcessor::DstProxy* dstProxy) {
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
@@ -1821,11 +1821,20 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     SkIRect clippedRect;
     clip.getConservativeBounds(rtProxy->width(), rtProxy->height(), &clippedRect);
-    SkIRect drawIBounds;
-    opBounds.roundOut(&drawIBounds);
-    // Cover up for any precision issues by outsetting the op bounds a pixel in each direction.
-    drawIBounds.outset(1, 1);
-    if (!clippedRect.intersect(drawIBounds)) {
+    SkRect opBounds = op.bounds();
+    // If the op has aa bloating or is a infinitely thin geometry (hairline) outset the bounds by
+    // 0.5 pixels.
+    if (op.hasAABloat() || op.hasZeroArea()) {
+        opBounds.outset(0.5f, 0.5f);
+        // An antialiased/hairline draw can sometimes bleed outside of the clips bounds. For
+        // performance we may ignore the clip when the draw is entirely inside the clip is float
+        // space but will hit pixels just outside the clip when actually rasterizing.
+        clippedRect.outset(1, 1);
+        clippedRect.intersect(SkIRect::MakeWH(rtProxy->width(), rtProxy->height()));
+    }
+    SkIRect opIBounds;
+    opBounds.roundOut(&opIBounds);
+    if (!clippedRect.intersect(opIBounds)) {
 #ifdef SK_DEBUG
         GrCapsDebugf(this->caps(), "setupDstTexture: Missed an early reject bailing on draw.");
 #endif
