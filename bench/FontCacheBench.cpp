@@ -8,7 +8,9 @@
 #include "Benchmark.h"
 #include "SkCanvas.h"
 #include "SkChecksum.h"
+#include "SkFont.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 
@@ -139,10 +141,60 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
 DEF_BENCH( return new FontCacheBench(); )
 
 // undefine this to run the efficiency test
 //DEF_BENCH( return new FontCacheEfficiency(); )
+
+///////////////////////////////////////////////////////////////////////////////
+
+class FontPathBench : public Benchmark {
+    SkFont fFont;
+    uint16_t fGlyphs[100];
+    SkString fName;
+    const bool fOneAtATime;
+
+public:
+    FontPathBench(bool oneAtATime) : fOneAtATime(oneAtATime) {
+        fName.printf("font-path-%s", oneAtATime ? "loop" : "batch");
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDelayedSetup() override {
+        fFont.setSize(32);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fGlyphs); ++i) {
+            fGlyphs[i] = i;
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPath path;
+        for (int i = 0; i < loops; ++i) {
+            if (fOneAtATime) {
+                for (size_t i = 0; i < SK_ARRAY_COUNT(fGlyphs); ++i) {
+                    fFont.getPath(fGlyphs[i], &path);
+                }
+            } else {
+                fFont.getPaths(fGlyphs, SK_ARRAY_COUNT(fGlyphs),
+                               [](uint16_t, const SkPath* src, void* ctx) {
+                                   if (src) {
+                                       *static_cast<SkPath*>(ctx) = *src;
+                                   }
+                               }, &path);
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new FontPathBench(true); )
+DEF_BENCH( return new FontPathBench(false); )
