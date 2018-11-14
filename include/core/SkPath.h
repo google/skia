@@ -161,7 +161,7 @@ public:
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    /** To be deprecated soon.
+    /** Private. To be deprecated soon.
         Only valid for Android framework.
     */
     bool unique() const { return fPathRef->unique(); }
@@ -1685,7 +1685,11 @@ public:
     */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 #else
+    /** Deprecated.
+     */
     bool isValid() const { return this->isValidImpl(); }
+    /** Deprecated.
+     */
     bool pathRefIsValid() const { return fPathRef->isValid(); }
 #endif
 

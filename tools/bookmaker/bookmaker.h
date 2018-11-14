@@ -109,14 +109,12 @@ enum class MarkType {
     kComment,
     kConst,
     kDefine,
-    kDeprecated,
     kDescription,
     kDetails,  // used by #Const to specify #Subtopic details with examples and so on
     kDuration,
     kEnum,
     kEnumClass,
     kExample,
-    kExperimental,
     kExternal,
     kFile,
     kFilter,
@@ -143,7 +141,6 @@ enum class MarkType {
     kPhraseRef,
     kPlatform,
     kPopulate,
-    kPrivate,
     kReturn,
     kRow,
     kSeeAlso,
@@ -163,10 +160,6 @@ enum class MarkType {
     kVolatile,
     kWidth,
 };
-
-static inline bool IncompleteAllowed(MarkType markType) {
-    return MarkType::kDeprecated == markType || MarkType::kExperimental == markType;
-}
 
 enum {
     Last_MarkType = (int) MarkType::kWidth,

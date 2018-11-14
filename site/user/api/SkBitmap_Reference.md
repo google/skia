@@ -64,7 +64,7 @@ public:
                        void (*releaseProc)(void* addr, void* context), void* context);
     bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>);
     bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& <a href='SkPixmap_Reference#Pixmap'>pixmap</a>);
-    bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask);
+    bool installMaskPixels(const <a href='undocumented#SkMask'>SkMask</a>& mask);
     void <a href='#SkBitmap_setPixels'>setPixels</a>(void* pixels);
     bool <a href='#SkBitmap_tryAllocPixels'>tryAllocPixels</a>();
     void <a href='#SkBitmap_allocPixels'>allocPixels</a>();
@@ -79,7 +79,7 @@ public:
     void <a href='#SkBitmap_eraseColor'>eraseColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> c) const;
     void <a href='#SkBitmap_eraseARGB'>eraseARGB</a>(<a href='undocumented#U8CPU'>U8CPU</a> a, <a href='undocumented#U8CPU'>U8CPU</a> r, <a href='undocumented#U8CPU'>U8CPU</a> g, <a href='undocumented#U8CPU'>U8CPU</a> b) const;
     void <a href='#SkBitmap_erase'>erase</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> c, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area) const;
-    void <a href='#SkBitmap_eraseArea'>eraseArea</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area, <a href='SkColor_Reference#SkColor'>SkColor</a> c) const;
+    void eraseArea(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area, <a href='SkColor_Reference#SkColor'>SkColor</a> c) const;
     <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkBitmap_getColor'>getColor</a>(int x, int y) const;
     float <a href='#SkBitmap_getAlphaf'>getAlphaf</a>(int x, int y) const;
     void* <a href='#SkBitmap_getAddr'>getAddr</a>(int x, int y) const;
@@ -2101,16 +2101,6 @@ true if <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> was set to <
 
 <a href='#SkBitmap_allocPixels'>allocPixels</a>
 
-<a name='SkBitmap_installMaskPixels'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask)
-</pre>
-
-To be deprecated soon.
-
 <a name='Pixels'></a>
 
 <a name='SkBitmap_setPixels'></a>
@@ -2548,16 +2538,6 @@ then RGB is ignored.
 ### See Also
 
 <a href='#SkBitmap_eraseColor'>eraseColor</a> <a href='#SkBitmap_eraseARGB'>eraseARGB</a> <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawRect'>drawRect</a>
-
-<a name='SkBitmap_eraseArea'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkBitmap_eraseArea'>eraseArea</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area, <a href='SkColor_Reference#SkColor'>SkColor</a> c) const
-</pre>
-
-Deprecated.
 
 <a name='SkBitmap_getColor'></a>
 
