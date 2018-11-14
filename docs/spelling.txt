@@ -35,7 +35,7 @@ compatibility compatible compile compiled compiler complete completely completes
 complexity complicated component components composed composite compositing composition
 compressed computation computations compute computed computes computing concatenated
 concatenates concatenation concave concert condensed condition configuration conical
-connect connected connecting connects consecutive conservative conservatively
+connect connected connecting connects consecutive conservative conservatively consider 
 consideration considered considers consistent consists const constant constants constrained
 constraint
 construct constructed constructing construction constructions constructor constructs
@@ -51,8 +51,8 @@ cumulatively current curvature curving custom cyan
 
 dark darken darkening darker dashed dashes dashing debug decimal decimated declaring
 decode decoded decoders decodes decoding 
-decomposed decomposes decomposing decrease decreased decreases decreasing decrements default defaults
-defer deferred
+decomposed decomposes decomposing decrease decreased decreases decreasing decrements default
+defaults defer deferred
 defers define defined defines defining definition deform deformations degenerate degree
 degrees delete deleted deletes deleting dependent depending depends deprecated depth
 descent describe described describes describing description descriptions descriptor
@@ -76,7 +76,8 @@ exceptions excess exchanged exchanges exchanging exclude excluded exclusive exec
 execution exhausted existing expanded expansion expected expecting explicit explicitly exponent
 exposed expression extend extended extends extension extensive extent extra extract eye 
 
-face faces factor factored factors fail failing fails failure fake fall false far fast faster fastest
+face faces factor factored factors fail failing fails failure fake fall false far fast faster
+fastest
 favor feature features fewer fidelity field fields figure file fill filled filling fills
 filter filtered filtering filters final finalized finally find fine finite first fit fits 
 fitted five fix
@@ -91,7 +92,8 @@ geometries geometry get gets gigabyte gigabytes given gives global globally go g
 good gradient gradients graphics gray gray-level greater greatest green grid grows guarantee
 guaranteed guard
 
-had hairline hairlines half half-precision halved hand handle handling hands happens hard hardware has hash
+had hairline hairlines half half-precision halved hand handle handling hands happens hard hardware
+has hash
 hashes have heap height help helper helpers helpful here hexadecimal hidden hierarchical
 high higher highest hint hinted hinting hints hit hitting hold holding holds hole holes
 horizontal horizontally host hosts hour how however hue hyperbola hyperbolic 
@@ -223,7 +225,8 @@ there therefore these they thick thickness thin thinner thinnest third third-ord
 those though thought thread threads three three-dimensional through thus tight tile
 tiles tiling time times
 to together toggled too top top-left top-right total totaling touches towards tracked tracks 
-trades trading traditional transferred transferring transfers transform transformation transformations
+trades trading traditional transferred transferring transfers transform transformation
+transformations
 transformed transforming transforms transition transitions translate translated translates
 translating translation translucent transparency transparent travel traveled treat treated
 treating treats triangle trigger triggered triggers trivial true try turned turns twice two
