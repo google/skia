@@ -40,6 +40,11 @@
       return this;
     };
 
+    CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
+      this._arc(x, y, radius, startAngle, endAngle, !!ccw);
+      return this;
+    };
+
     CanvasKit.SkPath.prototype.arcTo = function(x1, y1, x2, y2, radius) {
       this._arcTo(x1, y1, x2, y2, radius);
       return this;
@@ -151,6 +156,19 @@
       var vert = this._applyBones(bPtr, bones.length);
       CanvasKit._free(bPtr);
       return vert;
+    }
+
+    CanvasKit.SkImage.prototype.encodeToData = function() {
+      if (arguments.length === 0) {
+        return this._encodeToData();
+      }
+
+      if (arguments.length === 2) {
+        var a = arguments;
+        return this._encodeToDataWithFormat(a[0], a[1]);
+      }
+
+      throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
     }
 
     // Run through the JS files that are added at compile time.
