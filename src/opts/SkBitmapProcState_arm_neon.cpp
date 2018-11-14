@@ -20,12 +20,8 @@ extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
 #include "SkBitmapProcState_procs.h"
 
 const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[] = {
-    S32_opaque_D32_nofilter_DXDY_neon,
     S32_alpha_D32_nofilter_DXDY_neon,
-    S32_opaque_D32_nofilter_DX_neon,
     S32_alpha_D32_nofilter_DX_neon,
-    S32_opaque_D32_filter_DXDY_neon,
     S32_alpha_D32_filter_DXDY_neon,
-    S32_opaque_D32_filter_DX_neon,
     S32_alpha_D32_filter_DX_neon,
 };
