@@ -50,7 +50,9 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* writer) {
                 if (current->activeWinding(start, end) && !writer->isClosed()) {
                     SkOpSpan* spanStart = start->starter(end);
                     if (!spanStart->done()) {
-                        SkAssertResult(current->addCurveTo(start, end, writer));
+                        if (!current->addCurveTo(start, end, writer)) {
+                            return false;
+                        }
                         current->markDone(spanStart);
                     }
                 }
