@@ -476,7 +476,7 @@ private:
     // value is false then a texture copy could not be made.
     bool SK_WARN_UNUSED_RESULT setupDstProxy(GrRenderTargetProxy*,
                                              const GrClip&,
-                                             const SkRect& opBounds,
+                                             const GrOp& op,
                                              GrXferProcessor::DstProxy* result);
 
     GrRenderTargetOpList* getRTOpList();
