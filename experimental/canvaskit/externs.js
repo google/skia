@@ -85,7 +85,9 @@ var CanvasKit = {
 	},
 
 	SkImage: {
-		encodeToData: function() {},
+		// private API
+		_encodeToData: function() {},
+		_encodeToDataWithFormat: function() {},
 	},
 
 	SkPath: {
@@ -93,6 +95,7 @@ var CanvasKit = {
 
 		// private API
 		_addPath: function() {},
+		_arc: function() {},
 		_arcTo: function() {},
 		_close: function() {},
 		_conicTo: function() {},
@@ -174,6 +177,11 @@ var CanvasKit = {
 		INVERSE_EVENODD: {},
 	},
 
+	ImageFormat: {
+		PNG: {},
+		JPEG: {},
+	},
+
 	// Things Enscriptem adds for us
 
 	/** Represents the heap of the WASM code
@@ -206,6 +214,7 @@ var CanvasKit = {
 // It's not enough to declare them above, because closure can still erase them
 // unless they go on the prototype.
 CanvasKit.SkPath.prototype.addPath = function() {};
+CanvasKit.SkPath.prototype.arc = function() {};
 CanvasKit.SkPath.prototype.arcTo = function() {};
 CanvasKit.SkPath.prototype.close = function() {};
 CanvasKit.SkPath.prototype.conicTo = function() {};
@@ -225,6 +234,8 @@ CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
 
 CanvasKit.SkVertices.prototype.applyBones = function() {};
+
+CanvasKit.SkImage.prototype.encodeToData = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};

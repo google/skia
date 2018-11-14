@@ -20,6 +20,7 @@
 #include "SkDashPathEffect.h"
 #include "SkData.h"
 #include "SkDiscretePathEffect.h"
+#include "SkEncodedImageFormat.h"
 #include "SkFontMgr.h"
 #include "SkFontMgrPriv.h"
 #include "SkGradientShader.h"
@@ -158,6 +159,15 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
                                    skewY , scaleY, transY,
                                    pers0 , pers1 , pers2);
     orig.addPath(newPath, m);
+}
+
+void ApplyAddArc(SkPath& path, SkScalar x, SkScalar y, SkScalar radius,
+              SkScalar startAngle, SkScalar endAngle, bool ccw) {
+    SkPath temp;
+    SkRect bounds = SkRect::MakeLTRB(x-radius, y-radius, x+radius, y+radius);
+    const auto sweep = SkRadiansToDegrees(endAngle - startAngle) - 360 * ccw;
+    temp.addArc(bounds, SkRadiansToDegrees(startAngle), sweep);
+    path.addPath(temp, SkPath::kExtend_AddPathMode);
 }
 
 void ApplyArcTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -452,7 +462,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImage>("SkImage")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
-        .function("encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData));
+        .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
+        .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData));
 
     class_<SkPaint>("SkPaint")
         .constructor<>()
@@ -486,6 +497,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .constructor<const SkPath&>()
         // interface.js has 3 overloads of addPath
         .function("_addPath", &ApplyAddPath)
+        .function("_arc", &ApplyAddArc)
         .function("_arcTo", &ApplyArcTo)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
@@ -607,6 +619,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Triangles",       SkVertices::VertexMode::kTriangles_VertexMode)
         .value("TrianglesStrip",  SkVertices::VertexMode::kTriangleStrip_VertexMode)
         .value("TriangleFan",    SkVertices::VertexMode::kTriangleFan_VertexMode);
+
+    enum_<SkEncodedImageFormat>("ImageFormat")
+        .value("PNG", SkEncodedImageFormat::kPNG)
+        .value("JPEG", SkEncodedImageFormat::kJPEG);
 
 
     // A value object is much simpler than a class - it is returned as a JS
