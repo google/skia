@@ -145,9 +145,6 @@ bool SkDeferredDisplayListRecorder::init() {
         optionalTextureInfo = &kTextureInfo;
     }
 
-    const GrBackendFormat format = fContext->contextPriv().caps()->getBackendFormatFromColorType(
-            fCharacterization.colorType());
-
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
@@ -159,7 +156,6 @@ bool SkDeferredDisplayListRecorder::init() {
                 SkASSERT(lazyProxyData->fReplayDest->peekSurface());
                 return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->peekSurface());
             },
-            format,
             desc,
             fCharacterization.origin(),
             surfaceFlags,

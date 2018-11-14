@@ -182,11 +182,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
         GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
 
-        const GrBackendFormat format =
-                ctx->contextPriv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
-                                                                           GrSRGBEncoded::kNo);
         sk_sp<GrRenderTargetContext> ccbuff =
-                ctx->contextPriv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
+                ctx->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                    this->width(), this->height(),
                                                                    kAlpha_half_GrPixelConfig,
                                                                    nullptr);

@@ -441,9 +441,6 @@ public:
     bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
                                         GrPixelConfig*) const override;
 
-    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
-                                                    GrSRGBEncoded srgbEncoded) const override;
-
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 #endif
@@ -469,7 +466,9 @@ private:
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
+#ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
+#endif
 
     bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
 

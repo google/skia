@@ -292,12 +292,10 @@ public:
 
     // Get the fully lazy proxy that is backing the atlas. Its actual width isn't
     // known until flush time.
-    sk_sp<GrTextureProxy> getAtlasProxy(GrProxyProvider* proxyProvider, const GrCaps* caps) {
+    sk_sp<GrTextureProxy> getAtlasProxy(GrProxyProvider* proxyProvider) {
         if (fAtlasProxy) {
             return fAtlasProxy;
         }
-
-        const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
                 [](GrResourceProvider* resourceProvider) {
@@ -316,7 +314,6 @@ public:
                     return resourceProvider->createTexture(desc, SkBudgeted::kYes,
                                                            GrResourceProvider::Flags::kNoPendingIO);
                 },
-                format,
                 GrProxyProvider::Renderable::kYes,
                 kBottomLeft_GrSurfaceOrigin,
                 kRGBA_8888_GrPixelConfig,
@@ -429,11 +426,7 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> atlasProxy) {
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-                                                                      format,
                                                                       SkBackingFit::kApprox,
                                                                       3*kDrawnTileSize,
                                                                       kDrawnTileSize,
@@ -544,18 +537,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     sk_sp<GrTextureProxy> proxies[kNumProxies];
     for (int i = 0; i < kNumProxies; ++i) {
         proxies[i] = make_upstream_image(context, &object, i*3,
-                                         object.getAtlasProxy(proxyProvider,
-                                                              context->contextPriv().caps()));
+                                         object.getAtlasProxy(proxyProvider));
     }
 
     static const int kFinalWidth = 6*kDrawnTileSize;
     static const int kFinalHeight = kDrawnTileSize;
 
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-                                                                      format,
                                                                       SkBackingFit::kApprox,
                                                                       kFinalWidth,
                                                                       kFinalHeight,

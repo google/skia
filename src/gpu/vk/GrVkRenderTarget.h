@@ -37,8 +37,6 @@ public:
 
     ~GrVkRenderTarget() override;
 
-    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
-
     const GrVkFramebuffer* framebuffer() const { return fFramebuffer; }
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView; }
     const GrVkResource* msaaImageResource() const {
