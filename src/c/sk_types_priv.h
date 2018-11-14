@@ -97,6 +97,8 @@ DEF_CLASS_MAP(SkStreamRewindable, sk_stream_streamrewindable_t, StreamRewindable
 DEF_CLASS_MAP(SkString, sk_string_t, String)
 DEF_CLASS_MAP(SkSurface, sk_surface_t, Surface)
 DEF_CLASS_MAP(SkSurfaceProps, sk_surfaceprops_t, SurfaceProps)
+DEF_CLASS_MAP(SkTextBlob, sk_textblob_t, TextBlob)
+DEF_CLASS_MAP(SkTextBlobBuilder, sk_textblob_builder_t, TextBlobBuilder)
 DEF_CLASS_MAP(SkTypeface, sk_typeface_t, Typeface)
 DEF_CLASS_MAP(SkVertices, sk_vertices_t, Vertices)
 DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
@@ -152,7 +154,6 @@ DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 #include "SkWebpEncoder.h"
 DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
 
-
 #include "SkMatrix.h"
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
@@ -180,6 +181,24 @@ static inline sk_imageinfo_t ToImageInfo(const SkImageInfo info) {
         info.height(),
         (sk_colortype_t)info.colorType(),
         (sk_alphatype_t)info.alphaType(),
+    };
+}
+
+#include "SkTextBlob.h"
+static inline SkTextBlobBuilder::RunBuffer AsTextBlobBuilderRunBuffer(const sk_textblob_builder_runbuffer_t* runbuffer) {
+    return {
+        (SkGlyphID*)runbuffer->glyphs,
+        (SkScalar*)runbuffer->pos,
+        (char*)runbuffer->utf8text,
+        (uint32_t*)runbuffer->clusters,
+    };
+}
+static inline sk_textblob_builder_runbuffer_t ToTextBlobBuilderRunBuffer(const SkTextBlobBuilder::RunBuffer runbuffer) {
+    return {
+        runbuffer.glyphs,
+        runbuffer.pos,
+        runbuffer.utf8text,
+        runbuffer.clusters,
     };
 }
 

@@ -297,3 +297,35 @@ void sk_paint_set_dev_kern_text(sk_paint_t* cpaint, bool devKernText) {
 bool sk_paint_get_fill_path(const sk_paint_t* cpaint, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale) {
     return AsPaint(cpaint)->getFillPath(*AsPath(src), AsPath(dst), AsRect(cullRect), resScale);
 }
+
+int sk_paint_text_to_glyphs(const sk_paint_t* cpaint, const void* text, size_t byteLength, uint16_t* glyphs) {
+    return AsPaint(cpaint)->textToGlyphs(text, byteLength, glyphs);
+}
+
+bool sk_paint_contains_text(const sk_paint_t* cpaint, const void* text, size_t byteLength) {
+    return AsPaint(cpaint)->containsText(text, byteLength);
+}
+
+int sk_paint_count_text(const sk_paint_t* cpaint, const void* text, size_t byteLength) {
+    return AsPaint(cpaint)->countText(text, byteLength);
+}
+
+int sk_paint_get_text_widths(const sk_paint_t* cpaint, const void* text, size_t byteLength, float* widths, sk_rect_t* bounds) {
+    return AsPaint(cpaint)->getTextWidths(text, byteLength, widths, AsRect(bounds));
+}
+
+int sk_paint_get_text_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, float x, float y, const float bounds[2], float* intervals) {
+    return AsPaint(cpaint)->getTextIntercepts(text, byteLength, x, y, bounds, intervals);
+}
+
+int sk_paint_get_pos_text_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, sk_point_t* pos, const float bounds[2], float* intervals) {
+    return AsPaint(cpaint)->getPosTextIntercepts(text, byteLength, AsPoint(pos), bounds, intervals);
+}
+
+int sk_paint_get_pos_text_h_intercepts(const sk_paint_t* cpaint, const void* text, size_t byteLength, float* xpos, float y, const float bounds[2], float* intervals) {
+    return AsPaint(cpaint)->getPosTextHIntercepts(text, byteLength, xpos, y, bounds, intervals);
+}
+
+int sk_paint_get_pos_text_blob_intercepts(const sk_paint_t* cpaint, sk_textblob_t* blob, const float bounds[2], float* intervals) {
+    return AsPaint(cpaint)->getTextBlobIntercepts(AsTextBlob(blob), bounds, intervals);
+}

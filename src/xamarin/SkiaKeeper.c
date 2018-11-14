@@ -35,6 +35,7 @@
 #include "sk_string.h"
 #include "sk_surface.h"
 #include "sk_svg.h"
+#include "sk_textblob.h"
 #include "sk_typeface.h"
 #include "sk_xml.h"
 #include "sk_vertices.h"
@@ -76,6 +77,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_colortype_get_default_8888,
         (void*)sk_svgcanvas_create,
         (void*)sk_typeface_unref,
+        (void*)sk_textblob_ref,
         (void*)sk_xmlstreamwriter_new,
         (void*)sk_vertices_unref,
 

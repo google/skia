@@ -921,6 +921,16 @@ typedef enum {
     LOWER_LEFT_SK_RRECT_CORNER,
 } sk_rrect_corner_t;
 
+typedef struct sk_textblob_t sk_textblob_t;
+typedef struct sk_textblob_builder_t sk_textblob_builder_t;
+
+typedef struct {
+    void* glyphs;
+    void* pos;
+    void* utf8text;
+    void* clusters;
+} sk_textblob_builder_runbuffer_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

@@ -65,6 +65,10 @@ void sk_canvas_draw_text_on_path (sk_canvas_t* ccanvas, const char *text, size_t
     AsCanvas(ccanvas)->drawTextOnPathHV(text, byteLength, *AsPath(path), hOffset, vOffset, *AsPaint(cpaint));
 }
 
+void sk_canvas_draw_text_blob (sk_canvas_t* ccanvas, sk_textblob_t* text, float x, float y, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawTextBlob(AsTextBlob(text), x, y, *AsPaint(cpaint));
+}
+
 void sk_canvas_draw_bitmap(sk_canvas_t* ccanvas, const sk_bitmap_t* cbitmap, float x, float y, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawBitmap(*AsBitmap(cbitmap), x, y, AsPaint(cpaint));
 }
