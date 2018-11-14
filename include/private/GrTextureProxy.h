@@ -40,10 +40,9 @@ public:
     // been instantiated or not.
     GrMipMapped proxyMipMapped() const { return fMipMapped; }
 
+    GrTextureType textureType() const { return fTextureType; }
     /** If true then the texture does not support MIP maps and only supports clamp wrap mode. */
-    bool hasRestrictedSampling() const {
-        return GrTextureTypeHasRestrictedSampling(this->textureType());
-    }
+    bool hasRestrictedSampling() const { return GrTextureTypeHasRestrictedSampling(fTextureType); }
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
      */
@@ -80,12 +79,12 @@ protected:
     friend class GrTextureProxyPriv;
 
     // Deferred version - when constructed with data the origin is always kTopLeft.
-    GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit,
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, GrTextureType, SkBackingFit,
                    SkBudgeted, const void* srcData, size_t srcRowBytes, GrInternalSurfaceFlags);
 
     // Deferred version - no data.
-    GrTextureProxy(const GrBackendFormat&, const GrSurfaceDesc& srcDesc, GrSurfaceOrigin,
-                   GrMipMapped, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin, GrMipMapped, GrTextureType,
+                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -97,9 +96,9 @@ protected:
     //
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
-    GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrBackendFormat&,
-                   const GrSurfaceDesc& desc, GrSurfaceOrigin, GrMipMapped, SkBackingFit,
-                   SkBudgeted, GrInternalSurfaceFlags);
+    GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrSurfaceDesc& desc,
+                   GrSurfaceOrigin, GrMipMapped, GrTextureType, SkBackingFit, SkBudgeted,
+                   GrInternalSurfaceFlags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
@@ -118,6 +117,7 @@ private:
     // address of other types, leading to this problem.
 
     GrMipMapped      fMipMapped;
+    GrTextureType    fTextureType;
 
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid

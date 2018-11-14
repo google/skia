@@ -44,15 +44,10 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
         }
     }
 
-    GrBackendFormat format = inputProxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
     sk_sp<GrRenderTargetContext> copyRTC =
         context->contextPriv().makeDeferredRenderTargetContextWithFallback(
-            format, SkBackingFit::kExact, dstRect.width(), dstRect.height(),
-            inputProxy->config(), nullptr, 1, mipMapped, inputProxy->origin());
+            SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(),
+            nullptr, 1, mipMapped, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }

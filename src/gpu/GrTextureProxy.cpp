@@ -16,35 +16,36 @@
 #include "GrTexturePriv.h"
 
 // Deferred version - with data
-GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDesc& srcDesc,
-                               GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped mipMapped,
+                               GrTextureType textureType, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/,
                                GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(format, srcDesc, kTopLeft_GrSurfaceOrigin, fit, budgeted, surfaceFlags)
+        : INHERITED(srcDesc, kTopLeft_GrSurfaceOrigin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
+        , fTextureType(textureType)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
 // Deferred version - no data
-GrTextureProxy::GrTextureProxy(const GrBackendFormat& format, const GrSurfaceDesc& srcDesc,
-                               GrSurfaceOrigin origin, GrMipMapped mipMapped,
-                               SkBackingFit fit, SkBudgeted budgeted,
-                               GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(format, srcDesc, origin, fit, budgeted, surfaceFlags)
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin origin,
+                               GrMipMapped mipMapped, GrTextureType textureType, SkBackingFit fit,
+                               SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
+        : INHERITED(srcDesc, origin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
+        , fTextureType(textureType)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
 
 // Lazy-callback version
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
-                               const GrBackendFormat& format, const GrSurfaceDesc& desc,
-                               GrSurfaceOrigin origin, GrMipMapped mipMapped, SkBackingFit fit,
+                               const GrSurfaceDesc& desc, GrSurfaceOrigin origin,
+                               GrMipMapped mipMapped, GrTextureType textureType, SkBackingFit fit,
                                SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
-                    surfaceFlags)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
         , fMipMapped(mipMapped)
+        , fTextureType(textureType)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {}
 
@@ -52,6 +53,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, LazyInstantia
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
+        , fTextureType(fTarget->asTexture()->texturePriv().textureType())
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
@@ -166,7 +168,7 @@ void GrTextureProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asTexture());
     SkASSERT(GrMipMapped::kNo == this->proxyMipMapped() ||
              GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
-    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
+    SkASSERT(surface->asTexture()->texturePriv().textureType() == fTextureType);
 }
 #endif
 

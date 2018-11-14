@@ -31,8 +31,7 @@ struct ProxyParams {
     // TODO: do we care about mipmapping
 };
 
-static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
-                                     const ProxyParams& p) {
+static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const ProxyParams& p) {
     GrColorType grCT = SkColorTypeToGrColorType(p.fColorType);
     GrPixelConfig config = GrColorTypeToPixelConfig(grCT, GrSRGBEncoded::kNo);
 
@@ -43,9 +42,7 @@ static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCap
     desc.fConfig = config;
     desc.fSampleCnt = p.fSampleCnt;
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(p.fColorType);
-
-    auto tmp = proxyProvider->createProxy(format, desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
+    auto tmp = proxyProvider->createProxy(desc, p.fOrigin, p.fFit, SkBudgeted::kNo);
     if (!tmp) {
         return nullptr;
     }
@@ -137,7 +134,6 @@ bool GrResourceProvider::testingOnly_setExplicitlyAllocateGPUResources(bool newV
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
-    const GrCaps* caps = ctxInfo.grContext()->contextPriv().caps();
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
 
@@ -177,8 +173,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     };
 
     for (auto test : gOverlappingTests) {
-        GrSurfaceProxy* p1 = make_deferred(proxyProvider, caps, test.fP1);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, test.fP2);
+        GrSurfaceProxy* p1 = make_deferred(proxyProvider, test.fP1);
+        GrSurfaceProxy* p2 = make_deferred(proxyProvider, test.fP2);
         overlap_test(reporter, resourceProvider, p1, p2, test.fExpectation);
         p1->completedRead();
         p2->completedRead();
@@ -219,8 +215,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     };
 
     for (auto test : gNonOverlappingTests) {
-        GrSurfaceProxy* p1 = make_deferred(proxyProvider, caps, test.fP1);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, test.fP2);
+        GrSurfaceProxy* p1 = make_deferred(proxyProvider, test.fP1);
+        GrSurfaceProxy* p2 = make_deferred(proxyProvider, test.fP2);
 
         if (!p1 || !p2) {
             continue; // creation can fail (i.e., for msaa4 on iOS)
@@ -240,7 +236,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
 
         GrBackendTexture backEndTex;
         GrSurfaceProxy* p1 = make_backend(ctxInfo.grContext(), t[0].fP1, &backEndTex);
-        GrSurfaceProxy* p2 = make_deferred(proxyProvider, caps, t[0].fP2);
+        GrSurfaceProxy* p2 = make_deferred(proxyProvider, t[0].fP2);
 
         non_overlap_test(reporter, resourceProvider, p1, p2, t[0].fExpectation);
 

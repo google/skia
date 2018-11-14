@@ -154,11 +154,8 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     // Above could be 0 if msaa isn't supported.
     sampleCnt = SkTMax(1, sampleCnt);
 
-    const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                               SkBackingFit::kExact,
+        context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                                kRenderTargetWidth,
                                                                kRenderTargetHeight,
                                                                kRGBA_8888_GrPixelConfig,
@@ -268,9 +265,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fWidth = 34;
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
-        const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-        proxies[0] = proxyProvider->createProxy(format, dummyDesc, kBottomLeft_GrSurfaceOrigin,
+        proxies[0] = proxyProvider->createProxy(dummyDesc, kBottomLeft_GrSurfaceOrigin,
                                                 GrMipMapped::kYes, SkBackingFit::kExact,
                                                 SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     }
@@ -280,9 +275,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fWidth = 16;
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
-        const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
-        proxies[1] = proxyProvider->createProxy(format, dummyDesc, kTopLeft_GrSurfaceOrigin,
+        proxies[1] = proxyProvider->createProxy(dummyDesc, kTopLeft_GrSurfaceOrigin,
                                                 GrMipMapped::kYes, SkBackingFit::kExact,
                                                 SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     }
@@ -315,12 +308,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush(nullptr);
 
-    const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(
-                 context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                                        SkBackingFit::kExact,
+                 context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
                                                                         kRenderTargetWidth,
                                                                         kRenderTargetHeight,
                                                                         kRGBA_8888_GrPixelConfig,

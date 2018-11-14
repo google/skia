@@ -135,12 +135,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     GrOnFlushResourceProvider onFlushResourceProvider(drawingManager);
     TestingUploadTarget uploadTarget;
 
-    GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
-
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
-                                                format,
                                                 kAlpha_8_GrPixelConfig,
                                                 kAtlasSize, kAtlasSize,
                                                 kNumPlots, kNumPlots,
@@ -188,11 +184,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto textContext = drawingManager->getTextContext();
     auto opMemoryPool = context->contextPriv().opMemoryPool();
 
-    GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-
-    auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                                       SkBackingFit::kApprox,
+    auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                        32, 32,
                                                                        kRGBA_8888_GrPixelConfig,
                                                                        nullptr);

@@ -31,8 +31,6 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
-    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
-
     void textureParamsModified() override {}
 
     const GrVkImageView* textureView();
