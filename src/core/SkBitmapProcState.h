@@ -173,10 +173,9 @@ private:
 
 // These functions are generated via macros, but are exposed here so that
 // platformProcs may test for them by name.
-void S32_opaque_D32_filter_DX(const SkBitmapProcState& s, const uint32_t xy[],
-                              int count, SkPMColor colors[]);
-void S32_alpha_D32_filter_DX(const SkBitmapProcState& s, const uint32_t xy[],
-                             int count, SkPMColor colors[]);
+void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                             const uint32_t xy[], int count, SkPMColor colors[]);
+
 void ClampX_ClampY_filter_scale(const SkBitmapProcState& s, uint32_t xy[],
                                 int count, int x, int y);
 void ClampX_ClampY_nofilter_scale(const SkBitmapProcState& s, uint32_t xy[],
