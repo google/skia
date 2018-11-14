@@ -282,7 +282,7 @@ private:
         return RequiresDstTexture::kNo;
     }
     void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState* state) override {
+    void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         DrawMeshHelper helper(state);
         fTestFn(&helper);
     }

@@ -424,7 +424,7 @@ inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int inst
     }
 }
 
-void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
+void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(fOwningPerOpListPaths);
 
     const GrCCPerFlushResources* resources = fOwningPerOpListPaths->fFlushResources.get();
