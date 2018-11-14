@@ -33,38 +33,16 @@ public:
     }
     ~GrTextBlobCache();
 
-    // creates an uncached blob
-    sk_sp<GrTextBlob> makeBlob(int glyphCount, int runCount) {
-        return GrTextBlob::Make(glyphCount, runCount);
-    }
-
-    sk_sp<GrTextBlob> makeBlob(const SkTextBlob* blob) {
-        int glyphCount = 0;
-        int runCount = 0;
-        BlobGlyphCount(&glyphCount, &runCount, blob);
-        return GrTextBlob::Make(glyphCount, runCount);
-    }
-
-    sk_sp<GrTextBlob> makeCachedBlob(const SkTextBlob* blob,
-                                          const GrTextBlob::Key& key,
-                                          const SkMaskFilterBase::BlurRec& blurRec,
-                                          const SkPaint& paint) {
-        sk_sp<GrTextBlob> cacheBlob(this->makeBlob(blob));
-        cacheBlob->setupKey(key, blurRec, paint);
-        this->add(cacheBlob);
-        blob->notifyAddedToCache(fUniqueID);
-        return cacheBlob;
-    }
-
-    sk_sp<GrTextBlob> makeBlob(const SkGlyphRunList& glyphRunList) {
-        return GrTextBlob::Make(glyphRunList.totalGlyphCount(), glyphRunList.size());
+    sk_sp<GrTextBlob> makeBlob(const SkGlyphRunList& glyphRunList, GrColor color) {
+        return GrTextBlob::Make(glyphRunList.totalGlyphCount(), glyphRunList.size(), color);
     }
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkPaint& paint) {
-        sk_sp<GrTextBlob> cacheBlob(makeBlob(glyphRunList));
+                                     const SkPaint& paint,
+                                     GrColor color) {
+        sk_sp<GrTextBlob> cacheBlob(makeBlob(glyphRunList, color));
         cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
         glyphRunList.temporaryShuntBlobNotifyAddedToCache(fUniqueID);
