@@ -208,7 +208,7 @@ private:
     SkReader32 fReader;
 
     // Only used if we do not have an fFactoryArray.
-    SkTHashMap<uint32_t, SkString> fFlattenableDict;
+    SkTHashMap<uint32_t, SkFlattenable::Factory> fFlattenableDict;
 
     int fVersion;
 
