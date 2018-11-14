@@ -367,6 +367,10 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& dstInfo, void* pixels, siz
     // their own.  They indicate that all of the memory has been filled by
     // setting rowsDecoded equal to the height.
     if ((kIncompleteInput == result || kErrorInInput == result) && rowsDecoded != info.height()) {
+        if (rowsDecoded == 0) {
+            // Nothing was decoded, so there is no reason to fill.
+            return kInvalidInput;
+        }
         // FIXME: (skbug.com/5772) fillIncompleteImage will fill using the swizzler's width, unless
         // there is a subset. In that case, it will use the width of the subset. From here, the
         // subset will only be non-null in the case of SkWebpCodec, but it treats the subset
