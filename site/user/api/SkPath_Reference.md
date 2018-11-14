@@ -22,7 +22,6 @@ public:
     friend bool operator!=(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
     bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& compare) const;
     bool interpolate(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out) const;
-    bool <a href='#SkPath_unique'>unique()</a> const;
 
     enum <a href='#SkPath_FillType'>FillType</a> {
         <a href='#SkPath_kWinding_FillType'>kWinding_FillType</a>,
@@ -722,18 +721,6 @@ true if <a href='SkPath_Reference#Path'>Paths</a> contain same number of <a href
 ### See Also
 
 <a href='#SkPath_isInterpolatable'>isInterpolatable</a>
-
-<a name='SkPath_unique'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_unique'>unique()</a> const
-</pre>
-
-To be deprecated soon.
-
-Only valid for Android framework.
 
 <a name='Fill_Type'></a>
 
