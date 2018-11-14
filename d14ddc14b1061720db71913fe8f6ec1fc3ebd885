@@ -22,6 +22,30 @@
       "revId": "d14ddc14b1061720db71913fe8f6ec1fc3ebd885",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55931b1f_36d20b2d",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-14T00:19:18Z",
+      "side": 1,
+      "message": "Sounds good -- I\u0027ll try that in a separate CL (since it would be used in many places in SkFont.cpp, and keep this Cl to just the new API idea.",
+      "parentUuid": "82e383b0_8a5088ab",
+      "range": {
+        "startLine": 349,
+        "startChar": 36,
+        "endLine": 349,
+        "endChar": 63
+      },
+      "revId": "d14ddc14b1061720db71913fe8f6ec1fc3ebd885",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
