@@ -70,7 +70,7 @@ public:
         fn(fStashedAtlasProxy.get());
     }
 
-    void onExecute(GrOpFlushState* flushState) override {
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         SkASSERT(fStashedAtlasProxy);
         GrPipeline::FixedDynamicState dynamicState;
         auto atlasProxy = fStashedAtlasProxy.get();
@@ -116,7 +116,7 @@ public:
     // GrDrawOp interface.
     const char* name() const override { return "RenderAtlasOp (CCPR)"; }
 
-    void onExecute(GrOpFlushState* flushState) override {
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         fResources->filler().drawFills(flushState, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, fStrokeBatchID, fDrawBounds);
     }

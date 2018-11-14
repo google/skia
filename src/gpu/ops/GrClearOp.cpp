@@ -57,7 +57,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, const SkPMColor4f& color, GrSurfac
                     HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-void GrClearOp::onExecute(GrOpFlushState* state) {
+void GrClearOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     SkASSERT(state->rtCommandBuffer());
     state->rtCommandBuffer()->clear(fClip, fColor);
 }
