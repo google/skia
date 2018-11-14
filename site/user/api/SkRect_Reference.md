@@ -994,15 +994,13 @@ test with NaN is not equal to itself
 void <a href='#SkRect_toQuad'>toQuad</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPath_Reference#Quad'>quad</a>[4]) const
 </pre>
 
-Returns four <a href='SkPoint_Reference#Point'>points</a> in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='SkRect_Reference#Rect'>Rect</a> ordered as: top-left, top-right,
+Returns four <a href='SkPoint_Reference#Point'>points</a> in <a href='#SkRect_toQuad_quad'>quad</a> that enclose <a href='SkRect_Reference#SkRect'>SkRect</a> ordered as: top-left, top-right,
 bottom-right, bottom-left.
-
-Private: Consider adding param to control whether quad is clockwise or counterclockwise.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_toQuad_quad'><code><strong>quad</strong></code></a></td>
-    <td>storage for corners of <a href='SkRect_Reference#Rect'>Rect</a></td>
+    <td>storage for corners of <a href='SkRect_Reference#SkRect'>SkRect</a></td>
   </tr>
 </table>
 

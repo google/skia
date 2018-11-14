@@ -58,6 +58,46 @@ public:
         return nullptr;
     }
 
+    // words must be alpha only
+    string anyWord(const vector<string>& wordList, int spaces) const {
+        const char* matchStart = fChar;
+        do {
+            int count = spaces;
+            while (matchStart < fEnd && !isalpha(matchStart[0])) {
+                ++matchStart;
+            }
+            const char* matchEnd = matchStart;
+            const char* nextWord = nullptr;
+            while (matchEnd < fEnd) {
+                if (isalpha(matchEnd[0])) {
+                    ;
+                } else if (' ' == matchEnd[0] && --count >= 0) {
+                    if (!nextWord) {
+                        nextWord = matchEnd;
+                    }
+                } else {
+                    break;
+                }
+                ++matchEnd;
+            }
+            size_t matchLen = matchEnd - matchStart;
+            for (auto word : wordList) {
+                if (word.length() != matchLen) {
+                    continue;
+                }
+                for (unsigned index = 0; index < matchLen; ++index) {
+                    if (tolower(matchStart[index]) != word[index]) {
+                        goto nextWord;
+                    }
+                }
+                return word;
+        nextWord: ;
+            }
+            matchStart = nextWord ? nextWord : matchEnd;
+        } while (matchStart < fEnd);
+        return "";
+    }
+
     bool back(const char* pattern) {
         size_t len = strlen(pattern);
         const char* start = fChar - len;

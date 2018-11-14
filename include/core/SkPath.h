@@ -1678,7 +1678,11 @@ public:
     */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 #else
+    /** Deprecated.
+     */
     bool isValid() const { return this->isValidImpl(); }
+    /** Deprecated.
+     */
     bool pathRefIsValid() const { return fPathRef->isValid(); }
 #endif
 

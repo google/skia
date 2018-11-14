@@ -1492,8 +1492,8 @@
         "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
     },
         "SkPaint_getFontBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPaint::FontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
-    "hash": "facaddeec7943bc491988e345e27e65f",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkFontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
+    "hash": "f29d005a75efd4746c6744004a0cb421",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFontBounds",
         "stdout": "metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }\\nfont bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }\\n"
@@ -1511,6 +1511,13 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::getHash",
         "stdout": "paint1 == paint2\\npaint1.getHash() == paint2.getHash()\\n"
+    },
+        "SkPaint_getHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"SkFontHinting::kNormal %c= paint.getHinting()\\n\",\n            SkFontHinting::kNormal == paint.getHinting() ? '=' : ':');\n}",
+    "hash": "b56b70c7ea2453c41bfa58b626953bed",
+    "file": "SkPaint_Reference",
+    "name": "SkPaint::getHinting",
+        "stdout": "SkFontHinting::kNormal == paint.getHinting()\\n"
     },
         "SkPaint_getImageFilter": {
     "code": "#include \"SkBlurImageFilter.h\"\n\nvoid draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n}\n",
@@ -6092,14 +6099,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::alphaType"
 },
-    "SkImage_asLegacyBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitImage;\n    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 0, 0);\n    }\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,\n                                kOpaque_SkAlphaType, nullptr));\n    canvas->drawImage(textureImage, 45, 45);\n    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 90, 90);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "78374702fa113076ddc6070053ab5cd4",
-    "file": "SkImage_Reference",
-    "name": "SkImage::asLegacyBitmap"
-},
     "SkImage_bounds": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect bounds = image->bounds();\n    for (int x : { 0, bounds.width() } ) {\n        for (int y : { 0, bounds.height() } ) {\n            canvas->drawImage(image, x, y);\n        }\n    }\n}",
     "width": 256,
@@ -7035,14 +7034,6 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkMemoryStream_Reference",
     "name": "SkMemoryStream::setMemory"
-},
-    "SkMemoryStream_setMemoryOwned": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkMemoryStream_Reference",
-    "name": "SkMemoryStream::setMemoryOwned"
 },
     "SkMemoryStream_skipToAlign4": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",

@@ -69,7 +69,7 @@ public:
     bool <a href='#SkRegion_op'>op</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& rgn, <a href='#SkRegion_Op'>Op</a> op);
     bool <a href='#SkRegion_op'>op</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& rgn, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, <a href='#SkRegion_Op'>Op</a> op);
     bool <a href='#SkRegion_op'>op</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& rgna, const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& rgnb, <a href='#SkRegion_Op'>Op</a> op);
-    char* <a href='#SkRegion_toString'>toString</a>();
+    char* toString();
 
     class <a href='#SkRegion_Iterator'>Iterator</a> {
     public:
@@ -2125,20 +2125,6 @@ false if result is empty
 ### See Also
 
 <a href='#SkRegion_setRects'>setRects</a> <a href='#SkRegion_Op'>Op</a>
-
-<a name='SkRegion_toString'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-char* <a href='#SkRegion_toString'>toString</a>()
-</pre>
-
-Private: Android framework only.
-
-### Return Value
-
-<a href='undocumented#String'>string</a> representation of <a href='SkRegion_Reference#Region'>Region</a>
 
 <a name='SkRegion_writeToMemory'></a>
 

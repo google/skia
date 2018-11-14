@@ -964,17 +964,20 @@ public:
                                               GrBackendTexture* backendTexture,
                                               BackendTextureReleaseProc* backendTextureReleaseProc);
 
+    /** Deprecated.
+     */
     enum LegacyBitmapMode {
         kRO_LegacyBitmapMode, //!< returned bitmap is read-only and immutable
     };
 
-    /** Creates raster SkBitmap with same pixels as SkImage. If legacyBitmapMode is
+    /** Deprecated.
+        Creates raster SkBitmap with same pixels as SkImage. If legacyBitmapMode is
         kRO_LegacyBitmapMode, returned bitmap is read-only and immutable.
         Returns true if SkBitmap is stored in bitmap. Returns false and resets bitmap if
         SkBitmap write did not succeed.
 
         @param bitmap            storage for legacy SkBitmap
-        @param legacyBitmapMode  to be deprecated
+        @param legacyBitmapMode  bitmap is read-only and immutable
         @return                  true if SkBitmap was created
     */
     bool asLegacyBitmap(SkBitmap* bitmap,
