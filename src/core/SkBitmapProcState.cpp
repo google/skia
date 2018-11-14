@@ -189,25 +189,18 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
         int index = 0;
-        if (fAlphaScale < 256) {  // note: this distinction is not used for D16
+        if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
             index |= 1;
         }
-        if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
-            index |= 2;
-        }
         if (fFilterQuality > kNone_SkFilterQuality) {
-            index |= 4;
+            index |= 2;
         }
 
 #if !defined(SK_ARM_HAS_NEON)
         static const SampleProc32 gSkBitmapProcStateSample32[] = {
-            S32_opaque_D32_nofilter_DXDY,
             S32_alpha_D32_nofilter_DXDY,
-            S32_opaque_D32_nofilter_DX,
             S32_alpha_D32_nofilter_DX,
-            S32_opaque_D32_filter_DXDY,
             S32_alpha_D32_filter_DXDY,
-            S32_opaque_D32_filter_DX,
             S32_alpha_D32_filter_DX,
         };
 #endif
@@ -410,12 +403,7 @@ static void S32_D32_constX_shaderproc(const void* sIn,
 
     if (kNone_SkFilterQuality != s.fFilterQuality) {
         const SkPMColor* row1 = s.fPixmap.addr32(0, iY1);
-
-        if (s.fAlphaScale < 256) {
-            Filter_32_alpha(iSubY, *row0, *row1, &color, s.fAlphaScale);
-        } else {
-            Filter_32_opaque(iSubY, *row0, *row1, &color);
-        }
+        Filter_32_alpha(iSubY, *row0, *row1, &color, s.fAlphaScale);
     } else {
         if (s.fAlphaScale < 256) {
             color = SkAlphaMulQ(*row0, s.fAlphaScale);
