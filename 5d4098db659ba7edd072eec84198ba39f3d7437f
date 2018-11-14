@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "229adae5_91c26e26",
+        "filename": "include/utils/SkTextUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-14T16:43:33Z",
+      "side": 1,
+      "message": "I\u0027m not trying to defend the semantics of this API. I just wanted a way to transition existing callers of SkPaint::getTextPath off of SkPaint, so I can start to delete code from it.\n\nHow about I fission that aspect from this CL, and we can think about it separately.",
+      "parentUuid": "61c7209e_da58d77d",
+      "range": {
+        "startLine": 36,
+        "startChar": 16,
+        "endLine": 36,
+        "endChar": 27
+      },
+      "revId": "5d4098db659ba7edd072eec84198ba39f3d7437f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "085ade18_4b47e0f6",
         "filename": "src/core/SkFont.cpp",
         "patchSetId": 1
