@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "379b8071_8ec6fdc1",
+        "filename": "src/core/SkPointPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-14T21:51:44Z",
+      "side": 1,
+      "message": "tab in cases? (I hate it but it is the style)",
+      "revId": "ba0181758e47234ef1caab3239b89cdf737a6c60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
