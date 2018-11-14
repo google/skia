@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f95cbb5a_286507a2",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-11-14T20:44:39Z",
+      "side": 1,
+      "message": "I think it was avoiding the first allocation that got us wins writer side (since our usage pattern is to serialize one flattenable at a time : https://cs.chromium.org/chromium/src/cc/paint/paint_op_writer.cc?gsn\u003dreadString\u0026q\u003dpaint_op_writ\u0026g\u003d0\u0026l\u003d115).\n\nBut I don\u0027t see an easy way for avoiding that here. We need to copy the string to avoid TOCTOU issues.",
+      "range": {
+        "startLine": 390,
+        "startChar": 0,
+        "endLine": 391,
+        "endChar": 36
+      },
+      "revId": "7aea64c380441062ef9a91b02656eb049aa78e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
