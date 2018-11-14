@@ -16,6 +16,7 @@
 #define SK_SUPPORT_LEGACY_FONT_FLAGS
 
 class SkPaint;
+class SkPath;
 struct SkFontMetrics;
 
 class SK_API SkFont {
@@ -152,7 +153,7 @@ public:
         return fTypeface->unicharToGlyph(uni);
     }
 
-    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) {
+    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
     }
 
@@ -161,6 +162,16 @@ public:
 
     void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
                    SkRect bounds[] = nullptr) const;
+
+    /**
+     *  Returns true if the glyph has an outline (even if its empty), and sets the path.
+     *  If the glyph does not have an outline (e.g. it is a bitmap), this returns false
+     *  and ignores the path parameter.
+     */
+    bool getPath(uint16_t glyphID, SkPath* path) const;
+    void getPaths(const uint16_t glyphIDs[], int count,
+                  void (*GlyphPathProc)(uint16_t glyphID, const SkPath* pathOrNull, void* ctx),
+                  void* ctx) const;
 
     SkScalar getMetrics(SkFontMetrics* metrics) const;
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
