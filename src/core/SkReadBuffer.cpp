@@ -385,13 +385,13 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         }
         factory = fFactoryArray[index];
     } else {
-        SkString name;
         if (this->peekByte()) {
             // If the first byte is non-zero, the flattenable is specified by a string.
+            SkString name;
             this->readString(&name);
 
-            // Add the string to the dictionary.
-            fFlattenableDict.set(fFlattenableDict.count() + 1, name);
+            factory = SkFlattenable::NameToFactory(name.c_str());
+            fFlattenableDict.set(fFlattenableDict.count() + 1, factory);
         } else {
             // Read the index.  We are guaranteed that the first byte
             // is zeroed, so we must shift down a byte.
@@ -399,15 +399,14 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             if (index == 0) {
                 return nullptr; // writer failed to give us the flattenable
             }
-            SkString* namePtr = fFlattenableDict.find(index);
-            if (!this->validate(namePtr != nullptr)) {
-                return nullptr;
+
+            if (SkFlattenable::Factory* found = fFlattenableDict.find(index)) {
+                factory = *found;
             }
-            name = *namePtr;
         }
 
-        if (!(factory = SkFlattenable::NameToFactory(name.c_str()))) {
-            return nullptr; // writer failed to give us the flattenable
+        if (!this->validate(factory != nullptr)) {
+            return nullptr;
         }
     }
 
