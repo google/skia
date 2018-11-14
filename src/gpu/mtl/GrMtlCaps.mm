@@ -341,6 +341,8 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fUnsignedSupport = true;
 
     shaderCaps->fMaxFragmentSamplers = 16;
+
+    shaderCaps->fMatrixInverseFunctionIsMissing = true;  // http://skbug.com/8549
 }
 
 void GrMtlCaps::initConfigTable() {

@@ -147,6 +147,9 @@ public:
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
 
+    // Our MSL backend lacks support for inverse matrices: http://skbug.com/8549
+    bool matrixInverseFunctionIsMissing() const { return fMatrixInverseFunctionIsMissing; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -264,6 +267,7 @@ private:
     bool fRequiresLocalOutputColorForFBFetch          : 1;
     bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
+    bool fMatrixInverseFunctionIsMissing              : 1;
     bool fCanUseFragCoord                             : 1;
     bool fIncompleteShortIntPrecision                 : 1;
     bool fAddAndTrueToLoopCondition                   : 1;
