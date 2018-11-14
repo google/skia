@@ -36,6 +36,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fRequiresLocalOutputColorForFBFetch = false;
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
+    fMatrixInverseFunctionIsMissing = false;
     fCanUseFragCoord = true;
     fIncompleteShortIntPrecision = false;
     fAddAndTrueToLoopCondition = false;
