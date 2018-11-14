@@ -15,7 +15,7 @@ internal Code Search. In addition to the
 main [skia](http://cs/#skia/skia/) repo, internal Code Search indexes the
 [buildbot](http://cs/#skia/buildbot/), [common](http://cs/#skia/common/),
 and [skia_internal](https://cs/#skia/skia_internal/) repos. However,
-cross-references, history/blame, and code analysis are not available.
+cross-references and code analysis are not available.
 
 The Github mirrors of the [skia](https://github.com/google/skia) and
 [skia-buildbot](https://github.com/google/skia-buildbot) repos are useful for
@@ -29,9 +29,9 @@ You can also navigate through the
 appear here first.
 
   Code search option  |Search |XRef |History |Repos                         |Branches |Freshness
-  --------------------|-------|-----|--------|------------------------------|---------|----------------------
+  --------------------|-------|-----|--------|------------------------------|---------|---------------
   [cs.skia.org][1]    |regexp | yes |yes     |skia                          |master   |last DEPS roll
-  [Internal][2]       |regexp | no  |no      |skia buildbot common internal |master   |hours
+  [Internal][2]       |regexp | no  |yes     |skia buildbot common internal |master   |hours
   [Github][3]         |basic  | no  |yes     |skia buildbot                 |all      |hour
   [googlesource][4]   |none   | no  |yes     |all                           |all      |N/A
 
@@ -39,3 +39,11 @@ appear here first.
 [2]: http://cs/#skia/                "Internal Code Search"
 [3]: https://github.com/google/skia  "Github mirror of skia"
 [4]: https://skia.googlesource.com/  "Master Skia repos on googlesource.com"
+
+Client code search
+------------------
+
+There is an [internal tool for
+Googlers](https://goto.google.com/skia-client-search) to make it easier to
+search the repos of Skia clients, e.g. Chromium, Android, and Mozilla. If you
+use it and have suggestions, please let dogben know.
