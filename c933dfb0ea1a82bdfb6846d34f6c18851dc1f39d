@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2a93da32_767d7ea3",
+        "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-14T15:30:54Z",
+      "side": 1,
+      "message": "It may be nice to have a diagram or more description to help sort out how the geometry is structured without having to go down to onEmitCode() and see how the IDs are used, but that may also be too bulky a comment.",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 126,
+        "endChar": 90
+      },
+      "revId": "c933dfb0ea1a82bdfb6846d34f6c18851dc1f39d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01094ab0_d2aeec06",
         "filename": "src/gpu/ops/GrAARoundRectOp.cpp",
         "patchSetId": 6
