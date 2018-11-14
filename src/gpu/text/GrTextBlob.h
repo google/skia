@@ -59,14 +59,13 @@ public:
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
-                                  const SkPMColor4f& filteredColor,
                                   SkScalerContextFlags scalerContextFlags,
                                   const SkMatrix& viewMatrix,
                                   const SkSurfaceProps& props,
                                   const SkGlyphRunList& glyphRunList,
                                   SkGlyphRunListPainter* glyphPainter);
 
-    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount);
+    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount, GrColor color);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -276,9 +275,14 @@ private:
 
     class SubRun {
     public:
-        SubRun(Run* run, const SkAutoDescriptor& desc)
-            : fRun{run}
+        SubRun(Run* run, const SkAutoDescriptor& desc, GrColor color)
+            : fColor{color}
+            , fRun{run}
             , fDesc{desc} {}
+
+        // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
+        //SubRun(SkSTArray<1, SubRun>* subRunList)
+        //    : fColor{subRunList->fromBack(1).fColor} { }
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -396,10 +400,10 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        explicit Run(GrTextBlob* blob)
-        : fBlob{blob} {
+        explicit Run(GrTextBlob* blob, GrColor color)
+        : fBlob{blob}, fColor{color} {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.emplace_back(this, fDescriptor);
+            fSubRunInfo.emplace_back(this, fDescriptor, color);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -413,7 +417,7 @@ private:
         SubRun* initARGBFallback() {
             fARGBFallbackDescriptor.reset(new SkAutoDescriptor{});
             // Push back a new subrun to fill and set the override descriptor
-            SubRun* subRun = this->pushBackSubRun(*fARGBFallbackDescriptor);
+            SubRun* subRun = this->pushBackSubRun(*fARGBFallbackDescriptor, fColor);
             subRun->setMaskFormat(kARGB_GrMaskFormat);
             subRun->setFallback();
             return subRun;
@@ -428,9 +432,7 @@ private:
         void appendGlyph(GrTextBlob* blob,
                          const sk_sp<GrTextStrike>& strike,
                          const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                         SkPoint origin,
-                         const SkPMColor4f& color,
-                         SkScalar textRatio, bool needsTransform);
+                         SkPoint origin, SkScalar textRatio, bool needsTransform);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
                                         const SkSurfaceProps& props,
@@ -450,11 +452,13 @@ private:
             subRun.setHasWCoord(hasWCoord);
         }
 
-        SubRun* pushBackSubRun(const SkAutoDescriptor& desc) {
+        SubRun* pushBackSubRun(const SkAutoDescriptor& desc, GrColor color) {
             // Forward glyph / vertex information to seed the new sub run
-            SubRun& newSubRun = fSubRunInfo.emplace_back(this, desc);
+            SubRun& newSubRun = fSubRunInfo.emplace_back(this, desc, color);
+
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
 
+            // Forward glyph / vertex information to seed the new sub run
             newSubRun.setAsSuccessor(prevSubRun);
             return &newSubRun;
         }
@@ -496,6 +500,7 @@ private:
         bool fInitialized{false};
 
         GrTextBlob* const fBlob;
+        GrColor fColor;
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
