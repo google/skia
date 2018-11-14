@@ -40,13 +40,14 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          sk_sp<GrVkImageLayout> layout,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
-                         GrBackendObjectOwnership ownership)
+                         GrBackendObjectOwnership ownership,
+                         bool purgeImmediately)
         : GrSurface(gpu, desc)
         , GrVkImage(info, std::move(layout), ownership)
         , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
-    this->registerWithCacheWrapped();
+    this->registerWithCacheWrapped(purgeImmediately);
 }
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
@@ -91,6 +92,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
                                                    const GrSurfaceDesc& desc,
                                                    GrWrapOwnership wrapOwnership,
+                                                   bool purgeImmediately,
                                                    const GrVkImageInfo& info,
                                                    sk_sp<GrVkImageLayout> layout) {
     // Wrapped textures require both image and allocation (because they can be mapped)
@@ -109,7 +111,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
     GrBackendObjectOwnership ownership = kBorrow_GrWrapOwnership == wrapOwnership
             ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, info, std::move(layout),
-                                              imageView, mipMapsStatus, ownership));
+                                              imageView, mipMapsStatus, ownership,
+                                              purgeImmediately));
 }
 
 GrVkTexture::~GrVkTexture() {

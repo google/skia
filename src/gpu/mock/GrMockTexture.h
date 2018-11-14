@@ -24,9 +24,10 @@ public:
 
     enum Wrapped { kWrapped };
     GrMockTexture(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
-                  GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& info)
+                  GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& info,
+                  bool purgeImmediately)
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
-        this->registerWithCacheWrapped();
+        this->registerWithCacheWrapped(purgeImmediately);
     }
 
     ~GrMockTexture() override {}

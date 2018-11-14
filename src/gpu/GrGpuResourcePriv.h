@@ -51,6 +51,9 @@ public:
         return SkBudgeted(ret);
     }
 
+    // Even if the resource has a unique key should we still try to purge it as soon as possible.
+    bool shouldPurgeImmediately() const { return fResource->fShouldPurgeImmediately; }
+
     /**
      * Is the resource object wrapping an externally allocated GPU resource?
      */

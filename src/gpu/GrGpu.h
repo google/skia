@@ -104,7 +104,8 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendTexture
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrWrapOwnership);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+                                        bool purgeImmediately);
 
     /**
      * Implements GrResourceProvider::wrapRenderableBackendTexture
@@ -431,7 +432,8 @@ private:
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
                                              const GrMipLevel texels[], int mipLevelCount) = 0;
 
-    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) = 0;
+    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+                                                  bool purgeImmediately) = 0;
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
                                                             int sampleCnt,
                                                             GrWrapOwnership) = 0;

@@ -144,7 +144,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budg
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                           GrWrapOwnership ownership) {
+                                           GrWrapOwnership ownership,
+                                           bool purgeImmediately) {
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
@@ -153,7 +154,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-    return this->onWrapBackendTexture(backendTex, ownership);
+    return this->onWrapBackendTexture(backendTex, ownership, purgeImmediately);
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
