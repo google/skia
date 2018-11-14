@@ -80,9 +80,12 @@ void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
     SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
     SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
 
+    int alpha = s.fAlphaScale;
+
     // Return (px * s.fAlphaScale) / 256.   (s.fAlphaScale is in [0,256].)
-    auto scale_by_alpha = [&](const __m128i& px) {
-        return _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(s.fAlphaScale)), 8);
+    auto scale_by_alpha = [alpha](const __m128i& px) {
+        return alpha == 256 ? px
+                            : _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(alpha)), 8);
     };
 
     // We're in _DX_ mode here, so we're only varying in X.
