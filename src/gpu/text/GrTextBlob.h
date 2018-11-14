@@ -59,14 +59,13 @@ public:
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
-                                  const SkPMColor4f& filteredColor,
                                   SkScalerContextFlags scalerContextFlags,
                                   const SkMatrix& viewMatrix,
                                   const SkSurfaceProps& props,
                                   const SkGlyphRunList& glyphRunList,
                                   SkGlyphRunListPainter* glyphPainter);
 
-    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount);
+    static sk_sp<GrTextBlob> Make(int glyphCount, int runCount, GrColor color);
 
     /**
      * We currently force regeneration of a blob if old or new matrix differ in having perspective.
@@ -276,7 +275,11 @@ private:
 
     class SubRun {
     public:
-        SubRun() = default;
+        SubRun() = delete;
+        SubRun(GrColor color) : fColor{color} {}
+        // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
+        SubRun(SkSTArray<1, SubRun>* subRunList)
+            : fColor{subRunList->fromBack(1).fColor} { }
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -399,10 +402,11 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        Run() : fPaintFlags(0)
-              , fInitialized(false) {
+        Run(GrColor color)
+            : fPaintFlags(0)
+            , fInitialized(false) {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.push_back();
+            fSubRunInfo.emplace_back(color);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -428,8 +432,7 @@ private:
         void appendGlyph(GrTextBlob* blob,
                          const sk_sp<GrTextStrike>& strike,
                          const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                         SkPoint origin,
-                         const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
+                         SkPoint origin, SkGlyphCache* skGlyphCache,
                          SkScalar textRatio, bool needsTransform);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
@@ -451,10 +454,14 @@ private:
         }
 
         SubRun& pushBackSubRun() {
-            // Forward glyph / vertex information to seed the new sub run
-            SubRun& newSubRun = fSubRunInfo.push_back();
+            // Create a new subrun from the end of the list. This can't be done in the usual way,
+            // because emplace_back can move the location of the last SubRun. We know that there
+            // is a previous SubRun because a Run is always created with a SubRun.
+            SubRun& newSubRun = fSubRunInfo.emplace_back(&fSubRunInfo);
+
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
 
+            // Forward glyph / vertex information to seed the new sub run
             newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
