@@ -22,6 +22,30 @@
       "revId": "7aea64c380441062ef9a91b02656eb049aa78e3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2b9183a_0ad2c38f",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-15T14:05:22Z",
+      "side": 1,
+      "message": "Given the way it\u0027s stored in the stream (length + string + \\0), it should be possible for us to read this string without copying.  What sort of TOCTOU issue do you see with that?",
+      "parentUuid": "f95cbb5a_286507a2",
+      "range": {
+        "startLine": 390,
+        "startChar": 0,
+        "endLine": 391,
+        "endChar": 36
+      },
+      "revId": "7aea64c380441062ef9a91b02656eb049aa78e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
