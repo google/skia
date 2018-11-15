@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "998c134d_09428fae",
+        "filename": "src/codec/SkJpegDecoderMgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-11-15T20:17:36Z",
+      "side": 1,
+      "message": "could you just include this unconditionally if you did \"android/SkAndroidFrameworkUtils.h\"",
+      "revId": "90e60f5def97fdbf611ac2b36bfe1cd59e19e024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
