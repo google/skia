@@ -36,6 +36,10 @@ public:
         kYes,
     };
 
+    enum class Suggest {
+        kMethodMissing,
+    };
+
     struct CheckCode {
         enum class State {
             kNone,
@@ -261,6 +265,7 @@ public:
         fInCharCommentString = fInChar || fInComment || fInString;
     }
 
+    void suggestFix(Suggest suggest, const Definition& iDef, const RootDefinition* root);
     Bracket topBracket() const;
 
     template <typename T>

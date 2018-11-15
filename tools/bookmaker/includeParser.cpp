@@ -774,6 +774,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (!def) {
                         if (!token.fUndocumented) {
                             SkDebugf("method missing from bmh: %s\n", fullName.c_str());
+                            this->suggestFix(Suggest::kMethodMissing, token, root);
                             fFailed = true;
                         }
                         break;
@@ -3576,6 +3577,95 @@ void IncludeParser::RemoveOneFile(const char* docs, const char* includesFile) {
     baseName.append("_Reference.bmh");
     SkString fullName = SkOSPath::Join(docs, baseName.c_str());
     remove(fullName.c_str());
+}
+
+static const char kMethodMissingStr[] =
+    "If the method requires documentation, add to "
+    "%s at minimum:\n"  // path to bmh file
+    "\n"
+    "#Method %s\n" // method declaration
+    "#In  SomeSubtopicName\n"
+    "#Line # add a one line description here ##\n"
+    "#Populate\n"
+    "#NoExample\n"
+    "// or better yet, use #Example and put C++ code here\n"
+    "##\n"
+    "#SeeAlso optional related symbols\n"
+    "#Method ##\n"
+    "\n"
+    "Add to %s, at minimum:\n"  // path to include
+    "\n"
+    "/** (description) Starts with present tense action verb\n"
+    "    and end with a period.\n"
+    "%s"   // @param, @return if needed go here
+    "*/\n"
+    "%s ...\n" // method declaration
+    "\n"
+    "If the method does not require documentation,\n"
+    "add \"private\" or \"experimental\", as in:\n"
+    "\n"
+    "/** Experimental, do not use. And so on...\n"
+    "*/\n"
+    "%s ...\n" // method declaration
+    "\n"
+    ;
+
+void IncludeParser::suggestFix(Suggest suggest, const Definition& iDef,
+        const RootDefinition* root) {
+    switch(suggest) {
+        case Suggest::kMethodMissing: {
+            string methodNameStr(iDef.fContentStart, iDef.length());
+            const char* methodName = methodNameStr.c_str();
+            string paramDox;
+            // return result, if any is substr from 0 to location of iDef.fName
+            size_t namePos = methodNameStr.find(iDef.fName);
+            if (string::npos != namePos) {
+                size_t funcEnd = namePos;
+                while (funcEnd > 0 && ' ' >= methodNameStr[funcEnd - 1]) {
+                    funcEnd -= 1;
+                }
+                string funcRet = methodNameStr.substr(0, funcEnd);
+            // parameters, if any, are delimited by () and separate by ,
+                TextParser parser(&iDef);
+                parser.fChar += namePos + iDef.fName.length();
+                const char* start = parser.fChar;
+                bool firstParam = true;
+                if ('(' == start[0]) {
+                    parser.skipToBalancedEndBracket('(', ')');
+                    TextParser params(&iDef);
+                    params.fChar = start + 1;
+                    params.fEnd = parser.fChar;
+                    while (!params.eof()) {
+                        const char* paramEnd = params.anyOf(",)");
+                        const char* paramStart = paramEnd;
+                        while (paramStart > params.fChar && ' ' >= paramStart[-1]) {
+                            paramStart -= 1;
+                        }
+                        while (paramStart > params.fChar && (isalnum(paramStart[-1])
+                                || '_' == paramStart[-1])) {
+                            paramStart -= 1;
+                        }
+                        if (firstParam) {
+                            paramDox += "\n";
+                            firstParam = false;
+                        }
+                        string param(paramStart, paramEnd - paramStart);
+                        paramDox += "    @param " + param + "  descriptive phrase\n";
+                        params.fChar = paramEnd + 1;
+                    }
+                }
+                if ("" != funcRet && "void" != funcRet) {
+                    paramDox += "\n";
+                    paramDox += "    @return descriptive phrase\n";
+                }
+            }
+            // if include @param, @return are missing, request them as well
+            SkDebugf(kMethodMissingStr, root->fFileName.c_str(), methodName, iDef.fFileName.c_str(),
+                    paramDox.c_str(), methodName, methodName);
+            } break;
+        default:
+            SkASSERT(0);
+    }
 }
 
 Bracket IncludeParser::topBracket() const {
