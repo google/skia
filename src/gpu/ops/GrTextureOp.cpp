@@ -37,6 +37,7 @@
 namespace {
 
 using Domain = GrQuadPerEdgeAA::Domain;
+using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 
 /**
  * Geometry Processor that draws a texture modulated by a vertex color (though, this is meant to be
@@ -50,11 +51,10 @@ public:
                                            const GrSamplerState::Filter filter,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            sk_sp<GrColorSpaceXform> paintColorSpaceXform,
-                                           int positionDim, GrAAType aa,  Domain domain,
-                                           const GrShaderCaps& caps) {
+                                           const VertexSpec& vertexSpec, const GrShaderCaps& caps) {
         return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
                 textureType, textureConfig, filter, std::move(textureColorSpaceXform),
-                std::move(paintColorSpaceXform), positionDim, aa, domain, caps));
+                std::move(paintColorSpaceXform), vertexSpec, caps));
     }
 
     const char* name() const override { return "TextureGeometryProcessor"; }
@@ -117,13 +117,14 @@ private:
     TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig,
                              GrSamplerState::Filter filter,
                              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                             sk_sp<GrColorSpaceXform> paintColorSpaceXform, int positionDim,
-                             GrAAType aa, Domain domain, const GrShaderCaps& caps)
+                             sk_sp<GrColorSpaceXform> paintColorSpaceXform,
+                             const VertexSpec& vertexSpec, const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
-            , fAttrs(positionDim, /* src dim */ 2, /* vertex color */ true, aa, domain)
+            , fAttrs(vertexSpec)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform))
             , fSampler(textureType, textureConfig, filter) {
+        SkASSERT(vertexSpec.hasVertexColors() && vertexSpec.localDimensionality() == 2);
         this->setTextureSamplerCnt(1);
         this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
     }
@@ -139,7 +140,7 @@ private:
 };
 
 static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
-    SkASSERT(quad.quadType() == GrQuadType::kRect_QuadType);
+    SkASSERT(quad.quadType() == GrQuadType::kRect);
     float ql = quad.x(0);
     float qt = quad.y(0);
     float qr = quad.x(3);
@@ -320,11 +321,11 @@ private:
         GrResolveAATypeForQuad(aaType, aaFlags, quad, quadType, &aaType, &aaFlags);
         fAAType = static_cast<unsigned>(aaType);
 
-        fPerspective = static_cast<unsigned>(quadType == GrQuadType::kPerspective_QuadType);
+        fPerspective = static_cast<unsigned>(quadType == GrQuadType::kPerspective);
         // We expect our caller to have already caught this optimization.
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
-        if (quadType == GrQuadType::kRect_QuadType) {
+        if (quadType == GrQuadType::kRect) {
             // Disable filtering if possible (note AA optimizations for rects are automatically
             // handled above in GrResolveAATypeForQuad).
             if (this->filter() != GrSamplerState::Filter::kNearest &&
@@ -386,7 +387,7 @@ private:
                 overallAAType = aaType;
             }
             if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
-                mustFilter = quadType != GrQuadType::kRect_QuadType ||
+                mustFilter = quadType != GrQuadType::kRect ||
                              filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
             }
             fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
@@ -401,13 +402,9 @@ private:
         fDomain = static_cast<unsigned>(false);
     }
 
-    template <int PosDim, Domain D, GrAA AA>
-    void tess(void* v, const GrGeometryProcessor* gp, const GrTextureProxy* proxy, int start,
-              int cnt) const {
+    void tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
+              int start, int cnt) const {
         TRACE_EVENT0("skia", TRACE_FUNC);
-        using Vertex = GrQuadPerEdgeAA::Vertex<PosDim, GrColor, 2, D, AA>;
-        SkASSERT(gp->vertexStride() == sizeof(Vertex));
-        auto vertices = static_cast<Vertex*>(v);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
         float iw = 1.f / texture->width();
@@ -417,9 +414,8 @@ private:
             const auto q = fQuads[i];
             GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih);
             SkRect domain = compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih);
-            GrQuadPerEdgeAA::Tessellate<Vertex>(
-                    vertices, q.quad(), q.color(), srcQuad, domain, q.aaFlags());
-            vertices += 4;
+            v = GrQuadPerEdgeAA::Tessellate(v, spec, q.quad(), q.color(), srcQuad, domain,
+                                            q.aaFlags());
         }
     }
 
@@ -453,10 +449,13 @@ private:
             }
         }
 
+        VertexSpec vertexSpec(hasPerspective ? GrQuadType::kPerspective : GrQuadType::kStandard,
+                              /* hasColor */ true, GrQuadType::kRect, /* hasLocal */ true,
+                              domain, aaType);
+
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                std::move(fPaintColorSpaceXform), hasPerspective ? 3 : 2, aaType, domain,
-                *target->caps().shaderCaps());
+                std::move(fPaintColorSpaceXform), vertexSpec, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -480,33 +479,8 @@ private:
         }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
-        using TessFn = decltype(&TextureOp::tess<2, Domain::kNo, GrAA::kNo>);
-#define TESS_FN_AND_VERTEX_SIZE(Point, Domain, AA)                          \
-    {                                                                       \
-        &TextureOp::tess<Point, Domain, AA>,                                \
-                sizeof(GrQuadPerEdgeAA::Vertex<Point, GrColor, 2, Domain, AA>) \
-    }
-        static constexpr struct {
-            TessFn fTessFn;
-            size_t fVertexSize;
-        } kTessFnsAndVertexSizes[] = {
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(2, Domain::kYes, GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kNo,  GrAA::kYes),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kNo),
-                TESS_FN_AND_VERTEX_SIZE(3, Domain::kYes, GrAA::kYes),
-        };
-#undef TESS_FN_AND_VERTEX_SIZE
-        int tessFnIdx = 0;
-        tessFnIdx |= (GrAAType::kCoverage == aaType) ? 0x1 : 0x0;
-        tessFnIdx |= (domain == Domain::kYes)        ? 0x2 : 0x0;
-        tessFnIdx |= hasPerspective                  ? 0x4 : 0x0;
 
-        size_t vertexSize = kTessFnsAndVertexSizes[tessFnIdx].fVertexSize;
-        SkASSERT(vertexSize == gp->vertexStride());
+        size_t vertexSize = gp->vertexStride();
 
         GrMesh* meshes = target->allocMeshes(numProxies);
         const GrBuffer* vbuffer;
@@ -534,8 +508,7 @@ private:
                 }
                 SkASSERT(numAllocatedVertices >= meshVertexCnt);
 
-                (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get(), proxy, q,
-                                                                  quadCnt);
+                op.tess(vdata, vertexSpec, proxy, q, quadCnt);
 
                 if (quadCnt > 1) {
                     meshes[m].setPrimitiveType(GrPrimitiveType::kTriangles);
