@@ -46,6 +46,8 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFResourceDict.h",
   "$_src/pdf/SkPDFShader.cpp",
   "$_src/pdf/SkPDFShader.h",
+  "$_src/pdf/SkPDFSubsetFont.cpp",
+  "$_src/pdf/SkPDFSubsetFont.h",
   "$_src/pdf/SkPDFTag.cpp",
   "$_src/pdf/SkPDFTag.h",
   "$_src/pdf/SkPDFTypes.cpp",
