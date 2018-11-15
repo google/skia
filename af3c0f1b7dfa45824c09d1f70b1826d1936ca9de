@@ -22,6 +22,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a839a72d_d110f73c",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-15T19:29:18Z",
+      "side": 1,
+      "message": "You\u0027re reading memory that\u0027s still mapped writeable by the renderer?  If so, holy crap, and we may need to have a serious conversation about where this project is going.  Even between threads in the same process you must have synchronization to hand off memory like that... you\u0027re all playing with fire.",
+      "parentUuid": "dcdb2f21_7447dd2d",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
