@@ -329,35 +329,18 @@ private:
                                 SkScalar* transX, SkScalar* transY);
 
         // df properties
-        void setDrawAsDistanceFields() { fFlags |= kDrawAsSDF_Flag; }
-        bool drawAsDistanceFields() const { return SkToBool(fFlags & kDrawAsSDF_Flag); }
-        void setUseLCDText(bool useLCDText) {
-            fFlags = useLCDText ? fFlags | kUseLCDText_Flag : fFlags & ~kUseLCDText_Flag;
-        }
-        bool hasUseLCDText() const { return SkToBool(fFlags & kUseLCDText_Flag); }
-        void setAntiAliased(bool antiAliased) {
-            fFlags = antiAliased ? fFlags | kAntiAliased_Flag : fFlags & ~kAntiAliased_Flag;
-        }
-        bool isAntiAliased() const { return SkToBool(fFlags & kAntiAliased_Flag); }
-        void setHasWCoord(bool hasW) {
-            fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
-        }
-        bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
-        void setNeedsTransform(bool needsTransform) {
-            fFlags  = needsTransform ? (fFlags | kNeedsTransform_Flag)
-                                     : fFlags & ~kNeedsTransform_Flag;
-        }
-        bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
+        void setDrawAsDistanceFields() { fFlags.drawAsSdf = true; }
+        bool drawAsDistanceFields() const { return fFlags.drawAsSdf; }
+        void setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
+        bool hasUseLCDText() const { return fFlags.useLCDText; }
+        void setAntiAliased(bool antiAliased) { fFlags.antiAliased = antiAliased; }
+        bool isAntiAliased() const { return fFlags.antiAliased; }
+        void setHasWCoord(bool hasW) { fFlags.hasWCoord = hasW; }
+        bool hasWCoord() const { return fFlags.hasWCoord; }
+        void setNeedsTransform(bool needsTransform) { fFlags.needsTransform = needsTransform; }
+        bool needsTransform() const { return fFlags.needsTransform; }
 
     private:
-        enum Flag {
-            kDrawAsSDF_Flag = 0x01,
-            kUseLCDText_Flag = 0x02,
-            kAntiAliased_Flag = 0x04,
-            kHasWCoord_Flag = 0x08,
-            kNeedsTransform_Flag = 0x10
-        };
-
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
         sk_sp<GrTextStrike> fStrike;
         SkMatrix fCurrentViewMatrix;
@@ -371,7 +354,13 @@ private:
         SkScalar fY;
         GrColor fColor{GrColor_ILLEGAL};
         GrMaskFormat fMaskFormat{kA8_GrMaskFormat};
-        uint32_t fFlags{0};
+        struct {
+            bool drawAsSdf:1;
+            bool useLCDText:1;
+            bool antiAliased:1;
+            bool hasWCoord:1;
+            bool needsTransform:1;
+        } fFlags{false, false, false, false, false};
     };  // SubRunInfo
 
 
