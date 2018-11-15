@@ -12,11 +12,6 @@
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
-// TODO: remove this, and opt in/out per client
-#ifndef SK_SUPPORT_LEGACY_FONT_FLAGS
-#define SK_SUPPORT_LEGACY_FONT_FLAGS
-#endif
-
 class SkPaint;
 class SkPath;
 struct SkFontMetrics;
