@@ -106,7 +106,7 @@ public:
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
-    /** To be deprecated soon.
+    /** Deprecated.
     */
     bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask);
 

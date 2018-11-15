@@ -162,7 +162,7 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** To be deprecated soon.
+    /** Deprecated.
     */
     explicit SkCanvas(sk_sp<SkBaseDevice> device);
 
@@ -181,11 +181,13 @@ public:
     explicit SkCanvas(const SkBitmap& bitmap);
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /** Private.
+     */
     enum class ColorBehavior {
         kLegacy, //!< placeholder
     };
 
-    /** For use by Android framework only.
+    /** Private. For use by Android framework only.
 
         @param bitmap    specifies a bitmap for the canvas to draw into
         @param behavior  specializes this constructor; value is unused
@@ -610,7 +612,7 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kDontClipToLayer_Legacy_SaveLayerFlag =
-           kDontClipToLayer_PrivateSaveLayerFlag, //!< to be deprecated soon
+           kDontClipToLayer_PrivateSaveLayerFlag, //!< deprecated
 #endif
     };
 
@@ -1809,7 +1811,7 @@ public:
                           const SkPaint* paint = nullptr);
 
     /**
-     * Controls anti-aliasing of each edge of images in an image-set.
+     * Experimental. Controls anti-aliasing of each edge of images in an image-set.
      */
     enum QuadAAFlags : unsigned {
         kLeft_QuadAAFlag    = 0b0001,

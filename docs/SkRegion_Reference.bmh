@@ -1530,18 +1530,6 @@ May be used to verify that Op is a legal value.
 
 # ------------------------------------------------------------------------------
 
-#Method char* toString()
-#In Utility
-#Line # exists for Android framework only ##
-#Private
-Android framework only.
-##
-#Return string representation of Region ##
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method size_t writeToMemory(void* buffer) const
 #In Utility
 #Line # writes to buffer ##
