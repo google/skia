@@ -6,7 +6,7 @@
 #include "SkData.h"
 #include "SkPDFGlyphUse.h"
 
-#ifdef SK_PDF_USE_SFNTLY
+#if defined(SK_PDF_USE_SFNTLY) || defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 #define SK_PDF_SUBSET_SUPPORTED
 
 sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
