@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcdb2f21_7447dd2d",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-11-15T19:09:35Z",
+      "side": 1,
+      "message": "We are very careful about reading each piece of memory that is shared with the renderer only once. Since it can change it anytime, this can lead to security bugs. In this case, SkFlattenable::NameToFactory will do multiple reads on |name| during the lookup right?",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
