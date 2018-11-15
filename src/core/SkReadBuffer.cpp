@@ -142,14 +142,23 @@ bool SkReadBuffer::readPad32(void* buffer, size_t bytes) {
     return false;
 }
 
+const char* SkReadBuffer::readString(size_t* len) {
+    *len = this->readUInt();
+
+    // The string is len characters and a terminating \0.
+    const char* c_str = this->skipT<char>(*len+1);
+
+    if (this->validate(c_str && c_str[*len] == '\0')) {
+        return c_str;
+    }
+    return nullptr;
+}
+
 void SkReadBuffer::readString(SkString* string) {
-    const size_t len = this->readUInt();
-    // skip over the string + '\0'
-    if (const char* src = this->skipT<char>(len + 1)) {
-        if (this->validate(src[len] == 0)) {
-            string->set(src, len);
-            return;
-        }
+    size_t len;
+    if (const char* c_str = this->readString(&len)) {
+        string->set(c_str, len);
+        return;
     }
     string->reset();
 }
@@ -387,10 +396,9 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     } else {
         if (this->peekByte()) {
             // If the first byte is non-zero, the flattenable is specified by a string.
-            SkString name;
-            this->readString(&name);
-
-            factory = SkFlattenable::NameToFactory(name.c_str());
+            size_t ignored_length;
+            const char* name = this->readString(&ignored_length);
+            factory = SkFlattenable::NameToFactory(name);
             fFlattenableDict.set(fFlattenableDict.count() + 1, factory);
         } else {
             // Read the index.  We are guaranteed that the first byte
