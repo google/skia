@@ -12,8 +12,8 @@
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "GrVertexWriter.h"
 #include "SkMatrixPriv.h"
-#include "SkPointPriv.h"
 #include "SkRegion.h"
 
 static const int kVertsPerInstance = 4;
@@ -25,30 +25,6 @@ static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
     return GrDefaultGeoProcFactory::Make(shaderCaps, Color::kPremulGrColorAttribute_Type,
                                          Coverage::kSolid_Type, LocalCoords::kUsePosition_Type,
                                          viewMatrix);
-}
-
-static void tesselate_region(intptr_t vertices,
-                             size_t vertexStride,
-                             GrColor color,
-                             const SkRegion& region) {
-    SkRegion::Iterator iter(region);
-
-    intptr_t verts = vertices;
-    while (!iter.done()) {
-        SkRect rect = SkRect::Make(iter.rect());
-        SkPoint* position = (SkPoint*)verts;
-        SkPointPriv::SetRectTriStrip(position, rect, vertexStride);
-
-        static const int kColorOffset = sizeof(SkPoint);
-        GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);
-        for (int i = 0; i < kVertsPerInstance; i++) {
-            *vertColor = color;
-            vertColor = (GrColor*)((intptr_t)vertColor + vertexStride);
-        }
-
-        verts += vertexStride * kVertsPerInstance;
-        iter.next();
-    }
 }
 
 namespace {
@@ -119,7 +95,6 @@ private:
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
         }
-        size_t kVertexStride = gp->vertexStride();
 
         int numRegions = fRegions.count();
         int numRects = 0;
@@ -131,21 +106,24 @@ private:
             return;
         }
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
-                             kVertsPerInstance, kIndicesPerInstance, numRects);
-        void* vertices = helper.vertices();
-        if (!vertices || !indexBuffer) {
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
+                             indexBuffer.get(), kVertsPerInstance, kIndicesPerInstance, numRects);
+        GrVertexWriter vertices{helper.vertices()};
+        if (!vertices.fPtr || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < numRegions; i++) {
             // TODO4F: Preserve float colors
-            tesselate_region(verts, kVertexStride, fRegions[i].fColor.toBytes_RGBA(),
-                             fRegions[i].fRegion);
-            int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
-            verts += numRectsInRegion * kVertsPerInstance * kVertexStride;
+            GrColor color = fRegions[i].fColor.toBytes_RGBA();
+
+            SkRegion::Iterator iter(fRegions[i].fRegion);
+            while (!iter.done()) {
+                SkRect rect = SkRect::Make(iter.rect());
+                vertices.writeQuad(GrVertexWriter::TriStrip{ rect }, color);
+                iter.next();
+            }
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);

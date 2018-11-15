@@ -126,22 +126,6 @@ public:
     static void SetRectTriStrip(SkPoint v[], const SkRect& rect, size_t stride) {
         SetRectTriStrip(v, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, stride);
     }
-
-    // Get the idx'th point in a TriStrip (as above). Meant for use with GrVertexWriter
-    static SkPoint TriStripPoint(int idx, const float* ltrb) {
-        switch (idx) {
-            case 0: return { ltrb[0], ltrb[1] };
-            case 1: return { ltrb[0], ltrb[3] };
-            case 2: return { ltrb[2], ltrb[1] };
-            case 3: return { ltrb[2], ltrb[3] };
-        }
-        SkDEBUGFAIL("Invalid index");
-        return { ltrb[0], ltrb[1] };
-    }
-
-    static SkPoint TriStripPoint(int idx, const SkRect& r) {
-        return TriStripPoint(idx, r.asScalars());
-    }
 };
 
 #endif
