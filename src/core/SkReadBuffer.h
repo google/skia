@@ -94,7 +94,6 @@ public:
     // peek
     uint8_t peekByte();
 
-    // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string);
 
     // common data structures
@@ -201,6 +200,8 @@ public:
     SkFilterQuality checkFilterQuality();
 
 private:
+    const char* readString(size_t* length);
+
     void setInvalid();
     bool readArray(void* value, size_t size, size_t elementSize);
     void setMemory(const void*, size_t);
