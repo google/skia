@@ -13,9 +13,7 @@
     current state (e.g. fBitmap, fInvMatrix, etc.)
 
     fShaderProc32
-    fShaderProc16
     fMatrixProc
-    fSampleProc32
     fSampleProc32
  */
 

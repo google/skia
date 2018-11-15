@@ -161,7 +161,6 @@ bool SkBitmapProcState::chooseProcs() {
     fAlphaScale = SkAlpha255To256(SkColorGetA(fPaintColor));
 
     fShaderProc32 = nullptr;
-    fShaderProc16 = nullptr;
     fSampleProc32 = nullptr;
 
     const bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
