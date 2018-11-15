@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53ff25b5_cc916e27",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-15T15:31:22Z",
+      "side": 1,
+      "message": "I think this may be the only place this is called. If so can it just be inlined here, and the call removed?",
+      "range": {
+        "startLine": 207,
+        "startChar": 33,
+        "endLine": 207,
+        "endChar": 76
+      },
+      "revId": "804ffe3e9693040361365fa55598e8b5ad50c066",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
