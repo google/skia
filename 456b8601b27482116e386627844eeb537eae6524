@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45b97784_69c5823c",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-15T21:06:41Z",
+      "side": 1,
+      "message": "nit: align these again?",
+      "range": {
+        "startLine": 401,
+        "startChar": 29,
+        "endLine": 401,
+        "endChar": 46
+      },
+      "revId": "456b8601b27482116e386627844eeb537eae6524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09b62aa8_fcf1e49d",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-15T21:06:41Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 455,
+        "startChar": 32,
+        "endLine": 455,
+        "endChar": 49
+      },
+      "revId": "456b8601b27482116e386627844eeb537eae6524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ed7df27_bf467aa5",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-15T21:06:41Z",
+      "side": 1,
+      "message": "Add an assert (static or otherwise) that GrQuadType fits in 2 bits?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 35
+      },
+      "revId": "456b8601b27482116e386627844eeb537eae6524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
