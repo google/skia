@@ -334,7 +334,7 @@ void Sk3DView::restore() {
     fRec = next;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
     // the camera location is passed in inches, set in pt
     SkScalar lz = z * 72.0f;
@@ -344,15 +344,15 @@ void Sk3DView::setCameraLocation(SkScalar x, SkScalar y, SkScalar z) {
 
 }
 
-SkScalar Sk3DView::getCameraLocationX() {
+SkScalar Sk3DView::getCameraLocationX() const {
     return fCamera.fLocation.fX / 72.0f;
 }
 
-SkScalar Sk3DView::getCameraLocationY() {
+SkScalar Sk3DView::getCameraLocationY() const {
     return fCamera.fLocation.fY / 72.0f;
 }
 
-SkScalar Sk3DView::getCameraLocationZ() {
+SkScalar Sk3DView::getCameraLocationZ() const {
     return fCamera.fLocation.fZ / 72.0f;
 }
 #endif

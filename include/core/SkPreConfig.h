@@ -42,15 +42,6 @@
 
 #endif
 
-/* Even if the user only defined the framework variant we still need to build
- * the default (NDK-compliant) Android code. Therefore, when attempting to
- * include/exclude something from the framework variant check first that we are
- * building for Android then check the status of the framework define.
- */
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && !defined(SK_BUILD_FOR_ANDROID)
-    #define SK_BUILD_FOR_ANDROID
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_WIN

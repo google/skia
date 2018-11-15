@@ -26,6 +26,7 @@ declare_args() {
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_fixed_gamma_text = is_android
   skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
@@ -171,7 +172,7 @@ config("skia_private") {
   ]
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
-  if (is_android) {
+  if (skia_use_fixed_gamma_text) {
     defines += [
       "SK_GAMMA_EXPONENT=1.4",
       "SK_GAMMA_CONTRAST=0.0",
