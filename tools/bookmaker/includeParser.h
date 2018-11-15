@@ -36,6 +36,10 @@ public:
         kYes,
     };
 
+    enum class Suggest {
+        kMethodMissing,
+    };
+
     struct CheckCode {
         enum class State {
             kNone,
@@ -107,6 +111,8 @@ public:
     void checkForMissingParams(const vector<string>& methodParams,
                                const vector<string>& foundParams);
     bool checkForWord();
+    void checkTokens(list<Definition>& tokens, string key, string className,
+            RootDefinition* root, BmhParser& bmhParser);
     string className() const;
 
     string codeBlock(const Definition& def, bool inProgress) const {
@@ -261,6 +267,7 @@ public:
         fInCharCommentString = fInChar || fInComment || fInString;
     }
 
+    void suggestFix(Suggest suggest, const Definition& iDef, const RootDefinition* root);
     Bracket topBracket() const;
 
     template <typename T>
