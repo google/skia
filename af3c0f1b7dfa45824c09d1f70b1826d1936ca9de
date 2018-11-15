@@ -94,6 +94,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d521fa25_8610eb5f",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-11-15T22:07:06Z",
+      "side": 1,
+      "message": "\u003e Oh phew.  Ok.  So why do you think you want to read each piece of memory shared with the renderer only once?  There isn\u0027t any way for the memory pointed to by name to change within this stack frame, right?  No other threads or processes writing to it?\n\nThe issue is not whether any other process should be writing to it at this point in code, its that an untrusted process has access to it so it can. The memory passed to SkReadBuffer is shared memory coming from the renderer. A well behaved renderer should not modify it, but a compromised one could change the value between subsequent reads done during the factory lookup in SkFlattenable::NameToFactory.\n\n\u003e \n\u003e It\u0027s not like there\u0027s even a real 1:1 relationship between the number of times you mention a variable in C and the number of times that memory is read anyway...\n\nYeah, at least in cc code we mark this memory as volatile for this reason. We should probably change the skia API so we don\u0027t cast it away at this point (https://cs.chromium.org/chromium/src/cc/paint/paint_op_reader.cc?q\u003dpaint_op_rea\u0026sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d129).",
+      "parentUuid": "2ed25393_027b5afc",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
