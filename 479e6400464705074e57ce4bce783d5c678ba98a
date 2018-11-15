@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d4f559b_b88d517a",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-11-15T21:33:47Z",
+      "side": 1,
+      "message": "do we have to guard the include as well?",
+      "revId": "479e6400464705074e57ce4bce783d5c678ba98a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
