@@ -253,13 +253,7 @@ SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding en
     const SkFont& font = canon.getFont();
     SkScalar scale = canon.getScale();
 
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
-                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
-                         SkMatrix::I(), &ad, &effects);
-    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
 
     const char* text = static_cast<const char*>(textD);
     const char* stop = text + length;
@@ -312,14 +306,7 @@ void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], Sk
         scale = 1;
     }
 
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
-                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
-                                                                     SkMatrix::I(), &ad, &effects);
-    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
-
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
     auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(kGlyphID_SkTextEncoding, nullptr != bounds);
 
     const char* text = reinterpret_cast<const char*>(glyphs);
@@ -340,13 +327,7 @@ void SkFont::getPaths(const uint16_t glyphs[], int count,
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
 
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
-                         SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
-                         SkMatrix::I(), &ad, &effects);
-    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
-    auto exclusive = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+    auto exclusive = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
     auto cache = exclusive.get();
 
     for (int i = 0; i < count; ++i) {
@@ -387,18 +368,9 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
         metrics = &storage;
     }
 
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    *metrics = cache->getFontMetrics();
 
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(font,
-             SkSurfaceProps(0, kUnknown_SkPixelGeometry), SkScalerContextFlags::kNone,
-             SkMatrix::I(), &ad, &effects);
-
-    {
-        auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
-        *metrics = cache->getFontMetrics();
-    }
     if (scale) {
         SkPaintPriv::ScaleFontMetrics(metrics, scale);
     }
