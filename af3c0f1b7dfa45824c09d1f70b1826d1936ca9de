@@ -118,6 +118,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75bdef34_65be6217",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-15T23:32:42Z",
+      "side": 1,
+      "message": "No way, volatile does not help you here, and if an untrusted process is able to change this buffer while it\u0027s being read in a trusted process, I think I\u0027m back to the position that I\u0027d like you to excise Skia completely from any cross-process communication you\u0027re doing.",
+      "parentUuid": "d521fa25_8610eb5f",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
