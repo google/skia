@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec17e50e_a697720b",
+        "filename": "experimental/canvaskit/interface.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-15T00:02:28Z",
+      "side": 1,
+      "message": "Just to be consistent, I\u0027m going to make this throw a string, not an error.  This sort of \"error throwing\" will likely be tweaked to only happen in debug builds, but that\u0027s a future thing.",
+      "range": {
+        "startLine": 171,
+        "startChar": 12,
+        "endLine": 171,
+        "endChar": 22
+      },
+      "revId": "9175ca50a3f925d6461517d9cc109047ee0b7516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
