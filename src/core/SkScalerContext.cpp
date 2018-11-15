@@ -1126,16 +1126,6 @@ SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
                                                 deviceMatrix, ad, effects);
 }
 
-SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingDefaultPaint(
-    const SkFont& font, const SkSurfaceProps& surfaceProps,
-    SkScalerContextFlags scalerContextFlags,
-    const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
-    SkScalerContextEffects* effects)
-{
-    return CreateDescriptorAndEffectsUsingPaint(font, SkPaint(), surfaceProps, scalerContextFlags,
-                                                deviceMatrix, ad, effects);
-}
-
 static size_t calculate_size_and_flatten(const SkScalerContextRec& rec,
                                          const SkScalerContextEffects& effects,
                                          SkBinaryWriteBuffer* effectBuffer) {

@@ -9,6 +9,7 @@
 
 #include <cctype>
 
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkGlyphRunPainter.h"
 #include "SkGraphics.h"
@@ -198,6 +199,16 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(cons
     return FindOrCreateStrikeExclusive(
             paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
             kFakeGammaAndBoostContrast, SkMatrix::I());
+}
+
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font) {
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font,
+                                      SkPaint(), SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                      SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
+    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
 }
 
 void SkStrikeCache::PurgeAll() {
