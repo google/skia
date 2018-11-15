@@ -68,8 +68,7 @@ public:
 
         // add varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
+        GrGLSLVarying texIdx(kFloat_GrSLType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, &st);
@@ -231,8 +230,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType };
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
@@ -345,8 +343,7 @@ public:
                                                           &atlasSizeInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
+        GrGLSLVarying texIdx(kFloat_GrSLType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfPathEffect.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, &st);
@@ -523,8 +520,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
 
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
@@ -648,8 +644,7 @@ public:
 
         // set up varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
+        GrGLSLVarying texIdx(kFloat_GrSLType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, &st);
@@ -843,8 +838,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numProxies) {
