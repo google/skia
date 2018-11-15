@@ -12,6 +12,10 @@
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #include "SkAndroidFrameworkUtils.h"
+#endif
+
 static void copy(void* dst, const uint8_t* src, int width, int bpp, int deltaSrc, int offset,
         const SkPMColor ctable[]) {
     // This function must not be called if we are sampling.  If we are not
@@ -1206,6 +1210,9 @@ int SkSwizzler::onSetSampleX(int sampleX) {
         const size_t dstSwizzleBytes   = fSwizzleWidth   * fDstBPP;
         const size_t dstAllocatedBytes = fAllocatedWidth * fDstBPP;
         if (fDstOffsetBytes + dstSwizzleBytes > dstAllocatedBytes) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+            SkAndroidFrameworkUtils::SafetyNetLog("118143775");
+#endif
             SkASSERT(dstSwizzleBytes < dstAllocatedBytes);
             fDstOffsetBytes = dstAllocatedBytes - dstSwizzleBytes;
         }
