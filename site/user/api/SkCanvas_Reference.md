@@ -19,11 +19,11 @@ public:
     explicit <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkBaseDevice'>SkBaseDevice</a>> <a href='undocumented#Device'>device</a>);
     explicit <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#Bitmap'>bitmap</a>);
 
-    enum class <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> {
+    enum class ColorBehavior {
         kLegacy,
     };
 
-    <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> behavior);
+    <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, ColorBehavior behavior);
     <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& props);
     virtual ~<a href='#SkCanvas_empty_constructor'>SkCanvas()</a>;
     <a href='undocumented#SkMetaData'>SkMetaData</a>& <a href='#SkCanvas_getMetaData'>getMetaData</a>();
@@ -51,9 +51,9 @@ public:
     enum <a href='#SkCanvas_SaveLayerFlagsSet'>SaveLayerFlagsSet</a> {
         <a href='#SkCanvas_kPreserveLCDText_SaveLayerFlag'>kPreserveLCDText_SaveLayerFlag</a> = 1 << 1,
         <a href='#SkCanvas_kInitWithPrevious_SaveLayerFlag'>kInitWithPrevious_SaveLayerFlag</a> = 1 << 2,
-        <a href='#SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag'>kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag</a> =
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
                                           1 << 3,
-        <a href='#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag'>kDontClipToLayer_Legacy_SaveLayerFlag</a> =
+        kDontClipToLayer_Legacy_SaveLayerFlag =
            kDontClipToLayer_PrivateSaveLayerFlag,
     };
 
@@ -90,14 +90,14 @@ public:
     void <a href='#SkCanvas_clipRect'>clipRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias);
     void <a href='#SkCanvas_clipRect'>clipRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, <a href='undocumented#SkClipOp'>SkClipOp</a> op);
     void <a href='#SkCanvas_clipRect'>clipRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>, bool doAntiAlias = false);
-    void <a href='#SkCanvas_androidFramework_setDeviceClipRestriction'>androidFramework_setDeviceClipRestriction</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>);
+    void androidFramework_setDeviceClipRestriction(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>);
     void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias);
     void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, <a href='undocumented#SkClipOp'>SkClipOp</a> op);
     void <a href='#SkCanvas_clipRRect'>clipRRect</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& rrect, bool doAntiAlias = false);
     void <a href='#SkCanvas_clipPath'>clipPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, <a href='undocumented#SkClipOp'>SkClipOp</a> op, bool doAntiAlias);
     void <a href='#SkCanvas_clipPath'>clipPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, <a href='undocumented#SkClipOp'>SkClipOp</a> op);
     void <a href='#SkCanvas_clipPath'>clipPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool doAntiAlias = false);
-    void <a href='#SkCanvas_setAllowSimplifyClip'>setAllowSimplifyClip</a>(bool allow);
+    void setAllowSimplifyClip(bool allow);
     void <a href='#SkCanvas_clipRegion'>clipRegion</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& deviceRgn, <a href='undocumented#SkClipOp'>SkClipOp</a> op = <a href='undocumented#SkClipOp'>SkClipOp</a>::<a href='#SkClipOp_kIntersect'>kIntersect</a>);
     bool <a href='#SkCanvas_quickReject'>quickReject</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
     bool <a href='#SkCanvas_quickReject'>quickReject</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>) const;
@@ -196,23 +196,23 @@ public:
     void <a href='#SkCanvas_drawImageLattice'>drawImageLattice</a>(const <a href='SkImage_Reference#SkImage'>SkImage</a>* <a href='SkImage_Reference#Image'>image</a>, const <a href='#SkCanvas_Lattice'>Lattice</a>& lattice, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dst,
                           const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a> = nullptr);
 
-    enum <a href='#SkCanvas_QuadAAFlags'>QuadAAFlags</a> : unsigned {
-        <a href='#SkCanvas_kLeft_QuadAAFlag'>kLeft_QuadAAFlag</a> = 0b0001,
-        <a href='#SkCanvas_kTop_QuadAAFlag'>kTop_QuadAAFlag</a> = 0b0010,
-        <a href='#SkCanvas_kRight_QuadAAFlag'>kRight_QuadAAFlag</a> = 0b0100,
-        <a href='#SkCanvas_kBottom_QuadAAFlag'>kBottom_QuadAAFlag</a> = 0b1000,
-        <a href='#SkCanvas_kNone_QuadAAFlags'>kNone_QuadAAFlags</a> = 0b0000,
-        <a href='#SkCanvas_kAll_QuadAAFlags'>kAll_QuadAAFlags</a> = 0b1111,
+    enum QuadAAFlags : unsigned {
+        kLeft_QuadAAFlag = 0b0001,
+        kTop_QuadAAFlag = 0b0010,
+        kRight_QuadAAFlag = 0b0100,
+        kBottom_QuadAAFlag = 0b1000,
+        kNone_QuadAAFlags = 0b0000,
+        kAll_QuadAAFlags = 0b1111,
     };
 
-    struct <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> {
+    struct ImageSetEntry {
         <a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>> fImage;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fSrcRect;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fDstRect;
         unsigned fAAFlags;
     };
 
-    void <a href='#SkCanvas_experimental_DrawImageSetV0'>experimental_DrawImageSetV0</a>(const <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> imageSet[], int cnt, float <a href='SkColor_Reference#Alpha'>alpha</a>,
+    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float <a href='SkColor_Reference#Alpha'>alpha</a>,
                                      <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void <a href='#SkCanvas_drawText'>drawText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                   const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
@@ -519,16 +519,6 @@ canvas is empty
 
 <a href='#SkCanvas_MakeRasterDirect'>MakeRasterDirect</a> <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a> <a href='undocumented#SkPixelGeometry'>SkPixelGeometry</a> <a href='undocumented#SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>
 
-<a name='SkCanvas_copy_SkBaseDevice'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-explicit <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkBaseDevice'>SkBaseDevice</a>&gt; <a href='undocumented#Device'>device</a>)
-</pre>
-
-To be deprecated soon.
-
 <a name='SkCanvas_copy_const_SkBitmap'></a>
 
 ---
@@ -584,57 +574,6 @@ storage of  <a href='undocumented#Raster_Surface'>raster surface</a>
 ### See Also
 
 <a href='#SkCanvas_MakeRasterDirect'>MakeRasterDirect</a> <a href='undocumented#SkRasterHandleAllocator'>SkRasterHandleAllocator</a>::<a href='#SkRasterHandleAllocator_MakeCanvas'>MakeCanvas</a> <a href='SkSurface_Reference#SkSurface'>SkSurface</a>::<a href='#SkSurface_getCanvas'>getCanvas</a> <a href='undocumented#SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>
-
-<a name='SkCanvas_ColorBehavior'></a>
-
----
-
-Private: Android framework only.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum class <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> {
-        <a href='#SkCanvas_ColorBehavior_kLegacy'>kLegacy</a>,
-    };
-</pre>
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ColorBehavior_kLegacy'><code>SkCanvas::ColorBehavior::kLegacy</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Is a placeholder to allow specialized constructor; has no meaning.
-</td>
-  </tr>
-</table>
-
-<a name='SkCanvas_const_SkBitmap'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>(const <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a>& <a href='SkBitmap_Reference#Bitmap'>bitmap</a>, <a href='#SkCanvas_ColorBehavior'>ColorBehavior</a> behavior)
-</pre>
-
-For use by Android framework only.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkCanvas_const_SkBitmap_bitmap'><code><strong>bitmap</strong></code></a></td>
-    <td>specifies a <a href='#SkCanvas_const_SkBitmap_bitmap'>bitmap</a> for the <a href='SkCanvas_Reference#Canvas'>canvas</a> to draw into</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_const_SkBitmap_behavior'><code><strong>behavior</strong></code></a></td>
-    <td>specializes this constructor; value is unused</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> that can be used to draw into <a href='#SkCanvas_const_SkBitmap_bitmap'>bitmap</a>
 
 <a name='SkCanvas_const_SkBitmap_const_SkSurfaceProps'></a>
 
@@ -844,7 +783,7 @@ operations are never deferred.
 
 ### See Also
 
-<a href='#SkCanvas_peekPixels'>peekPixels</a> <a href='SkSurface_Reference#SkSurface'>SkSurface</a>::<a href='#SkSurface_flush'>flush</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_flush'>flush</a> <a href='SkSurface_Reference#SkSurface'>SkSurface</a>::<a href='#SkSurface_prepareForExternalIO'>prepareForExternalIO</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_abandonContext'>abandonContext</a>
+<a href='#SkCanvas_peekPixels'>peekPixels</a> <a href='SkSurface_Reference#SkSurface'>SkSurface</a>::<a href='#SkSurface_flush'>flush</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_flush'>flush</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_abandonContext'>abandonContext</a>
 
 <a name='SkCanvas_getBaseLayerSize'></a>
 
@@ -1867,9 +1806,9 @@ depth of saved stack
     enum <a href='#SkCanvas_SaveLayerFlagsSet'>SaveLayerFlagsSet</a> {
         <a href='#SkCanvas_kPreserveLCDText_SaveLayerFlag'>kPreserveLCDText_SaveLayerFlag</a> = 1 << 1,
         <a href='#SkCanvas_kInitWithPrevious_SaveLayerFlag'>kInitWithPrevious_SaveLayerFlag</a> = 1 << 2,
-        <a href='#SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag'>kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag</a> =
+        kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
                                           1 << 3,
-        <a href='#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag'>kDontClipToLayer_Legacy_SaveLayerFlag</a> =
+        kDontClipToLayer_Legacy_SaveLayerFlag =
            kDontClipToLayer_PrivateSaveLayerFlag,
     };
 </pre>
@@ -1901,22 +1840,6 @@ Creates <a href='SkCanvas_Reference#Layer'>Layer</a> for  <a href='SkPaint_Refer
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Initializes <a href='SkCanvas_Reference#Layer'>Layer</a> with the contents of the previous <a href='SkCanvas_Reference#Layer'>Layer</a>.
-</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag'><code>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Experimental. Do not use.
-
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag'><code>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x80000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-To be deprecated soon.
-
 </td>
   </tr>
 </table>
@@ -2145,59 +2068,6 @@ rec1 == rec2
 ~~~~
 
 </fiddle-embed></div>
-
-### See Also
-
-<a href='#SkCanvas_save'>save</a> <a href='#SkCanvas_restore'>restore</a> <a href='#SkCanvas_saveLayer'>saveLayer</a> <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a> <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a>
-
-<a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>, const <a href='undocumented#SkImageFilter'>SkImageFilter</a>* backdrop,
-             const <a href='SkImage_Reference#SkImage'>SkImage</a>* clipMask, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* clipMatrix, <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a> saveLayerFlags)
-</pre>
-
-Experimental. Not ready for general use.
-
-Sets <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>, <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>, <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>, <a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a>, <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a>, and <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>.
-<a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMatrix'>clipMatrix</a> uses <a href='#Color_Alpha'>Color_Alpha</a> channel of <a href='SkImage_Reference#Image'>image</a>, transformed by <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMatrix'>clipMatrix</a>, to clip
-<a href='SkCanvas_Reference#Layer'>Layer</a> when drawn to <a href='SkCanvas_Reference#Canvas'>Canvas</a>.
-
-Implementation is not complete; has no effect if <a href='undocumented#Device'>Device</a> is GPU-backed.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_bounds'><code><strong>bounds</strong></code></a></td>
-    <td><a href='SkCanvas_Reference#Layer'>Layer</a> dimensions; may be nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_paint'><code><strong>paint</strong></code></a></td>
-    <td>graphics state applied to <a href='SkCanvas_Reference#Layer'>Layer</a> when overlaying prior
-<a href='SkCanvas_Reference#Layer'>Layer</a>; may be nullptr
-</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_backdrop'><code><strong>backdrop</strong></code></a></td>
-    <td>prior <a href='SkCanvas_Reference#Layer'>Layer</a> copied with <a href='#Image_Filter'>Image_Filter</a>;
-may be nullptr
-</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMask'><code><strong>clipMask</strong></code></a></td>
-    <td>clip applied to <a href='SkCanvas_Reference#Layer'>Layer</a>; may be nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMatrix'><code><strong>clipMatrix</strong></code></a></td>
-    <td><a href='SkMatrix_Reference#Matrix'>matrix</a> applied to <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMask'>clipMask</a>; may be nullptr to use
-identity <a href='SkMatrix_Reference#Matrix'>matrix </a>
-</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_saveLayerFlags'><code><strong>saveLayerFlags</strong></code></a></td>
-    <td><a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a> options to modify <a href='SkCanvas_Reference#Layer'>Layer</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a> fully specified
 
 ### See Also
 
@@ -2676,30 +2546,6 @@ visible as a thin pair of <a href='undocumented#Line'>lines</a> through the righ
 
 <a href='#SkCanvas_clipRRect'>clipRRect</a> <a href='#SkCanvas_clipPath'>clipPath</a> <a href='#SkCanvas_clipRegion'>clipRegion</a>
 
-<a name='SkCanvas_androidFramework_setDeviceClipRestriction'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_androidFramework_setDeviceClipRestriction'>androidFramework_setDeviceClipRestriction</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>)
-</pre>
-
-Sets the maximum clip rectangle, which can be set by <a href='#SkCanvas_clipRect'>clipRect</a>, <a href='#SkCanvas_clipRRect'>clipRRect</a> and
-<a href='#SkCanvas_clipPath'>clipPath</a> and intersect the current clip with the specified <a href='#SkCanvas_androidFramework_setDeviceClipRestriction_rect'>rect</a>.
-The maximum clip affects only future clipping operations; it is not retroactive.
-The clip restriction is not recorded in <a href='SkPicture_Reference#Picture'>pictures</a>.
-
-Pass an empty <a href='#SkCanvas_androidFramework_setDeviceClipRestriction_rect'>rect</a> to disable maximum clip.
-
-Private: This private API is for use by Android framework only.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkCanvas_androidFramework_setDeviceClipRestriction_rect'><code><strong>rect</strong></code></a></td>
-    <td>maximum allowed clip in <a href='undocumented#Device'>device</a> coordinates</td>
-  </tr>
-#
-
 <a name='SkCanvas_clipRRect'></a>
 
 ---
@@ -2906,18 +2752,6 @@ is set to <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_kWindin
 ### See Also
 
 <a href='#SkCanvas_clipRect'>clipRect</a> <a href='#SkCanvas_clipRRect'>clipRRect</a> <a href='#SkCanvas_clipRegion'>clipRegion</a>
-
-<a name='SkCanvas_setAllowSimplifyClip'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_setAllowSimplifyClip'>setAllowSimplifyClip</a>(bool allow)
-</pre>
-
-Experimental. For testing only.
-
-Set to simplify clip stack using <a href='undocumented#PathOps'>PathOps</a>.
 
 <a name='SkCanvas_clipRegion'></a>
 
@@ -3275,7 +3109,7 @@ any cached <a href='undocumented#Data'>data</a> is deleted when owning <a href='
 
 ### See Also
 
-<a href='#SkCanvas_flush'>flush()</a> <a href='SkSurface_Reference#SkSurface'>SkSurface</a>::<a href='#SkSurface_prepareForExternalIO'>prepareForExternalIO</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_abandonContext'>abandonContext</a>
+<a href='#SkCanvas_flush'>flush()</a> <a href='undocumented#GrContext'>GrContext</a>::<a href='#GrContext_abandonContext'>abandonContext</a>
 
 <a name='SkCanvas_drawPaint'></a>
 
@@ -5129,144 +4963,6 @@ are scaled if needed to take up the remaining space; the center is transparent.
 ### See Also
 
 <a href='#SkCanvas_drawBitmapLattice'>drawBitmapLattice</a> <a href='#SkCanvas_drawImage'>drawImage</a> <a href='#SkCanvas_drawImageNine'>drawImageNine</a> <a href='#SkCanvas_Lattice'>Lattice</a>
-
-<a name='SkCanvas_QuadAAFlags'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkCanvas_QuadAAFlags'>QuadAAFlags</a> : unsigned {
-        <a href='#SkCanvas_kLeft_QuadAAFlag'>kLeft_QuadAAFlag</a> = 0b0001,
-        <a href='#SkCanvas_kTop_QuadAAFlag'>kTop_QuadAAFlag</a> = 0b0010,
-        <a href='#SkCanvas_kRight_QuadAAFlag'>kRight_QuadAAFlag</a> = 0b0100,
-        <a href='#SkCanvas_kBottom_QuadAAFlag'>kBottom_QuadAAFlag</a> = 0b1000,
-        <a href='#SkCanvas_kNone_QuadAAFlags'>kNone_QuadAAFlags</a> = 0b0000,
-        <a href='#SkCanvas_kAll_QuadAAFlags'>kAll_QuadAAFlags</a> = 0b1111,
-    };
-</pre>
-
-Private: Do not use.
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kLeft_QuadAAFlag'><code>SkCanvas::kLeft_QuadAAFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias the left edge</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kTop_QuadAAFlag'><code>SkCanvas::kTop_QuadAAFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias the top edge</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kRight_QuadAAFlag'><code>SkCanvas::kRight_QuadAAFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias the right edge</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kBottom_QuadAAFlag'><code>SkCanvas::kBottom_QuadAAFlag</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias the bottom edge</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kNone_QuadAAFlags'><code>SkCanvas::kNone_QuadAAFlags</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias none of the edges</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kAll_QuadAAFlags'><code>SkCanvas::kAll_QuadAAFlags</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>15</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialias all of the edges</td>
-  </tr>
-</table>
-
-<a name='SkCanvas_ImageSetEntry'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    struct <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> {
-        <a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkCanvas_ImageSetEntry_fImage'>fImage</a>;
-        <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkCanvas_ImageSetEntry_fSrcRect'>fSrcRect</a>;
-        <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkCanvas_ImageSetEntry_fDstRect'>fDstRect</a>;
-        unsigned <a href='#SkCanvas_ImageSetEntry_fAAFlags'>fAAFlags</a>;
-
-    };
-</pre>
-
-Private: Do not use.<table style='border-collapse: collapse; width: 62.5em'>
-
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Type</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Member</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkImage*</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fImage'><code>fImage</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-image to draw</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkRect</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fSrcRect'><code>fSrcRect</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-image src rectangle</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>SkRect</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fDstRect'><code>fDstRect</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-local space rectangle</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>unsigned</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_ImageSetEntry_fAAFlags'><code>fAAFlags</code></a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-antialiasing flags</td>
-  </tr>
-</table>
-
-<a name='SkCanvas_experimental_DrawImageSetV0'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_experimental_DrawImageSetV0'>experimental_DrawImageSetV0</a>(const <a href='#SkCanvas_ImageSetEntry'>ImageSetEntry</a> imageSet[], int cnt, float <a href='SkColor_Reference#Alpha'>alpha</a>,
-                                 <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode) ;
-</pre>
-
-Private: Do not use.
-
-Draws a set of images. Do not use this method.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_imageSet'><code><strong>imageSet</strong></code></a></td>
-    <td>images</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_cnt'><code><strong>cnt</strong></code></a></td>
-    <td>number of images</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_alpha'><code><strong>alpha</strong></code></a></td>
-    <td><a href='SkColor_Reference#Alpha'>alpha</a></td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_quality'><code><strong>quality</strong></code></a></td>
-    <td>filter quality</td>
-  </tr>
-  <tr>    <td><a name='SkCanvas_experimental_DrawImageSetV0_mode'><code><strong>mode</strong></code></a></td>
-    <td>blend mode</td>
-  </tr>
-</table>
 
 <a name='Draw_Text'></a>
 

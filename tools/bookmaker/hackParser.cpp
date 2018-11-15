@@ -73,10 +73,7 @@ void HackParser::replaceWithPop(const Definition* root) {
                         || MarkType::kFormula == def->fMarkType
                         || MarkType::kAnchor == def->fMarkType
                         || MarkType::kList == def->fMarkType
-                        || MarkType::kTable == def->fMarkType
-                        || MarkType::kDeprecated == def->fMarkType
-                        || MarkType::kExperimental == def->fMarkType
-                        || MarkType::kPrivate == def->fMarkType;
+                        || MarkType::kTable == def->fMarkType;
                 } )) {
             continue;
         }

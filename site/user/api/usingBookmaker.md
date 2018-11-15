@@ -85,22 +85,9 @@ To fix this, edit the docs file corresponding to the changed include file.
 For instance, if the change was made to <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, edit docs/SkIRect_Reference.bmh.
 Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
 
-If the interface is deprecated, but still present in the interface, mark-up the
-documentation to be deprecated as well.
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Method void someMethodThatIsNowDeprecated()
-#Deprecated
-##
-</pre>
-
-Use
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#Deprecated soon
-</pre>
-
-if the change is soon to be deprecated.
+If the interface is deprecated, private, or experimental, documentation is not
+required. Put the word "Deprecated", "Private", or "Experimental"; upper or lower
+case, in a comment just before the symbol to be ignored.
 
 If
 <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:

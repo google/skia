@@ -75,14 +75,8 @@ string MdOut::anchorDef(string str, string name) {
         if (!std::any_of(allDefs.begin(), allDefs.end(),
                 [str](AnchorDef compare) { return compare.fDef == str; } )) {
             MarkType markType = fLastDef->fMarkType;
-            if (MarkType::kMethod == markType
-                    && std::any_of(fLastDef->fChildren.begin(), fLastDef->fChildren.end(),
-                    [](const Definition* compare) {
-                    return IncompleteAllowed(compare->fMarkType); } )) {
-                markType = MarkType::kDeprecated;
-            }
             if (MarkType::kMethod == markType && fLastDef->fClone) {
-                markType = MarkType::kDeprecated;  // TODO: hack to allow missing reference
+                SkASSERT(0);  // incomplete
             }
             allDefs.push_back( { str, markType } );
         }
@@ -581,7 +575,7 @@ void MdOut::DefinedState::setLink() {
                 && fGlobals->fRefMap.end() != fGlobals->fRefMap.find(fWord + ' ');
         if (!withSpace && (Resolvable::kInclude == fResolvable ? !fInMatrix :
                 '"' != fPriorSeparator.back() || '"' != fSeparator.back())) {
-            SkDebugf("fWord %s not found\n", fWord.c_str());
+            SkDebugf("word %s not found\n", fWord.c_str());
             fBmhParser->fGlobalNames.fRefMap[fWord] = nullptr;
         }
     }
@@ -601,6 +595,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd, Resolvable
             break;
         }
         s.fWord = string(start, s.fEnd - start);
+        if ("TODO" == s.fWord) {
+            while('\n' != *s.fEnd++)
+                ;
+            start = s.fEnd;
+            continue;
+        }
         s.setLower();
         if (s.setPriorSpaceWord(&start)) {
             continue;
@@ -767,8 +767,7 @@ void MdOut::checkAnchors() {
                 break;
             }
             if (allRefsEnded || (!allDefsEnded && allDefsIter->fDef < *allRefsIter)) {
-                if (MarkType::kParam != allDefsIter->fMarkType
-                        && !IncompleteAllowed(allDefsIter->fMarkType)) {
+                if (MarkType::kParam != allDefsIter->fMarkType) {
                     // If undocumented but parent or child is referred to: good enough for now
                     bool goodEnough = false;
                     if ("undocumented" == defIter->first) {
@@ -845,9 +844,6 @@ bool MdOut::checkParamReturnBody(const Definition* def) {
 }
 
 void MdOut::childrenOut(Definition* def, const char* start) {
-    if (MarkType::kDeprecated == def->fMarkType || MarkType::kExperimental == def->fMarkType) {
-        return;
-    }
     const char* end;
     fLineCount = def->fLineCount;
     if (MarkType::kEnumClass == def->fMarkType) {
@@ -1376,11 +1372,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             FPRINTF("%s", out_table_data_description_start().c_str()); // start of Description
             this->lfAlways(1);
         } break;
-        case MarkType::kDeprecated:
-            this->writeString(def->fParent->incompleteMessage(
-                    Definition::DetailsType::kSentence).c_str());
-            this->lf(2);
-            break;
         case MarkType::kDescription:
             fInDescription = true;
             this->writePending();
@@ -1436,11 +1427,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 fLiteralAndIndent = true;
             }
             } break;
-        case MarkType::kExperimental:
-            this->writeString(def->fParent->incompleteMessage(
-                    Definition::DetailsType::kSentence).c_str());
-            this->lf(2);
-            break;
         case MarkType::kExternal:
             break;
         case MarkType::kFile:
@@ -1522,17 +1508,12 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(2);
             fTableState = TableState::kNone;
             fMethod = def;
-            if ("SkTextBlobBuilder::allocRun_2" == def->fName) {
-                SkDebugf("");
-            }
             Definition* iMethod = fIncludeParser.findMethod(*def);
             if (iMethod) {
                 fMethod = iMethod;
                 paramMap.fParent = &fBmhParser.fGlobalNames;
                 paramMap.setParams(def, iMethod);
                 fNames = &paramMap;
-            } else {
-                SkDebugf("");
             }
             } break;
         case MarkType::kNoExample:
@@ -1721,12 +1702,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 }
             }
             } break;
-        case MarkType::kPrivate:
-            this->writeString("Private:");
-            this->writeSpace();
-            this->writeBlock(def->length(), def->fContentStart);
-            this->lf(2);
-            break;
         case MarkType::kReturn:
             this->returnHeaderOut(prior, def);
             break;
@@ -1971,8 +1946,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(2);
             break;
         case MarkType::kPhraseDef:
-            break;
-        case MarkType::kPrivate:
             break;
         case MarkType::kSubtopic:
             SkASSERT(def);
@@ -2375,9 +2348,6 @@ void MdOut::subtopicOut(string key, const vector<Definition*>& data, const Defin
         items[entryName] = entry;
     }
     for (auto entry : items) {
-        if (entry.second->fDeprecated) {
-            continue;
-        }
         if (!this->subtopicRowOut(entry.first, entry.second)) {
             return;
         }

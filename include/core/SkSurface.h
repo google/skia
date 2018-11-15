@@ -412,8 +412,7 @@ public:
     /** Notifies that SkSurface contents will be changed by code outside of Skia.
         Subsequent calls to generationID() return a different value.
 
-        mode is normally passed as kRetain_ContentChangeMode.
-        Can we deprecate this?
+        TODO: Can kRetain_ContentChangeMode be deprecated?
 
         @param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode
     */
@@ -647,7 +646,7 @@ public:
     */
     const SkSurfaceProps& props() const { return fProps; }
 
-    /** To be deprecated soon.
+    /** Deprecated.
     */
     void prepareForExternalIO();
 

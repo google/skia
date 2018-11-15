@@ -654,7 +654,7 @@ public:
     */
     bool installPixels(const SkPixmap& pixmap);
 
-    /** To be deprecated soon.
+    /** Deprecated.
     */
     bool installMaskPixels(const SkMask& mask);
 

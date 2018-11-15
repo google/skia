@@ -1539,12 +1539,6 @@ Draw a five by five bitmap, and draw it again with a center white pixel.
 ##
 
 # ------------------------------------------------------------------------------
-
-#Method bool installMaskPixels(const SkMask& mask)
-#Deprecated soon
-##
-
-# ------------------------------------------------------------------------------
 #Subtopic Pixels
 #Line # read and write pixel values ##
 ##
@@ -1947,12 +1941,6 @@ erase id 6
 
 #SeeAlso eraseColor eraseARGB SkCanvas::drawRect
 
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void eraseArea(const SkIRect& area, SkColor c) const
-#Deprecated
 ##
 
 # ------------------------------------------------------------------------------

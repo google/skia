@@ -200,7 +200,7 @@ public:
     uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>() const;
     bool <a href='#SkPath_isValid'>isValid</a>() const;
     bool <a href='#SkPath_isValid'>isValid</a>() const;
-    bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const;
+    bool pathRefIsValid() const;
 };
 </pre>
 
@@ -4996,16 +4996,6 @@ array dimensions.
 ### Return Value
 
 true if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'>data</a> is consistent
-
-<a name='SkPath_pathRefIsValid'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const
-</pre>
-
-To be deprecated soon.
 
 <a name='SkPath_Iter'></a>
 

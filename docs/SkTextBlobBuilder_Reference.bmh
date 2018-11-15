@@ -196,27 +196,6 @@ const SkRect* bounds = nullptr)
 
 #Method ##
 
-# ------------------------------------------------------------------------------
-
-#Method const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
-                                  const SkRect* bounds = nullptr)
-#Deprecated
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method const RunBuffer& allocRunPos(const SkPaint& font, int count,
-                                 const SkRect* bounds = nullptr)
-#Deprecated
-#Method ##
-
 #Class SkTextBlobBuilder ##
 
 #Topic Text_Blob_Builder ##

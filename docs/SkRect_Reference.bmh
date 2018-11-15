@@ -639,14 +639,7 @@ test with NaN is not equal to itself
 
 #In As_Points
 #Line # returns four corners as Point ##
-Returns four points in quad that enclose Rect ordered as: top-left, top-right,
-bottom-right, bottom-left.
-
-#Private
-Consider adding param to control whether quad is clockwise or counterclockwise.
-##
-
-#Param quad  storage for corners of Rect ##
+#Populate
 
 #Example
     SkRect rect = {1, 2, 3, 4};

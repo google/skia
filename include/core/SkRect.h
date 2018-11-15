@@ -934,7 +934,8 @@ struct SK_API SkRect {
 
     /** Returns four points in quad that enclose SkRect ordered as: top-left, top-right,
         bottom-right, bottom-left.
-        Consider adding param to control whether quad is clockwise or counterclockwise.
+
+        TODO: Consider adding parameter to control whether quad is clockwise or counterclockwise.
 
         @param quad  storage for corners of SkRect
     */

@@ -606,16 +606,7 @@ If a snapshot has been generated, this copies the Surface contents.
 #Method void notifyContentWillChange(ContentChangeMode mode)
 #In Miscellaneous
 #Line # notifies that contents will be changed outside of Skia ##
-Notifies that Surface contents will be changed by code outside of Skia.
-Subsequent calls to generationID return a different value.
-
-mode is normally passed as kRetain_ContentChangeMode.
-
-#Private
-Can we deprecate this?
-##
-
-#Param mode  one of: kDiscard_ContentChangeMode, kRetain_ContentChangeMode ##
+#Populate
 
 #Example
     auto surface = SkSurface::MakeRasterN32Premul(1, 1);
@@ -663,16 +654,6 @@ Caller may write to the back-end object.
 #Const kDiscardWrite_BackendHandleAccess 2
 #Line # back-end object must be overwritten ##
 Caller must overwrite the entire back-end object.
-##
-
-#Const kFlushRead_TextureHandleAccess 0
-#Deprecated
-##
-#Const kFlushWrite_TextureHandleAccess 1
-#Deprecated
-##
-#Const kDiscardWrite_TextureHandleAccess 2
-#Deprecated
 ##
 
 #NoExample
@@ -1141,12 +1122,6 @@ surf.props(): kRGB_H_SkPixelGeometry
 
 #SeeAlso SkSurfaceProps
 
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method void prepareForExternalIO()
-#Deprecated soon
 #Method ##
 
 # ------------------------------------------------------------------------------

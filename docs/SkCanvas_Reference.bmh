@@ -189,12 +189,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method explicit SkCanvas(sk_sp<SkBaseDevice> device)
-#Deprecated soon
-##
-
-# ------------------------------------------------------------------------------
-
 #Method explicit SkCanvas(const SkBitmap& bitmap)
 
 #Line # uses existing Bitmap ##
@@ -241,30 +235,6 @@ The actual output depends on the installed fonts.
 
 #SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
 
-##
-
-#EnumClass ColorBehavior
-#Line # exists for Android framework only ##
-#Private
-Android framework only.
-##
-
-#Code
-#Populate
-##
-#Const kLegacy 0
-#Line # placeholder ##
-    Is a placeholder to allow specialized constructor; has no meaning.
-##
-##
-
-#Method SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)
-
-#Line # exists for Android framework only ##
-#Populate
-
-#NoExample
-##
 ##
 
 # ------------------------------------------------------------------------------
@@ -446,7 +416,7 @@ void draw(SkCanvas* canvas) {
 #NoExample
 ##
 
-#SeeAlso peekPixels SkSurface::flush GrContext::flush SkSurface::prepareForExternalIO GrContext::abandonContext
+#SeeAlso peekPixels SkSurface::flush GrContext::flush GrContext::abandonContext
 
 ##
 
@@ -1374,14 +1344,6 @@ kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
   Initializes Layer with the contents of the previous Layer.
 ##
 
-#Const kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag 8
-#Experimental  do not use
-##
-
-#Const kDontClipToLayer_Legacy_SaveLayerFlag 0x80000000
-#Deprecated soon
-##
-
 #Example
 #Height 160
 #Description
@@ -1545,37 +1507,6 @@ void draw(SkCanvas* canvas) {
         rec1 == rec2
     ##
 ##
-
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
-
-##
-
-#Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
-                     const SkImage* clipMask, const SkMatrix* clipMatrix,
-                     SaveLayerFlags saveLayerFlags)
-
-#Experimental  not ready
-
-Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
-clipMatrix uses Color_Alpha channel of image, transformed by clipMatrix, to clip
-Layer when drawn to Canvas.
-
-Implementation is not complete; has no effect if Device is GPU-backed.
-
-#Param bounds          Layer dimensions; may be nullptr ##
-#Param paint           graphics state applied to Layer when overlaying prior
-                       Layer; may be nullptr
-##
-#Param backdrop        prior Layer copied with Image_Filter;
-                       may be nullptr
-##
-#Param clipMask        clip applied to Layer; may be nullptr ##
-#Param clipMatrix      matrix applied to clipMask; may be nullptr to use
-                       identity matrix
-##
-#Param saveLayerFlags  SaveLayerRec options to modify Layer ##
-
-#Return                SaveLayerRec fully specified ##
 
 #SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
@@ -2025,26 +1956,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Method void androidFramework_setDeviceClipRestriction(const SkIRect& rect)
-
-#In Clip
-#Line # exists for use by Android framework ##
-Sets the maximum clip rectangle, which can be set by clipRect, clipRRect and
-clipPath and intersect the current clip with the specified rect.
-The maximum clip affects only future clipping operations; it is not retroactive.
-The clip restriction is not recorded in pictures.
-
-Pass an empty rect to disable maximum clip.
-
-#Private
-This private API is for use by Android framework only.
-##
-
-#Param  rect   maximum allowed clip in device coordinates
-#Param ##
-
-##
-
 #Method void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias)
 
 #In Clip
@@ -2209,17 +2120,6 @@ void draw(SkCanvas* canvas) {
 ##
 
 #SeeAlso clipRect clipRRect clipRegion
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void setAllowSimplifyClip(bool allow)
-
-#In Clip
-#Experimental  testing
-
-Set to simplify clip stack using PathOps.
 
 ##
 
@@ -2520,7 +2420,7 @@ void draw(SkCanvas* canvas) {
 #NoExample
 ##
 
-#SeeAlso flush() SkSurface::prepareForExternalIO GrContext::abandonContext
+#SeeAlso flush() GrContext::abandonContext
 
 ##
 
@@ -4011,104 +3911,6 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Subtopic Lattice ##
-
-# ------------------------------------------------------------------------------
-
-#Enum QuadAAFlags
-#Line # do not use this ##
-#Code
-#Populate
-##
-
-#Private
-Do not use.
-##
-
-#Const kLeft_QuadAAFlag 1
-#Line # antialias the left edge ##
-##
-
-#Const kTop_QuadAAFlag 2
-#Line # antialias the top edge ##
-##
-
-#Const kRight_QuadAAFlag 4
-#Line # antialias the right edge ##
-##
-
-#Const kBottom_QuadAAFlag 8
-#Line # antialias the bottom edge ##
-##
-
-#Const kNone_QuadAAFlags 0
-#Line # antialias none of the edges ##
-##
-
-#Const kAll_QuadAAFlags 15
-#Line # antialias all of the edges ##
-##
-
-#NoExample
-##
-##
-
-# ------------------------------------------------------------------------------
-
-#Struct ImageSetEntry
-#Line # do not use this ##
-
-#Code
-#Populate
-##
-
-#Private
-Do not use.
-##
-
-#Member SkImage* fImage
-#Line # image to draw ##
-##
-
-#Member SkRect   fSrcRect
-#Line # image src rectangle ##
-##
-
-#Member SkRect   fDstRect
-#Line # local space rectangle ##
-##
-
-#Member unsigned fAAFlags
-#Line # antialiasing flags ##
-##
-
-#NoExample
-##
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
-                                         SkFilterQuality quality, SkBlendMode mode);
-#Private
-Do not use.
-##
-#In Draw_Image
-#In Draw
-#Line # draws a set a of images; do not call this ##
-
-Draws a set of images. Do not use this method.
-
-#Param  imageSet   images ##
-#Param  cnt        number of images ##
-#Param  alpha      alpha ##
-#Param  quality    filter quality ##
-#Param  mode       blend mode ##
-
-#NoExample
-##
-
-##
 
 #Subtopic Draw_Image ##
 

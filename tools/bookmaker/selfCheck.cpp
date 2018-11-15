@@ -79,8 +79,8 @@ protected:
             // only check methods for now
             return;
         }
-        bool containsMarkTypeIn = csChild->fDeprecated  // no markup for deprecated
-                || Definition::MethodType::kConstructor == csChild->fMethodType
+        bool containsMarkTypeIn =
+                   Definition::MethodType::kConstructor == csChild->fMethodType
                 || Definition::MethodType::kDestructor == csChild->fMethodType
                 || Definition::MethodType::kOperator == csChild->fMethodType
                 || csChild->fClone;
