@@ -683,18 +683,16 @@ optional("pdf") {
   public_defines = [ "SK_SUPPORT_PDF" ]
 
   deps = [
+    "//third_party/harfbuzz",
+    "//third_party/icu",
     "//third_party/zlib",
   ]
   if (skia_use_libjpeg_turbo) {
     deps += [ ":jpeg" ]
   }
+  defines = [ "SK_PDF_USE_HARFBUZZ_SUBSET" ]
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
-
-  if (skia_use_sfntly) {
-    deps += [ "//third_party/sfntly" ]
-    public_defines += [ "SK_PDF_USE_SFNTLY" ]
-  }
 }
 
 optional("png") {
