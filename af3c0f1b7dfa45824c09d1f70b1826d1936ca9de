@@ -70,6 +70,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed25393_027b5afc",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-15T20:00:56Z",
+      "side": 1,
+      "message": "Oh phew.  Ok.  So why do you think you want to read each piece of memory shared with the renderer only once?  There isn\u0027t any way for the memory pointed to by name to change within this stack frame, right?  No other threads or processes writing to it?\n\nIt\u0027s not like there\u0027s even a real 1:1 relationship between the number of times you mention a variable in C and the number of times that memory is read anyway...",
+      "parentUuid": "5c83eafa_9405f248",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
