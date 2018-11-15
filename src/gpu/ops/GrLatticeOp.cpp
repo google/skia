@@ -16,7 +16,6 @@
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
-#include "SkPointPriv.h"
 #include "SkRect.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -251,17 +250,15 @@ private:
                     coords = kFlipMuls * coords + kFlipOffsets;
                     domain = SkNx_shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
                 }
-                float texDomain[4];
-                float texCoords[4];
-                domain.store(texDomain);
-                coords.store(texCoords);
+                SkRect texDomain;
+                SkRect texCoords;
+                domain.store(&texDomain);
+                coords.store(&texCoords);
 
-                for (int j = 0; j < kVertsPerRect; ++j) {
-                    vertices.write(SkPointPriv::TriStripPoint(j, dstR),
-                                   SkPointPriv::TriStripPoint(j, texCoords),
+                vertices.writeQuad(GrVertexWriter::TriStrip{ dstR },
+                                   GrVertexWriter::TriStrip{ texCoords },
                                    texDomain,
                                    patchColor);
-                }
             }
 
             // If we didn't handle it above, apply the matrix here.
