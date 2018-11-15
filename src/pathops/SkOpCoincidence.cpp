@@ -851,7 +851,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                 const SkOpPtT* oce = outer->coinPtTEnd();
                 FAIL_IF(oce->deleted());
                 const SkOpPtT* ioe = inner->oppPtTEnd();
-                SkASSERT(!ioe->deleted());
+                FAIL_IF(ioe->deleted());
                 if (outerOpp != innerCoin && this->overlap(ocs, oce, ios, ioe, &overS, &overE)) {
                     FAIL_IF(!this->addIfMissing(ocs->starter(oce), ios->starter(ioe),
                             overS, overE, outerOppWritable, innerCoinWritable, added
