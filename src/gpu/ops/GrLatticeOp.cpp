@@ -12,6 +12,7 @@
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "GrVertexWriter.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
@@ -25,13 +26,6 @@ namespace {
 
 class LatticeGP : public GrGeometryProcessor {
 public:
-    struct Vertex {
-        SkPoint fPosition;
-        SkPoint fTextureCoords;
-        SkRect fTextureDomain;
-        GrColor fColor;
-    };
-
     static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* proxy,
                                            sk_sp<GrColorSpaceXform> csxf,
                                            GrSamplerState::Filter filter) {
@@ -206,8 +200,6 @@ private:
             return;
         }
 
-        size_t kVertexStride = gp->vertexStride();
-
         int patchCnt = fPatches.count();
         int numRects = 0;
         for (int i = 0; i < patchCnt; i++) {
@@ -218,18 +210,19 @@ private:
             return;
         }
 
+        const size_t kVertexStride = gp->vertexStride();
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
                              kVertsPerRect, kIndicesPerRect, numRects);
-        void* vertices = helper.vertices();
-        if (!vertices || !indexBuffer) {
+        GrVertexWriter vertices{helper.vertices()};
+        if (!vertices.fPtr || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        intptr_t verts = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < patchCnt; i++) {
             const Patch& patch = fPatches[i];
+
             // TODO4F: Preserve float colors
             GrColor patchColor = patch.fColor.toBytes_RGBA();
 
@@ -242,15 +235,13 @@ private:
 
             SkIRect srcR;
             SkRect dstR;
-            intptr_t patchVerts = verts;
+            SkPoint* patchPositions = reinterpret_cast<SkPoint*>(vertices.fPtr);
             Sk4f scales(1.f / fProxy->width(), 1.f / fProxy->height(),
                         1.f / fProxy->width(), 1.f / fProxy->height());
             static const Sk4f kDomainOffsets(0.5f, 0.5f, -0.5f, -0.5f);
-            static const Sk4f kFlipOffsets(0.f, 1, 0.f, 1.f);
+            static const Sk4f kFlipOffsets(0.f, 1.f, 0.f, 1.f);
             static const Sk4f kFlipMuls(1.f, -1.f, 1.f, -1.f);
             while (patch.fIter->next(&srcR, &dstR)) {
-                auto vertices = reinterpret_cast<LatticeGP::Vertex*>(verts);
-                SkPointPriv::SetRectTriStrip(&vertices->fPosition, dstR, kVertexStride);
                 Sk4f coords(SkIntToScalar(srcR.fLeft), SkIntToScalar(srcR.fTop),
                             SkIntToScalar(srcR.fRight), SkIntToScalar(srcR.fBottom));
                 Sk4f domain = coords + kDomainOffsets;
@@ -260,22 +251,22 @@ private:
                     coords = kFlipMuls * coords + kFlipOffsets;
                     domain = SkNx_shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
                 }
-                SkPointPriv::SetRectTriStrip(&vertices->fTextureCoords, coords[0], coords[1],
-                                             coords[2], coords[3], kVertexStride);
-                for (int j = 0; j < kVertsPerRect; ++j) {
-                    vertices[j].fTextureDomain = {domain[0], domain[1], domain[2], domain[3]};
-                }
+                float texDomain[4];
+                float texCoords[4];
+                domain.store(texDomain);
+                coords.store(texCoords);
 
                 for (int j = 0; j < kVertsPerRect; ++j) {
-                    vertices[j].fColor = patchColor;
+                    vertices.write(SkPointPriv::TriStripPoint(j, dstR),
+                                   SkPointPriv::TriStripPoint(j, texCoords),
+                                   texDomain,
+                                   patchColor);
                 }
-                verts += kVertsPerRect * kVertexStride;
             }
 
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
-                SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, positions, kVertexStride,
+                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, patchPositions, kVertexStride,
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
