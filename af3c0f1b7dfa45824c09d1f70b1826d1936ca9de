@@ -46,6 +46,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c83eafa_9405f248",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-11-15T19:46:11Z",
+      "side": 1,
+      "message": "Oh no no. The renderer shouldn\u0027t be writing to it while the GPU is reading it, we obviously do have that synchronization. This is based on the assumption that the renderer could be compromised and not behave as expected.",
+      "parentUuid": "a839a72d_d110f73c",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
