@@ -104,7 +104,8 @@ public:
      * @return GrTexture object or NULL on failure.
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
-                                        GrWrapOwnership = kBorrow_GrWrapOwnership);
+                                        GrWrapOwnership = kBorrow_GrWrapOwnership,
+                                        bool purgeImmediately = false);
 
     /**
      * This makes the backend texture be renderable. If sampleCnt is > 1 and the underlying API

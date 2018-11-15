@@ -886,7 +886,7 @@ static bool check_backend_texture(const GrBackendTexture& backendTex,
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrWrapOwnership ownership) {
+                                               GrWrapOwnership ownership, bool purgeImmediately) {
     if (!check_backend_texture(backendTex, backendTex.config())) {
         return nullptr;
     }
@@ -904,7 +904,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
-    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, imageInfo, std::move(layout));
+    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, purgeImmediately,
+                                           imageInfo, std::move(layout));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,

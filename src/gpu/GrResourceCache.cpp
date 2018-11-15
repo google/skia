@@ -402,7 +402,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // We keep unbudgeted resources with a unique key in the purgable queue of the cache so they
         // can be reused again by the image connected to the unique key.
-        if (hasUniqueKey) {
+        if (hasUniqueKey && !resource->cacheAccess().shouldPurgeImmediately()) {
             return;
         }
         // Check whether this resource could still be used as a scratch resource.

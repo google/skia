@@ -30,6 +30,11 @@ private:
     }
 
     /**
+     * Even if the resource has a unique key should we still try to purge it as soon as possible.
+     */
+    bool shouldPurgeImmediately() const { return fResource->fShouldPurgeImmediately; }
+
+    /**
      * Called by the cache to delete the resource under normal circumstances.
      */
     void release() {
