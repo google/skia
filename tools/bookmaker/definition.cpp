@@ -185,11 +185,8 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     string className(fName, 0, doubleColons - 2);
     TextParser iParser(fFileName, fStart, fContentStart, fLineCount);
     SkAssertResult(iParser.skipWord("#Method"));
-    iParser.skipExact("SK_API");
     iParser.skipWhiteSpace();
     bool isStatic = iParser.skipExact("static");
-    iParser.skipWhiteSpace();
-    iParser.skipExact("SK_API");
     iParser.skipWhiteSpace();
     bool returnsConst = iParser.skipExact("const");
     if (returnsConst) {
