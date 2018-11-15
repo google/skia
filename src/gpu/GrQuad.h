@@ -24,9 +24,9 @@ enum class GrQuadAAFlags;
 //     ws() == all ones.
 //  3. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
 enum class GrQuadType {
-    kRect_QuadType,
-    kStandard_QuadType,
-    kPerspective_QuadType
+    kRect,
+    kStandard,
+    kPerspective
 };
 
 // If an SkRect is transformed by this matrix, what class of quad is required to represent it. Since
@@ -35,7 +35,7 @@ enum class GrQuadType {
 GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix);
 
 // Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
-// knownQuadType must have come from GrQuadtypeForTransformedRect with the matrix that created the
+// knownQuadType must have come from GrQuadTypeForTransformedRect with the matrix that created the
 // provided quad. Both outAAType and outEdgeFlags will be updated.
 template <typename Q>
 void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags,
