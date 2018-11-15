@@ -46,14 +46,12 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",        MarkType::kConst,        R_Y, E_O, M_E | M_CSST  }
 , { "Define",       MarkType::kDefine,       R_O, E_Y, M_ST }
-, { "Deprecated",   MarkType::kDeprecated,   R_Y, E_N, M_CS | M_MDCM | M_E }
 , { "Description",  MarkType::kDescription,  R_Y, E_N, M(Example) | M(NoExample) }
 , { "Details",      MarkType::kDetails,      R_N, E_N, M(Const) }
 , { "Duration",     MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",         MarkType::kEnum,         R_Y, E_O, M_CSST }
 , { "EnumClass",    MarkType::kEnumClass,    R_Y, E_O, M_CSST }
 , { "Example",      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M_MD | M(Const) }
-, { "Experimental", MarkType::kExperimental, R_Y, E_N, M_CS | M_MDCM | M_E }
 , { "External",     MarkType::kExternal,     R_Y, E_N, 0 }
 , { "File",         MarkType::kFile,         R_Y, E_N, M(Topic) }
 , { "Filter",       MarkType::kFilter,       R_N, E_N, M(Subtopic) | M(Code) }
@@ -81,7 +79,6 @@ BmhParser::MarkProps BmhParser::kMarkProps[] = {
 , { "",             MarkType::kPhraseRef,    R_N, E_N, 0 }
 , { "Platform",     MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Populate",     MarkType::kPopulate,     R_N, E_N, M(Code) | M(Method) }
-, { "Private",      MarkType::kPrivate,      R_N, E_N, M_CSST | M_MDCM | M_E }
 , { "Return",       MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",             MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
 , { "SeeAlso",      MarkType::kSeeAlso,      R_C, E_N, M_CSST | M_E | M_MD | M(Typedef) }
@@ -195,10 +192,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                      if (MarkType::kExample == child->fMarkType) {
                         hasExample = Exemplary::kYes;
                      }
-                     hasExcluder |= MarkType::kPrivate == child->fMarkType
-                            || MarkType::kDeprecated == child->fMarkType
-                            || MarkType::kExperimental == child->fMarkType
-                            || MarkType::kNoExample == child->fMarkType;
+                     hasExcluder |= MarkType::kNoExample == child->fMarkType;
                 }
                 if (kMarkProps[(int) markType].fExemplary != hasExample
                         && kMarkProps[(int) markType].fExemplary != Exemplary::kOptional) {
@@ -452,7 +446,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kFunction:
         case MarkType::kLegend:
         case MarkType::kList:
-        case MarkType::kPrivate:
         case MarkType::kTable:
             if (hasEnd) {
                 definition = fParent;
@@ -504,10 +497,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             // always treated as one-liners (can't detect misuse easily)
         case MarkType::kAnchor:
         case MarkType::kBug:
-        case MarkType::kDeprecated:
         case MarkType::kDetails:
         case MarkType::kDuration:
-        case MarkType::kExperimental:
         case MarkType::kFilter:
         case MarkType::kHeight:
         case MarkType::kIllustration:
@@ -542,20 +533,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 this->parseHashAnchor(definition);
 			} else if (MarkType::kLine == markType) {
                 this->parseHashLine(definition);
-			} else if (IncompleteAllowed(markType)) {
-                 this->skipSpace();
-                 fParent->fDeprecated = true;
-                 fParent->fDetails =
-                        this->skipExact("soon") ? Definition::Details::kSoonToBe_Deprecated :
-                        this->skipExact("testing") ? Definition::Details::kTestingOnly_Experiment :
-                        this->skipExact("do not use") ? Definition::Details::kDoNotUse_Experiment :
-                        this->skipExact("not ready") ? Definition::Details::kNotReady_Experiment :
-                        Definition::Details::kNone;
-                 this->skipSpace();
-                 if ('\n' != this->peek()) {
-                     return this->reportError<bool>("unexpected text after #Deprecated");
-                 }
-            }
+			}
             break;
         case MarkType::kExternal:
             (void) this->collectExternals();  // FIXME: detect errors in external defs?
@@ -2126,7 +2104,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kLegend:
         case MarkType::kList:
         case MarkType::kNoExample:
-        case MarkType::kPrivate:
             this->skipNoName();
             break;
         case MarkType::kFormula:
@@ -2136,10 +2113,8 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
-        case MarkType::kDeprecated:
         case MarkType::kDetails:
         case MarkType::kDuration:
-        case MarkType::kExperimental:
         case MarkType::kFile:
         case MarkType::kFilter:
         case MarkType::kHeight:
@@ -2244,11 +2219,7 @@ string BmhParser::uniqueName(string base, MarkType markType) {
         for (auto& iter : fParent->fChildren) {
             if (markType == iter->fMarkType) {
                 if (iter->fName == numBuilder) {
-                    if (iter->fDeprecated) {
-                        iter->fClone = true;
-                    } else {
-                        fCloned = true;
-                    }
+                    fCloned = true;
                     numBuilder = builder + '_' + to_string(number);
                     goto tryNext;
                 }
@@ -2301,14 +2272,8 @@ tryNext: ;
         }
         if (MarkType::kMethod == markType) {
             cloned->fCloned = true;
-            if (cloned->fDeprecated) {
-                cloned->fClone = true;
-            } else {
-                fCloned = true;
-            }
-        } else {
-            fCloned = true;
         }
+        fCloned = true;
         numBuilder = builder + '_' + to_string(number);
     } while (++number);
     return numBuilder;

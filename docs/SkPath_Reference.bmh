@@ -4350,10 +4350,6 @@ empty genID = 1
 
 ##
 
-#Method bool pathRefIsValid() const
-#Deprecated soon
-##
-
 # ------------------------------------------------------------------------------
 
 #Class Iter
