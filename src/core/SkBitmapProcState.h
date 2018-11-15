@@ -64,8 +64,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
 
-    typedef void (*ShaderProc16)(const void* ctx, int x, int y, uint16_t[], int count);
-
     typedef void (*MatrixProc)(const SkBitmapProcState&,
                                uint32_t bitmapXY[],
                                int count,
@@ -98,9 +96,7 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
         following fields:
 
         fShaderProc32
-        fShaderProc16
         fMatrixProc
-        fSampleProc32
         fSampleProc32
 
         They will already have valid function pointers, so a platform that does
@@ -123,7 +119,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     // If a shader proc is present, then the corresponding matrix/sample procs
     // are ignored
     ShaderProc32 getShaderProc32() const { return fShaderProc32; }
-    ShaderProc16 getShaderProc16() const { return fShaderProc16; }
 
 #ifdef SK_DEBUG
     MatrixProc getMatrixProc() const;
@@ -134,7 +129,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
 private:
     ShaderProc32        fShaderProc32;      // chooseProcs
-    ShaderProc16        fShaderProc16;      // chooseProcs
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
