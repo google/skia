@@ -76,14 +76,6 @@ static inline GrColor GrColorPackA4(unsigned a) {
 
 #define GrColor_WHITE 0xFFFFFFFF
 
-static inline GrColor GrColorMul(GrColor c0, GrColor c1) {
-    U8CPU r = SkMulDiv255Round(GrColorUnpackR(c0), GrColorUnpackR(c1));
-    U8CPU g = SkMulDiv255Round(GrColorUnpackG(c0), GrColorUnpackG(c1));
-    U8CPU b = SkMulDiv255Round(GrColorUnpackB(c0), GrColorUnpackB(c1));
-    U8CPU a = SkMulDiv255Round(GrColorUnpackA(c0), GrColorUnpackA(c1));
-    return GrColorPackRGBA(r, g, b, a);
-}
-
 /** Normalizes and coverts an uint8_t to a float. [0, 255] -> [0.0, 1.0] */
 static inline float GrNormalizeByteToFloat(uint8_t value) {
     static const float ONE_OVER_255 = 1.f / 255.f;
