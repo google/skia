@@ -286,7 +286,7 @@ public:
         return SkToBool(this->getFlags() & kAntiAlias_Flag);
     }
 
-    /** Requests, but does not require, that SkPath edge pixels draw opaque or with
+    /** Requests, but does not require, that edge pixels draw opaque or with
         partial transparency.
 
         Sets kAntiAlias_Flag if aa is true.
@@ -325,7 +325,8 @@ public:
         return SkToBool(this->getFlags() & kLinearText_Flag);
     }
 
-    /** Returns true if text is converted to SkPath before drawing and measuring.
+    /** Requests, but does not require, that glyphs are converted to SkPath
+        before drawing and measuring.
         By default, kLinearText_Flag is clear.
 
         Sets kLinearText_Flag if linearText is true.

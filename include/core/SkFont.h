@@ -18,12 +18,16 @@ struct SkFontMetrics;
 
 class SK_API SkFont {
 public:
+    /** Whether edge pixels draw opaque or with partial transparency.
+    */
     enum class Edging {
-        kAlias,
-        kAntiAlias,
-        kSubpixelAntiAlias,
+        kAlias,              //!< no transparent pixels on glyph edges
+        kAntiAlias,          //!< may have transparent pixels on glyph edges
+        kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
+    /** Amount of font hinting applied to glyph outlines.
+    */
     enum Hinting : uint8_t {
         kNo_Hinting     = 0, //!< glyph outlines unchanged
         kSlight_Hinting = 1, //!< minimal modification to improve constrast
@@ -31,44 +35,168 @@ public:
         kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
     };
 
-    SkFont();
-    SkFont(sk_sp<SkTypeface>, SkScalar size);
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX);
+    /** Constructs SkFont with default values.
 
+        @return  default initialized SkFont
+    */
+    SkFont();
+
+    /** Constructs SkFont with default values with SkTypeface and size in points.
+
+        @param typeface  font and style used to draw and measure text
+        @param size      typographic height of text
+
+        @return          initialized SkFont
+    */
+    SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
+
+
+    /** Constructs SkFont with default values with SkTypeface and size in points,
+        horizontal scale, and horizontal skew. Horizontal scale emulates condensed
+        and expanded fonts. Horizontal skew emulates oblique fonts.
+
+        @param typeface  font and style used to draw and measure text
+        @param size      typographic height of text
+        @param scaleX    text horizontal scale
+        @param skewX     additional shear on x-axis relative to y-axis
+
+        @return          initialized SkFont
+    */
+    SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
+
+    /** If true, instructs the font manager to always hint glyphs.
+        Returned value is only meaningful if platform uses FreeType as the font manager.
+
+        @return  true if all glyphs are hinted
+    */
     bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_PrivFlag); }
+
+    /** Returns true if font engine may return glyphs from font bitmaps instead of from outlines.
+
+        @return  true if glyphs may be font bitmaps
+    */
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
+
+    /** Returns true if glyphs at different sub-pixel positions may differ on pixel edge coverage.
+
+        @return  true if glyph positioned in pixel using transparency
+    */
     bool isSubpixel() const { return SkToBool(fFlags & kSubpixel_PrivFlag); }
+
+    /** Returns true if text is converted to SkPath before drawing and measuring.
+
+        @return  true glyph hints are never applied
+    */
     bool isLinearMetrics() const { return SkToBool(fFlags & kLinearMetrics_PrivFlag); }
+
+    /** Returns true if bold is approximated by increasing the stroke width when creating glyph
+        bitmaps from outlines.
+
+        @return  bold is approximated through stroke width
+    */
     bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_PrivFlag); }
 
-    void setForceAutoHinting(bool);
-    void setEmbeddedBitmaps(bool);
-    void setSubpixel(bool);
-    void setLinearMetrics(bool);
-    void setEmbolden(bool);
+    /** Sets whether to always hint glyphs.
+        If forceAutoHinting is set, instructs the font manager to always hint glyphs.
 
+        Only affects platforms that use FreeType as the font manager.
+
+        @param useAutohinter  setting to always hint glyphs
+    */
+    void setForceAutoHinting(bool forceAutoHinting);
+
+    /** Requests, but does not require, to use bitmaps in fonts instead of outlines.
+
+        @param useEmbeddedBitmapText  setting to use bitmaps in fonts
+    */
+    void setEmbeddedBitmaps(bool embeddedBitmaps);
+
+    /** Requests, but does not require, that glyphs respect sub-pixel positioning.
+
+        @param subpixelText  setting for sub-pixel positioning
+    */
+    void setSubpixel(bool subpixel);
+
+    /** Requests, but does not require, that glyphs are converted to SkPath
+        before drawing and measuring.
+
+        @param linearText  setting for converting glyphs to paths
+    */
+    void setLinearMetrics(bool linearMetrics);
+
+    /** Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
+
+        @param fakeBoldText  setting for bold approximation
+    */
+    void setEmbolden(bool embolden);
+
+    /** Whether edge pixels draw opaque or with partial transparency.
+
+        @return  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+    */
     Edging getEdging() const { return (Edging)fEdging; }
-    void setEdging(Edging);
 
+    /** Requests, but does not require, that edge pixels draw opaque or with
+        partial transparency.
+
+        @param edging  one of: Edging::kAlias, Edging::kAntiAlias, Edging::kSubpixelAntiAlias
+    */
+    void setEdging(Edging edging);
+
+    /** Sets level of glyph outline adjustment.
+        Does not check for valid values of hintingLevel.
+
+        @param hintingLevel  one of: SkFontHinting::kNone, SkFontHinting::kSlight,
+                                     SkFontHinting::kNormal, SkFontHinting::kFull
+    */
     void setHinting(SkFontHinting);
 
 #ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
+    /** Deprecated.
+    */
     Hinting getHinting() const { return (Hinting)fHinting; }
+
+    /** Deprecated.
+    */
     void setHinting(Hinting hinting) {
         this->setHinting((SkFontHinting)hinting);
     }
 #else
+    /** Returns level of glyph outline adjustment.
+
+        @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
+                         SkFontHinting::kFull
+     */
     SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
 #endif
 
-    /**
-     *  Return a font with the same attributes of this font, but with the specified size.
-     *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
+    /** Returns a font with the same attributes of this font, but with the specified size.
+        If size is less than zero or non-finite, nullptr will be returned.
+
+        @param size  typographic height of text
+
+        @return      initialized SkFont
      */
     SkFont makeWithSize(SkScalar size) const;
 
+    /** Returns SkTypeface if set, or nullptr.
+        Does not alter SkTypeface SkRefCnt.
+
+        @return  SkTypeface if previously set, nullptr otherwise
+    */
     SkTypeface* getTypeface() const { return fTypeface.get(); }
+
+    /** Returns text size in points.
+
+        @return  typographic height of text
+    */
     SkScalar    getSize() const { return fSize; }
+
+    /** Returns text scale on x-axis.
+        Default value is 1.
+
+        @return  text horizontal scale
+    */
     SkScalar    getScaleX() const { return fScaleX; }
     SkScalar    getSkewX() const { return fSkewX; }
 
