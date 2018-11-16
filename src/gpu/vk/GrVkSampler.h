@@ -24,6 +24,7 @@ public:
                                const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     VkSampler sampler() const { return fSampler; }
+    const VkSampler* samplerPtr() const { return &fSampler; }
 
     struct Key {
         Key(uint16_t samplerKey, const GrVkSamplerYcbcrConversion::Key& ycbcrKey) {
