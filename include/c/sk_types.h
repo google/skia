@@ -768,6 +768,9 @@ typedef struct {
     sk_string_t*        fProducer;
     sk_time_datetime_t* fCreation;
     sk_time_datetime_t* fModified;
+    float               fRasterDPI;
+    bool                fPDFA;
+    int                 fEncodingQuality;
 } sk_document_pdf_metadata_t;
 
 typedef enum {
