@@ -227,6 +227,7 @@ bool SkBitmapProcState::chooseProcs() {
 
 bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp) {
     SkASSERT(fPixmap.colorType() == kN32_SkColorType);
+    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
 
     fMatrixProc = this->chooseMatrixProc(trivialMatrix);
     // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns nullptr.
