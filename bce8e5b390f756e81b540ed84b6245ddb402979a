@@ -22,6 +22,30 @@
       "revId": "bce8e5b390f756e81b540ed84b6245ddb402979a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38288b32_e7aec085",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-16T15:04:09Z",
+      "side": 1,
+      "message": "Ugh. Yes, but... In the Ops where I\u0027m using this, the colors may really be unpremul, and we\u0027d incorrectly decide they\u0027re not normalized. Given that, probably better to leave this out of the public API (where it\u0027s going to be confusing or inconsistent), and just make a private helper function elsewhere.",
+      "parentUuid": "763b04f2_3c33512e",
+      "range": {
+        "startLine": 332,
+        "startChar": 35,
+        "endLine": 332,
+        "endChar": 39
+      },
+      "revId": "bce8e5b390f756e81b540ed84b6245ddb402979a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
