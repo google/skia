@@ -192,15 +192,14 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
         hairlineStroke.setStrokeStyle(0);
 
         // How transparent does a 1px stroke have to be in order to appear as thin as the real one?
-        GrColor coverageAsAlpha = GrColorPackA4(SkScalarFloorToInt(draw->fStrokeDevWidth * 255));
+        float coverage = draw->fStrokeDevWidth;
 
         draw->fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
         draw->fStrokeDevWidth = 1;
 
         // TODO4F: Preserve float colors
         // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
-        draw->fColor = SkPMColor4f::FromBytes_RGBA(
-                GrColorMul(draw->fColor.toBytes_RGBA(), coverageAsAlpha));
+        draw->fColor = draw->fColor * coverage;
     }
 
     return RequiresDstTexture(analysis.requiresDstTexture());
