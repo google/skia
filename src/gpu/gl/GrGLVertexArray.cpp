@@ -61,6 +61,8 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 1, GR_GL_UNSIGNED_BYTE};
         case kUByte4_norm_GrVertexAttribType:
             return {true, 4, GR_GL_UNSIGNED_BYTE};
+        case kByte4_norm_GrVertexAttribType:
+            return {true, 4, GR_GL_BYTE};
         case kShort2_GrVertexAttribType:
             return {false, 2, GR_GL_SHORT};
         case kShort4_GrVertexAttribType:

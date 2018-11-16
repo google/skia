@@ -725,6 +725,7 @@ enum GrVertexAttribType {
     kUByte_norm_GrVertexAttribType,  // unsigned byte, e.g. coverage, 0 -> 0.0f, 255 -> 1.0f.
     kUByte4_norm_GrVertexAttribType, // vector of 4 unsigned bytes, e.g. colors, 0 -> 0.0f,
                                      // 255 -> 1.0f.
+    kByte4_norm_GrVertexAttribType, // vector of 4 signed bytes, -128 -> -1, 127 -> +1.
 
     kShort2_GrVertexAttribType,       // vector of 2 16-bit shorts.
     kShort4_GrVertexAttribType,       // vector of 4 16-bit shorts.

@@ -129,7 +129,7 @@ public:
      * This analyzes the processors given an op's input color and coverage as well as a clip. The
      * state of the processor set may change to an equivalent but more optimal set of processors.
      * This new state requires that the caller respect the returned 'inputColorOverride'. This is
-     * indicated by the returned Analysis's inputColorIsOverriden(). 'inputColorOverride' will not
+     * indicated by the returned Analysis's inputColorIsOverridden(). 'inputColorOverride' will not
      * be written if the analysis does not override the input color.
      *
      * This must be called before the processor set is used to construct a GrPipeline and may only

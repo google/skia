@@ -127,6 +127,8 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
             return MTLVertexFormatUCharNormalized;
         case kUByte4_norm_GrVertexAttribType:
             return MTLVertexFormatUChar4Normalized;
+        case kByte4_norm_GrVertexAttribType:
+            return MTLVertexFormatChar4Normalized;
         case kShort2_GrVertexAttribType:
             return MTLVertexFormatShort2;
         case kShort4_GrVertexAttribType:
