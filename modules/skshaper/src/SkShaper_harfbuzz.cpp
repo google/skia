@@ -75,7 +75,14 @@ HBFont create_hb_font(SkTypeface* tf) {
         return nullptr;
     }
     int index;
-    HBBlob blob(stream_to_blob(std::unique_ptr<SkStreamAsset>(tf->openStream(&index))));
+    std::unique_ptr<SkStreamAsset> typefaceAsset(tf->openStream(&index));
+    if (!typefaceAsset) {
+        SkString name;
+        tf->getFamilyName(&name);
+        SkDebugf("Typeface '%s' has no data :(\n", name.c_str());
+        return nullptr;
+    }
+    HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
     HBFace face(hb_face_create(blob.get(), (unsigned)index));
     SkASSERT(face);
     if (!face) {
