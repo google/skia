@@ -494,7 +494,6 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
 
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
-    SkASSERT(fImpl->fHarfBuzzFont);
     fImpl->fBuffer.reset(hb_buffer_create());
     SkASSERT(fImpl->fBuffer);
 
@@ -523,6 +522,9 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
                         bool leftToRight,
                         SkPoint point,
                         SkScalar width) const {
+    if (!this->good()) {
+        return;
+    }
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
     SkASSERT(builder);
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
