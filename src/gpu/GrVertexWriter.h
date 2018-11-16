@@ -8,6 +8,7 @@
 #ifndef GrVertexWriter_DEFINED
 #define GrVertexWriter_DEFINED
 
+#include "GrQuad.h"
 #include "SkTemplates.h"
 #include <type_traits>
 
@@ -26,7 +27,10 @@ struct GrVertexWriter {
     template <typename T, typename... Args>
     void write(const T& val, const Args&... remainder) {
         static_assert(std::is_pod<T>::value, "");
-        static_assert(alignof(T) == 4, "");
+        // This assert is barely related to what we're trying to check - that our vertex data
+        // matches our attribute layouts, where each attribute is aligned to four bytes. If this
+        // becomes a problem, just remove it.
+        static_assert(alignof(T) <= 4, "");
         memcpy(fPtr, &val, sizeof(T));
         fPtr = SkTAddOffset<void>(fPtr, sizeof(T));
         this->write(remainder...);
@@ -35,7 +39,7 @@ struct GrVertexWriter {
     template <typename T, size_t N, typename... Args>
     void write(const T(&val)[N], const Args&... remainder) {
         static_assert(std::is_pod<T>::value, "");
-        static_assert(alignof(T) == 4, "");
+        static_assert(alignof(T) <= 4, "");
         memcpy(fPtr, val, N * sizeof(T));
         fPtr = SkTAddOffset<void>(fPtr, N * sizeof(T));
         this->write(remainder...);
@@ -54,7 +58,12 @@ struct GrVertexWriter {
      * - For any arguments of type TriStrip, a unique SkPoint will be written at each vertex,
      *   in this order: left-top, left-bottom, right-top, right-bottom.
      */
-    struct TriStrip { const SkRect& fRect; };
+    template <typename T>
+    struct TriStrip { T l, t, r, b; };
+
+    static TriStrip<float> TriStripFromRect(const SkRect& r) {
+        return { r.fLeft, r.fTop, r.fRight, r.fBottom };
+    }
 
     template <typename... Args>
     void writeQuad(const Args&... remainder) {
@@ -79,14 +88,19 @@ private:
         this->write(val);
     }
 
-    template <int corner>
-    void writeQuadValue(const TriStrip& r) {
+    template <int corner, typename T>
+    void writeQuadValue(const TriStrip<T>& r) {
         switch (corner) {
-            case 0: this->write(r.fRect.fLeft , r.fRect.fTop);    break;
-            case 1: this->write(r.fRect.fLeft , r.fRect.fBottom); break;
-            case 2: this->write(r.fRect.fRight, r.fRect.fTop);    break;
-            case 3: this->write(r.fRect.fRight, r.fRect.fBottom); break;
+            case 0: this->write(r.l, r.t); break;
+            case 1: this->write(r.l, r.b); break;
+            case 2: this->write(r.r, r.t); break;
+            case 3: this->write(r.r, r.b); break;
         }
+    }
+
+    template <int corner>
+    void writeQuadValue(const GrQuad& q) {
+        this->write(q.point(corner));
     }
 };
 
