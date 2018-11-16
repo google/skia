@@ -303,13 +303,15 @@ public:
     virtual bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
                                                 GrPixelConfig*) const = 0;
 
-#ifdef GR_TEST_UTILS
+    virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
+                                                            GrSRGBEncoded srgbEncoded) const = 0;
+    GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
+
     /**
      * Creates a GrBackendFormat which matches the backend texture. If the backend texture is
      * invalid, the function will return the default GrBackendFormat.
      */
     GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const;
-#endif
 
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
@@ -319,13 +321,11 @@ protected:
         expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
 
-#ifdef GR_TEST_UTILS
     /**
      * Subclasses implement this to actually create a GrBackendFormat to match backend texture. At
      * this point, the backend texture has already been validated.
      */
     virtual GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const = 0;
-#endif
 
     sk_sp<GrShaderCaps> fShaderCaps;
 

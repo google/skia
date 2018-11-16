@@ -20,21 +20,43 @@
 
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
-        , fValid(true) {
-    fGL.fTarget = target;
-    fGL.fFormat = format;
+        , fValid(true)
+        , fGLFormat(format) {
+    switch (target) {
+        case GR_GL_TEXTURE_2D:
+            fTextureType = GrTextureType::k2D;
+            break;
+        case GR_GL_TEXTURE_RECTANGLE:
+            fTextureType = GrTextureType::kRectangle;
+            break;
+        case GR_GL_TEXTURE_EXTERNAL:
+            fTextureType = GrTextureType::kExternal;
+            break;
+        default:
+            SK_ABORT("Unexpected texture target");
+    }
 }
 
 const GrGLenum* GrBackendFormat::getGLFormat() const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        return &fGL.fFormat;
+        return &fGLFormat;
     }
     return nullptr;
 }
 
 const GrGLenum* GrBackendFormat::getGLTarget() const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        return &fGL.fTarget;
+        static constexpr GrGLenum k2D = GR_GL_TEXTURE_2D;
+        static constexpr GrGLenum kRect = GR_GL_TEXTURE_RECTANGLE;
+        static constexpr GrGLenum kExternal = GR_GL_TEXTURE_EXTERNAL;
+        switch (fTextureType) {
+            case GrTextureType::k2D:
+                return &k2D;
+            case GrTextureType::kRectangle:
+                return &kRect;
+            case GrTextureType::kExternal:
+                return &kExternal;
+        }
     }
     return nullptr;
 }
@@ -44,9 +66,10 @@ GrBackendFormat::GrBackendFormat(VkFormat vkFormat)
 #ifdef SK_VULKAN
         , fValid(true)
 #else
-        ,fValid(false)
+        , fValid(false)
 #endif
-        , fVkFormat(vkFormat) {
+        , fVkFormat(vkFormat)
+        , fTextureType(GrTextureType::k2D) {
 }
 
 const VkFormat* GrBackendFormat::getVkFormat() const {
@@ -60,7 +83,8 @@ const VkFormat* GrBackendFormat::getVkFormat() const {
 GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
         : fBackend(GrBackendApi::kMetal)
         , fValid(true)
-        , fMtlFormat(mtlFormat) {
+        , fMtlFormat(mtlFormat)
+        , fTextureType(GrTextureType::k2D) {
 }
 
 const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
@@ -74,7 +98,8 @@ const GrMTLPixelFormat* GrBackendFormat::getMtlFormat() const {
 GrBackendFormat::GrBackendFormat(GrPixelConfig config)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
-        , fMockFormat(config) {
+        , fMockFormat(config)
+        , fTextureType(GrTextureType::k2D) {
 }
 
 const GrPixelConfig* GrBackendFormat::getMockFormat() const {
@@ -82,6 +107,14 @@ const GrPixelConfig* GrBackendFormat::getMockFormat() const {
         return &fMockFormat;
     }
     return nullptr;
+}
+
+GrBackendFormat GrBackendFormat::makeTexture2D() const {
+    // TODO: once we support ycbcr conversions in Vulkan we need to check if we are using an
+    // external format since they will not be able to be made into a Texture2D.
+    GrBackendFormat copy = *this;
+    copy.fTextureType = GrTextureType::k2D;
+    return copy;
 }
 
 GrBackendTexture::GrBackendTexture(int width,

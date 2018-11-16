@@ -377,7 +377,9 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input,
 
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, int widthHeight) {
     if (context) {
-        return SkSpecialSurface::MakeRenderTarget(context,
+        GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+        return SkSpecialSurface::MakeRenderTarget(context, format,
                                                   widthHeight, widthHeight,
                                                   kRGBA_8888_GrPixelConfig, nullptr);
     } else {

@@ -19,34 +19,35 @@
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
+                                                       const GrBackendFormat& format,
                                                        const GrSurfaceDesc& desc,
                                                        GrSurfaceOrigin origin,
                                                        GrMipMapped mipMapped,
-                                                       GrTextureType textureType,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrInternalSurfaceFlags surfaceFlags)
-        : GrSurfaceProxy(desc, origin, fit, budgeted, surfaceFlags)
+        : GrSurfaceProxy(format, desc, origin, fit, budgeted, surfaceFlags)
         // for now textures w/ data are always wrapped
-        , GrRenderTargetProxy(caps, desc, origin, fit, budgeted, surfaceFlags)
-        , GrTextureProxy(desc, origin, mipMapped, textureType, fit, budgeted, surfaceFlags) {}
+        , GrRenderTargetProxy(caps, format, desc, origin, fit, budgeted, surfaceFlags)
+        , GrTextureProxy(format, desc, origin, mipMapped, fit, budgeted, surfaceFlags) {}
 
 // Lazy-callback version
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&& callback,
                                                        LazyInstantiationType lazyType,
+                                                       const GrBackendFormat& format,
                                                        const GrSurfaceDesc& desc,
                                                        GrSurfaceOrigin origin,
                                                        GrMipMapped mipMapped,
-                                                       GrTextureType textureType,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrInternalSurfaceFlags surfaceFlags)
-        : GrSurfaceProxy(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
+        : GrSurfaceProxy(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
+                         surfaceFlags)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, desc, origin, fit, budgeted,
-                              surfaceFlags)
-        , GrTextureProxy(LazyInstantiateCallback(), lazyType, desc, origin, mipMapped, textureType,
+        , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, format, desc, origin, fit,
+                              budgeted, surfaceFlags)
+        , GrTextureProxy(LazyInstantiateCallback(), lazyType, format, desc, origin, mipMapped,
                          fit, budgeted, surfaceFlags) {}
 
 // Wrapped version

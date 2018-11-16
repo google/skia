@@ -90,6 +90,9 @@ public:
         return false;
     }
 
+    GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
+                                                    GrSRGBEncoded srgbEncoded) const override;
+
     bool performPartialClearsAsDraws() const override {
         return true;
     }
@@ -102,9 +105,7 @@ private:
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
 
-#ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
-#endif
 
     void initConfigTable();
 
