@@ -27,7 +27,6 @@
  SkXXX_Reference # ditto
  Skia           # ditto
  SK_ABORT       # ditto
- SK_API         # ditto
  SK_DEBUG       # ditto
  SK_RELEASE     # ditto
  SK_USE_FREETYPE_EMBOLDEN # ditto
@@ -189,8 +188,8 @@ FT_Load_Glyph
 ##
 
 #Topic Create_Color_Space_Xform_Canvas
-#Method std::unique_ptr<SkCanvas> SK_API SkCreateColorSpaceXformCanvas(SkCanvas* target,
-                                                                       sk_sp<SkColorSpace> targetCS)
+#Method std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
+                                                                sk_sp<SkColorSpace> targetCS)
 ##
 ##
 
@@ -217,7 +216,7 @@ FT_Load_Glyph
 ##
 
 #Topic Debugging
-#Method SK_API void SkDebugf(const char format[], ...)
+#Method void SkDebugf(const char format[], ...)
 ##
 ##
 
@@ -772,7 +771,7 @@ FT_Load_Glyph
 #Topic PathOps
     #Enum SkPathOp
     ##
-    #Method bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result)
+    #Method bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result)
     ##
 #Topic ##
 
