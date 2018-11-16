@@ -142,6 +142,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "682d451d_ff472e0b",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-11-16T00:17:05Z",
+      "side": 1,
+      "message": "\u003e No way, volatile does not help you here, and if an untrusted process is able to change this buffer while it\u0027s being read in a trusted process, I think I\u0027m back to the position that I\u0027d like you to excise Skia completely from any cross-process communication you\u0027re doing.\n\nThat will basically mean we copy anything passed to skia into local memory first. And that\u0027s a lot of allocation/copying for many data types (SkTextBlobs, SkPaths, SkFlattenables). We could maybe do something like use scratch buffers to avoid the reallocations but I don\u0027t follow why its difficult to have skia consider this deserialization a security boundary and structure it with that in mind. We had to do that for cc/paint deserialization, I\u0027m not following what\u0027s different about skia..?",
+      "parentUuid": "75bdef34_65be6217",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
