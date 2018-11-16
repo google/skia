@@ -45,8 +45,6 @@ sse2 = [
 ]
 
 ssse3 = [
-  "$_src/opts/SkBitmapProcState_opts_SSSE3.h",
-  "$_src/opts/SkBitmapProcState_opts_SSSE3.cpp",
   "$_src/opts/SkOpts_ssse3.cpp",
 ]
 
