@@ -276,7 +276,7 @@ private:
 
     class SubRun {
     public:
-        SubRun() = default;
+        explicit SubRun(Run* run) : fRun{run} {}
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -361,6 +361,7 @@ private:
             bool hasWCoord:1;
             bool needsTransform:1;
         } fFlags{false, false, false, false, false};
+        Run* const fRun;
     };  // SubRunInfo
 
 
@@ -388,10 +389,13 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        Run() : fPaintFlags(0)
-              , fInitialized(false) {
+        // the only flags we need to set
+        static constexpr auto kPaintFlagsMask = SkPaint::kAntiAlias_Flag;
+
+        explicit Run(GrTextBlob* blob)
+        : fBlob{blob} {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.push_back();
+            fSubRunInfo.emplace_back(this);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -441,25 +445,12 @@ private:
 
         SubRun& pushBackSubRun() {
             // Forward glyph / vertex information to seed the new sub run
-            SubRun& newSubRun = fSubRunInfo.push_back();
+            SubRun& newSubRun = fSubRunInfo.emplace_back(this);
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
 
             newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
-        sk_sp<SkTypeface> fTypeface;
-        SkSTArray<1, SubRun> fSubRunInfo;
-        SkAutoDescriptor fDescriptor;
-
-        // Effects from the paint that are used to build a SkScalerContext.
-        sk_sp<SkPathEffect> fPathEffect;
-        sk_sp<SkMaskFilter> fMaskFilter;
-
-        // Distance field text cannot draw coloremoji, and so has to fall back.  However,
-        // though the distance field text and the coloremoji may share the same run, they
-        // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
-        // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
 
         // Any glyphs that can't be rendered with the base or override descriptor
         // are rendered as paths
@@ -477,14 +468,27 @@ private:
             bool fPreTransformed;
         };
 
+
+        sk_sp<SkTypeface> fTypeface;
+        SkSTArray<1, SubRun> fSubRunInfo;
+        SkAutoDescriptor fDescriptor;
+
+        // Effects from the paint that are used to build a SkScalerContext.
+        sk_sp<SkPathEffect> fPathEffect;
+        sk_sp<SkMaskFilter> fMaskFilter;
+
+        // Distance field text cannot draw coloremoji, and so has to fall back.  However,
+        // though the distance field text and the coloremoji may share the same run, they
+        // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
+        // will be used in place of the run's descriptor to regen texture coords
+        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
+
         SkTArray<PathGlyph> fPathGlyphs;
 
-        struct {
-            unsigned fPaintFlags : 16;   // needed mainly for rendering paths
-            bool fInitialized : 1;
-        };
-        // the only flags we need to set
-        static constexpr auto kPaintFlagsMask = SkPaint::kAntiAlias_Flag;
+        uint16_t fPaintFlags{0};   // needed mainly for rendering paths
+        bool fInitialized{false};
+
+        GrTextBlob* const fBlob;
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(

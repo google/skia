@@ -30,8 +30,8 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
 
-    size_t   blob = 0;
-    size_t vertex = sk_align<alignof(char)>           (blob + sizeof(GrTextBlob) * 1);
+    size_t blobStart = 0;
+    size_t vertex = sk_align<alignof(char)>           (blobStart + sizeof(GrTextBlob) * 1);
     size_t glyphs = sk_align<alignof(GrGlyph*)>       (vertex + sizeof(char) * verticesCount);
     size_t   runs = sk_align<alignof(GrTextBlob::Run)>(glyphs + sizeof(GrGlyph*) * glyphCount);
     size_t   size =                                   (runs + sizeof(GrTextBlob::Run) * runCount);
@@ -42,20 +42,20 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> cacheBlob(new (allocation) GrTextBlob);
-    cacheBlob->fSize = size;
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{}};
+    blob->fSize = size;
 
     // setup offsets for vertices / glyphs
-    cacheBlob->fVertices = SkTAddOffset<char>(cacheBlob.get(), vertex);
-    cacheBlob->fGlyphs = SkTAddOffset<GrGlyph*>(cacheBlob.get(), glyphs);
-    cacheBlob->fRuns = SkTAddOffset<GrTextBlob::Run>(cacheBlob.get(), runs);
+    blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
+    blob->fGlyphs = SkTAddOffset<GrGlyph*>(blob.get(), glyphs);
+    blob->fRuns = SkTAddOffset<GrTextBlob::Run>(blob.get(), runs);
 
     // Initialize runs
     for (int i = 0; i < runCount; i++) {
-        new (&cacheBlob->fRuns[i]) GrTextBlob::Run;
+        new (&blob->fRuns[i]) GrTextBlob::Run{blob.get()};
     }
-    cacheBlob->fRunCountLimit = runCount;
-    return cacheBlob;
+    blob->fRunCountLimit = runCount;
+    return blob;
 }
 
 SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& skPaint,
