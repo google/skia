@@ -7,6 +7,7 @@
 
 #include "GrQuadPerEdgeAA.h"
 #include "GrQuad.h"
+#include "GrVertexWriter.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -234,69 +235,45 @@ static SkPoint3 compute_non_aa_persp_edge_coeffs(const Sk4f& w) {
 // When there's guaranteed no perspective, the edge coefficients for non-AA quads is constant
 static constexpr SkPoint3 kNonAANoPerspEdgeCoeffs = {0, 0, 1};
 
-// This packs the four quad vertices' values for a given channel (the data) into a block. Returns
-// the offset for the next block to be written to localStorage
-static int store(const Sk4f& data, float* localStorage, int offset) {
-    data.store(localStorage + offset);
-    return offset + 4;
-}
-
-// This unpacks dimCt values from a series of channels. By initializing offset from 0 to 3 (plus
-// any channels' offsets to skip over), the particular quad vertex can be accessed. Returns the
-// offset for the next channel of data in localStorage.
-static int load(const float* localStorage, int offset, float* coordOut, int dimCt) {
-    for (int i = 0; i < dimCt; i++) {
-        coordOut[i] = localStorage[offset];
-        offset += 4;
-    }
-    return offset;
-}
-
 } // anonymous namespace
 
-void GrQuadPerEdgeAA::TessellateImpl(void* vertices, size_t vertexSize, float* localStorage,
-        const GrPerspQuad& deviceQuad, int posDim, size_t posOffset, size_t posSize,
-        const void* color, size_t colorOffset, size_t colorSize,
-        const GrPerspQuad& srcQuad, int srcDim, size_t srcOffset, size_t srcSize,
-        const void* domain, size_t domainOffset, size_t domainSize,
-        GrQuadAAFlags aaFlags, size_t aaOffset, size_t aaSize) {
-    // Make sure the device and local positions are dimensions that are supported
-    SkASSERT(posDim == 2 || posDim == 3);
-    SkASSERT(srcDim == 0 || srcDim == 2 || srcDim == 3);
-    // Make sure that the position sizes are the proper multiples of sizeof(float) since we copy
-    // floats directly into the block without converting types
-    SkASSERT(posSize == posDim * sizeof(float));
-    SkASSERT(srcSize == srcDim * sizeof(float));
-    // Make sure the component sizes completely fill the vertex
-    SkASSERT(vertexSize == posSize + colorSize + srcSize + domainSize + aaSize);
+namespace GrQuadPerEdgeAA {
+
+////////////////// Tessellate Implementation
+
+void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
+                 const GrColor& color, const GrPerspQuad& localQuad, const SkRect& domain,
+                 GrQuadAAFlags aaFlags) {
+    bool deviceHasPerspective = spec.deviceQuadType() == GrQuadType::kPerspective;
+    bool localHasPerspective = spec.localQuadType() == GrQuadType::kPerspective;
 
     // Load position data into Sk4fs (always x, y and maybe w)
     Sk4f x = deviceQuad.x4f();
     Sk4f y = deviceQuad.y4f();
     Sk4f w;
-    if (posDim == 3) {
+    if (deviceHasPerspective) {
         w = deviceQuad.w4f();
     }
 
     // Load local position data into Sk4fs (either none, just u,v or all three)
     Sk4f u, v, r;
-    if (srcDim > 0) {
-        u = srcQuad.x4f();
-        v = srcQuad.y4f();
+    if (spec.hasLocalCoords()) {
+        u = localQuad.x4f();
+        v = localQuad.y4f();
 
-        if (srcDim == 3) {
-            r = srcQuad.w4f();
+        if (localHasPerspective) {
+            r = localQuad.w4f();
         }
     }
 
     Sk4f a, b, c;
-    if (aaSize) {
+    if (spec.usesCoverageAA()) {
         // Must calculate edges and possibly outside the positions
         if (aaFlags == GrQuadAAFlags::kNone) {
             // A non-AA quad that got batched into an AA group, so its edges will be the same for
             // all four vertices and it does not need to be outset
             SkPoint3 edgeCoeffs;
-            if (posDim == 3) {
+            if (deviceHasPerspective) {
                 edgeCoeffs = compute_non_aa_persp_edge_coeffs(w);
             } else {
                 edgeCoeffs = kNonAANoPerspEdgeCoeffs;
@@ -306,99 +283,93 @@ void GrQuadPerEdgeAA::TessellateImpl(void* vertices, size_t vertexSize, float* l
             a = edgeCoeffs.fX;
             b = edgeCoeffs.fY;
             c = edgeCoeffs.fZ;
-        } else if (posDim == 2) {
-            // For simplicity, pointers to u, v, and r are always provided, but srcDim
+        } else if (deviceHasPerspective) {
+            // For simplicity, pointers to u, v, and r are always provided, but the local dim param
             // ensures that only loaded Sk4fs are modified in the compute functions.
-            compute_quad_edges_and_outset_vertices(
-                    aaFlags, &x, &y, &a, &b, &c, &u, &v, &r, srcDim, /* outset */ true);
+            compute_quad_edges_and_outset_persp_vertices(aaFlags, &x, &y, &w, &a, &b, &c,
+                                                         &u, &v, &r, spec.localDimensionality());
         } else {
-            compute_quad_edges_and_outset_persp_vertices(
-                    aaFlags, &x, &y, &w, &a, &b, &c, &u, &v, &r, srcDim);
+            compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v, &r,
+                                                   spec.localDimensionality(), /* outset */ true);
         }
     }
 
-    // It is faster to unpack the Sk4fs all at once than access their components out of order.
-    int offset = store(x, localStorage, 0);
-    offset = store(y, localStorage, offset);
-    if (posDim == 3) {
-        offset = store(w, localStorage, offset);
-    }
-    if (srcDim > 0) {
-        offset = store(u, localStorage, offset);
-        offset = store(v, localStorage, offset);
-        if (srcDim == 3) {
-            offset = store(r, localStorage, offset);
-        }
-    }
-    int edgeOffset = offset; // The 4 edges are separate from the 4 vertices
-    if (aaSize) {
-        offset = store(a, localStorage, offset);
-        offset = store(b, localStorage, offset);
-        offset = store(c, localStorage, offset);
-    }
-    // Now rearrange the unpacked buffer into the vertex layout
-    char* vb = reinterpret_cast<char*>(vertices);
+    // Now rearrange the Sk4fs into the interleaved vertex layout:
+    //  i.e. x1x2x3x4 y1y2y3y4 -> x1y1 x2y2 x3y3 x4y
+    GrVertexWriter vb{vertices};
     for (int i = 0; i < 4; ++i) {
-        // Starting the offset at i makes sure that all loads read the data for the i^th vertex
-        offset = i;
-
-        // NOTE: while this code uses explicit offsets to make it independent of the actual
-        // vertex layout, it is a good idea to keep the writes in the same order as the fields
-
         // save position
-        offset = load(localStorage, offset, reinterpret_cast<float*>(vb + posOffset), posDim);
-        // save color
-        if (colorSize) {
-            memcpy(vb + colorOffset, color, colorSize);
-        }
-        // save local position
-        if (srcDim) {
-            offset = load(localStorage, offset, reinterpret_cast<float*>(vb + srcOffset), srcDim);
-        }
-        // save the domain
-        if (domainSize) {
-            memcpy(vb + domainOffset, domain, domainSize);
+        if (deviceHasPerspective) {
+            vb.write<SkPoint3>({x[i], y[i], w[i]});
+        } else {
+            vb.write<SkPoint>({x[i], y[i]});
         }
 
-        // save the edges
-        if (aaSize) {
-            float* edgeBuffer = reinterpret_cast<float*>(vb + aaOffset);
-            for (int j = 0; j < 4; j++) {
-                load(localStorage, edgeOffset + j, edgeBuffer, 3);
-                edgeBuffer += 3;
+        // save color
+        if (spec.hasVertexColors()) {
+            vb.write<GrColor>(color);
+        }
+
+        // save local position
+        if (spec.hasLocalCoords()) {
+            if (localHasPerspective) {
+                vb.write<SkPoint3>({u[i], v[i], r[i]});
+            } else {
+                vb.write<SkPoint>({u[i], v[i]});
             }
         }
 
-        vb += vertexSize;
+        // save the domain
+        if (spec.hasDomain()) {
+            vb.write<SkRect>(domain);
+        }
+
+        // save the edges
+        if (spec.usesCoverageAA()) {
+            for (int j = 0; j < 4; j++) {
+                vb.write<SkPoint3>({a[j], b[j], c[j]});
+            }
+        }
     }
+
+    return vb.fPtr;
 }
 
-GrQuadPerEdgeAA::GPAttributes::GPAttributes(int posDim, int localDim, bool hasColor, GrAAType aa,
-                                            Domain domain) {
-    SkASSERT(posDim == 2 || posDim == 3);
-    SkASSERT(localDim == 0 || localDim == 2 || localDim == 3);
+////////////////// VertexSpec Implementation
 
-    if (posDim == 3) {
+int VertexSpec::deviceDimensionality() const {
+    return this->deviceQuadType() == GrQuadType::kPerspective ? 3 : 2;
+}
+
+int VertexSpec::localDimensionality() const {
+    return fHasLocalCoords ? (this->localQuadType() == GrQuadType::kPerspective ? 3 : 2) : 0;
+}
+
+////////////////// GPAttributes Implementation
+
+GPAttributes::GPAttributes(const VertexSpec& spec) {
+    if (spec.deviceDimensionality() == 3) {
         fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
     } else {
         fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
 
+    int localDim = spec.localDimensionality();
     if (localDim == 3) {
         fLocalCoords = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
     } else if (localDim == 2) {
         fLocalCoords = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     } // else localDim == 0 and attribute remains uninitialized
 
-    if (hasColor) {
+    if (spec.hasVertexColors()) {
         fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     }
 
-    if (domain == Domain::kYes) {
+    if (spec.hasDomain()) {
         fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
     }
 
-    if (aa == GrAAType::kCoverage) {
+    if (spec.usesCoverageAA()) {
         fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
         fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
         fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
@@ -406,13 +377,13 @@ GrQuadPerEdgeAA::GPAttributes::GPAttributes(int posDim, int localDim, bool hasCo
     }
 }
 
-bool GrQuadPerEdgeAA::GPAttributes::needsPerspectiveInterpolation() const {
+bool GPAttributes::needsPerspectiveInterpolation() const {
     // This only needs to check the position; local position having perspective does not change
     // how the varyings are interpolated
     return fPositions.cpuType() == kFloat3_GrVertexAttribType;
 }
 
-uint32_t GrQuadPerEdgeAA::GPAttributes::getKey() const {
+uint32_t GPAttributes::getKey() const {
     // aa, color, domain are single bit flags
     uint32_t x = this->usesCoverageAA() ? 0 : 1;
     x |= this->hasVertexColors() ? 0 : 2;
@@ -426,9 +397,9 @@ uint32_t GrQuadPerEdgeAA::GPAttributes::getKey() const {
     return x;
 }
 
-void GrQuadPerEdgeAA::GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                                              GrGLSLColorSpaceXformHelper* csXformHelper,
-                                              const char* colorVarName) const {
+void GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                             GrGLSLColorSpaceXformHelper* csXformHelper,
+                             const char* colorVarName) const {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
 
     if (!fColors.isInitialized()) {
@@ -450,7 +421,7 @@ void GrQuadPerEdgeAA::GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs
     }
 }
 
-void GrQuadPerEdgeAA::GPAttributes::emitExplicitLocalCoords(
+void GPAttributes::emitExplicitLocalCoords(
         GrGLSLPrimitiveProcessor::EmitArgs& args, const char* localCoordName,
         const char* domainName) const {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
@@ -480,8 +451,8 @@ void GrQuadPerEdgeAA::GPAttributes::emitExplicitLocalCoords(
     }
 }
 
-void GrQuadPerEdgeAA::GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                                                 const char* edgeDistName) const {
+void GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                const char* edgeDistName) const {
     if (this->usesCoverageAA()) {
         bool mulByFragCoordW = false;
         GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
@@ -528,3 +499,5 @@ void GrQuadPerEdgeAA::GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitA
         args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 }
+
+} // namespace GrQuadPerEdgeAA
