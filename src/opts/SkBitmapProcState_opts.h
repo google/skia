@@ -27,18 +27,19 @@
 
 namespace SK_OPTS_NS {
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    // This same basic packing scheme is used throughout the file.
-    static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* v1, int* w) {
-        // The top 14 bits are the integer coordinate x0 or y0.
-        *v0 = packed >> 18;
+// This same basic packing scheme is used throughout the file.
+static void decode_packed_coordinates_and_weight(uint32_t packed, int* v0, int* v1, int* w) {
+    // The top 14 bits are the integer coordinate x0 or y0.
+    *v0 = packed >> 18;
 
-        // The bottom 14 bits are the integer coordinate x1 or y1.
-        *v1 = packed & 0x3fff;
+    // The bottom 14 bits are the integer coordinate x1 or y1.
+    *v1 = packed & 0x3fff;
 
-        // The middle 4 bits are the interpolating factor between the two, i.e. the weight for v1.
-        *w = (packed >> 14) & 0xf;
-    }
+    // The middle 4 bits are the interpolating factor between the two, i.e. the weight for v1.
+    *w = (packed >> 14) & 0xf;
+}
+
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
     // As above, 4x.
     static void decode_packed_coordinates_and_weight(__m128i packed,
@@ -180,7 +181,7 @@ namespace SK_OPTS_NS {
     }
 
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
     // TODO(mtklein): clean up this code, use decode_packed_coordinates_and_weight(), etc.
 
@@ -192,112 +193,63 @@ namespace SK_OPTS_NS {
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
 
-        const char* srcAddr = static_cast<const char*>(s.fPixmap.addr());
-        size_t rb = s.fPixmap.rowBytes();
-        uint32_t XY = *xy++;
-        unsigned y0 = XY >> 14;
-        const uint32_t* row0 = reinterpret_cast<const uint32_t*>(srcAddr + (y0 >> 4) * rb);
-        const uint32_t* row1 = reinterpret_cast<const uint32_t*>(srcAddr + (XY & 0x3FFF) * rb);
-        unsigned subY = y0 & 0xF;
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
 
-        // ( 0,  0,  0,  0,  0,  0,  0, 16)
-        __m128i sixteen = _mm_cvtsi32_si128(16);
+        auto row0 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes() ),
+             row1 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes() );
 
-        // ( 0,  0,  0,  0, 16, 16, 16, 16)
-        sixteen = _mm_shufflelo_epi16(sixteen, 0);
+        // We'll put one pixel in the low 4 16-bit lanes to line up with wy,
+        // and another in the upper 4 16-bit lanes to line up with 16 - wy.
+        const __m128i allY = _mm_unpacklo_epi64(_mm_set1_epi16(   wy),
+                                                _mm_set1_epi16(16-wy));
 
-        // ( 0,  0,  0,  0,  0,  0,  0,  y)
-        __m128i allY = _mm_cvtsi32_si128(subY);
+        while (count --> 0) {
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
 
-        // ( 0,  0,  0,  0,  y,  y,  y,  y)
-        allY = _mm_shufflelo_epi16(allY, 0);
+            // Load the 4 pixels we're interpolating.
+            const __m128i a00 = _mm_cvtsi32_si128(row0[x0]),
+                          a01 = _mm_cvtsi32_si128(row0[x1]),
+                          a10 = _mm_cvtsi32_si128(row1[x0]),
+                          a11 = _mm_cvtsi32_si128(row1[x1]);
 
-        // ( 0,  0,  0,  0, 16-y, 16-y, 16-y, 16-y)
-        __m128i negY = _mm_sub_epi16(sixteen, allY);
+            // Line up low-x pixels a00 and a10 with allY.
+            __m128i a00a10 = _mm_unpacklo_epi8(_mm_unpacklo_epi32(a10, a00),
+                                               _mm_setzero_si128());
 
-        // (16-y, 16-y, 16-y, 16-y, y, y, y, y)
-        allY = _mm_unpacklo_epi64(allY, negY);
-
-        // (16, 16, 16, 16, 16, 16, 16, 16 )
-        sixteen = _mm_shuffle_epi32(sixteen, 0);
-
-        // ( 0,  0,  0,  0,  0,  0,  0,  0)
-        __m128i zero = _mm_setzero_si128();
-
-        // ( alpha, alpha, alpha, alpha, alpha, alpha, alpha, alpha )
-        __m128i alpha = _mm_set1_epi16(s.fAlphaScale);
-
-        do {
-            uint32_t XX = *xy++;    // x0:14 | 4 | x1:14
-            unsigned x0 = XX >> 18;
-            unsigned x1 = XX & 0x3FFF;
-
-            // (0, 0, 0, 0, 0, 0, 0, x)
-            __m128i allX = _mm_cvtsi32_si128((XX >> 14) & 0x0F);
-
-            // (0, 0, 0, 0, x, x, x, x)
-            allX = _mm_shufflelo_epi16(allX, 0);
-
-            // (x, x, x, x, x, x, x, x)
-            allX = _mm_shuffle_epi32(allX, 0);
-
-            // (16-x, 16-x, 16-x, 16-x, 16-x, 16-x, 16-x)
-            __m128i negX = _mm_sub_epi16(sixteen, allX);
-
-            // Load 4 samples (pixels).
-            __m128i a00 = _mm_cvtsi32_si128(row0[x0]);
-            __m128i a01 = _mm_cvtsi32_si128(row0[x1]);
-            __m128i a10 = _mm_cvtsi32_si128(row1[x0]);
-            __m128i a11 = _mm_cvtsi32_si128(row1[x1]);
-
-            // (0, 0, a00, a10)
-            __m128i a00a10 = _mm_unpacklo_epi32(a10, a00);
-
-            // Expand to 16 bits per component.
-            a00a10 = _mm_unpacklo_epi8(a00a10, zero);
-
-            // ((a00 * (16-y)), (a10 * y)).
+            // Scale by allY and 16-wx.
             a00a10 = _mm_mullo_epi16(a00a10, allY);
+            a00a10 = _mm_mullo_epi16(a00a10, _mm_set1_epi16(16-wx));
 
-            // (a00 * (16-y) * (16-x), a10 * y * (16-x)).
-            a00a10 = _mm_mullo_epi16(a00a10, negX);
 
-            // (0, 0, a01, a10)
-            __m128i a01a11 = _mm_unpacklo_epi32(a11, a01);
+            // Line up high-x pixels a01 and a11 with allY.
+            __m128i a01a11 = _mm_unpacklo_epi8(_mm_unpacklo_epi32(a11, a01),
+                                               _mm_setzero_si128());
 
-            // Expand to 16 bits per component.
-            a01a11 = _mm_unpacklo_epi8(a01a11, zero);
-
-            // (a01 * (16-y)), (a11 * y)
+            // Scale by allY and wx.
             a01a11 = _mm_mullo_epi16(a01a11, allY);
+            a01a11 = _mm_mullo_epi16(a01a11, _mm_set1_epi16(wx));
 
-            // (a01 * (16-y) * x), (a11 * y * x)
-            a01a11 = _mm_mullo_epi16(a01a11, allX);
 
-            // (a00*w00 + a01*w01, a10*w10 + a11*w11)
-            __m128i sum = _mm_add_epi16(a00a10, a01a11);
+            // Add the two intermediates, summing across in one direction.
+            __m128i halves = _mm_add_epi16(a00a10, a01a11);
 
-            // (DC, a00*w00 + a01*w01)
-            __m128i shifted = _mm_shuffle_epi32(sum, 0xEE);
+            // Add the two halves to each other to sum in the other direction.
+            __m128i sum = _mm_add_epi16(halves, _mm_srli_si128(halves, 8));
 
-            // (DC, a00*w00 + a01*w01 + a10*w10 + a11*w11)
-            sum = _mm_add_epi16(sum, shifted);
-
-            // Divide each 16 bit component by 256.
+            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
             sum = _mm_srli_epi16(sum, 8);
 
-            // Multiply by alpha.
-            sum = _mm_mullo_epi16(sum, alpha);
+            if (s.fAlphaScale < 256) {
+                // Scale by alpha, which is in [0,256].
+                sum = _mm_mullo_epi16(sum, _mm_set1_epi16(s.fAlphaScale));
+                sum = _mm_srli_epi16(sum, 8);
+            }
 
-            // Divide each 16 bit component by 256.
-            sum = _mm_srli_epi16(sum, 8);
-
-            // Pack lower 4 16 bit values of sum into lower 4 bytes.
-            sum = _mm_packus_epi16(sum, zero);
-
-            // Extract low int and store.
-            *colors++ = _mm_cvtsi128_si32(sum);
-        } while (--count > 0);
+            // Pack back into 8-bit values and store.
+            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(sum, _mm_setzero_si128()));
+        }
     }
 
 #else
@@ -337,9 +289,11 @@ namespace SK_OPTS_NS {
             tmp = vmla_u16(tmp, vget_low_u16(tmp1), v16_x); // tmp += a00 * (16-x)
             tmp = vmla_u16(tmp, vget_low_u16(tmp2), v16_x); // tmp += a10 * (16-x)
 
-            vscale = vdup_n_u16(scale);        // duplicate scale
-            tmp = vshr_n_u16(tmp, 8);          // shift down result by 8
-            tmp = vmul_u16(tmp, vscale);       // multiply result by scale
+            if (scale < 256) {
+                vscale = vdup_n_u16(scale);        // duplicate scale
+                tmp = vshr_n_u16(tmp, 8);          // shift down result by 8
+                tmp = vmul_u16(tmp, vscale);       // multiply result by scale
+            }
 
             vres = vshrn_n_u16(vcombine_u16(tmp, vcreate_u16(0)), 8); // shift down result by 8
             vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);         // store result
@@ -372,16 +326,15 @@ namespace SK_OPTS_NS {
             lo += (a11 & mask) * xy;
             hi += ((a11 >> 8) & mask) * xy;
 
-            // TODO: if (alphaScale < 256) ...
-            lo = ((lo >> 8) & mask) * alphaScale;
-            hi = ((hi >> 8) & mask) * alphaScale;
+            if (alphaScale < 256) {
+                lo = ((lo >> 8) & mask) * alphaScale;
+                hi = ((hi >> 8) & mask) * alphaScale;
+            }
 
             *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
         }
     #endif
 
-
-    // TODO(mtklein): clean up this code, use decode_packed_coordinates_and_weight(), etc.
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
@@ -391,38 +344,22 @@ namespace SK_OPTS_NS {
         SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
         SkASSERT(s.fAlphaScale <= 256);
 
-        unsigned alphaScale = s.fAlphaScale;
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
 
-        const char* srcAddr = (const char*)s.fPixmap.addr();
-        size_t rb = s.fPixmap.rowBytes();
-        unsigned subY;
-        const SkPMColor* row0;
-        const SkPMColor* row1;
+        auto row0 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes() ),
+             row1 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes() );
 
-        // setup row ptrs and update proc_table
-        {
-            uint32_t XY = *xy++;
-            unsigned y0 = XY >> 14;
-            row0 = (const SkPMColor*)(srcAddr + (y0 >> 4) * rb);
-            row1 = (const SkPMColor*)(srcAddr + (XY & 0x3FFF) * rb);
-            subY = y0 & 0xF;
-        }
+        while (count --> 0) {
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
 
-        do {
-            uint32_t XX = *xy++;    // x0:14 | 4 | x1:14
-            unsigned x0 = XX >> 14;
-            unsigned x1 = XX & 0x3FFF;
-            unsigned subX = x0 & 0xF;
-            x0 >>= 4;
-
-            filter_and_scale_by_alpha(subX, subY,
+            filter_and_scale_by_alpha(wx, wy,
                                       row0[x0], row0[x1],
                                       row1[x0], row1[x1],
-                                      colors,
-                                      alphaScale);
-            colors += 1;
-
-        } while (--count != 0);
+                                      colors++,
+                                      s.fAlphaScale);
+        }
     }
 
 #endif
