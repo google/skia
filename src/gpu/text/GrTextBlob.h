@@ -276,7 +276,9 @@ private:
 
     class SubRun {
     public:
-        explicit SubRun(Run* run) : fRun{run} {}
+        SubRun(Run* run, const SkAutoDescriptor& desc)
+            : fRun{run}
+            , fDesc{desc} {}
 
         void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
 
@@ -339,6 +341,9 @@ private:
         bool hasWCoord() const { return fFlags.hasWCoord; }
         void setNeedsTransform(bool needsTransform) { fFlags.needsTransform = needsTransform; }
         bool needsTransform() const { return fFlags.needsTransform; }
+        void setFallback() {fFlags.argbFallback = true;}
+
+        const SkDescriptor* desc() const { return fDesc.getDesc(); }
 
     private:
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
@@ -360,8 +365,10 @@ private:
             bool antiAliased:1;
             bool hasWCoord:1;
             bool needsTransform:1;
-        } fFlags{false, false, false, false, false};
+            bool argbFallback:1;
+        } fFlags{false, false, false, false, false, false};
         Run* const fRun;
+        const SkAutoDescriptor& fDesc;
     };  // SubRunInfo
 
 
@@ -395,7 +402,7 @@ private:
         explicit Run(GrTextBlob* blob)
         : fBlob{blob} {
             // To ensure we always have one subrun, we push back a fresh run here
-            fSubRunInfo.emplace_back(this);
+            fSubRunInfo.emplace_back(this, fDescriptor);
         }
 
         // sets the last subrun of runIndex to use w values
@@ -406,10 +413,13 @@ private:
 
         // inits the override descriptor on the current run.  All following subruns must use this
         // descriptor
-        void initOverride() {
+        SubRun* initARGBFallback() {
+            fARGBFallbackDescriptor.reset(new SkAutoDescriptor{});
             // Push back a new subrun to fill and set the override descriptor
-            this->pushBackSubRun();
-            fOverrideDescriptor.reset(new SkAutoDescriptor);
+            SubRun* subRun = this->pushBackSubRun(*fARGBFallbackDescriptor);
+            subRun->setMaskFormat(kARGB_GrMaskFormat);
+            subRun->setFallback();
+            return subRun;
         }
 
         // Appends a glyph to the blob as a path only.
@@ -443,13 +453,13 @@ private:
             subRun.setHasWCoord(hasWCoord);
         }
 
-        SubRun& pushBackSubRun() {
+        SubRun* pushBackSubRun(const SkAutoDescriptor& desc) {
             // Forward glyph / vertex information to seed the new sub run
-            SubRun& newSubRun = fSubRunInfo.emplace_back(this);
+            SubRun& newSubRun = fSubRunInfo.emplace_back(this, desc);
             const SubRun& prevSubRun = fSubRunInfo.fromBack(1);
 
             newSubRun.setAsSuccessor(prevSubRun);
-            return newSubRun;
+            return &newSubRun;
         }
 
         // Any glyphs that can't be rendered with the base or override descriptor
@@ -479,9 +489,9 @@ private:
 
         // Distance field text cannot draw coloremoji, and so has to fall back.  However,
         // though the distance field text and the coloremoji may share the same run, they
-        // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
+        // will have different descriptors.  If fARGBFallbackDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
+        std::unique_ptr<SkAutoDescriptor> fARGBFallbackDescriptor;
 
         SkTArray<PathGlyph> fPathGlyphs;
 
