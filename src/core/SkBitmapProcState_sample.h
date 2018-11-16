@@ -62,10 +62,6 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
             src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
         }
     }
-
-#ifdef POSTAMBLE
-    POSTAMBLE(s);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,10 +107,6 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
         colors += 1;
 
     } while (--count != 0);
-
-#ifdef POSTAMBLE
-    POSTAMBLE(s);
-#endif
 }
 
 #undef MAKENAME
@@ -126,9 +118,6 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
 
 #ifdef PREAMBLE
     #undef PREAMBLE
-#endif
-#ifdef POSTAMBLE
-    #undef POSTAMBLE
 #endif
 
 #undef FILTER_PROC_TYPE
