@@ -13,12 +13,13 @@
 #include "SkClipStack.h"
 #include "SkClipStackDevice.h"
 #include "SkData.h"
+#include "SkKeyedImage.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
+#include "SkTHash.h"
 #include "SkTextBlobPriv.h"
-#include "SkKeyedImage.h"
 
 #include <vector>
 
@@ -34,6 +35,7 @@ class SkPDFFont;
 class SkPDFObject;
 class SkPDFStream;
 class SkRRect;
+struct SkPDFIndirectReference;
 
 /**
  *  \class SkPDFDevice
@@ -168,7 +170,7 @@ private:
     std::vector<sk_sp<SkPDFObject>> fGraphicStateResources;
     std::vector<sk_sp<SkPDFObject>> fXObjectResources;
     std::vector<sk_sp<SkPDFObject>> fShaderResources;
-    std::vector<sk_sp<SkPDFFont>> fFontResources;
+    SkTHashSet<SkPDFIndirectReference> fFontResources;
     int fNodeId;
 
     SkDynamicMemoryWStream fContent;

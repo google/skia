@@ -223,8 +223,17 @@ SkPDFDocument::~SkPDFDocument() {
     this->close();
 }
 
-void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
+SkPDFIndirectReference SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
+    SkASSERT(object);
     fObjectSerializer.serializeObject(object, this->getStream());
+    return object->fIndirectReference;
+}
+
+SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object){
+    SkPDFIndirectReference ref = this->reserve();
+    object.emitObject(this->beginObject(ref));
+    this->endObject();
+    return ref;
 }
 
 SkPDFIndirectReference SkPDFDocument::reserve() {
@@ -315,7 +324,6 @@ void SkPDFDocument::reset() {
     fCanon = SkPDFCanon();
     reset_object(&fCanvas);
     fPages = std::vector<sk_sp<SkPDFDict>>();
-    fFonts.reset();
     fDests = nullptr;
     fPageDevice = nullptr;
     fID = nullptr;
@@ -574,11 +582,15 @@ void SkPDFDocument::onClose(SkWStream* stream) {
             }
         }
     }
-
-    // Build font subsetting info before serializing the catalog and all of
-    // its transitive dependecies.
-    fFonts.foreach([this](SkPDFFont* p){ p->getFontSubset(this); });
     fObjectSerializer.serializeObject(docCatalog, this->getStream());
+    std::vector<SkPDFFont*> fonts;
+    fCanon.fFontMap.foreach([&fonts](uint64_t, SkPDFFont* font) { fonts.push_back(font); });
+    std::sort(fonts.begin(), fonts.end(), [](SkPDFFont* u, SkPDFFont* v) {
+        return u->indirectReference().fValue < v->indirectReference().fValue;
+    });
+    for (const SkPDFFont* f : fonts) {
+        f->emitSubset(this);
+    }
     SkASSERT(fOutstandingRefs == 0);
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     this->reset();
