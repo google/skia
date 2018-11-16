@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c62a3db2_2d6da242",
+        "filename": "src/gpu/ops/GrAAFillRRectOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-16T16:10:48Z",
+      "side": 1,
+      "message": "Can we define constants for these? Like kSnorm_P1 \u003d 127 and kSnorm_N1 \u003d -128? Or #define SNORM_P1 etc.",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 147,
+        "endChar": 33
+      },
+      "revId": "9b5b704d13772ea1e80aeda4255855653eff13ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81420b22_e97d1380",
+        "filename": "src/gpu/ops/GrAAFillRRectOp.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-16T16:10:48Z",
+      "side": 1,
+      "message": "Can this be done in the else block? Or is it actually faster on the GPU to keep it unconditional?",
+      "range": {
+        "startLine": 378,
+        "startChar": 0,
+        "endLine": 378,
+        "endChar": 42
+      },
+      "revId": "9b5b704d13772ea1e80aeda4255855653eff13ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
