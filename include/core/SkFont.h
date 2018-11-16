@@ -18,29 +18,6 @@ struct SkFontMetrics;
 
 class SK_API SkFont {
 public:
-#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
-    enum Flags {
-        /**
-         *  Use the system's automatic hinting mechanism to hint the typeface.
-         */
-        kForceAutoHinting_Flag      = 1 << 0,
-
-        /**
-         *  If the typeface contains explicit bitmaps for hinting, use them.
-         *  If both bytecode and auto hints are also specified, attempt to use the bitmaps first;
-         *  if that fails (e.g. there are no bitmaps), then attempt to bytecode or autohint.
-         */
-        kEmbeddedBitmaps_Flag       = 1 << 1,
-
-        kSubpixel_Flag              = 1 << 2,
-        kLinearMetrics_Flag         = 1 << 3,
-        kEmbolden_Flag              = 1 << 4,
-
-        kDEPRECATED_Antialias_Flag  = 1 << 5,
-        kDEPRECATED_LCDRender_Flag  = 1 << 6,
-    };
-#endif
-
     enum class Edging {
         kAlias,
         kAntiAlias,
@@ -57,10 +34,6 @@ public:
     SkFont();
     SkFont(sk_sp<SkTypeface>, SkScalar size);
     SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX);
-#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
-    SkFont(sk_sp<SkTypeface>, SkScalar size, uint32_t flags);
-    SkFont(sk_sp<SkTypeface>, SkScalar size, SkScalar scaleX, SkScalar skewX, uint32_t flags);
-#endif
 
     bool isForceAutoHinting() const { return SkToBool(fFlags & kForceAutoHinting_PrivFlag); }
     bool isEmbeddedBitmaps() const { return SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag); }
@@ -93,21 +66,6 @@ public:
      *  If size is not supported (e.g. <= 0 or non-finite) NULL will be returned.
      */
     SkFont makeWithSize(SkScalar size) const;
-
-#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
-    bool DEPRECATED_isAntiAlias() const { return SkToBool(fFlags & kDEPRECATED_Antialias_Flag); }
-    bool DEPRECATED_isLCDRender() const { return SkToBool(fFlags & kDEPRECATED_LCDRender_Flag); }
-
-    void DEPRECATED_setAntiAlias(bool);
-    void DEPRECATED_setLCDRender(bool);
-
-    /**
-     *  Return a font with the same attributes of this font, but with the flags.
-     */
-    SkFont makeWithFlags(uint32_t newFlags) const;
-    uint32_t    getFlags() const { return fFlags; }
-    void setFlags(uint32_t);
-#endif
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
     SkScalar    getSize() const { return fSize; }
