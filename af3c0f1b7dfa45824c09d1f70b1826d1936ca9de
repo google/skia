@@ -166,6 +166,30 @@
       "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e94dea7_dcca3584",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-11-16T02:17:24Z",
+      "side": 1,
+      "message": "This deserialization code is running on mapped memory that is mapped by both the renderer and the gpu.  A malicious renderer could modify that memory as the gpu process is reading it.\n\nhttps://cs.chromium.org/chromium/src/cc/paint/paint_op_reader.cc?sq\u003dpackage:chromium\u0026g\u003d0\u0026l\u003d119 is where our deserialization code calls into the Skia flattenable code.  I looked at this a long while ago and left that comment there on the assumption that SkReadBuffer was safe from TOCTOU issues because it didn\u0027t read the same data twice.  In general it behaves a lot like PaintOpReader, in that it reads things once and then copies them off.\n\nThe previous ReadString function did read some of that data twice, because it checks the \\0 at the end before making a copy.  (So an attacker could modify that \\0 after it has been read.)  The previous code was safe in the end though, because it clobbers the \\0 in the SkString::set function in all the cases.  The new ReadString function reads the string repeatedly as it searches for the factory, so is a lot more suspect.\n\n*If* this readString function is only used for finding the factory, then reading the code, I think the worst that can happen here is an unterminated string that reads off into memory it shouldn\u0027t and crashes.  Alternatively, it picks the wrong factory, which likely will fail deserialization or will give some valid but weird object.\n\nIt wouldn\u0027t be impossible excise Skia from all serialization, but it would be a ton of work before we could do that.  We\u0027d have to replace draw loopers, path effects, mask filters, color filters, paths, and text blobs with custom data types and serialization.  My hope would be that we could maintain the same security behavior of SkReadBuffer so that we could continue relying on it.",
+      "parentUuid": "682d451d_ff472e0b",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 56
+      },
+      "revId": "af3c0f1b7dfa45824c09d1f70b1826d1936ca9de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
