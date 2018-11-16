@@ -18,7 +18,7 @@ struct SkFontMetrics;
 
 class SK_API SkFont {
 public:
-    enum class Edging {
+    enum class Edging : uint8_t {
         kAlias,
         kAntiAlias,
         kSubpixelAntiAlias,
@@ -47,18 +47,22 @@ public:
     void setLinearMetrics(bool);
     void setEmbolden(bool);
 
-    Edging getEdging() const { return (Edging)fEdging; }
+    Edging getEdging() const { return fEdging; }
     void setEdging(Edging);
 
     void setHinting(SkFontHinting);
 
 #ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
+    static_assert((Hinting)kNo_SkFontHinting     == kNo_Hinting,     "");
+    static_assert((Hinting)kSlight_SkFontHinting == kSlight_Hinting, "");
+    static_assert((Hinting)kNormal_SkFontHinting == kNormal_Hinting, "");
+    static_assert((Hinting)kFull_SkFontHinting   == kFull_Hinting,   "");
     Hinting getHinting() const { return (Hinting)fHinting; }
     void setHinting(Hinting hinting) {
         this->setHinting((SkFontHinting)hinting);
     }
 #else
-    SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
+    SkFontHinting getHinting() const { return fHinting; }
 #endif
 
     /**
@@ -146,12 +150,12 @@ private:
     static constexpr unsigned kAllFlags = 0x07F;
 
     sk_sp<SkTypeface> fTypeface;
-    SkScalar    fSize;
-    SkScalar    fScaleX;
-    SkScalar    fSkewX;
-    uint8_t     fFlags;
-    uint8_t     fEdging;
-    uint8_t     fHinting;
+    SkScalar      fSize;
+    SkScalar      fScaleX;
+    SkScalar      fSkewX;
+    uint8_t       fFlags;
+    Edging        fEdging;
+    SkFontHinting fHinting;
 
     SkScalar setupForAsPaths(SkPaint*);
 
