@@ -66,10 +66,6 @@ void SCALE_FILTER_NAME(const void* sIn, int x, int y, SkPMColor* SK_RESTRICT col
 
         fx += dx;
     } while (--count != 0);
-
-#ifdef POSTAMBLE
-    POSTAMBLE(s);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,6 +79,5 @@ void SCALE_FILTER_NAME(const void* sIn, int x, int y, SkPMColor* SK_RESTRICT col
 #undef SRC_TO_FILTER
 #undef FILTER_TO_DST
 #undef PREAMBLE
-#undef POSTAMBLE
 
 #undef SCALE_FILTER_NAME
