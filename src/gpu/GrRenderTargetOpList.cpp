@@ -619,6 +619,10 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
+    if (!op->bounds().isFinite()) {
+        fOpMemoryPool->release(std::move(op));
+        return;
+    }
 
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op
