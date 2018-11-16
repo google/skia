@@ -43,8 +43,9 @@ public:
     SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
     SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
     SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
-    SkTHashMap<uint32_t, sk_sp<SkPDFDict>> fFontDescriptors;
-    SkTHashMap<uint64_t, sk_sp<SkPDFFont>> fFontMap;
+    SkTHashMap<uint32_t, SkPDFIndirectReference> fFontDescriptors;
+    SkTHashMap<uint32_t, SkPDFIndirectReference> fType3FontDescriptors;
+    SkTHashMap<uint64_t, SkPDFFont> fFontMap;
 
     SkTHashMap<SkPDFStrokeGraphicState, sk_sp<SkPDFDict>> fStrokeGSMap;
     SkTHashMap<SkPDFFillGraphicState, sk_sp<SkPDFDict>> fFillGSMap;

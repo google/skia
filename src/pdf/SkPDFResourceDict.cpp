@@ -42,20 +42,7 @@ void SkPDFWriteResourceName(SkWStream* dst, SkPDFResourceType type, int key) {
     dst->write(buffer, (size_t)(end - buffer));
 }
 
-template <typename T>
-static void add_subdict(std::vector<sk_sp<T>> resourceList,
-                        SkPDFResourceType type,
-                        SkPDFDict* dst) {
-    if (0 == resourceList.size()) {
-        return;
-    }
-    auto resources = sk_make_sp<SkPDFDict>();
-    for (size_t i = 0; i < resourceList.size(); i++) {
-        char buffer[kMaxResourceNameLength];
-        char* end = get_resource_name(buffer, type, SkToInt(i));
-        resources->insertObjRef(SkString(buffer, (size_t)(end - buffer)),
-                                std::move(resourceList[i]));
-    }
+static const char* resource_name(SkPDFResourceType type) {
     static const char* kResourceTypeNames[] = {
         "ExtGState",
         "Pattern",
@@ -63,17 +50,47 @@ static void add_subdict(std::vector<sk_sp<T>> resourceList,
         "Font"
     };
     SkASSERT((unsigned)type < SK_ARRAY_COUNT(kResourceTypeNames));
-    dst->insertObject(kResourceTypeNames[(unsigned)type], std::move(resources));
+    return kResourceTypeNames[(unsigned)type];
+}
+
+static SkString resource(SkPDFResourceType type, int index) {
+    char buffer[kMaxResourceNameLength];
+    char* end = get_resource_name(buffer, type, index);
+    return SkString(buffer, (size_t)(end - buffer));
+}
+
+static void add_subdict(std::vector<sk_sp<SkPDFObject>> resourceList,
+                        SkPDFResourceType type,
+                        SkPDFDict* dst) {
+    if (!resourceList.empty()) {
+        auto resources = sk_make_sp<SkPDFDict>();
+        for (size_t i = 0; i < resourceList.size(); i++) {
+            resources->insertObjRef(resource(type, SkToInt(i)), std::move(resourceList[i]));
+        }
+        dst->insertObject(resource_name(type), std::move(resources));
+    }
+}
+
+static void add_subdict(const std::vector<SkPDFIndirectReference>& resourceList,
+                        SkPDFResourceType type,
+                        SkPDFDict* dst) {
+    if (!resourceList.empty()) {
+        auto resources = sk_make_sp<SkPDFDict>();
+        for (SkPDFIndirectReference ref : resourceList) {
+            resources->insertRef(resource(type, ref.fValue), ref);
+        }
+        dst->insertObject(resource_name(type), std::move(resources));
+    }
 }
 
 sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<sk_sp<SkPDFObject>> graphicStateResources,
                                        std::vector<sk_sp<SkPDFObject>> shaderResources,
                                        std::vector<sk_sp<SkPDFObject>> xObjectResources,
-                                       std::vector<sk_sp<SkPDFFont>> fontResources) {
+                                       std::vector<SkPDFIndirectReference> fontResources) {
     auto dict = sk_make_sp<SkPDFDict>();
     add_subdict(std::move(graphicStateResources), SkPDFResourceType::kExtGState, dict.get());
     add_subdict(std::move(shaderResources),       SkPDFResourceType::kPattern,   dict.get());
     add_subdict(std::move(xObjectResources),      SkPDFResourceType::kXObject,   dict.get());
-    add_subdict(std::move(fontResources),         SkPDFResourceType::kFont,      dict.get());
+    add_subdict(fontResources,                    SkPDFResourceType::kFont,      dict.get());
     return dict;
 }

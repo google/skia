@@ -500,7 +500,7 @@ void SkPDFDevice::reset() {
     fGraphicStateResources = std::vector<sk_sp<SkPDFObject>>();
     fXObjectResources = std::vector<sk_sp<SkPDFObject>>();
     fShaderResources = std::vector<sk_sp<SkPDFObject>>();
-    fFontResources = std::vector<sk_sp<SkPDFFont>>();
+    fFontResources.reset();
     fContent.reset();
     fActiveStackState = GraphicStackState();
 }
@@ -1225,20 +1225,14 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                 }
                 if (needs_new_font(font, gid, glyphCache.get(), fontType)) {
                     // Not yet specified font or need to switch font.
-                    sk_sp<SkPDFFont> newFont =
-                            SkPDFFont::GetFontResource(
-                                    fDocument->canon(), glyphCache.get(), typeface, gid);
-                    SkASSERT(newFont);  // All preconditions for SkPDFFont::GetFontResource are met.
-                    if (!newFont) {
-                        return;
-                    }
-                    font = newFont.get();
-                    fDocument->registerFont(font);
-                    int fontIndex = find_or_add(&fFontResources, std::move(newFont));
+                    font = SkPDFFont::GetFontResource(fDocument, glyphCache.get(), typeface, gid);
+                    SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
+                    SkPDFIndirectReference ref = font->indirectReference();
+                    fFontResources.add(ref);
 
                     glyphPositioner.flush();
                     glyphPositioner.setWideChars(font->multiByteGlyphs());
-                    SkPDFWriteResourceName(out, SkPDFResourceType::kFont, fontIndex);
+                    SkPDFWriteResourceName(out, SkPDFResourceType::kFont, ref.fValue);
                     out->writeText(" ");
                     SkPDFUtils::AppendScalar(textSize, out);
                     out->writeText(" Tf\n");
@@ -1330,10 +1324,16 @@ sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfa
 
 
 sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() {
+    std::vector<SkPDFIndirectReference> fonts;
+    fonts.reserve(fFontResources.count());
+    fFontResources.foreach([&fonts](SkPDFIndirectReference ref) { fonts.push_back(ref); } );
+    fFontResources.reset();
+    std::sort(fonts.begin(), fonts.end(),
+            [](SkPDFIndirectReference a, SkPDFIndirectReference b) { return a.fValue < b.fValue; });
     return SkPDFMakeResourceDict(std::move(fGraphicStateResources),
-                                   std::move(fShaderResources),
-                                   std::move(fXObjectResources),
-                                   std::move(fFontResources));
+                                 std::move(fShaderResources),
+                                 std::move(fXObjectResources),
+                                 std::move(fonts));
 }
 
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() {

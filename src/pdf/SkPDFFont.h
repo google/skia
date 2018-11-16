@@ -4,8 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkPDFFont_DEFINED
 #define SkPDFFont_DEFINED
 
@@ -23,10 +21,12 @@
     This class uses the same pattern as SkPDFGraphicState, a static weak
     reference to each instantiated class.
 */
-class SkPDFFont : public SkPDFDict {
-
+class SkPDFFont {
 public:
-    ~SkPDFFont() override;
+    SkPDFFont() {}
+    ~SkPDFFont();
+    SkPDFFont(SkPDFFont&&);
+    SkPDFFont& operator=(SkPDFFont&&);
 
     /** Returns the typeface represented by this class. Returns nullptr for the
      *  default typeface.
@@ -73,6 +73,8 @@ public:
         fGlyphUsage.set(glyph);
     }
 
+    SkPDFIndirectReference indirectReference() const { return fIndirectReference; }
+
     /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
      *  responsibility to unreference it when done.  This is needed to
@@ -81,25 +83,22 @@ public:
      *  @param typeface  The typeface to find, not nullptr.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static sk_sp<SkPDFFont> GetFontResource(SkPDFCanon* canon,
-                                            SkGlyphCache* cache,
-                                            SkTypeface* typeface,
-                                            SkGlyphID glyphID);
+    static SkPDFFont* GetFontResource(SkPDFDocument* doc,
+                                      SkGlyphCache* cache,
+                                      SkTypeface* typeface,
+                                      SkGlyphID glyphID);
 
     /** Gets SkAdvancedTypefaceMetrics, and caches the result.
      *  @param typeface can not be nullptr.
      *  @return nullptr only when typeface is bad.
      */
-    static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
+    static const SkAdvancedTypefaceMetrics* GetMetrics(const SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
     static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
-    /** Subset the font based on current usage.
-     *  Must be called before emitObject().
-     */
-    virtual void getFontSubset(SkPDFDocument*) = 0;
+    void emitSubset(SkPDFDocument*) const;
 
     /**
      *  Return false iff the typeface has its NotEmbeddable flag set.
@@ -107,32 +106,27 @@ public:
      */
     static bool CanEmbedTypeface(SkTypeface*, SkPDFCanon*);
 
-protected:
-    // Common constructor to handle common members.
-    struct Info {
-        sk_sp<SkTypeface> fTypeface;
-        SkGlyphID fFirstGlyphID;
-        SkGlyphID fLastGlyphID;
-        SkAdvancedTypefaceMetrics::FontType fFontType;
-    };
-    SkPDFFont(Info);
-
     SkGlyphID firstGlyphID() const { return fGlyphUsage.firstNonZero(); }
     SkGlyphID lastGlyphID() const { return fGlyphUsage.lastGlyph(); }
     const SkPDFGlyphUse& glyphUsage() const { return fGlyphUsage; }
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
-    void drop() override;
-
 private:
     sk_sp<SkTypeface> fTypeface;
     SkPDFGlyphUse fGlyphUsage;
+    SkPDFIndirectReference fIndirectReference;
+    SkAdvancedTypefaceMetrics::FontType fFontType = (SkAdvancedTypefaceMetrics::FontType)(-1);
 
+    SkPDFFont(sk_sp<SkTypeface>,
+              SkGlyphID firstGlyphID,
+              SkGlyphID lastGlyphID,
+              SkAdvancedTypefaceMetrics::FontType fontType,
+              SkPDFIndirectReference indirectReference);
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
     // this will be a subset if the font has more than 255 glyphs.
-    const SkAdvancedTypefaceMetrics::FontType fFontType;
 
-    typedef SkPDFDict INHERITED;
+    SkPDFFont(const SkPDFFont&) = delete;
+    SkPDFFont& operator=(const SkPDFFont&) = delete;
 };
 
 #endif

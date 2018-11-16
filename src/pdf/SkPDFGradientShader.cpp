@@ -772,7 +772,7 @@ static sk_sp<SkPDFDict> get_gradient_resource_dict(sk_sp<SkPDFObject> functionSh
     return SkPDFMakeResourceDict(std::move(graphicStates),
                                  std::move(patternShaders),
                                  std::vector<sk_sp<SkPDFObject>>(),
-                                 std::vector<sk_sp<SkPDFFont>>());
+                                 std::vector<SkPDFIndirectReference>());
 }
 
 // Creates a content stream which fills the pattern P0 across bounds.
