@@ -137,6 +137,10 @@ public:
         return false;
     }
 
+    bool builtinFMASupport() const {
+        return true;
+    }
+
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }
