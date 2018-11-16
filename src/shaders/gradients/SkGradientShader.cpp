@@ -557,6 +557,10 @@ static SkColor4f average_gradient_color(const SkColor4f colors[], const SkScalar
     return avg;
 }
 
+// The default SkScalarNearlyZero threshold of .0024 is too big and causes regressions for svg
+// gradients defined in the wild.
+static constexpr SkScalar kDegenerateThreshold = SK_Scalar1 / (1 << 15);
+
 // Except for special circumstances of clamped gradients, every gradient shape--when degenerate--
 // can be mapped to the same fallbacks. The specific shape factories must account for special
 // clamped conditions separately, this will always return the last color for clamped gradients.
@@ -686,7 +690,7 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
         return nullptr;
     }
 
-    if (SkScalarNearlyZero((pts[1] - pts[0]).length())) {
+    if (SkScalarNearlyZero((pts[1] - pts[0]).length(), kDegenerateThreshold)) {
         // Degenerate gradient, the only tricky complication is when in clamp mode, the limit of
         // the gradient approaches two half planes of solid color (first and last). However, they
         // are divided by the line perpendicular to the start and end point, which becomes undefined
@@ -733,7 +737,7 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
         return nullptr;
     }
 
-    if (SkScalarNearlyZero(radius)) {
+    if (SkScalarNearlyZero(radius, kDegenerateThreshold)) {
         // Degenerate gradient optimization, and no special logic needed for clamped radial gradient
         return make_degenerate_gradient(colors, pos, colorCount, std::move(colorSpace), mode);
     }
@@ -778,15 +782,15 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
-    if (SkScalarNearlyZero((start - end).length())) {
+    if (SkScalarNearlyZero((start - end).length(), kDegenerateThreshold)) {
         // If the center positions are the same, then the gradient is the radial variant of a 2 pt
         // conical gradient, an actual radial gradient (startRadius == 0), or it is fully degenerate
         // (startRadius == endRadius).
-        if (SkScalarNearlyEqual(startRadius, endRadius)) {
+        if (SkScalarNearlyEqual(startRadius, endRadius, kDegenerateThreshold)) {
             // Degenerate case, where the interpolation region area approaches zero. The proper
             // behavior depends on the tile mode, which is consistent with the default degenerate
             // gradient behavior, except when mode = clamp and the radii > 0.
-            if (mode == SkShader::TileMode::kClamp_TileMode && endRadius > SK_ScalarNearlyZero) {
+            if (mode == SkShader::TileMode::kClamp_TileMode && endRadius > kDegenerateThreshold) {
                 // The interpolation region becomes an infinitely thin ring at the radius, so the
                 // final gradient will be the first color repeated from p=0 to 1, and then a hard
                 // stop switching to the last color at p=1.
@@ -799,7 +803,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                 return make_degenerate_gradient(
                         colors, pos, colorCount, std::move(colorSpace), mode);
             }
-        } else if (SkScalarNearlyZero(startRadius)) {
+        } else if (SkScalarNearlyZero(startRadius, kDegenerateThreshold)) {
             // We can treat this gradient as radial, which is faster. If we got here, we know
             // that endRadius is not equal to 0, so this produces a meaningful gradient
             return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
@@ -859,10 +863,10 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
         return nullptr;
     }
 
-    if (SkScalarNearlyEqual(startAngle, endAngle)) {
+    if (SkScalarNearlyEqual(startAngle, endAngle, kDegenerateThreshold)) {
         // Degenerate gradient, which should follow default degenerate behavior unless it is
         // clamped and the angle is greater than 0.
-        if (mode == SkShader::kClamp_TileMode && endAngle > SK_ScalarNearlyZero) {
+        if (mode == SkShader::kClamp_TileMode && endAngle > kDegenerateThreshold) {
             // In this case, the first color is repeated from 0 to the angle, then a hardstop
             // switches to the last color (all other colors are compressed to the infinitely thin
             // interpolation region).
