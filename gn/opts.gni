@@ -17,8 +17,6 @@ armv7 = [
 
 neon = [
   "$_src/opts/Sk4px_NEON.h",
-  "$_src/opts/SkBitmapProcState_arm_neon.cpp",
-  "$_src/opts/SkBitmapProcState_filter_neon.h",
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrix_neon.h",
   "$_src/opts/SkColor_opts_neon.h",
@@ -26,8 +24,6 @@ neon = [
 
 arm64 = [
   "$_src/opts/Sk4px_NEON.h",
-  "$_src/opts/SkBitmapProcState_arm_neon.cpp",
-  "$_src/opts/SkBitmapProcState_filter_neon.h",
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrix_neon.h",
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
@@ -44,13 +40,8 @@ sse2 = [
   "$_src/opts/opts_check_x86.cpp",
 ]
 
-ssse3 = [
-  "$_src/opts/SkBitmapProcState_opts_SSSE3.h",
-  "$_src/opts/SkBitmapProcState_opts_SSSE3.cpp",
-  "$_src/opts/SkOpts_ssse3.cpp",
-]
-
+ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp", ]
 sse41 = [ "$_src/opts/SkOpts_sse41.cpp" ]
 sse42 = [ "$_src/opts/SkOpts_sse42.cpp" ]
-avx = [ "$_src/opts/SkOpts_avx.cpp" ]
-hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]
+avx   = [ "$_src/opts/SkOpts_avx.cpp" ]
+hsw   = [ "$_src/opts/SkOpts_hsw.cpp" ]
