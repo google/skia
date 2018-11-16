@@ -269,7 +269,7 @@ rect={1,2,3,4}
 #Line # iterator returning IRect within clip ##
 
 #Code
-    class SK_API Cliperator {
+    class Cliperator {
     public:
         Cliperator(const SkRegion& region, const SkIRect& clip);
         bool done();
