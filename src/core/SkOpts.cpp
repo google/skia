@@ -36,6 +36,7 @@
     #define SK_OPTS_NS portable
 #endif
 
+#include "SkBitmapProcState_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkChecksum_opts.h"
@@ -72,6 +73,8 @@ namespace SkOpts {
     DEFINE_DEFAULT(memset64);
 
     DEFINE_DEFAULT(hash_fn);
+
+    DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 
 #undef DEFINE_DEFAULT
 

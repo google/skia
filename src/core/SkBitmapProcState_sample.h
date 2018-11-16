@@ -11,9 +11,6 @@
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
                             int count, SkPMColor* SK_RESTRICT colors);
-void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
-                          const uint32_t* SK_RESTRICT xy,
-                           int count, SkPMColor* SK_RESTRICT colors);
 
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
@@ -65,49 +62,6 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
-                          const uint32_t* SK_RESTRICT xy,
-                           int count, SkPMColor* SK_RESTRICT colors) {
-    SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
-    SkDEBUGCODE(CHECKSTATE(s);)
-
-#ifdef PREAMBLE
-    PREAMBLE(s);
-#endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
-    size_t rb = s.fPixmap.rowBytes();
-    unsigned subY;
-    const SRCTYPE* SK_RESTRICT row0;
-    const SRCTYPE* SK_RESTRICT row1;
-
-    // setup row ptrs and update proc_table
-    {
-        uint32_t XY = *xy++;
-        unsigned y0 = XY >> 14;
-        row0 = (const SRCTYPE*)(srcAddr + (y0 >> 4) * rb);
-        row1 = (const SRCTYPE*)(srcAddr + (XY & 0x3FFF) * rb);
-        subY = y0 & 0xF;
-    }
-
-    do {
-        uint32_t XX = *xy++;    // x0:14 | 4 | x1:14
-        unsigned x0 = XX >> 14;
-        unsigned x1 = XX & 0x3FFF;
-        unsigned subX = x0 & 0xF;
-        x0 >>= 4;
-
-        FILTER_PROC(subX, subY,
-                    SRC_TO_FILTER(row0[x0]),
-                    SRC_TO_FILTER(row0[x1]),
-                    SRC_TO_FILTER(row1[x0]),
-                    SRC_TO_FILTER(row1[x1]),
-                    colors);
-        colors += 1;
-
-    } while (--count != 0);
-}
 
 #undef MAKENAME
 #undef SRCTYPE

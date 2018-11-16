@@ -6,7 +6,6 @@
  */
 
 #include "SkBitmapProcState_opts_SSE2.h"
-#include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkCpu.h"
 
 /*
@@ -23,11 +22,6 @@
 void SkBitmapProcState::platformProcs() {
     if (!SkCpu::Supports(SkCpu::SSE2)) {
         return;
-    }
-
-    if (fSampleProc32 == S32_alpha_D32_filter_DX) {
-        fSampleProc32 = SkCpu::Supports(SkCpu::SSSE3) ? S32_alpha_D32_filter_DX_SSSE3
-                                                      : S32_alpha_D32_filter_DX_SSE2;
     }
 
     if (fMatrixProc == ClampX_ClampY_filter_scale) {
