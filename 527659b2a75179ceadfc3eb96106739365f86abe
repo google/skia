@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0774227_3e11c7b6",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-16T15:46:18Z",
+      "side": 1,
+      "message": "nit: What do you think of adding a *\u003d operator?",
+      "revId": "527659b2a75179ceadfc3eb96106739365f86abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
