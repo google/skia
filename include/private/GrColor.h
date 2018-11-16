@@ -12,6 +12,7 @@
 #define GrColor_DEFINED
 
 #include "SkColor.h"
+#include "SkColorData.h"
 #include "SkColorPriv.h"
 
 /**
@@ -80,6 +81,14 @@ static inline GrColor GrColorPackA4(unsigned a) {
 static inline float GrNormalizeByteToFloat(uint8_t value) {
     static const float ONE_OVER_255 = 1.f / 255.f;
     return value * ONE_OVER_255;
+}
+
+/** Returns true if all channels are in [0, 1]. Used to pick vertex attribute types. */
+static inline bool SkPMColor4fFitsInBytes(const SkPMColor4f& color) {
+    SkASSERT(color.fA >= 0.0f && color.fA <= 1.0f);
+    return color.fR >= 0.0f && color.fR <= 1.0f &&
+           color.fG >= 0.0f && color.fG <= 1.0f &&
+           color.fB >= 0.0f && color.fB <= 1.0f;
 }
 
 #endif
