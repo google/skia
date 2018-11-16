@@ -51,6 +51,8 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFPManipulationSupport = false;
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
+    fUnsignedSupport = false;
+    fBuiltinFMASupport = false;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -120,6 +122,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
+    writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",
