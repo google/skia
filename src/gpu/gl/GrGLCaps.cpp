@@ -802,7 +802,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     if (kGL_GrGLStandard == standard) {
         shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
     } else {
-        shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration;
+        shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k310es_GrGLSLGeneration;
     }
 }
 
