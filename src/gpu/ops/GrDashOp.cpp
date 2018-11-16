@@ -17,7 +17,9 @@
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
+#include "GrQuad.h"
 #include "GrStyle.h"
+#include "GrVertexWriter.h"
 #include "SkGr.h"
 #include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
@@ -71,22 +73,6 @@ bool GrDashOp::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
 
     return true;
 }
-
-namespace {
-struct DashLineVertex {
-    SkPoint fPos;
-    SkPoint fDashPos;
-    SkScalar fIntervalLength;
-    SkRect fRect;
-};
-struct DashCircleVertex {
-    SkPoint fPos;
-    SkPoint fDashPos;
-    SkScalar fIntervalLength;
-    SkScalar fRadius;
-    SkScalar fCenterX;
-};
-};
 
 static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
                             const SkMatrix& viewMatrix, const SkPoint pts[2]) {
@@ -164,79 +150,37 @@ enum DashCap {
     kNonRound_DashCap,
 };
 
-static int kDashVertices = 4;
-
-template <typename T>
-void setup_dashed_rect_common(const SkRect& rect, const SkMatrix& matrix, T* vertices, int idx,
+static void setup_dashed_rect(const SkRect& rect, GrVertexWriter& vertices, const SkMatrix& matrix,
                               SkScalar offset, SkScalar bloatX, SkScalar bloatY, SkScalar len,
-                              SkScalar stroke) {
-    SkScalar startDashX = offset - bloatX;
-    SkScalar endDashX = offset + len + bloatX;
-    SkScalar startDashY = -stroke - bloatY;
-    SkScalar endDashY = stroke + bloatY;
-    vertices[idx].fDashPos = SkPoint::Make(startDashX , startDashY);
-    vertices[idx + 1].fDashPos = SkPoint::Make(startDashX, endDashY);
-    vertices[idx + 2].fDashPos = SkPoint::Make(endDashX, startDashY);
-    vertices[idx + 3].fDashPos = SkPoint::Make(endDashX, endDashY);
-
-    vertices[idx].fPos = SkPoint::Make(rect.fLeft, rect.fTop);
-    vertices[idx + 1].fPos = SkPoint::Make(rect.fLeft, rect.fBottom);
-    vertices[idx + 2].fPos = SkPoint::Make(rect.fRight, rect.fTop);
-    vertices[idx + 3].fPos = SkPoint::Make(rect.fRight, rect.fBottom);
-
-    SkMatrixPriv::MapPointsWithStride(matrix, &vertices[idx].fPos, sizeof(T), 4);
-}
-
-static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
-                              const SkMatrix& matrix, SkScalar offset, SkScalar bloatX,
-                              SkScalar bloatY, SkScalar len, SkScalar stroke,
-                              SkScalar startInterval, SkScalar endInterval, SkScalar strokeWidth,
-                              DashCap cap, const size_t vertexStride) {
+                              SkScalar stroke, SkScalar startInterval, SkScalar endInterval,
+                              SkScalar strokeWidth, DashCap cap) {
     SkScalar intervalLength = startInterval + endInterval;
+    SkRect dashRect = { offset       - bloatX, -stroke - bloatY,
+                        offset + len + bloatX,  stroke + bloatY };
 
     if (kRound_DashCap == cap) {
-        SkASSERT(vertexStride == sizeof(DashCircleVertex));
-        DashCircleVertex* verts = reinterpret_cast<DashCircleVertex*>(vertices);
-
-        setup_dashed_rect_common<DashCircleVertex>(rect, matrix, verts, idx, offset, bloatX,
-                                                   bloatY, len, stroke);
-
         SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
         SkScalar centerX = SkScalarHalf(endInterval);
 
-        for (int i = 0; i < kDashVertices; i++) {
-            verts[idx + i].fIntervalLength = intervalLength;
-            verts[idx + i].fRadius = radius;
-            verts[idx + i].fCenterX = centerX;
-        }
+        vertices.writeQuad(GrQuad(rect, matrix),
+                           GrVertexWriter::TriStripFromRect(dashRect),
+                           intervalLength,
+                           radius,
+                           centerX);
     } else {
-        SkASSERT(kNonRound_DashCap == cap && vertexStride == sizeof(DashLineVertex));
-        DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(vertices);
-
-        setup_dashed_rect_common<DashLineVertex>(rect, matrix, verts, idx, offset, bloatX,
-                                                 bloatY, len, stroke);
-
+        SkASSERT(kNonRound_DashCap == cap);
         SkScalar halfOffLen = SkScalarHalf(endInterval);
         SkScalar halfStroke = SkScalarHalf(strokeWidth);
         SkRect rectParam;
-        rectParam.set(halfOffLen + 0.5f, -halfStroke + 0.5f,
-                      halfOffLen + startInterval - 0.5f, halfStroke - 0.5f);
-        for (int i = 0; i < kDashVertices; i++) {
-            verts[idx + i].fIntervalLength = intervalLength;
-            verts[idx + i].fRect = rectParam;
-        }
+        rectParam.set(halfOffLen                 + 0.5f, -halfStroke + 0.5f,
+                      halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);
+
+        vertices.writeQuad(GrQuad(rect, matrix),
+                           GrVertexWriter::TriStripFromRect(dashRect),
+                           intervalLength,
+                           rectParam);
     }
 }
-
-static void setup_dashed_rect_pos(const SkRect& rect, int idx, const SkMatrix& matrix,
-                                  SkPoint* verts) {
-    verts[idx] = SkPoint::Make(rect.fLeft, rect.fTop);
-    verts[idx + 1] = SkPoint::Make(rect.fLeft, rect.fBottom);
-    verts[idx + 2] = SkPoint::Make(rect.fRight, rect.fTop);
-    verts[idx + 3] = SkPoint::Make(rect.fRight, rect.fBottom);
-    matrix.mapPoints(&verts[idx], 4);
-}
-
 
 /**
  * An GrGeometryProcessor that renders a dashed line.
@@ -627,14 +571,12 @@ private:
             return;
         }
 
-        size_t vertexStride = gp->vertexStride();
-        QuadHelper helper(target, vertexStride, totalRectCount);
-        void* vertices = helper.vertices();
-        if (!vertices) {
+        QuadHelper helper(target, gp->vertexStride(), totalRectCount);
+        GrVertexWriter vertices{ helper.vertices() };
+        if (!vertices.fPtr) {
             return;
         }
 
-        int curVIdx = 0;
         int rectIndex = 0;
         for (int i = 0; i < instanceCount; i++) {
             const LineData& geom = fLines[i];
@@ -642,49 +584,42 @@ private:
             if (!draws[i].fLineDone) {
                 if (fullDash) {
                     setup_dashed_rect(
-                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            rects[rectIndex], vertices, geom.fSrcRotInv,
                             draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
                             draws[i].fLineLength, draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
                 }
-                curVIdx += 4;
             }
             rectIndex++;
 
             if (draws[i].fHasStartRect) {
                 if (fullDash) {
                     setup_dashed_rect(
-                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            rects[rectIndex], vertices, geom.fSrcRotInv,
                             draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
                             draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
                 }
-                curVIdx += 4;
             }
             rectIndex++;
 
             if (draws[i].fHasEndRect) {
                 if (fullDash) {
                     setup_dashed_rect(
-                            rects[rectIndex], vertices, curVIdx, geom.fSrcRotInv,
+                            rects[rectIndex], vertices, geom.fSrcRotInv,
                             draws[i].fStartOffset, draws[i].fDevBloatX, draws[i].fDevBloatY,
                             draws[i].fIntervals[0], draws[i].fHalfDevStroke, draws[i].fIntervals[0],
-                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType, vertexStride);
+                            draws[i].fIntervals[1], draws[i].fStrokeWidth, capType);
                 } else {
-                    SkPoint* verts = reinterpret_cast<SkPoint*>(vertices);
-                    setup_dashed_rect_pos(rects[rectIndex], curVIdx, geom.fSrcRotInv, verts);
+                    vertices.writeQuad(GrQuad(rects[rectIndex], geom.fSrcRotInv));
                 }
-                curVIdx += 4;
             }
             rectIndex++;
         }
-        SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
         uint32_t pipelineFlags = 0;
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::kHWAntialias_Flag;
