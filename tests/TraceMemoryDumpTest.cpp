@@ -150,7 +150,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLRenderTarget, rep
     iddesc.fMSColorRenderbufferID = 22;
     iddesc.fIsMixedSampled = false;
 
-    sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, iddesc, 0);
+    sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, GR_GL_RGBA8, iddesc, 0);
 
     ValidateMemoryDumps(reporter, context, rt->gpuMemorySize(), true /* isOwned */);
 }
@@ -172,7 +172,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_unownedGLRenderTarget, r
     iddesc.fMSColorRenderbufferID = 22;
     iddesc.fIsMixedSampled = false;
 
-    sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, iddesc, 0);
+    sk_sp<GrGLRenderTarget> rt = GrGLRenderTarget::MakeWrapped(gpu, sd, GR_GL_RGBA8, iddesc, 0);
 
     ValidateMemoryDumps(reporter, context, rt->gpuMemorySize(), false /* isOwned */);
 }

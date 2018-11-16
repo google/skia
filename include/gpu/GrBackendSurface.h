@@ -61,7 +61,8 @@ public:
         return GrBackendFormat(config);
     }
 
-    GrBackendApi backend() const {return fBackend; }
+    GrBackendApi backend() const { return fBackend; }
+    GrTextureType textureType() const { return fTextureType; }
 
     // If the backend API is GL, these return a pointer to the format and target. Otherwise
     // it returns nullptr.
@@ -82,6 +83,9 @@ public:
     // it returns nullptr.
     const GrPixelConfig* getMockFormat() const;
 
+    // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D
+    GrBackendFormat makeTexture2D() const;
+
     // Returns true if the backend format has been initialized.
     bool isValid() const { return fValid; }
 
@@ -100,16 +104,14 @@ private:
     bool      fValid;
 
     union {
-        struct {
-            GrGLenum fTarget; // GL_TEXTURE_2D, GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE
-            GrGLenum fFormat; // the sized, internal format of the GL resource
-        } fGL;
+        GrGLenum         fGLFormat; // the sized, internal format of the GL resource
         VkFormat         fVkFormat;
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
         GrPixelConfig    fMockFormat;
     };
+    GrTextureType fTextureType;
 };
 
 class SK_API GrBackendTexture {

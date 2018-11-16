@@ -20,7 +20,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , GrGLTexture(gpu, desc, texIDDesc, mipMapsStatus)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
+        , GrGLRenderTarget(gpu, desc, texIDDesc.fInfo.fFormat, rtIDDesc) {
     this->registerWithCache(budgeted);
 }
 
@@ -31,7 +31,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , GrGLTexture(gpu, desc, texIDDesc, mipMapsStatus)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
+        , GrGLRenderTarget(gpu, desc, texIDDesc.fInfo.fFormat, rtIDDesc) {
     this->registerWithCacheWrapped();
 }
 

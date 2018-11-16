@@ -9,6 +9,7 @@
 #define GrSurface_DEFINED
 
 #include "GrTypes.h"
+#include "GrBackendSurface.h"
 #include "GrGpuResource.h"
 #include "SkImageInfo.h"
 #include "SkRect.h"
@@ -41,6 +42,8 @@ public:
      * config that isn't equivalent with one of our configs.
      */
     GrPixelConfig config() const { return fConfig; }
+
+    virtual GrBackendFormat backendFormat() const = 0;
 
     /**
      * @return the texture associated with the surface, may be null.
@@ -102,7 +105,6 @@ protected:
     }
 
     ~GrSurface() override {}
-
 
     void onRelease() override;
     void onAbandon() override;

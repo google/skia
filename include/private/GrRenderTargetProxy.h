@@ -66,8 +66,8 @@ protected:
     friend class GrRenderTargetProxyPriv;
 
     // Deferred version
-    GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit,
-                        SkBudgeted, GrInternalSurfaceFlags);
+    GrRenderTargetProxy(const GrCaps&, const GrBackendFormat&, const GrSurfaceDesc&,
+                        GrSurfaceOrigin, SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -80,8 +80,8 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
-                        const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit, SkBudgeted,
-                        GrInternalSurfaceFlags);
+                        const GrBackendFormat&, const GrSurfaceDesc&, GrSurfaceOrigin,
+                        SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

@@ -30,6 +30,8 @@ public:
 
     GrBackendTexture getBackendTexture() const override;
 
+    GrBackendFormat backendFormat() const override;
+
     void textureParamsModified() override {}
 
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);

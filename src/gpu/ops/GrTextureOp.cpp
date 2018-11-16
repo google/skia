@@ -669,8 +669,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
         fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
     }
 
+    const GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(desc, origin, mipMapped, fit,
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format, desc, origin, mipMapped, fit,
                                                              SkBudgeted::kNo,
                                                              GrInternalSurfaceFlags::kNone);
 

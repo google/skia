@@ -78,11 +78,14 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
 
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     if (!fRGBProxy) {
+        const GrBackendFormat format =
+            fContext->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
         // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
         sk_sp<GrRenderTargetContext> renderTargetContext(
             fContext->contextPriv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig,
-                fColorSpace, 1, GrMipMapped::kNo, fOrigin));
+                format, SkBackingFit::kExact, this->width(), this->height(),
+                kRGBA_8888_GrPixelConfig, fColorSpace, 1, GrMipMapped::kNo, fOrigin));
         if (!renderTargetContext) {
             return nullptr;
         }
@@ -242,8 +245,8 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         desc.fConfig = params.fConfig;
         desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
-                            std::move(lazyInstCallback), desc, imageOrigin, GrMipMapped::kNo,
-                            GrTextureType::k2D, GrInternalSurfaceFlags::kNone,
+                            std::move(lazyInstCallback), yuvaFormats[texIdx], desc, imageOrigin,
+                            GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                             SkBackingFit::kExact, SkBudgeted::kNo,
                             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
         if (!proxies[texIdx]) {

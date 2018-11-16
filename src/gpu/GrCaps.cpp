@@ -9,6 +9,7 @@
 
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
+#include "GrTypesPriv.h"
 #include "GrWindowRectangles.h"
 #include "SkJSONWriter.h"
 
@@ -276,9 +277,14 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
     return true;
 }
 
+GrBackendFormat GrCaps::getBackendFormatFromColorType(SkColorType ct) const {
+    return this->getBackendFormatFromGrColorType(SkColorTypeToGrColorType(ct), GrSRGBEncoded::kNo);
+}
+
 GrBackendFormat GrCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
     if (!backendTex.isValid()) {
         return GrBackendFormat();
     }
     return this->onCreateFormatFromBackendTexture(backendTex);
 }
+

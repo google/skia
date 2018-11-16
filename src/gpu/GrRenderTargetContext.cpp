@@ -1872,8 +1872,10 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
         fit = SkBackingFit::kApprox;
     }
 
+    SkASSERT(rtProxy->backendFormat().textureType() == GrTextureType::k2D);
+    const GrBackendFormat& format = rtProxy->backendFormat();
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeDeferredSurfaceContext(
-            desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
+            format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
             sk_ref_sp(this->colorSpaceInfo().colorSpace()));
     if (!sContext) {
         SkDebugf("setupDstTexture: surfaceContext creation failed.\n");

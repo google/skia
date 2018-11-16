@@ -161,9 +161,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* rp = context->contextPriv().resourceProvider();
 
+    const GrBackendFormat format =
+            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
-                                                 SkBackingFit::kExact, kScreenSize, kScreenSize,
-                                                 kRGBA_8888_GrPixelConfig, nullptr));
+                                                 format, SkBackingFit::kExact, kScreenSize,
+                                                 kScreenSize, kRGBA_8888_GrPixelConfig, nullptr));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

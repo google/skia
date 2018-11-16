@@ -104,6 +104,11 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), info);
 }
 
+GrBackendFormat GrGLTexture::backendFormat() const {
+    return GrBackendFormat::MakeGL(fFormat,
+                                   target_from_texture_type(this->texturePriv().textureType()));
+}
+
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc,
                                             bool purgeImmediately) {
