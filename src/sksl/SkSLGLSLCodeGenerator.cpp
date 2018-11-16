@@ -467,6 +467,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["dFdx"]        = FunctionClass::kDerivative;
         (*fFunctionClasses)["dFdy"]        = FunctionClass::kDerivative;
         (*fFunctionClasses)["fwidth"]      = FunctionClass::kDerivative;
+        (*fFunctionClasses)["fma"]         = FunctionClass::kFMA;
         (*fFunctionClasses)["fract"]       = FunctionClass::kFract;
         (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
         (*fFunctionClasses)["inverseSqrt"] = FunctionClass::kInverseSqrt;
@@ -532,6 +533,19 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
                     SkASSERT(c.fArguments.size() == 1);
                     this->writeDeterminantHack(*c.fArguments[0]);
+                    return;
+                }
+                break;
+            case FunctionClass::kFMA:
+                if (!fProgram.fSettings.fCaps->builtinFMASupport()) {
+                    SkASSERT(c.fArguments.size() == 3);
+                    this->write("((");
+                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->write(") * (");
+                    this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                    this->write(") + (");
+                    this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                    this->write("))");
                     return;
                 }
                 break;
