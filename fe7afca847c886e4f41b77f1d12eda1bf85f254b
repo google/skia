@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ff97b17_014392df",
+        "filename": "tests/FontObjTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-16T19:08:57Z",
+      "side": 1,
+      "message": "for (auto hint : {kNone, kSlight, kNormal, kFull}) {\n...\n}",
+      "range": {
+        "startLine": 90,
+        "startChar": 21,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "fe7afca847c886e4f41b77f1d12eda1bf85f254b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
