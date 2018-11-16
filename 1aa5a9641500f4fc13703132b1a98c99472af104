@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "fe21c0ae_666a86ec",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-16T18:55:23Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "1aa5a9641500f4fc13703132b1a98c99472af104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e2fd440_8ef93b6c",
+        "filename": "src/pdf/SkPDFBitmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-16T18:55:23Z",
+      "side": 1,
+      "message": "Passing SkImage by reference is really uncommon (it currently happens once). Make this const SkImage* instead?",
+      "range": {
+        "startLine": 18,
+        "startChar": 43,
+        "endLine": 18,
+        "endChar": 61
+      },
+      "revId": "1aa5a9641500f4fc13703132b1a98c99472af104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18bafd0a_2dbf47d2",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 2
