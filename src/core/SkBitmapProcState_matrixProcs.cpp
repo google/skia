@@ -433,7 +433,7 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
-    SkASSERT((fInvType & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) == 0);
+    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
 
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective

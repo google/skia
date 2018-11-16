@@ -8,60 +8,12 @@
 #include "SkUtils.h"
 
 // declare functions externally to suppress warnings.
-void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
-                              const uint32_t* SK_RESTRICT xy,
-                              int count, SkPMColor* SK_RESTRICT colors);
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
                             int count, SkPMColor* SK_RESTRICT colors);
 void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                           const uint32_t* SK_RESTRICT xy,
                            int count, SkPMColor* SK_RESTRICT colors);
-void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
-                            const uint32_t* SK_RESTRICT xy,
-                            int count, SkPMColor* SK_RESTRICT colors);
-
-void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
-                              const uint32_t* SK_RESTRICT xy,
-                              int count, SkPMColor* SK_RESTRICT colors) {
-    SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(kNone_SkFilterQuality == s.fFilterQuality);
-    SkDEBUGCODE(CHECKSTATE(s);)
-
-#ifdef PREAMBLE
-    PREAMBLE(s);
-#endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
-    size_t rb = s.fPixmap.rowBytes();
-
-    uint32_t XY;
-    SRCTYPE src;
-
-    for (int i = (count >> 1); i > 0; --i) {
-        XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
-        src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
-        *colors++ = RETURNDST(src);
-
-        XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
-        src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
-        *colors++ = RETURNDST(src);
-    }
-    if (count & 1) {
-        XY = *xy++;
-        SkASSERT((XY >> 16) < (unsigned)s.fPixmap.height() &&
-                 (XY & 0xFFFF) < (unsigned)s.fPixmap.width());
-        src = ((const SRCTYPE*)(srcAddr + (XY >> 16) * rb))[XY & 0xFFFF];
-        *colors++ = RETURNDST(src);
-    }
-
-#ifdef POSTAMBLE
-    POSTAMBLE(s);
-#endif
-}
 
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
@@ -158,48 +110,6 @@ void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
                     colors);
         colors += 1;
 
-    } while (--count != 0);
-
-#ifdef POSTAMBLE
-    POSTAMBLE(s);
-#endif
-}
-void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
-                            const uint32_t* SK_RESTRICT xy,
-                            int count, SkPMColor* SK_RESTRICT colors) {
-    SkASSERT(count > 0 && colors != nullptr);
-    SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
-    SkDEBUGCODE(CHECKSTATE(s);)
-
-#ifdef PREAMBLE
-        PREAMBLE(s);
-#endif
-    const char* SK_RESTRICT srcAddr = (const char*)s.fPixmap.addr();
-    size_t rb = s.fPixmap.rowBytes();
-
-    do {
-        uint32_t data = *xy++;
-        unsigned y0 = data >> 14;
-        unsigned y1 = data & 0x3FFF;
-        unsigned subY = y0 & 0xF;
-        y0 >>= 4;
-
-        data = *xy++;
-        unsigned x0 = data >> 14;
-        unsigned x1 = data & 0x3FFF;
-        unsigned subX = x0 & 0xF;
-        x0 >>= 4;
-
-        const SRCTYPE* SK_RESTRICT row0 = (const SRCTYPE*)(srcAddr + y0 * rb);
-        const SRCTYPE* SK_RESTRICT row1 = (const SRCTYPE*)(srcAddr + y1 * rb);
-
-        FILTER_PROC(subX, subY,
-                    SRC_TO_FILTER(row0[x0]),
-                    SRC_TO_FILTER(row0[x1]),
-                    SRC_TO_FILTER(row1[x0]),
-                    SRC_TO_FILTER(row1[x1]),
-                    colors);
-        colors += 1;
     } while (--count != 0);
 
 #ifdef POSTAMBLE

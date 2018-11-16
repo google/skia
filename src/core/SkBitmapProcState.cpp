@@ -245,19 +245,11 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
     // the shader procs above and can skip all this.
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
-        int index = 0;
-        if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
-            index |= 1;
-        }
-        if (fFilterQuality > kNone_SkFilterQuality) {
-            index |= 2;
-        }
+        int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
 
 #if !defined(SK_ARM_HAS_NEON)
         static const SampleProc32 gSkBitmapProcStateSample32[] = {
-            S32_alpha_D32_nofilter_DXDY,
             S32_alpha_D32_nofilter_DX,
-            S32_alpha_D32_filter_DXDY,
             S32_alpha_D32_filter_DX,
         };
 #endif
