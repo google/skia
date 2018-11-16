@@ -148,7 +148,8 @@ GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
 
         // Create Resolve attachment view
         resolveAttachmentView = GrVkImageView::Create(gpu, info.fImage, pixelFormat,
-                                                      GrVkImageView::kColor_Type, 1);
+                                                      GrVkImageView::kColor_Type, 1,
+                                                      GrVkYcbcrConversionInfo());
         if (!resolveAttachmentView) {
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
             return nullptr;
@@ -161,7 +162,8 @@ GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
 
     // Get color attachment view
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
-                                                                     GrVkImageView::kColor_Type, 1);
+                                                                     GrVkImageView::kColor_Type, 1,
+                                                                     GrVkYcbcrConversionInfo());
     if (!colorAttachmentView) {
         if (desc.fSampleCnt > 1) {
             resolveAttachmentView->unref(gpu);

@@ -313,6 +313,18 @@ public:
      */
     GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const;
 
+    /**
+     * Returns a key to represent any special ycbcr sampling requirements to be used with the given
+     * GrBackendTexture. Currently only the Vulkan backend may return a non zero key value.
+     */
+    virtual uint8_t getYcbcrKeyFromBackendTexture(const GrBackendTexture&) { return 0; }
+
+    /**
+     * Returns a key to represent any special ycbcr sampling requirements to be used with the given
+     * GrBackendFormat. Currently only the Vulkan backend may return a non zero key value.
+     */
+    virtual uint8_t getYcbcrKeyFromBackendFormat(const GrBackendFormat&) { return 0; }
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:
