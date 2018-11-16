@@ -46,6 +46,30 @@
       "revId": "bce8e5b390f756e81b540ed84b6245ddb402979a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db8da195_fcb90716",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-16T15:05:20Z",
+      "side": 1,
+      "message": "Yeah, agreed, kCheatyFace_SkAlphaType colors do make this confusing.",
+      "parentUuid": "38288b32_e7aec085",
+      "range": {
+        "startLine": 332,
+        "startChar": 35,
+        "endLine": 332,
+        "endChar": 39
+      },
+      "revId": "bce8e5b390f756e81b540ed84b6245ddb402979a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
