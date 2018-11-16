@@ -198,9 +198,10 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
-        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc, GrPrimitiveType primitiveType,
+        const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
+        const GrTextureProxy* const* primProcProxies, GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->refPipelineState(proc, pipeline, primitiveType,
+    return fPipelineStateCache->refPipelineState(proc, primProcProxies, pipeline, primitiveType,
                                                  compatibleRenderPass);
 }
 

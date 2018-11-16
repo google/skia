@@ -601,9 +601,22 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
 
     VkRenderPass compatibleRenderPass = cbInfo.fRenderPass->vkRenderPass();
 
+    const GrTextureProxy* const* primProcProxies = nullptr;
+    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+        // We really just use the first primProc->numTextureSamplers() proxies for creating a
+        // pipeline state since each interation of the dynamic textures should have matching
+        // samplers.
+        primProcProxies = dynamicStateArrays->fPrimitiveProcessorTextures;
+    } else if (fixedDynamicState) {
+        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
+    }
+
+    SkASSERT(SkToBool(primProcProxies) == SkToBool(primProc.numTextureSamplers()));
+
     GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline,
                                                                      primProc,
+                                                                     primProcProxies,
                                                                      primitiveType,
                                                                      compatibleRenderPass);
     if (!pipelineState) {
@@ -624,10 +637,6 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
     bool setTextures = !(dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures);
     if (setTextures) {
-        const GrTextureProxy* const* primProcProxies = nullptr;
-        if (fixedDynamicState) {
-            primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-        }
         pipelineState->setAndBindTextures(fGpu, primProc, pipeline, primProcProxies,
                                           cbInfo.currentCmdBuf());
     }
