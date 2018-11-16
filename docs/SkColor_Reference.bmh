@@ -597,7 +597,7 @@ hsv[2] contains HSV_Value, a value from zero to one.
 
 # ------------------------------------------------------------------------------
 
-#Method void SkColorToHSV(SkColor color, SkScalar hsv[3])
+#Method static void SkColorToHSV(SkColor color, SkScalar hsv[3])
 #In Functions
 #Line # converts RGB to HSV ##
 
@@ -673,7 +673,7 @@ Out of range hsv values are pinned.
 
 # ------------------------------------------------------------------------------
 
-#Method SkColor SkHSVToColor(const SkScalar hsv[3])
+#Method static SkColor SkHSVToColor(const SkScalar hsv[3])
 #In Functions
 #Line # converts HSV to RGB ##
 

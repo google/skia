@@ -189,7 +189,7 @@ in the same order.
 
 #Subtopic Unpremul ##
 
-#Method static inline bool SkAlphaTypeIsOpaque(SkAlphaType at)
+#Method static bool SkAlphaTypeIsOpaque(SkAlphaType at)
 #In Property
 #Line # returns if Alpha_Type equals kOpaque_SkAlphaType ##
 #Populate
