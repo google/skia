@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ff17792_a5dcae43",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-16T16:00:23Z",
+      "side": 1,
+      "message": "Maybe SkPMColor4fFitsInBytes?  So we don\u0027t have to explain it?  Or do I just have the wrong gut reaction to \"normalized\"?",
+      "range": {
+        "startLine": 98,
+        "startChar": 19,
+        "endLine": 98,
+        "endChar": 42
+      },
+      "revId": "08a23f6f7372b9deb5c038cdb9a165a007408caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
