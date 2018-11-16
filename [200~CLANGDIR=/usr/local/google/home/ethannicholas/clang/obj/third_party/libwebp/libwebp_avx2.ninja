@@ -1,0 +1,10 @@
+defines = -D_GLIBCXX_DEBUG -DWEBP_SWAP_16BIT_CSP
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/libwebp/src -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/libwebp
+cflags_c = -mavx2
+root_out_dir = .
+target_output_name = libwebp_avx2
+
+build obj/third_party/externals/libwebp/src/dsp/libwebp_avx2.enc_avx2.o: cc ../../../../../../../third_party/externals/libwebp/src/dsp/enc_avx2.c
+
+build obj/third_party/libwebp/libwebp_avx2.stamp: stamp obj/third_party/externals/libwebp/src/dsp/libwebp_avx2.enc_avx2.o

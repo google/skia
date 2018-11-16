@@ -1,0 +1,12 @@
+defines = -DJSON_USE_EXCEPTION=0 -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/jsoncpp/include
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti
+root_out_dir = .
+target_output_name = jsoncpp
+
+build obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_reader.o: cxx ../../../../../../../third_party/externals/jsoncpp/src/lib_json/json_reader.cpp
+build obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_value.o: cxx ../../../../../../../third_party/externals/jsoncpp/src/lib_json/json_value.cpp
+build obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_writer.o: cxx ../../../../../../../third_party/externals/jsoncpp/src/lib_json/json_writer.cpp
+
+build obj/third_party/jsoncpp/jsoncpp.stamp: stamp obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_reader.o obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_value.o obj/third_party/externals/jsoncpp/src/lib_json/jsoncpp.json_writer.o

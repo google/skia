@@ -1,0 +1,15 @@
+defines = -DBREAK_IF_DEBUGGING_AND_OUT_OF_RANGE -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/piex
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti
+root_out_dir = .
+target_output_name = piex
+
+build obj/third_party/externals/piex/src/binary_parse/piex.cached_paged_byte_array.o: cxx ../../../../../../../third_party/externals/piex/src/binary_parse/cached_paged_byte_array.cc
+build obj/third_party/externals/piex/src/binary_parse/piex.range_checked_byte_ptr.o: cxx ../../../../../../../third_party/externals/piex/src/binary_parse/range_checked_byte_ptr.cc
+build obj/third_party/externals/piex/src/image_type_recognition/piex.image_type_recognition_lite.o: cxx ../../../../../../../third_party/externals/piex/src/image_type_recognition/image_type_recognition_lite.cc
+build obj/third_party/externals/piex/src/piex.piex.o: cxx ../../../../../../../third_party/externals/piex/src/piex.cc
+build obj/third_party/externals/piex/src/tiff_directory/piex.tiff_directory.o: cxx ../../../../../../../third_party/externals/piex/src/tiff_directory/tiff_directory.cc
+build obj/third_party/externals/piex/src/piex.tiff_parser.o: cxx ../../../../../../../third_party/externals/piex/src/tiff_parser.cc
+
+build obj/third_party/piex/piex.stamp: stamp obj/third_party/externals/piex/src/binary_parse/piex.cached_paged_byte_array.o obj/third_party/externals/piex/src/binary_parse/piex.range_checked_byte_ptr.o obj/third_party/externals/piex/src/image_type_recognition/piex.image_type_recognition_lite.o obj/third_party/externals/piex/src/piex.piex.o obj/third_party/externals/piex/src/tiff_directory/piex.tiff_directory.o obj/third_party/externals/piex/src/piex.tiff_parser.o

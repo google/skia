@@ -1,0 +1,81 @@
+defines = -D_GLIBCXX_DEBUG -DSK_SAMPLES_FOR_X -DSK_SUPPORT_ATLAS_TEXT=1 -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS=1 -DSKIA_IMPLEMENTATION=1
+include_dirs = -I../../../../../../../include/android -I../../../../../../../include/c -I../../../../../../../include/codec -I../../../../../../../include/config -I../../../../../../../include/core -I../../../../../../../include/docs -I../../../../../../../include/effects -I../../../../../../../include/encode -I../../../../../../../include/gpu -I../../../../../../../include/atlastext -I../../../../../../../include/pathops -I../../../../../../../include/ports -I../../../../../../../include/svg -I../../../../../../../include/utils -I../../../../../../../include/utils/mac -I../../../../../../../include/atlastext -I../../../../../../../include/private -I../../../../../../../src/c -I../../../../../../../src/codec -I../../../../../../../src/core -I../../../../../../../src/effects -I../../../../../../../src/fonts -I../../../../../../../src/image -I../../../../../../../src/images -I../../../../../../../src/lazy -I../../../../../../../src/opts -I../../../../../../../src/pathops -I../../../../../../../src/pdf -I../../../../../../../src/ports -I../../../../../../../src/sfnt -I../../../../../../../src/shaders -I../../../../../../../src/shaders/gradients -I../../../../../../../src/sksl -I../../../../../../../src/utils -I../../../../../../../src/utils/win -I../../../../../../../src/xml -I../../../../../../../third_party/gif -I../../../../../../../src/gpu -I../../../../../../../tools/gpu/vk
+cflags = -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type
+root_out_dir = .
+target_output_name = libpathkit
+
+build obj/src/pathops/libpathkit.SkAddIntersections.o: cxx ../../../../../../../src/pathops/SkAddIntersections.cpp
+build obj/src/pathops/libpathkit.SkDConicLineIntersection.o: cxx ../../../../../../../src/pathops/SkDConicLineIntersection.cpp
+build obj/src/pathops/libpathkit.SkDCubicLineIntersection.o: cxx ../../../../../../../src/pathops/SkDCubicLineIntersection.cpp
+build obj/src/pathops/libpathkit.SkDCubicToQuads.o: cxx ../../../../../../../src/pathops/SkDCubicToQuads.cpp
+build obj/src/pathops/libpathkit.SkDLineIntersection.o: cxx ../../../../../../../src/pathops/SkDLineIntersection.cpp
+build obj/src/pathops/libpathkit.SkDQuadLineIntersection.o: cxx ../../../../../../../src/pathops/SkDQuadLineIntersection.cpp
+build obj/src/pathops/libpathkit.SkIntersections.o: cxx ../../../../../../../src/pathops/SkIntersections.cpp
+build obj/src/pathops/libpathkit.SkOpAngle.o: cxx ../../../../../../../src/pathops/SkOpAngle.cpp
+build obj/src/pathops/libpathkit.SkOpBuilder.o: cxx ../../../../../../../src/pathops/SkOpBuilder.cpp
+build obj/src/pathops/libpathkit.SkOpCoincidence.o: cxx ../../../../../../../src/pathops/SkOpCoincidence.cpp
+build obj/src/pathops/libpathkit.SkOpContour.o: cxx ../../../../../../../src/pathops/SkOpContour.cpp
+build obj/src/pathops/libpathkit.SkOpCubicHull.o: cxx ../../../../../../../src/pathops/SkOpCubicHull.cpp
+build obj/src/pathops/libpathkit.SkOpEdgeBuilder.o: cxx ../../../../../../../src/pathops/SkOpEdgeBuilder.cpp
+build obj/src/pathops/libpathkit.SkOpSegment.o: cxx ../../../../../../../src/pathops/SkOpSegment.cpp
+build obj/src/pathops/libpathkit.SkOpSpan.o: cxx ../../../../../../../src/pathops/SkOpSpan.cpp
+build obj/src/pathops/libpathkit.SkPathOpsAsWinding.o: cxx ../../../../../../../src/pathops/SkPathOpsAsWinding.cpp
+build obj/src/pathops/libpathkit.SkPathOpsCommon.o: cxx ../../../../../../../src/pathops/SkPathOpsCommon.cpp
+build obj/src/pathops/libpathkit.SkPathOpsConic.o: cxx ../../../../../../../src/pathops/SkPathOpsConic.cpp
+build obj/src/pathops/libpathkit.SkPathOpsCubic.o: cxx ../../../../../../../src/pathops/SkPathOpsCubic.cpp
+build obj/src/pathops/libpathkit.SkPathOpsCurve.o: cxx ../../../../../../../src/pathops/SkPathOpsCurve.cpp
+build obj/src/pathops/libpathkit.SkPathOpsDebug.o: cxx ../../../../../../../src/pathops/SkPathOpsDebug.cpp
+build obj/src/pathops/libpathkit.SkPathOpsLine.o: cxx ../../../../../../../src/pathops/SkPathOpsLine.cpp
+build obj/src/pathops/libpathkit.SkPathOpsOp.o: cxx ../../../../../../../src/pathops/SkPathOpsOp.cpp
+build obj/src/pathops/libpathkit.SkPathOpsQuad.o: cxx ../../../../../../../src/pathops/SkPathOpsQuad.cpp
+build obj/src/pathops/libpathkit.SkPathOpsRect.o: cxx ../../../../../../../src/pathops/SkPathOpsRect.cpp
+build obj/src/pathops/libpathkit.SkPathOpsSimplify.o: cxx ../../../../../../../src/pathops/SkPathOpsSimplify.cpp
+build obj/src/pathops/libpathkit.SkPathOpsTSect.o: cxx ../../../../../../../src/pathops/SkPathOpsTSect.cpp
+build obj/src/pathops/libpathkit.SkPathOpsTightBounds.o: cxx ../../../../../../../src/pathops/SkPathOpsTightBounds.cpp
+build obj/src/pathops/libpathkit.SkPathOpsTypes.o: cxx ../../../../../../../src/pathops/SkPathOpsTypes.cpp
+build obj/src/pathops/libpathkit.SkPathOpsWinding.o: cxx ../../../../../../../src/pathops/SkPathOpsWinding.cpp
+build obj/src/pathops/libpathkit.SkPathWriter.o: cxx ../../../../../../../src/pathops/SkPathWriter.cpp
+build obj/src/pathops/libpathkit.SkReduceOrder.o: cxx ../../../../../../../src/pathops/SkReduceOrder.cpp
+build obj/src/core/libpathkit.SkAnalyticEdge.o: cxx ../../../../../../../src/core/SkAnalyticEdge.cpp
+build obj/src/core/libpathkit.SkArenaAlloc.o: cxx ../../../../../../../src/core/SkArenaAlloc.cpp
+build obj/src/core/libpathkit.SkCubicMap.o: cxx ../../../../../../../src/core/SkCubicMap.cpp
+build obj/src/core/libpathkit.SkEdge.o: cxx ../../../../../../../src/core/SkEdge.cpp
+build obj/src/core/libpathkit.SkEdgeBuilder.o: cxx ../../../../../../../src/core/SkEdgeBuilder.cpp
+build obj/src/core/libpathkit.SkEdgeClipper.o: cxx ../../../../../../../src/core/SkEdgeClipper.cpp
+build obj/src/core/libpathkit.SkGeometry.o: cxx ../../../../../../../src/core/SkGeometry.cpp
+build obj/src/core/libpathkit.SkLineClipper.o: cxx ../../../../../../../src/core/SkLineClipper.cpp
+build obj/src/core/libpathkit.SkMallocPixelRef.o: cxx ../../../../../../../src/core/SkMallocPixelRef.cpp
+build obj/src/core/libpathkit.SkMath.o: cxx ../../../../../../../src/core/SkMath.cpp
+build obj/src/core/libpathkit.SkMatrix.o: cxx ../../../../../../../src/core/SkMatrix.cpp
+build obj/src/core/libpathkit.SkOpts.o: cxx ../../../../../../../src/core/SkOpts.cpp
+build obj/src/core/libpathkit.SkPaint.o: cxx ../../../../../../../src/core/SkPaint.cpp
+build obj/src/core/libpathkit.SkPath.o: cxx ../../../../../../../src/core/SkPath.cpp
+build obj/src/core/libpathkit.SkPathEffect.o: cxx ../../../../../../../src/core/SkPathEffect.cpp
+build obj/src/core/libpathkit.SkPathMeasure.o: cxx ../../../../../../../src/core/SkPathMeasure.cpp
+build obj/src/core/libpathkit.SkPathRef.o: cxx ../../../../../../../src/core/SkPathRef.cpp
+build obj/src/core/libpathkit.SkPoint.o: cxx ../../../../../../../src/core/SkPoint.cpp
+build obj/src/core/libpathkit.SkRRect.o: cxx ../../../../../../../src/core/SkRRect.cpp
+build obj/src/core/libpathkit.SkRect.o: cxx ../../../../../../../src/core/SkRect.cpp
+build obj/src/core/libpathkit.SkSemaphore.o: cxx ../../../../../../../src/core/SkSemaphore.cpp
+build obj/src/core/libpathkit.SkStream.o: cxx ../../../../../../../src/core/SkStream.cpp
+build obj/src/core/libpathkit.SkString.o: cxx ../../../../../../../src/core/SkString.cpp
+build obj/src/core/libpathkit.SkStringUtils.o: cxx ../../../../../../../src/core/SkStringUtils.cpp
+build obj/src/core/libpathkit.SkStroke.o: cxx ../../../../../../../src/core/SkStroke.cpp
+build obj/src/core/libpathkit.SkStrokeRec.o: cxx ../../../../../../../src/core/SkStrokeRec.cpp
+build obj/src/core/libpathkit.SkStrokerPriv.o: cxx ../../../../../../../src/core/SkStrokerPriv.cpp
+build obj/src/core/libpathkit.SkThreadID.o: cxx ../../../../../../../src/core/SkThreadID.cpp
+build obj/src/core/libpathkit.SkUtils.o: cxx ../../../../../../../src/core/SkUtils.cpp
+build obj/src/effects/libpathkit.SkDashPathEffect.o: cxx ../../../../../../../src/effects/SkDashPathEffect.cpp
+build obj/src/effects/libpathkit.SkTrimPathEffect.o: cxx ../../../../../../../src/effects/SkTrimPathEffect.cpp
+build obj/src/ports/libpathkit.SkDebug_stdio.o: cxx ../../../../../../../src/ports/SkDebug_stdio.cpp
+build obj/src/ports/libpathkit.SkMemory_malloc.o: cxx ../../../../../../../src/ports/SkMemory_malloc.cpp
+build obj/src/utils/libpathkit.SkDashPath.o: cxx ../../../../../../../src/utils/SkDashPath.cpp
+build obj/src/utils/libpathkit.SkParse.o: cxx ../../../../../../../src/utils/SkParse.cpp
+build obj/src/utils/libpathkit.SkParsePath.o: cxx ../../../../../../../src/utils/SkParsePath.cpp
+build obj/src/utils/libpathkit.SkUTF.o: cxx ../../../../../../../src/utils/SkUTF.cpp
+
+build ./libpathkit.a: alink obj/src/pathops/libpathkit.SkAddIntersections.o obj/src/pathops/libpathkit.SkDConicLineIntersection.o obj/src/pathops/libpathkit.SkDCubicLineIntersection.o obj/src/pathops/libpathkit.SkDCubicToQuads.o obj/src/pathops/libpathkit.SkDLineIntersection.o obj/src/pathops/libpathkit.SkDQuadLineIntersection.o obj/src/pathops/libpathkit.SkIntersections.o obj/src/pathops/libpathkit.SkOpAngle.o obj/src/pathops/libpathkit.SkOpBuilder.o obj/src/pathops/libpathkit.SkOpCoincidence.o obj/src/pathops/libpathkit.SkOpContour.o obj/src/pathops/libpathkit.SkOpCubicHull.o obj/src/pathops/libpathkit.SkOpEdgeBuilder.o obj/src/pathops/libpathkit.SkOpSegment.o obj/src/pathops/libpathkit.SkOpSpan.o obj/src/pathops/libpathkit.SkPathOpsAsWinding.o obj/src/pathops/libpathkit.SkPathOpsCommon.o obj/src/pathops/libpathkit.SkPathOpsConic.o obj/src/pathops/libpathkit.SkPathOpsCubic.o obj/src/pathops/libpathkit.SkPathOpsCurve.o obj/src/pathops/libpathkit.SkPathOpsDebug.o obj/src/pathops/libpathkit.SkPathOpsLine.o obj/src/pathops/libpathkit.SkPathOpsOp.o obj/src/pathops/libpathkit.SkPathOpsQuad.o obj/src/pathops/libpathkit.SkPathOpsRect.o obj/src/pathops/libpathkit.SkPathOpsSimplify.o obj/src/pathops/libpathkit.SkPathOpsTSect.o obj/src/pathops/libpathkit.SkPathOpsTightBounds.o obj/src/pathops/libpathkit.SkPathOpsTypes.o obj/src/pathops/libpathkit.SkPathOpsWinding.o obj/src/pathops/libpathkit.SkPathWriter.o obj/src/pathops/libpathkit.SkReduceOrder.o obj/src/core/libpathkit.SkAnalyticEdge.o obj/src/core/libpathkit.SkArenaAlloc.o obj/src/core/libpathkit.SkCubicMap.o obj/src/core/libpathkit.SkEdge.o obj/src/core/libpathkit.SkEdgeBuilder.o obj/src/core/libpathkit.SkEdgeClipper.o obj/src/core/libpathkit.SkGeometry.o obj/src/core/libpathkit.SkLineClipper.o obj/src/core/libpathkit.SkMallocPixelRef.o obj/src/core/libpathkit.SkMath.o obj/src/core/libpathkit.SkMatrix.o obj/src/core/libpathkit.SkOpts.o obj/src/core/libpathkit.SkPaint.o obj/src/core/libpathkit.SkPath.o obj/src/core/libpathkit.SkPathEffect.o obj/src/core/libpathkit.SkPathMeasure.o obj/src/core/libpathkit.SkPathRef.o obj/src/core/libpathkit.SkPoint.o obj/src/core/libpathkit.SkRRect.o obj/src/core/libpathkit.SkRect.o obj/src/core/libpathkit.SkSemaphore.o obj/src/core/libpathkit.SkStream.o obj/src/core/libpathkit.SkString.o obj/src/core/libpathkit.SkStringUtils.o obj/src/core/libpathkit.SkStroke.o obj/src/core/libpathkit.SkStrokeRec.o obj/src/core/libpathkit.SkStrokerPriv.o obj/src/core/libpathkit.SkThreadID.o obj/src/core/libpathkit.SkUtils.o obj/src/effects/libpathkit.SkDashPathEffect.o obj/src/effects/libpathkit.SkTrimPathEffect.o obj/src/ports/libpathkit.SkDebug_stdio.o obj/src/ports/libpathkit.SkMemory_malloc.o obj/src/utils/libpathkit.SkDashPath.o obj/src/utils/libpathkit.SkParse.o obj/src/utils/libpathkit.SkParsePath.o obj/src/utils/libpathkit.SkUTF.o || obj/arm64.stamp obj/armv7.stamp obj/avx.stamp obj/crc32.stamp obj/hsw.stamp obj/none.stamp obj/sse2.stamp obj/sse41.stamp obj/sse42.stamp obj/ssse3.stamp
+  arflags =
+  output_extension = .a
+  output_dir = 

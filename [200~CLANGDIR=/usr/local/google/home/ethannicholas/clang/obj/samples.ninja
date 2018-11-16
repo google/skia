@@ -1,0 +1,108 @@
+defines = -D_GLIBCXX_DEBUG -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS=1 -DSK_VULKAN -DSK_ENABLE_VK_LAYERS -DSK_ENABLE_SPIRV_VALIDATION -DSK_ENABLE_DUMP_GPU -DSK_SUPPORT_PDF -DSK_PDF_USE_SFNTLY -DSK_HAS_JPEG_LIBRARY -DSK_HAS_HEIF_LIBRARY -DSK_HAS_PNG_LIBRARY -DSK_CODEC_DECODES_RAW -DSK_HAS_WEBP_LIBRARY -DSK_XML -DSK_SAMPLES_FOR_X -DSK_SUPPORT_ATLAS_TEXT=1
+include_dirs = -I../../../../../../../experimental -I../../../../../../../samplecode -I../../../../../../../include/private -I../../../../../../../src/c -I../../../../../../../src/codec -I../../../../../../../src/core -I../../../../../../../src/effects -I../../../../../../../src/fonts -I../../../../../../../src/image -I../../../../../../../src/images -I../../../../../../../src/lazy -I../../../../../../../src/opts -I../../../../../../../src/pathops -I../../../../../../../src/pdf -I../../../../../../../src/ports -I../../../../../../../src/sfnt -I../../../../../../../src/shaders -I../../../../../../../src/shaders/gradients -I../../../../../../../src/sksl -I../../../../../../../src/utils -I../../../../../../../src/utils/win -I../../../../../../../src/xml -I../../../../../../../third_party/gif -I../../../../../../../src/gpu -I../../../../../../../tools/gpu/vk -I../../../../../../../tools -I../../../../../../../tools/debugger -I../../../../../../../tools/fonts -I../../../../../../../tools/timer -I../../../../../../../tools/trace -I../../../../../../../tools/flags -I../../../../../../../tools/gpu -I../../../../../../../third_party/vulkan -I../../../../../../../experimental/svg/model -I../../../../../../../tools/flags -I../../../../../../../modules/skshaper/include -I../../../../../../../include/android -I../../../../../../../include/c -I../../../../../../../include/codec -I../../../../../../../include/config -I../../../../../../../include/core -I../../../../../../../include/docs -I../../../../../../../include/effects -I../../../../../../../include/encode -I../../../../../../../include/gpu -I../../../../../../../include/atlastext -I../../../../../../../include/pathops -I../../../../../../../include/ports -I../../../../../../../include/svg -I../../../../../../../include/utils -I../../../../../../../include/utils/mac -I../../../../../../../include/atlastext
+cflags = -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/jsoncpp/include -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/\[200\~CLANGDIR=/usr/local/google/home/ethannicholas/clang/gen/third_party/Nima-Cpp/Nima-Cpp -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/\[200\~CLANGDIR=/usr/local/google/home/ethannicholas/clang/gen/third_party/Nima-Cpp/Nima-Math-Cpp -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/lua
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type
+root_out_dir = .
+target_output_name = samples
+
+build obj/samples.inputdeps.stamp: stamp obj/third_party/Nima-Cpp/copy-nima-cpp.stamp obj/third_party/Nima-Cpp/copy-nima-math-cpp.stamp obj/third_party/spirv-tools/spirv_build_version.stamp obj/third_party/spirv-tools/spirv_core_tables_1.0.stamp obj/third_party/spirv-tools/spirv_core_tables_1.1.stamp obj/third_party/spirv-tools/spirv_core_tables_1.2.stamp obj/third_party/spirv-tools/spirv_extension_enum.stamp obj/third_party/spirv-tools/spirv_generators.stamp obj/third_party/spirv-tools/spirv_glsl_tables.stamp obj/third_party/spirv-tools/spirv_opencl_tables.stamp obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_ballot.stamp obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_explicit_vertex_parameter.stamp obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_gcn_shader.stamp obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_trinary_minmax.stamp
+build obj/samplecode/samples.PerlinPatch.o: cxx ../../../../../../../samplecode/PerlinPatch.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.Sample.o: cxx ../../../../../../../samplecode/Sample.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.Sample2PtRadial.o: cxx ../../../../../../../samplecode/Sample2PtRadial.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAAClip.o: cxx ../../../../../../../samplecode/SampleAAClip.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAAGeometry.o: cxx ../../../../../../../samplecode/SampleAAGeometry.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAARectModes.o: cxx ../../../../../../../samplecode/SampleAARectModes.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAARects.o: cxx ../../../../../../../samplecode/SampleAARects.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAll.o: cxx ../../../../../../../samplecode/SampleAll.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAndroidShadows.o: cxx ../../../../../../../samplecode/SampleAndroidShadows.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAnimatedImage.o: cxx ../../../../../../../samplecode/SampleAnimatedImage.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAnimatedText.o: cxx ../../../../../../../samplecode/SampleAnimatedText.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAnimBlur.o: cxx ../../../../../../../samplecode/SampleAnimBlur.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleArc.o: cxx ../../../../../../../samplecode/SampleArc.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleAtlas.o: cxx ../../../../../../../samplecode/SampleAtlas.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleBigBlur.o: cxx ../../../../../../../samplecode/SampleBigBlur.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleBigGradient.o: cxx ../../../../../../../samplecode/SampleBigGradient.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleBitmapRect.o: cxx ../../../../../../../samplecode/SampleBitmapRect.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleBlur.o: cxx ../../../../../../../samplecode/SampleBlur.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleCCPRGeometry.o: cxx ../../../../../../../samplecode/SampleCCPRGeometry.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleCamera.o: cxx ../../../../../../../samplecode/SampleCamera.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleChart.o: cxx ../../../../../../../samplecode/SampleChart.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleChineseFling.o: cxx ../../../../../../../samplecode/SampleChineseFling.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleCircle.o: cxx ../../../../../../../samplecode/SampleCircle.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleClip.o: cxx ../../../../../../../samplecode/SampleClip.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleClipDrawMatch.o: cxx ../../../../../../../samplecode/SampleClipDrawMatch.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleClock.o: cxx ../../../../../../../samplecode/SampleClock.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleColorFilter.o: cxx ../../../../../../../samplecode/SampleColorFilter.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleComplexClip.o: cxx ../../../../../../../samplecode/SampleComplexClip.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleConcavePaths.o: cxx ../../../../../../../samplecode/SampleConcavePaths.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleCowboy.o: cxx ../../../../../../../samplecode/SampleCowboy.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleCusp.o: cxx ../../../../../../../samplecode/SampleCusp.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleDegenerateTwoPtRadials.o: cxx ../../../../../../../samplecode/SampleDegenerateTwoPtRadials.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleEffects.o: cxx ../../../../../../../samplecode/SampleEffects.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleEmboss.o: cxx ../../../../../../../samplecode/SampleEmboss.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFatBits.o: cxx ../../../../../../../samplecode/SampleFatBits.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFillType.o: cxx ../../../../../../../samplecode/SampleFillType.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFilter2.o: cxx ../../../../../../../samplecode/SampleFilter2.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFilterFuzz.o: cxx ../../../../../../../samplecode/SampleFilterFuzz.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFilterQuality.o: cxx ../../../../../../../samplecode/SampleFilterQuality.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFlutterAnimate.o: cxx ../../../../../../../samplecode/SampleFlutterAnimate.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFontScalerTest.o: cxx ../../../../../../../samplecode/SampleFontScalerTest.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleFuzz.o: cxx ../../../../../../../samplecode/SampleFuzz.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleGlyphTransform.o: cxx ../../../../../../../samplecode/SampleGlyphTransform.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleGradients.o: cxx ../../../../../../../samplecode/SampleGradients.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleHairCurves.o: cxx ../../../../../../../samplecode/SampleHairCurves.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleHairline.o: cxx ../../../../../../../samplecode/SampleHairline.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleHairModes.o: cxx ../../../../../../../samplecode/SampleHairModes.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleHT.o: cxx ../../../../../../../samplecode/SampleHT.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleIdentityScale.o: cxx ../../../../../../../samplecode/SampleIdentityScale.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLayerMask.o: cxx ../../../../../../../samplecode/SampleLayerMask.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLayers.o: cxx ../../../../../../../samplecode/SampleLayers.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLCD.o: cxx ../../../../../../../samplecode/SampleLCD.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLighting.o: cxx ../../../../../../../samplecode/SampleLighting.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLines.o: cxx ../../../../../../../samplecode/SampleLines.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLitAtlas.o: cxx ../../../../../../../samplecode/SampleLitAtlas.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleManyRects.o: cxx ../../../../../../../samplecode/SampleManyRects.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleMeasure.o: cxx ../../../../../../../samplecode/SampleMeasure.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleMegaStroke.o: cxx ../../../../../../../samplecode/SampleMegaStroke.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleNima.o: cxx ../../../../../../../samplecode/SampleNima.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePatch.o: cxx ../../../../../../../samplecode/SamplePatch.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePath.o: cxx ../../../../../../../samplecode/SamplePath.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePathText.o: cxx ../../../../../../../samplecode/SamplePathText.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePathClip.o: cxx ../../../../../../../samplecode/SamplePathClip.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePathEffects.o: cxx ../../../../../../../samplecode/SamplePathEffects.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePathFuzz.o: cxx ../../../../../../../samplecode/SamplePathFuzz.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePathOverstroke.o: cxx ../../../../../../../samplecode/SamplePathOverstroke.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePdfFileViewer.o: cxx ../../../../../../../samplecode/SamplePdfFileViewer.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePoints.o: cxx ../../../../../../../samplecode/SamplePoints.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SamplePolyToPoly.o: cxx ../../../../../../../samplecode/SamplePolyToPoly.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleQuadStroker.o: cxx ../../../../../../../samplecode/SampleQuadStroker.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleRectanizer.o: cxx ../../../../../../../samplecode/SampleRectanizer.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleRegion.o: cxx ../../../../../../../samplecode/SampleRegion.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleRepeatTile.o: cxx ../../../../../../../samplecode/SampleRepeatTile.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleShaders.o: cxx ../../../../../../../samplecode/SampleShaders.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleShadowColor.o: cxx ../../../../../../../samplecode/SampleShadowColor.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleShadowReference.o: cxx ../../../../../../../samplecode/SampleShadowReference.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleShadowUtils.o: cxx ../../../../../../../samplecode/SampleShadowUtils.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleShip.o: cxx ../../../../../../../samplecode/SampleShip.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleSlides.o: cxx ../../../../../../../samplecode/SampleSlides.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleStringArt.o: cxx ../../../../../../../samplecode/SampleStringArt.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleStrokePath.o: cxx ../../../../../../../samplecode/SampleStrokePath.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleStrokeRect.o: cxx ../../../../../../../samplecode/SampleStrokeRect.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleSubpixelTranslate.o: cxx ../../../../../../../samplecode/SampleSubpixelTranslate.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleSVGFile.o: cxx ../../../../../../../samplecode/SampleSVGFile.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleText.o: cxx ../../../../../../../samplecode/SampleText.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleTextAlpha.o: cxx ../../../../../../../samplecode/SampleTextAlpha.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleTextBox.o: cxx ../../../../../../../samplecode/SampleTextBox.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleTextEffects.o: cxx ../../../../../../../samplecode/SampleTextEffects.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleTextureDomain.o: cxx ../../../../../../../samplecode/SampleTextureDomain.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleTiling.o: cxx ../../../../../../../samplecode/SampleTiling.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleUnpremul.o: cxx ../../../../../../../samplecode/SampleUnpremul.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleVertices.o: cxx ../../../../../../../samplecode/SampleVertices.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleWritePixels.o: cxx ../../../../../../../samplecode/SampleWritePixels.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleXfer.o: cxx ../../../../../../../samplecode/SampleXfer.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleXfermodesBlur.o: cxx ../../../../../../../samplecode/SampleXfermodesBlur.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.vertexdump.o: cxx ../../../../../../../samplecode/vertexdump.cpp || obj/samples.inputdeps.stamp
+build obj/experimental/nima/samples.NimaActor.o: cxx ../../../../../../../experimental/nima/NimaActor.cpp || obj/samples.inputdeps.stamp
+build obj/samplecode/samples.SampleLua.o: cxx ../../../../../../../samplecode/SampleLua.cpp || obj/samples.inputdeps.stamp
+
+build obj/samples.stamp: stamp obj/samplecode/samples.PerlinPatch.o obj/samplecode/samples.Sample.o obj/samplecode/samples.Sample2PtRadial.o obj/samplecode/samples.SampleAAClip.o obj/samplecode/samples.SampleAAGeometry.o obj/samplecode/samples.SampleAARectModes.o obj/samplecode/samples.SampleAARects.o obj/samplecode/samples.SampleAll.o obj/samplecode/samples.SampleAndroidShadows.o obj/samplecode/samples.SampleAnimatedImage.o obj/samplecode/samples.SampleAnimatedText.o obj/samplecode/samples.SampleAnimBlur.o obj/samplecode/samples.SampleArc.o obj/samplecode/samples.SampleAtlas.o obj/samplecode/samples.SampleBigBlur.o obj/samplecode/samples.SampleBigGradient.o obj/samplecode/samples.SampleBitmapRect.o obj/samplecode/samples.SampleBlur.o obj/samplecode/samples.SampleCCPRGeometry.o obj/samplecode/samples.SampleCamera.o obj/samplecode/samples.SampleChart.o obj/samplecode/samples.SampleChineseFling.o obj/samplecode/samples.SampleCircle.o obj/samplecode/samples.SampleClip.o obj/samplecode/samples.SampleClipDrawMatch.o obj/samplecode/samples.SampleClock.o obj/samplecode/samples.SampleColorFilter.o obj/samplecode/samples.SampleComplexClip.o obj/samplecode/samples.SampleConcavePaths.o obj/samplecode/samples.SampleCowboy.o obj/samplecode/samples.SampleCusp.o obj/samplecode/samples.SampleDegenerateTwoPtRadials.o obj/samplecode/samples.SampleEffects.o obj/samplecode/samples.SampleEmboss.o obj/samplecode/samples.SampleFatBits.o obj/samplecode/samples.SampleFillType.o obj/samplecode/samples.SampleFilter2.o obj/samplecode/samples.SampleFilterFuzz.o obj/samplecode/samples.SampleFilterQuality.o obj/samplecode/samples.SampleFlutterAnimate.o obj/samplecode/samples.SampleFontScalerTest.o obj/samplecode/samples.SampleFuzz.o obj/samplecode/samples.SampleGlyphTransform.o obj/samplecode/samples.SampleGradients.o obj/samplecode/samples.SampleHairCurves.o obj/samplecode/samples.SampleHairline.o obj/samplecode/samples.SampleHairModes.o obj/samplecode/samples.SampleHT.o obj/samplecode/samples.SampleIdentityScale.o obj/samplecode/samples.SampleLayerMask.o obj/samplecode/samples.SampleLayers.o obj/samplecode/samples.SampleLCD.o obj/samplecode/samples.SampleLighting.o obj/samplecode/samples.SampleLines.o obj/samplecode/samples.SampleLitAtlas.o obj/samplecode/samples.SampleManyRects.o obj/samplecode/samples.SampleMeasure.o obj/samplecode/samples.SampleMegaStroke.o obj/samplecode/samples.SampleNima.o obj/samplecode/samples.SamplePatch.o obj/samplecode/samples.SamplePath.o obj/samplecode/samples.SamplePathText.o obj/samplecode/samples.SamplePathClip.o obj/samplecode/samples.SamplePathEffects.o obj/samplecode/samples.SamplePathFuzz.o obj/samplecode/samples.SamplePathOverstroke.o obj/samplecode/samples.SamplePdfFileViewer.o obj/samplecode/samples.SamplePoints.o obj/samplecode/samples.SamplePolyToPoly.o obj/samplecode/samples.SampleQuadStroker.o obj/samplecode/samples.SampleRectanizer.o obj/samplecode/samples.SampleRegion.o obj/samplecode/samples.SampleRepeatTile.o obj/samplecode/samples.SampleShaders.o obj/samplecode/samples.SampleShadowColor.o obj/samplecode/samples.SampleShadowReference.o obj/samplecode/samples.SampleShadowUtils.o obj/samplecode/samples.SampleShip.o obj/samplecode/samples.SampleSlides.o obj/samplecode/samples.SampleStringArt.o obj/samplecode/samples.SampleStrokePath.o obj/samplecode/samples.SampleStrokeRect.o obj/samplecode/samples.SampleSubpixelTranslate.o obj/samplecode/samples.SampleSVGFile.o obj/samplecode/samples.SampleText.o obj/samplecode/samples.SampleTextAlpha.o obj/samplecode/samples.SampleTextBox.o obj/samplecode/samples.SampleTextEffects.o obj/samplecode/samples.SampleTextureDomain.o obj/samplecode/samples.SampleTiling.o obj/samplecode/samples.SampleUnpremul.o obj/samplecode/samples.SampleVertices.o obj/samplecode/samples.SampleWritePixels.o obj/samplecode/samples.SampleXfer.o obj/samplecode/samples.SampleXfermodesBlur.o obj/samplecode/samples.vertexdump.o obj/experimental/nima/samples.NimaActor.o obj/samplecode/samples.SampleLua.o || obj/tool_utils.stamp obj/experimental_svg_model.stamp obj/flags.stamp obj/xml.stamp obj/modules/skshaper/skshaper.stamp obj/third_party/Nima-Cpp/Nima-Cpp.stamp obj/lua.stamp obj/third_party/lua/lua.stamp ./libskia.a obj/common_flags.stamp obj/gpu_tool_utils.stamp obj/third_party/jsoncpp/jsoncpp.stamp obj/third_party/expat/expat.stamp obj/third_party/libpng/libpng.stamp obj/third_party/zlib/zlib.stamp obj/third_party/zlib/zlib_x86.stamp obj/third_party/harfbuzz/harfbuzz.stamp obj/third_party/icu/icu.stamp

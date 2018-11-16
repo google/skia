@@ -1,0 +1,42 @@
+defines = -DLUA_USE_POSIX=1 -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/lua
+cflags_c =
+root_out_dir = .
+target_output_name = lua
+
+build obj/third_party/externals/lua/lua.lapi.o: cc ../../../../../../../third_party/externals/lua/lapi.c
+build obj/third_party/externals/lua/lua.lauxlib.o: cc ../../../../../../../third_party/externals/lua/lauxlib.c
+build obj/third_party/externals/lua/lua.lbaselib.o: cc ../../../../../../../third_party/externals/lua/lbaselib.c
+build obj/third_party/externals/lua/lua.lbitlib.o: cc ../../../../../../../third_party/externals/lua/lbitlib.c
+build obj/third_party/externals/lua/lua.lcode.o: cc ../../../../../../../third_party/externals/lua/lcode.c
+build obj/third_party/externals/lua/lua.lcorolib.o: cc ../../../../../../../third_party/externals/lua/lcorolib.c
+build obj/third_party/externals/lua/lua.lctype.o: cc ../../../../../../../third_party/externals/lua/lctype.c
+build obj/third_party/externals/lua/lua.ldblib.o: cc ../../../../../../../third_party/externals/lua/ldblib.c
+build obj/third_party/externals/lua/lua.ldebug.o: cc ../../../../../../../third_party/externals/lua/ldebug.c
+build obj/third_party/externals/lua/lua.ldo.o: cc ../../../../../../../third_party/externals/lua/ldo.c
+build obj/third_party/externals/lua/lua.ldump.o: cc ../../../../../../../third_party/externals/lua/ldump.c
+build obj/third_party/externals/lua/lua.lfunc.o: cc ../../../../../../../third_party/externals/lua/lfunc.c
+build obj/third_party/externals/lua/lua.lgc.o: cc ../../../../../../../third_party/externals/lua/lgc.c
+build obj/third_party/externals/lua/lua.linit.o: cc ../../../../../../../third_party/externals/lua/linit.c
+build obj/third_party/externals/lua/lua.liolib.o: cc ../../../../../../../third_party/externals/lua/liolib.c
+build obj/third_party/externals/lua/lua.llex.o: cc ../../../../../../../third_party/externals/lua/llex.c
+build obj/third_party/externals/lua/lua.lmathlib.o: cc ../../../../../../../third_party/externals/lua/lmathlib.c
+build obj/third_party/externals/lua/lua.lmem.o: cc ../../../../../../../third_party/externals/lua/lmem.c
+build obj/third_party/externals/lua/lua.loadlib.o: cc ../../../../../../../third_party/externals/lua/loadlib.c
+build obj/third_party/externals/lua/lua.lobject.o: cc ../../../../../../../third_party/externals/lua/lobject.c
+build obj/third_party/externals/lua/lua.lopcodes.o: cc ../../../../../../../third_party/externals/lua/lopcodes.c
+build obj/third_party/externals/lua/lua.loslib.o: cc ../../../../../../../third_party/externals/lua/loslib.c
+build obj/third_party/externals/lua/lua.lparser.o: cc ../../../../../../../third_party/externals/lua/lparser.c
+build obj/third_party/externals/lua/lua.lstate.o: cc ../../../../../../../third_party/externals/lua/lstate.c
+build obj/third_party/externals/lua/lua.lstring.o: cc ../../../../../../../third_party/externals/lua/lstring.c
+build obj/third_party/externals/lua/lua.lstrlib.o: cc ../../../../../../../third_party/externals/lua/lstrlib.c
+build obj/third_party/externals/lua/lua.ltable.o: cc ../../../../../../../third_party/externals/lua/ltable.c
+build obj/third_party/externals/lua/lua.ltablib.o: cc ../../../../../../../third_party/externals/lua/ltablib.c
+build obj/third_party/externals/lua/lua.ltm.o: cc ../../../../../../../third_party/externals/lua/ltm.c
+build obj/third_party/externals/lua/lua.lundump.o: cc ../../../../../../../third_party/externals/lua/lundump.c
+build obj/third_party/externals/lua/lua.lutf8lib.o: cc ../../../../../../../third_party/externals/lua/lutf8lib.c
+build obj/third_party/externals/lua/lua.lvm.o: cc ../../../../../../../third_party/externals/lua/lvm.c
+build obj/third_party/externals/lua/lua.lzio.o: cc ../../../../../../../third_party/externals/lua/lzio.c
+
+build obj/third_party/lua/lua.stamp: stamp obj/third_party/externals/lua/lua.lapi.o obj/third_party/externals/lua/lua.lauxlib.o obj/third_party/externals/lua/lua.lbaselib.o obj/third_party/externals/lua/lua.lbitlib.o obj/third_party/externals/lua/lua.lcode.o obj/third_party/externals/lua/lua.lcorolib.o obj/third_party/externals/lua/lua.lctype.o obj/third_party/externals/lua/lua.ldblib.o obj/third_party/externals/lua/lua.ldebug.o obj/third_party/externals/lua/lua.ldo.o obj/third_party/externals/lua/lua.ldump.o obj/third_party/externals/lua/lua.lfunc.o obj/third_party/externals/lua/lua.lgc.o obj/third_party/externals/lua/lua.linit.o obj/third_party/externals/lua/lua.liolib.o obj/third_party/externals/lua/lua.llex.o obj/third_party/externals/lua/lua.lmathlib.o obj/third_party/externals/lua/lua.lmem.o obj/third_party/externals/lua/lua.loadlib.o obj/third_party/externals/lua/lua.lobject.o obj/third_party/externals/lua/lua.lopcodes.o obj/third_party/externals/lua/lua.loslib.o obj/third_party/externals/lua/lua.lparser.o obj/third_party/externals/lua/lua.lstate.o obj/third_party/externals/lua/lua.lstring.o obj/third_party/externals/lua/lua.lstrlib.o obj/third_party/externals/lua/lua.ltable.o obj/third_party/externals/lua/lua.ltablib.o obj/third_party/externals/lua/lua.ltm.o obj/third_party/externals/lua/lua.lundump.o obj/third_party/externals/lua/lua.lutf8lib.o obj/third_party/externals/lua/lua.lvm.o obj/third_party/externals/lua/lua.lzio.o

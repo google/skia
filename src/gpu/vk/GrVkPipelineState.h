@@ -70,7 +70,7 @@ public:
 
     void addUniformResources(GrVkCommandBuffer&, GrVkSampler*[], GrVkTexture*[], int numTextures);
 
-    void freeGPUResources(const GrVkGpu* gpu);
+    void freeGPUResources(GrVkGpu* gpu);
 
     void abandonGPUResources();
 

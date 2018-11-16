@@ -1,0 +1,31 @@
+defines = -D_GLIBCXX_DEBUG -DSK_SAMPLES_FOR_X -DSK_SUPPORT_ATLAS_TEXT=1 -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS=1 -DSKIA_IMPLEMENTATION=1 -DSK_SUPPORT_PDF -DSK_PDF_USE_SFNTLY -DSK_HAS_JPEG_LIBRARY
+include_dirs = -I../../../../../../../include/android -I../../../../../../../include/c -I../../../../../../../include/codec -I../../../../../../../include/config -I../../../../../../../include/core -I../../../../../../../include/docs -I../../../../../../../include/effects -I../../../../../../../include/encode -I../../../../../../../include/gpu -I../../../../../../../include/atlastext -I../../../../../../../include/pathops -I../../../../../../../include/ports -I../../../../../../../include/svg -I../../../../../../../include/utils -I../../../../../../../include/utils/mac -I../../../../../../../include/atlastext -I../../../../../../../include/private -I../../../../../../../src/c -I../../../../../../../src/codec -I../../../../../../../src/core -I../../../../../../../src/effects -I../../../../../../../src/fonts -I../../../../../../../src/image -I../../../../../../../src/images -I../../../../../../../src/lazy -I../../../../../../../src/opts -I../../../../../../../src/pathops -I../../../../../../../src/pdf -I../../../../../../../src/ports -I../../../../../../../src/sfnt -I../../../../../../../src/shaders -I../../../../../../../src/shaders/gradients -I../../../../../../../src/sksl -I../../../../../../../src/utils -I../../../../../../../src/utils/win -I../../../../../../../src/xml -I../../../../../../../third_party/gif -I../../../../../../../src/gpu -I../../../../../../../tools/gpu/vk
+cflags = -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/zlib -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/sfntly/cpp/src
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type
+root_out_dir = .
+target_output_name = pdf
+
+build obj/src/pdf/pdf.SkClusterator.o: cxx ../../../../../../../src/pdf/SkClusterator.cpp
+build obj/src/pdf/pdf.SkDeflate.o: cxx ../../../../../../../src/pdf/SkDeflate.cpp
+build obj/src/pdf/pdf.SkJpegInfo.o: cxx ../../../../../../../src/pdf/SkJpegInfo.cpp
+build obj/src/pdf/pdf.SkKeyedImage.o: cxx ../../../../../../../src/pdf/SkKeyedImage.cpp
+build obj/src/pdf/pdf.SkPDFBitmap.o: cxx ../../../../../../../src/pdf/SkPDFBitmap.cpp
+build obj/src/pdf/pdf.SkPDFCanon.o: cxx ../../../../../../../src/pdf/SkPDFCanon.cpp
+build obj/src/pdf/pdf.SkPDFConvertType1FontStream.o: cxx ../../../../../../../src/pdf/SkPDFConvertType1FontStream.cpp
+build obj/src/pdf/pdf.SkPDFDevice.o: cxx ../../../../../../../src/pdf/SkPDFDevice.cpp
+build obj/src/pdf/pdf.SkPDFDocument.o: cxx ../../../../../../../src/pdf/SkPDFDocument.cpp
+build obj/src/pdf/pdf.SkPDFFont.o: cxx ../../../../../../../src/pdf/SkPDFFont.cpp
+build obj/src/pdf/pdf.SkPDFFormXObject.o: cxx ../../../../../../../src/pdf/SkPDFFormXObject.cpp
+build obj/src/pdf/pdf.SkPDFGradientShader.o: cxx ../../../../../../../src/pdf/SkPDFGradientShader.cpp
+build obj/src/pdf/pdf.SkPDFGraphicState.o: cxx ../../../../../../../src/pdf/SkPDFGraphicState.cpp
+build obj/src/pdf/pdf.SkPDFMakeCIDGlyphWidthsArray.o: cxx ../../../../../../../src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp
+build obj/src/pdf/pdf.SkPDFMakeToUnicodeCmap.o: cxx ../../../../../../../src/pdf/SkPDFMakeToUnicodeCmap.cpp
+build obj/src/pdf/pdf.SkPDFMetadata.o: cxx ../../../../../../../src/pdf/SkPDFMetadata.cpp
+build obj/src/pdf/pdf.SkPDFResourceDict.o: cxx ../../../../../../../src/pdf/SkPDFResourceDict.cpp
+build obj/src/pdf/pdf.SkPDFShader.o: cxx ../../../../../../../src/pdf/SkPDFShader.cpp
+build obj/src/pdf/pdf.SkPDFSubsetFont.o: cxx ../../../../../../../src/pdf/SkPDFSubsetFont.cpp
+build obj/src/pdf/pdf.SkPDFTag.o: cxx ../../../../../../../src/pdf/SkPDFTag.cpp
+build obj/src/pdf/pdf.SkPDFTypes.o: cxx ../../../../../../../src/pdf/SkPDFTypes.cpp
+build obj/src/pdf/pdf.SkPDFUtils.o: cxx ../../../../../../../src/pdf/SkPDFUtils.cpp
+
+build obj/pdf.stamp: stamp obj/src/pdf/pdf.SkClusterator.o obj/src/pdf/pdf.SkDeflate.o obj/src/pdf/pdf.SkJpegInfo.o obj/src/pdf/pdf.SkKeyedImage.o obj/src/pdf/pdf.SkPDFBitmap.o obj/src/pdf/pdf.SkPDFCanon.o obj/src/pdf/pdf.SkPDFConvertType1FontStream.o obj/src/pdf/pdf.SkPDFDevice.o obj/src/pdf/pdf.SkPDFDocument.o obj/src/pdf/pdf.SkPDFFont.o obj/src/pdf/pdf.SkPDFFormXObject.o obj/src/pdf/pdf.SkPDFGradientShader.o obj/src/pdf/pdf.SkPDFGraphicState.o obj/src/pdf/pdf.SkPDFMakeCIDGlyphWidthsArray.o obj/src/pdf/pdf.SkPDFMakeToUnicodeCmap.o obj/src/pdf/pdf.SkPDFMetadata.o obj/src/pdf/pdf.SkPDFResourceDict.o obj/src/pdf/pdf.SkPDFShader.o obj/src/pdf/pdf.SkPDFSubsetFont.o obj/src/pdf/pdf.SkPDFTag.o obj/src/pdf/pdf.SkPDFTypes.o obj/src/pdf/pdf.SkPDFUtils.o || obj/third_party/zlib/zlib.stamp obj/jpeg.stamp obj/third_party/sfntly/sfntly.stamp obj/third_party/zlib/zlib_x86.stamp obj/third_party/libjpeg-turbo/libjpeg.stamp obj/third_party/icu/icu.stamp

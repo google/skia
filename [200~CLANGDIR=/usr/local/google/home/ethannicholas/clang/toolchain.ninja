@@ -1,0 +1,273 @@
+rule cc
+  command =  cc -MMD -MF ${out}.d ${defines} ${include_dirs} ${cflags} ${cflags_c} -c ${in} -o ${out}
+  description = compile ${in}
+  depfile = ${out}.d
+  deps = gcc
+rule cxx
+  command =  c++ -MMD -MF ${out}.d ${defines} ${include_dirs} ${cflags} ${cflags_cc} -c ${in} -o ${out}
+  description = compile ${in}
+  depfile = ${out}.d
+  deps = gcc
+rule objc
+  command =  cc -MMD -MF ${out}.d ${defines} ${include_dirs} ${cflags} ${cflags_objc} -c ${in} -o ${out}
+  description = compile ${in}
+  depfile = ${out}.d
+  deps = gcc
+rule objcxx
+  command =  c++ -MMD -MF ${out}.d ${defines} ${include_dirs} ${cflags} ${cflags_cc} ${cflags_objcc} -c ${in} -o ${out}
+  description = compile ${in}
+  depfile = ${out}.d
+  deps = gcc
+rule asm
+  command =  cc -MMD -MF ${out}.d ${defines} ${include_dirs} ${asmflags} -c ${in} -o ${out}
+  description = assemble ${in}
+  depfile = ${out}.d
+  deps = gcc
+rule alink
+  command = python /usr/local/google/home/ethannicholas/Source/git/skia-clean/gn/ar.py ar ${out} ${out}.rsp
+  description = link ${out}
+  rspfile = ${out}.rsp
+  rspfile_content = ${in}
+rule solink
+  command =  c++ -shared ${ldflags} @${out}.rsp ${solibs} ${libs} -Wl,-soname,${target_output_name}${output_extension} -o ${out}
+  description = link ${out}
+  rspfile = ${out}.rsp
+  rspfile_content = ${in}
+rule link
+  command =  c++ ${ldflags} -Wl,--start-group @${out}.rsp ${solibs} -Wl,--end-group ${libs} -o ${out}
+  description = link ${out}
+  rspfile = ${out}.rsp
+  rspfile_content = ${in}
+rule stamp
+  command = touch ${out}
+  description = stamp ${out}
+rule copy
+  command = python /usr/local/google/home/ethannicholas/Source/git/skia-clean/gn/cp.py ${in} ${out}
+  description = copy ${in} ${out}
+rule copy_bundle_data
+  command = python /usr/local/google/home/ethannicholas/Source/git/skia-clean/gn/cp.py ${in} ${out}
+  description = copy_bundle_data ${in} ${out}
+rule compile_xcassets
+  command = true
+  description = compile_xcassets ${out}
+
+subninja obj/HelloWorld.ninja
+subninja obj/SkiaSDLExample.ninja
+subninja obj/arm64.ninja
+subninja obj/armv7.ninja
+subninja obj/avx.ninja
+subninja obj/bench.ninja
+subninja obj/bookmaker.ninja
+subninja obj/common_flags.ninja
+build obj/compile_processors.stamp: stamp
+subninja obj/crc32.ninja
+subninja obj/create_test_font.ninja
+subninja obj/create_test_font_color.ninja
+subninja obj/dm.ninja
+subninja obj/dump_record.ninja
+subninja obj/effects.ninja
+subninja obj/experimental_svg_model.ninja
+subninja obj/fiddle.ninja
+subninja obj/flags.ninja
+subninja obj/fontmgr_android.ninja
+subninja obj/fontmgr_custom.ninja
+subninja obj/fontmgr_custom_empty.ninja
+subninja obj/fontmgr_empty.ninja
+subninja obj/fontmgr_fontconfig.ninja
+subninja obj/fuzz.ninja
+subninja obj/get_images_from_skps.ninja
+subninja obj/gm.ninja
+subninja obj/gpu.ninja
+subninja obj/gpu_for_real.ninja
+subninja obj/gpu_tool_utils.ninja
+subninja obj/heif.ninja
+subninja obj/hsw.ninja
+subninja obj/imgcvt.ninja
+subninja obj/jpeg.ninja
+subninja obj/list_gms.ninja
+subninja obj/list_gpu_unit_tests.ninja
+subninja obj/lua.ninja
+subninja obj/lua_app.ninja
+subninja obj/lua_pictures.ninja
+subninja obj/moltenvk.ninja
+subninja obj/nanobench.ninja
+subninja obj/none.ninja
+subninja obj/pathkit.ninja
+subninja obj/pathops_unittest.ninja
+subninja obj/pdf.ninja
+subninja obj/png.ninja
+subninja obj/public.ninja
+subninja obj/public_headers_warnings_check.ninja
+subninja obj/raw.ninja
+subninja obj/remote_demo.ninja
+build obj/run_sksllex.stamp: stamp
+subninja obj/samples.ninja
+subninja obj/sk_app.ninja
+subninja obj/skcms.ninja
+subninja obj/skdiff.ninja
+subninja obj/skia.ninja
+rule ___skia.h___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../gn/find_headers.py /usr/local/google/home/ethannicholas/Source/git/skia-clean/bin/gn /usr/local/google/home/ethannicholas/Source/git/skia-clean/ gen/skia.h /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/android /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/c /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/codec /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/config /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/core /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/docs /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/effects /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/encode /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/gpu /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/atlastext /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/pathops /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/ports /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/svg /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/utils /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/utils/mac /usr/local/google/home/ethannicholas/Source/git/skia-clean/include/atlastext /usr/local/google/home/ethannicholas/Source/git/skia-clean/modules/sksg/include /usr/local/google/home/ethannicholas/Source/git/skia-clean/modules/skottie/include
+  description = ACTION //:skia.h(//gn/toolchain:gcc_like)
+  restat = 1
+
+build gen/skia.h: ___skia.h___gn_toolchain_gcc_like__rule | ../../../../../../../gn/find_headers.py
+  depfile = gen/skia.h.deps
+
+build obj/skia.h.stamp: stamp gen/skia.h
+subninja obj/skiaserve.ninja
+subninja obj/skottie_tool.ninja
+subninja obj/skp_parser.ninja
+subninja obj/skpbench.ninja
+subninja obj/skpinfo.ninja
+subninja obj/skqp.ninja
+subninja obj/skqp_lib.ninja
+subninja obj/sktexttopdf.ninja
+subninja obj/sse2.ninja
+subninja obj/sse41.ninja
+subninja obj/sse42.ninja
+subninja obj/ssse3.ninja
+subninja obj/tests.ninja
+subninja obj/tool_utils.ninja
+subninja obj/typeface_freetype.ninja
+subninja obj/viewer.ninja
+subninja obj/webp.ninja
+subninja obj/wuffs.ninja
+subninja obj/xml.ninja
+subninja obj/modules/skottie/fuzz.ninja
+subninja obj/modules/skottie/gm.ninja
+subninja obj/modules/skottie/skottie.ninja
+subninja obj/modules/skottie/tests.ninja
+subninja obj/modules/skottie/tool.ninja
+subninja obj/modules/skottie/utils.ninja
+subninja obj/modules/sksg/samples.ninja
+subninja obj/modules/sksg/sksg.ninja
+subninja obj/modules/sksg/tests.ninja
+subninja obj/modules/skshaper/skshaper.ninja
+build obj/third_party/fontconfig.stamp: stamp
+subninja obj/third_party/Nima-Cpp/Nima-Cpp.ninja
+build gen/third_party/Nima-Cpp/Nima-Cpp/nima: copy ../../../../../../../third_party/externals/Nima-Cpp/Source
+
+build obj/third_party/Nima-Cpp/copy-nima-cpp.stamp: stamp gen/third_party/Nima-Cpp/Nima-Cpp/nima
+build gen/third_party/Nima-Cpp/Nima-Math-Cpp/nima: copy ../../../../../../../third_party/externals/Nima-Math-Cpp/Source
+
+build obj/third_party/Nima-Cpp/copy-nima-math-cpp.stamp: stamp gen/third_party/Nima-Cpp/Nima-Math-Cpp/nima
+subninja obj/third_party/dng_sdk/dng_sdk.ninja
+subninja obj/third_party/expat/expat.ninja
+build obj/third_party/freetype2/freetype2.stamp: stamp
+subninja obj/third_party/googletest/googletest.ninja
+subninja obj/third_party/harfbuzz/harfbuzz.ninja
+subninja obj/third_party/icu/icu.ninja
+subninja obj/third_party/imgui/imgui.ninja
+subninja obj/third_party/jsoncpp/jsoncpp.ninja
+subninja obj/third_party/libjpeg-turbo/libjpeg.ninja
+subninja obj/third_party/libmicrohttpd/libmicrohttpd.ninja
+subninja obj/third_party/libpng/libpng.ninja
+subninja obj/third_party/libsdl/libsdl.ninja
+subninja obj/third_party/libwebp/libwebp.ninja
+subninja obj/third_party/libwebp/libwebp_avx2.ninja
+subninja obj/third_party/libwebp/libwebp_sse41.ninja
+subninja obj/third_party/lua/lua.ninja
+subninja obj/third_party/piex/piex.ninja
+subninja obj/third_party/sfntly/sfntly.ninja
+subninja obj/third_party/spirv-headers/spirv-headers.ninja
+subninja obj/third_party/spirv-tools/spirv-tools.ninja
+rule __third_party_spirv-tools_spirv_build_version___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/update_build_version.py ../../../../../../../third_party/externals/spirv-tools spirv-tools/build-version.inc
+  description = ACTION //third_party/spirv-tools:spirv_build_version(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/build-version.inc: __third_party_spirv-tools_spirv_build_version___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/update_build_version.py ../../../../../../../third_party/externals/spirv-tools/CHANGES
+
+build obj/third_party/spirv-tools/spirv_build_version.stamp: stamp spirv-tools/build-version.inc
+rule __third_party_spirv-tools_spirv_core_tables_1.0___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json --core-insts-output=spirv-tools/core.insts-1.0.inc --operand-kinds-output=spirv-tools/operand.kinds-1.0.inc
+  description = ACTION //third_party/spirv-tools:spirv_core_tables_1.0(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/core.insts-1.0.inc spirv-tools/operand.kinds-1.0.inc: __third_party_spirv-tools_spirv_core_tables_1.0___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_core_tables_1.0.stamp: stamp spirv-tools/core.insts-1.0.inc spirv-tools/operand.kinds-1.0.inc
+rule __third_party_spirv-tools_spirv_core_tables_1.1___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.1/spirv.core.grammar.json --core-insts-output=spirv-tools/core.insts-1.1.inc --operand-kinds-output=spirv-tools/operand.kinds-1.1.inc
+  description = ACTION //third_party/spirv-tools:spirv_core_tables_1.1(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/core.insts-1.1.inc spirv-tools/operand.kinds-1.1.inc: __third_party_spirv-tools_spirv_core_tables_1.1___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.1/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_core_tables_1.1.stamp: stamp spirv-tools/core.insts-1.1.inc spirv-tools/operand.kinds-1.1.inc
+rule __third_party_spirv-tools_spirv_core_tables_1.2___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.2/spirv.core.grammar.json --core-insts-output=spirv-tools/core.insts-1.2.inc --operand-kinds-output=spirv-tools/operand.kinds-1.2.inc
+  description = ACTION //third_party/spirv-tools:spirv_core_tables_1.2(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/core.insts-1.2.inc spirv-tools/operand.kinds-1.2.inc: __third_party_spirv-tools_spirv_core_tables_1.2___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.2/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_core_tables_1.2.stamp: stamp spirv-tools/core.insts-1.2.inc spirv-tools/operand.kinds-1.2.inc
+rule __third_party_spirv-tools_spirv_extension_enum___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json --extension-enum-output=spirv-tools/extension_enum.inc --enum-string-mapping-output=spirv-tools/enum_string_mapping.inc
+  description = ACTION //third_party/spirv-tools:spirv_extension_enum(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/extension_enum.inc: __third_party_spirv-tools_spirv_extension_enum___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_extension_enum.stamp: stamp spirv-tools/extension_enum.inc
+rule __third_party_spirv-tools_spirv_generators___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_registry_tables.py --xml=../../../../../../../third_party/externals/spirv-headers/include/spirv/spir-v.xml --generator-output=spirv-tools/generators.inc
+  description = ACTION //third_party/spirv-tools:spirv_generators(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/generators.inc: __third_party_spirv-tools_spirv_generators___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_registry_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/spir-v.xml
+
+build obj/third_party/spirv-tools/spirv_generators.stamp: stamp spirv-tools/generators.inc
+rule __third_party_spirv-tools_spirv_glsl_tables___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json --extinst-glsl-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json --glsl-insts-output=spirv-tools/glsl.std.450.insts-1.0.inc
+  description = ACTION //third_party/spirv-tools:spirv_glsl_tables(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/glsl.std.450.insts-1.0.inc: __third_party_spirv-tools_spirv_glsl_tables___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_glsl_tables.stamp: stamp spirv-tools/glsl.std.450.insts-1.0.inc
+rule __third_party_spirv-tools_spirv_opencl_tables___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --spirv-core-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json --extinst-opencl-grammar=../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/extinst.glsl.std.450.grammar.json --opencl-insts-output=spirv-tools/opencl.std.insts-1.0.inc
+  description = ACTION //third_party/spirv-tools:spirv_opencl_tables(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/opencl.std.insts-1.0.inc: __third_party_spirv-tools_spirv_opencl_tables___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/extinst.opencl.std.100.grammar.json ../../../../../../../third_party/externals/spirv-headers/include/spirv/1.0/spirv.core.grammar.json
+
+build obj/third_party/spirv-tools/spirv_opencl_tables.stamp: stamp spirv-tools/opencl.std.insts-1.0.inc
+rule __third_party_spirv-tools_spirv_vendor_tables_amd_shader_ballot___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --extinst-vendor-grammar=../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-ballot.grammar.json --vendor-insts-output=spirv-tools/spv-amd-shader-ballot.insts.inc
+  description = ACTION //third_party/spirv-tools:spirv_vendor_tables_amd_shader_ballot(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/spv-amd-shader-ballot.insts.inc: __third_party_spirv-tools_spirv_vendor_tables_amd_shader_ballot___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-ballot.grammar.json
+
+build obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_ballot.stamp: stamp spirv-tools/spv-amd-shader-ballot.insts.inc
+rule __third_party_spirv-tools_spirv_vendor_tables_amd_shader_explicit_vertex_parameter___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --extinst-vendor-grammar=../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json --vendor-insts-output=spirv-tools/spv-amd-shader-explicit-vertex-parameter.insts.inc
+  description = ACTION //third_party/spirv-tools:spirv_vendor_tables_amd_shader_explicit_vertex_parameter(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/spv-amd-shader-explicit-vertex-parameter.insts.inc: __third_party_spirv-tools_spirv_vendor_tables_amd_shader_explicit_vertex_parameter___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json
+
+build obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_explicit_vertex_parameter.stamp: stamp spirv-tools/spv-amd-shader-explicit-vertex-parameter.insts.inc
+rule __third_party_spirv-tools_spirv_vendor_tables_amd_shader_gcn_shader___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --extinst-vendor-grammar=../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-gcn-shader.grammar.json --vendor-insts-output=spirv-tools/spv-amd-gcn-shader.insts.inc
+  description = ACTION //third_party/spirv-tools:spirv_vendor_tables_amd_shader_gcn_shader(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/spv-amd-gcn-shader.insts.inc: __third_party_spirv-tools_spirv_vendor_tables_amd_shader_gcn_shader___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-gcn-shader.grammar.json
+
+build obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_gcn_shader.stamp: stamp spirv-tools/spv-amd-gcn-shader.insts.inc
+rule __third_party_spirv-tools_spirv_vendor_tables_amd_shader_trinary_minmax___gn_toolchain_gcc_like__rule
+  command = python ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py --extinst-vendor-grammar=../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-trinary-minmax.grammar.json --vendor-insts-output=spirv-tools/spv-amd-shader-trinary-minmax.insts.inc
+  description = ACTION //third_party/spirv-tools:spirv_vendor_tables_amd_shader_trinary_minmax(//gn/toolchain:gcc_like)
+  restat = 1
+
+build spirv-tools/spv-amd-shader-trinary-minmax.insts.inc: __third_party_spirv-tools_spirv_vendor_tables_amd_shader_trinary_minmax___gn_toolchain_gcc_like__rule | ../../../../../../../third_party/externals/spirv-tools/utils/generate_grammar_tables.py ../../../../../../../third_party/externals/spirv-tools/source/extinst.spv-amd-shader-trinary-minmax.grammar.json
+
+build obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_trinary_minmax.stamp: stamp spirv-tools/spv-amd-shader-trinary-minmax.insts.inc
+subninja obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.ninja
+subninja obj/third_party/zlib/zlib.ninja
+subninja obj/third_party/zlib/zlib_x86.ninja

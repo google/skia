@@ -1,0 +1,7 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+root_out_dir = .
+target_output_name = moltenvk
+
+
+build obj/moltenvk.stamp: stamp

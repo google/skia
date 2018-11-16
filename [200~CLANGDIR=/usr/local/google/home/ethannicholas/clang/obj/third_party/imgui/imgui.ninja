@@ -1,0 +1,12 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/imgui
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti
+root_out_dir = .
+target_output_name = imgui
+
+build obj/third_party/externals/imgui/imgui.imgui.o: cxx ../../../../../../../third_party/externals/imgui/imgui.cpp
+build obj/third_party/externals/imgui/imgui.imgui_demo.o: cxx ../../../../../../../third_party/externals/imgui/imgui_demo.cpp
+build obj/third_party/externals/imgui/imgui.imgui_draw.o: cxx ../../../../../../../third_party/externals/imgui/imgui_draw.cpp
+
+build obj/third_party/imgui/imgui.stamp: stamp obj/third_party/externals/imgui/imgui.imgui.o obj/third_party/externals/imgui/imgui.imgui_demo.o obj/third_party/externals/imgui/imgui.imgui_draw.o
