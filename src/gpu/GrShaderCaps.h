@@ -86,6 +86,9 @@ public:
 
     bool unsignedSupport() const { return fUnsignedSupport; }
 
+    // SkSL only.
+    bool builtinFMASupport() const { return fBuiltinFMASupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -253,6 +256,9 @@ private:
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fUnsignedSupport                   : 1;
+
+    // Used by SkSL to know when to generate polyfills.
+    bool fBuiltinFMASupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseAnyFunctionInShader                   : 1;

@@ -228,6 +228,7 @@ protected:
         kAtan,
         kDeterminant,
         kDerivative,
+        kFMA,
         kFract,
         kInverse,
         kInverseSqrt,
