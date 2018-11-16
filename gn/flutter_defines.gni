@@ -15,7 +15,6 @@ flutter_defines = [
 
   # API staging
   "SK_SUPPORT_LEGACY_NESTED_HINTINGENUM",
-  "SK_SUPPORT_LEGACY_FONT_FLAGS",
 
   # Flutter doesn't deserialize anything.
   "SK_DISABLE_READBUFFER",
