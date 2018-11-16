@@ -32,8 +32,8 @@ SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar 
     , fScaleX(scaleX)
     , fSkewX(skewX)
     , fFlags(kDefault_Flags)
-    , fEdging(static_cast<unsigned>(kDefault_Edging))
-    , fHinting(static_cast<unsigned>(kDefault_Hinting))
+    , fEdging(kDefault_Edging)
+    , fHinting(kDefault_Hinting)
 {}
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size) : SkFont(std::move(face), size, 1, 0) {}
@@ -111,11 +111,11 @@ SkFont SkFont::makeWithFlags(uint32_t newFlags) const {
 #endif
 
 void SkFont::setEdging(Edging e) {
-    fEdging = SkToU8(e);
+    fEdging = e;
 }
 
 void SkFont::setHinting(SkFontHinting h) {
-    fHinting = SkToU8(h);
+    fHinting = h;
 }
 
 void SkFont::setSize(SkScalar size) {

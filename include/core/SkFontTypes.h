@@ -42,7 +42,7 @@ enum SkFontHinting : uint8_t {
     kFull_SkFontHinting   = 3, //!< modifies glyph outlines for maximum constrast
 };
 #else
-enum class SkFontHinting {
+enum class SkFontHinting : uint8_t {
     kNone,      //!< glyph outlines unchanged
     kSlight,    //!< minimal modification to improve constrast
     kNormal,    //!< glyph outlines modified to improve constrast
