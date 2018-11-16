@@ -96,6 +96,10 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
     fFlags = (fFlags & ~flagsToIgnore) | kSubpixel_PrivFlag;
     this->setHinting(kNo_SkFontHinting);
 
+    if (this->getEdging() == Edging::kSubpixelAntiAlias) {
+        this->setEdging(Edging::kAntiAlias);
+    }
+
     if (paint) {
         paint->setStyle(SkPaint::kFill_Style);
         paint->setPathEffect(nullptr);
@@ -379,9 +383,9 @@ SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
     Edging edging = Edging::kAlias;
     if (paint.isAntiAlias()) {
         edging = Edging::kAntiAlias;
-    }
-    if (paint.isLCDRenderText()) {
-        edging = Edging::kSubpixelAntiAlias;
+        if (paint.isLCDRenderText()) {
+            edging = Edging::kSubpixelAntiAlias;
+        }
     }
 
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
