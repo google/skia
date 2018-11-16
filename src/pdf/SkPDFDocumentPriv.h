@@ -72,9 +72,9 @@ public:
        It might go without saying that objects should not be changed
        after calling serialize, since those changes will be too late.
      */
-    void serialize(const sk_sp<SkPDFObject>&);
+    SkPDFIndirectReference serialize(const sk_sp<SkPDFObject>&);
+    SkPDFIndirectReference emit(const SkPDFObject&);
     SkPDFCanon* canon() { return &fCanon; }
-    void registerFont(SkPDFFont* f) { fFonts.add(f); }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
     sk_sp<SkPDFDict> getPage(int pageIndex) const;
@@ -93,7 +93,6 @@ private:
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
     std::vector<sk_sp<SkPDFDict>> fPages;
-    SkTHashSet<SkPDFFont*> fFonts;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
     sk_sp<SkPDFObject> fID;
