@@ -16,6 +16,24 @@
       "revId": "90e60f5def97fdbf611ac2b36bfe1cd59e19e024",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5ce077c_afb4e768",
+        "filename": "src/codec/SkJpegDecoderMgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-16T13:28:52Z",
+      "side": 1,
+      "message": "I don\u0027t think so. The breakage was in Chromium [1]. Chromium\u0027s Skia build [2] includes lots of directories inside include, but it doesn\u0027t include \"include\" itself (which I think would be necessary for it to find android/SkAndroidFrameworkUtils.h like that). I think it might work as\n\n#include \"../android/SkAndroidFrameworkUtils.h\"\n\nFor the most part we don\u0027t qualify our includes, though, and I\u0027m not sure that is any better.\n\n[1] https://logs.chromium.org/logs/chromium/buildbucket/cr-buildbucket.appspot.com/8930037770448010448/+/steps/compile__with_patch_/0/stdout\n[2] https://cs.chromium.org/chromium/src/skia/BUILD.gn",
+      "parentUuid": "998c134d_09428fae",
+      "revId": "90e60f5def97fdbf611ac2b36bfe1cd59e19e024",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
