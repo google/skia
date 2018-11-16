@@ -20,12 +20,13 @@ source_set("skshaper") {
     deps = [
       "../..:skia",
     ]
+    sources = [ "src/SkShaper.cpp" ]
     if (target_cpu == "wasm") {
-      sources = [
+      sources += [
         "src/SkShaper_primitive.cpp",
       ]
     } else {
-      sources = [
+      sources += [
         "src/SkShaper_harfbuzz.cpp",
       ]
       deps += [
