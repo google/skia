@@ -16,6 +16,24 @@
       "revId": "479e6400464705074e57ce4bce783d5c678ba98a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d42fcda_688b66b1",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-16T13:29:49Z",
+      "side": 1,
+      "message": "See comments in https://skia-review.googlesource.com/c/skia/+/171222/1/src/codec/SkJpegDecoderMgr.cpp#13",
+      "parentUuid": "4d4f559b_b88d517a",
+      "revId": "479e6400464705074e57ce4bce783d5c678ba98a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
