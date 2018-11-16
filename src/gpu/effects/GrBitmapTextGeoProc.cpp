@@ -40,8 +40,7 @@ public:
                                                           &atlasSizeInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
+        GrGLSLVarying texIdx(kFloat_GrSLType);
         append_index_uv_varyings(args, btgp.inTextureCoords().name(), atlasSizeInvName, &uv,
                                  &texIdx, nullptr);
 
@@ -144,8 +143,8 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
         fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     }
 
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = { "inTextureCoords", kUShort2_GrVertexAttribType,
+                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType };
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numActiveProxies) {
