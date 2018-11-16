@@ -255,8 +255,8 @@ private:
                 domain.store(&texDomain);
                 coords.store(&texCoords);
 
-                vertices.writeQuad(GrVertexWriter::TriStrip{ dstR },
-                                   GrVertexWriter::TriStrip{ texCoords },
+                vertices.writeQuad(GrVertexWriter::TriStripFromRect(dstR),
+                                   GrVertexWriter::TriStripFromRect(texCoords),
                                    texDomain,
                                    patchColor);
             }
