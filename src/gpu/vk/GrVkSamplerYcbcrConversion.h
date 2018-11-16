@@ -23,6 +23,7 @@ public:
     VkSamplerYcbcrConversion ycbcrConversion() const { return fYcbcrConversion; }
 
     struct Key {
+        Key() : fExternalFormat(0), fConversionKey(0) {}
         Key(uint64_t externalFormat, uint8_t conversionKey)
                 : fExternalFormat(externalFormat), fConversionKey(conversionKey) {}
 
@@ -35,7 +36,7 @@ public:
         }
     };
 
-    // Helpers for hashing GrVkSampler
+    // Helpers for hashing GrVkSamplerYcbcrConversion
     static Key GenerateKey(const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     static const Key& GetKey(const GrVkSamplerYcbcrConversion& ycbcrConversion) {

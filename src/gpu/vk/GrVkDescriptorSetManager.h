@@ -10,6 +10,7 @@
 
 #include "GrResourceHandle.h"
 #include "GrVkDescriptorPool.h"
+#include "GrVkSampler.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "vk/GrVkDefines.h"
@@ -50,7 +51,8 @@ public:
 private:
     struct DescriptorPoolManager {
         DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
-                              const SkTArray<uint32_t>& visibilities);
+                              const SkTArray<uint32_t>& visibilities,
+                              const SkTArray<const GrVkSampler*>& immutableSamplers);
 
 
         ~DescriptorPoolManager() {
@@ -82,12 +84,14 @@ private:
 
     GrVkDescriptorSetManager(GrVkGpu* gpu,
                              VkDescriptorType,
-                             const SkTArray<uint32_t>& visibilities);
+                             const SkTArray<uint32_t>& visibilities,
+                             const SkTArray<const GrVkSampler*>& immutableSamplers);
 
 
     DescriptorPoolManager                    fPoolManager;
     SkTArray<const GrVkDescriptorSet*, true> fFreeSets;
     SkSTArray<4, uint32_t>                   fBindingVisibilities;
+    SkSTArray<4, const GrVkSampler*>         fImmutableSamplers;
 };
 
 #endif
