@@ -121,7 +121,7 @@ private:
             SkRegion::Iterator iter(fRegions[i].fRegion);
             while (!iter.done()) {
                 SkRect rect = SkRect::Make(iter.rect());
-                vertices.writeQuad(GrVertexWriter::TriStrip{ rect }, color);
+                vertices.writeQuad(GrVertexWriter::TriStripFromRect(rect), color);
                 iter.next();
             }
         }

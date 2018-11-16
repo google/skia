@@ -15,6 +15,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "GrVertexWriter.h"
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkDistanceFieldGen.h"
@@ -367,8 +368,7 @@ private:
         }
 
         // allocate vertices
-        size_t kVertexStride = flushInfo.fGeometryProcessor->vertexStride();
-
+        const size_t kVertexStride = flushInfo.fGeometryProcessor->vertexStride();
         const GrBuffer* vertexBuffer;
 
         // We need to make sure we don't overflow a 32 bit int when we request space in the
@@ -376,20 +376,18 @@ private:
         if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
             return;
         }
-        void* vertices = target->makeVertexSpace(kVertexStride,
-                                                 kVerticesPerQuad * instanceCount,
-                                                 &vertexBuffer,
-                                                 &flushInfo.fVertexOffset);
+        GrVertexWriter vertices{target->makeVertexSpace(kVertexStride,
+                                                        kVerticesPerQuad * instanceCount,
+                                                        &vertexBuffer,
+                                                        &flushInfo.fVertexOffset)};
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
         flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        if (!vertices || !flushInfo.fIndexBuffer) {
+        if (!vertices.fPtr || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
         flushInfo.fInstancesToFlush = 0;
-        // Pointer to the next set of vertices to write.
-        intptr_t offset = reinterpret_cast<intptr_t>(vertices);
         for (int i = 0; i < instanceCount; i++) {
             const Entry& args = fShapes[i];
 
@@ -492,9 +490,8 @@ private:
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
             // TODO4F: Preserve float colors
-            this->writePathVertices(fAtlas, offset, args.fColor.toBytes_RGBA(), kVertexStride,
-                                    args.fViewMatrix, shapeData);
-            offset += kVerticesPerQuad * kVertexStride;
+            this->writePathVertices(fAtlas, vertices, args.fColor.toBytes_RGBA(), args.fViewMatrix,
+                                    shapeData);
             flushInfo.fInstancesToFlush++;
         }
 
@@ -747,69 +744,34 @@ private:
     }
 
     void writePathVertices(GrDrawOpAtlas* atlas,
-                           intptr_t offset,
+                           GrVertexWriter& vertices,
                            GrColor color,
-                           size_t vertexStride,
                            const SkMatrix& ctm,
                            const ShapeData* shapeData) const {
-        SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
-
-        SkRect bounds = shapeData->fBounds;
-        SkRect translatedBounds(bounds);
+        SkRect translatedBounds(shapeData->fBounds);
         if (!fUsesDistanceField) {
             translatedBounds.offset(SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransX)),
                                     SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransY)));
         }
 
-        // vertex positions
-        // TODO make the vertex attributes a struct
+        // set up texture coordinates
+        GrVertexWriter::TriStrip<uint16_t> texCoords{
+            (uint16_t)shapeData->fTextureCoords.fLeft,
+            (uint16_t)shapeData->fTextureCoords.fTop,
+            (uint16_t)shapeData->fTextureCoords.fRight,
+            (uint16_t)shapeData->fTextureCoords.fBottom
+        };
+
         if (fUsesDistanceField && !ctm.hasPerspective()) {
             GrQuad quad(translatedBounds, ctm);
-            intptr_t positionOffset = offset;
-            SkPoint* position = (SkPoint*)positionOffset;
-            *position = quad.point(0);
-            positionOffset += vertexStride;
-            position = (SkPoint*)positionOffset;
-            *position = quad.point(1);
-            positionOffset += vertexStride;
-            position = (SkPoint*)positionOffset;
-            *position = quad.point(2);
-            positionOffset += vertexStride;
-            position = (SkPoint*)positionOffset;
-            *position = quad.point(3);
+            vertices.writeQuad(quad,
+                               color,
+                               texCoords);
         } else {
-            SkPointPriv::SetRectTriStrip(positions, translatedBounds, vertexStride);
+            vertices.writeQuad(GrVertexWriter::TriStripFromRect(translatedBounds),
+                               color,
+                               texCoords);
         }
-
-        // colors
-        for (int i = 0; i < kVerticesPerQuad; i++) {
-            GrColor* colorPtr = (GrColor*)(offset + sizeof(SkPoint) + i * vertexStride);
-            *colorPtr = color;
-        }
-
-        // set up texture coordinates
-        uint16_t l = shapeData->fTextureCoords.fLeft;
-        uint16_t t = shapeData->fTextureCoords.fTop;
-        uint16_t r = shapeData->fTextureCoords.fRight;
-        uint16_t b = shapeData->fTextureCoords.fBottom;
-
-        // set vertex texture coords
-        intptr_t textureCoordOffset = offset + sizeof(SkPoint) + sizeof(GrColor);
-        uint16_t* textureCoords = (uint16_t*) textureCoordOffset;
-        textureCoords[0] = l;
-        textureCoords[1] = t;
-        textureCoordOffset += vertexStride;
-        textureCoords = (uint16_t*)textureCoordOffset;
-        textureCoords[0] = l;
-        textureCoords[1] = b;
-        textureCoordOffset += vertexStride;
-        textureCoords = (uint16_t*)textureCoordOffset;
-        textureCoords[0] = r;
-        textureCoords[1] = t;
-        textureCoordOffset += vertexStride;
-        textureCoords = (uint16_t*)textureCoordOffset;
-        textureCoords[0] = r;
-        textureCoords[1] = b;
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
