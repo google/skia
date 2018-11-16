@@ -634,6 +634,321 @@ void IncludeParser::writeCodeBlock() {
 #include <sstream>
 #include <iostream>
 
+void IncludeParser::checkTokens(list<Definition>& tokens, string key, string className,
+        RootDefinition* root, BmhParser& bmhParser) {
+    for (const auto& token : tokens) {
+        if (token.fPrivate) {
+            continue;
+        }
+        string fullName = key + "::" + token.fName;
+        const Definition* def = nullptr;
+        if (root) {
+            def = root->find(fullName, RootDefinition::AllowParens::kYes);
+        }
+        switch (token.fMarkType) {
+            case MarkType::kMethod: {
+                if (this->isInternalName(token)) {
+                    continue;
+                }
+                if (!root) {
+                    if (token.fUndocumented) {
+                        break;
+                    }
+                    auto methIter = bmhParser.fMethodMap.find(token.fName);
+                    if (bmhParser.fMethodMap.end() != methIter) {
+                        def = &methIter->second;
+                        if (def->crossCheck2(token)) {
+                            def->fVisited = true;
+                        } else {
+                            this->suggestFix(Suggest::kMethodDiffers, token, root, def);
+                            fFailed = true;
+                        }
+                    } else {
+                        this->suggestFix(Suggest::kMethodMissing, token, root, nullptr);
+                        fFailed = true;
+                    }
+                    break;
+                }
+                if (!def) {
+                    string paramName = className + "::";
+                    paramName += string(token.fContentStart,
+                            token.fContentEnd - token.fContentStart);
+                    if (string::npos != paramName.find('\n')) {
+                        paramName.erase(std::remove(paramName.begin(), paramName.end(), '\n'),
+                                paramName.end());
+                    }
+                    def = root->find(paramName, RootDefinition::AllowParens::kYes);
+                    if (!def && 0 == token.fName.find("operator")) {
+                        string operatorName = className + "::";
+                        TextParser oper("", token.fStart, token.fContentEnd, 0);
+                        const char* start = oper.strnstr("operator", token.fContentEnd);
+                        SkASSERT(start);
+                        oper.skipTo(start);
+                        oper.skipToEndBracket('(');
+                        int parens = 0;
+                        do {
+                            if ('(' == oper.peek()) {
+                                ++parens;
+                            } else if (')' == oper.peek()) {
+                                --parens;
+                            }
+                        } while (!oper.eof() && oper.next() && parens > 0);
+                        operatorName += string(start, oper.fChar - start);
+                        def = root->find(operatorName, RootDefinition::AllowParens::kYes);
+                    }
+                }
+                if (!def) {
+                    int skip = !strncmp(token.fContentStart, "explicit ", 9) ? 9 : 0;
+                    skip = !strncmp(token.fContentStart, "virtual ", 8) ? 8 : skip;
+                    const char* tokenEnd = token.methodEnd();
+                    string constructorName = className + "::";
+                    constructorName += string(token.fContentStart + skip,
+                            tokenEnd - token.fContentStart - skip);
+                    def = root->find(constructorName, RootDefinition::AllowParens::kYes);
+                }
+                if (!def && 0 == token.fName.find("SK_")) {
+                    string incName = token.fName + "()";
+                    string macroName = className + "::" + incName;
+                    def = root->find(macroName, RootDefinition::AllowParens::kYes);
+                    if (def) {
+                        if (def->fName == incName) {
+                            def->fVisited = true;
+                            if ("SK_TO_STRING_NONVIRT" == token.fName) {
+                                def = root->find(className + "::toString",
+                                        RootDefinition::AllowParens::kYes);
+                                if (def) {
+                                    def->fVisited = true;
+                                } else {
+                                    SkDebugf("missing toString bmh: %s\n", fullName.c_str());
+                                    fFailed = true;
+                                }
+                            }
+                            break;
+                        } else {
+                            SkDebugf("method macro differs from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
+                        }
+                    }
+                }
+                if (!def) {
+                    bool allLower = true;
+                    for (size_t index = 0; index < token.fName.length(); ++index) {
+                        if (!islower(token.fName[index])) {
+                            allLower = false;
+                            break;
+                        }
+                    }
+                    if (allLower) {
+                        string lowerName = className + "::" + token.fName + "()";
+                        def = root->find(lowerName, RootDefinition::AllowParens::kYes);
+                    }
+                }
+                if (!def) {
+                    if (0 == token.fName.find("SkDEBUGCODE")) {
+                        break;
+                    }
+                }
+                if (!def) {
+        // simple method names inside nested classes have a bug and are missing trailing parens
+                    string withParens = fullName + "()"; // FIXME: this shouldn't be necessary
+                    def = root->find(withParens, RootDefinition::AllowParens::kNo);
+                }
+                if (!def) {
+                    if (!token.fUndocumented) {
+                        this->suggestFix(Suggest::kMethodMissing, token, root, nullptr);
+                        fFailed = true;
+                    }
+                    break;
+                }
+                if (token.fUndocumented) {
+                    // we can't report an error yet; if bmh documents this unnecessarily,
+                    // we'll detect that later. It may be that def points to similar
+                    // documented function.
+                    break;
+                }
+                if (def->crossCheck2(token)) {
+                    def->fVisited = true;
+                } else {
+                    SkDebugf("method differs from bmh: %s\n", fullName.c_str());
+                    fFailed = true;
+                }
+            } break;
+            case MarkType::kComment:
+                break;
+            case MarkType::kEnumClass:
+            case MarkType::kEnum: {
+                if (!def) {
+                    // work backwards from first word to deduce #Enum name
+                    TextParser firstMember("", token.fStart, token.fContentEnd, 0);
+                    SkAssertResult(firstMember.skipName("enum"));
+                    SkAssertResult(firstMember.skipToEndBracket('{'));
+                    firstMember.next();
+                    firstMember.skipWhiteSpace();
+                    SkASSERT('k' == firstMember.peek());
+                    const char* savePos = firstMember.fChar;
+                    firstMember.skipToNonName();
+                    const char* wordEnd = firstMember.fChar;
+                    firstMember.fChar = savePos;
+                    const char* lastUnderscore = nullptr;
+                    do {
+                        if (!firstMember.skipToEndBracket('_')) {
+                            break;
+                        }
+                        if (firstMember.fChar > wordEnd) {
+                            break;
+                        }
+                        lastUnderscore = firstMember.fChar;
+                    } while (firstMember.next());
+                    if (lastUnderscore) {
+                        ++lastUnderscore;
+                        string enumName(lastUnderscore, wordEnd - lastUnderscore);
+                        if (root) {
+                            string anonName = className + "::" + enumName + 's';
+                            def = root->find(anonName, RootDefinition::AllowParens::kYes);
+                        } else {
+                            auto enumIter = bmhParser.fEnumMap.find(enumName);
+                            if (bmhParser.fEnumMap.end() != enumIter) {
+                                RootDefinition* rootDef = &enumIter->second;
+                                def = rootDef;
+                            }
+                        }
+                    }
+                    if (!def && !root) {
+                        auto enumIter = bmhParser.fEnumMap.find(token.fName);
+                        if (bmhParser.fEnumMap.end() != enumIter) {
+                            def = &enumIter->second;
+                        }
+                        if (!def) {
+                            auto enumClassIter = bmhParser.fClassMap.find(token.fName);
+                            if (bmhParser.fClassMap.end() != enumClassIter) {
+                                def = &enumClassIter->second;
+                            }
+                        }
+                    }
+                    if (!def) {
+                        if (!token.fUndocumented) {
+                            SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
+                        }
+                        break;
+                    }
+                }
+                def->fVisited = true;
+                bool hasCode = false;
+                bool hasPopulate = true;
+                for (auto& child : def->fChildren) {
+                    if (MarkType::kCode == child->fMarkType) {
+                        hasPopulate = std::any_of(child->fChildren.begin(),
+                                child->fChildren.end(), [](auto grandChild){
+                                return MarkType::kPopulate == grandChild->fMarkType; });
+                        if (!hasPopulate) {
+                            def = child;
+                        }
+                        hasCode = true;
+                        break;
+                    }
+                }
+                if (!hasCode && !root) {
+                    const Definition* topic = def->topicParent();
+                    hasCode = std::any_of(topic->fChildren.begin(), topic->fChildren.end(),
+                            [](Definition* def){ return MarkType::kCode == def->fMarkType
+                            && def->fChildren.size() > 0 && MarkType::kPopulate ==
+                            def->fChildren.front()->fMarkType; });
+                }
+                if (!hasCode) {
+                    SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
+                    fFailed = true;
+                    break;
+                }
+                if (!hasPopulate) {
+                    if (def->crossCheck(token)) {
+                        def->fVisited = true;
+                    } else {
+                        SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
+                        fFailed = true;
+                    }
+                }
+                for (auto& member : token.fTokens) {
+                    if (MarkType::kMember != member.fMarkType) {
+                        continue;
+                    }
+                    string constName = MarkType::kEnumClass == token.fMarkType ?
+                            fullName : className;
+                    if (root) {
+                        constName += "::" + member.fName;
+                        def = root->find(constName, RootDefinition::AllowParens::kYes);
+                    } else {
+                        auto enumMapper = bmhParser.fEnumMap.find(token.fName);
+                        if (bmhParser.fEnumMap.end() != enumMapper) {
+                            auto& enumDoc = enumMapper->second;
+                            auto memberIter = enumDoc.fLeaves.find(member.fName);
+                            if (enumDoc.fLeaves.end() != memberIter) {
+                                def = &memberIter->second;
+                            }
+                        }
+                    }
+                    if (!def) {
+                        string innerName = key + "::" + member.fName;
+                        def = root->find(innerName, RootDefinition::AllowParens::kYes);
+                    }
+                    if (!def) {
+                        if (!member.fUndocumented) {
+                            SkDebugf("const missing from bmh: %s\n", constName.c_str());
+                            fFailed = true;
+                        }
+                    } else {
+                        def->fVisited = true;
+                    }
+                }
+                } break;
+            case MarkType::kMember:
+                if (def) {
+                    def->fVisited = true;
+                } else {
+                    SkDebugf("member missing from bmh: %s\n", fullName.c_str());
+                    fFailed = true;
+                }
+                break;
+            case MarkType::kTypedef:
+                if (!def && !root) {
+                    auto typedefIter = bmhParser.fTypedefMap.find(token.fName);
+                    if (bmhParser.fTypedefMap.end() != typedefIter) {
+                        def = &typedefIter->second;
+                    }
+                }
+                if (def) {
+                    def->fVisited = true;
+                } else {
+                    SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
+                    fFailed = true;
+                }
+                break;
+            case MarkType::kConst:
+                if (!def && !root) {
+                    auto constIter = bmhParser.fConstMap.find(token.fName);
+                    if (bmhParser.fConstMap.end() != constIter) {
+                        def = &constIter->second;
+                    }
+                }
+                if (def) {
+                    def->fVisited = true;
+                } else {
+                    if (!token.fUndocumented) {
+                        SkDebugf("const missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
+                    }
+                }
+                break;
+            case MarkType::kDefine:
+                // TODO: incomplete
+                break;
+            default:
+                SkASSERT(0);  // unhandled
+                break;
+        }
+    }
+}
+
 bool IncludeParser::crossCheck(BmhParser& bmhParser) {
     for (auto& classMapper : fIClassMap) {
         string className = classMapper.first;
@@ -674,242 +989,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 }
             }
         }
-        auto& classMap = classMapper.second;
-        auto& tokens = classMap.fTokens;
-        for (const auto& token : tokens) {
-            if (token.fPrivate) {
-                continue;
-            }
-            string fullName = classMapper.first + "::" + token.fName;
-            const Definition* def = root->find(fullName, RootDefinition::AllowParens::kYes);
-            switch (token.fMarkType) {
-                case MarkType::kMethod: {
-                    if (this->isInternalName(token)) {
-                        continue;
-                    }
-                    if (!def) {
-                        string paramName = className + "::";
-                        paramName += string(token.fContentStart,
-                                token.fContentEnd - token.fContentStart);
-                        if (string::npos != paramName.find('\n')) {
-                            paramName.erase(std::remove(paramName.begin(), paramName.end(), '\n'),
-                                    paramName.end());
-                        }
-                        def = root->find(paramName, RootDefinition::AllowParens::kYes);
-                        if (!def && 0 == token.fName.find("operator")) {
-                            string operatorName = className + "::";
-                            TextParser oper("", token.fStart, token.fContentEnd, 0);
-                            const char* start = oper.strnstr("operator", token.fContentEnd);
-                            SkASSERT(start);
-                            oper.skipTo(start);
-                            oper.skipToEndBracket('(');
-                            int parens = 0;
-                            do {
-                                if ('(' == oper.peek()) {
-                                    ++parens;
-                                } else if (')' == oper.peek()) {
-                                    --parens;
-                                }
-                            } while (!oper.eof() && oper.next() && parens > 0);
-                            operatorName += string(start, oper.fChar - start);
-                            def = root->find(operatorName, RootDefinition::AllowParens::kYes);
-                        }
-                    }
-                    if (!def) {
-                        int skip = !strncmp(token.fContentStart, "explicit ", 9) ? 9 : 0;
-                        skip = !strncmp(token.fContentStart, "virtual ", 8) ? 8 : skip;
-                        const char* tokenEnd = token.methodEnd();
-                        string constructorName = className + "::";
-                        constructorName += string(token.fContentStart + skip,
-                                tokenEnd - token.fContentStart - skip);
-                        def = root->find(constructorName, RootDefinition::AllowParens::kYes);
-                    }
-                    if (!def && 0 == token.fName.find("SK_")) {
-                        string incName = token.fName + "()";
-                        string macroName = className + "::" + incName;
-                        def = root->find(macroName, RootDefinition::AllowParens::kYes);
-                        if (def) {
-                            if (def->fName == incName) {
-                                def->fVisited = true;
-                                if ("SK_TO_STRING_NONVIRT" == token.fName) {
-                                    def = root->find(className + "::toString",
-                                            RootDefinition::AllowParens::kYes);
-                                    if (def) {
-                                        def->fVisited = true;
-                                    } else {
-                                        SkDebugf("missing toString bmh: %s\n", fullName.c_str());
-                                        fFailed = true;
-                                    }
-                                }
-                                break;
-                            } else {
-                                SkDebugf("method macro differs from bmh: %s\n", fullName.c_str());
-                                fFailed = true;
-                            }
-                        }
-                    }
-                    if (!def) {
-                        bool allLower = true;
-                        for (size_t index = 0; index < token.fName.length(); ++index) {
-                            if (!islower(token.fName[index])) {
-                                allLower = false;
-                                break;
-                            }
-                        }
-                        if (allLower) {
-                            string lowerName = className + "::" + token.fName + "()";
-                            def = root->find(lowerName, RootDefinition::AllowParens::kYes);
-                        }
-                    }
-                    if (!def) {
-                        if (0 == token.fName.find("SkDEBUGCODE")) {
-                            break;
-                        }
-                    }
-                    if (!def) {
-            // simple method names inside nested classes have a bug and are missing trailing parens
-                        string withParens = fullName + "()"; // FIXME: this shouldn't be necessary
-                        def = root->find(withParens, RootDefinition::AllowParens::kNo);
-                    }
-                    if (!def) {
-                        if (!token.fUndocumented) {
-                            SkDebugf("method missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
-                        }
-                        break;
-                    }
-                    if (token.fUndocumented) {
-                        break;
-                    }
-                    if (def->crossCheck2(token)) {
-                        def->fVisited = true;
-                    } else {
-                       SkDebugf("method differs from bmh: %s\n", fullName.c_str());
-                       fFailed = true;
-                    }
-                } break;
-                case MarkType::kComment:
-                    break;
-                case MarkType::kEnumClass:
-                case MarkType::kEnum: {
-                    if (!def) {
-                        // work backwards from first word to deduce #Enum name
-                        TextParser firstMember("", token.fStart, token.fContentEnd, 0);
-                        SkAssertResult(firstMember.skipName("enum"));
-                        SkAssertResult(firstMember.skipToEndBracket('{'));
-                        firstMember.next();
-                        firstMember.skipWhiteSpace();
-                        SkASSERT('k' == firstMember.peek());
-                        const char* savePos = firstMember.fChar;
-                        firstMember.skipToNonName();
-                        const char* wordEnd = firstMember.fChar;
-                        firstMember.fChar = savePos;
-                        const char* lastUnderscore = nullptr;
-                        do {
-                            if (!firstMember.skipToEndBracket('_')) {
-                                break;
-                            }
-                            if (firstMember.fChar > wordEnd) {
-                                break;
-                            }
-                            lastUnderscore = firstMember.fChar;
-                        } while (firstMember.next());
-                        if (lastUnderscore) {
-                            ++lastUnderscore;
-                            string anonName = className + "::" + string(lastUnderscore,
-                                    wordEnd - lastUnderscore) + 's';
-                            def = root->find(anonName, RootDefinition::AllowParens::kYes);
-                        }
-                        if (!def) {
-                            if (!token.fUndocumented) {
-                                SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
-                                fFailed = true;
-                            }
-                            break;
-                        }
-                    }
-                    def->fVisited = true;
-                    bool hasCode = false;
-                    bool hasPopulate = true;
-                    for (auto& child : def->fChildren) {
-                        if (MarkType::kCode == child->fMarkType) {
-                            hasPopulate = std::any_of(child->fChildren.begin(),
-                                    child->fChildren.end(), [](auto grandChild){
-                                    return MarkType::kPopulate == grandChild->fMarkType; });
-                            if (!hasPopulate) {
-                                def = child;
-                            }
-                            hasCode = true;
-                            break;
-                        }
-                    }
-                    if (!hasCode) {
-                        SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
-                        break;
-                    }
-                    if (!hasPopulate) {
-                        if (def->crossCheck(token)) {
-                            def->fVisited = true;
-                        } else {
-                            SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
-                            fFailed = true;
-                        }
-                    }
-                    for (auto& member : token.fTokens) {
-                        if (MarkType::kMember != member.fMarkType) {
-                            continue;
-                        }
-                        string constName = MarkType::kEnumClass == token.fMarkType ?
-                                fullName : className;
-                        constName += "::" + member.fName;
-                        def = root->find(constName, RootDefinition::AllowParens::kYes);
-                        if (!def) {
-                            string innerName = classMapper.first + "::" + member.fName;
-                            def = root->find(innerName, RootDefinition::AllowParens::kYes);
-                        }
-                        if (!def) {
-                            if (!member.fUndocumented) {
-                                SkDebugf("const missing from bmh: %s\n", constName.c_str());
-                                fFailed = true;
-                            }
-                        } else {
-                            def->fVisited = true;
-                        }
-                    }
-                    } break;
-                case MarkType::kMember:
-                    if (def) {
-                        def->fVisited = true;
-                    } else {
-                        SkDebugf("member missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
-                    }
-                    break;
-                case MarkType::kTypedef:
-                    if (def) {
-                        def->fVisited = true;
-                    } else {
-                        SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
-                    }
-                    break;
-                case MarkType::kConst:
-                    if (def) {
-                        def->fVisited = true;
-                    } else {
-                        if (!token.fUndocumented) {
-                            SkDebugf("const missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
-                        }
-                    }
-                    break;
-                default:
-                    SkASSERT(0);  // unhandled
-                    break;
-            }
-        }
+        this->checkTokens(classMapper.second.fTokens, classMapper.first, className, root,
+                bmhParser);
     }
+    this->checkTokens(fGlobals, "", "", nullptr, bmhParser);
     int crossChecks = 0;
     string firstCheck;
     for (auto& classMapper : fIClassMap) {
@@ -3576,6 +3659,132 @@ void IncludeParser::RemoveOneFile(const char* docs, const char* includesFile) {
     baseName.append("_Reference.bmh");
     SkString fullName = SkOSPath::Join(docs, baseName.c_str());
     remove(fullName.c_str());
+}
+
+static const char kMethodMissingStr[] =
+    "If the method requires documentation, add to "
+    "%s at minimum:\n"  // path to bmh file
+    "\n"
+    "#Method %s\n" // method declaration less implementation details
+    "#In  SomeSubtopicName\n"
+    "#Line # add a one line description here ##\n"
+    "#Populate\n"
+    "#NoExample\n"
+    "// or better yet, use #Example and put C++ code here\n"
+    "##\n"
+    "#SeeAlso optional related symbols\n"
+    "#Method ##\n"
+    "\n"
+    "Add to %s, at minimum:\n"  // path to include
+    "\n"
+    "/** (description) Starts with present tense action verb\n"
+    "    and end with a period.\n"
+    "%s"   // @param, @return if needed go here
+    "*/\n"
+    "%s ...\n" // method declaration
+    "\n"
+    "If the method does not require documentation,\n"
+    "add \"private\" or \"experimental\", as in:\n"
+    "\n"
+    "/** Experimental, do not use. And so on...\n"
+    "*/\n"
+    "%s ...\n" // method declaration
+    "\n"
+    ;
+
+// bDef does not have #Populate
+static const char kMethodDiffersNoPopStr[] =
+    "In %s:\n"              // path to bmh file
+    "#Method %s\n"          // method declaration less implementation details
+    "does not match doxygen comment of:\n"
+    "%s.\n"                 // method declaration
+    "\n"
+    ;
+
+static const char kMethodDiffersStr[] =
+    "In %s:\n"                        // path to include
+    "%s\n"                            // method declaration
+    "does not match doxygen comment.\n"
+    "\n"
+    ;
+
+void IncludeParser::suggestFix(Suggest suggest, const Definition& iDef,
+        const RootDefinition* root, const Definition* bDef) {
+    string methodNameStr(iDef.fContentStart, iDef.length());
+    const char* methodName = methodNameStr.c_str();
+    TextParser lessImplParser(&iDef);
+    if (lessImplParser.skipExact("static")) {
+        lessImplParser.skipWhiteSpace();
+    }
+    // TODO : handle debug wrapper
+    /* bool inDebugWrapper = */ Definition::SkipImplementationWords(lessImplParser);
+    string lessImplStr(lessImplParser.fChar, lessImplParser.fEnd - lessImplParser.fChar);
+    const char* methodNameLessImpl = lessImplStr.c_str();
+    // return result, if any is substr from 0 to location of iDef.fName
+    size_t namePos = methodNameStr.find(iDef.fName);
+    SkASSERT(string::npos != namePos);
+    size_t funcEnd = namePos;
+    while (funcEnd > 0 && ' ' >= methodNameStr[funcEnd - 1]) {
+        funcEnd -= 1;
+    }
+    string funcRet = methodNameStr.substr(0, funcEnd);
+// parameters, if any, are delimited by () and separate by ,
+    TextParser parser(&iDef);
+    parser.fChar += namePos + iDef.fName.length();
+    const char* start = parser.fChar;
+    vector<string> paramStrs;
+    if ('(' == start[0]) {
+        parser.skipToBalancedEndBracket('(', ')');
+        TextParser params(&iDef);
+        params.fChar = start + 1;
+        params.fEnd = parser.fChar;
+        while (!params.eof()) {
+            const char* paramEnd = params.anyOf("=,)");
+            const char* paramStart = paramEnd;
+            while (paramStart > params.fChar && ' ' >= paramStart[-1]) {
+                paramStart -= 1;
+            }
+            while (paramStart > params.fChar && (isalnum(paramStart[-1])
+                    || '_' == paramStart[-1])) {
+                paramStart -= 1;
+            }
+            string param(paramStart, paramEnd - paramStart);
+            paramStrs.push_back(param);
+            params.fChar = params.anyOf(",)") + 1;
+        }
+    }
+    string bmhFile = root ? root->fFileName : bDef ? bDef->fFileName : "a *.bmh file";
+    bool hasFuncReturn = "" != funcRet && "void" != funcRet;
+    switch(suggest) {
+        case Suggest::kMethodMissing: {
+            // if include @param, @return are missing, request them as well
+            string paramDox;
+            bool firstParam = true;
+            for (auto paramStr : paramStrs) {
+                if (firstParam) {
+                    paramDox += "\n";
+                    firstParam = false;
+                }
+                paramDox += "    @param " + paramStr + "  descriptive phrase\n";
+            }
+            if (hasFuncReturn) {
+                paramDox += "\n";
+                paramDox += "    @return descriptive phrase\n";
+            }
+            SkDebugf(kMethodMissingStr, bmhFile.c_str(), methodNameLessImpl, iDef.fFileName.c_str(),
+                    paramDox.c_str(), methodName, methodName);
+            } break;
+        case Suggest::kMethodDiffers: {
+            bool hasPop = std::any_of(bDef->fChildren.begin(), bDef->fChildren.end(),
+                    [](Definition* def) { return MarkType::kPopulate == def->fMarkType; });
+            if (!hasPop) {
+                SkDebugf(kMethodDiffersNoPopStr, bmhFile.c_str(), methodNameLessImpl, methodName);
+            }
+            SkDebugf(kMethodDiffersStr, iDef.fFileName.c_str(), methodName);
+            } break;
+        default:
+            SkASSERT(0);
+    }
 }
 
 Bracket IncludeParser::topBracket() const {

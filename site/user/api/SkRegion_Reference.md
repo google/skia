@@ -389,7 +389,7 @@ iterated <a href='SkRegion_Reference#SkRegion'>SkRegion</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class SK_API <a href='#SkRegion_Cliperator'>Cliperator</a> {
+    class <a href='#SkRegion_Cliperator'>Cliperator</a> {
     public:
         <a href='#SkRegion_Cliperator'>Cliperator</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& clip);
         bool <a href='#SkRegion_Cliperator_done'>done()</a>;

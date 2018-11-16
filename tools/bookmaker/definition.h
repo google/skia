@@ -197,6 +197,8 @@ public:
         fParentIndex = fParent ? (int) fParent->fTokens.size() : -1;
     }
 
+    static bool SkipImplementationWords(TextParser& inc);
+
     string simpleName() {
         size_t doubleColon = fName.rfind("::");
         return string::npos == doubleColon ? fName : fName.substr(doubleColon + 2);

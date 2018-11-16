@@ -185,11 +185,8 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     string className(fName, 0, doubleColons - 2);
     TextParser iParser(fFileName, fStart, fContentStart, fLineCount);
     SkAssertResult(iParser.skipWord("#Method"));
-    iParser.skipExact("SK_API");
     iParser.skipWhiteSpace();
     bool isStatic = iParser.skipExact("static");
-    iParser.skipWhiteSpace();
-    iParser.skipExact("SK_API");
     iParser.skipWhiteSpace();
     bool returnsConst = iParser.skipExact("const");
     if (returnsConst) {
@@ -644,11 +641,7 @@ const char* Definition::methodEnd() const {
     return tokenEnd;
 }
 
-bool Definition::crossCheckInside(const char* start, const char* end,
-        const Definition& includeToken) const {
-    TextParser def(fFileName, start, end, fLineCount);
-    const char* tokenEnd = includeToken.methodEnd();
-    TextParser inc("", includeToken.fContentStart, tokenEnd, 0);
+bool Definition::SkipImplementationWords(TextParser& inc) {
     if (inc.startsWith("SK_API")) {
         inc.skipWord("SK_API");
     }
@@ -661,7 +654,23 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     if (inc.startsWith("SK_API")) {
         inc.skipWord("SK_API");
     }
-    inc.skipExact("SkDEBUGCODE(");
+    return inc.skipExact("SkDEBUGCODE(");
+}
+
+bool Definition::crossCheckInside(const char* start, const char* end,
+        const Definition& includeToken) const {
+    TextParser def(fFileName, start, end, fLineCount);
+    const char* tokenEnd = includeToken.methodEnd();
+    TextParser inc("", includeToken.fContentStart, tokenEnd, 0);
+    if (inc.startsWith("static")) {
+        def.skipWhiteSpace();
+        if (!def.startsWith("static")) {
+            return false;
+        }
+        inc.skipWord("static");
+        def.skipWord("static");
+    }
+    (void) Definition::SkipImplementationWords(inc);
     do {
         bool defEof;
         bool incEof;
@@ -1194,10 +1203,6 @@ bool RootDefinition::dumpUnVisited() {
             // FIXME: bugs requiring long tail fixes, suppressed here:
             // SkBitmap::validate() is wrapped in SkDEBUGCODE in .h and not parsed
             if ("SkBitmap::validate()" == leaf.first) {
-                continue;
-            }
-            // SkPath::pathRefIsValid in #ifdef ; prefer to remove chrome dependency to fix
-            if ("SkPath::pathRefIsValid" == leaf.first) {
                 continue;
             }
             // FIXME: end of long tail bugs
