@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18bafd0a_2dbf47d2",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-16T18:53:42Z",
+      "side": 1,
+      "message": "This comment seems out of date, update it bit?",
+      "range": {
+        "startLine": 578,
+        "startChar": 4,
+        "endLine": 578,
+        "endChar": 72
+      },
+      "revId": "1aa5a9641500f4fc13703132b1a98c99472af104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84c3b635_66988565",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-16T18:53:42Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 4
+      },
+      "revId": "1aa5a9641500f4fc13703132b1a98c99472af104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
