@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a92cc79_f082f82d",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-16T18:32:24Z",
+      "side": 1,
+      "message": "might be nice to explicit this?",
+      "revId": "a02b652bfc07dbd5acb326978949bc03791a6015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80e2e17d_91f810c4",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-16T18:32:24Z",
+      "side": 1,
+      "message": "same?",
+      "revId": "a02b652bfc07dbd5acb326978949bc03791a6015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
