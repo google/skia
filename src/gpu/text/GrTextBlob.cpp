@@ -64,7 +64,7 @@ SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& skPaint,
                                                  const SkMatrix& viewMatrix) {
 
     // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc = fOverrideDescriptor.get() ? fOverrideDescriptor.get() : &fDescriptor;
+    SkAutoDescriptor* desc = fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         skPaint, props, scalerContextFlags, viewMatrix, desc, &effects);
@@ -415,13 +415,13 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
         SkASSERT_RELEASE(rRun.fDescriptor.getDesc());
         SkASSERT_RELEASE(*lRun.fDescriptor.getDesc() == *rRun.fDescriptor.getDesc());
 
-        if (lRun.fOverrideDescriptor.get()) {
-            SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc());
-            SkASSERT_RELEASE(rRun.fOverrideDescriptor.get() && rRun.fOverrideDescriptor->getDesc());
-            SkASSERT_RELEASE(*lRun.fOverrideDescriptor->getDesc() ==
-                             *rRun.fOverrideDescriptor->getDesc());
+        if (lRun.fARGBFallbackDescriptor.get()) {
+            SkASSERT_RELEASE(lRun.fARGBFallbackDescriptor->getDesc());
+            SkASSERT_RELEASE(rRun.fARGBFallbackDescriptor.get() && rRun.fARGBFallbackDescriptor->getDesc());
+            SkASSERT_RELEASE(*lRun.fARGBFallbackDescriptor->getDesc() ==
+                             *rRun.fARGBFallbackDescriptor->getDesc());
         } else {
-            SkASSERT_RELEASE(!rRun.fOverrideDescriptor.get());
+            SkASSERT_RELEASE(!rRun.fARGBFallbackDescriptor.get());
         }
 
         // color can be changed
