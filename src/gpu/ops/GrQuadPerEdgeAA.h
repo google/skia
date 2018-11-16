@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 #include "GrPrimitiveProcessor.h"
+#include "GrQuad.h"
 #include "GrSamplerState.h"
 #include "GrTypesPriv.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
@@ -17,47 +18,47 @@
 #include "SkPoint3.h"
 
 class GrGLSLColorSpaceXformHelper;
-class GrPerspQuad;
 
-class GrQuadPerEdgeAA {
-public:
+namespace GrQuadPerEdgeAA {
+
     enum class Domain : bool { kNo = false, kYes = true };
 
-    // The vertex template provides a clean way of specifying the layout and components of a vertex
-    // for a per-edge aa quad. However, because there are so many permutations possible, the struct
-    // is defined this way to take away all layout control from the compiler and make
-    // sure that it matches what we need to send to the GPU.
-    //
-    // It is expected that most code using these vertices will only need to call the templated
-    // Tessellate() function with an appropriately sized vertex buffer and not need to modify or
-    // read the fields of a particular vertex.
-    template <int PosDim, typename C, int LocalPosDim, Domain D, GrAA AA>
-    struct Vertex {
-        using Color = C;
-        static constexpr GrAA kAA = AA;
-        static constexpr Domain kDomain = D;
-        static constexpr size_t kPositionDim = PosDim;
-        static constexpr size_t kLocalPositionDim = LocalPosDim;
+    // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
+    // order (when enabled) is device position, color, local position, domain, aa edge equations.
+    // This order matches the constructor argument order of VertexSpec and is the order that
+    // GPAttributes maintains. If hasLocalCoords is false, then the local quad type can be ignored.
+    struct VertexSpec {
+    public:
+        VertexSpec(GrQuadType deviceQuadType, bool hasColor, GrQuadType localQuadType,
+                   bool hasLocalCoords, Domain domain, GrAAType aa)
+                : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
+                , fLocalQuadType(static_cast<unsigned>(localQuadType))
+                , fHasLocalCoords(hasLocalCoords)
+                , fHasColor(hasColor)
+                , fHasDomain(static_cast<unsigned>(domain))
+                , fUsesCoverageAA(aa == GrAAType::kCoverage) { }
 
-        static constexpr size_t kPositionOffset = 0;
-        static constexpr size_t kPositionSize = PosDim * sizeof(float);
+        GrQuadType deviceQuadType() const { return static_cast<GrQuadType>(fDeviceQuadType); }
+        GrQuadType localQuadType() const { return static_cast<GrQuadType>(fLocalQuadType); }
+        bool hasLocalCoords() const { return fHasLocalCoords; }
+        bool hasVertexColors() const { return fHasColor; }
+        bool hasDomain() const { return fHasDomain; }
+        bool usesCoverageAA() const { return fUsesCoverageAA; }
 
-        static constexpr size_t kColorOffset = kPositionOffset + kPositionSize;
-        static constexpr size_t kColorSize = sizeof(Color);
+        // Will always be 2 or 3
+        int deviceDimensionality() const;
+        // Will always be 0 if hasLocalCoords is false, otherwise will be 2 or 3
+        int localDimensionality() const;
 
-        static constexpr size_t kLocalPositionOffset = kColorOffset + kColorSize;
-        static constexpr size_t kLocalPositionSize = LocalPosDim * sizeof(float);
+    private:
+        static_assert(kGrQuadTypeCount <= 4, "GrQuadType doesn't fit in 2 bits");
 
-        static constexpr size_t kDomainOffset = kLocalPositionOffset + kLocalPositionSize;
-        static constexpr size_t kDomainSize = D == Domain::kYes ? sizeof(SkRect) : 0;
-
-        static constexpr size_t kAAOffset = kDomainOffset + kDomainSize;
-        static constexpr size_t kAASize = AA == GrAA::kYes ? 4 * sizeof(SkPoint3) : 0;
-
-        static constexpr size_t kVertexSize = kAAOffset + kAASize;
-
-        // Make sure sizeof(Vertex<...>) == kVertexSize
-        char fData[kVertexSize];
+        unsigned fDeviceQuadType: 2;
+        unsigned fLocalQuadType: 2;
+        unsigned fHasLocalCoords: 1;
+        unsigned fHasColor: 1;
+        unsigned fHasDomain: 1;
+        unsigned fUsesCoverageAA: 1;
     };
 
     // Utility class that manages the attribute state necessary to render a particular batch of
@@ -77,7 +78,7 @@ public:
     public:
         using Attribute = GrPrimitiveProcessor::Attribute;
 
-        GPAttributes(int posDim, int localDim, bool hasColor, GrAAType aa, Domain domain);
+        GPAttributes(const VertexSpec& vertexSpec);
 
         const Attribute& positions() const { return fPositions; }
         const Attribute& colors() const { return fColors; }
@@ -131,44 +132,18 @@ public:
         Attribute fAAEdges[4];  // named "aaEdgeX" for X = 0,1,2,3
     };
 
-    // Tessellate the given quad specification into the vertices buffer. If the specific vertex
-    // type does not use color, local positions, domain, etc. then the passed in values used for
-    // that field will be ignored.
-    template<typename V>
-    static void Tessellate(V* vertices, const GrPerspQuad& deviceQuad, typename V::Color color,
-                           const GrPerspQuad& srcQuad, const SkRect& domain, GrQuadAAFlags aa) {
-        static_assert(sizeof(V) == V::kVertexSize, "Incorrect vertex size");
-        static constexpr bool useCoverageAA = V::kAA == GrAA::kYes;
-        float localStorage[4 * (V::kPositionDim + V::kLocalPositionDim + (useCoverageAA ? 3 : 0))];
-        TessellateImpl(vertices, V::kVertexSize, localStorage,
-                deviceQuad, V::kPositionDim, V::kPositionOffset, V::kPositionSize,
-                &color, V::kColorOffset, V::kColorSize,
-                srcQuad, V::kLocalPositionDim, V::kLocalPositionOffset, V::kLocalPositionSize,
-                &domain, V::kDomainOffset, V::kDomainSize,
-                aa, V::kAAOffset, V::kAASize);
-    }
 
-private:
-    // Don't let the "namespace" class be instantiated
-    GrQuadPerEdgeAA();
+    // Fill vertices with the vertex data needed to represent the given quad. The device position,
+    // local coords, vertex color, domain, and edge coefficients will be written and/or computed
+    // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
+    // then its corresponding function argument is ignored.
+    //
+    // Returns the advanced pointer in vertices.
+    // TODO4F: Switch GrColor to GrVertexColor
+    void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
+                     const GrColor& color, const GrPerspQuad& localQuad, const SkRect& domain,
+                     GrQuadAAFlags aa);
 
-    // Internal implementation that can handle all vertex template variations without being
-    // replicated by the template in order to keep code size down.
-    //
-    // This uses the field sizes to determine if particular data needs to be computed. The arguments
-    // are arranged so that the data and field specification match the field declaration order of
-    // the vertex type (pos, color, localPos, domain, aa).
-    //
-    // localStorage must be have a length > 4 * (devDimCt + srcDimCt + (aa ? 3 : 0)) and is assumed
-    // to be a pointer to a local variable in the wrapping template's stack. This is done instead of
-    // always allocating 36 floats in this function (36 is maximum needed). The minimum needed for a
-    // non-AA 2D quad with no local coordinates is just 8.
-    static void TessellateImpl(void* vertices, size_t vertexSize, float* localStorage,
-            const GrPerspQuad& deviceQuad, int posDim, size_t posOffset, size_t posSize,
-            const void* color, size_t colorOffset, size_t colorSize,
-            const GrPerspQuad& srcQuad, int srcDim, size_t srcOffset, size_t srcSize,
-            const void* domain, size_t domainOffset, size_t domainSize,
-            GrQuadAAFlags aaFlags, size_t aaOffset, size_t aaSize);
-};
+} // namespace GrQuadPerEdgeAA
 
 #endif // GrQuadPerEdgeAA_DEFINED
