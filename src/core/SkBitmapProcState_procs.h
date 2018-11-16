@@ -12,9 +12,6 @@
     #error "Please define NAME_WRAP() before including this file"
 #endif
 
-#define FILTER_PROC(x, y, a, b, c, d, dst) \
-    NAME_WRAP(Filter_32_alpha)(x, y, a, b, c, d, dst, alphaScale)
-
 #define MAKENAME(suffix)        NAME_WRAP(S32_alpha_D32 ## suffix)
 #define SRCTYPE                 SkPMColor
 #define CHECKSTATE(state)       SkASSERT(4 == state.fPixmap.info().bytesPerPixel()); \

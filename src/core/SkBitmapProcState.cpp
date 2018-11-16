@@ -10,6 +10,7 @@
 #include "SkBitmapProcState.h"
 #include "SkColorData.h"
 #include "SkMacros.h"
+#include "SkOpts.h"
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
@@ -80,7 +81,6 @@ static void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void* sIn, int x, 
 }
 
 #define   NAME_WRAP(x)  x
-#include "SkBitmapProcState_filter.h"
 #include "SkBitmapProcState_procs.h"
 
 SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
@@ -245,25 +245,20 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
     // the shader procs above and can skip all this.
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
-        int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
 
-#if !defined(SK_ARM_HAS_NEON)
-        static const SampleProc32 gSkBitmapProcStateSample32[] = {
-            S32_alpha_D32_nofilter_DX,
-            S32_alpha_D32_filter_DX,
-        };
-#endif
-
-        fSampleProc32 = SK_ARM_NEON_WRAP(gSkBitmapProcStateSample32)[index];
-
-        // our special-case shaderprocs
-        if (fAlphaScale == 256
-                && fSampleProc32 == S32_alpha_D32_nofilter_DX
-                && clampClamp) {
-            fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
+        if (fFilterQuality > kNone_SkFilterQuality) {
+            fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
+        } else {
+            fSampleProc32 = S32_alpha_D32_nofilter_DX;
         }
 
-        if (nullptr == fShaderProc32) {
+        // our special-case shaderprocs
+        // TODO: move this one into chooseShaderProc32() or pull all that in here.
+        if (fAlphaScale == 256
+                && fFilterQuality == kNone_SkFilterQuality
+                && clampClamp) {
+            fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
+        } else {
             fShaderProc32 = this->chooseShaderProc32();
         }
     }
@@ -366,6 +361,31 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     }
 }
 
+static inline void filter_32_alpha(unsigned t,
+                                   SkPMColor color0,
+                                   SkPMColor color1,
+                                   SkPMColor* dstColor,
+                                   unsigned alphaScale) {
+    SkASSERT((unsigned)t <= 0xF);
+    SkASSERT(alphaScale <= 256);
+
+    const uint32_t mask = 0xFF00FF;
+
+    int scale = 256 - 16*t;
+    uint32_t lo = (color0 & mask) * scale;
+    uint32_t hi = ((color0 >> 8) & mask) * scale;
+
+    scale = 16*t;
+    lo += (color1 & mask) * scale;
+    hi += ((color1 >> 8) & mask) * scale;
+
+    // TODO: if (alphaScale < 256) ...
+    lo = ((lo >> 8) & mask) * alphaScale;
+    hi = ((hi >> 8) & mask) * alphaScale;
+
+    *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
+}
+
 static void S32_D32_constX_shaderproc(const void* sIn,
                                       int x, int y,
                                       SkPMColor* SK_RESTRICT colors,
@@ -459,7 +479,7 @@ static void S32_D32_constX_shaderproc(const void* sIn,
 
     if (kNone_SkFilterQuality != s.fFilterQuality) {
         const SkPMColor* row1 = s.fPixmap.addr32(0, iY1);
-        Filter_32_alpha(iSubY, *row0, *row1, &color, s.fAlphaScale);
+        filter_32_alpha(iSubY, *row0, *row1, &color, s.fAlphaScale);
     } else {
         if (s.fAlphaScale < 256) {
             color = SkAlphaMulQ(*row0, s.fAlphaScale);
