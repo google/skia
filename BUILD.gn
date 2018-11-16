@@ -1507,6 +1507,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+      "modules/skshaper",
       "modules/skottie",
       "modules/skottie:gm",
       "modules/sksg",
