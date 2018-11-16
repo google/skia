@@ -10,6 +10,7 @@
 #include "SkBitmapProcState.h"
 #include "SkColorData.h"
 #include "SkMacros.h"
+#include "SkOpts.h"
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
@@ -245,25 +246,20 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
     // the shader procs above and can skip all this.
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
-        int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
 
-#if !defined(SK_ARM_HAS_NEON)
-        static const SampleProc32 gSkBitmapProcStateSample32[] = {
-            S32_alpha_D32_nofilter_DX,
-            S32_alpha_D32_filter_DX,
-        };
-#endif
-
-        fSampleProc32 = SK_ARM_NEON_WRAP(gSkBitmapProcStateSample32)[index];
-
-        // our special-case shaderprocs
-        if (fAlphaScale == 256
-                && fSampleProc32 == S32_alpha_D32_nofilter_DX
-                && clampClamp) {
-            fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
+        if (fFilterQuality > kNone_SkFilterQuality) {
+            fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
+        } else {
+            fSampleProc32 = S32_alpha_D32_nofilter_DX;
         }
 
-        if (nullptr == fShaderProc32) {
+        // our special-case shaderprocs
+        // TODO: move this one into chooseShaderProc32() or pull all that in here.
+        if (fAlphaScale == 256
+                && fFilterQuality == kNone_SkFilterQuality
+                && clampClamp) {
+            fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
+        } else {
             fShaderProc32 = this->chooseShaderProc32();
         }
     }
