@@ -238,9 +238,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
-        const SkDescriptor* desc = (fRun->fOverrideDescriptor && !fSubRun->drawAsDistanceFields())
-                                           ? fRun->fOverrideDescriptor->getDesc()
-                                           : fRun->fDescriptor.getDesc();
+        const SkDescriptor* desc = fSubRun->desc();
 
         if (!*fLazyCache || (*fLazyCache)->getDescriptor() != *desc) {
             SkScalerContextEffects effects;

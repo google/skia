@@ -428,7 +428,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
                 }
             }
         } else {
-            SkAssertResult(glyph.fMaskFormat == SkMask::kARGB32_Format);
+            SkASSERT(glyph.fMaskFormat == SkMask::kARGB32_Format);
             SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
             maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
             fARGBGlyphsIDs.push_back(glyphID);
@@ -642,7 +642,7 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
 
         SubRun* subRun = &fSubRunInfo.back();
         if (fInitialized && subRun->maskFormat() != format) {
-            subRun = &pushBackSubRun();
+            subRun = pushBackSubRun(fDescriptor);
             subRun->setStrike(strike);
         } else if (!fInitialized) {
             subRun->setStrike(strike);
@@ -673,12 +673,14 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                     SkSpan<const SkPoint> positions, SkScalar textScale,
                     const SkMatrix& glyphCacheMatrix,
                     SkGlyphRunListPainter::NeedsTransform needsTransform) const {
-            fRun->initOverride();
             fBlob->setHasBitmap();
             fRun->setSubRunHasW(glyphCacheMatrix.hasPerspective());
+            auto subRun = fRun->initARGBFallback();
             SkExclusiveStrikePtr fallbackCache =
                     fRun->setupCache(fallbackPaint, fProps, fScalerContextFlags, glyphCacheMatrix);
             sk_sp<GrTextStrike> strike = fGlyphCache->getStrike(fallbackCache.get());
+            SkASSERT(strike != nullptr);
+            subRun->setStrike(strike);
             const SkPoint* glyphPos = positions.data();
             for (auto glyphID : glyphIDs) {
                 const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
