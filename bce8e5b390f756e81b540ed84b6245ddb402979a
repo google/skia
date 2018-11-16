@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "763b04f2_3c33512e",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-16T14:57:17Z",
+      "side": 1,
+      "message": "Think these should be\n\n  kAT \u003d\u003d kPremul_SkAlphaType ? fA : 1.0f\n\n?",
+      "range": {
+        "startLine": 332,
+        "startChar": 35,
+        "endLine": 332,
+        "endChar": 39
+      },
+      "revId": "bce8e5b390f756e81b540ed84b6245ddb402979a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
