@@ -40,6 +40,18 @@ SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size) : SkFont(std::move(face), 
 
 SkFont::SkFont() : SkFont(nullptr, kDefault_Size) {}
 
+#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
+SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX,
+               uint32_t legacy_flags) : SkFont(std::move(face), size, scaleX, skewX) {
+    this->setFlags(legacy_flags);
+}
+
+SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, uint32_t legacy_flags)
+    : SkFont(std::move(face), size) {
+    this->setFlags(legacy_flags);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
@@ -61,6 +73,42 @@ void SkFont::setLinearMetrics(bool predicate) {
 void SkFont::setEmbolden(bool predicate) {
     fFlags = set_clear_mask(fFlags, predicate, kEmbolden_PrivFlag);
 }
+
+#ifdef SK_SUPPORT_LEGACY_FONT_FLAGS
+void SkFont::DEPRECATED_setAntiAlias(bool doAA) {
+    if (!doAA) {
+        this->setEdging(Edging::kAlias);
+    } else {
+        if (this->getEdging() == Edging::kAlias) {
+            this->setEdging(Edging::kAntiAlias);
+        }
+        // else leave the current fEdging as is
+    }
+}
+
+void SkFont::DEPRECATED_setLCDRender(bool doLCD) {
+    if (doLCD) {
+        this->setEdging(Edging::kSubpixelAntiAlias);
+    } else {
+        if (this->getEdging() == Edging::kSubpixelAntiAlias) {
+            this->setEdging(Edging::kAntiAlias);
+        }
+        // else leave the current fEdging as is
+    }
+}
+
+void SkFont::setFlags(uint32_t legacy_flags) {
+    fFlags = legacy_flags & 0x1F;   // the first 5 flags are fine
+    this->DEPRECATED_setAntiAlias(SkToBool(legacy_flags & kDEPRECATED_Antialias_Flag));
+    this->DEPRECATED_setLCDRender(SkToBool(legacy_flags & kDEPRECATED_LCDRender_Flag));
+}
+
+SkFont SkFont::makeWithFlags(uint32_t newFlags) const {
+    SkFont font = *this;
+    font.setFlags(newFlags);
+    return font;
+}
+#endif
 
 void SkFont::setEdging(Edging e) {
     fEdging = SkToU8(e);
