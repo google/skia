@@ -54,23 +54,10 @@ static void test_fontmetrics(skiatest::Reporter* reporter,
 static void test_cachedfont(skiatest::Reporter* reporter) {
     static const char* const faces[] = {
         nullptr,   // default font
+#if 0
         "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
         "Courier New", "Verdana", "monospace",
-    };
-
-    static const struct {
-        SkFontHinting   hinting;
-        unsigned        flags;
-    } settings[] = {
-        { kNo_SkFontHinting,     0                               },
-        { kNo_SkFontHinting,     SkPaint::kLinearText_Flag       },
-        { kNo_SkFontHinting,     SkPaint::kSubpixelText_Flag     },
-        { kSlight_SkFontHinting, 0                               },
-        { kSlight_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kSlight_SkFontHinting, SkPaint::kSubpixelText_Flag     },
-        { kNormal_SkFontHinting, 0                               },
-        { kNormal_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kNormal_SkFontHinting, SkPaint::kSubpixelText_Flag     },
+#endif
     };
 
     static const struct {
@@ -85,38 +72,58 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     };
 
     SkPaint paint;
-    char txt[] = "long.text.with.lots.of.dots.";
+    char txt[] = "long .text .with .lots .of.dots.";
+
+    unsigned mask = SkPaint::kAntiAlias_Flag            |
+                    SkPaint::kFakeBoldText_Flag         |
+                    SkPaint::kLinearText_Flag           |
+                    SkPaint::kSubpixelText_Flag         |
+                    SkPaint::kLCDRenderText_Flag        |
+                    SkPaint::kEmbeddedBitmapText_Flag   |
+                    SkPaint::kAutoHinting_Flag;
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
         paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
+        for (unsigned flags = 0; flags <= 0xFFF; ++flags) {
+            if (flags & ~mask) {
+                continue;
+            }
+            flags = SkPaint::kAntiAlias_Flag | SkPaint::kLCDRenderText_Flag;
+            paint.setFlags(flags);
+            for (int hint = 0; hint <= 3; ++hint) {
+                paint.setHinting((SkFontHinting)hint);
+                for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
+                    paint.setTextScaleX(gScaleRec[k].fScaleX);
+                    paint.setTextSkewX(gScaleRec[k].fSkewX);
 
-        for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
-            paint.setHinting(settings[j].hinting);
-            paint.setLinearText((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
-            paint.setSubpixelText((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
+                    const SkFont font(SkFont::LEGACY_ExtractFromPaint(paint));
 
-            for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
-                paint.setTextScaleX(gScaleRec[k].fScaleX);
-                paint.setTextSkewX(gScaleRec[k].fSkewX);
+                    test_cachedfont(reporter, paint, font);
+                    test_fontmetrics(reporter, paint, font);
 
-                const SkFont font(SkFont::LEGACY_ExtractFromPaint(paint));
+                    SkRect bounds;
 
-                test_cachedfont(reporter, paint, font);
-                test_fontmetrics(reporter, paint, font);
+                    SkDebugf("flags %x, hinting %d, size %g, skew %g, scalex %g\n",
+                             flags, hint,
+                             paint.getTextSize(), paint.getTextSkewX(), paint.getTextScaleX());
 
-                SkRect bounds;
+                    // For no hinting and light hinting this should take the
+                    // optimized generateAdvance path.
+                    SkScalar width1 = paint.measureText(txt, strlen(txt));
 
-                // For no hinting and light hinting this should take the
-                // optimized generateAdvance path.
-                SkScalar width1 = paint.measureText(txt, strlen(txt));
+                    // Requesting the bounds forces a generateMetrics call.
+                    SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
 
-                // Requesting the bounds forces a generateMetrics call.
-                SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
+                    REPORTER_ASSERT(reporter, width1 == width2);
 
-                REPORTER_ASSERT(reporter, width1 == width2);
-
-                SkScalar font_width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
-                REPORTER_ASSERT(reporter, width1 == font_width1);
+                    SkScalar font1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
+                    REPORTER_ASSERT(reporter, width1 == font1);
+                    SkRect fbounds;
+                    SkScalar font2 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding,
+                                                      &fbounds);
+                    REPORTER_ASSERT(reporter, width1 == font2);
+                    REPORTER_ASSERT(reporter, bounds == fbounds);
+                }
             }
         }
     }
