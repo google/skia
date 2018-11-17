@@ -213,7 +213,7 @@ in the same order.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static inline bool <a href='SkImageInfo_Reference#SkAlphaTypeIsOpaque'>SkAlphaTypeIsOpaque</a>(<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> at)
+static bool <a href='SkImageInfo_Reference#SkAlphaTypeIsOpaque'>SkAlphaTypeIsOpaque</a>(<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> at)
 </pre>
 
 Returns true if <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> equals <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>. <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a> is a
