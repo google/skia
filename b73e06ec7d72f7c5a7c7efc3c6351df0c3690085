@@ -22,6 +22,30 @@
       "revId": "b73e06ec7d72f7c5a7c7efc3c6351df0c3690085",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04649cb5_5c306b08",
+        "filename": "src/core/SkDistanceFieldGen.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-17T17:07:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b934be5_e036a4ee",
+      "range": {
+        "startLine": 495,
+        "startChar": 14,
+        "endLine": 495,
+        "endChar": 25
+      },
+      "revId": "b73e06ec7d72f7c5a7c7efc3c6351df0c3690085",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
