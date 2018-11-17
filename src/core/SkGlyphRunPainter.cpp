@@ -400,6 +400,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
                 perPath(glyph, glyphPos);
             }
         } else {
+            SkAssertResult(glyph.fMaskFormat == SkMask::kARGB32_Format);
             SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
             maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
             fARGBGlyphsIDs.push_back(glyphID);
