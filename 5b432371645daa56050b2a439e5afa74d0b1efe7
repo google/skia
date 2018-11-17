@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9003fa9b_48cb9696",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-17T21:23:47Z",
+      "side": 1,
+      "message": "Out of curiosity, is there a SIMD-optimized version of this function somewhere?",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d907b7aa_c9e5934e",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-17T21:23:47Z",
+      "side": 1,
+      "message": "Whitespace around the -- token looks unusual. The --\u003e looks like an extended arrow.",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e77b83e_fd149360",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-17T21:23:47Z",
+      "side": 1,
+      "message": "Longer term, should this be an option to the swizzler (or skcms??), in that blitting should also take an (optional) Porter-Duff operator (i.e. Src vs SrcOverDst), so that transparent pixels in the src are either written to the dst or ignored?",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee09487_bd2dd367",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-17T21:23:47Z",
+      "side": 1,
+      "message": "Is the reinterpret_cast valid if d is RGB565?",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db028f62_8a60bf9c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-17T21:23:47Z",
+      "side": 1,
+      "message": "Should the comment above this be adjusted for scaling? I\u0027m now not 100% sure whether *rowsDecoded should be the (scaled) image height or the (scaled) frame height.",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
