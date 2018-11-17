@@ -443,6 +443,8 @@ private:
 
     void internalClear(const GrFixedClip&, const SkPMColor4f&, CanClearFullscreen);
 
+    bool isPartialClear(const SkIRect* rect) const;
+
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,
                           GrPaint&& paint,
