@@ -32,6 +32,8 @@ public:
         return rr.isRect() || SkRRectPriv::IsCircle(rr)  || SkRRectPriv::IsSimpleCircular(rr);
     }
 
+    static const SkVector* GetRadiiArray(const SkRRect& rr) { return rr.fRadii; }
+
     static bool AllCornersCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
 
     static bool ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr);

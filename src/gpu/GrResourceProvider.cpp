@@ -275,7 +275,7 @@ sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrBufferType in
     }
     if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, Flags::kNone,
                                          data)) {
-        // We shouldn't bin and/or cachestatic buffers.
+        // We shouldn't bin and/or cache static buffers.
         SkASSERT(buffer->sizeInBytes() == size);
         SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
         SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());

@@ -85,7 +85,7 @@ sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBuffer
     sk_sp<const GrBuffer> buffer = resourceProvider->findOrMakeStaticBuffer(intendedType, size,
                                                                             data, key);
     // Static buffers should never have pending IO.
-    SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
+    SkASSERT(!buffer || !buffer->resourcePriv().hasPendingIO_debugOnly());
     return buffer;
 }
 
