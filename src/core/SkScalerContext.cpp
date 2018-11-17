@@ -854,18 +854,16 @@ static SkScalar sk_relax(SkScalar x) {
     return n / 1024.0f;
 }
 
-static SkMask::Format compute_mask_format(const SkPaint& paint) {
-    uint32_t flags = paint.getFlags();
-
-    // Antialiasing being disabled trumps all other settings.
-    if (!(flags & SkPaint::kAntiAlias_Flag)) {
-        return SkMask::kBW_Format;
+static SkMask::Format compute_mask_format(const SkFont& font) {
+    switch (font.getEdging()) {
+        case SkFont::Edging::kAlias:
+            return SkMask::kBW_Format;
+        case SkFont::Edging::kAntiAlias:
+            return SkMask::kA8_Format;
+        case SkFont::Edging::kSubpixelAntiAlias:
+            return SkMask::kLCD16_Format;
     }
-
-    if (flags & SkPaint::kLCDRenderText_Flag) {
-        return SkMask::kLCD16_Format;
-    }
-
+    SkASSERT(false);
     return SkMask::kA8_Format;
 }
 
@@ -976,7 +974,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         rec->fStrokeCap = 0;
     }
 
-    rec->fMaskFormat = SkToU8(compute_mask_format(paint));
+    rec->fMaskFormat = SkToU8(compute_mask_format(font));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {
