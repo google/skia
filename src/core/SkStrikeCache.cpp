@@ -205,7 +205,8 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(cons
     SkAutoDescriptor ad;
     SkScalerContextEffects effects;
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font,
-                                      SkPaint(), SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                      SkPaint(),
+                                      SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
                                       SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
     auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
     return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
