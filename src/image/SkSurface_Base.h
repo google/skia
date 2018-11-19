@@ -94,6 +94,8 @@ public:
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
     virtual bool onDraw(const SkDeferredDisplayList*) { return false; }
 
+    virtual sk_sp<SkImage> onMakeImageSnapshot(const SkIRect&) = 0;
+
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
 

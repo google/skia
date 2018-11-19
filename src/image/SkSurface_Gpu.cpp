@@ -153,6 +153,10 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(int numSemaphores,
     return fDevice->flushAndSignalSemaphores(numSemaphores, signalSemaphores);
 }
 
+sk_sp<SkImage> SkSurface_Gpu::onMakeImageSnapshot(const SkIRect& subset) {
+    return nullptr;
+}
+
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
     return fDevice->wait(numSemaphores, waitSemaphores);
 }

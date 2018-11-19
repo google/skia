@@ -38,6 +38,7 @@ public:
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool isCompatible(const SkSurfaceCharacterization&) const;
     bool onDraw(const SkDeferredDisplayList*) override;
+    sk_sp<SkImage> onMakeImageSnapshot(const SkIRect&) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 

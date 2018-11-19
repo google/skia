@@ -26,6 +26,7 @@ public:
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
+    sk_sp<SkImage> onMakeImageSnapshot(const SkIRect&) override;
 
 private:
     SkBitmap    fBitmap;
@@ -149,6 +150,14 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         SkASSERT(this->getCachedCanvas());
         this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
+}
+
+sk_sp<SkImage> SkSurface_Raster::onMakeImageSnapshot(const SkIRect& subset) {
+    SkBitmap dst;
+    dst.allocPixels(fBitmap.info().makeWH(subset.width(), subset.height()));
+    SkAssertResult(fBitmap.readPixels(dst.pixmap(), subset.fLeft, subset.fTop));
+    dst.setImmutable(); // key, so the image doesn't make a copy of the buffer
+    return SkImage::MakeFromBitmap(dst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
