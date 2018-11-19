@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "39bfba10_1edcf286",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-19T19:55:48Z",
+      "side": 1,
+      "message": "I\u0027m not aware that there is, but maybe we should add one.",
+      "parentUuid": "9003fa9b_48cb9696",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d907b7aa_c9e5934e",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-11-17T21:23:47Z",
       "side": 1,
       "message": "Whitespace around the -- token looks unusual. The --\u003e looks like an extended arrow.",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56002549_21664451",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-19T19:55:48Z",
+      "side": 1,
+      "message": "That\u0027s actually the intent, as width iterates towards zero. mtklein@ introduced me to this formatting (I think when he wrote nanobench). We use this formatting a number of places in Skia.",
+      "parentUuid": "d907b7aa_c9e5934e",
       "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "c60ce24d_6de0409f",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-19T19:55:48Z",
+      "side": 1,
+      "message": "That sounds like a good idea to me.",
+      "parentUuid": "0e77b83e_fd149360",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ee09487_bd2dd367",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "be663b38_9c80f593",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-19T19:55:48Z",
+      "side": 1,
+      "message": "No. Next patch set disables 565. We need 565 for the first frame, for compatibility with Android. For later frames, we (i.e. SkGifCodec/Android) currently don\u0027t allow 565. The current method for blending doesn\u0027t work in 565, because we first use the swizzler, and then we do not know which pixels should be considered transparent. We could make it work, but Skia is generally moving away from 565, so I don\u0027t currently have a plan to do so.\n\nFWIW, this also doesn\u0027t work for F16, which didn\u0027t work prior to this change, either. Next patch set disables F16, too, until a follow-on change uses skcms. (Unless you\u0027d rather pull that in here? I figured this could be landed sooner, so that flutter can go ahead and use wuffs.)",
+      "parentUuid": "5ee09487_bd2dd367",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "db028f62_8a60bf9c",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -81,6 +153,24 @@
       "writtenOn": "2018-11-17T21:23:47Z",
       "side": 1,
       "message": "Should the comment above this be adjusted for scaling? I\u0027m now not 100% sure whether *rowsDecoded should be the (scaled) image height or the (scaled) frame height.",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f45e0038_c8a267b9",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-19T19:55:48Z",
+      "side": 1,
+      "message": "Added a comment regarding scaling.\n\nIt should be the scaled image height.",
+      "parentUuid": "db028f62_8a60bf9c",
       "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
