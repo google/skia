@@ -297,13 +297,18 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
     // Now rearrange the Sk4fs into the interleaved vertex layout:
     //  i.e. x1x2x3x4 y1y2y3y4 -> x1y1 x2y2 x3y3 x4y
+    // while also calculating the edge distance for each outset vertex for the four edges.
+    SkPoint3 p; // Stores the homogeneous vertex position, w = 1 explicitly for 2D cases
+    Sk4f edgeDists;
     GrVertexWriter vb{vertices};
     for (int i = 0; i < 4; ++i) {
-        // save position
+        // save position and hold on to the homogeneous point for later
         if (deviceHasPerspective) {
-            vb.write<SkPoint3>({x[i], y[i], w[i]});
+            p.set(x[i], y[i], w[i]);
+            vb.write<SkPoint3>(p);
         } else {
-            vb.write<SkPoint>({x[i], y[i]});
+            p.set(x[i], y[i], 1.f);
+            vb.write<SkPoint>({p.fX, p.fY});
         }
 
         // save color
@@ -327,9 +332,11 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
         // save the edges
         if (spec.usesCoverageAA()) {
-            for (int j = 0; j < 4; j++) {
-                vb.write<SkPoint3>({a[j], b[j], c[j]});
-            }
+            // w is stored in point's fZ, and set to 1 for 2D,
+            // fragment shader will automatically divide by pixel's w if the quad has perspective
+            // to get the perceptually interpolated edge distance.
+            edgeDists = p.fX * a + p.fY * b + p.fZ * c;
+            vb.write<float>(edgeDists[0], edgeDists[1], edgeDists[2], edgeDists[3]);
         }
     }
 
@@ -373,10 +380,7 @@ GPAttributes::GPAttributes(const VertexSpec& spec) {
     }
 
     if (spec.usesCoverageAA()) {
-        fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-        fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-        fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-        fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        fAAEdgeDistances = {"aaEdgeDist", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
     }
 }
 
@@ -445,42 +449,17 @@ void GPAttributes::emitExplicitLocalCoords(
 void GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                 const char* edgeDistName) const {
     if (this->usesCoverageAA()) {
-        bool mulByFragCoordW = false;
-        GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
-                                    GrGLSLVarying::Scope::kVertToFrag);
-        args.fVaryingHandler->addVarying(edgeDistName, &aaDistVarying);
-
-        if (kFloat3_GrVertexAttribType == fPositions.cpuType()) {
-            // The distance from edge equation e to homogeneous point p=sk_Position
-            // is e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
-            // interpolation of this distance. We can do this by multiplying the
-            // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
-            // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
-            args.fVertBuilder->codeAppendf(
-                    R"(%s = float4(dot(%s, %s), dot(%s, %s),
-                                   dot(%s, %s), dot(%s, %s));)",
-                    aaDistVarying.vsOut(), fAAEdges[0].name(), fPositions.name(),
-                    fAAEdges[1].name(), fPositions.name(), fAAEdges[2].name(), fPositions.name(),
-                    fAAEdges[3].name(), fPositions.name());
-            mulByFragCoordW = true;
-        } else {
-            args.fVertBuilder->codeAppendf(
-                    R"(%s = float4(dot(%s.xy, %s.xy) + %s.z,
-                                   dot(%s.xy, %s.xy) + %s.z,
-                                   dot(%s.xy, %s.xy) + %s.z,
-                                   dot(%s.xy, %s.xy) + %s.z);)",
-                    aaDistVarying.vsOut(),
-                    fAAEdges[0].name(), fPositions.name(), fAAEdges[0].name(),
-                    fAAEdges[1].name(), fPositions.name(), fAAEdges[1].name(),
-                    fAAEdges[2].name(), fPositions.name(), fAAEdges[2].name(),
-                    fAAEdges[3].name(), fPositions.name(), fAAEdges[3].name());
-        }
+        args.fFragBuilder->codeAppendf("float4 %s;", edgeDistName);
+        args.fVaryingHandler->addPassThroughAttribute(fAAEdgeDistances, edgeDistName);
 
         args.fFragBuilder->codeAppendf(
                 "float min%s = min(min(%s.x, %s.y), min(%s.z, %s.w));",
-                edgeDistName, aaDistVarying.fsIn(), aaDistVarying.fsIn(), aaDistVarying.fsIn(),
-                aaDistVarying.fsIn());
-        if (mulByFragCoordW) {
+                edgeDistName, edgeDistName, edgeDistName, edgeDistName, edgeDistName);
+        if (fPositions.cpuType() == kFloat3_GrVertexAttribType) {
+            // The distance from edge equation e to homogeneous point p=sk_Position is e.x*p.x/p.w +
+            // e.y*p.y/p.w + e.z. However, we want screen space interpolation of this distance. We
+            // can do this by multiplying the vertex attribute by p.w and then multiplying by
+            // sk_FragCoord.w in the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
             args.fFragBuilder->codeAppendf("min%s *= sk_FragCoord.w;", edgeDistName);
         }
         args.fFragBuilder->codeAppendf("%s = float4(saturate(min%s));",
