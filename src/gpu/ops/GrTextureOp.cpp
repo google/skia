@@ -131,7 +131,7 @@ private:
 };
 
 static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
-    SkASSERT(quad.quadType() == GrQuadType::kRect);
+    SkASSERT(quad.quadType() <= GrQuadType::kRect);
     float ql = quad.x(0);
     float qt = quad.y(0);
     float qr = quad.x(3);
@@ -308,11 +308,11 @@ private:
         GrResolveAATypeForQuad(aaType, aaFlags, quad, quadType, &aaType, &aaFlags);
         fAAType = static_cast<unsigned>(aaType);
 
-        fPerspective = static_cast<unsigned>(quadType == GrQuadType::kPerspective);
+        fQuadType = static_cast<unsigned>(quadType);
         // We expect our caller to have already caught this optimization.
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
-        if (quadType == GrQuadType::kRect) {
+        if (quadType <= GrQuadType::kRect) {
             // Disable filtering if possible (note AA optimizations for rects are automatically
             // handled above in GrResolveAATypeForQuad).
             if (this->filter() != GrSamplerState::Filter::kNearest &&
@@ -373,7 +373,7 @@ private:
                 overallAAType = aaType;
             }
             if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
-                mustFilter = quadType != GrQuadType::kRect ||
+                mustFilter = quadType > GrQuadType::kRect ||
                              filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
             }
             fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
@@ -384,7 +384,7 @@ private:
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
-        fPerspective = static_cast<unsigned>(viewMatrix.hasPerspective());
+        fQuadType = static_cast<unsigned>(quadType);
         fDomain = static_cast<unsigned>(false);
         fWideColor = !SkPMColor4fFitsInBytes(color);
     }
@@ -408,7 +408,7 @@ private:
 
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
-        bool hasPerspective = false;
+        GrQuadType quadType = GrQuadType::kTrivial;
         Domain domain = Domain::kNo;
         bool wideColor = false;
         int numProxies = 0;
@@ -417,7 +417,9 @@ private:
         auto config = fProxies[0].fProxy->config();
         GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            hasPerspective |= op.fPerspective;
+            if (op.quadType() > quadType) {
+                quadType = op.quadType();
+            }
             if (op.fDomain) {
                 domain = Domain::kYes;
             }
@@ -438,9 +440,8 @@ private:
             }
         }
 
-        VertexSpec vertexSpec(hasPerspective ? GrQuadType::kPerspective : GrQuadType::kStandard,
-                              wideColor ? ColorType::kHalf : ColorType::kByte, GrQuadType::kRect,
-                              /* hasLocal */ true, domain, aaType);
+        VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
+                              GrQuadType::kTrivial, /* hasLocal */ true, domain, aaType);
 
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
@@ -563,7 +564,9 @@ private:
         }
         fProxies[0].fQuadCnt += that->fQuads.count();
         fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
-        fPerspective |= that->fPerspective;
+        if (that->fQuadType > fQuadType) {
+            fQuadType = that->fQuadType;
+        }
         fDomain |= that->fDomain;
         fWideColor |= that->fWideColor;
         if (upgradeToCoverageAAOnMerge) {
@@ -574,6 +577,7 @@ private:
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     GrSamplerState::Filter filter() const { return static_cast<GrSamplerState::Filter>(fFilter); }
+    GrQuadType quadType() const { return static_cast<GrQuadType>(fQuadType); }
 
     class Quad {
     public:
@@ -607,14 +611,16 @@ private:
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     unsigned fFilter : 2;
     unsigned fAAType : 2;
-    unsigned fPerspective : 1;
+    unsigned fQuadType : 2; // Device quad, src quad is always trivial
     unsigned fDomain : 1;
     unsigned fWideColor : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 8;
+    unsigned fProxyCnt : 32 - 9;
     Proxy fProxies[1];
+
+    static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
 
     typedef GrMeshDrawOp INHERITED;
 };
