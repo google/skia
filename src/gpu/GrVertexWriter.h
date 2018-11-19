@@ -45,6 +45,15 @@ struct GrVertexWriter {
         this->write(remainder...);
     }
 
+    template <typename... Args>
+    void write(const GrVertexColor& color, const Args&... remainder) {
+        this->write(color.fColor[0]);
+        if (color.fWideColor) {
+            this->write(color.fColor[1]);
+        }
+        this->write(remainder...);
+    }
+
     void write() {}
 
     /**

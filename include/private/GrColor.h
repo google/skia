@@ -14,6 +14,7 @@
 #include "SkColor.h"
 #include "SkColorData.h"
 #include "SkColorPriv.h"
+#include "SkHalf.h"
 
 /**
  * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. Whether the color is
@@ -90,5 +91,29 @@ static inline bool SkPMColor4fFitsInBytes(const SkPMColor4f& color) {
            color.fG >= 0.0f && color.fG <= 1.0f &&
            color.fB >= 0.0f && color.fB <= 1.0f;
 }
+
+/**
+ * GrVertexColor is a helper for writing colors to a vertex attribute. It stores either GrColor
+ * or four half-float channels, depending on the wideColor parameter. GrVertexWriter will write
+ * the correct amount of data. Note that the GP needs to have been constructed with the correct
+ * attribute type for colors, to match the usage here.
+ */
+class GrVertexColor {
+public:
+    GrVertexColor(const SkPMColor4f& color, bool wideColor)
+            : fWideColor(wideColor) {
+        if (wideColor) {
+            SkFloatToHalf_finite_ftz(Sk4f::Load(color.vec())).store(&fColor);
+        } else {
+            fColor[0] = color.toBytes_RGBA();
+        }
+    }
+
+private:
+    friend struct GrVertexWriter;
+
+    uint32_t fColor[2];
+    bool     fWideColor;
+};
 
 #endif
