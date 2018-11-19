@@ -16,6 +16,24 @@
       "revId": "9ba3a6ea7cf8bb6fc9ecd352b70c578f23214ce0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65a87290_10c2db50",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-19T16:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31fb17fb_37973ae0",
+      "revId": "9ba3a6ea7cf8bb6fc9ecd352b70c578f23214ce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
