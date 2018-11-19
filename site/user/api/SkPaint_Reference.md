@@ -222,7 +222,7 @@ to affect it. The implementation is free to defer computations associated with t
 <a href='SkPath_Reference#Path'>Path</a> geometries with <a href='#Paint_Anti_Alias'>Anti_Aliasing</a>, regardless of how <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a>
 is set in <a href='SkPaint_Reference#Paint'>Paint</a>.
 
-<a href='SkPaint_Reference#Paint'>Paint</a> describes a single <a href='SkColor_Reference#Color'>color</a>, a single <a href='undocumented#Font'>font</a>, a single <a href='SkImage_Reference#Image'>image</a> quality, and so on.
+<a href='SkPaint_Reference#Paint'>Paint</a> describes a single <a href='SkColor_Reference#Color'>color</a>, a single <a href='SkFont_Reference#Font'>font</a>, a single <a href='SkImage_Reference#Image'>image</a> quality, and so on.
 Multiple colors are drawn either by using multiple paints or with objects like
 <a href='undocumented#Shader'>Shader</a> attached to <a href='SkPaint_Reference#Paint'>Paint</a>.
 
@@ -872,7 +872,7 @@ paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
 void <a href='#SkPaint_setAntiAlias'>setAntiAlias</a>(bool aa)
 </pre>
 
-Requests, but does not require, that <a href='SkPath_Reference#SkPath'>SkPath</a> edge pixels draw opaque or with
+Requests, but does not require, that edge pixels draw opaque or with
 partial transparency.
 
 Sets <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> if <a href='#SkPaint_setAntiAlias_aa'>aa</a> is true.
@@ -1066,7 +1066,8 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#S
 void <a href='#SkPaint_setLinearText'>setLinearText</a>(bool linearText)
 </pre>
 
-Returns true if <a href='undocumented#Text'>text</a> is converted to <a href='SkPath_Reference#SkPath'>SkPath</a> before drawing and measuring.
+Requests, but does not require, that <a href='undocumented#Glyph'>glyphs</a> are converted to <a href='SkPath_Reference#SkPath'>SkPath</a>
+before drawing and measuring.
 By default, <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear.
 
 Sets <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> if <a href='#SkPaint_setLinearText_linearText'>linearText</a> is true.
@@ -1229,7 +1230,7 @@ paint1 == paint2
 
 <a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> allows selecting custom sized <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> when set chooses an embedded <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> over an outline contained
-in a <a href='undocumented#Font'>font</a> if the platform supports this option.
+in a <a href='SkFont_Reference#Font'>font</a> if the platform supports this option.
 
 FreeType selects the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> if available when <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> is set, and selects
 the outline <a href='undocumented#Glyph'>glyph</a> if <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> is clear.
@@ -1273,7 +1274,7 @@ Windows may select the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='u
 bool <a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>() const
 </pre>
 
-Returns true if <a href='undocumented#Font'>font</a> engine may return <a href='undocumented#Glyph'>glyphs</a> from <a href='undocumented#Font'>font</a> <a href='SkBitmap_Reference#Bitmap'>bitmaps</a> instead of from outlines.
+Returns true if <a href='SkFont_Reference#Font'>font</a> engine may return <a href='undocumented#Glyph'>glyphs</a> from <a href='SkFont_Reference#Font'>font</a> <a href='SkBitmap_Reference#Bitmap'>bitmaps</a> instead of from outlines.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a>.
 
@@ -1344,8 +1345,8 @@ bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const
 </pre>
 
 Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or
-<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='undocumented#Font'>font</a> manager.
-If true, instructs the <a href='undocumented#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
+<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='SkFont_Reference#Font'>font</a> manager.
+If true, instructs the <a href='SkFont_Reference#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a>.
 
@@ -1408,15 +1409,15 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> if <a href='#S
 
 ---
 
-<a href='#Paint_Fake_Bold'>Fake_Bold</a> approximates the bold <a href='undocumented#Font'>font</a> style accompanying a normal <a href='undocumented#Font'>font</a> when a bold <a href='undocumented#Font'>font</a> face
-is not available. Skia does not provide <a href='undocumented#Font'>font</a> substitution; it is up to the client to find the
-bold <a href='undocumented#Font'>font</a> face using the platform <a href='#Font_Manager'>Font_Manager</a>.
+<a href='#Paint_Fake_Bold'>Fake_Bold</a> approximates the bold <a href='SkFont_Reference#Font'>font</a> style accompanying a normal <a href='SkFont_Reference#Font'>font</a> when a bold <a href='SkFont_Reference#Font'>font</a> face
+is not available. Skia does not provide <a href='SkFont_Reference#Font'>font</a> substitution; it is up to the client to find the
+bold <a href='SkFont_Reference#Font'>font</a> face using the platform <a href='#Font_Manager'>Font_Manager</a>.
 
-Use <a href='#Paint_Text_Skew_X'>Text_Skew_X</a> to approximate an italic <a href='undocumented#Font'>font</a> style when the italic <a href='undocumented#Font'>font</a> face
+Use <a href='#Paint_Text_Skew_X'>Text_Skew_X</a> to approximate an italic <a href='SkFont_Reference#Font'>font</a> style when the italic <a href='SkFont_Reference#Font'>font</a> face
 is not available.
 
 A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to direct
-the  <a href='undocumented#Font_Engine'>font engine</a> to create the bold <a href='undocumented#Glyph'>Glyphs</a>. Otherwise, the extra bold is computed
+the  <a href='SkFont_Reference#Font_Engine'>font engine</a> to create the bold <a href='undocumented#Glyph'>Glyphs</a>. Otherwise, the extra bold is computed
 by increasing the  <a href='#Stroke_Width'>stroke width</a> and setting the <a href='#SkPaint_Style'>Style</a> to <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a> as needed.
 
 <a href='#Paint_Fake_Bold'>Fake_Bold</a> is disabled by default.
@@ -1495,7 +1496,7 @@ spacing by the difference of the hinted and unhinted <a href='#Left_Side_Bearing
 FreeType as their <a href='#Font_Engine'>Font_Engine</a>.
 
 <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> is not related to <a href='undocumented#Text'>text</a> kerning, where the space between
-a specific pair of characters is adjusted using <a href='undocumented#Data'>data</a> in the <a href='undocumented#Font'>font</a> kerning tables.
+a specific pair of characters is adjusted using <a href='undocumented#Data'>data</a> in the <a href='SkFont_Reference#Font'>font</a> kerning tables.
 
 <a name='Filter_Quality_Methods'></a>
 
@@ -3150,9 +3151,9 @@ Increments <a href='#SkPaint_setMaskFilter_maskFilter'>maskFilter</a> <a href='u
 
 ---
 
-<a href='undocumented#Typeface'>Typeface</a> identifies the <a href='undocumented#Font'>font</a> used when drawing and measuring <a href='undocumented#Text'>text</a>.
+<a href='undocumented#Typeface'>Typeface</a> identifies the <a href='SkFont_Reference#Font'>font</a> used when drawing and measuring <a href='undocumented#Text'>text</a>.
 <a href='undocumented#Typeface'>Typeface</a> may be specified by name, from a file, or from a <a href='undocumented#Data'>data</a> <a href='SkStream_Reference#Stream'>stream</a>.
-The default <a href='undocumented#Typeface'>Typeface</a> defers to the platform-specific default <a href='undocumented#Font'>font</a>
+The default <a href='undocumented#Typeface'>Typeface</a> defers to the platform-specific default <a href='SkFont_Reference#Font'>font</a>
 implementation.
 
 ### Example
@@ -3229,7 +3230,7 @@ Pass nullptr to clear <a href='undocumented#SkTypeface'>SkTypeface</a> and use t
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setTypeface_typeface'><code><strong>typeface</strong></code></a></td>
-    <td><a href='undocumented#Font'>font</a> and style used to draw <a href='undocumented#Text'>text</a></td>
+    <td><a href='SkFont_Reference#Font'>font</a> and style used to draw <a href='undocumented#Text'>text</a></td>
   </tr>
 </table>
 
@@ -3625,7 +3626,7 @@ in the total storage required.
 
 <a href='https://www.unicode.org/versions/Unicode5.0.0/ch03.pdf'>UTF-32</a></a> encodes each character as one 32-bit word.
 
-<a href='#Font_Manager'>Font_Manager</a> uses <a href='undocumented#Font'>font</a> <a href='undocumented#Data'>data</a> to convert character code <a href='SkPoint_Reference#Point'>points</a> into <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='#Font_Manager'>Font_Manager</a> uses <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a> to convert character code <a href='SkPoint_Reference#Point'>points</a> into <a href='undocumented#Glyph'>glyph</a> indices.
 A <a href='undocumented#Glyph'>glyph</a> index is a 16-bit word.
 
 <a href='#SkPaint_TextEncoding'>TextEncoding</a> is set to <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a> by default.
@@ -3679,7 +3680,7 @@ Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Gly
 </pre>
 
 Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='undocumented#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
 
 ### Return Value
 
@@ -3709,7 +3710,7 @@ void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_Te
 </pre>
 
 Sets <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to <a href='#SkPaint_setTextEncoding_encoding'>encoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='undocumented#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
 Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are ignored.
 
 ### Parameters
@@ -3963,12 +3964,12 @@ Converts <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> into <a href='#Sk
 Uses the <a href='undocumented#SkTypeface'>SkTypeface</a>, but is unaffected
 by <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; the <a href='#SkPaint_glyphsToUnichars_text'>text</a> values returned are equivalent to <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>.
 
-Only supported on platforms that use FreeType as the  <a href='undocumented#Font_Engine'>font engine</a>.
+Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#Font_Engine'>font engine</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_glyphsToUnichars_glyphs'><code><strong>glyphs</strong></code></a></td>
-    <td>array of indices into <a href='undocumented#Font'>font</a></td>
+    <td>array of indices into <a href='SkFont_Reference#Font'>font</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_glyphsToUnichars_count'><code><strong>count</strong></code></a></td>
     <td>length of <a href='undocumented#Glyph'>glyph</a> array</td>
@@ -4440,8 +4441,8 @@ number of intersections; may be zero
 </pre>
 
 Returns the union of bounds of all <a href='undocumented#Glyph'>glyphs</a>.
-Returned dimensions are computed by <a href='undocumented#Font'>font</a> manager from <a href='undocumented#Font'>font</a> <a href='undocumented#Data'>data</a>,
-ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='undocumented#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
+Returned dimensions are computed by <a href='SkFont_Reference#Font'>font</a> manager from <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a>,
+ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='SkFont_Reference#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 
 If <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> is large, <a href='undocumented#Text'>text</a> scale is one, and <a href='undocumented#Text'>text</a> skew is zero,
 returns the bounds as:
