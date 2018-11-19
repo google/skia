@@ -92,19 +92,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     uint16_t            fAlphaScale;        // chooseProcs
 
-    /** Platforms implement this, and can optionally overwrite only the
-        following fields:
-
-        fShaderProc32
-        fMatrixProc
-        fSampleProc32
-
-        They will already have valid function pointers, so a platform that does
-        not have an accelerated version can just leave that field as is. A valid
-        implementation can do nothing (see SkBitmapProcState_opts_none.cpp)
-     */
-    void platformProcs();
-
     /** Given the byte size of the index buffer to be passed to the matrix proc,
         return the maximum number of resulting pixels that can be computed
         (i.e. the number of SkPMColor values to be written by the sample proc).
@@ -133,7 +120,7 @@ private:
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    MatrixProc chooseMatrixProc(bool trivial_matrix);
+    MatrixProc chooseMatrixProc();
     bool chooseProcs(); // caller must have called init() first (on our base-class)
     ShaderProc32 chooseShaderProc32();
 
