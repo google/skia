@@ -24,6 +24,17 @@ void Fuzz::next(SkImageFilter::CropRect* cropRect) {
     *cropRect = SkImageFilter::CropRect(rect, flags);
 }
 
+void Fuzz::nextBytes(void* n, size_t size) {
+    if ((fNextByte + size) > fBytes->size()) {
+        sk_bzero(n, size);
+        memcpy(n, fBytes->bytes() + fNextByte, fBytes->size() - fNextByte);
+        fNextByte = fBytes->size();
+        return;
+    }
+    memcpy(n, fBytes->bytes() + fNextByte, size);
+    fNextByte += size;
+}
+
 void Fuzz::next(SkRegion* region) {
     // See FuzzCommon.h
     FuzzNiceRegion(this, region, 10);

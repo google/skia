@@ -48,7 +48,7 @@ public:
     // next() in a way that does not consume fuzzed bytes in a single
     // platform-independent order.
     template <typename T>
-    void next(T* t);
+    void next(T* t) { this->nextBytes(t, sizeof(T)); }
 
     // This is a convenient way to initialize more than one argument at a time.
     template <typename Arg, typename... Args>
@@ -82,19 +82,9 @@ private:
     sk_sp<SkData> fBytes;
     size_t fNextByte;
     friend void fuzz__MakeEncoderCorpus(Fuzz*);
-};
 
-template <typename T>
-inline void Fuzz::next(T* n) {
-    if ((fNextByte + sizeof(T)) > fBytes->size()) {
-        sk_bzero(n, sizeof(T));
-        memcpy(n, fBytes->bytes() + fNextByte, fBytes->size() - fNextByte);
-        fNextByte = fBytes->size();
-        return;
-    }
-    memcpy(n, fBytes->bytes() + fNextByte, sizeof(T));
-    fNextByte += sizeof(T);
-}
+    void nextBytes(void* ptr, size_t size);
+};
 
 template <typename Arg, typename... Args>
 inline void Fuzz::next(Arg* first, Args... rest) {
