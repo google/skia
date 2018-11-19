@@ -476,13 +476,16 @@ void GrAAFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
+    auto clip = flushState->detachAppliedClip();
+    GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
+    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
     GrMesh mesh(GrPrimitiveType::kTriangles);
     mesh.setIndexedInstanced(indexBuffer.get(), SK_ARRAY_COUNT(kIndexData), fInstanceBuffer,
                              fInstanceCount, fBaseInstance, GrPrimitiveRestart::kNo);
     mesh.setVertexData(vertexBuffer.get());
-    flushState->rtCommandBuffer()->draw(proc, pipeline, nullptr, nullptr, &mesh, 1, this->bounds());
+    flushState->rtCommandBuffer()->draw(proc, pipeline, &fixedDynamicState, nullptr, &mesh, 1,
+                                        this->bounds());
 }
 
 // Will the given corner look good if we use HW derivatives?
