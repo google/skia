@@ -16,6 +16,24 @@
       "revId": "f326d2b05aa48e7910022dda611a37fc3d50275e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a965b921_ab31246e",
+        "filename": "third_party/vulkan/SkiaVulkan.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-19T21:58:01Z",
+      "side": 1,
+      "message": "Oops, slipped in to last patchset. Done.",
+      "parentUuid": "29365988_ce1522b1",
+      "revId": "f326d2b05aa48e7910022dda611a37fc3d50275e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
