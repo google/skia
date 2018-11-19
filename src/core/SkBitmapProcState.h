@@ -135,7 +135,6 @@ private:
 
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(); // caller must have called init() first (on our base-class)
-    bool chooseScanlineProcs(bool trivialMatrix, bool clampClamp);
     ShaderProc32 chooseShaderProc32();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
