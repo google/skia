@@ -173,6 +173,7 @@ private:
     bool                 onGetFrameInfo(int, FrameInfo*) const override;
     int                  onGetRepetitionCount() override;
     SkSampler*           getSampler(bool createIfNecessary) override;
+    bool                 conversionSupported(const SkImageInfo& dst, bool, bool) override;
 
     void   readFrames();
     Result seekFrame(int frameIndex);
@@ -389,6 +390,26 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     return SkCodec::kSuccess;
 }
 
+static bool independent_frame(SkCodec* codec, int frameIndex) {
+    if (frameIndex == 0) {
+        return true;
+    }
+
+    SkCodec::FrameInfo frameInfo;
+    SkAssertResult(codec->getFrameInfo(frameIndex, &frameInfo));
+    return frameInfo.fRequiredFrame == SkCodec::kNoFrame;
+}
+
+static void blend(uint32_t* dst, const uint32_t* src, int width) {
+    while (width --> 0) {
+        if (*src != 0) {
+            *dst = *src;
+        }
+        src++;
+        dst++;
+    }
+}
+
 SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     if (!fIncrDecDst) {
         return SkCodec::kInternalError;
@@ -418,6 +439,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kErrorInInput;
     }
 
+    const bool independent = independent_frame(this, options().fFrameIndex);
     wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
     if (!fSwizzler) {
         SkIRect swizzleRect = SkIRect::MakeLTRB(r.min_incl_x, 0, r.max_excl_x, 1);
@@ -426,9 +448,12 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fSwizzler->setSampleX(fSpySampler.sampleX());
         fSwizzler->setSampleY(fSpySampler.sampleY());
 
-        auto fillInfo = dstInfo().makeWH(
-            fSwizzler->fillWidth(), get_scaled_dimension(dstInfo().height(), fSwizzler->sampleY()));
-        SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
+        if (independent) {
+            auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(),
+                                             get_scaled_dimension(this->dstInfo().height(),
+                                                                  fSwizzler->sampleY()));
+            SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
+        }
     }
 
     wuffs_base__slice_u8 palette = fPixelBuffer.palette();
@@ -439,6 +464,10 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fColorTable[i] = proc(p[3], p[2], p[1], p[0]);
     }
 
+    std::unique_ptr<uint8_t[]> tmpBuffer;
+    if (!independent) {
+        tmpBuffer.reset(new uint8_t[dstInfo().minRowBytes()]);
+    }
     wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
     const int            sampleY = fSwizzler->sampleY();
     const int            scaledHeight = get_scaled_dimension(dstInfo().height(), sampleY);
@@ -468,7 +497,16 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         // To get from the start (in the X-direction) of the image to the start
         // of the frame, we adjust s by (r.min_incl_x * src_bpp).
         uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * src_bpp);
-        fSwizzler->swizzle(d, s);
+        if (independent) {
+            fSwizzler->swizzle(d, s);
+        } else {
+            SkASSERT(tmpBuffer.get());
+            fSwizzler->swizzle(tmpBuffer.get(), s);
+            d = SkTAddOffset<uint8_t>(d, fSwizzler->swizzleOffsetBytes());
+            const auto* swizzled = SkTAddOffset<uint32_t>(tmpBuffer.get(),
+                                                          fSwizzler->swizzleOffsetBytes());
+            blend(reinterpret_cast<uint32_t*>(d), swizzled, fSwizzler->swizzleWidth());
+        }
     }
 
     // The semantics of *rowsDecoded is: say you have a 10 pixel high image
@@ -484,8 +522,12 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     // interlaced), we just zero-initialize all 10 rows ahead of time and
     // return the height of the image, so the caller knows it doesn't need to
     // do anything.
+    //
+    // Similarly, if the output is scaled, we zero-initialized all
+    // |scaledHeight| rows (the scaled image height), so we inform the caller
+    // that it doesn't need to do anything.
     if (rowsDecoded) {
-        *rowsDecoded = static_cast<int>(fPixelBuffer.pixcfg.height());
+        *rowsDecoded = scaledHeight;
     }
 
     if (result == SkCodec::kSuccess) {
@@ -541,6 +583,22 @@ SkSampler* SkWuffsCodec::getSampler(bool createIfNecessary) {
         return &fSpySampler;
     }
     return nullptr;
+}
+
+bool SkWuffsCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool needsColorXform) {
+    if (!this->INHERITED::conversionSupported(dst, srcIsOpaque, needsColorXform)) {
+        return false;
+    }
+
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return true;
+        default:
+            // FIXME: Add skcms to support F16
+            // FIXME: Add support for 565 on the first frame
+            return false;
+    }
 }
 
 void SkWuffsCodec::readFrames() {
