@@ -327,7 +327,7 @@ void FuzzNiceRegion(Fuzz* fuzz, SkRegion* region, int maxN) {
         fuzz->nextRange(&r.fRight,  -2147483646, 2147483646);
         fuzz->nextRange(&r.fBottom, -2147483646, 2147483646);
         r.sort();
-        fuzz->nextEnum(&op, 0, SkRegion::kLastOp);
+        fuzz->nextRange(&op, 0, SkRegion::kLastOp);
         if (!region->op(r, op)) {
             return;
         }

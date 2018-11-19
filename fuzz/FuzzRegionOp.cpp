@@ -13,6 +13,6 @@ DEF_FUZZ(RegionOp, fuzz) {  // `fuzz -t api -n RegionOp`
     FuzzNiceRegion(fuzz, &regionA, 2000);
     FuzzNiceRegion(fuzz, &regionB, 2000);
     SkRegion::Op op;
-    fuzz->nextEnum(&op, 0, SkRegion::kLastOp);
+    fuzz->nextRange(&op, 0, SkRegion::kLastOp);
     regionC.op(regionA, regionB, op);
 }

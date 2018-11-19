@@ -58,11 +58,6 @@ public:
     template <typename T, typename Min, typename Max>
     void nextRange(T*, Min, Max);
 
-    // Explicit version of nextRange for enums.
-    // Again, values are in [min, max].
-    template <typename T, typename Min, typename Max>
-    void nextEnum(T*, Min, Max);
-
     // nextN loads n * sizeof(T) bytes into ptr
     template <typename T>
     void nextN(T* ptr, int n);
@@ -108,32 +103,10 @@ inline void Fuzz::next(Arg* first, Args... rest) {
 }
 
 template <typename T, typename Min, typename Max>
-inline void Fuzz::nextRange(T* n, Min min, Max max) {
-    this->next<T>(n);
-    if (min == max) {
-        *n = min;
-        return;
-    }
-    if (min > max) {
-        // Avoid misuse of nextRange
-        SkDebugf("min > max (%d > %d) \n", min, max);
-        this->signalBug();
-    }
-    if (*n < 0) { // Handle negatives
-        if (*n != std::numeric_limits<T>::lowest()) {
-            *n *= -1;
-        }
-        else {
-            *n = std::numeric_limits<T>::max();
-        }
-    }
-    *n = min + (*n % ((size_t)max - min + 1));
-}
-
-template <typename T, typename Min, typename Max>
-inline void Fuzz::nextEnum(T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    this->nextRange((U*)value, (U)rmin, (U)rmax);
+inline void Fuzz::nextRange(T* value, Min min, Max max) {
+    this->next(value);
+    if (*value < (T)min) { *value = (T)min; }
+    if (*value > (T)max) { *value = (T)max; }
 }
 
 template <typename T>
