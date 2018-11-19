@@ -150,8 +150,7 @@ public:
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
      */
     void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
-                        const SkPMColor4f&, const SkMatrix& viewMatrix,
-                        sk_sp<GrColorSpaceXform> texXform);
+                        float alpha, const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
 
     /**
      * Draw a roundrect using a paint.
