@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7c7bcbbe_26604c9a",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-19T17:45:59Z",
+      "side": 1,
+      "message": "I had been planning on an optimization in the rect op that dropped the color attribute if every quad just used the default color (i.e. relying on an attached shader solely for the color). But I haven\u0027t put any effort into that, other then leaving color optional in this code, so we consolidate this if we want.",
+      "parentUuid": "da115ded_00ee6c59",
+      "range": {
+        "startLine": 25,
+        "startChar": 27,
+        "endLine": 25,
+        "endChar": 32
+      },
+      "revId": "f6b77f830f5c4376461af294b19edbeef0b9f7be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d60c13f_5120762b",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 2
