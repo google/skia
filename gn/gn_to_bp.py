@@ -151,7 +151,6 @@ cc_defaults {
     name: "skia_deps",
     shared_libs: [
         "libdng_sdk",
-        "libexpat",
         "libft2",
         "libicui18n",
         "libicuuc",
@@ -188,6 +187,9 @@ cc_defaults {
         "skia_deps",
         "skia_pgo_no_profile_use"
     ],
+    shared_libs: [
+        "libexpat",
+    ]
     static_libs: [
         "libjsoncpp",
         "libskia",
