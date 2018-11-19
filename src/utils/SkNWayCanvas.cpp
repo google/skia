@@ -289,6 +289,16 @@ void SkNWayCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkS
     }
 }
 
+void SkNWayCanvas::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                                const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
+void SkNWayCanvas::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                 SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
 void SkNWayCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                      const SkRect* cull, const SkPaint& paint) {
     Iter iter(fList);

@@ -123,6 +123,14 @@ public:
                         const SkPaint& paint) override {
         fTarget->drawPosTextH(ptr, len, xs, y, fXformer->apply(paint));
     }
+    void onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                      const SkFont& font, const SkPaint& paint) override {
+        // TODO drawGlyphs
+    }
+    void onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                       SkScalar constY, const SkFont& font, const SkPaint& paint) override {
+        // TODO drawGlyphs
+    }
     void onDrawTextRSXform(const void* ptr, size_t len,
                            const SkRSXform* xforms, const SkRect* cull,
                            const SkPaint& paint) override {

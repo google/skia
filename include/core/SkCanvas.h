@@ -36,6 +36,7 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 struct SkDrawShadowRec;
+class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
@@ -2033,6 +2034,15 @@ public:
         this->drawTextBlob(blob.get(), x, y, paint);
     }
 
+    void drawSimpleText(const void* text, size_t length, SkTextEncoding encoding,
+                        SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
+
+    void drawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[], const SkFont& font,
+                    const SkPaint& paint);
+
+    void drawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[], SkScalar constY,
+                     const SkFont& font, const SkPaint& paint);
+
     /** Draws SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
@@ -2446,6 +2456,10 @@ protected:
                                    const SkRect* cullRect, const SkPaint& paint);
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
+    virtual void onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                              const SkFont& font, const SkPaint& paint);
+    virtual void onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                               SkScalar constY, const SkFont& font, const SkPaint& paint);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);

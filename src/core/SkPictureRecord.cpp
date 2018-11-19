@@ -610,6 +610,16 @@ void SkPictureRecord::onDrawPosTextH(const void* text, size_t byteLength, const 
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
+void SkPictureRecord::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
 void SkPictureRecord::onDrawTextRSXform(const void* text, size_t byteLength,
                                         const SkRSXform xform[], const SkRect* cull,
                                         const SkPaint& paint) {
