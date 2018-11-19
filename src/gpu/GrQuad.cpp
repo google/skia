@@ -29,10 +29,21 @@ static bool coords_form_rect(const float xs[4], const float ys[4]) {
             NEARLY_EQUAL(ys[0], ys[1]) && NEARLY_EQUAL(ys[2], ys[3]));
 }
 
+static bool coords_form_trivial_rect(const float xs[4], const float ys[4]) {
+    return (NEARLY_EQUAL(xs[0], xs[1]) && NEARLY_EQUAL(xs[2], xs[3]) && xs[0] < xs[2]) &&
+           (NEARLY_EQUAL(ys[0], ys[2]) && NEARLY_EQUAL(ys[1], ys[3]) && ys[0] < ys[1]);
+}
+
 GrQuadType GrQuad::quadType() const {
     // Since GrQuad applies any perspective information at construction time, there's only two
     // types to choose from.
-    return coords_form_rect(fX, fY) ? GrQuadType::kRect : GrQuadType::kStandard;
+    if (coords_form_trivial_rect(fX, fY)) {
+        return GrQuadType::kTrivial;
+    } else if (coords_form_rect(fX, fY)) {
+        return GrQuadType::kRect;
+    } else {
+        return GrQuadType::kStandard;
+    }
 }
 
 GrQuadType GrPerspQuad::quadType() const {
@@ -40,7 +51,13 @@ GrQuadType GrPerspQuad::quadType() const {
         return GrQuadType::kPerspective;
     } else {
         // Rect or standard quad, can ignore w since they are all ones
-        return coords_form_rect(fX, fY) ? GrQuadType::kRect : GrQuadType::kStandard;
+        if (coords_form_trivial_rect(fX, fY)) {
+            return GrQuadType::kTrivial;
+        } else if (coords_form_rect(fX, fY)) {
+            return GrQuadType::kRect;
+        } else {
+            return GrQuadType::kStandard;
+        }
     }
 }
 #endif
@@ -68,7 +85,7 @@ void GrResolveAATypeForQuad(GrAAType requestedAAType, GrQuadAAFlags requestedEdg
             } else {
                 // For coverage AA, if the quad is a rect and it lines up with pixel boundaries
                 // then overall aa and per-edge aa can be completely disabled
-                if (knownType == GrQuadType::kRect && !quad.aaHasEffectOnRect()) {
+                if (knownType <= GrQuadType::kRect && !quad.aaHasEffectOnRect()) {
                     *outAAType = GrAAType::kNone;
                     *outEdgeFlags = GrQuadAAFlags::kNone;
                 }
@@ -95,7 +112,11 @@ template void GrResolveAATypeForQuad(GrAAType, GrQuadAAFlags, const GrPerspQuad&
                                      GrAAType*, GrQuadAAFlags*);
 
 GrQuadType GrQuadTypeForTransformedRect(const SkMatrix& matrix) {
-    if (matrix.rectStaysRect()) {
+    if (matrix.isScaleTranslate()) {
+        // If the scale factors are positive, it's trivial. If not, it's still maps to a rectangle
+        return (matrix.getScaleX() > 0.0 && matrix.getScaleY() > 0.0) ? GrQuadType::kTrivial
+                                                                      : GrQuadType::kRect;
+    } else if (matrix.rectStaysRect()) {
         return GrQuadType::kRect;
     } else if (matrix.hasPerspective()) {
         return GrQuadType::kPerspective;
@@ -142,7 +163,7 @@ GrQuad::GrQuad(const SkRect& rect, const SkMatrix& m) {
 }
 
 bool GrQuad::aaHasEffectOnRect() const {
-    SkASSERT(this->quadType() == GrQuadType::kRect);
+    SkASSERT(this->quadType() <= GrQuadType::kRect);
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
 
@@ -187,7 +208,7 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
-    SkASSERT(this->quadType() == GrQuadType::kRect);
+    SkASSERT(this->quadType() <= GrQuadType::kRect);
     // If rect, ws must all be 1s so no need to divide
     return aa_affects_rect(fX[0], fY[0], fX[3], fY[3]);
 }
