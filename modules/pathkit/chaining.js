@@ -30,16 +30,17 @@
       } else if (arguments.length === 7) {
         // User provided the 6 params for an SVGMatrix directly.
         var a = arguments;
-        this._addPath(arguments[0], a[1], a[3], a[5],
-                                    a[2], a[4], a[6],
+        this._addPath(arguments[0], a[0], a[2], a[4],
+                                    a[1], a[3], a[5],
                                     0,     0,     1);
       } else if (arguments.length === 10) {
         // User provided the 9 params of a (full) matrix directly.
+        // (or just the 6 non perspective ones)
         // These are in the same order as what Skia expects.
         var a = arguments;
-        this._addPath(arguments[0], a[1], a[2], a[3],
-                                    a[4], a[5], a[6],
-                                    a[7], a[8], a[9]);
+        this._addPath(arguments[0], a[0], a[1], a[2],
+                                    a[3], a[4], a[5],
+                                    a[6] || 0, a[7] || 0, a[8] || 1);
       } else {
         console.err('addPath expected to take 1, 2, 7, or 10 args. Got ' + arguments.length);
         return null;

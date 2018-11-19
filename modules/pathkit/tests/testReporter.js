@@ -116,6 +116,8 @@ function catchException(done, fn) {
             fn()
         } catch (e) {
             console.log('Failed with the following error', e);
+            expect(e).toBeFalsy();
+            debugger;
             done();
         }
         // We don't call done with finally because
