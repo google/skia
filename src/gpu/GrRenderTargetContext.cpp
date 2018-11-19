@@ -255,6 +255,10 @@ void GrRenderTargetContext::discard() {
     this->getRTOpList()->discard();
 }
 
+bool GrRenderTargetContext::isPartialClear(const SkIRect* rect) const {
+    return rect && !rect->contains(SkIRect::MakeWH(this->width(), this->height()));
+}
+
 void GrRenderTargetContext::clear(const SkIRect* rect,
                                   const SkPMColor4f& color,
                                   CanClearFullscreen canClearFullscreen) {
@@ -269,6 +273,7 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
 }
 
 void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMColor4f& color) {
+
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
