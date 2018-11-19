@@ -1031,7 +1031,7 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
             continue;
         }
         const SkOpSpanBase* end = coin->coinPtTEnd()->span();
-        SkASSERT(start == start->starter(end));
+        FAIL_IF(start != start->starter(end));
         bool flipped = coin->flipped();
         SkOpSpanBase* oStartBase = (flipped ? coin->oppPtTEndWritable()
                 : coin->oppPtTStartWritable())->span();
