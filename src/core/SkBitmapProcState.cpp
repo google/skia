@@ -13,15 +13,9 @@
 #include "SkOpts.h"
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
-#include "SkUtilsArm.h"
 #include "SkMipMap.h"
 #include "SkImageEncoder.h"
 #include "SkResourceCache.h"
-
-#if defined(SK_ARM_HAS_NEON)
-// These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
-extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
-#endif
 
 // One-stop-shop shader for,
 //   - nearest-neighbor sampling (_nofilter_),
@@ -207,64 +201,38 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
  *    and may be removed.
  */
 bool SkBitmapProcState::chooseProcs() {
+    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+    SkASSERT(fPixmap.colorType() == kN32_SkColorType);
+    SkASSERT(fPixmap.alphaType() == kPremul_SkAlphaType ||
+             fPixmap.alphaType() == kOpaque_SkAlphaType);
+
     fInvProc            = SkMatrixPriv::GetMapXYProc(fInvMatrix);
-    fInvSx              = SkScalarToFixed(fInvMatrix.getScaleX());
+    fInvSx              = SkScalarToFixed        (fInvMatrix.getScaleX());
     fInvSxFractionalInt = SkScalarToFractionalInt(fInvMatrix.getScaleX());
-    fInvKy              = SkScalarToFixed(fInvMatrix.getSkewY());
+    fInvKy              = SkScalarToFixed        (fInvMatrix.getSkewY());
     fInvKyFractionalInt = SkScalarToFractionalInt(fInvMatrix.getSkewY());
 
     fAlphaScale = SkAlpha255To256(SkColorGetA(fPaintColor));
 
-    fShaderProc32 = nullptr;
-    fSampleProc32 = nullptr;
+    fMatrixProc = this->chooseMatrixProc();
+    SkASSERT(fMatrixProc);
 
-    const bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
-    const bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
-                            SkShader::kClamp_TileMode == fTileModeY;
-
-    return this->chooseScanlineProcs(trivialMatrix, clampClamp);
-}
-
-bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp) {
-    SkASSERT(fPixmap.colorType() == kN32_SkColorType);
-    SkASSERT(fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
-
-    fMatrixProc = this->chooseMatrixProc(trivialMatrix);
-    // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns nullptr.
-    if (nullptr == fMatrixProc) {
-        return false;
+    if (fFilterQuality > kNone_SkFilterQuality) {
+        fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
+    } else {
+        fSampleProc32 = S32_alpha_D32_nofilter_DX;
     }
 
-    const SkAlphaType at = fPixmap.alphaType();
-    if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
-        return false;
+    // our special-case shaderprocs
+    // TODO: move this one into chooseShaderProc32() or pull all that in here.
+    if (fAlphaScale == 256
+            && fFilterQuality == kNone_SkFilterQuality
+            && SkShader::kClamp_TileMode == fTileModeX
+            && SkShader::kClamp_TileMode == fTileModeY) {
+        fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
+    } else {
+        fShaderProc32 = this->chooseShaderProc32();
     }
-
-    // No need to do this if we're doing HQ sampling; if filter quality is
-    // still set to HQ by the time we get here, then we must have installed
-    // the shader procs above and can skip all this.
-
-    if (fFilterQuality < kHigh_SkFilterQuality) {
-
-        if (fFilterQuality > kNone_SkFilterQuality) {
-            fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
-        } else {
-            fSampleProc32 = S32_alpha_D32_nofilter_DX;
-        }
-
-        // our special-case shaderprocs
-        // TODO: move this one into chooseShaderProc32() or pull all that in here.
-        if (fAlphaScale == 256
-                && fFilterQuality == kNone_SkFilterQuality
-                && clampClamp) {
-            fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
-        } else {
-            fShaderProc32 = this->chooseShaderProc32();
-        }
-    }
-
-    // see if our platform has any accelerated overrides
-    this->platformProcs();
 
     return true;
 }
