@@ -11,15 +11,11 @@
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
-#include "SkPointPriv.h"
+#include "GrVertexWriter.h"
 #include "SkStrokeRec.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
-
-static void set_inset_fan(SkPoint* pts, size_t stride, const SkRect& r, SkScalar dx, SkScalar dy) {
-    SkPointPriv::SetRectFan(pts, r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
-}
 
 // We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
 // limit makes a miter join effectively beveled.
@@ -232,11 +228,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
-    void generateAAStrokeRectGeometry(void* vertices,
-                                      size_t offset,
-                                      size_t vertexStride,
-                                      int outerVertexNum,
-                                      int innerVertexNum,
+    void generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                                       GrColor color,
                                       const SkRect& devOutside,
                                       const SkRect& devOutsideAssist,
@@ -274,7 +266,6 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    size_t vertexStride = gp->vertexStride();
     int innerVertexNum = 4;
     int outerVertexNum = this->miterStroke() ? 4 : 8;
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
@@ -283,10 +274,10 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
 
     sk_sp<const GrBuffer> indexBuffer =
             GetIndexBuffer(target->resourceProvider(), this->miterStroke());
-    PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+    PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(), indexBuffer.get(),
                          verticesPerInstance, indicesPerInstance, instanceCount);
-    void* vertices = helper.vertices();
-    if (!vertices || !indexBuffer) {
+    GrVertexWriter vertices{ helper.vertices() };
+    if (!vertices.fPtr || !indexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
@@ -294,10 +285,6 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     for (int i = 0; i < instanceCount; i++) {
         const RectInfo& info = fRects[i];
         this->generateAAStrokeRectGeometry(vertices,
-                                           i * verticesPerInstance * vertexStride,
-                                           vertexStride,
-                                           outerVertexNum,
-                                           innerVertexNum,
                                            info.fColor.toBytes_RGBA(), // TODO4F
                                            info.fDevOutside,
                                            info.fDevOutsideAssist,
@@ -435,11 +422,7 @@ static void setup_scale(int* scale, SkScalar inset) {
     }
 }
 
-void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
-                                                  size_t offset,
-                                                  size_t vertexStride,
-                                                  int outerVertexNum,
-                                                  int innerVertexNum,
+void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                                                   GrColor color,
                                                   const SkRect& devOutside,
                                                   const SkRect& devOutsideAssist,
@@ -447,16 +430,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
                                                   bool miterStroke,
                                                   bool degenerate,
                                                   bool tweakAlphaForCoverage) const {
-    intptr_t verts = reinterpret_cast<intptr_t>(vertices) + offset;
-
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.
-    // The following pointers refer to the four rects, from outermost to innermost.
-    SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
-    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + outerVertexNum * vertexStride);
-    SkPoint* fan2Pos = reinterpret_cast<SkPoint*>(verts + 2 * outerVertexNum * vertexStride);
-    SkPoint* fan3Pos = reinterpret_cast<SkPoint*>(
-            verts + (2 * outerVertexNum + innerVertexNum) * vertexStride);
 
     // TODO: this only really works if the X & Y margins are the same all around
     // the rect (or if they are all >= 1.0).
@@ -479,59 +454,26 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
                 SkMinScalar(inset, SkTMax(devOutside.height(), devOutsideAssist.height()));
     }
 
-    if (miterStroke) {
-        // outermost
-        set_inset_fan(fan0Pos, vertexStride, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
-        // inner two
-        set_inset_fan(fan1Pos, vertexStride, devOutside, inset, inset);
-        if (!degenerate) {
-            set_inset_fan(fan2Pos, vertexStride, devInside, -inset, -inset);
-            // innermost
-            set_inset_fan(fan3Pos, vertexStride, devInside, SK_ScalarHalf, SK_ScalarHalf);
-        } else {
-            // When the interior rect has become degenerate we smoosh to a single point
-            SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
-            SkPointPriv::SetRectFan(fan2Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
-                                devInside.fBottom, vertexStride);
-            SkPointPriv::SetRectFan(fan3Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
-                                devInside.fBottom, vertexStride);
-        }
-    } else {
-        SkPoint* fan0AssistPos = reinterpret_cast<SkPoint*>(verts + 4 * vertexStride);
-        SkPoint* fan1AssistPos =
-                reinterpret_cast<SkPoint*>(verts + (outerVertexNum + 4) * vertexStride);
-        // outermost
-        set_inset_fan(fan0Pos, vertexStride, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
-        set_inset_fan(fan0AssistPos, vertexStride, devOutsideAssist, -SK_ScalarHalf,
-                      -SK_ScalarHalf);
-        // outer one of the inner two
-        set_inset_fan(fan1Pos, vertexStride, devOutside, inset, inset);
-        set_inset_fan(fan1AssistPos, vertexStride, devOutsideAssist, inset, inset);
-        if (!degenerate) {
-            // inner one of the inner two
-            set_inset_fan(fan2Pos, vertexStride, devInside, -inset, -inset);
-            // innermost
-            set_inset_fan(fan3Pos, vertexStride, devInside, SK_ScalarHalf, SK_ScalarHalf);
-        } else {
-            // When the interior rect has become degenerate we smoosh to a single point
-            SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
-            SkPointPriv::SetRectFan(fan2Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
-                                devInside.fBottom, vertexStride);
-            SkPointPriv::SetRectFan(fan3Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
-                                devInside.fBottom, vertexStride);
-        }
-    }
+    auto inset_fan = [](const SkRect& r, SkScalar dx, SkScalar dy) {
+        return GrVertexWriter::TriFanFromRect(r.makeInset(dx, dy));
+    };
 
-    // Make verts point to vertex color and then set all the color and coverage vertex attrs
-    // values. The outermost rect has 0 coverage
-    verts += sizeof(SkPoint);
-    for (int i = 0; i < outerVertexNum; ++i) {
-        if (tweakAlphaForCoverage) {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = 0;
-        } else {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = 0;
-        }
+    auto maybe_coverage = [tweakAlphaForCoverage](float coverage) {
+        return GrVertexWriter::If(!tweakAlphaForCoverage, coverage);
+    };
+
+    GrColor outerColor = tweakAlphaForCoverage ? 0 : color;
+
+    // Outermost rect
+    vertices.writeQuad(inset_fan(devOutside, -SK_ScalarHalf, -SK_ScalarHalf),
+                       outerColor,
+                       maybe_coverage(0.0f));
+
+    if (!miterStroke) {
+        // Second outermost
+        vertices.writeQuad(inset_fan(devOutsideAssist, -SK_ScalarHalf, -SK_ScalarHalf),
+                           outerColor,
+                           maybe_coverage(0.0f));
     }
 
     // scale is the coverage for the the inner two rects.
@@ -540,32 +482,41 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
 
     float innerCoverage = GrNormalizeByteToFloat(scale);
     GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
+    GrColor innerColor = tweakAlphaForCoverage ? scaledColor : color;
 
-    verts += outerVertexNum * vertexStride;
-    for (int i = 0; i < outerVertexNum + innerVertexNum; ++i) {
-        if (tweakAlphaForCoverage) {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
-        } else {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = innerCoverage;
-        }
+    // Inner rect
+    vertices.writeQuad(inset_fan(devOutside, inset, inset),
+                       innerColor,
+                       maybe_coverage(innerCoverage));
+
+    if (!miterStroke) {
+        // Second inner
+        vertices.writeQuad(inset_fan(devOutsideAssist, inset, inset),
+                           innerColor,
+                           maybe_coverage(innerCoverage));
     }
 
-    // The innermost rect has 0 coverage, unless we are degenerate, in which case we must apply the
-    // scaled coverage
-    verts += (outerVertexNum + innerVertexNum) * vertexStride;
     if (!degenerate) {
-        innerCoverage = 0;
-        scaledColor = 0;
-    }
+        vertices.writeQuad(inset_fan(devInside, -inset, -inset),
+                           innerColor,
+                           maybe_coverage(innerCoverage));
 
-    for (int i = 0; i < innerVertexNum; ++i) {
-        if (tweakAlphaForCoverage) {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = scaledColor;
-        } else {
-            *reinterpret_cast<GrColor*>(verts + i * vertexStride) = color;
-            *reinterpret_cast<float*>(verts + i * vertexStride + sizeof(GrColor)) = innerCoverage;
-        }
+        // The innermost rect has 0 coverage...
+        vertices.writeQuad(inset_fan(devInside, SK_ScalarHalf, SK_ScalarHalf),
+                           (GrColor)0,
+                           maybe_coverage(0.0f));
+    } else {
+        // When the interior rect has become degenerate we smoosh to a single point
+        SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
+
+        vertices.writeQuad(GrVertexWriter::TriFanFromRect(devInside),
+                           innerColor,
+                           maybe_coverage(innerCoverage));
+
+        // ... unless we are degenerate, in which case we must apply the scaled coverage
+        vertices.writeQuad(GrVertexWriter::TriFanFromRect(devInside),
+                           innerColor,
+                           maybe_coverage(innerCoverage));
     }
 }
 
