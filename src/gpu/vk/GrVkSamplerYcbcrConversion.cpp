@@ -48,7 +48,7 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     ycbcrCreateInfo.pNext = &externalFormat;
     ycbcrCreateInfo.format = VK_FORMAT_UNDEFINED;
     ycbcrCreateInfo.ycbcrModel = info.fYcbcrModel;
-    ycbcrCreateInfo.ycbcrRange = info.YcbcrRange;
+    ycbcrCreateInfo.ycbcrRange = info.fYcbcrRange;
     // Componets is ignored for external format conversions;
     // ycbcrCreateInfo.components = {0, 0, 0, 0};
     ycbcrCreateInfo.xChromaOffset = info.fXChromaOffset;
@@ -57,8 +57,8 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     ycbcrCreateInfo.forceExplicitReconstruction = info.fForceExplicitReconstruction;
 
     VkSamplerYcbcrConversion conversion;
-    GR_VK_CALL(gpu->vkInterface(), CreateSamplerYcbcrConversion(device, &ycbcrCreateInfo, nullptr,
-                                                                &conversion));
+    GR_VK_CALL(gpu->vkInterface(), CreateSamplerYcbcrConversion(gpu->device(), &ycbcrCreateInfo,
+                                                                nullptr, &conversion));
     if (conversion == VK_NULL_HANDLE) {
         return nullptr;
     }
