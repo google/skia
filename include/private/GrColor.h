@@ -52,17 +52,6 @@ static inline GrColor GrColorPackRGBA(unsigned r, unsigned g, unsigned b, unsign
             (a << GrColor_SHIFT_A);
 }
 
-/**
- *  Packs a color with an alpha channel replicated across all four channels.
- */
-static inline GrColor GrColorPackA4(unsigned a) {
-    SkASSERT((uint8_t)a == a);
-    return  (a << GrColor_SHIFT_R) |
-            (a << GrColor_SHIFT_G) |
-            (a << GrColor_SHIFT_B) |
-            (a << GrColor_SHIFT_A);
-}
-
 // extract a component (byte) from a GrColor int
 
 #define GrColorUnpackR(color)   (((color) >> GrColor_SHIFT_R) & 0xFF)

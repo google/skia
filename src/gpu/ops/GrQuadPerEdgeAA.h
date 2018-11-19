@@ -22,6 +22,8 @@ class GrGLSLColorSpaceXformHelper;
 namespace GrQuadPerEdgeAA {
 
     enum class Domain : bool { kNo = false, kYes = true };
+    enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
+    static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
     // order (when enabled) is device position, color, local position, domain, aa edge equations.
@@ -29,19 +31,20 @@ namespace GrQuadPerEdgeAA {
     // GPAttributes maintains. If hasLocalCoords is false, then the local quad type can be ignored.
     struct VertexSpec {
     public:
-        VertexSpec(GrQuadType deviceQuadType, bool hasColor, GrQuadType localQuadType,
+        VertexSpec(GrQuadType deviceQuadType, ColorType colorType, GrQuadType localQuadType,
                    bool hasLocalCoords, Domain domain, GrAAType aa)
                 : fDeviceQuadType(static_cast<unsigned>(deviceQuadType))
                 , fLocalQuadType(static_cast<unsigned>(localQuadType))
                 , fHasLocalCoords(hasLocalCoords)
-                , fHasColor(hasColor)
+                , fColorType(static_cast<unsigned>(colorType))
                 , fHasDomain(static_cast<unsigned>(domain))
                 , fUsesCoverageAA(aa == GrAAType::kCoverage) { }
 
         GrQuadType deviceQuadType() const { return static_cast<GrQuadType>(fDeviceQuadType); }
         GrQuadType localQuadType() const { return static_cast<GrQuadType>(fLocalQuadType); }
         bool hasLocalCoords() const { return fHasLocalCoords; }
-        bool hasVertexColors() const { return fHasColor; }
+        ColorType colorType() const { return static_cast<ColorType>(fColorType); }
+        bool hasVertexColors() const { return ColorType::kNone != this->colorType(); }
         bool hasDomain() const { return fHasDomain; }
         bool usesCoverageAA() const { return fUsesCoverageAA; }
 
@@ -52,11 +55,12 @@ namespace GrQuadPerEdgeAA {
 
     private:
         static_assert(kGrQuadTypeCount <= 4, "GrQuadType doesn't fit in 2 bits");
+        static_assert(kColorTypeCount <= 4, "Color doesn't fit in 2 bits");
 
         unsigned fDeviceQuadType: 2;
         unsigned fLocalQuadType: 2;
         unsigned fHasLocalCoords: 1;
-        unsigned fHasColor: 1;
+        unsigned fColorType : 2;
         unsigned fHasDomain: 1;
         unsigned fUsesCoverageAA: 1;
     };
@@ -107,9 +111,7 @@ namespace GrQuadPerEdgeAA {
         // variables the emitted code must declare, so that the calling GP can ensure there's no
         // naming conflicts with their own code.
 
-        void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                       GrGLSLColorSpaceXformHelper* colorSpaceXformHelper,
-                       const char* colorVarName) const;
+        void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args, const char* colorVarName) const;
 
         // localCoordName will be declared as a float2, with any domain applied after any
         // perspective division is performed.
@@ -141,7 +143,7 @@ namespace GrQuadPerEdgeAA {
     // Returns the advanced pointer in vertices.
     // TODO4F: Switch GrColor to GrVertexColor
     void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
-                     const GrColor& color, const GrPerspQuad& localQuad, const SkRect& domain,
+                     const SkPMColor4f& color, const GrPerspQuad& localQuad, const SkRect& domain,
                      GrQuadAAFlags aa);
 
 } // namespace GrQuadPerEdgeAA
