@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "7aa41b1c_1d0092c7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-19T22:06:59Z",
+      "side": 1,
+      "message": "In 2028, when ten-year-older scroggo@ has finally seen the light and runs clang-format everywhere, I will quote this comment to taunt you. :-)",
+      "parentUuid": "56002549_21664451",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e77b83e_fd149360",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -104,6 +122,24 @@
       "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7666aaca_41383a99",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-19T22:06:59Z",
+      "side": 1,
+      "message": "That\u0027s what we do with the Go library to \"blit from one image to another, possibly with format conversion\": https://golang.org/pkg/image/draw/#Draw\n\nThe op argument (of type Op) is a two-valued enum: Over or Src. Previously, the Plan 9 equivalent function (r@ and rsc@ were Plan 9 people before they were Go people) allowed for a wider range of Porter-Duff operators, but their experience was that only two were used, so that\u0027s what we went with for Go.\n\nOne thing Go doesn\u0027t do is any sort of color management or non-linear gamma. But if you\u0027re considering this for skcms, I\u0027m sure that\u0027s already in your thoughts.",
+      "parentUuid": "c60ce24d_6de0409f",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
