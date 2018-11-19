@@ -151,7 +151,6 @@ cc_defaults {
     name: "skia_deps",
     shared_libs: [
         "libdng_sdk",
-        "libexpat",
         "libft2",
         "libicui18n",
         "libicuuc",
