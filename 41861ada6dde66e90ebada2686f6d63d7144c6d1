@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37bf4667_47bcd90f",
+        "filename": "src/gpu/ops/GrAAStrokeRectOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-19T19:54:11Z",
+      "side": 1,
+      "message": "I hate to nitpick things like this (no I don\u0027t)... maybe maybe_coverage()?  It\u0027s not so much optional as possibly not needed/used?",
+      "range": {
+        "startLine": 461,
+        "startChar": 9,
+        "endLine": 461,
+        "endChar": 26
+      },
+      "revId": "41861ada6dde66e90ebada2686f6d63d7144c6d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
