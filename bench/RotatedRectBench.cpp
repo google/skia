@@ -8,6 +8,7 @@
 #include "Benchmark.h"
 #include "SkBlendModePriv.h"
 #include "SkCanvas.h"
+#include "SkGradientShader.h"
 #include "SkPaint.h"
 
 #include <ctype.h>
@@ -23,6 +24,7 @@ enum ColorType {
     kChangingOpaque_ColorType,
     kChangingTransparent_ColorType,
     kAlternatingOpaqueAndTransparent_ColorType,
+    kShaderOpaque_ColorType
 };
 
 static inline SkColor start_color(ColorType ct) {
@@ -34,6 +36,8 @@ static inline SkColor start_color(ColorType ct) {
         case kConstantTransparent_ColorType:
         case kChangingTransparent_ColorType:
             return 0x80A07040;
+        case kShaderOpaque_ColorType:
+            return SK_ColorWHITE;
     }
     SK_ABORT("Shouldn't reach here.");
     return 0;
@@ -46,6 +50,7 @@ static inline SkColor advance_color(SkColor old, ColorType ct, int step) {
     switch (ct) {
         case kConstantOpaque_ColorType:
         case kConstantTransparent_ColorType:
+        case kShaderOpaque_ColorType:
             return old;
         case kChangingOpaque_ColorType:
             return 0xFF000000 | (old + 0x00010307);
@@ -68,8 +73,9 @@ static SkString to_lower(const char* str) {
 
 class RotRectBench: public Benchmark {
 public:
-    RotRectBench(bool aa, ColorType ct, SkBlendMode mode)
+    RotRectBench(bool aa, ColorType ct, SkBlendMode mode, bool perspective = false)
         : fAA(aa)
+        , fPerspective(perspective)
         , fColorType(ct)
         , fMode(mode) {
         this->makeName();
@@ -90,12 +96,30 @@ protected:
         static const SkScalar kRectW = 25.1f;
         static const SkScalar kRectH = 25.9f;
 
+        if (fColorType == kShaderOpaque_ColorType) {
+            // The only requirement for the shader is that it requires local coordinates
+            SkPoint pts[2] = { {0.0f, 0.0f}, {kRectW, kRectH} };
+            SkColor colors[] = { color, SK_ColorBLUE };
+            paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                         SkShader::kClamp_TileMode));
+        }
+
         SkMatrix rotate;
         // This value was chosen so that we frequently hit the axis-aligned case.
         rotate.setRotate(30.f, kRectW / 2, kRectH / 2);
         SkMatrix m = rotate;
 
         SkScalar tx = 0, ty = 0;
+
+        if (fPerspective) {
+            // Apply some fixed perspective to change how ops may draw the rects
+            SkMatrix perspective;
+            perspective.setIdentity();
+            perspective.setPerspX(1e-4f);
+            perspective.setPerspY(1e-3f);
+            perspective.setSkewX(0.1f);
+            canvas->concat(perspective);
+        }
 
         for (int i = 0; i < loops; ++i) {
             canvas->save();
@@ -128,6 +152,9 @@ private:
         } else {
             fName.append("_bw");
         }
+        if (fPerspective) {
+            fName.append("_persp");
+        }
         switch (fColorType) {
             case kConstantOpaque_ColorType:
                 fName.append("_same_opaque");
@@ -144,11 +171,15 @@ private:
             case kAlternatingOpaqueAndTransparent_ColorType:
                 fName.append("_alternating_transparent_and_opaque");
                 break;
+            case kShaderOpaque_ColorType:
+                fName.append("_shader_opaque");
+                break;
         }
         fName.appendf("_%s", to_lower(SkBlendMode_Name(fMode)).c_str());
     }
 
     bool        fAA;
+    bool        fPerspective;
     ColorType   fColorType;
     SkBlendMode fMode;
     SkString    fName;
@@ -156,40 +187,26 @@ private:
     typedef Benchmark INHERITED;
 };
 
+#define DEF_FOR_COLOR_TYPES(aa, blend) \
+    DEF_BENCH(return new RotRectBench(aa,  kConstantOpaque_ColorType,                  blend);) \
+    DEF_BENCH(return new RotRectBench(aa,  kConstantTransparent_ColorType,             blend);) \
+    DEF_BENCH(return new RotRectBench(aa,  kChangingOpaque_ColorType,                  blend);) \
+    DEF_BENCH(return new RotRectBench(aa,  kChangingTransparent_ColorType,             blend);) \
+    DEF_BENCH(return new RotRectBench(aa,  kAlternatingOpaqueAndTransparent_ColorType, blend);) \
+    DEF_BENCH(return new RotRectBench(aa,  kShaderOpaque_ColorType,                    blend);)
+#define DEF_FOR_AA_MODES(blend) \
+    DEF_FOR_COLOR_TYPES(true, blend) \
+    DEF_FOR_COLOR_TYPES(false, blend)
+
 // Choose kSrcOver because it always allows coverage and alpha to be conflated. kSrc only allows
 // conflation when opaque, and kDarken because it isn't possilbe with standard GL blending.
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrcOver);)
+DEF_FOR_AA_MODES(SkBlendMode::kSrcOver)
+DEF_FOR_AA_MODES(SkBlendMode::kSrc)
+DEF_FOR_AA_MODES(SkBlendMode::kDarken)
 
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrcOver);)
-
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrc);)
-
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrc);)
-
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kDarken);)
-
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kDarken);)
+// Only do a limited run of perspective tests
+#define DEF_FOR_PERSP_MODES(aa) \
+    DEF_BENCH(return new RotRectBench(aa, kConstantOpaque_ColorType, SkBlendMode::kSrcOver, true);)\
+    DEF_BENCH(return new RotRectBench(aa, kShaderOpaque_ColorType, SkBlendMode::kSrcOver, true);)
+DEF_FOR_PERSP_MODES(true)
+DEF_FOR_PERSP_MODES(false)
