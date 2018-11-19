@@ -94,6 +94,8 @@ std::unique_ptr<GrDrawOp> MakeNonAAStroke(GrContext*,
                                           const SkStrokeRec&,
                                           GrAAType);
 
+#define USE_NEW_METHOD
+
 }  // namespace GrRectOpFactory
 
 #endif
