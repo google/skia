@@ -88,11 +88,11 @@ namespace GrQuadPerEdgeAA {
         const Attribute& colors() const { return fColors; }
         const Attribute& localCoords() const { return fLocalCoords; }
         const Attribute& domain() const { return fDomain; }
-        const Attribute& edges(int i) const { return fAAEdges[i]; }
+        const Attribute& edgeDistances() const { return fAAEdgeDistances; }
 
         bool hasVertexColors() const { return fColors.isInitialized(); }
 
-        bool usesCoverageAA() const { return fAAEdges[0].isInitialized(); }
+        bool usesCoverageAA() const { return fAAEdgeDistances.isInitialized(); }
 
         bool hasLocalCoords() const { return fLocalCoords.isInitialized(); }
 
@@ -101,7 +101,7 @@ namespace GrQuadPerEdgeAA {
         bool needsPerspectiveInterpolation() const;
 
         const Attribute* attributes() const { return &fPositions; }
-        int attributeCount() const { return 8; }
+        int attributeCount() const {  return 5; }
 
         uint32_t getKey() const;
 
@@ -127,11 +127,11 @@ namespace GrQuadPerEdgeAA {
 
         void emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args, const char* edgeDistName) const;
     private:
-        Attribute fPositions;   // named "position" in SkSL
-        Attribute fColors;      // named "color" in SkSL
-        Attribute fLocalCoords; // named "localCoord" in SkSL
-        Attribute fDomain;      // named "domain" in SkSL
-        Attribute fAAEdges[4];  // named "aaEdgeX" for X = 0,1,2,3
+        Attribute fPositions;       // named "position" in SkSL
+        Attribute fColors;          // named "color" in SkSL
+        Attribute fLocalCoords;     // named "localCoord" in SkSL
+        Attribute fDomain;          // named "domain" in SkSL
+        Attribute fAAEdgeDistances; // named "aaEdgeDist" in SkSL
     };
 
 
