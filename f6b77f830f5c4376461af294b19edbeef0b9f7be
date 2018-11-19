@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da115ded_00ee6c59",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-19T16:54:03Z",
+      "side": 1,
+      "message": "Not yet. The previous code had the boolean for colors, and I wanted to preserve that. My understanding is that Michael\u0027s going to need to support quads with no color for the new rect op.",
+      "parentUuid": "159d21b1_c681688b",
+      "range": {
+        "startLine": 25,
+        "startChar": 27,
+        "endLine": 25,
+        "endChar": 32
+      },
+      "revId": "f6b77f830f5c4376461af294b19edbeef0b9f7be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d60c13f_5120762b",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 2
