@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31fb17fb_37973ae0",
+        "filename": "include/private/GrColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-19T16:03:25Z",
+      "side": 1,
+      "message": "seems like maybe a\n\nprivate:\n   friend class GrVertexWriter;\n\nkind of situation?",
+      "revId": "9ba3a6ea7cf8bb6fc9ecd352b70c578f23214ce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
