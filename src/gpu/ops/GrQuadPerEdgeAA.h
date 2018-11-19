@@ -132,7 +132,6 @@ namespace GrQuadPerEdgeAA {
         Attribute fAAEdges[4];  // named "aaEdgeX" for X = 0,1,2,3
     };
 
-
     // Fill vertices with the vertex data needed to represent the given quad. The device position,
     // local coords, vertex color, domain, and edge coefficients will be written and/or computed
     // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
