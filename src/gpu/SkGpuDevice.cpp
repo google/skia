@@ -1464,7 +1464,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
     sampler.setFilterMode(kNone_SkFilterQuality == filterQuality ? GrSamplerState::Filter::kNearest
                                                                  : GrSamplerState::Filter::kBilerp);
     SkAutoTArray<GrRenderTargetContext::TextureSetEntry> textures(count);
-    GrColor color = GrColorPackA4(SkToUInt(SkTClamp(SkScalarRoundToInt(alpha * 255), 0, 255)));
+    SkPMColor4f color = { alpha, alpha, alpha, alpha };
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'.
     int base = 0, n = 0;
@@ -1475,7 +1475,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
                     fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
                                                  sampler.filter(), color, this->ctm(),
-                                                 std::move(textureXform), nullptr);
+                                                 std::move(textureXform));
         }
     };
     for (int i = 0; i < count; ++i) {

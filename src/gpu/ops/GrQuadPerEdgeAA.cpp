@@ -242,10 +242,11 @@ namespace GrQuadPerEdgeAA {
 ////////////////// Tessellate Implementation
 
 void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& deviceQuad,
-                 const GrColor& color, const GrPerspQuad& localQuad, const SkRect& domain,
+                 const SkPMColor4f& color4f, const GrPerspQuad& localQuad, const SkRect& domain,
                  GrQuadAAFlags aaFlags) {
     bool deviceHasPerspective = spec.deviceQuadType() == GrQuadType::kPerspective;
     bool localHasPerspective = spec.localQuadType() == GrQuadType::kPerspective;
+    GrVertexColor color(color4f, GrQuadPerEdgeAA::ColorType::kHalf == spec.colorType());
 
     // Load position data into Sk4fs (always x, y and maybe w)
     Sk4f x = deviceQuad.x4f();
@@ -307,7 +308,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
         // save color
         if (spec.hasVertexColors()) {
-            vb.write<GrColor>(color);
+            vb.write(color);
         }
 
         // save local position
@@ -361,8 +362,10 @@ GPAttributes::GPAttributes(const VertexSpec& spec) {
         fLocalCoords = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     } // else localDim == 0 and attribute remains uninitialized
 
-    if (spec.hasVertexColors()) {
+    if (ColorType::kByte == spec.colorType()) {
         fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    } else if (ColorType::kHalf == spec.colorType()) {
+        fColors = {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
     }
 
     if (spec.hasDomain()) {
@@ -384,40 +387,28 @@ bool GPAttributes::needsPerspectiveInterpolation() const {
 }
 
 uint32_t GPAttributes::getKey() const {
-    // aa, color, domain are single bit flags
+    // aa, domain are single bit flags
     uint32_t x = this->usesCoverageAA() ? 0 : 1;
-    x |= this->hasVertexColors() ? 0 : 2;
-    x |= this->hasDomain() ? 0 : 4;
+    x |= this->hasDomain() ? 0 : 2;
     // regular position has two options as well
-    x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 8;
+    x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 4;
     // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
     if (this->hasLocalCoords()) {
-        x |= kFloat3_GrVertexAttribType == fLocalCoords.cpuType() ? 16 : 32;
+        x |= kFloat3_GrVertexAttribType == fLocalCoords.cpuType() ? 8 : 16;
+    }
+    // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
+    if (this->hasVertexColors()) {
+        x |= kUByte4_norm_GrVertexAttribType == fColors.cpuType() ? 32 : 64;
     }
     return x;
 }
 
 void GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                             GrGLSLColorSpaceXformHelper* csXformHelper,
                              const char* colorVarName) const {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
-
-    if (!fColors.isInitialized()) {
-        return;
-    }
-
-    if (csXformHelper == nullptr || csXformHelper->isNoop()) {
-        args.fVaryingHandler->addPassThroughAttribute(
-                fColors, args.fOutputColor, Interpolation::kCanBeFlat);
-    } else {
-        GrGLSLVarying varying(kHalf4_GrSLType);
-        args.fVaryingHandler->addVarying(colorVarName, &varying);
-        args.fVertBuilder->codeAppendf("half4 %s = ", colorVarName);
-        args.fVertBuilder->appendColorGamutXform(fColors.name(), csXformHelper);
-        args.fVertBuilder->codeAppend(";");
-        args.fVertBuilder->codeAppendf("%s = half4(%s.rgb * %s.a, %s.a);",
-                                       varying.vsOut(), colorVarName, colorVarName, colorVarName);
-        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
+    if (fColors.isInitialized()) {
+        args.fVaryingHandler->addPassThroughAttribute(fColors, args.fOutputColor,
+                                                      Interpolation::kCanBeFlat);
     }
 }
 

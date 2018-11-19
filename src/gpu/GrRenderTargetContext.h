@@ -9,7 +9,6 @@
 #define GrRenderTargetContext_DEFINED
 
 #include "../private/GrRenderTargetProxy.h"
-#include "GrColor.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrPaint.h"
@@ -134,10 +133,10 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
-                     const SkRect& srcRect, const SkRect& dstRect, GrQuadAAFlags,
-                     SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
-                     sk_sp<GrColorSpaceXform> texXform, sk_sp<GrColorSpaceXform> colorXform);
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
+                     const SkPMColor4f&, const SkRect& srcRect, const SkRect& dstRect,
+                     GrQuadAAFlags, SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
+                     sk_sp<GrColorSpaceXform> texXform);
 
     /** Used with drawTextureSet */
     struct TextureSetEntry {
@@ -151,8 +150,8 @@ public:
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
      */
     void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
-                        GrColor, const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform,
-                        sk_sp<GrColorSpaceXform> colorXform);
+                        const SkPMColor4f&, const SkMatrix& viewMatrix,
+                        sk_sp<GrColorSpaceXform> texXform);
 
     /**
      * Draw a roundrect using a paint.
