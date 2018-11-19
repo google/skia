@@ -108,7 +108,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         desc.finalize();
         entry = fMap.find(desc);
     }
-    if (!entry) {
+    if (true || !entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
