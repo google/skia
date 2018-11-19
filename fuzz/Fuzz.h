@@ -108,32 +108,15 @@ inline void Fuzz::next(Arg* first, Args... rest) {
 }
 
 template <typename T, typename Min, typename Max>
-inline void Fuzz::nextRange(T* n, Min min, Max max) {
-    this->next<T>(n);
-    if (min == max) {
-        *n = min;
-        return;
-    }
-    if (min > max) {
-        // Avoid misuse of nextRange
-        SkDebugf("min > max (%d > %d) \n", min, max);
-        this->signalBug();
-    }
-    if (*n < 0) { // Handle negatives
-        if (*n != std::numeric_limits<T>::lowest()) {
-            *n *= -1;
-        }
-        else {
-            *n = std::numeric_limits<T>::max();
-        }
-    }
-    *n = min + (*n % ((size_t)max - min + 1));
+inline void Fuzz::nextRange(T* value, Min min, Max max) {
+    this->next(value);
+    if (*value < (T)min) { *value = (T)min; }
+    if (*value > (T)max) { *value = (T)max; }
 }
 
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextEnum(T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    this->nextRange((U*)value, (U)rmin, (U)rmax);
+    this->nextRange(value, rmin, rmax);
 }
 
 template <typename T>
