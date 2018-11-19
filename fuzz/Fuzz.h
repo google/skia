@@ -132,8 +132,9 @@ inline void Fuzz::nextRange(T* n, Min min, Max max) {
 
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextEnum(T* value, Min rmin, Max rmax) {
-    using U = skstd::underlying_type_t<T>;
-    this->nextRange((U*)value, (U)rmin, (U)rmax);
+    this->next(value);
+    if (*value < (T)rmin) { *value = (T)rmin; }
+    if (*value > (T)rmax) { *value = (T)rmax; }
 }
 
 template <typename T>
