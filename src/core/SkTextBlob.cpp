@@ -6,7 +6,7 @@
  */
 
 #include "SkTextBlob.h"
-
+#include "SkFontPriv.h"
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
@@ -29,6 +29,46 @@ SkRunFont::SkRunFont(const SkPaint& paint)
         , fSkewX(paint.getTextSkewX())
         , fHinting(static_cast<unsigned>(paint.getHinting()))
         , fFlags(paint.getFlags() & kFlagsMask) { }
+
+SkRunFont::SkRunFont(const SkFont& font)
+    : fSize(font.getSize())
+    , fScaleX(font.getScaleX())
+    , fTypeface(SkFontPriv::RefTypefaceOrDefault(font))
+    , fSkewX(font.getSkewX())
+    , fHinting(static_cast<unsigned>(font.getHinting()))
+{
+    unsigned flags = 0;
+
+    if (font.isEmbolden()) {
+        flags |= SkPaint::kFakeBoldText_Flag;
+    }
+    if (font.isLinearMetrics()) {
+        flags |= SkPaint::kLinearText_Flag;
+    }
+    if (font.isSubpixel()) {
+        flags |= SkPaint::kSubpixelText_Flag;
+    }
+    if (font.isEmbeddedBitmaps()) {
+        flags |= SkPaint::kEmbeddedBitmapText_Flag;
+    }
+    if (font.isForceAutoHinting()) {
+        flags |= SkPaint::kAutoHinting_Flag;
+    }
+
+    switch (font.getEdging()) {
+        case SkFont::Edging::kAlias:
+            // change nothing
+            break;
+        case SkFont::Edging::kAntiAlias:
+            flags |= SkPaint::kAntiAlias_Flag;
+            break;
+        case SkFont::Edging::kSubpixelAntiAlias: break;
+            flags |= SkPaint::kAntiAlias_Flag | SkPaint::kLCDRenderText_Flag;
+            break;
+    }
+
+    fFlags = flags;
+}
 
 void SkRunFont::applyToPaint(SkPaint* paint) const {
     paint->setTextEncoding(SkPaint::kGlyphID_TextEncoding);
