@@ -263,9 +263,6 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
         }
     }
 
-    // see if our platform has any accelerated overrides
-    this->platformProcs();
-
     return true;
 }
 
