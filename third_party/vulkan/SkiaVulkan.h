@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "vulkan/vulkan_core.h"
+#include "vulkan/vulkan_core_custom.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 // This is needed to get android extensions for external memory
