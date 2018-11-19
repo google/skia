@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "77df5dbf_0cb6b3b4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-19T22:13:35Z",
+      "side": 1,
+      "message": "If we\u0027re getting to this point of feature richness, I\u0027d like us to step back and see if we can\u0027t write what you\u0027re doing in terms of calls to SkCanvas or perhaps SkDraw.  Let\u0027s not build a new mini drawing API inside Skia, a drawing API.",
+      "parentUuid": "7666aaca_41383a99",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ee09487_bd2dd367",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
