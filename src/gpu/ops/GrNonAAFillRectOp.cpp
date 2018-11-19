@@ -387,6 +387,8 @@ private:
 
 }  // anonymous namespace
 
+#ifndef USE_NEW_METHOD
+
 namespace GrRectOpFactory {
 
 std::unique_ptr<GrDrawOp> MakeNonAAFill(GrContext* context,
@@ -437,6 +439,8 @@ std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrContext* context,
 }
 
 }  // namespace GrRectOpFactory
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
