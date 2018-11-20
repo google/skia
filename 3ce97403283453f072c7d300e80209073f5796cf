@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c4a32df1_8329be41",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-20T22:20:57Z",
+      "side": 1,
+      "message": "Yes it stays around. if you were to look at the headers you\u0027d see VK_VERSION_1_0 is still defined as well.",
+      "parentUuid": "cd17f866_f14756d5",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3fcde253_c39a9d5c",
         "filename": "src/gpu/GrDirectContext.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "3ce97403283453f072c7d300e80209073f5796cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5777b07d_857262a5",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-20T22:20:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fcde253_c39a9d5c",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "0daec1a4_2461ff57",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-20T22:20:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbdf249e_486e2937",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffb23da5_40d19752",
         "filename": "third_party/vulkan/SkiaPrivateVulkan.h",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2018-11-20T21:37:35Z",
       "side": 1,
       "message": "I\u0027m wondering if this is the right place for this. Could be somewhere under src/gpu?",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af70a9b9_bce01f11",
+        "filename": "third_party/vulkan/SkiaPrivateVulkan.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-20T22:20:57Z",
+      "side": 1,
+      "message": "moved to vk/GrVkVulkan.h",
+      "parentUuid": "ffb23da5_40d19752",
       "revId": "3ce97403283453f072c7d300e80209073f5796cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -101,6 +173,24 @@
       "revId": "3ce97403283453f072c7d300e80209073f5796cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed8437fd_5fe2c7cf",
+        "filename": "tools/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-20T22:20:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1011e46_c9a36b0e",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
