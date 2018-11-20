@@ -51,6 +51,7 @@ var CanvasKit = {
 	_MakeSkVertices: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
+	_testing: {},
 
 	// Objects and properties on CanvasKit
 
