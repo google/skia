@@ -2730,6 +2730,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
          kIntelBayTrail_GrGLRenderer == ctxInfo.renderer())) {
         fBlacklistCoverageCounting = true;
     }
+
+#ifdef SK_BUILD_FOR_MAC
+    // Expirment to see if this resolves crbug.com/906453.
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        fDynamicStateArrayGeometryProcessorTextureSupport = false;
+    }
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
