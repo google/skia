@@ -8,9 +8,10 @@
 #ifndef GrVkCaps_DEFINED
 #define GrVkCaps_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrCaps.h"
 #include "GrVkStencilAttachment.h"
-#include "vk/GrVkDefines.h"
 
 class GrShaderCaps;
 class GrVkExtensions;

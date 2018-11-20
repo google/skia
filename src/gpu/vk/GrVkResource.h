@@ -8,6 +8,8 @@
 #ifndef GrVkResource_DEFINED
 #define GrVkResource_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "SkAtomics.h"
 #include "SkRandom.h"
 #include "SkTHash.h"

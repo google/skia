@@ -8,11 +8,10 @@
 #ifndef GrVkImageView_DEFINED
 #define GrVkImageView_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrTypes.h"
-
 #include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrVkImageView : public GrVkResource {
 public:

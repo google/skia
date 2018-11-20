@@ -8,10 +8,10 @@
 #ifndef GrVkCopyManager_DEFINED
 #define GrVkCopyManager_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrTypes.h"
 #include "GrVkDescriptorSetManager.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrSurface;
 class GrVkCopyPipeline;
