@@ -8,56 +8,34 @@
 #include "SkMath.h"
 #include "SkMathPriv.h"
 
-#define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
-
-#define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
-#define PACK_FILTER_Y_NAME  MAKENAME(_pack_filter_y)
-
-#ifndef PREAMBLE
-    #define PREAMBLE(state)
-    #define PREAMBLE_PARAM_X
-    #define PREAMBLE_PARAM_Y
-    #define PREAMBLE_ARG_X
-    #define PREAMBLE_ARG_Y
-#endif
+#define SCALE_FILTER_NAME MAKENAME(_filter_scale)
 
 // declare functions externally to suppress warnings.
 void SCALE_FILTER_NAME(const SkBitmapProcState& s,
-                              uint32_t xy[], int count, int x, int y);
+                       uint32_t xy[], int count, int x, int y);
 
-static inline uint32_t PACK_FILTER_Y_NAME(SkFixed f, unsigned max,
-                                          SkFixed one PREAMBLE_PARAM_Y) {
-    unsigned i = TILEY_PROCF(f, max);
-    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
-    return (i << 14) | (TILEY_PROCF((f + one), max));
-}
-
-static inline uint32_t PACK_FILTER_X_NAME(SkFixed f, unsigned max,
-                                          SkFixed one PREAMBLE_PARAM_X) {
-    unsigned i = TILEX_PROCF(f, max);
-    i = (i << 4) | EXTRACT_LOW_BITS(f, max);
-    return (i << 14) | (TILEX_PROCF((f + one), max));
-}
 
 void SCALE_FILTER_NAME(const SkBitmapProcState& s,
-                              uint32_t xy[], int count, int x, int y) {
+                       uint32_t xy[], int count, int x, int y) {
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
 
-    PREAMBLE(s);
+    auto pack = [](SkFixed f, unsigned max, SkFixed one) {
+        unsigned i = TILE_PROCF(f, max);
+        i = (i << 4) | EXTRACT_LOW_BITS(f, max);
+        return (i << 14) | (TILE_PROCF((f + one), max));
+    };
 
     const unsigned maxX = s.fPixmap.width() - 1;
-    const SkFixed one = s.fFilterOneX;
     const SkFractionalInt dx = s.fInvSxFractionalInt;
     SkFractionalInt fx;
-
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const SkFixed fy = mapper.fixedY();
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
-        *xy++ = PACK_FILTER_Y_NAME(fy, maxY, s.fFilterOneY PREAMBLE_ARG_Y);
+        *xy++ = pack(fy, maxY, s.fFilterOneY);
         // now initialize fx
         fx = mapper.fractionalIntX();
     }
@@ -72,25 +50,17 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     {
         do {
             SkFixed fixedFx = SkFractionalIntToFixed(fx);
-            *xy++ = PACK_FILTER_X_NAME(fixedFx, maxX, one PREAMBLE_ARG_X);
+            *xy++ = pack(fixedFx, maxX, s.fFilterOneX);
             fx += dx;
         } while (--count != 0);
     }
 }
 
 #undef MAKENAME
-#undef TILEX_PROCF
-#undef TILEY_PROCF
+#undef TILE_PROCF
+#undef EXTRACT_LOW_BITS
 #ifdef CHECK_FOR_DECAL
     #undef CHECK_FOR_DECAL
 #endif
 
 #undef SCALE_FILTER_NAME
-
-#undef PREAMBLE
-#undef PREAMBLE_PARAM_X
-#undef PREAMBLE_PARAM_Y
-#undef PREAMBLE_ARG_X
-#undef PREAMBLE_ARG_Y
-
-#undef EXTRACT_LOW_BITS
