@@ -75,7 +75,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
                                  SkPMColor colors[]);
 
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
-    typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
@@ -83,7 +82,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
 
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
-    IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
@@ -133,7 +131,7 @@ private:
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    MatrixProc chooseMatrixProc(bool trivial_matrix);
+    MatrixProc chooseMatrixProc();
     bool chooseProcs(); // caller must have called init() first (on our base-class)
     ShaderProc32 chooseShaderProc32();
 
