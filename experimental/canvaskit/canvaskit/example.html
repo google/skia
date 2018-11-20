@@ -9,7 +9,8 @@
     border: 1px dashed #AAA;
   }
 
-  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding {
+  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding
+  #api1_c, #api2_c {
     width: 300px;
     height: 300px;
   }
@@ -38,7 +39,10 @@
 <canvas id=nima_example width=300 height=300></canvas>
 
 <h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
-<img id=api1 width=300 height=300/>
+<img id=api1 width=300 height=300>
+<canvas id=api1_c width=300 height=300></canvas>
+<img id=api2 width=300 height=300>
+<canvas id=api2_c width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -81,6 +85,7 @@
       NimaExample(CanvasKit, nimaFile, nimaTexture);
 
       CanvasAPI1(CanvasKit);
+      CanvasAPI2(CanvasKit);
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImage);
@@ -424,26 +429,77 @@
 
   function CanvasAPI1(CanvasKit) {
     if (CanvasKit.gpu) {
+      console.warn("Skipping canvas example because its GPU build");
       return;
     }
-    let canvas = CanvasKit.MakeCanvas(300, 300);
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api1_c');
 
-    let ctx = canvas.getContext('2d');
-    ctx.font = '30px Impact'
-    ctx.rotate(.1);
-    let text = ctx.measureText('Awesome');
-    ctx.fillText('Awesome ', 50, 100);
-    ctx.strokeText('Groovy!', 60+text.width, 100);
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.font = '30px Impact'
+      ctx.rotate(.1);
+      let text = ctx.measureText('Awesome');
+      ctx.fillText('Awesome ', 50, 100);
+      ctx.strokeText('Groovy!', 60+text.width, 100);
 
-    // Draw line under Awesome
-    ctx.strokeStyle = 'rgba(125,0,0,0.5)';
-    ctx.beginPath();
-    ctx.lineTo(50, 102);
-    ctx.lineTo(50 + text.width, 102);
-    ctx.stroke();
+      // Draw line under Awesome
+      ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+      ctx.beginPath();
+      ctx.lineWidth=6;
+      ctx.lineTo(50, 105);
+      ctx.lineTo(50 + text.width, 105);
+      ctx.stroke();
+    }
 
     // TODO load image
-    document.getElementById('api1').src = canvas.toDataURL();
+    document.getElementById('api1').src = skcanvas.toDataURL();
+  }
+
+  function CanvasAPI2(CanvasKit) {
+    if (CanvasKit.gpu) {
+      console.warn("Skipping canvas example because its GPU build");
+      return;
+    }
+    let skcanvas = CanvasKit.MakeCanvas(200, 200);
+    let realCanvas = document.getElementById('api2_c');
+    realCanvas.width = 200;
+    realCanvas.height = 200;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.moveTo(20, 5);
+      ctx.lineTo(30, 20);
+      ctx.lineTo(40, 10);
+      ctx.lineTo(50, 20);
+      ctx.lineTo(60, 0);
+      ctx.lineTo(20, 5);
+
+      ctx.moveTo(20, 80);
+      ctx.bezierCurveTo(90, 10, 160, 150, 190, 10);
+
+      ctx.moveTo(36, 148);
+      ctx.quadraticCurveTo(66, 188, 120, 136);
+      ctx.lineTo(36, 148);
+
+      ctx.rect(5, 170, 20, 25);
+
+      ctx.moveTo(150, 180);
+      ctx.arcTo(150, 100, 50, 200, 20);
+      ctx.lineTo(160, 160);
+
+      ctx.moveTo(20, 120);
+      ctx.arc(20, 120, 18, 0, 1.75 * Math.PI);
+      ctx.lineTo(20, 120);
+
+      ctx.moveTo(150, 5);
+      ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI);
+
+      ctx.lineWidth = 4/3;
+
+      ctx.stroke();
+    }
+    document.getElementById('api2').src = skcanvas.toDataURL();
   }
 
   function NimaExample(CanvasKit, nimaFile, nimaTexture) {
@@ -522,7 +578,6 @@
     shader.delete();
     paint.delete();
     surface.delete();
-
   }
 
   function VertexAPI2(CanvasKit, bonesImage) {
@@ -589,13 +644,7 @@
     //surface.delete();
 
   }
-  /**
-  SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
-    SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(
-                SkPoint::Make(128.0f, 128.0f), 180.0f,
-                colors, nullptr, 2, SkShader::kClamp_TileMode, 0, nullptr));
-    canvas->drawPaint(paint);*/
+
   function GradiantAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('gradient1');
     if (!surface) {
