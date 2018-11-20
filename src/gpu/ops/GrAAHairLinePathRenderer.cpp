@@ -318,7 +318,7 @@ static int gather_lines_and_quads(const SkPath& path,
                 if (convertConicsToQuads) {
                     SkScalar weight = iter.conicWeight();
                     SkAutoConicToQuads converter;
-                    const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.5f);
+                    const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.25f);
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         addSrcChoppedQuad(quadPts + 2 * i, !verbsInContour && 0 == i);
                     }

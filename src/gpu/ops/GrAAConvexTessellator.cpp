@@ -24,7 +24,7 @@ static const SkScalar kCloseSqd = kClose * kClose;
 // tesselation tolerance values, in device space pixels
 static const SkScalar kQuadTolerance = 0.2f;
 static const SkScalar kCubicTolerance = 0.2f;
-static const SkScalar kConicTolerance = 0.5f;
+static const SkScalar kConicTolerance = 0.25f;
 
 // dot product below which we use a round cap between curve segments
 static const SkScalar kRoundCapThreshold = 0.8f;
