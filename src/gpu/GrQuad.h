@@ -17,13 +17,16 @@ enum class GrAAType : unsigned;
 enum class GrQuadAAFlags;
 
 // Rectangles transformed by matrices (view or local) can be classified in three ways:
-//  1. Stays a rectangle - the matrix rectStaysRect() is true, or x(0) == x(1) && x(2) == x(3)
+//  1. Stays a rectangle and preserves the index order of top-left, bottom-left, top-right,
+//     bottom-right, e.g. the transforming matrix is translation and positive scaling only.
+//  2. Stays a rectangle - the matrix rectStaysRect() is true, or x(0) == x(1) && x(2) == x(3)
 //     and y(0) == y(2) && y(1) == y(3). Or under mirrors, x(0) == x(2) && x(1) == x(3) and
 //     y(0) == y(1) && y(2) == y(3).
-//  2. Is a quadrilateral - the matrix does not have perspective, but may rotate or skew, or
+//  3. Is a quadrilateral - the matrix does not have perspective, but may rotate or skew, or
 //     ws() == all ones.
-//  3. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
+//  4. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
 enum class GrQuadType {
+    kTrivial,
     kRect,
     kStandard,
     kPerspective,

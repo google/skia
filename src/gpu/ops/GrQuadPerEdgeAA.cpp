@@ -17,6 +17,65 @@
 
 namespace {
 
+// Fills Sk4f with 1f if edge bit is set, 0f otherwise. Edges are ordered LBTR to match CCW ordering
+// of vertices in the quad.
+static Sk4f compute_edge_mask(GrQuadAAFlags aaFlags) {
+    return Sk4f((GrQuadAAFlags::kLeft & aaFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kBottom & aaFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kTop & aaFlags) ? 1.f : 0.f,
+                (GrQuadAAFlags::kRight & aaFlags) ? 1.f : 0.f);
+}
+
+// Optimized case when the device (and local quad, if it exists) are known to be trivial rects.
+// In this case, only x,y (and possibly u,v) matter, no need to pass in w or r.
+static void compute_trivial_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
+                                                      Sk4f* a, Sk4f* b, Sk4f* c, Sk4f* u, Sk4f* v,
+                                                      bool outsetLocalCoords) {
+    static constexpr auto fma = SkNx_fma<4, float>;
+    // Since the quads are trivial: 0 = top-left, 1 = bot-left, 2 = top-right, 3 = bot-right
+    Sk4f xOutsets(-.5f, -.5f, .5f, .5f);
+    Sk4f yOutsets(-.5f, .5f, -.5f, .5f);
+
+    // Edge equation coordinates, ordered LBTR to match edgeMasks
+    *a = Sk4f(1.f, 0.f, 0.f, -1.f);
+    *b = Sk4f(0.f, -1.f, 1.f, 0.f);
+    // Add an extra 0.5f to the edge distance so that the outset evaluates to 0
+    *c = Sk4f(-(*x)[0], (*y)[1], -(*y)[0], (*x)[2]) + 0.5f;
+
+    if (aaFlags == GrQuadAAFlags::kAll) {
+        if (outsetLocalCoords) {
+            // UVs need to be updated by 0.5*du/dx or 0.5*dv/dy, where du and dx are the local
+            // and device widths, and dv and dy are the local and device heights
+            float du = ((*u)[2] - (*u)[0]) / ((*x)[2] - (*x)[0]);
+            float dv = ((*v)[1] - (*v)[0]) / ((*y)[1] - (*y)[0]);
+            *u += du * xOutsets;
+            *v += dv * yOutsets;
+        }
+
+        // Outset after calculating edge equations and new uvs, since they depend on the original xy
+        *x += xOutsets;
+        *y += yOutsets;
+    } else {
+        // 0 or 1 float for edges, ordered LBTR to match CCW ordering of vertices.
+        Sk4f edgeMask = compute_edge_mask(aaFlags);
+        // 0 or 1 float for vertex x and y coordinates based on the edges they connect to
+        Sk4f xMask = SkNx_shuffle<0, 0, 3, 3>(edgeMask);
+        Sk4f yMask = SkNx_shuffle<2, 1, 2, 1>(edgeMask);
+
+        // Outset masked out edges another pixel so that they always evaluate >= 1.
+        *c += (1.f - edgeMask);
+
+        if (outsetLocalCoords) {
+            float du = ((*u)[2] - (*u)[0]) / ((*x)[2] - (*x)[0]);
+            float dv = ((*v)[1] - (*v)[0]) / ((*y)[1] - (*y)[0]);
+            *u = fma(xMask, xOutsets * du, *u);
+            *v = fma(yMask, yOutsets * dv, *v);
+        }
+        *x = fma(xMask, xOutsets, *x);
+        *y = fma(yMask, yOutsets, *y);
+    }
+}
+
 // This computes the four edge equations for a quad, then outsets them and optionally computes a new
 // quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
 // input and the outset points as output. 'a', 'b', and 'c' are the edge equation coefficients on
@@ -62,10 +121,8 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
     if (aaFlags != GrQuadAAFlags::kAll) {
         // This order is the same order the edges appear in xdiff/ydiff and therefore as the
         // edges in a/b/c.
-        auto mask = Sk4f(GrQuadAAFlags::kLeft & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kBottom & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kTop & aaFlags ? 1.f : 0.f,
-                         GrQuadAAFlags::kRight & aaFlags ? 1.f : 0.f);
+        Sk4f mask = compute_edge_mask(aaFlags);
+
         // Outset edge equations for masked out edges another pixel so that they always evaluate
         // >= 1.
         *c += (1.f - mask);
@@ -289,9 +346,15 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
             // ensures that only loaded Sk4fs are modified in the compute functions.
             compute_quad_edges_and_outset_persp_vertices(aaFlags, &x, &y, &w, &a, &b, &c,
                                                          &u, &v, &r, spec.localDimensionality());
+        } else if (spec.deviceQuadType() == GrQuadType::kTrivial &&
+                   (!spec.hasLocalCoords() || spec.localQuadType() == GrQuadType::kTrivial)) {
+            // When the quads are trivial, the outset equations simplify since they are axis-aligned
+            // and we know at compile time which indices store the specific corners of the quad.
+            compute_trivial_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v,
+                                                      spec.hasLocalCoords());
         } else {
             compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v, &r,
-                                                   spec.localDimensionality(), /* outset */ true);
+                                                   spec.localDimensionality(), /*outset*/ true);
         }
     }
 
