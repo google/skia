@@ -259,4 +259,4 @@ StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
-function loadWebAssemblyModule() {}
+function loadWebAssemblyModule() {};
