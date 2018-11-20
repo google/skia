@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93e4d226_b7e3306d",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8919
+      },
+      "writtenOn": "2018-11-20T23:01:11Z",
+      "side": 1,
+      "message": "This should be \"mac10.13_retina-blink-rel\". Note the \"_\" between 13 and retina.",
+      "range": {
+        "startLine": 31,
+        "startChar": 9,
+        "endLine": 31,
+        "endChar": 35
+      },
+      "revId": "dd1e93a73daae646fada8862fce010f7eed55f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
