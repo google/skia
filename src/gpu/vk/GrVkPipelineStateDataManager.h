@@ -8,6 +8,8 @@
 #ifndef GrVkPipelineStateDataManager_DEFINED
 #define GrVkPipelineStateDataManager_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #include "SkAutoMalloc.h"

@@ -9,6 +9,8 @@
 #ifndef GrVkRenderTarget_DEFINED
 #define GrVkRenderTarget_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrVkImage.h"
 #include "GrRenderTarget.h"
 

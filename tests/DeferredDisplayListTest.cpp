@@ -41,7 +41,7 @@
 #include "gl/GrGLTypes.h"
 
 #ifdef SK_VULKAN
-#include "vk/GrVkDefines.h"
+#include <vulkan/vulkan_core.h>
 #endif
 
 #include <initializer_list>

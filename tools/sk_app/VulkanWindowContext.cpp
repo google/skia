@@ -6,11 +6,12 @@
  * found in the LICENSE file.
  */
 
+#include "VulkanWindowContext.h"
+
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "SkAutoMalloc.h"
 #include "SkSurface.h"
-#include "VulkanWindowContext.h"
 
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkImage.h"

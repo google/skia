@@ -11,6 +11,8 @@
 
 #if defined(SK_VULKAN)
 
+#include "vk/GrVkVulkan.h"
+
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
