@@ -89,6 +89,16 @@ void SkOverdrawCanvas::onDrawPosTextH(const void* text, size_t byteLength, const
     this->drawPosTextCommon(text, byteLength, (SkScalar*) xs, 1, SkPoint::Make(0, y), paint);
 }
 
+void SkOverdrawCanvas::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
+void SkOverdrawCanvas::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
 typedef int (*CountTextProc)(const char* text, const char* stop);
 static int count_utf16(const char* text, const char* stop) {
     const uint16_t* prev = (const uint16_t*)text;

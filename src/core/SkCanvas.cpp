@@ -2465,6 +2465,32 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     LOOPER_END
 }
 
+void SkCanvas::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                            const SkFont& font, const SkPaint& paint) {
+    LOOPER_BEGIN(paint, nullptr)
+
+    while (iter.next()) {
+        fScratchGlyphRunBuilder->drawGlyphs(font, glyphs, count, pos, looper.paint());
+        auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
+        iter.fDevice->drawGlyphRunList(glyphRunList);
+    }
+
+    LOOPER_END
+}
+
+void SkCanvas::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                             SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    LOOPER_BEGIN(paint, nullptr)
+
+    while (iter.next()) {
+        fScratchGlyphRunBuilder->drawGlyphsH(font, glyphs, count, xpos, constY, looper.paint());
+        auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
+        iter.fDevice->drawGlyphRunList(glyphRunList);
+    }
+
+    LOOPER_END
+}
+
 void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                               SkScalar constY, const SkPaint& paint) {
 
@@ -2563,12 +2589,64 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
         this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
     }
 }
+
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
     RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
     this->onDrawTextBlob(blob, x, y, paint);
+}
+
+void SkCanvas::drawSimpleText(const void* text, size_t length, SkTextEncoding encoding,
+                              SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
+    if (length == 0) {
+        return;
+    }
+    constexpr size_t MAX_STACK_COUNT = 16;
+
+    SkAutoSTArray<MAX_STACK_COUNT, uint16_t> glyphStorage;
+    int count;
+    const uint16_t* glyphs;
+
+    if (encoding != kGlyphID_SkTextEncoding) {
+        count = font.countText(text, length, encoding);
+        glyphStorage.reset(count);
+        font.textToGlyphs(text, length, encoding, glyphStorage.get(), count);
+        glyphs = glyphStorage.get();
+    } else {
+        count = length >> 1;
+        glyphs = reinterpret_cast<const uint16_t*>(text);
+    }
+
+    SkAutoSTArray<MAX_STACK_COUNT, SkScalar> xposStorage(count);
+    SkScalar* xpos = xposStorage.get();
+    font.getWidths(glyphs, count, xpos);
+    for (int i = 0; i < count; ++i) {
+        SkScalar width = xpos[i];
+        xpos[i] += x;
+        x += width;
+    }
+
+    this->drawGlyphsH(glyphs, count, xpos, y, font, paint);
+}
+
+void SkCanvas::drawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                          const SkFont& font, const SkPaint& paint) {
+    SkASSERT(count >= 0);
+    if (count <= 0) {
+        return;
+    }
+    this->onDrawGlyphs(glyphs, count, pos, font, paint);
+}
+
+void SkCanvas::drawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                           SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    SkASSERT(count >= 0);
+    if (count <= 0) {
+        return;
+    }
+    this->onDrawGlyphsH(glyphs, count, xpos, constY, font, paint);
 }
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],

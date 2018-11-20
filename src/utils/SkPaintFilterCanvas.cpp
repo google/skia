@@ -245,6 +245,16 @@ void SkPaintFilterCanvas::onDrawPosTextH(const void* text, size_t byteLength, co
     }
 }
 
+void SkPaintFilterCanvas::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
+void SkPaintFilterCanvas::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
 void SkPaintFilterCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
                                             const SkRSXform xform[], const SkRect* cull,
                                             const SkPaint& paint) {

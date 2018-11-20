@@ -104,6 +104,10 @@ protected:
                        const SkPaint&) override;
     void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                         SkScalar constY, const SkPaint&) override;
+    void onDrawGlyphs(const uint16_t[], int, const SkPoint[],
+                      const SkFont&, const SkPaint&) override;
+    void onDrawGlyphsH(const uint16_t[], int, const SkScalar[], SkScalar,
+                       const SkFont&, const SkPaint&) override;
     void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                            const SkRect* cull, const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

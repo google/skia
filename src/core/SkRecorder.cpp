@@ -289,6 +289,27 @@ void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
            this->copy(xpos, points));
 }
 
+void SkRecorder::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    this->append<SkRecords::DrawGlyphs>(
+            paint,
+            font,
+            this->copy(glyphs, count),
+            count,
+            this->copy(pos, count));
+}
+
+void SkRecorder::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    this->append<SkRecords::DrawGlyphsH>(
+            paint,
+            font,
+            this->copy(glyphs, count),
+            count,
+            constY,
+            this->copy(xpos, count));
+}
+
 void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                    const SkRect* cull, const SkPaint& paint) {
     this->append<SkRecords::DrawTextRSXform>(

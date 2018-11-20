@@ -76,6 +76,8 @@ namespace SkRecords {
     M(DrawPosTextH)                                                 \
     M(DrawText)                                                     \
     M(DrawTextRSXform)                                              \
+    M(DrawGlyphs)                                                   \
+    M(DrawGlyphsH)                                                  \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
     M(DrawRegion)                                                   \
@@ -298,6 +300,19 @@ RECORD(DrawPosTextH, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;
         unsigned byteLength;
+        SkScalar y;
+        PODArray<SkScalar> xpos);
+RECORD(DrawGlyphs, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
+        SkPaint paint;
+        SkFont font;
+        PODArray<uint16_t> glyphs;
+        int count;
+        PODArray<SkPoint> pos);
+RECORD(DrawGlyphsH, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
+        SkPaint paint;
+        SkFont font;
+        PODArray<uint16_t> glyphs;
+        int count;
         SkScalar y;
         PODArray<SkScalar> xpos);
 RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,

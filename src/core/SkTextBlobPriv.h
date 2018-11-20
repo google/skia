@@ -62,6 +62,7 @@ public:
 class SkRunFont : SkNoncopyable {
 public:
     SkRunFont(const SkPaint& paint);
+    SkRunFont(const SkFont& font);
 
     void applyToPaint(SkPaint* paint) const;
 

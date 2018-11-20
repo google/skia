@@ -408,6 +408,16 @@ void SkDebugCanvas::onDrawPosTextH(const void* text, size_t byteLength, const Sk
         new SkDrawPosTextHCommand(text, byteLength, xpos, constY, paint));
 }
 
+void SkDebugCanvas::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
+void SkDebugCanvas::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+
 void SkDebugCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // NOTE(chudy): Messing up when renamed to DrawRect... Why?
     addDrawCommand(new SkDrawRectCommand(rect, paint));

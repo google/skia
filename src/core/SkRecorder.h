@@ -81,6 +81,10 @@ public:
                         const SkScalar xpos[],
                         SkScalar constY,
                         const SkPaint& paint) override;
+    void onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                      const SkFont&, const SkPaint&) override;
+    void onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                       SkScalar constY, const SkFont&, const SkPaint&) override;
     void onDrawTextRSXform(const void* text,
                            size_t byteLength,
                            const SkRSXform[],

@@ -106,6 +106,14 @@ void SkLiteRecorder::onDrawPosTextH(const void* text, size_t bytes,
                                     const SkPaint& paint) {
     fDL->drawPosTextH(text, bytes, xs, y, paint);
 }
+void SkLiteRecorder::onDrawGlyphs(const uint16_t glyphs[], int count, const SkPoint pos[],
+                               const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
+void SkLiteRecorder::onDrawGlyphsH(const uint16_t glyphs[], int count, const SkScalar xpos[],
+                                SkScalar constY, const SkFont& font, const SkPaint& paint) {
+    // TODO drawGlyphs
+}
 void SkLiteRecorder::onDrawTextRSXform(const void* text, size_t bytes,
                                        const SkRSXform xform[], const SkRect* cull,
                                        const SkPaint& paint) {
