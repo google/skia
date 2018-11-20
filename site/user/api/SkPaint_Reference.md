@@ -872,7 +872,7 @@ paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
 void <a href='#SkPaint_setAntiAlias'>setAntiAlias</a>(bool aa)
 </pre>
 
-Requests, but does not require, that <a href='SkPath_Reference#SkPath'>SkPath</a> edge pixels draw opaque or with
+Requests, but does not require, that edge pixels draw opaque or with
 partial transparency.
 
 Sets <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a> if <a href='#SkPaint_setAntiAlias_aa'>aa</a> is true.
@@ -1066,7 +1066,8 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#S
 void <a href='#SkPaint_setLinearText'>setLinearText</a>(bool linearText)
 </pre>
 
-Returns true if <a href='undocumented#Text'>text</a> is converted to <a href='SkPath_Reference#SkPath'>SkPath</a> before drawing and measuring.
+Requests, but does not require, that <a href='undocumented#Glyph'>glyphs</a> are converted to <a href='SkPath_Reference#SkPath'>SkPath</a>
+before drawing and measuring.
 By default, <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear.
 
 Sets <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> if <a href='#SkPaint_setLinearText_linearText'>linearText</a> is true.
