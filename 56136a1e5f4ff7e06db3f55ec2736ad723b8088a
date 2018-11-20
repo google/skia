@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a540fbdb_fe776b81",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-20T22:06:52Z",
+      "side": 1,
+      "message": "After SkiaRenderer is updated, these all go away.",
+      "range": {
+        "startLine": 1828,
+        "startChar": 0,
+        "endLine": 1835,
+        "endChar": 34
+      },
+      "revId": "56136a1e5f4ff7e06db3f55ec2736ad723b8088a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d94d01ce_2af0446f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-20T22:06:52Z",
+      "side": 1,
+      "message": "After SkiaRenderer is updated, this goes away and onDrawImageSet and all the device, render target context, etc functions are updated to no longer take alpha.",
+      "range": {
+        "startLine": 1814,
+        "startChar": 0,
+        "endLine": 1821,
+        "endChar": 1
+      },
+      "revId": "56136a1e5f4ff7e06db3f55ec2736ad723b8088a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
