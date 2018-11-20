@@ -12,7 +12,7 @@
         // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
         var surface = this._getWebGLSurface(htmlID, canvas.width, canvas.height);
         if (!surface) {
-          console.log('falling back from GPU implementation to a SW based one');
+          SkDebug('falling back from GPU implementation to a SW based one');
           return CanvasKit.MakeSWCanvasSurface(htmlID);
         }
         return surface;

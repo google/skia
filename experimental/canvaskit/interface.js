@@ -80,7 +80,7 @@
                             a[7] || 0, a[8] || 0, a[9] || 1,
                             extend);
       } else {
-        console.error('addPath expected to take 1, 2, 7, or 10 required args. Got ' + args.length);
+        SkDebug('addPath expected to take 1, 2, 7, or 10 required args. Got ' + args.length);
         return null;
       }
       return this;
@@ -100,7 +100,7 @@
         var a = arguments;
         this._addRect(a[0], a[1], a[2], a[3], a[4] || false);
       } else {
-        console.error('addRect expected to take 1, 2, 4, or 5 args. Got ' + arguments.length);
+        SkDebug('addRect expected to take 1, 2, 4, or 5 args. Got ' + arguments.length);
         return null;
       }
       return this;
