@@ -561,6 +561,11 @@ void BmhParser::reportDuplicates(const Definition& def, string dup) const {
 
 
 static Definition* find_fiddle(Definition* def, string name) {
+    if ("SkFont_Edging" == name && string::npos != def->fName.find("SkFont")) {
+        SkDebugf("saw %s %s %d\n", def->fName.c_str(),
+                BmhParser::kMarkProps[(int) def->fMarkType].fName,
+                (int) def->fMarkType);
+    }
     if (MarkType::kExample == def->fMarkType && name == def->fFiddle) {
         return def;
     }
@@ -575,6 +580,9 @@ static Definition* find_fiddle(Definition* def, string name) {
 
 Definition* BmhParser::findExample(string name) const {
     for (const auto& topic : fTopicMap) {
+        if ("SkFont_Edging" == name && "Font" == topic.first) {
+            SkDebugf("saw Font topic\n");
+        }
         if (topic.second->fParent) {
             continue;
         }
@@ -777,6 +785,11 @@ string BmhParser::className(MarkType markType) {
             }
             this->skipLine();
             return fParent->fName;
+        } else if (' ' ==  mc[1] && MarkType::kConst == markType && fParent
+                && (MarkType::kEnum == fParent->fMarkType
+                || MarkType::kEnumClass == fParent->fMarkType)) {
+            this->skipToEndBracket('\n');
+            return builder + "::" + string(wordStart, wordEnd - wordStart);
         }
         fChar = mc;
         this->next();

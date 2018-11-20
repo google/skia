@@ -5144,7 +5144,7 @@ All elements of <a href='#SkCanvas_drawPosText_paint'>paint</a>: <a href='undocu
 filled 12 <a href='SkPoint_Reference#Point'>point</a> black <a href='undocumented#Glyph'>glyphs</a>.
 
 Layout engines such as Harfbuzz typically position each <a href='undocumented#Glyph'>glyph</a>
-rather than using the  <a href='undocumented#Font_Advance'>font advance</a> widths.
+rather than using the  <a href='SkFont_Reference#Font_Advance'>font advance</a> widths.
 
 ### Parameters
 
@@ -5194,7 +5194,7 @@ All elements of <a href='#SkCanvas_drawPosTextH_paint'>paint</a>: <a href='undoc
 filled 12 <a href='SkPoint_Reference#Point'>point</a> black <a href='undocumented#Glyph'>glyphs</a>.
 
 Layout engines such as Harfbuzz typically position each <a href='undocumented#Glyph'>glyph</a>
-rather than using the  <a href='undocumented#Font_Advance'>font advance</a> widths if all <a href='undocumented#Glyph'>glyphs</a> share the same
+rather than using the  <a href='SkFont_Reference#Font_Advance'>font advance</a> widths if all <a href='undocumented#Glyph'>glyphs</a> share the same
 baseline.
 
 ### Parameters
