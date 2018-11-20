@@ -878,6 +878,8 @@ component("skia") {
   # We clear the filter here for clients who may have set up a global filter.
   set_sources_assignment_filter([])
 
+  public = skia_core_public_sources
+
   sources = []
   sources += skia_core_sources
   sources += skia_utils_sources
