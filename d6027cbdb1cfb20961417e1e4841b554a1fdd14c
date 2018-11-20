@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0af06bbc_49e1b297",
+        "filename": "site/user/build.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-20T16:12:16Z",
+      "side": 1,
+      "message": "^ to",
+      "range": {
+        "startLine": 273,
+        "startChar": 54,
+        "endLine": 273,
+        "endChar": 55
+      },
+      "revId": "d6027cbdb1cfb20961417e1e4841b554a1fdd14c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
