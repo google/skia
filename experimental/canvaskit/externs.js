@@ -52,6 +52,10 @@ var CanvasKit = {
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
+	// The testing object is meant to expose internal functions
+	// for more fine-grained testing, e.g. parseColor
+	_testing: {},
+
 	// Objects and properties on CanvasKit
 
 	NimaActor: {
@@ -90,11 +94,17 @@ var CanvasKit = {
 		_encodeToDataWithFormat: function() {},
 	},
 
+	SkMatrix: {
+		rotated: function() {},
+	},
+
 	SkPath: {
 		// public API (from C++ bindings)
 
 		// private API
+		_addArc: function() {},
 		_addPath: function() {},
+		_addRect: function() {},
 		_arc: function() {},
 		_arcTo: function() {},
 		_close: function() {},
@@ -165,16 +175,16 @@ var CanvasKit = {
 	gpu: {},
 	skottie: {},
 	PaintStyle: {
-		FILL: {},
-		STROKE: {},
-		STROKE_AND_FILL: {},
+		Fill: {},
+		Stroke: {},
+		StrokeAndFill: {},
 	},
 
 	FillType: {
-		WINDING: {},
-		EVENODD: {},
-		INVERSE_WINDING: {},
-		INVERSE_EVENODD: {},
+		Winding: {},
+		EvenOdd: {},
+		InverseWinding: {},
+		InverseEvenOdd: {},
 	},
 
 	ImageFormat: {
@@ -213,7 +223,9 @@ var CanvasKit = {
 // Public API things that are newly declared in the JS should go here.
 // It's not enough to declare them above, because closure can still erase them
 // unless they go on the prototype.
+CanvasKit.SkPath.prototype.addArc = function() {};
 CanvasKit.SkPath.prototype.addPath = function() {};
+CanvasKit.SkPath.prototype.addRect = function() {};
 CanvasKit.SkPath.prototype.arc = function() {};
 CanvasKit.SkPath.prototype.arcTo = function() {};
 CanvasKit.SkPath.prototype.close = function() {};

@@ -18,6 +18,7 @@ CanvasKitInit({
   // Draw line under Awesome
   ctx.strokeStyle = 'rgba(125,0,0,0.5)';
   ctx.beginPath();
+  ctx.lineWidth=6;
   ctx.lineTo(50, 102);
   ctx.lineTo(50 + text.width, 102);
   ctx.stroke();
@@ -36,7 +37,7 @@ function fancyAPI() {
   const paint = new CanvasKit.SkPaint();
 
   const textPaint = new CanvasKit.SkPaint();
-  textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
+  textPaint.setColor(CanvasKit.Color(40, 0, 0));
   textPaint.setTextSize(30);
   textPaint.setAntiAlias(true);
 

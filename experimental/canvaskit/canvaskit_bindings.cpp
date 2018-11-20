@@ -151,23 +151,27 @@ SkMatrix toSkMatrix(const SimpleMatrix& sm) {
 // These Apply methods, combined with the smarter binding code allow for chainable
 // commands that don't leak if the return value is ignored (i.e. when used intuitively).
 
+void ApplyAddArc(SkPath& orig, const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
+    orig.addArc(oval, startAngle, sweepAngle);
+}
+
 void ApplyAddPath(SkPath& orig, const SkPath& newPath,
                    SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                    SkScalar skewY,  SkScalar scaleY, SkScalar transY,
-                   SkScalar pers0, SkScalar pers1, SkScalar pers2) {
+                   SkScalar pers0, SkScalar pers1, SkScalar pers2,
+                   bool extendPath) {
     SkMatrix m = SkMatrix::MakeAll(scaleX, skewX , transX,
                                    skewY , scaleY, transY,
                                    pers0 , pers1 , pers2);
-    orig.addPath(newPath, m);
+    orig.addPath(newPath, m, extendPath ? SkPath::kExtend_AddPathMode :
+                                          SkPath::kAppend_AddPathMode);
 }
 
-void ApplyAddArc(SkPath& path, SkScalar x, SkScalar y, SkScalar radius,
-              SkScalar startAngle, SkScalar endAngle, bool ccw) {
-    SkPath temp;
-    SkRect bounds = SkRect::MakeLTRB(x-radius, y-radius, x+radius, y+radius);
-    const auto sweep = SkRadiansToDegrees(endAngle - startAngle) - 360 * ccw;
-    temp.addArc(bounds, SkRadiansToDegrees(startAngle), sweep);
-    path.addPath(temp, SkPath::kExtend_AddPathMode);
+void ApplyAddRect(SkPath& path, SkScalar left, SkScalar top,
+                  SkScalar right, SkScalar bottom, bool ccw) {
+    path.addRect(left, top, right, bottom,
+                 ccw ? SkPath::Direction::kCW_Direction :
+                 SkPath::Direction::kCCW_Direction);
 }
 
 void ApplyArcTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -495,9 +499,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkPath>("SkPath")
         .constructor<>()
         .constructor<const SkPath&>()
+        .function("_addArc", &ApplyAddArc)
         // interface.js has 3 overloads of addPath
         .function("_addPath", &ApplyAddPath)
-        .function("_arc", &ApplyAddArc)
+        // interface.js has 4 overloads of addRect
+        .function("_addRect", &ApplyAddRect)
         .function("_arcTo", &ApplyArcTo)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
@@ -505,7 +511,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_lineTo", &ApplyLineTo)
         .function("_moveTo", &ApplyMoveTo)
         .function("_quadTo", &ApplyQuadTo)
-        .function("_transform", select_overload<void(SkPath& orig, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&ApplyTransform))
+        .function("_transform", select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&ApplyTransform))
 
         // PathEffects
         .function("_dash", &ApplyDash)

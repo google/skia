@@ -7,41 +7,114 @@
   // after onRuntimeInitialized, otherwise, it can happen outside of that scope.
   CanvasKit.onRuntimeInitialized = function() {
     // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
+
+
+    // Add some helpers for matrices. This is ported from SkMatrix.cpp
+    // to save complexity and overhead of going back and forth between
+    // C++ and JS layers.
+    CanvasKit.SkMatrix = {};
+    function sdot(a, b, c, d, e, f) {
+      e = e || 0;
+      f = f || 0;
+      return a * b + c * d + e * f;
+    }
+
+    // Return a matrix representing a rotation by n degrees.
+    // px, py optionally say which point the rotation should be around
+    // with the default being (0, 0);
+    CanvasKit.SkMatrix.rotated = function(degrees, px, py) {
+      px = px || 0;
+      py = py || 0;
+      var rad = degreesToRadians(degrees);
+      var sinV = Math.sin(rad);
+      var cosV = Math.cos(rad);
+      return [
+        cosV, -sinV, sdot( sinV, py, 1 - cosV, px),
+        sinV,  cosV, sdot(-sinV, px, 1 - cosV, py),
+        0,        0,                             1,
+      ];
+    };
+    // TODO(kjlubick): translated, scaled
+
+
+    CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
+      // see arc() for the HTMLCanvas version
+      // note input angles are degrees.
+      this._addArc(oval, startAngle, sweepAngle);
+      return this;
+    };
+
     CanvasKit.SkPath.prototype.addPath = function() {
-      // Takes 1, 2, or 10 args, where the first arg is always the path.
+      // Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
+      // The last arg is optional and chooses between add or extend mode.
       // The options for the remaining args are:
-      //   - an array of 9 parameters
-      //   - the 9 parameters of a full matrix
-      //     an array of 6 parameters (omitting perspective)
+      //   - an array of 6 or 9 parameters (perspective is optional)
+      //   - the 9 parameters of a full matrix or
       //     the 6 non-perspective params of a matrix.
-      if (arguments.length === 1) {
-        // Add path, unchanged.  Use identify matrix
-        this._addPath(arguments[0], 1, 0, 0,
-                                    0, 1, 0,
-                                    0, 0, 1);
-      } else if (arguments.length === 2) {
+      var args = Array.prototype.slice.call(arguments);
+      var path = args[0];
+      var extend = false;
+      if (typeof args[args.length-1] === "boolean") {
+        extend = args.pop();
+      }
+      if (args.length === 1) {
+        // Add path, unchanged.  Use identity matrix
+        this._addPath(path, 1, 0, 0,
+                            0, 1, 0,
+                            0, 0, 1,
+                            extend);
+      } else if (args.length === 2) {
         // User provided the 9 params of a full matrix as an array.
-        var sm = arguments[1];
-        this._addPath(arguments[0], a[1], a[2], a[3],
-                                    a[4], a[5], a[6],
-                                    a[7] || 0, a[8] || 0, a[9] || 1);
-      } else if (arguments.length === 7 || arguments.length === 10) {
+        var a = args[1];
+        this._addPath(path, a[0],      a[1],      a[2],
+                            a[3],      a[4],      a[5],
+                            a[6] || 0, a[7] || 0, a[8] || 1,
+                            extend);
+      } else if (args.length === 7 || args.length === 10) {
         // User provided the 9 params of a (full) matrix directly.
         // (or just the 6 non perspective ones)
         // These are in the same order as what Skia expects.
-        var a = arguments;
-        this._addPath(arguments[0], a[1], a[2], a[3],
-                                    a[4], a[5], a[6],
-                                    a[7] || 0, a[8] || 0, a[9] || 1);
+        var a = args;
+        this._addPath(path, a[1],      a[2],      a[3],
+                            a[4],      a[5],      a[6],
+                            a[7] || 0, a[8] || 0, a[9] || 1,
+                            extend);
       } else {
-        console.err('addPath expected to take 1, 2, 7, or 10 args. Got ' + arguments.length);
+        console.error('addPath expected to take 1, 2, 7, or 10 required args. Got ' + args.length);
+        return null;
+      }
+      return this;
+    };
+
+    CanvasKit.SkPath.prototype.addRect = function() {
+      // Takes 1, 2, 4 or 5 args
+      //  - SkRect
+      //  - SkRect, isCCW
+      //  - left, top, right, bottom
+      //  - left, top, right, bottom, isCCW
+      if (arguments.length === 1 || arguments.length === 2) {
+        var r = arguments[0];
+        var ccw = arguments[1] || false;
+        this._addRect(r.fLeft, r.fTop, r.fRight, r.fBottom, ccw);
+      } else if (arguments.length === 4 || arguments.length === 5) {
+        var a = arguments;
+        this._addRect(a[0], a[1], a[2], a[3], a[4] || false);
+      } else {
+        console.error('addRect expected to take 1, 2, 4, or 5 args. Got ' + arguments.length);
         return null;
       }
       return this;
     };
 
     CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
-      this._arc(x, y, radius, startAngle, endAngle, !!ccw);
+      // emulates the HTMLCanvas behavior.  See addArc() for the SkPath version.
+      // Note input angles are radians.
+      var bounds = CanvasKit.LTRBRect(x-radius, y-radius, x+radius, y+radius);
+      var sweep = radiansToDegrees(endAngle - startAngle) - (360 * !!ccw);
+      var temp = new CanvasKit.SkPath();
+      temp.addArc(bounds, radiansToDegrees(startAngle), sweep);
+      this.addPath(temp, true);
+      temp.delete();
       return this;
     };
 
@@ -179,7 +252,6 @@
     }
   } // end CanvasKit.onRuntimeInitialized, that is, anything changing prototypes or dynamic.
 
-  // Likely only used for tests.
   CanvasKit.LTRBRect = function(l, t, r, b) {
     return {
       fLeft: l,
@@ -356,3 +428,14 @@
   }
 
 }(Module)); // When this file is loaded in, the high level object is "Module";
+
+// Intentionally added outside the scope to allow usage in canvas2d.js and other
+// pre-js files. These names are unlikely to cause emscripten collisions.
+function radiansToDegrees(rad) {
+  return (rad / Math.PI) * 180;
+}
+
+function degreesToRadians(deg) {
+  return (deg / 180) * Math.PI;
+}
+

@@ -12,11 +12,12 @@
       //   - an SVGMatrix
       //   - the 6 parameters of an SVG Matrix
       //   - the 9 parameters of a full Matrix
+      var path = arguments[0];
       if (arguments.length === 1) {
-        // Add path, unchanged.  Use identify matrix
-        this._addPath(arguments[0], 1, 0, 0,
-                                    0, 1, 0,
-                                    0, 0, 1);
+        // Add path, unchanged.  Use identity matrix
+        this._addPath(path, 1, 0, 0,
+                            0, 1, 0,
+                            0, 0, 1);
       } else if (arguments.length === 2) {
         // Takes SVGMatrix, which has its args in a counter-intuitive order
         // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform#Transform_functions
@@ -24,22 +25,22 @@
          * @type {SVGMatrix}
          */
         var sm = arguments[1];
-        this._addPath(arguments[0], sm.a, sm.c, sm.e,
-                                    sm.b, sm.d, sm.f,
-                                    0,    0,    1);
+        this._addPath(path, sm.a, sm.c, sm.e,
+                            sm.b, sm.d, sm.f,
+                               0,    0,    1);
       } else if (arguments.length === 7) {
         // User provided the 6 params for an SVGMatrix directly.
         var a = arguments;
-        this._addPath(arguments[0], a[1], a[3], a[5],
-                                    a[2], a[4], a[6],
-                                    0,     0,     1);
+        this._addPath(path, a[1], a[3], a[5],
+                            a[2], a[4], a[6],
+                              0 ,   0 ,   1 );
       } else if (arguments.length === 10) {
         // User provided the 9 params of a (full) matrix directly.
         // These are in the same order as what Skia expects.
         var a = arguments;
-        this._addPath(arguments[0], a[1], a[2], a[3],
-                                    a[4], a[5], a[6],
-                                    a[7], a[8], a[9]);
+        this._addPath(path, a[1], a[2], a[3],
+                            a[4], a[5], a[6],
+                            a[7], a[8], a[9]);
       } else {
         console.err('addPath expected to take 1, 2, 7, or 10 args. Got ' + arguments.length);
         return null;

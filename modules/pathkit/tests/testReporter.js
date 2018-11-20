@@ -3,9 +3,9 @@ const REPORT_URL = 'http://localhost:8081/report_gold_data'
 // Typically used for debugging.
 const fail_on_no_gold = false;
 
-function reportCanvas(canvas, testname) {
+function reportCanvas(canvas, testname, outputType='canvas') {
     let b64 = canvas.toDataURL('image/png');
-    return _report(b64, 'canvas', testname);
+    return _report(b64, outputType, testname);
 }
 
 function reportSVG(svg, testname) {
@@ -71,6 +71,8 @@ function reportPath(path, testname, done) {
             }).catch(reportError(done));
 }
 
+// data is a base64 encoded png, outputType is the value that goes with the
+// key 'config' when reporting.
 function _report(data, outputType, testname) {
     return fetch(REPORT_URL, {
         method: 'POST',
@@ -116,6 +118,8 @@ function catchException(done, fn) {
             fn()
         } catch (e) {
             console.log('Failed with the following error', e);
+            expect(e).toBeFalsy();
+            debugger;
             done();
         }
         // We don't call done with finally because
