@@ -7,6 +7,10 @@
 
 #include "SkTypes.h"
 
+#ifdef SK_VULKAN
+#include "SkiaPrivateVulkan.h"
+#endif
+
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "Test.h"

@@ -5,6 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
+#ifdef SK_VULKAN
+#include "SkiaPrivateVulkan.h"
+#endif
+
 #include "GrBackendSurface.h"
 
 #include "gl/GrGLUtil.h"

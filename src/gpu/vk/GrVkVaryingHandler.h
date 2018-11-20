@@ -8,6 +8,8 @@
 #ifndef GrVkVaryingHandler_DEFINED
 #define GrVkVaryingHandler_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "glsl/GrGLSLVarying.h"
 
 class GrVkVaryingHandler : public GrGLSLVaryingHandler {

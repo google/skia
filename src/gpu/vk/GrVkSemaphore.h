@@ -8,6 +8,8 @@
 #ifndef GrVkSemaphore_DEFINED
 #define GrVkSemaphore_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrSemaphore.h"
 
 #include "GrResourceProvider.h"

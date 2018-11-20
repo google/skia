@@ -11,6 +11,8 @@
 
 #if defined(SK_VULKAN)
 
+#include "SkiaPrivateVulkan.h"
+
 #include "Test.h"
 
 #include "GrBackendSurface.h"

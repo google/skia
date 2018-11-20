@@ -8,6 +8,8 @@
 #ifndef GrVkImageLayout_DEFINED
 #define GrVkImageLayout_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "SkRefCnt.h"
 #include "vk/GrVkTypes.h"
 
