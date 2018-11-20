@@ -725,7 +725,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
 static const SkScalar kQuadTolerance = 0.2f;
 static const SkScalar kCubicTolerance = 0.2f;
 #endif
-static const SkScalar kConicTolerance = 0.5f;
+static const SkScalar kConicTolerance = 0.25f;
 
 // clamps the point to the nearest 16th of a pixel
 static void sanitize_point(const SkPoint& in, SkPoint* out) {

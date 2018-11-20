@@ -233,3 +233,23 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
     SkRect kRect = { 60, 0, 100, 40};
     canvas->drawArc(kRect, 45, 90, true, p0);
 }
+
+DEF_SIMPLE_GM(crbug_888453, canvas, 480, 150) {
+    // Two GPU path renderers were using a too-large tolerance when chopping connics to quads.
+    // This manifested as not-very-round circular arcs at certain radii. All the arcs being drawn
+    // here should look like circles.
+    SkPaint fill;
+    fill.setAntiAlias(true);
+    SkPaint hairline = fill;
+    hairline.setStyle(SkPaint::kStroke_Style);
+    SkPaint stroke = hairline;
+    stroke.setStrokeWidth(2.0f);
+    int x = 4;
+    int y0 = 25, y1 = 75, y2 = 125;
+    for (int r = 2; r <= 20; ++r) {
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y0 - r, 2 * r, 2 * r), 0, 360, false, fill);
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y1 - r, 2 * r, 2 * r), 0, 360, false, hairline);
+        canvas->drawArc(SkRect::MakeXYWH(x - r, y2 - r, 2 * r, 2 * r), 0, 360, false, stroke);
+        x += 2 * r + 4;
+    }
+}
