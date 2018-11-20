@@ -8,11 +8,10 @@
 #ifndef GrVkRenderPass_DEFINED
 #define GrVkRenderPass_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrTypes.h"
-
 #include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrProcessorKeyBuilder;
 class GrVkGpu;

@@ -8,6 +8,8 @@
 #ifndef GrVkVertexBuffer_DEFINED
 #define GrVkVertexBuffer_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrBuffer.h"
 #include "GrVkBuffer.h"
 

@@ -8,11 +8,10 @@
 #ifndef GrVkFramebuffer_DEFINED
 #define GrVkFramebuffer_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrTypes.h"
-
 #include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 class GrVkImageView;

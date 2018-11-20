@@ -8,6 +8,8 @@
 #ifndef GrVkAMDMemoryAllocator_DEFINED
 #define GrVkAMDMemoryAllocator_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "vk/GrVkMemoryAllocator.h"
 
 #include "GrVulkanMemoryAllocator.h"

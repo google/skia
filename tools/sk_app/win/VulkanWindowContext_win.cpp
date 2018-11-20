@@ -6,9 +6,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkiaPrivateVulkan.h"
+
 #include "WindowContextFactory_win.h"
 
-#include "../VulkanWindowContext.h"
 #include "Window_win.h"
 
 #include "vk/GrVkInterface.h"

@@ -12,6 +12,8 @@
 
 #ifdef SK_VULKAN
 
+#include "SkiaPrivateVulkan.h"
+
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkInterface.h"
 #include "vk/VkTestUtils.h"
