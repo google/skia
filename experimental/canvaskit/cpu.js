@@ -47,7 +47,7 @@
       if (this._canvas) {
         var success = this._readPixels(this._width, this._height, this._pixelPtr);
         if (!success) {
-          console.err('could not read pixels');
+          SkDebug('could not read pixels');
           return;
         }
 
