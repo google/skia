@@ -5,10 +5,6 @@
 
 #include <climits>
 
-static constexpr inline int32_t left_shift(int32_t value, int32_t shift) {
-    return (int32_t) ((uint32_t) value << shift);
-}
-
 template <typename T> static constexpr bool is_align2(T x) { return 0 == (x & 1); }
 
 template <typename T> static constexpr bool is_align4(T x) { return 0 == (x & 3); }
@@ -119,19 +115,19 @@ SkUnichar SkUTF::NextUTF8(const char** ptr, const char* end) {
     if (!ptr || !end ) {
         return -1;
     }
-    const uint8_t*  p = (const uint8_t*)*ptr;
+    const uint8_t* p = (const uint8_t*)*ptr;
     if (!p || p >= (const uint8_t*)end) {
         return next_fail(ptr, end);
     }
-    int             c = *p;
-    int             hic = c << 24;
+    uint32_t c = *p;
+    uint32_t hic = (uint32_t)c << 24;
 
     if (!utf8_type_is_valid_leading_byte(utf8_byte_type(c))) {
         return next_fail(ptr, end);
     }
-    if (hic < 0) {
+    if ((hic >> 31) != 0) {
         uint32_t mask = (uint32_t)~0x3F;
-        hic = left_shift(hic, 1);
+        hic <<= 1;
         do {
             ++p;
             if (p >= (const uint8_t*)end) {
@@ -144,11 +140,11 @@ SkUnichar SkUTF::NextUTF8(const char** ptr, const char* end) {
             }
             c = (c << 6) | (nextByte & 0x3F);
             mask <<= 5;
-        } while ((hic = left_shift(hic, 1)) < 0);
+        } while (((hic <<= 1) >> 31) != 0);
         c &= ~mask;
     }
     *ptr = (char*)p + 1;
-    return c;
+    return (SkUnichar)c;
 }
 
 SkUnichar SkUTF::NextUTF16(const uint16_t** ptr, const uint16_t* end) {

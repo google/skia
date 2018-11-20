@@ -51,6 +51,26 @@ DEF_TEST(SkUTF_UTF8, reporter) {
     }
 }
 
+DEF_TEST(SkUTF_UTF_RoundTrip, reporter) {
+    for (SkUnichar i = 0; i < 0x110000; ++i) {
+        if ((i & 0xF800) != 0xD800) {
+            uint16_t utf16[2];
+            size_t len16 = SkUTF::ToUTF16(i, utf16);
+            const uint16_t* ptr16 = utf16;
+            SkUnichar result16 = SkUTF::NextUTF16(&ptr16, utf16 + len16);
+            REPORTER_ASSERT(reporter, result16 == i);
+            REPORTER_ASSERT(reporter, ptr16 == utf16 + len16);
+
+            char utf8[SkUTF::kMaxBytesInUTF8Sequence];
+            size_t len8 = SkUTF::ToUTF8(i, utf8);
+            const char* ptr8 = utf8;
+            SkUnichar result8 = SkUTF::NextUTF8(&ptr8, utf8 + len8);
+            REPORTER_ASSERT(reporter, result8 == i);
+            REPORTER_ASSERT(reporter, ptr8 == utf8 + len8);
+        }
+    }
+}
+
 #define ASCII_BYTE         "X"
 #define CONTINUATION_BYTE  "\xA1"
 #define LEADING_TWO_BYTE   "\xC2"
