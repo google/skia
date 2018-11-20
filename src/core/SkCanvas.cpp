@@ -57,6 +57,23 @@
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
+                                       const SkRect& dstRect, unsigned aaFlags)
+        : fImage(std::move(image))
+        , fSrcRect(srcRect)
+        , fDstRect(dstRect)
+        , fAlpha(1.f)
+        , fAAFlags(aaFlags) {}
+
+SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
+                                       const SkRect& dstRect, float alpha, unsigned aaFlags)
+        : fImage(std::move(image))
+        , fSrcRect(srcRect)
+        , fDstRect(dstRect)
+        , fAlpha(alpha)
+        , fAAFlags(aaFlags) {}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
@@ -1801,6 +1818,15 @@ void SkCanvas::experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int c
     RETURN_ON_FALSE(cnt);
 
     this->onDrawImageSet(imageSet, cnt, alpha, filterQuality, mode);
+}
+
+void SkCanvas::experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
+                                           SkFilterQuality filterQuality, SkBlendMode mode) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    RETURN_ON_NULL(imageSet);
+    RETURN_ON_FALSE(cnt);
+
+    this->onDrawImageSet(imageSet, cnt, 1.f, filterQuality, mode);
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
