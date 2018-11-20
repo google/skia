@@ -556,6 +556,7 @@ void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int co
         this->addImage(set[i].fImage.get());
         this->addRect(set[i].fSrcRect);
         this->addRect(set[i].fDstRect);
+        this->addScalar(set[i].fAlpha);
         this->addInt((int)set[i].fAAFlags);
     }
     this->validate(initialOffset, size);

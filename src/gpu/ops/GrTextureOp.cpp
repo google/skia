@@ -376,7 +376,8 @@ private:
                 mustFilter = quadType != GrQuadType::kRect ||
                              filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
             }
-            SkPMColor4f color{alpha, alpha, alpha, alpha};
+            float quadAlpha = SkTPin(set[p].fAlpha, 0.f, 1.f) * alpha;
+            SkPMColor4f color{quadAlpha, quadAlpha, quadAlpha, quadAlpha};
             fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
                                 color);
         }

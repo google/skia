@@ -1828,8 +1828,13 @@ public:
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
-        unsigned fAAFlags;  // QuadAAFlags
+        float fAlpha = 1.f;
+        unsigned fAAFlags = kNone_QuadAAFlags;  // QuadAAFlags
     };
+
+    /** This version will be removed. Alpha is now a property of ImageSetEntry. */
+    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
+                                     SkFilterQuality quality, SkBlendMode mode);
 
     /**
      * This is an experimental API for the SkiaRenderer Chromium project. The signature will
@@ -1839,7 +1844,7 @@ public:
      * current implementation only antialiases if all edges are flagged, however.
      * Results are undefined if an image's src rect is not within the image's bounds.
      */
-    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
+    void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
