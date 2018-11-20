@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "a03c114a_0b927f19",
+        "filename": "bench/RectBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-20T19:58:46Z",
+      "side": 1,
+      "message": "Updated to use _aa.",
+      "parentUuid": "f3f5b784_d30c10dc",
+      "range": {
+        "startLine": 44,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 9
+      },
+      "revId": "e1450ccf686c308f29f8251ab60a0ac1419be49c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "535302d8_f302427e",
         "filename": "bench/RectBench.cpp",
         "patchSetId": 4
@@ -141,6 +165,30 @@
       "revId": "e1450ccf686c308f29f8251ab60a0ac1419be49c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fea565f9_a31fdbe4",
+        "filename": "bench/RectBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-20T19:58:46Z",
+      "side": 1,
+      "message": "That makes sense, many of the other benches in the file change the shape of what is being drawn, whereas this is meant to change the code path used to draw the same rects. Switching it to append.",
+      "parentUuid": "a0e36936_efd80584",
+      "range": {
+        "startLine": 184,
+        "startChar": 15,
+        "endLine": 184,
+        "endChar": 37
+      },
+      "revId": "e1450ccf686c308f29f8251ab60a0ac1419be49c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
