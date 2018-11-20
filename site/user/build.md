@@ -265,6 +265,18 @@ There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/
 
 The Skia build assumes that the PATHEXT environment variable contains ".EXE".
 
+### Buliding with clang-cl
+
+We *highly* reccommend building Skia with clang-cl. Skia uses
+generated code that is only optimized when built with clang. Other compilers use generic
+unoptimized code.
+
+Setting the "cc" and "cxx" gn args is _not_ sufficient build with clang-cl. These variables
+are ignored on Windows. Instead set the variable "clang_win" to your LLVM installation directory.
+If you installed the prebuilt LLVM in the default location that would be "C:\Program Files\LLVM".
+If you built LLVM locally using the CMake Ninja generator then that would be your CMake build
+directory. Use standard Windows paths (e.g. "C:\Program Files\LLVM" not "/c/Program Files/LLVM").
+
 ### Visual Studio Solutions
 
 If you use Visual Studio, you may want to pass `--ide=vs` to `bin/gn gen` to
