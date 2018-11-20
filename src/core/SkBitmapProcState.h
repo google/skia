@@ -133,7 +133,7 @@ private:
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    MatrixProc chooseMatrixProc(bool trivial_matrix);
+    MatrixProc chooseMatrixProc();
     bool chooseProcs(); // caller must have called init() first (on our base-class)
     ShaderProc32 chooseShaderProc32();
 
