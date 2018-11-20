@@ -8,7 +8,6 @@
 #include "SkBitmapProcState_utils.h"
 #include "SkShader.h"
 #include "SkTo.h"
-#include "SkUtilsArm.h"
 
 #include <arm_neon.h>
 
@@ -143,7 +142,7 @@ static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) 
 
 
 
-void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
+static void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     if (count >= 8) {
         // SkFixed is 16.16 fixed point
         SkFixed dx8 = dx * 8;
@@ -178,7 +177,7 @@ void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count
     }
 }
 
-void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
+static void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     if (count >= 8) {
         SkFixed dx8 = dx * 8;
         int32x4_t vdx8 = vdupq_n_s32(dx8);
