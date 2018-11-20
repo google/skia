@@ -10,8 +10,12 @@
 #define GrVkTypes_DEFINED
 
 #include <functional>
+#ifdef SK_VULKAN
+#include <vulkan/vulkan_core.h>
+#else
+#include "../../../third_party/vulkan/vulkan/vulkan_core.h"
+#endif
 #include "GrTypes.h"
-#include "GrVkDefines.h"
 
 typedef intptr_t GrVkBackendMemory;
 

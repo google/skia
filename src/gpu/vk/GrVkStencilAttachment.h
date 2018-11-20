@@ -8,9 +8,10 @@
 #ifndef GrVkStencil_DEFINED
 #define GrVkStencil_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrStencilAttachment.h"
 #include "GrVkImage.h"
-#include "vk/GrVkDefines.h"
 
 class GrVkImageView;
 class GrVkGpu;

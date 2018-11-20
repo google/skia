@@ -8,8 +8,9 @@
 #ifndef GrVkBuffer_DEFINED
 #define GrVkBuffer_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrVkResource.h"
-#include "vk/GrVkDefines.h"
 #include "vk/GrVkTypes.h"
 
 class GrVkGpu;

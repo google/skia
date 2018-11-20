@@ -8,6 +8,8 @@
 #ifndef GrVkTexture_DEFINED
 #define GrVkTexture_DEFINED
 
+#include "SkiaPrivateVulkan.h"
+
 #include "GrTexture.h"
 #include "GrVkImage.h"
 
