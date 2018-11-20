@@ -9,7 +9,7 @@
     border: 1px dashed #AAA;
   }
 
-  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding
+  #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding,
   #api1_c, #api2_c {
     width: 300px;
     height: 300px;
@@ -428,10 +428,6 @@
   }
 
   function CanvasAPI1(CanvasKit) {
-    if (CanvasKit.gpu) {
-      console.warn("Skipping canvas example because its GPU build");
-      return;
-    }
     let skcanvas = CanvasKit.MakeCanvas(300, 300);
     let realCanvas = document.getElementById('api1_c');
 
@@ -457,10 +453,6 @@
   }
 
   function CanvasAPI2(CanvasKit) {
-    if (CanvasKit.gpu) {
-      console.warn("Skipping canvas example because its GPU build");
-      return;
-    }
     let skcanvas = CanvasKit.MakeCanvas(200, 200);
     let realCanvas = document.getElementById('api2_c');
     realCanvas.width = 200;

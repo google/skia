@@ -29,6 +29,8 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
+	MakeSWCanvasSurface: function() {},
+	MakeWebGLCanvasSurface: function() {},
 	MakeImageShader: function() {},
 	MakeLinearGradientShader: function() {},
 	MakeRadialGradientShader: function() {},

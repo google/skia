@@ -12,7 +12,7 @@ release:
 
 release_cpu:
 	# Does an incremental build where possible.
-	./compile.sh cpu
+	./compile.sh cpu_only
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
@@ -26,7 +26,7 @@ debug:
 
 debug_cpu:
 	# Does an incremental build where possible.
-	./compile.sh debug cpu
+	./compile.sh debug cpu_only
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
