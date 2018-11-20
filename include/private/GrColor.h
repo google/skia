@@ -89,7 +89,7 @@ static inline bool SkPMColor4fFitsInBytes(const SkPMColor4f& color) {
  */
 class GrVertexColor {
 public:
-    GrVertexColor(const SkPMColor4f& color, bool wideColor)
+    explicit GrVertexColor(const SkPMColor4f& color, bool wideColor)
             : fWideColor(wideColor) {
         if (wideColor) {
             SkFloatToHalf_finite_ftz(Sk4f::Load(color.vec())).store(&fColor);
