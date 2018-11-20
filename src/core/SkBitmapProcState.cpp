@@ -258,8 +258,7 @@ bool SkBitmapProcState::chooseProcs() {
 
     fAlphaScale = SkAlpha255To256(SkColorGetA(fPaintColor));
 
-    bool translate_only = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
-    fMatrixProc = this->chooseMatrixProc(translate_only);
+    fMatrixProc = this->chooseMatrixProc();
     SkASSERT(fMatrixProc);
     // Look for platform specializations (only fMatrixProc anymore).
     this->platformProcs();
