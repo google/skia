@@ -22,6 +22,30 @@
       "revId": "6424968d1b67917625b0266b70cd07fe2320ceb7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc4191d1_a455c9c7",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-20T20:33:20Z",
+      "side": 1,
+      "message": "I am going to land this change, and then update the tessellation optimization CL: https://skia-review.googlesource.com/c/skia/+/171723 to handle calculating distance directly for rectilinear quads, which would overwrite what was previously done in that CL (but requires using edge distance directly in the shader).",
+      "parentUuid": "9913a80d_31219208",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 402,
+        "endChar": 84
+      },
+      "revId": "6424968d1b67917625b0266b70cd07fe2320ceb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
