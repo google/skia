@@ -16,6 +16,24 @@
       "revId": "e5bc8ab2f0bdd71ef7fcb56dfc2b6bd2c6a51fa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b99f8fd0_57642a27",
+        "filename": "bench/CompositingImagesBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-20T14:44:37Z",
+      "side": 1,
+      "message": "You\u0027re right, adding once was the intended behavior and I just got lost in my head.",
+      "parentUuid": "da72ed4d_cef01729",
+      "revId": "e5bc8ab2f0bdd71ef7fcb56dfc2b6bd2c6a51fa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
