@@ -1,0 +1,26 @@
+defines = -DPNG_SET_OPTION_SUPPORTED -DPNG_INTEL_SSE -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/libpng -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/libpng -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/zlib
+cflags_c =
+root_out_dir = .
+target_output_name = libpng
+
+build obj/third_party/externals/libpng/libpng.png.o: cc ../../../../../../../third_party/externals/libpng/png.c
+build obj/third_party/externals/libpng/libpng.pngerror.o: cc ../../../../../../../third_party/externals/libpng/pngerror.c
+build obj/third_party/externals/libpng/libpng.pngget.o: cc ../../../../../../../third_party/externals/libpng/pngget.c
+build obj/third_party/externals/libpng/libpng.pngmem.o: cc ../../../../../../../third_party/externals/libpng/pngmem.c
+build obj/third_party/externals/libpng/libpng.pngpread.o: cc ../../../../../../../third_party/externals/libpng/pngpread.c
+build obj/third_party/externals/libpng/libpng.pngread.o: cc ../../../../../../../third_party/externals/libpng/pngread.c
+build obj/third_party/externals/libpng/libpng.pngrio.o: cc ../../../../../../../third_party/externals/libpng/pngrio.c
+build obj/third_party/externals/libpng/libpng.pngrtran.o: cc ../../../../../../../third_party/externals/libpng/pngrtran.c
+build obj/third_party/externals/libpng/libpng.pngrutil.o: cc ../../../../../../../third_party/externals/libpng/pngrutil.c
+build obj/third_party/externals/libpng/libpng.pngset.o: cc ../../../../../../../third_party/externals/libpng/pngset.c
+build obj/third_party/externals/libpng/libpng.pngtrans.o: cc ../../../../../../../third_party/externals/libpng/pngtrans.c
+build obj/third_party/externals/libpng/libpng.pngwio.o: cc ../../../../../../../third_party/externals/libpng/pngwio.c
+build obj/third_party/externals/libpng/libpng.pngwrite.o: cc ../../../../../../../third_party/externals/libpng/pngwrite.c
+build obj/third_party/externals/libpng/libpng.pngwtran.o: cc ../../../../../../../third_party/externals/libpng/pngwtran.c
+build obj/third_party/externals/libpng/libpng.pngwutil.o: cc ../../../../../../../third_party/externals/libpng/pngwutil.c
+build obj/third_party/externals/libpng/intel/libpng.filter_sse2_intrinsics.o: cc ../../../../../../../third_party/externals/libpng/intel/filter_sse2_intrinsics.c
+build obj/third_party/externals/libpng/intel/libpng.intel_init.o: cc ../../../../../../../third_party/externals/libpng/intel/intel_init.c
+
+build obj/third_party/libpng/libpng.stamp: stamp obj/third_party/externals/libpng/libpng.png.o obj/third_party/externals/libpng/libpng.pngerror.o obj/third_party/externals/libpng/libpng.pngget.o obj/third_party/externals/libpng/libpng.pngmem.o obj/third_party/externals/libpng/libpng.pngpread.o obj/third_party/externals/libpng/libpng.pngread.o obj/third_party/externals/libpng/libpng.pngrio.o obj/third_party/externals/libpng/libpng.pngrtran.o obj/third_party/externals/libpng/libpng.pngrutil.o obj/third_party/externals/libpng/libpng.pngset.o obj/third_party/externals/libpng/libpng.pngtrans.o obj/third_party/externals/libpng/libpng.pngwio.o obj/third_party/externals/libpng/libpng.pngwrite.o obj/third_party/externals/libpng/libpng.pngwtran.o obj/third_party/externals/libpng/libpng.pngwutil.o obj/third_party/externals/libpng/intel/libpng.filter_sse2_intrinsics.o obj/third_party/externals/libpng/intel/libpng.intel_init.o || obj/third_party/zlib/zlib.stamp obj/third_party/zlib/zlib_x86.stamp

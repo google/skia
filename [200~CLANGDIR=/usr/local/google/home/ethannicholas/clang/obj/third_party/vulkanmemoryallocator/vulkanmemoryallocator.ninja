@@ -1,0 +1,10 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs = -I../../../../../../../third_party/vulkan -I../../../../../../../include/core -I../../../../../../../include/config -I../../../../../../../tools/gpu/vk -I../../../../../../../include/config -I../../../../../../../third_party/vulkanmemoryallocator
+cflags = -w -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type
+root_out_dir = .
+target_output_name = vulkanmemoryallocator
+
+build obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.GrVulkanMemoryAllocator.o: cxx ../../../../../../../third_party/vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp
+
+build obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.stamp: stamp obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.GrVulkanMemoryAllocator.o

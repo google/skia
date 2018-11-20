@@ -1,0 +1,12 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections
+cflags_c = -msse4.2 -mpclmul
+root_out_dir = .
+target_output_name = zlib_x86
+
+build obj/third_party/externals/zlib/zlib_x86.crc_folding.o: cc ../../../../../../../third_party/externals/zlib/crc_folding.c
+build obj/third_party/externals/zlib/zlib_x86.fill_window_sse.o: cc ../../../../../../../third_party/externals/zlib/fill_window_sse.c
+build obj/third_party/externals/zlib/zlib_x86.x86.o: cc ../../../../../../../third_party/externals/zlib/x86.c
+
+build obj/third_party/zlib/zlib_x86.stamp: stamp obj/third_party/externals/zlib/zlib_x86.crc_folding.o obj/third_party/externals/zlib/zlib_x86.fill_window_sse.o obj/third_party/externals/zlib/zlib_x86.x86.o

@@ -1,0 +1,7 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+root_out_dir = .
+target_output_name = arm64
+
+
+build obj/arm64.stamp: stamp

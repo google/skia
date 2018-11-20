@@ -126,7 +126,7 @@ private:
 
     bool isCompatible(const AttachmentsDescriptor&, const AttachmentFlags&) const;
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkRenderPass          fRenderPass;
     AttachmentFlags       fAttachmentFlags;

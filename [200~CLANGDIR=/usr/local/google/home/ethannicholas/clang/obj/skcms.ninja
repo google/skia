@@ -1,0 +1,10 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -std=c11 -fstrict-aliasing -fPIC -g -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter
+cflags_cc = -std=c++14 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type
+root_out_dir = .
+target_output_name = skcms
+
+build obj/third_party/skcms/skcms.skcms.o: cxx ../../../../../../../third_party/skcms/skcms.cc
+
+build obj/skcms.stamp: stamp obj/third_party/skcms/skcms.skcms.o

@@ -40,7 +40,7 @@ private:
     GrVkFramebuffer(const GrVkFramebuffer&);
     GrVkFramebuffer& operator=(const GrVkFramebuffer&);
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkFramebuffer  fFramebuffer;
 

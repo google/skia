@@ -1,0 +1,378 @@
+ninja_required_version = 1.7.2
+
+rule gn
+  command = ../../../../../../../buildtools/linux64/gn --root=../../../../../../.. -q gen .
+  description = Regenerating ninja files
+
+build build.ninja: gn
+  generator = 1
+  depfile = build.ninja.d
+
+subninja toolchain.ninja
+
+build arm64: phony obj/arm64.stamp
+build armv7: phony obj/armv7.stamp
+build avx: phony obj/avx.stamp
+build bench: phony obj/bench.stamp
+build common_flags: phony obj/common_flags.stamp
+build compile_processors: phony obj/compile_processors.stamp
+build crc32: phony obj/crc32.stamp
+build effects: phony obj/effects.stamp
+build experimental_svg_model: phony obj/experimental_svg_model.stamp
+build flags: phony obj/flags.stamp
+build fontmgr_android: phony obj/fontmgr_android.stamp
+build fontmgr_custom: phony obj/fontmgr_custom.stamp
+build fontmgr_custom_empty: phony obj/fontmgr_custom_empty.stamp
+build fontmgr_empty: phony obj/fontmgr_empty.stamp
+build fontmgr_fontconfig: phony obj/fontmgr_fontconfig.stamp
+build gm: phony obj/gm.stamp
+build gpu: phony obj/gpu.stamp
+build gpu_for_real: phony obj/gpu_for_real.stamp
+build gpu_tool_utils: phony obj/gpu_tool_utils.stamp
+build heif: phony obj/heif.stamp
+build hsw: phony obj/hsw.stamp
+build jpeg: phony obj/jpeg.stamp
+build lua: phony obj/lua.stamp
+build moltenvk: phony obj/moltenvk.stamp
+build none: phony obj/none.stamp
+build pathkit: phony ./libpathkit.a
+build pdf: phony obj/pdf.stamp
+build png: phony obj/png.stamp
+build public: phony obj/public.stamp
+build public_headers_warnings_check: phony obj/public_headers_warnings_check.stamp
+build raw: phony obj/raw.stamp
+build run_sksllex: phony obj/run_sksllex.stamp
+build samples: phony obj/samples.stamp
+build sk_app: phony obj/sk_app.stamp
+build skcms: phony obj/skcms.stamp
+build skia: phony ./libskia.a
+build skia.h: phony obj/skia.h.stamp
+build skqp_lib: phony obj/skqp_lib.stamp
+build sse2: phony obj/sse2.stamp
+build sse41: phony obj/sse41.stamp
+build sse42: phony obj/sse42.stamp
+build ssse3: phony obj/ssse3.stamp
+build tests: phony obj/tests.stamp
+build tool_utils: phony obj/tool_utils.stamp
+build typeface_freetype: phony obj/typeface_freetype.stamp
+build webp: phony obj/webp.stamp
+build wuffs: phony obj/wuffs.stamp
+build xml: phony obj/xml.stamp
+build Nima-Cpp: phony obj/third_party/Nima-Cpp/Nima-Cpp.stamp
+build copy-nima-cpp: phony obj/third_party/Nima-Cpp/copy-nima-cpp.stamp
+build copy-nima-math-cpp: phony obj/third_party/Nima-Cpp/copy-nima-math-cpp.stamp
+build dng_sdk: phony obj/third_party/dng_sdk/dng_sdk.stamp
+build expat: phony obj/third_party/expat/expat.stamp
+build fontconfig: phony obj/third_party/fontconfig.stamp
+build freetype2: phony obj/third_party/freetype2/freetype2.stamp
+build googletest: phony obj/third_party/googletest/googletest.stamp
+build harfbuzz: phony obj/third_party/harfbuzz/harfbuzz.stamp
+build icu: phony obj/third_party/icu/icu.stamp
+build imgui: phony obj/third_party/imgui/imgui.stamp
+build jsoncpp: phony obj/third_party/jsoncpp/jsoncpp.stamp
+build libjpeg: phony obj/third_party/libjpeg-turbo/libjpeg.stamp
+build libmicrohttpd: phony obj/third_party/libmicrohttpd/libmicrohttpd.stamp
+build libpng: phony obj/third_party/libpng/libpng.stamp
+build libsdl: phony obj/third_party/libsdl/libsdl.stamp
+build libwebp: phony obj/third_party/libwebp/libwebp.stamp
+build libwebp_avx2: phony obj/third_party/libwebp/libwebp_avx2.stamp
+build libwebp_sse41: phony obj/third_party/libwebp/libwebp_sse41.stamp
+build piex: phony obj/third_party/piex/piex.stamp
+build sfntly: phony obj/third_party/sfntly/sfntly.stamp
+build skottie: phony obj/modules/skottie/skottie.stamp
+build sksg: phony ./libsksg.a
+build skshaper: phony obj/modules/skshaper/skshaper.stamp
+build spirv-headers: phony obj/third_party/spirv-headers/spirv-headers.stamp
+build spirv-tools: phony obj/third_party/spirv-tools/spirv-tools.stamp
+build spirv_build_version: phony obj/third_party/spirv-tools/spirv_build_version.stamp
+build spirv_core_tables_1.0: phony obj/third_party/spirv-tools/spirv_core_tables_1.0.stamp
+build spirv_core_tables_1.1: phony obj/third_party/spirv-tools/spirv_core_tables_1.1.stamp
+build spirv_core_tables_1.2: phony obj/third_party/spirv-tools/spirv_core_tables_1.2.stamp
+build spirv_extension_enum: phony obj/third_party/spirv-tools/spirv_extension_enum.stamp
+build spirv_generators: phony obj/third_party/spirv-tools/spirv_generators.stamp
+build spirv_glsl_tables: phony obj/third_party/spirv-tools/spirv_glsl_tables.stamp
+build spirv_opencl_tables: phony obj/third_party/spirv-tools/spirv_opencl_tables.stamp
+build spirv_vendor_tables_amd_shader_ballot: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_ballot.stamp
+build spirv_vendor_tables_amd_shader_explicit_vertex_parameter: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_explicit_vertex_parameter.stamp
+build spirv_vendor_tables_amd_shader_gcn_shader: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_gcn_shader.stamp
+build spirv_vendor_tables_amd_shader_trinary_minmax: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_trinary_minmax.stamp
+build tool: phony obj/modules/skottie/tool.stamp
+build utils: phony obj/modules/skottie/utils.stamp
+build vulkanmemoryallocator: phony obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.stamp
+build zlib: phony obj/third_party/zlib/zlib.stamp
+build zlib_x86: phony obj/third_party/zlib/zlib_x86.stamp
+build $:HelloWorld: phony ./HelloWorld
+build $:SkiaSDLExample: phony ./SkiaSDLExample
+build $:arm64: phony obj/arm64.stamp
+build $:armv7: phony obj/armv7.stamp
+build $:avx: phony obj/avx.stamp
+build $:bench: phony obj/bench.stamp
+build $:bookmaker: phony ./bookmaker
+build $:common_flags: phony obj/common_flags.stamp
+build $:compile_processors: phony obj/compile_processors.stamp
+build $:crc32: phony obj/crc32.stamp
+build $:create_test_font: phony ./create_test_font
+build $:create_test_font_color: phony ./create_test_font_color
+build $:dm: phony ./dm
+build $:dump_record: phony ./dump_record
+build $:effects: phony obj/effects.stamp
+build $:experimental_svg_model: phony obj/experimental_svg_model.stamp
+build $:fiddle: phony ./fiddle
+build $:flags: phony obj/flags.stamp
+build $:fontmgr_android: phony obj/fontmgr_android.stamp
+build $:fontmgr_custom: phony obj/fontmgr_custom.stamp
+build $:fontmgr_custom_empty: phony obj/fontmgr_custom_empty.stamp
+build $:fontmgr_empty: phony obj/fontmgr_empty.stamp
+build $:fontmgr_fontconfig: phony obj/fontmgr_fontconfig.stamp
+build $:fuzz: phony ./fuzz
+build $:get_images_from_skps: phony ./get_images_from_skps
+build $:gm: phony obj/gm.stamp
+build $:gpu: phony obj/gpu.stamp
+build $:gpu_for_real: phony obj/gpu_for_real.stamp
+build $:gpu_tool_utils: phony obj/gpu_tool_utils.stamp
+build $:heif: phony obj/heif.stamp
+build $:hsw: phony obj/hsw.stamp
+build $:imgcvt: phony ./imgcvt
+build $:jpeg: phony obj/jpeg.stamp
+build $:list_gms: phony ./list_gms
+build $:list_gpu_unit_tests: phony ./list_gpu_unit_tests
+build $:lua: phony obj/lua.stamp
+build $:lua_app: phony ./lua_app
+build $:lua_pictures: phony ./lua_pictures
+build $:moltenvk: phony obj/moltenvk.stamp
+build $:nanobench: phony ./nanobench
+build $:none: phony obj/none.stamp
+build $:pathkit: phony ./libpathkit.a
+build $:pathops_unittest: phony ./pathops_unittest
+build $:pdf: phony obj/pdf.stamp
+build $:png: phony obj/png.stamp
+build $:public: phony obj/public.stamp
+build $:public_headers_warnings_check: phony obj/public_headers_warnings_check.stamp
+build $:raw: phony obj/raw.stamp
+build $:remote_demo: phony ./remote_demo
+build $:run_sksllex: phony obj/run_sksllex.stamp
+build $:samples: phony obj/samples.stamp
+build $:sk_app: phony obj/sk_app.stamp
+build $:skcms: phony obj/skcms.stamp
+build $:skdiff: phony ./skdiff
+build $:skia: phony ./libskia.a
+build $:skia.h: phony obj/skia.h.stamp
+build $:skiaserve: phony ./skiaserve
+build $:skottie_tool: phony ./skottie_tool
+build $:skp_parser: phony ./skp_parser
+build $:skpbench: phony ./skpbench
+build $:skpinfo: phony ./skpinfo
+build $:skqp: phony ./skqp
+build $:skqp_lib: phony obj/skqp_lib.stamp
+build $:sktexttopdf: phony ./sktexttopdf
+build $:sse2: phony obj/sse2.stamp
+build $:sse41: phony obj/sse41.stamp
+build $:sse42: phony obj/sse42.stamp
+build $:ssse3: phony obj/ssse3.stamp
+build $:tests: phony obj/tests.stamp
+build $:tool_utils: phony obj/tool_utils.stamp
+build $:typeface_freetype: phony obj/typeface_freetype.stamp
+build $:viewer: phony ./viewer
+build $:webp: phony obj/webp.stamp
+build $:wuffs: phony obj/wuffs.stamp
+build $:xml: phony obj/xml.stamp
+build modules/skottie$:fuzz: phony obj/modules/skottie/fuzz.stamp
+build modules/skottie$:gm: phony obj/modules/skottie/gm.stamp
+build modules/skottie$:skottie: phony obj/modules/skottie/skottie.stamp
+build modules/skottie: phony obj/modules/skottie/skottie.stamp
+build modules/skottie$:tests: phony obj/modules/skottie/tests.stamp
+build modules/skottie$:tool: phony obj/modules/skottie/tool.stamp
+build modules/skottie$:utils: phony obj/modules/skottie/utils.stamp
+build modules/sksg$:samples: phony obj/modules/sksg/samples.stamp
+build modules/sksg$:sksg: phony ./libsksg.a
+build modules/sksg: phony ./libsksg.a
+build modules/sksg$:tests: phony obj/modules/sksg/tests.stamp
+build modules/skshaper$:skshaper: phony obj/modules/skshaper/skshaper.stamp
+build modules/skshaper: phony obj/modules/skshaper/skshaper.stamp
+build third_party$:fontconfig: phony obj/third_party/fontconfig.stamp
+build third_party/Nima-Cpp$:Nima-Cpp: phony obj/third_party/Nima-Cpp/Nima-Cpp.stamp
+build third_party/Nima-Cpp: phony obj/third_party/Nima-Cpp/Nima-Cpp.stamp
+build third_party/Nima-Cpp$:copy-nima-cpp: phony obj/third_party/Nima-Cpp/copy-nima-cpp.stamp
+build third_party/Nima-Cpp$:copy-nima-math-cpp: phony obj/third_party/Nima-Cpp/copy-nima-math-cpp.stamp
+build third_party/dng_sdk$:dng_sdk: phony obj/third_party/dng_sdk/dng_sdk.stamp
+build third_party/dng_sdk: phony obj/third_party/dng_sdk/dng_sdk.stamp
+build third_party/expat$:expat: phony obj/third_party/expat/expat.stamp
+build third_party/expat: phony obj/third_party/expat/expat.stamp
+build third_party/freetype2$:freetype2: phony obj/third_party/freetype2/freetype2.stamp
+build third_party/freetype2: phony obj/third_party/freetype2/freetype2.stamp
+build third_party/googletest$:googletest: phony obj/third_party/googletest/googletest.stamp
+build third_party/googletest: phony obj/third_party/googletest/googletest.stamp
+build third_party/harfbuzz$:harfbuzz: phony obj/third_party/harfbuzz/harfbuzz.stamp
+build third_party/harfbuzz: phony obj/third_party/harfbuzz/harfbuzz.stamp
+build third_party/icu$:icu: phony obj/third_party/icu/icu.stamp
+build third_party/icu: phony obj/third_party/icu/icu.stamp
+build third_party/imgui$:imgui: phony obj/third_party/imgui/imgui.stamp
+build third_party/imgui: phony obj/third_party/imgui/imgui.stamp
+build third_party/jsoncpp$:jsoncpp: phony obj/third_party/jsoncpp/jsoncpp.stamp
+build third_party/jsoncpp: phony obj/third_party/jsoncpp/jsoncpp.stamp
+build third_party/libjpeg-turbo$:libjpeg: phony obj/third_party/libjpeg-turbo/libjpeg.stamp
+build third_party/libmicrohttpd$:libmicrohttpd: phony obj/third_party/libmicrohttpd/libmicrohttpd.stamp
+build third_party/libmicrohttpd: phony obj/third_party/libmicrohttpd/libmicrohttpd.stamp
+build third_party/libpng$:libpng: phony obj/third_party/libpng/libpng.stamp
+build third_party/libpng: phony obj/third_party/libpng/libpng.stamp
+build third_party/libsdl$:libsdl: phony obj/third_party/libsdl/libsdl.stamp
+build third_party/libsdl: phony obj/third_party/libsdl/libsdl.stamp
+build third_party/libwebp$:libwebp: phony obj/third_party/libwebp/libwebp.stamp
+build third_party/libwebp: phony obj/third_party/libwebp/libwebp.stamp
+build third_party/libwebp$:libwebp_avx2: phony obj/third_party/libwebp/libwebp_avx2.stamp
+build third_party/libwebp$:libwebp_sse41: phony obj/third_party/libwebp/libwebp_sse41.stamp
+build third_party/lua$:lua: phony obj/third_party/lua/lua.stamp
+build third_party/lua: phony obj/third_party/lua/lua.stamp
+build third_party/piex$:piex: phony obj/third_party/piex/piex.stamp
+build third_party/piex: phony obj/third_party/piex/piex.stamp
+build third_party/sfntly$:sfntly: phony obj/third_party/sfntly/sfntly.stamp
+build third_party/sfntly: phony obj/third_party/sfntly/sfntly.stamp
+build third_party/spirv-headers$:spirv-headers: phony obj/third_party/spirv-headers/spirv-headers.stamp
+build third_party/spirv-headers: phony obj/third_party/spirv-headers/spirv-headers.stamp
+build third_party/spirv-tools$:spirv-tools: phony obj/third_party/spirv-tools/spirv-tools.stamp
+build third_party/spirv-tools: phony obj/third_party/spirv-tools/spirv-tools.stamp
+build third_party/spirv-tools$:spirv_build_version: phony obj/third_party/spirv-tools/spirv_build_version.stamp
+build third_party/spirv-tools$:spirv_core_tables_1.0: phony obj/third_party/spirv-tools/spirv_core_tables_1.0.stamp
+build third_party/spirv-tools$:spirv_core_tables_1.1: phony obj/third_party/spirv-tools/spirv_core_tables_1.1.stamp
+build third_party/spirv-tools$:spirv_core_tables_1.2: phony obj/third_party/spirv-tools/spirv_core_tables_1.2.stamp
+build third_party/spirv-tools$:spirv_extension_enum: phony obj/third_party/spirv-tools/spirv_extension_enum.stamp
+build third_party/spirv-tools$:spirv_generators: phony obj/third_party/spirv-tools/spirv_generators.stamp
+build third_party/spirv-tools$:spirv_glsl_tables: phony obj/third_party/spirv-tools/spirv_glsl_tables.stamp
+build third_party/spirv-tools$:spirv_opencl_tables: phony obj/third_party/spirv-tools/spirv_opencl_tables.stamp
+build third_party/spirv-tools$:spirv_vendor_tables_amd_shader_ballot: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_ballot.stamp
+build third_party/spirv-tools$:spirv_vendor_tables_amd_shader_explicit_vertex_parameter: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_explicit_vertex_parameter.stamp
+build third_party/spirv-tools$:spirv_vendor_tables_amd_shader_gcn_shader: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_gcn_shader.stamp
+build third_party/spirv-tools$:spirv_vendor_tables_amd_shader_trinary_minmax: phony obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_trinary_minmax.stamp
+build third_party/vulkanmemoryallocator$:vulkanmemoryallocator: phony obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.stamp
+build third_party/vulkanmemoryallocator: phony obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.stamp
+build third_party/zlib$:zlib: phony obj/third_party/zlib/zlib.stamp
+build third_party/zlib: phony obj/third_party/zlib/zlib.stamp
+build third_party/zlib$:zlib_x86: phony obj/third_party/zlib/zlib_x86.stamp
+
+build all: phony $
+    ./HelloWorld $
+    ./SkiaSDLExample $
+    obj/arm64.stamp $
+    obj/armv7.stamp $
+    obj/avx.stamp $
+    obj/bench.stamp $
+    ./bookmaker $
+    obj/common_flags.stamp $
+    obj/compile_processors.stamp $
+    obj/crc32.stamp $
+    ./create_test_font $
+    ./create_test_font_color $
+    ./dm $
+    ./dump_record $
+    obj/effects.stamp $
+    obj/experimental_svg_model.stamp $
+    ./fiddle $
+    obj/flags.stamp $
+    obj/fontmgr_android.stamp $
+    obj/fontmgr_custom.stamp $
+    obj/fontmgr_custom_empty.stamp $
+    obj/fontmgr_empty.stamp $
+    obj/fontmgr_fontconfig.stamp $
+    ./fuzz $
+    ./get_images_from_skps $
+    obj/gm.stamp $
+    obj/gpu.stamp $
+    obj/gpu_for_real.stamp $
+    obj/gpu_tool_utils.stamp $
+    obj/heif.stamp $
+    obj/hsw.stamp $
+    ./imgcvt $
+    obj/jpeg.stamp $
+    ./list_gms $
+    ./list_gpu_unit_tests $
+    obj/lua.stamp $
+    ./lua_app $
+    ./lua_pictures $
+    obj/moltenvk.stamp $
+    ./nanobench $
+    obj/none.stamp $
+    ./libpathkit.a $
+    ./pathops_unittest $
+    obj/pdf.stamp $
+    obj/png.stamp $
+    obj/public.stamp $
+    obj/public_headers_warnings_check.stamp $
+    obj/raw.stamp $
+    ./remote_demo $
+    obj/run_sksllex.stamp $
+    obj/samples.stamp $
+    obj/sk_app.stamp $
+    obj/skcms.stamp $
+    ./skdiff $
+    ./libskia.a $
+    obj/skia.h.stamp $
+    ./skiaserve $
+    ./skottie_tool $
+    ./skp_parser $
+    ./skpbench $
+    ./skpinfo $
+    ./skqp $
+    obj/skqp_lib.stamp $
+    ./sktexttopdf $
+    obj/sse2.stamp $
+    obj/sse41.stamp $
+    obj/sse42.stamp $
+    obj/ssse3.stamp $
+    obj/tests.stamp $
+    obj/tool_utils.stamp $
+    obj/typeface_freetype.stamp $
+    ./viewer $
+    obj/webp.stamp $
+    obj/wuffs.stamp $
+    obj/xml.stamp $
+    obj/modules/skottie/fuzz.stamp $
+    obj/modules/skottie/gm.stamp $
+    obj/modules/skottie/skottie.stamp $
+    obj/modules/skottie/tests.stamp $
+    obj/modules/skottie/tool.stamp $
+    obj/modules/skottie/utils.stamp $
+    obj/modules/sksg/samples.stamp $
+    ./libsksg.a $
+    obj/modules/sksg/tests.stamp $
+    obj/modules/skshaper/skshaper.stamp $
+    obj/third_party/fontconfig.stamp $
+    obj/third_party/Nima-Cpp/Nima-Cpp.stamp $
+    obj/third_party/Nima-Cpp/copy-nima-cpp.stamp $
+    obj/third_party/Nima-Cpp/copy-nima-math-cpp.stamp $
+    obj/third_party/dng_sdk/dng_sdk.stamp $
+    obj/third_party/expat/expat.stamp $
+    obj/third_party/freetype2/freetype2.stamp $
+    obj/third_party/googletest/googletest.stamp $
+    obj/third_party/harfbuzz/harfbuzz.stamp $
+    obj/third_party/icu/icu.stamp $
+    obj/third_party/imgui/imgui.stamp $
+    obj/third_party/jsoncpp/jsoncpp.stamp $
+    obj/third_party/libjpeg-turbo/libjpeg.stamp $
+    obj/third_party/libmicrohttpd/libmicrohttpd.stamp $
+    obj/third_party/libpng/libpng.stamp $
+    obj/third_party/libsdl/libsdl.stamp $
+    obj/third_party/libwebp/libwebp.stamp $
+    obj/third_party/libwebp/libwebp_avx2.stamp $
+    obj/third_party/libwebp/libwebp_sse41.stamp $
+    obj/third_party/lua/lua.stamp $
+    obj/third_party/piex/piex.stamp $
+    obj/third_party/sfntly/sfntly.stamp $
+    obj/third_party/spirv-headers/spirv-headers.stamp $
+    obj/third_party/spirv-tools/spirv-tools.stamp $
+    obj/third_party/spirv-tools/spirv_build_version.stamp $
+    obj/third_party/spirv-tools/spirv_core_tables_1.0.stamp $
+    obj/third_party/spirv-tools/spirv_core_tables_1.1.stamp $
+    obj/third_party/spirv-tools/spirv_core_tables_1.2.stamp $
+    obj/third_party/spirv-tools/spirv_extension_enum.stamp $
+    obj/third_party/spirv-tools/spirv_generators.stamp $
+    obj/third_party/spirv-tools/spirv_glsl_tables.stamp $
+    obj/third_party/spirv-tools/spirv_opencl_tables.stamp $
+    obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_ballot.stamp $
+    obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_explicit_vertex_parameter.stamp $
+    obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_gcn_shader.stamp $
+    obj/third_party/spirv-tools/spirv_vendor_tables_amd_shader_trinary_minmax.stamp $
+    obj/third_party/vulkanmemoryallocator/vulkanmemoryallocator.stamp $
+    obj/third_party/zlib/zlib.stamp $
+    obj/third_party/zlib/zlib_x86.stamp
+
+default all

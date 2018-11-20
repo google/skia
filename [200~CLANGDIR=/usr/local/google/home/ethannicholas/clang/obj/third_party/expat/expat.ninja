@@ -1,0 +1,12 @@
+defines = -DHAVE_MEMMOVE -D_GLIBCXX_DEBUG -DXML_STATIC
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/expat/lib
+cflags_c =
+root_out_dir = .
+target_output_name = expat
+
+build obj/third_party/externals/expat/lib/expat.xmlparse.o: cc ../../../../../../../third_party/externals/expat/lib/xmlparse.c
+build obj/third_party/externals/expat/lib/expat.xmlrole.o: cc ../../../../../../../third_party/externals/expat/lib/xmlrole.c
+build obj/third_party/externals/expat/lib/expat.xmltok.o: cc ../../../../../../../third_party/externals/expat/lib/xmltok.c
+
+build obj/third_party/expat/expat.stamp: stamp obj/third_party/externals/expat/lib/expat.xmlparse.o obj/third_party/externals/expat/lib/expat.xmlrole.o obj/third_party/externals/expat/lib/expat.xmltok.o

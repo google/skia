@@ -1,0 +1,24 @@
+defines = -D_GLIBCXX_DEBUG
+include_dirs =
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/zlib
+cflags_c =
+root_out_dir = .
+target_output_name = zlib
+
+build obj/third_party/externals/zlib/zlib.adler32.o: cc ../../../../../../../third_party/externals/zlib/adler32.c
+build obj/third_party/externals/zlib/zlib.compress.o: cc ../../../../../../../third_party/externals/zlib/compress.c
+build obj/third_party/externals/zlib/zlib.crc32.o: cc ../../../../../../../third_party/externals/zlib/crc32.c
+build obj/third_party/externals/zlib/zlib.deflate.o: cc ../../../../../../../third_party/externals/zlib/deflate.c
+build obj/third_party/externals/zlib/zlib.gzclose.o: cc ../../../../../../../third_party/externals/zlib/gzclose.c
+build obj/third_party/externals/zlib/zlib.gzlib.o: cc ../../../../../../../third_party/externals/zlib/gzlib.c
+build obj/third_party/externals/zlib/zlib.gzread.o: cc ../../../../../../../third_party/externals/zlib/gzread.c
+build obj/third_party/externals/zlib/zlib.gzwrite.o: cc ../../../../../../../third_party/externals/zlib/gzwrite.c
+build obj/third_party/externals/zlib/zlib.infback.o: cc ../../../../../../../third_party/externals/zlib/infback.c
+build obj/third_party/externals/zlib/zlib.inffast.o: cc ../../../../../../../third_party/externals/zlib/inffast.c
+build obj/third_party/externals/zlib/zlib.inflate.o: cc ../../../../../../../third_party/externals/zlib/inflate.c
+build obj/third_party/externals/zlib/zlib.inftrees.o: cc ../../../../../../../third_party/externals/zlib/inftrees.c
+build obj/third_party/externals/zlib/zlib.trees.o: cc ../../../../../../../third_party/externals/zlib/trees.c
+build obj/third_party/externals/zlib/zlib.uncompr.o: cc ../../../../../../../third_party/externals/zlib/uncompr.c
+build obj/third_party/externals/zlib/zlib.zutil.o: cc ../../../../../../../third_party/externals/zlib/zutil.c
+
+build obj/third_party/zlib/zlib.stamp: stamp obj/third_party/externals/zlib/zlib.adler32.o obj/third_party/externals/zlib/zlib.compress.o obj/third_party/externals/zlib/zlib.crc32.o obj/third_party/externals/zlib/zlib.deflate.o obj/third_party/externals/zlib/zlib.gzclose.o obj/third_party/externals/zlib/zlib.gzlib.o obj/third_party/externals/zlib/zlib.gzread.o obj/third_party/externals/zlib/zlib.gzwrite.o obj/third_party/externals/zlib/zlib.infback.o obj/third_party/externals/zlib/zlib.inffast.o obj/third_party/externals/zlib/zlib.inflate.o obj/third_party/externals/zlib/zlib.inftrees.o obj/third_party/externals/zlib/zlib.trees.o obj/third_party/externals/zlib/zlib.uncompr.o obj/third_party/externals/zlib/zlib.zutil.o || obj/third_party/zlib/zlib_x86.stamp

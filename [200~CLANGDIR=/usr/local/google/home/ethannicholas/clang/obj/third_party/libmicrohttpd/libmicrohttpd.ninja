@@ -1,0 +1,18 @@
+defines = -DDAUTH_SUPPORT=1 -DHAVE_NETINET_IN_H=1 -DHAVE_PTHREAD_H=1 -DHAVE_SYS_SOCKET_H=1 -DMHD_USE_POSIX_THREADS=1 -D_GLIBCXX_DEBUG
+include_dirs = -I../../../../../../../third_party/libmicrohttpd
+cflags = -w -fstrict-aliasing -fPIC -g -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -isystem /usr/local/google/home/ethannicholas/Source/git/skia-clean/third_party/externals/microhttpd/src/include
+cflags_c =
+root_out_dir = .
+target_output_name = libmicrohttpd
+
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.base64.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/base64.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.connection.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/connection.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.daemon.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/daemon.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.internal.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/internal.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.memorypool.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/memorypool.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.postprocessor.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/postprocessor.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.reason_phrase.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/reason_phrase.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.response.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/response.c
+build obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.tsearch.o: cc ../../../../../../../third_party/externals/microhttpd/src/microhttpd/tsearch.c
+
+build obj/third_party/libmicrohttpd/libmicrohttpd.stamp: stamp obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.base64.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.connection.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.daemon.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.internal.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.memorypool.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.postprocessor.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.reason_phrase.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.response.o obj/third_party/externals/microhttpd/src/microhttpd/libmicrohttpd.tsearch.o
