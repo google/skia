@@ -17,6 +17,8 @@
 
 #include "Sk2DPathEffect.h"
 
+#ifdef SK_SUPPORT_LEGACY_TEXTINTERCEPTS
+
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
         SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
@@ -284,3 +286,5 @@ DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
         canvas->translate(0, textSize * 1.3f);
     }
 }
+#endif
+
