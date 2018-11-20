@@ -777,6 +777,11 @@ string BmhParser::className(MarkType markType) {
             }
             this->skipLine();
             return fParent->fName;
+        } else if (' ' ==  mc[1] && MarkType::kConst == markType && fParent
+                && (MarkType::kEnum == fParent->fMarkType
+                || MarkType::kEnumClass == fParent->fMarkType)) {
+            this->skipToEndBracket('\n');
+            return builder + "::" + string(wordStart, wordEnd - wordStart);
         }
         fChar = mc;
         this->next();
