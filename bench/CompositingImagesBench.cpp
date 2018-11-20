@@ -18,11 +18,17 @@
  */
 class CompositingImages : public Benchmark {
 public:
-    CompositingImages(SkISize tileSize, SkISize tileGridSize, int layerCnt)
-            : fTileSize(tileSize), fTileGridSize(tileGridSize), fLayerCnt(layerCnt) {
+    CompositingImages(SkISize tileSize, SkISize tileGridSize, int layerCnt, bool subpixelOffset)
+            : fTileSize(tileSize)
+            , fTileGridSize(tileGridSize)
+            , fLayerCnt(layerCnt)
+            , fSubpixelOffset(subpixelOffset) {
         fName.appendf("compositing_images_tile_size_%dx%d_tile_cnt_%dx%d_layers_%d",
                       fTileSize.fWidth, fTileSize.fHeight, fTileGridSize.fWidth,
                       fTileGridSize.fHeight, fLayerCnt);
+        if (subpixelOffset) {
+            fName.append("_subpixel");
+        }
     }
 
     bool isSuitableFor(Backend backend) override { return kGPU_Backend == backend; }
@@ -52,6 +58,8 @@ protected:
     void onPerCanvasPostDraw(SkCanvas*) override { fImages.reset(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        SkScalar o = this->offset();
+
         SkPaint paint;
         paint.setFilterQuality(kNone_SkFilterQuality);
         // TODO: Use per-edge AA flags for tiles when API available.
@@ -61,8 +69,8 @@ protected:
             for (int l = 0; l < fLayerCnt; ++l) {
                 for (int y = 0; y < fTileGridSize.fHeight; ++y) {
                     for (int x = 0; x < fTileGridSize.fWidth; ++x) {
-                        canvas->drawImage(fImages[imgIdx++].get(), x * fTileSize.fWidth,
-                                          y * fTileSize.fHeight, &paint);
+                        canvas->drawImage(fImages[imgIdx++].get(), x * fTileSize.fWidth + o,
+                                          y * fTileSize.fHeight + o, &paint);
                     }
                 }
             }
@@ -72,9 +80,14 @@ protected:
     }
 
 private:
+    SkScalar offset() const {
+        return fSubpixelOffset ? SK_ScalarHalf : 0.f;
+    }
+
     SkIPoint onGetSize() override {
-        return SkIPoint::Make(fTileSize.fWidth * fTileGridSize.fWidth,
-                              fTileSize.fHeight * fTileGridSize.fHeight);
+        SkScalar o = this->offset();
+        return SkIPoint::Make(SkScalarCeilToInt(fTileSize.fWidth * fTileGridSize.fWidth + o),
+                              SkScalarCeilToInt(fTileSize.fHeight * fTileGridSize.fHeight + o));
     }
 
     std::unique_ptr<sk_sp<SkImage>[]> fImages;
@@ -82,18 +95,34 @@ private:
     SkISize fTileSize;
     SkISize fTileGridSize;
     int fLayerCnt;
+    bool fSubpixelOffset;
 
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 1));
-DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 1));
+// Subpixel = false; all of the draw commands align with integer pixels so AA will be automatically
+// turned off within the operation
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 1, false));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 1, false));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 1, false));
 
-DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 4));
-DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 4));
-DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 4));
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 4, false));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 4, false));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 4, false));
 
-DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 16));
-DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 16));
-DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 16));
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 16, false));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 16, false));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 16, false));
+
+// Subpixel = true; force the draw commands to not align with pixels exactly so AA remains on
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 1, true));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 1, true));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 1, true));
+
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 4, true));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 4, true));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 4, true));
+
+DEF_BENCH(return new CompositingImages({256, 256}, {8, 8}, 16, true));
+DEF_BENCH(return new CompositingImages({512, 512}, {4, 4}, 16, true));
+DEF_BENCH(return new CompositingImages({1024, 512}, {2, 4}, 16, true));
