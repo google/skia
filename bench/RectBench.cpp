@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"
@@ -26,15 +27,27 @@ public:
     };
     SkRect  fRects[N];
     SkColor fColors[N];
+    bool    fAA;
+    bool    fPerspective;
 
-    RectBench(int shift, int stroke = 0)
+    RectBench(int shift, int stroke = 0, bool aa = true, bool perspective = false)
         : fShift(shift)
-        , fStroke(stroke) {}
+        , fStroke(stroke)
+        , fAA(aa)
+        , fPerspective(perspective) {}
 
     const char* computeName(const char root[]) {
         fBaseName.printf("%s_%d", root, fShift);
         if (fStroke > 0) {
             fBaseName.appendf("_stroke_%d", fStroke);
+        }
+        if (fAA) {
+            fBaseName.appendf("_aa");
+        } else {
+            fBaseName.appendf("_bw");
+        }
+        if (fPerspective) {
+            fBaseName.appendf("_persp");
         }
         return fBaseName.c_str();
     }
@@ -72,11 +85,25 @@ protected:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(SkIntToScalar(fStroke));
         }
+        if (fPerspective) {
+            // Apply some fixed perspective to change how ops may draw the rects
+            SkMatrix perspective;
+            perspective.setIdentity();
+            perspective.setPerspX(1e-4f);
+            perspective.setPerspY(1e-3f);
+            perspective.setSkewX(0.1f);
+            canvas->concat(perspective);
+        }
         for (int i = 0; i < loops; i++) {
             paint.setColor(fColors[i % N]);
             this->setupPaint(&paint);
             this->drawThisRect(canvas, fRects[i % N], paint);
         }
+    }
+
+    void setupPaint(SkPaint* paint) override {
+        this->INHERITED::setupPaint(paint);
+        paint->setAntiAlias(fAA);
     }
 
 private:
@@ -130,6 +157,38 @@ protected:
 
 private:
     SkString fName;
+    typedef RectBench INHERITED;
+};
+
+// Adds a shader to the paint that requires local coordinates to be used
+class LocalCoordsRectBench : public RectBench {
+public:
+    LocalCoordsRectBench(bool aa, bool perspective = false) : INHERITED(1, 0, aa, perspective) { }
+
+protected:
+    void onDelayedSetup() override {
+        this->INHERITED::onDelayedSetup();
+        // Create the shader once, so that isn't included in the timing
+        SkPoint pts[2] = { {0.f, 0.f}, {50.f, 50.f} };
+        SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
+        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    }
+
+    void setupPaint(SkPaint* paint) override {
+        this->INHERITED::setupPaint(paint);
+        paint->setShader(fShader);
+    }
+
+    const char* onGetName() override {
+        fName.set(this->INHERITED::onGetName());
+        fName.append("_localcoords");
+        return fName.c_str();
+    }
+
+private:
+    SkString fName;
+    sk_sp<SkShader> fShader;
+
     typedef RectBench INHERITED;
 };
 
@@ -273,10 +332,17 @@ private:
     SkString fName;
 };
 
-DEF_BENCH(return new RectBench(1);)
-DEF_BENCH(return new RectBench(1, 4);)
-DEF_BENCH(return new RectBench(3);)
-DEF_BENCH(return new RectBench(3, 4);)
+// AA rects
+DEF_BENCH(return new RectBench(1, 0, true);)
+DEF_BENCH(return new RectBench(1, 4, true);)
+DEF_BENCH(return new RectBench(3, 0, true);)
+DEF_BENCH(return new RectBench(3, 4, true);)
+// Non-AA rects
+DEF_BENCH(return new RectBench(1, 0, false);)
+DEF_BENCH(return new RectBench(1, 4, false);)
+DEF_BENCH(return new RectBench(3, 0, false);)
+DEF_BENCH(return new RectBench(3, 4, false);)
+
 DEF_BENCH(return new OvalBench(1);)
 DEF_BENCH(return new OvalBench(3);)
 DEF_BENCH(return new OvalBench(1, 4);)
@@ -292,6 +358,15 @@ DEF_BENCH(return new PointsBench(SkCanvas::kPolygon_PointMode, "polygon");)
 DEF_BENCH(return new SrcModeRectBench();)
 
 DEF_BENCH(return new TransparentRectBench();)
+
+DEF_BENCH(return new LocalCoordsRectBench(true);)
+DEF_BENCH(return new LocalCoordsRectBench(false);)
+
+// Perspective rects
+DEF_BENCH(return new RectBench(1, 0, true, true);)
+DEF_BENCH(return new RectBench(1, 0, false, true);)
+DEF_BENCH(return new LocalCoordsRectBench(true, true);)
+DEF_BENCH(return new LocalCoordsRectBench(false, true);)
 
 /* init the blitmask bench
  */
