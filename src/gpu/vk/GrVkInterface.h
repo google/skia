@@ -8,11 +8,12 @@
 #ifndef GrVkInterface_DEFINED
 #define GrVkInterface_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "SkRefCnt.h"
 
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkTypes.h"
-#include "vk/GrVkDefines.h"
 
 class GrVkExtensions;
 

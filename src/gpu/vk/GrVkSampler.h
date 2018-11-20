@@ -8,9 +8,9 @@
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
-#include "GrVkResource.h"
+#include "GrVkVulkan.h"
 
-#include "vk/GrVkDefines.h"
+#include "GrVkResource.h"
 
 class GrSamplerState;
 class GrVkGpu;

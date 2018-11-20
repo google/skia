@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrVkVulkan.h"
+
 #include "GrVkTypesPriv.h"
 
 #include "GrVkImageLayout.h"

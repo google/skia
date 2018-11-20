@@ -8,12 +8,13 @@
 #ifndef GrVkUtil_DEFINED
 #define GrVkUtil_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrColor.h"
 #include "GrTypes.h"
 #include "GrVkInterface.h"
 #include "SkMacros.h"
 #include "ir/SkSLProgram.h"
-#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 

@@ -8,6 +8,8 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrGpu.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
@@ -18,7 +20,6 @@
 #include "GrVkSemaphore.h"
 #include "GrVkVertexBuffer.h"
 #include "GrVkUtil.h"
-#include "vk/GrVkDefines.h"
 
 class GrPipeline;
 

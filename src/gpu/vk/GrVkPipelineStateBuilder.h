@@ -8,6 +8,8 @@
 #ifndef GrVkPipelineStateBuilder_DEFINED
 #define GrVkPipelineStateBuilder_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrPipeline.h"
 #include "GrProgramDesc.h"
 #include "GrVkPipelineState.h"
@@ -15,8 +17,6 @@
 #include "GrVkVaryingHandler.h"
 #include "SkSLCompiler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrVkGpu;
 class GrVkRenderPass;

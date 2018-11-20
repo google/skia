@@ -8,6 +8,8 @@
 #ifndef GrVkUniformBuffer_DEFINED
 #define GrVkUniformBuffer_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrVkBuffer.h"
 
 class GrVkGpu;

@@ -10,7 +10,6 @@
 
 #include "SkRefCnt.h"
 #include "GrTypes.h"
-#include "GrVkDefines.h"
 #include "GrVkTypes.h"
 
 class GrVkMemoryAllocator : public SkRefCnt {

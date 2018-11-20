@@ -8,11 +8,10 @@
 #ifndef GrVkBufferView_DEFINED
 #define GrVkBufferView_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrTypes.h"
-
 #include "GrVkResource.h"
-
-#include "vk/GrVkDefines.h"
 
 class GrVkBufferView : public GrVkResource {
 public:

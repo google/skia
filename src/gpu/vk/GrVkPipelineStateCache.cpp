@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrVkVulkan.h"
+
 #include "GrProcessor.h"
 #include "GrRenderTargetPriv.h"  // TODO: remove once refPipelineState gets passed stencil settings.
 #include "GrStencilSettings.h"

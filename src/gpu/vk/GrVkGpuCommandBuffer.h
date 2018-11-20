@@ -8,6 +8,8 @@
 #ifndef GrVkGpuCommandBuffer_DEFINED
 #define GrVkGpuCommandBuffer_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrGpuCommandBuffer.h"
 
 #include "GrColor.h"

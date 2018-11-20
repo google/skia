@@ -5,6 +5,8 @@
 * found in the LICENSE file.
 */
 
+#include "vk/GrVkVulkan.h"
+
 #include "Window_win.h"
 
 #include <tchar.h>

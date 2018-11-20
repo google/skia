@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "vk/GrVkVulkan.h"
+
 #include "GrContext.h"
 
 #include "GrContextPriv.h"

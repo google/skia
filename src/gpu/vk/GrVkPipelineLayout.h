@@ -8,9 +8,10 @@
 #ifndef GrVkPipelineLayout_DEFINED
 #define GrVkPipelineLayout_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrTypes.h"
 #include "GrVkResource.h"
-#include "vk/GrVkDefines.h"
 
 class GrVkPipelineLayout : public GrVkResource {
 public:

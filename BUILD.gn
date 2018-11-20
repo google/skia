@@ -51,7 +51,6 @@ declare_args() {
   skia_enable_skpicture = true
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
-  skia_vulkan_header = ""  # temporary as we remove the use from clients
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_generate_workarounds = false
@@ -187,6 +186,7 @@ config("skia_private") {
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
     if (is_skia_dev_build && skia_use_vulkan) {
+      include_dirs += [ "third_party/vulkan" ]
       include_dirs += [ "tools/gpu/vk" ]
     }
   }
@@ -1150,6 +1150,10 @@ if (skia_enable_tools) {
       ":skia.h",
       "modules/skottie",
     ]
+
+    # We add this directory to simulate the client already have
+    # vulkan/vulkan_core.h on their path.
+    include_dirs = [ "third_party/vulkan" ]
   }
 
   template("test_lib") {

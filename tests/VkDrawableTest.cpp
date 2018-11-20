@@ -11,6 +11,8 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
+#include "vk/GrVkVulkan.h"
+
 #include "GrBackendDrawableInfo.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
