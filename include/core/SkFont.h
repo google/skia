@@ -172,7 +172,7 @@ public:
 #endif
 
     /** Returns a font with the same attributes of this font, but with the specified size.
-        If size is less than zero or non-finite, nullptr will be returned.
+        Returns nullptr if size is less than zero, infinite, or NaN.
 
         @param size  typographic height of text
         @return      initialized SkFont
@@ -251,7 +251,7 @@ public:
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
-        If encoding is kUTF8_TextEncoding and text contains an invalid UTF-8 sequence,
+        If encoding is kUTF8_SkTextEncoding and text contains an invalid UTF-8 sequence,
         zero is returned.
 
         If maxGlyphCount is not sufficient to store all the glyphs, no glyphs are copied.
@@ -344,7 +344,7 @@ public:
         descent, ascent, and leading.
         If metrics is not nullptr, SkFontMetrics is copied to metrics.
         Results are scaled by text size but does not take into account
-        dimensions required by text scale x, text skew x, fake bold,
+        dimensions required by text scale, text skew, fake bold,
         style stroke, and SkPathEffect.
 
         @param metrics  storage for SkFontMetrics; may be nullptr
