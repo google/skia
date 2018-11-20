@@ -81,12 +81,6 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
     }); // end describe('color string parsing')
 
     function multipleCanvasTest(testname, done, test) {
-        if (CanvasKit.gpu) {
-            // TODO(kjlubick): add Software backend to GPU build skia:8548
-            console.log(`SKIPPING ${testname} on GPU`);
-            done();
-            return;
-        }
         const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         skcanvas._config = 'software_canvas';
         const realCanvas = document.getElementById('test');

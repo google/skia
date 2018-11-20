@@ -3,7 +3,7 @@
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
-    CanvasKit.MakeCanvasSurface = function(htmlID) {
+    CanvasKit.MakeSWCanvasSurface = function(htmlID) {
       var canvas = document.getElementById(htmlID);
       if (!canvas) {
         throw 'Canvas with id ' + htmlID + ' was not found';
@@ -22,6 +22,11 @@
       return surface;
     };
 
+    // Don't over-write the MakeCanvasSurface set by gpu.js if it exists.
+    if (!CanvasKit.MakeCanvasSurface) {
+      CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
+    }
+
     CanvasKit.MakeSurface = function(width, height) {
       var surface = this._getRasterN32PremulSurface(width, height);
       if (surface) {
@@ -38,6 +43,7 @@
     CanvasKit.SkSurface.prototype.flush = function() {
       this._flush();
       // Do we have an HTML canvas to write the pixels to?
+      // We will not if this a GPU build or a raster surface, for example.
       if (this._canvas) {
         var success = this._readPixels(this._width, this._height, this._pixelPtr);
         if (!success) {
@@ -60,12 +66,12 @@
       this.delete();
     }
 
-    CanvasKit.currentContext = function() {
-      // no op. aka return undefined.
+    CanvasKit.currentContext = CanvasKit.currentContext || function() {
+      // no op if this is a cpu-only build.
     };
 
-    CanvasKit.setCurrentContext = function() {
-      // no op. aka return undefined.
+    CanvasKit.setCurrentContext = CanvasKit.setCurrentContext || function() {
+       // no op if this is a cpu-only build.
     };
   });
 }(Module)); // When this file is loaded in, the high level object is "Module";
