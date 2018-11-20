@@ -36,12 +36,12 @@
 
       var img = this._surface.makeImageSnapshot();
       if (!img) {
-        console.error('no snapshot');
+        SkDebug('no snapshot');
         return;
       }
       var png = img.encodeToData();
       if (!png) {
-        console.error('encoding failure');
+        SkDebug('encoding failure');
         return
       }
       // TODO(kjlubick): clean this up a bit - maybe better naming?
@@ -315,7 +315,7 @@
     // (but neither does node-canvas's?)
     var fontSize = fontSizeRegex.exec(fontStr);
     if (!fontSize) {
-      console.error('Could not parse font size', fontStr);
+      SkDebug('Could not parse font size' + fontStr);
       return 16;
     }
     var size = fontSize[1];
@@ -401,7 +401,7 @@
         return nc;
       }
     }
-    console.error('unrecognized color ', colorStr);
+    SkDebug('unrecognized color ' + colorStr);
     return CanvasKit.BLACK;
   }
 
