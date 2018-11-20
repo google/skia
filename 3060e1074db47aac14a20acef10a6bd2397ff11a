@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e764bb1c_bc726c74",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-20T16:07:22Z",
+      "side": 1,
+      "message": "extra space?",
+      "range": {
+        "startLine": 416,
+        "startChar": 63,
+        "endLine": 416,
+        "endChar": 65
+      },
+      "revId": "3060e1074db47aac14a20acef10a6bd2397ff11a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
