@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da72ed4d_cef01729",
+        "filename": "bench/CompositingImagesBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-20T14:20:02Z",
+      "side": 1,
+      "message": "Should the offset be multiplied by x/y? Seems like it should just be added once so that all the tiles are fractionally offset by the same amount. Or are you trying to test a mix of integer/non-integer dst rects?",
+      "revId": "e5bc8ab2f0bdd71ef7fcb56dfc2b6bd2c6a51fa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
