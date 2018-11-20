@@ -26,7 +26,9 @@
 
 #include <atomic>
 
+#ifndef SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
 #define SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
+#endif
 
 struct SkSerialProcs;
 struct SkDeserialProcs;
