@@ -8,6 +8,8 @@
 #ifndef GrVkImage_DEFINED
 #define GrVkImage_DEFINED
 
+#include "GrVkVulkan.h"
+
 #include "GrVkResource.h"
 
 #include "GrBackendSurface.h"
@@ -15,7 +17,6 @@
 #include "GrVkImageLayout.h"
 #include "SkTypes.h"
 
-#include "vk/GrVkDefines.h"
 #include "vk/GrVkTypes.h"
 
 class GrVkGpu;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
+#include "vk/GrVkVulkan.h"
 
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"

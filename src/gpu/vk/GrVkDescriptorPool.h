@@ -8,9 +8,9 @@
 #ifndef GrVkDescriptorPool_DEFINED
 #define GrVkDescriptorPool_DEFINED
 
-#include "GrVkResource.h"
+#include "GrVkVulkan.h"
 
-#include "vk/GrVkDefines.h"
+#include "GrVkResource.h"
 
 class GrVkGpu;
 

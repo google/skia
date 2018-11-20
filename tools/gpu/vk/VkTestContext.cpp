@@ -12,8 +12,6 @@
 #include "GrContext.h"
 #include "VkTestUtils.h"
 #include "vk/GrVkExtensions.h"
-#include "vk/GrVkInterface.h"
-#include "vk/GrVkUtil.h"
 
 namespace {
 
