@@ -462,6 +462,27 @@ if (source.peekPixels(&pixmap)) {
 
 #Method ##
 
+#Method static sk_sp<SkImage> MakeFromYUVAPixmaps(
+                                               GrContext* context,
+                                               SkYUVColorSpace yuvColorSpace,
+                                               const SkPixmap yuvaPixmaps[],
+                                               const SkYUVAIndex yuvaIndices[4],
+                                               SkISize imageSize,
+                                               GrSurfaceOrigin imageOrigin,
+                                               bool buildMips,
+                                               bool limitToMaxTextureSize = false,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
+#In Constructor
+#Line # creates Image from YUV_ColorSpace data ##
+#Populate
+
+#NoExample
+##
+
+#SeeAlso MakeFromYUVATextures
+
+#Method ##
 
 # ------------------------------------------------------------------------------
 

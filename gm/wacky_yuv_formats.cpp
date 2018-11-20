@@ -743,6 +743,7 @@ protected:
                         }
 
                         GrBackendTexture yuvaTextures[4];
+                        SkPixmap yuvaPixmaps[4];
 
                         for (int i = 0; i < 4; ++i) {
                             if (!used[i]) {
@@ -757,9 +758,12 @@ protected:
                                 false,
                                 GrMipMapped::kNo,
                                 resultBMs[i].rowBytes());
+                            yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
-                        if (counter & 0x1) {
+                        int counterMod = counter % 3;
+                        switch (counterMod) {
+                        case 0:
                             fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
                                 context,
                                 (SkYUVColorSpace)cs,
@@ -767,7 +771,8 @@ protected:
                                 yuvaIndices,
                                 { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
                                 kTopLeft_GrSurfaceOrigin);
-                        } else {
+                            break;
+                        case 1:
                             fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
                                 context,
                                 (SkYUVColorSpace)cs,
@@ -775,7 +780,19 @@ protected:
                                 yuvaIndices,
                                 { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
                                 kTopLeft_GrSurfaceOrigin);
+                            break;
+                        case 2:
+                        default:
+                            fImages[opaque][cs][format] = SkImage::MakeFromYUVAPixmaps(
+                                context,
+                                (SkYUVColorSpace)cs,
+                                yuvaPixmaps,
+                                yuvaIndices,
+                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                kTopLeft_GrSurfaceOrigin, true);
+                            break;
                         }
+                        ++counter;
                     } else {
                         fImages[opaque][cs][format] = make_yuv_gen_image(
                                                                 fOriginalBMs[opaque].info(),
@@ -785,7 +802,6 @@ protected:
                     }
                 }
             }
-            ++counter;
         }
     }
 
