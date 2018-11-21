@@ -948,6 +948,10 @@ public:
                          kGlyphID_TextEncoding
     */
     void setTextEncoding(TextEncoding encoding);
+    // Experimental
+    void setTextEncoding(SkTextEncoding encoding) {
+        this->setTextEncoding((TextEncoding)encoding);
+    }
 
 #ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
     /**
