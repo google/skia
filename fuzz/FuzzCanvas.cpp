@@ -892,16 +892,16 @@ static void fuzz_paint_text(Fuzz* fuzz, SkPaint* paint) {
                                                                      kFull_SkFontHinting));
 }
 
-static void fuzz_paint_text_encoding(Fuzz* fuzz, SkPaint* paint) {
-    paint->setTextEncoding(make_fuzz_t_range<SkPaint::TextEncoding>(fuzz, 0, 3));
+static SkTextEncoding fuzz_paint_text_encoding(Fuzz* fuzz) {
+    return make_fuzz_t_range<SkTextEncoding>(fuzz, 0, 3);
 }
 
 constexpr int kMaxGlyphCount = 30;
 
-static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
+static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextEncoding encoding) {
     SkTDArray<uint8_t> array;
-    if (SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding()) {
-        int glyphRange = paint.getTypeface() ? paint.getTypeface()->countGlyphs()
+    if (kGlyphID_SkTextEncoding == encoding) {
+        int glyphRange = font.getTypeface() ? font.getTypeface()->countGlyphs()
                                              : SkTypeface::MakeDefault()->countGlyphs();
         if (glyphRange == 0) {
             // Some fuzzing environments have no fonts, so empty array is the best
@@ -941,8 +941,8 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
             }
         }
     }
-    switch (paint.getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding: {
+    switch (encoding) {
+        case kUTF8_SkTextEncoding: {
             size_t utf8len = 0;
             for (int j = 0; j < length; ++j) {
                 utf8len += SkUTF::ToUTF8(buffer[j], nullptr);
@@ -952,7 +952,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
                 ptr += SkUTF::ToUTF8(buffer[j], ptr);
             }
         } break;
-        case SkPaint::kUTF16_TextEncoding: {
+        case kUTF16_SkTextEncoding: {
             size_t utf16len = 0;
             for (int j = 0; j < length; ++j) {
                 utf16len += SkUTF::ToUTF16(buffer[j]);
@@ -962,7 +962,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
                 ptr += SkUTF::ToUTF16(buffer[j], ptr);
             }
         } break;
-        case SkPaint::kUTF32_TextEncoding:
+        case kUTF32_SkTextEncoding:
             memcpy(array.append(length * sizeof(SkUnichar)), buffer, length * sizeof(SkUnichar));
             break;
         default:
@@ -972,17 +972,21 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
     return array;
 }
 
+static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
+    return make_fuzz_text(fuzz, SkFont::LEGACY_ExtractFromPaint(paint),
+                          (SkTextEncoding)paint.getTextEncoding());
+}
+
 static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     SkTextBlobBuilder textBlobBuilder;
     int8_t runCount;
     fuzz->nextRange(&runCount, (int8_t)1, (int8_t)8);
     while (runCount-- > 0) {
-        SkPaint paint;
-        fuzz_paint_text_encoding(fuzz, &paint);
-        paint.setAntiAlias(make_fuzz_t<bool>(fuzz));
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
-        int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
+        SkFont font;
+        SkTextEncoding encoding = fuzz_paint_text_encoding(fuzz);
+        font.setEdging(make_fuzz_t<bool>(fuzz) ? SkFont::Edging::kAlias : SkFont::Edging::kAntiAlias);
+        SkTDArray<uint8_t> text = make_fuzz_text(fuzz, font, encoding);
+        int glyphCount = font.countText(text.begin(), SkToSizeT(text.count()), encoding);
         SkASSERT(glyphCount <= kMaxGlyphCount);
         SkScalar x, y;
         const SkTextBlobBuilder::RunBuffer* buffer;
@@ -992,19 +996,19 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
             case 0:
                 fuzz->next(&x, &y);
                 // TODO: Test other variations of this.
-                buffer = &textBlobBuilder.allocRun(paint, glyphCount, x, y);
+                buffer = &textBlobBuilder.allocRun(font, glyphCount, x, y);
                 memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));
                 break;
             case 1:
                 fuzz->next(&y);
                 // TODO: Test other variations of this.
-                buffer = &textBlobBuilder.allocRunPosH(paint, glyphCount, y);
+                buffer = &textBlobBuilder.allocRunPosH(font, glyphCount, y);
                 memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));
                 fuzz->nextN(buffer->pos, glyphCount);
                 break;
             case 2:
                 // TODO: Test other variations of this.
-                buffer = &textBlobBuilder.allocRunPos(paint, glyphCount);
+                buffer = &textBlobBuilder.allocRunPos(font, glyphCount);
                 memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));
                 fuzz->nextN(buffer->pos, glyphCount * 2);
                 break;
@@ -1460,7 +1464,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 45: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
+                paint.setTextEncoding(fuzz_paint_text_encoding(fuzz));
                 SkScalar x, y;
                 fuzz->next(&x, &y);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
@@ -1470,7 +1474,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 46: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
+                paint.setTextEncoding(fuzz_paint_text_encoding(fuzz));
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
                 if (glyphCount < 1) {
@@ -1491,7 +1495,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 47: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
+                paint.setTextEncoding(fuzz_paint_text_encoding(fuzz));
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));
                 SkAutoTMalloc<SkScalar> widths(glyphCount);
@@ -1525,7 +1529,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             case 50: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 fuzz_paint_text(fuzz, &paint);
-                fuzz_paint_text_encoding(fuzz, &paint);
+                paint.setTextEncoding(fuzz_paint_text_encoding(fuzz));
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkRSXform rSXform[kMaxGlyphCount];
                 int glyphCount = paint.countText(text.begin(), SkToSizeT(text.count()));

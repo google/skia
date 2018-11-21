@@ -136,15 +136,14 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
 }
 
 void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
-                            const SkPaint& origPaint, SkScalar x, SkScalar y) {
-    SkPaint paint(origPaint);
+                            const SkPaint& paint, SkScalar x, SkScalar y) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     SkTDArray<uint16_t> glyphs;
 
-    glyphs.append(paint.textToGlyphs(text, len, nullptr));
-    paint.textToGlyphs(text, len, glyphs.begin());
+    glyphs.append(font.countText(text, len, (SkTextEncoding)paint.getTextEncoding()));
+    font.textToGlyphs(text, len, (SkTextEncoding)paint.getTextEncoding(), glyphs.begin(), glyphs.count());
 
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(paint, glyphs.count(), x, y,
+    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(font, glyphs.count(), x, y,
                                                                 nullptr);
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
 }

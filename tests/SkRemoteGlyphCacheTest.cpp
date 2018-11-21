@@ -68,14 +68,12 @@ private:
 };
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
-    SkPaint font;
+    SkFont font;
     font.setTypeface(tf);
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    font.setStyle(SkPaint::kFill_Style);
     font.setHinting(kNormal_SkFontHinting);
-    font.setTextSize(1u);
-    font.setAntiAlias(true);
-    font.setSubpixelText(true);
+    font.setSize(1u);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setSubpixel(true);
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeWH(10, 10);

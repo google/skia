@@ -58,12 +58,10 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     auto tf = SkTypeface::MakeFromName("monospace", SkFontStyle());
 
-    SkPaint font;
+    SkFont font;
     font.setTypeface(tf);
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    font.setStyle(SkPaint::kFill_Style);
     font.setHinting(kNormal_SkFontHinting);
-    font.setTextSize(1u);
+    font.setSize(1u);
 
     SkTextBlobBuilder blobBuilder;
     for (int runNum = 0; runNum < runCount; runNum++) {
@@ -79,11 +77,10 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     auto blob = blobBuilder.make();
 
-    SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
     SkGlyphRunBuilder runBuilder;
-    runBuilder.drawTextBlob(font, *blob, SkPoint::Make(0, 0));
+    SkPaint legacy_paint;
+    font.LEGACY_applyToPaint(&legacy_paint);
+    runBuilder.drawTextBlob(legacy_paint, *blob, SkPoint::Make(0, 0));
 
     auto runList = runBuilder.useGlyphRunList();
 

@@ -745,8 +745,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
 }
 
 DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
-    SkPaint font;
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkFont font;
     font.setTypeface(SkTypeface::MakeDefault());
 
     SkTextBlobBuilder builder;
