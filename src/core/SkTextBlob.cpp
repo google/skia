@@ -769,10 +769,8 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
     SkTextBlobBuilder blobBuilder;
     if (!glyphRunList.empty()) {
         auto run = glyphRunList[0];
-        SkPaint blobPaint(legacyPaint);
-        blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-        auto runData = blobBuilder.allocRunPos(blobPaint, run.runSize());
+        auto runData = blobBuilder.allocRunPos(font, run.runSize());
         run.filloutGlyphsAndPositions(runData.glyphs, (SkPoint *)runData.pos);
     }
 

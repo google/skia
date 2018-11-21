@@ -65,6 +65,8 @@ public:
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
 
+    bool operator==(const SkFont&);
+
     /** If true, instructs the font manager to always hint glyphs.
         Returned value is only meaningful if platform uses FreeType as the font manager.
 
@@ -365,6 +367,9 @@ public:
     /** Deprecated.
     */
     void LEGACY_applyToPaint(SkPaint* paint) const;
+    /** Deprecated.
+     */
+    void LEGACY_applyPaintFlags(uint32_t paintFlags);
     /** Deprecated.
     */
     static SkFont LEGACY_ExtractFromPaint(const SkPaint& paint);

@@ -25,26 +25,23 @@ constexpr int kWidth = 1250;
 constexpr int kHeight = 700;
 
 // Unlike the variant in sk_tool_utils, this version positions the glyphs on a diagonal
-static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
+static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkFont& font,
                              SkScalar x, SkScalar y) {
-    SkPaint paint(origPaint);
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
-    glyphs.append(paint.textToGlyphs(text, len, nullptr));
-    paint.textToGlyphs(text, len, glyphs.begin());
+    glyphs.append(font.countText(text, len, kUTF8_SkTextEncoding));
+    font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs.begin(), glyphs.count());
 
-    const SkScalar advanceX = paint.getTextSize() * 0.85f;
-    const SkScalar advanceY = paint.getTextSize() * 1.5f;
+    const SkScalar advanceX = font.getSize() * 0.85f;
+    const SkScalar advanceY = font.getSize() * 1.5f;
 
     SkTDArray<SkScalar> pos;
     for (unsigned i = 0; i < len; ++i) {
         *pos.append() = x + i * advanceX;
         *pos.append() = y + i * (advanceY / len);
     }
-
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRunPos(paint, glyphs.count());
+    const SkTextBlobBuilder::RunBuffer& run = builder->allocRunPos(font, glyphs.count());
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
     memcpy(run.pos, pos.begin(), len * sizeof(SkScalar) * 2);
 }
@@ -141,14 +138,13 @@ protected:
         SkTextBlobBuilder builder;
 
         // LCD
-        SkPaint paint;
-        paint.setTextSize(32);
+        SkFont font;
+        font.setSize(32);
         const char* text = "The quick brown fox jumps over the lazy dog";
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        add_to_text_blob(&builder, text, paint, 0, 0);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setTypeface(sk_tool_utils::create_portable_typeface());
+        add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
 
         // create a looper which sandwhiches an effect in two normal draws

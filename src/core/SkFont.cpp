@@ -40,6 +40,16 @@ SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size) : SkFont(std::move(face), 
 
 SkFont::SkFont() : SkFont(nullptr, kDefault_Size) {}
 
+bool SkFont::operator==(const SkFont& b) {
+    return  fTypeface.get() == b.fTypeface.get() &&
+            fSize           == b.fSize &&
+            fScaleX         == b.fScaleX &&
+            fSkewX          == b.fSkewX &&
+            fFlags          == b.fFlags &&
+            fEdging         == b.fEdging &&
+            fHinting        == b.fHinting;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
@@ -363,35 +373,39 @@ void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
 }
 
 SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
-    uint32_t flags = 0;
-    if (paint.isEmbeddedBitmapText()) {
-        flags |= kEmbeddedBitmaps_PrivFlag;
-    }
-    if (paint.isFakeBoldText()) {
-        flags |= kEmbolden_PrivFlag;
-    }
-    if (paint.isAutohinted()) {
-        flags |= kForceAutoHinting_PrivFlag;
-    }
-    if (paint.isSubpixelText()) {
-        flags |= kSubpixel_PrivFlag;
-    }
-    if (paint.isLinearText()) {
-        flags |= kLinearMetrics_PrivFlag;
-    }
-
-    Edging edging = Edging::kAlias;
-    if (paint.isAntiAlias()) {
-        edging = Edging::kAntiAlias;
-        if (paint.isLCDRenderText()) {
-            edging = Edging::kSubpixelAntiAlias;
-        }
-    }
-
     SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
                 paint.getTextSkewX());
-    font.fFlags = flags;
-    font.setEdging(edging);
+    font.LEGACY_applyPaintFlags(paint.getFlags());
     font.setHinting((SkFontHinting)paint.getHinting());
     return font;
 }
+
+void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
+    uint32_t flags = 0;
+    if (paintFlags & SkPaint::kEmbeddedBitmapText_Flag) {
+        flags |= kEmbeddedBitmaps_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kFakeBoldText_Flag) {
+        flags |= kEmbolden_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kAutoHinting_Flag) {
+        flags |= kForceAutoHinting_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kSubpixelText_Flag) {
+        flags |= kSubpixel_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kLinearText_Flag) {
+        flags |= kLinearMetrics_PrivFlag;
+    }
+    fFlags = flags;
+
+    Edging edging = Edging::kAlias;
+    if (paintFlags & SkPaint::kAntiAlias_Flag) {
+        edging = Edging::kAntiAlias;
+        if (paintFlags & SkPaint::kLCDRenderText_Flag) {
+            edging = Edging::kSubpixelAntiAlias;
+        }
+    }
+    this->setEdging(edging);
+}
+
