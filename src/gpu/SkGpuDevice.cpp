@@ -1506,6 +1506,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
         }
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
+        textures[i].fAlpha = set[i].fAlpha;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
         if (n > 0 &&
             (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||

@@ -1825,11 +1825,24 @@ public:
 
     /** This is used by the experimental API below. */
     struct ImageSetEntry {
+        // Temporary constructor for SkiaRenderer which currently does not use alpha.
+        ImageSetEntry(sk_sp<const SkImage>, const SkRect& srcRect, const SkRect& dstRect,
+                      unsigned aaFlags);
+        // Temporary constructor for SkiaRenderer to transition to per-quad alpha.
+        ImageSetEntry(sk_sp<const SkImage>, const SkRect& srcRect, const SkRect& dstRect,
+                      float alpha, unsigned aaFlags);
+        // Required so long as above constructors are necessary.
+        ImageSetEntry() = default;
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
+        float fAlpha;
         unsigned fAAFlags;  // QuadAAFlags
     };
+
+    /** This version will be removed. Alpha is now a property of ImageSetEntry. */
+    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
+                                     SkFilterQuality quality, SkBlendMode mode);
 
     /**
      * This is an experimental API for the SkiaRenderer Chromium project. The signature will
@@ -1839,7 +1852,7 @@ public:
      * current implementation only antialiases if all edges are flagged, however.
      * Results are undefined if an image's src rect is not within the image's bounds.
      */
-    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
+    void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.

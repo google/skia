@@ -362,6 +362,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 set[i].fImage = sk_ref_sp(fPictureData->getImage(reader));
                 reader->readRect(&set[i].fSrcRect);
                 reader->readRect(&set[i].fDstRect);
+                set[i].fAlpha = reader->readScalar();
                 set[i].fAAFlags = reader->readUInt();
             }
             BREAK_ON_READ_ERROR(reader);
