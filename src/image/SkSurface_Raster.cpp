@@ -21,7 +21,7 @@ public:
 
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
-    sk_sp<SkImage> onNewImageSnapshot() override;
+    sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
@@ -98,7 +98,16 @@ void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->drawBitmap(fBitmap, x, y, paint);
 }
 
-sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot() {
+sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot(const SkIRect* subset) {
+    if (subset) {
+        SkASSERT(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()).contains(*subset));
+        SkBitmap dst;
+        dst.allocPixels(fBitmap.info().makeWH(subset->width(), subset->height()));
+        SkAssertResult(fBitmap.readPixels(dst.pixmap(), subset->left(), subset->top()));
+        dst.setImmutable(); // key, so MakeFromBitmap doesn't make a copy of the buffer
+        return SkImage::MakeFromBitmap(dst);
+    }
+
     SkCopyPixelsMode cpm = kIfMutable_SkCopyPixelsMode;
     if (fWeOwnThePixels) {
         // SkImage_raster requires these pixels are immutable for its full lifetime.
