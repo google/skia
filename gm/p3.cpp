@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXformSteps.h"
+#include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkString.h"
 
@@ -352,4 +353,75 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
     }
 
     // TODO: draw P3 colors more ways
+}
+
+DEF_SIMPLE_GM(p3_ovals, canvas, 450, 320) {
+    auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                    SkColorSpace::kDCIP3_D65_Gamut);
+
+    // Test cases that exercise each Op in GrOvalOpFactory.cpp
+
+    // Draw a circle and check the center (CircleOp)
+    {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor4f({ 1,0,0,1 }, p3.get());
+
+        canvas->drawCircle(40, 40, 30, paint);
+        compare_pixel("drawCircle P3 red ",
+                      canvas, 40, 40,
+                      { 1,0,0,1 }, p3.get());
+    }
+
+    canvas->translate(0, 80);
+
+    // Draw an oval and check the center (EllipseOp)
+    {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor4f({ 1,0,0,1 }, p3.get());
+
+        canvas->drawOval({ 20,10,60,70 }, paint);
+        compare_pixel("drawOval P3 red ",
+                      canvas, 40, 40,
+                      { 1,0,0,1 }, p3.get());
+    }
+
+    canvas->translate(0, 80);
+
+    // Draw a butt-capped dashed circle and check the top of the stroke (ButtCappedDashedCircleOp)
+    {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor4f({ 1,0,0,1 }, p3.get());
+        paint.setStyle(SkPaint::kStroke_Style);
+        float intervals[] = { 70, 10 };
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+        paint.setStrokeWidth(10);
+
+        canvas->drawCircle(40, 40, 30, paint);
+        compare_pixel("drawDashedCircle P3 red ",
+                      canvas, 40, 5,
+                      { 1,0,0,1 }, p3.get());
+    }
+
+    canvas->translate(0, 80);
+
+    // Draw an oval with rotation and check the center (DIEllipseOp)
+    {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor4f({ 1,0,0,1 }, p3.get());
+
+        canvas->save();
+            canvas->translate(40, 40);
+            canvas->rotate(45);
+            canvas->drawOval({ -20,-30,20,30 }, paint);
+        canvas->restore();
+        compare_pixel("drawRotatedOval P3 red ",
+                      canvas, 40, 40,
+                      { 1,0,0,1 }, p3.get());
+    }
+
+    canvas->translate(0, 80);
 }
