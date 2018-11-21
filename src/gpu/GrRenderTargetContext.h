@@ -143,6 +143,7 @@ public:
         sk_sp<GrTextureProxy> fProxy;
         SkRect fSrcRect;
         SkRect fDstRect;
+        float fAlpha;
         GrQuadAAFlags fAAFlags;
     };
     /**

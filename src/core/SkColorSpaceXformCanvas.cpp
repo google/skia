@@ -178,6 +178,7 @@ public:
             xformedSet[i].fImage = this->prepareImage(set[i].fImage.get());
             xformedSet[i].fSrcRect = set[i].fSrcRect;
             xformedSet[i].fDstRect = set[i].fDstRect;
+            xformedSet[i].fAlpha = set[i].fAlpha;
             xformedSet[i].fAAFlags = set[i].fAAFlags;
         }
         fTarget->experimental_DrawImageSetV0(xformedSet.get(), count, alpha, filterQuality, mode);
