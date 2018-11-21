@@ -188,7 +188,8 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             return count;
     }
 
-    (void)fTypeface->charsToGlyphs(text, typefaceEncoding, glyphs, count);
+    (void)SkFontPriv::GetTypefaceOrDefault(*this)->charsToGlyphs(text, typefaceEncoding, glyphs,
+                                                                 count);
     return count;
 }
 
