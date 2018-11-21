@@ -456,7 +456,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("scale", &SkCanvas::scale)
-        .function("setMatrix", &SkCanvas::setMatrix)
+        .function("setMatrix", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
+            self.setMatrix(toSkMatrix(m));
+        }))
         .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate);
 
@@ -507,7 +509,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_arcTo", &ApplyArcTo)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
+        .function("countPoints", &SkPath::countPoints)
         .function("_cubicTo", &ApplyCubicTo)
+        .function("getPoint", &SkPath::getPoint)
         .function("_lineTo", &ApplyLineTo)
         .function("_moveTo", &ApplyMoveTo)
         .function("_quadTo", &ApplyQuadTo)
@@ -625,10 +629,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkVertices::VertexMode>("VertexMode")
         .value("Triangles",       SkVertices::VertexMode::kTriangles_VertexMode)
         .value("TrianglesStrip",  SkVertices::VertexMode::kTriangleStrip_VertexMode)
-        .value("TriangleFan",    SkVertices::VertexMode::kTriangleFan_VertexMode);
+        .value("TriangleFan",     SkVertices::VertexMode::kTriangleFan_VertexMode);
 
     enum_<SkEncodedImageFormat>("ImageFormat")
-        .value("PNG", SkEncodedImageFormat::kPNG)
+        .value("PNG",  SkEncodedImageFormat::kPNG)
         .value("JPEG", SkEncodedImageFormat::kJPEG);
 
 

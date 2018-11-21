@@ -19,6 +19,43 @@
       return a * b + c * d + e * f;
     }
 
+    CanvasKit.SkMatrix.identity = function() {
+      return [
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1,
+      ];
+    };
+
+    // Maps the given points according to the passed in matrix.
+    // Results are done in place.
+    // See SkMatrix.h::mapPoints for the docs on the math.
+    CanvasKit.SkMatrix.mapPoints = function(matrix, ptArr) {
+      if (ptArr.length % 2) {
+        throw 'mapPoints requires an even length arr';
+      }
+      for (var i = 0; i < ptArr.length; i+=2) {
+        var x = ptArr[i], y = ptArr[i+1];
+        // Gx+Hy+I
+        var denom  = matrix[6]*x + matrix[7]*y + matrix[8];
+        // Ax+By+C
+        var xTrans = matrix[0]*x + matrix[1]*y + matrix[2];
+        // Dx+Ey+F
+        var yTrans = matrix[3]*x + matrix[4]*y + matrix[5];
+        ptArr[i]   = xTrans/denom;
+        ptArr[i+1] = yTrans/denom;
+      }
+    };
+
+    CanvasKit.SkMatrix.multiply = function(m1, m2) {
+      var result = [0,0,0, 0,0,0, 0,0,0];
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          result[r][c] =
+        }
+      }
+    }
+
     // Return a matrix representing a rotation by n degrees.
     // px, py optionally say which point the rotation should be around
     // with the default being (0, 0);
@@ -34,6 +71,17 @@
         0,        0,                             1,
       ];
     };
+
+    CanvasKit.SkMatrix.scaled = function(sx, sy, px, py) {
+      px = px || 0;
+      py = py || 0;
+      return [
+        sx, 0, px - sx * px,
+        0, sy, py - sy * py,
+        0,  0,            1,
+      ];
+    };
+
     // TODO(kjlubick): translated, scaled
 
 

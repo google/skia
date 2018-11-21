@@ -40,9 +40,9 @@
       return null;
     }
 
-    this.toDataURL = function(codec) {
-      // TODO(kjlubick): maybe support other codecs?
-      // For now, just to png
+    this.toDataURL = function(codec, quality) {
+      // TODO(kjlubick): maybe support other codecs (webp?)
+      // For now, just to png and jpeg
       this._surface.flush();
 
       var img = this._surface.makeImageSnapshot();
@@ -50,14 +50,19 @@
         SkDebug('no snapshot');
         return;
       }
-      var png = img.encodeToData();
-      if (!png) {
+      var codec = codec || 'image/png';
+      var format = CanvasKit.ImageFormat.PNG;
+      if (codec === 'image/jpeg') {
+        format = CanvasKit.ImageFormat.JPEG;
+      }
+      var quality = quality || 0.92;
+      var skimg = img.encodeToData(format, quality);
+      if (!skimg) {
         SkDebug('encoding failure');
         return
       }
-      // TODO(kjlubick): clean this up a bit - maybe better naming?
-      var pngBytes = CanvasKit.getSkDataBytes(png);
-      return 'data:image/png;base64,' + toBase64String(pngBytes);
+      var imgBytes = CanvasKit.getSkDataBytes(skimg);
+      return 'data:' + codec + ';base64,' + toBase64String(imgBytes);
     }
 
     this.dispose = function() {
@@ -71,12 +76,13 @@
     this._paint = new CanvasKit.SkPaint();
     this._paint.setAntiAlias(true);
     this._paint.setStrokeWidth(2);
-    this._currentSubPath = null;
-    this._paths = [];
-    this._pathStarted = false;
+
+    this._currentSubpath = null;
+    this._currentTransform = new CanvasKit.SkMatrix.identity();
+    this._subpaths = [];
 
     this._dispose = function() {
-      this._paths.forEach(function(path) {
+      this._subpaths.forEach(function(path) {
         path.delete();
       });
       this._paint.delete();
@@ -121,32 +127,53 @@
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(x1, y1);
       if (radius < 0) {
         throw 'radii cannot be negative';
       }
-      this._currentSubPath.arcTo(x1, y1, x2, y2, radius);
+      if (!this._subpaths.length) {
+        this._pushNewSubpath(x1, y1);
+      }
+      // // Transform the points given the current matrix
+      // var args = [x1, y1, x2, y2, Math.sqrt(radius)/2, Math.sqrt(radius)/2];
+      // CanvasKit.SkMatrix.mapPoints(this._currentTransform, args);
+      // x1 = args[0], y1 = args[1];
+      // x1 = args[2], y1 = args[3];
+      // radius = Math.sqrt(args[4]*args[4] + args[5]*args[5]);
+      this._currentSubpath.arcTo(x1, y1, x2, y2, radius);
     }
 
+    // As per the spec this doesn't begin any paths, it only
+    // clears out any previous subpaths.
     this.beginPath = function() {
-      this._currentSubPath = new CanvasKit.SkPath();
-      this._paths.push(this._currentSubPath);
-      this._pathStarted = false;
+      this._subpaths.forEach(function(path) {
+        path.delete();
+      });
+      this._subpaths = [];
     }
 
     this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(cp1x, cp1y);
-      this._currentSubPath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
+      if (!this._subpaths.length) {
+        this._pushNewSubpath(cp1x, cp1y);
+      }
+      this._currentSubpath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
     }
 
     this.closePath = function() {
-      if (this._currentSubPath) {
-        this._currentSubPath.close();
-        this._currentSubPath = null;
-        this._pathStarted = false;
+      if (this._currentSubpath) {
+        this._currentSubpath.close();
+        var lastPt = this._currentSubpath.getPoint(0);
+        this._pushNewSubpath(lastPt.x, lastPt.y);
+      }
+    }
+
+    this._commitTransform = function() {
+      if (this._currentSubpath) {
+        this._currentSubpath.transform(this._currentTransform);
+        var lastPt = this._currentSubpath.getPoint(this._currentSubpath.countPoints() - 1);
+        this._pushNewSubpath(lastPt.x, lastPt.y);
       }
     }
 
@@ -158,34 +185,14 @@
       if (radiusX < 0 || radiusY < 0) {
         throw 'radii cannot be negative';
       }
-      this._pathStarted = true;
 
       var bounds = CanvasKit.LTRBRect(x-radiusX, y-radiusY, x+radiusX, y+radiusY);
       var sweep = radiansToDegrees(endAngle - startAngle) - (360 * !!ccw);
       var temp = new CanvasKit.SkPath();
       temp.addArc(bounds, radiansToDegrees(startAngle), sweep);
       var m = CanvasKit.SkMatrix.rotated(radiansToDegrees(rotation), x, y);
-      this._currentSubPath.addPath(temp, m, true);
+      this._currentSubpath.addPath(temp, m, true);
       temp.delete();
-    }
-
-    // ensureSubpath makes SkPath behave like the browser's path object
-    // in that the first lineTo really acts like a moveTo.
-    // ensureSubpath is the term used in the canvas spec:
-    // https://html.spec.whatwg.org/multipage/canvas.html#ensure-there-is-a-subpath
-    // ensureSubpath returns true if the drawing command can proceed,
-    // false otherwise (i.e. it was the first command and may be replaced
-    // with a moveTo).
-    this._ensureSubpath = function(x, y) {
-      if (!this._currentSubPath) {
-        this.beginPath();
-      }
-      if (!this._pathStarted) {
-        this._pathStarted = true;
-        this.moveTo(x, y);
-        return false;
-      }
-      return true;
     }
 
     this.fillText = function(text, x, y, maxWidth) {
@@ -197,10 +204,11 @@
       if (!argsAreFinite(arguments)) {
         return;
       }
-      // lineTo is the odd-ball in the sense that a line-to without
-      // a previous subpath is the same as a moveTo.
-      if (this._ensureSubpath(x, y)) {
-        this._currentSubPath.lineTo(x, y);
+      // A lineTo without a previous subpath is turned into a moveTo
+      if (!this._currentSubpath) {
+        this._pushNewSubpath(x, y);
+      } else {
+        this._currentSubpath.lineTo(x, y);
       }
     }
 
@@ -215,17 +223,23 @@
       if (!argsAreFinite(arguments)) {
         return;
       }
-      if (this._ensureSubpath(x, y)) {
-        this._currentSubPath.moveTo(x, y);
-      }
+      this._pushNewSubpath(x, y);
+    }
+
+    this._pushNewSubpath = function(x, y) {
+      this._currentSubpath = new CanvasKit.SkPath();
+      this._subpaths.push(this._currentSubpath);
+      this._currentSubpath.moveTo(x, y);
     }
 
     this.quadraticCurveTo = function(cpx, cpy, x, y) {
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(cpx, cpy);
-      this._currentSubPath.quadTo(cpx, cpy, x, y);
+      if (!this._subpaths.length) {
+        this._pushNewSubpath(cpx, cpy);
+      }
+      this._currentSubpath.quadTo(cpx, cpy, x, y);
     }
 
     this.rect = function(x, y, width, height) {
@@ -233,45 +247,43 @@
         return;
       }
       // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
-      this.beginPath();
-      this._currentSubPath.addRect(x, y, x+width, y+height);
-      this.beginPath();
-      this._currentSubPath.moveTo(x, y);
+      this._pushNewSubpath(x, y);
+      this._currentSubpath.addRect(x, y, x+width, y+height);
+      this._pushNewSubpath(x, y);
     }
 
     this.resetTransform = function() {
-      this.setTransform(1, 0, 0, 1, 0, 0);
+      this._commitTransform();
+      this._currentTransform = CanvasKit.SkMatrix.identity();
     }
 
     this.rotate = function(radians, px, py) {
       // bindings can't turn undefined into floats
-      this._canvas.rotate(radians * 180/Math.PI, px || 0, py || 0);
+      //this._canvas.rotate(radians * 180/Math.PI, px || 0, py || 0);
     }
 
     this.scale = function(sx, sy) {
-      this._canvas.scale(sx, sy);
-    }
-
-    this.scale = function(sx, sy) {
-      this._canvas.scale(sx, sy);
+      this._commitTransform();
+      this._currentTransform = Canvaskit.SkMatrix.multiply(
+                                  this._currentTransform,
+                                  Canvaskit.SkMatrix.scaled(sx, sy));
     }
 
     this.setTransform = function(a, b, c, d, e, f) {
-      this._canvas.setMatrix([a, c, e,
-                              b, d, f,
-                              0, 0, 1]);
+      // this._canvas.setMatrix([a, c, e,
+      //                         b, d, f,
+      //                         0, 0, 1]);
     }
 
     this.skew = function(sx, sy) {
-      this._canvas.skew(sx, sy);
+      // this._canvas.skew(sx, sy);
     }
 
     this.stroke = function() {
-      if (this._currentSubPath) {
+      if (this._currentSubpath) {
         this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-        this._paint.setLine
-        for (var i = 0; i < this._paths.length; i++) {
-          this._canvas.drawPath(this._paths[i], this._paint);
+        for (var i = 0; i < this._subpaths.length; i++) {
+          this._canvas.drawPath(this._subpaths[i], this._paint);
         }
       }
     }
@@ -283,9 +295,12 @@
     }
 
     this.translate = function(dx, dy) {
-      this._canvas.translate(dx, dy);
+      //this._canvas.translate(dx, dy);
     }
 
+    this.transform = function(a, b, c, d, e, f) {
+      // TODO
+    }
 
     // Not supported operations (e.g. for Web only)
     this.addHitRegion = function() {};
@@ -323,7 +338,7 @@
       SkDebug('Could not parse font size' + fontStr);
       return 16;
     }
-    var size = fontSize[1];
+    var size = parseFloat(fontSize[1]);
     var unit = fontSize[2];
     switch (unit) {
       case 'pt':
