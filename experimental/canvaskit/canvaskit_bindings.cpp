@@ -540,7 +540,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("width", &SkSurface::width)
         .function("height", &SkSurface::height)
         .function("_flush", &SkSurface::flush)
-        .function("makeImageSnapshot", &SkSurface::makeImageSnapshot)
+        .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
+        .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
         .function("_readPixels", optional_override([](SkSurface& self, int width, int height, uintptr_t /* uint8_t* */ cptr)->bool {
             uint8_t* dst = reinterpret_cast<uint8_t*>(cptr);
             auto dstInfo = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
@@ -639,6 +640,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fTop",    &SkRect::fTop)
         .field("fRight",  &SkRect::fRight)
         .field("fBottom", &SkRect::fBottom);
+
+    value_object<SkIRect>("SkIRect")
+        .field("fLeft",   &SkIRect::fLeft)
+        .field("fTop",    &SkIRect::fTop)
+        .field("fRight",  &SkIRect::fRight)
+        .field("fBottom", &SkIRect::fBottom);
 
     // SkPoints can be represented by [x, y]
     value_array<SkPoint>("SkPoint")

@@ -185,3 +185,62 @@ DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     // expect to see two rects: blue blended on red
     canvas->drawImage(surf->makeImageSnapshot(), 0, 0, nullptr);
 }
+
+DEF_SIMPLE_GM(surface_underdraw, canvas, 256, 256) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256, nullptr);
+    auto surf = sk_tool_utils::makeSurface(canvas, info);
+
+    const SkIRect subset = SkIRect::MakeLTRB(180, 0, 256, 256);
+
+    // noisy background
+    {
+        SkPoint pts[] = {{0, 0}, {40, 50}};
+        SkColor colors[] = {SK_ColorRED, SK_ColorBLUE};
+        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode);
+        SkPaint paint;
+        paint.setShader(sh);
+        surf->getCanvas()->drawPaint(paint);
+    }
+
+    // save away the right-hand strip, then clear it
+    sk_sp<SkImage> saveImg = surf->makeImageSnapshot(subset);
+    {
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kClear);
+        surf->getCanvas()->drawRect(SkRect::Make(subset), paint);
+    }
+
+    // draw the "foreground"
+    {
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        SkRect r = { 0, 10, 256, 35 };
+        while (r.fBottom < 256) {
+            surf->getCanvas()->drawRect(r, paint);
+            r.offset(0, r.height() * 2);
+        }
+    }
+
+    // apply the "fade"
+    {
+        SkPoint pts[] = {{SkIntToScalar(subset.left()), 0}, {SkIntToScalar(subset.right()), 0}};
+        SkColor colors[] = {0xFF000000, 0};
+        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+        SkPaint paint;
+        paint.setShader(sh);
+        paint.setBlendMode(SkBlendMode::kDstIn);
+        surf->getCanvas()->drawRect(SkRect::Make(subset), paint);
+    }
+
+    // restore the original strip, drawing it "under" the current foreground
+    {
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kDstOver);
+        surf->getCanvas()->drawImage(saveImg,
+                                     SkIntToScalar(subset.left()), SkIntToScalar(subset.top()),
+                                     &paint);
+    }
+
+    // show it on screen
+   surf->draw(canvas, 0, 0, nullptr);
+}

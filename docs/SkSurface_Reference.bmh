@@ -795,6 +795,30 @@ Caller must overwrite the entire back-end object.
 #Method ##
 
 # ------------------------------------------------------------------------------
+
+#Method sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds)
+#In Constructors
+#Line # creates Image capturing subset of Surface contents ##
+#Populate
+
+#Example
+#Height 64
+    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));
+    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));
+    big->getCanvas()->clear(SK_ColorRED);
+    lil->getCanvas()->clear(SK_ColorBLACK);
+    sk_sp<SkImage> early(big->makeImageSnapshot());
+    lil->draw(big->getCanvas(), 16, 16, nullptr);
+    sk_sp<SkImage> later(big->makeImageSnapshot({0, 0, 16, 16}));
+    canvas->drawImage(early, 0, 0);
+    canvas->drawImage(later, 0, 0);
+##
+
+#SeeAlso draw getCanvas
+
+#Method ##
+
+# ------------------------------------------------------------------------------
 #Subtopic Pixels
 #Line # functions with pixel access ##
 ##
