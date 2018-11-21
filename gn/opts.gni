@@ -16,18 +16,10 @@ armv7 = [
 ]
 
 neon = [
-  "$_src/opts/Sk4px_NEON.h",
-  "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
-  "$_src/opts/SkBitmapProcState_matrix_neon.h",
-  "$_src/opts/SkColor_opts_neon.h",
 ]
 
 arm64 = [
-  "$_src/opts/Sk4px_NEON.h",
-  "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
-  "$_src/opts/SkBitmapProcState_matrix_neon.h",
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
-  "$_src/opts/SkColor_opts_neon.h",
 ]
 
 crc32 = [ "$_src/opts/SkOpts_crc32.cpp" ]
