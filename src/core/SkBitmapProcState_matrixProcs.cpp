@@ -313,15 +313,8 @@ static void nofilter_scale(const SkBitmapProcState& s,
     #define CHECK_FOR_DECAL
     #include "SkBitmapProcState_matrix.h"  // will create ClampX_ClampY_filter_scale.
 
-    // This and ClampX_ClampY_filter_scale() are both extern for now so that opts_check_x86.cpp
-    // can identify and replace them.  TODO: clean up when opts_check_x86.cpp is gone.
-    void ClampX_ClampY_nofilter_scale(const SkBitmapProcState& s,
-                                      uint32_t xy[], int count, int x, int y) {
-        nofilter_scale<clamp, true>(s, xy, count, x,y);
-    }
-
     static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
-        ClampX_ClampY_nofilter_scale,
+        nofilter_scale<clamp, true>,
         ClampX_ClampY_filter_scale,
     };
 

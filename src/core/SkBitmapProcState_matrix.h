@@ -10,13 +10,8 @@
 
 #define SCALE_FILTER_NAME MAKENAME(_filter_scale)
 
-// declare functions externally to suppress warnings.
-void SCALE_FILTER_NAME(const SkBitmapProcState& s,
-                       uint32_t xy[], int count, int x, int y);
-
-
-void SCALE_FILTER_NAME(const SkBitmapProcState& s,
-                       uint32_t xy[], int count, int x, int y) {
+static void SCALE_FILTER_NAME(const SkBitmapProcState& s,
+                              uint32_t xy[], int count, int x, int y) {
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask)) == 0);
     SkASSERT(s.fInvKy == 0);
