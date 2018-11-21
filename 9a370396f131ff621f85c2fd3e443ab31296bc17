@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a66d10f1_3f073d4f",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-21T19:24:00Z",
+      "side": 0,
+      "message": "In the news: Long lists of boolean parameters are error prone. Correct order was stroke, planes x 3, roundCaps.\n\nIn other news: I\u0027m adding another boolean parameter.",
+      "range": {
+        "startLine": 254,
+        "startChar": 66,
+        "endLine": 255,
+        "endChar": 96
+      },
+      "revId": "9a370396f131ff621f85c2fd3e443ab31296bc17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
