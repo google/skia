@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a84b970_fad64660",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-21T20:15:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c4a32df1_8329be41",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3fcde253_c39a9d5c",
         "filename": "src/gpu/GrDirectContext.cpp",
         "patchSetId": 4
@@ -142,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "43b88b3f_60f4e284",
+        "filename": "third_party/vulkan/SkiaPrivateVulkan.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-21T20:15:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "af70a9b9_bce01f11",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8718264e_3cb3d523",
         "filename": "third_party/vulkan/SkiaPrivateVulkan.h",
         "patchSetId": 4
@@ -156,6 +192,24 @@
       "revId": "3ce97403283453f072c7d300e80209073f5796cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d1da614_7ba573ca",
+        "filename": "third_party/vulkan/SkiaPrivateVulkan.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-21T20:15:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8718264e_3cb3d523",
+      "revId": "3ce97403283453f072c7d300e80209073f5796cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
