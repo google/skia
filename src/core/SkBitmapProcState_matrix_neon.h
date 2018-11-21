@@ -224,7 +224,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     }
 }
 
-const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
+static const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
     SCALE_NOFILTER_NAME,
     SCALE_FILTER_NAME,
 };
