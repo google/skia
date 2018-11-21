@@ -150,7 +150,6 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     }
 
     fPersistentCache = options.fPersistentCache;
-
     return true;
 }
 

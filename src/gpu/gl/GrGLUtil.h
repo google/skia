@@ -87,6 +87,7 @@ enum GrGLDriver {
     kANGLE_GrGLDriver,
     kSwiftShader_GrGLDriver,
     kQualcomm_GrGLDriver,
+    kARM_GrGLDriver,
     kUnknown_GrGLDriver
 };
 
