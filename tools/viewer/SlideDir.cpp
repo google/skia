@@ -260,7 +260,7 @@ static sk_sp<sksg::RenderNode> MakeLabel(const SkString& txt,
                                          const SkMatrix& dstXform) {
     const auto size = kLabelSize / std::sqrt(dstXform.getScaleX() * dstXform.getScaleY());
     auto text = sksg::Text::Make(nullptr, txt);
-    text->setFlags(SkPaint::kAntiAlias_Flag);
+    text->setEdging(SkFont::Edging::kAntiAlias);
     text->setSize(size);
     text->setAlign(SkTextUtils::kCenter_Align);
     text->setPosition(pos + SkPoint::Make(0, size));
