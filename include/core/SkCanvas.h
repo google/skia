@@ -1824,7 +1824,7 @@ public:
     };
 
     /** This is used by the experimental API below. */
-    struct ImageSetEntry {
+    struct SK_API ImageSetEntry {
         // Temporary constructor for SkiaRenderer which currently does not use alpha.
         ImageSetEntry(sk_sp<const SkImage>, const SkRect& srcRect, const SkRect& dstRect,
                       unsigned aaFlags);
