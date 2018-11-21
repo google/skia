@@ -1840,7 +1840,7 @@ public:
         unsigned fAAFlags;  // QuadAAFlags
     };
 
-    /** This version will be removed. Alpha is now a property of ImageSetEntry. */
+    /** Experimental. This version will be removed. Alpha is now a property of ImageSetEntry. */
     void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
                                      SkFilterQuality quality, SkBlendMode mode);
 

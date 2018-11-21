@@ -7107,22 +7107,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFontMetrics"
 },
-    "SkPaint_getPosTextHIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(4);\n    SkScalar textPosH[] = { 20, 80, 140 };\n    SkScalar y = 100;\n    SkScalar bounds[] = { 56, 78 };\n    const char str[] = \"\\\\-/\";\n    int len = sizeof(str) - 1;\n    int count = paint.getPosTextHIntercepts(str, len, textPosH, y, bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getPosTextHIntercepts(str, len, textPosH, y, bounds, &intervals.front());\n    canvas->drawPosTextH(str, len, textPosH, y, paint);\n    paint.setColor(0xFFFF7777);\n    paint.setStyle(SkPaint::kFill_Style);\n    SkScalar x = textPosH[0];\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "dc9851c43acc3716aca8c9a4d40d452d",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getPosTextHIntercepts"
-},
-    "SkPaint_getPosTextIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    SkPoint textPos[] = {{ 60, 90 }, { 120, 90 }};\n    SkScalar bounds[] = { 40, 70 };\n    const char str[] = \"A+\";\n    int len = sizeof(str) - 1;\n    int count = paint.getPosTextIntercepts(str, len, textPos, bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getPosTextIntercepts(str, len, textPos, bounds, &intervals.front());\n    canvas->drawPosText(str, len, textPos, paint);\n    paint.setColor(SK_ColorRED);\n    SkScalar x = textPos[0].fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    if (count) {\n        canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n    }\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "5b5754fdb90b44c245d72567854eca04",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getPosTextIntercepts"
-},
     "SkPaint_getPosTextPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(80);\n    SkPath path, path2;\n    SkPoint pos[] = {{20, 60}, {30, 70}, {40, 80}};\n    paint.getPosTextPath(\"ABC\", 3, pos, &path);\n    Simplify(path, &path);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
@@ -7138,14 +7122,6 @@
     "hash": "f2229dd5c8e76f9e12fafe59b61353c8",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextBlobIntercepts"
-},
-    "SkPaint_getTextIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    SkPoint textOrigin = { 20, 100 };\n    SkScalar bounds[] = { 100, 108 };\n    int count = paint.getTextIntercepts(\"y\", 1, textOrigin.fX, textOrigin.fY, bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextIntercepts(\"y\", 1, textOrigin.fX, textOrigin.fY, bounds,\n            &intervals.front());\n    canvas->drawString(\"y\", textOrigin.fX, textOrigin.fY, paint);\n    paint.setColor(SK_ColorRED);\n    SkScalar x = textOrigin.fX;\n    for (int i = 0; i < count; i += 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0],\n        textOrigin.fX + paint.measureText(\"y\", 1), bounds[1]}, paint);\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "2a0b80ed20d193c688085b79deb5bdc9",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getTextIntercepts"
 },
     "SkPaint_getTextPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(80);\n    SkPath path, path2;\n    paint.getTextPath(\"ABC\", 3, 20, 80, &path);\n    path.offset(20, 20, &path2);\n    Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);\n    path.addPath(path2);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
@@ -8946,6 +8922,14 @@
     "hash": "46f1fa0d95e590a64bed0140407ce5f7",
     "file": "SkSurface_Reference",
     "name": "SkSurface::makeImageSnapshot"
+},
+    "SkSurface_makeImageSnapshot_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    sk_sp<SkImage> early(big->makeImageSnapshot());\n    lil->draw(big->getCanvas(), 16, 16, nullptr);\n    sk_sp<SkImage> later(big->makeImageSnapshot({0, 0, 16, 16}));\n    canvas->drawImage(early, 0, 0);\n    canvas->drawImage(later, 0, 0);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "b18b8ab693b09eb70a1d22ab63790cc7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::makeImageSnapshot_2"
 },
     "SkSurface_makeSurface": {
     "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    SkPixmap pixmap;\n    if (big->peekPixels(&pixmap)) {\n        SkBitmap bigBits;\n        bigBits.installPixels(pixmap);\n        canvas->drawBitmap(bigBits, 0, 0);\n    }\n    if (lil->peekPixels(&pixmap)) {\n        SkBitmap lilBits;\n        lilBits.installPixels(pixmap);\n        canvas->drawBitmap(lilBits, 64, 64);\n    }\n}",

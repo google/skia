@@ -60,13 +60,6 @@ public:
                                                    <a href='undocumented#SkISize'>SkISize</a> imageSize,
                                                    <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
                                                    <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
-    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                               <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
-                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvaTextures[],
-                                               const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4],
-                                               <a href='undocumented#SkISize'>SkISize</a> imageSize,
-                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
-                                               <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a>(
             <a href='undocumented#GrContext'>GrContext</a>* context,
             <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
@@ -75,6 +68,18 @@ public:
             <a href='undocumented#SkISize'>SkISize</a> imageSize,
             <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
             const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
+            <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
+                                               <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
+                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvaTextures[],
+                                               const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4],
+                                               <a href='undocumented#SkISize'>SkISize</a> imageSize,
+                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
+                                               <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
+    static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVAPixmaps'>MakeFromYUVAPixmaps</a>(
+            <a href='undocumented#GrContext'>GrContext</a>* context, <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace, const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> yuvaPixmaps[],
+            const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4], <a href='undocumented#SkISize'>SkISize</a> imageSize, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
+            bool buildMips, bool limitToMaxTextureSize = false,
             <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> imageColorSpace = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkImage_MakeFromYUVTexturesCopy'>MakeFromYUVTexturesCopy</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
                                                   const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvTextures[3],
@@ -991,6 +996,94 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 <a href='#SkImage_MakeFromYUVATexturesCopy'>MakeFromYUVATexturesCopy</a> <a href='#SkImage_MakeFromYUVATexturesCopyWithExternalBackend'>MakeFromYUVATexturesCopyWithExternalBackend</a>
 
+<a name='SkImage_MakeFromYUVAPixmaps'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt; 
+             <a href='#SkImage_MakeFromYUVAPixmaps'>MakeFromYUVAPixmaps</a>(
+                                               <a href='undocumented#GrContext'>GrContext</a>* context,
+             <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace, const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> yuvaPixmaps[],
+             const <a href='undocumented#SkYUVAIndex'>SkYUVAIndex</a> yuvaIndices[4], <a href='undocumented#SkISize'>SkISize</a> imageSize, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> imageOrigin,
+             bool buildMips, bool limitToMaxTextureSize = false,
+             <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; imageColorSpace = nullptr) ;
+</pre>
+
+Creates <a href='SkImage_Reference#SkImage'>SkImage</a> from <a href='SkPixmap_Reference#Pixmap'>pixmap</a> array representing YUVA <a href='undocumented#Data'>data</a>.
+<a href='SkImage_Reference#SkImage'>SkImage</a> is uploaded to GPU back-end using <a href='#SkImage_MakeFromYUVAPixmaps_context'>context</a>.
+
+Each <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> created from <a href='#SkImage_MakeFromYUVAPixmaps_yuvaPixmaps'>yuvaPixmaps</a> array is uploaded to match <a href='SkSurface_Reference#SkSurface'>SkSurface</a>
+using <a href='undocumented#SkColorSpace'>SkColorSpace</a> of <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>. <a href='undocumented#SkColorSpace'>SkColorSpace</a> of <a href='SkImage_Reference#SkImage'>SkImage</a> is determined by <a href='#SkImage_MakeFromYUVAPixmaps_imageColorSpace'>imageColorSpace</a>.
+
+<a href='SkImage_Reference#SkImage'>SkImage</a> is returned referring to GPU back-end if <a href='#SkImage_MakeFromYUVAPixmaps_context'>context</a> is not nullptr and
+format of <a href='undocumented#Data'>data</a> is recognized and supported. Otherwise, nullptr is returned.
+Recognized GPU formats vary by platform and GPU back-end.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_context'><code><strong>context</strong></code></a></td>
+    <td><a href='undocumented#GPU_Context'>GPU context</a></td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_yuvColorSpace'><code><strong>yuvColorSpace</strong></code></a></td>
+    <td>How the YUV values are converted to RGB. One of:</td>
+  </tr>
+</table>
+
+<a href='SkImageInfo_Reference#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a>, <a href='SkImageInfo_Reference#kRec601_SkYUVColorSpace'>kRec601_SkYUVColorSpace</a>,
+<a href='SkImageInfo_Reference#kRec709_SkYUVColorSpace'>kRec709_SkYUVColorSpace</a>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_yuvaPixmaps'><code><strong>yuvaPixmaps</strong></code></a></td>
+    <td>array of (up to four) <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> which contain the,</td>
+  </tr>
+</table>
+
+possibly interleaved, YUVA planes
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_yuvaIndices'><code><strong>yuvaIndices</strong></code></a></td>
+    <td>array indicating which <a href='SkPixmap_Reference#Pixmap'>pixmap</a> in <a href='#SkImage_MakeFromYUVAPixmaps_yuvaPixmaps'>yuvaPixmaps</a>, and channel</td>
+  </tr>
+</table>
+
+in that <a href='SkPixmap_Reference#Pixmap'>pixmap</a>, maps to each component of YUVA.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_imageSize'><code><strong>imageSize</strong></code></a></td>
+    <td><a href='undocumented#Size'>size</a> of the resulting <a href='SkImage_Reference#Image'>image</a></td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_imageOrigin'><code><strong>imageOrigin</strong></code></a></td>
+    <td>origin of the resulting <a href='SkImage_Reference#Image'>image</a>. One of:</td>
+  </tr>
+</table>
+
+<a href='undocumented#kBottomLeft_GrSurfaceOrigin'>kBottomLeft_GrSurfaceOrigin</a>, <a href='undocumented#kTopLeft_GrSurfaceOrigin'>kTopLeft_GrSurfaceOrigin</a>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_buildMips'><code><strong>buildMips</strong></code></a></td>
+    <td>create internal YUVA textures as  <a href='undocumented#Mip_Map'>mip map</a> if true</td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_limitToMaxTextureSize'><code><strong>limitToMaxTextureSize</strong></code></a></td>
+    <td>downscale <a href='SkImage_Reference#Image'>image</a> to GPU maximum <a href='undocumented#Texture'>texture</a> <a href='undocumented#Size'>size</a>, if necessary</td>
+  </tr>
+  <tr>    <td><a name='SkImage_MakeFromYUVAPixmaps_imageColorSpace'><code><strong>imageColorSpace</strong></code></a></td>
+    <td>range of colors of the resulting <a href='SkImage_Reference#Image'>image</a>; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+
+### See Also
+
+<a href='#SkImage_MakeFromYUVATextures'>MakeFromYUVATextures</a>
+
 <a name='SkImage_MakeFromYUVATexturesCopyWithExternalBackend'></a>
 
 ---
@@ -1079,38 +1172,7 @@ static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkImage_Reference#SkIm
                                               <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; imageColorSpace = nullptr)
 </pre>
 
-Creates <a href='SkImage_Reference#SkImage'>SkImage</a> from copy of <a href='#SkImage_MakeFromYUVTexturesCopy_yuvTextures'>yuvTextures</a>, an array of textures on GPU.
-<a href='#SkImage_MakeFromYUVTexturesCopy_yuvTextures'>yuvTextures</a> contain pixels for  <a href='undocumented#YUV_Planes'>YUV planes</a> of <a href='SkImage_Reference#SkImage'>SkImage</a>. Returned <a href='SkImage_Reference#SkImage'>SkImage</a> has the dimensions
-<a href='#SkImage_MakeFromYUVTexturesCopy_yuvTextures'>yuvTextures</a>[0]. <a href='#SkImage_MakeFromYUVTexturesCopy_yuvColorSpace'>yuvColorSpace</a> describes how YUV colors convert to RGB colors.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopy_context'><code><strong>context</strong></code></a></td>
-    <td><a href='undocumented#GPU_Context'>GPU context</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopy_yuvColorSpace'><code><strong>yuvColorSpace</strong></code></a></td>
-    <td>one of: <a href='SkImageInfo_Reference#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a>, <a href='SkImageInfo_Reference#kRec601_SkYUVColorSpace'>kRec601_SkYUVColorSpace</a>,</td>
-  </tr>
-</table>
-
-<a href='SkImageInfo_Reference#kRec709_SkYUVColorSpace'>kRec709_SkYUVColorSpace</a>
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopy_yuvTextures'><code><strong>yuvTextures</strong></code></a></td>
-    <td>array of YUV textures on GPU</td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopy_imageOrigin'><code><strong>imageOrigin</strong></code></a></td>
-    <td>one of: <a href='undocumented#kBottomLeft_GrSurfaceOrigin'>kBottomLeft_GrSurfaceOrigin</a>, <a href='undocumented#kTopLeft_GrSurfaceOrigin'>kTopLeft_GrSurfaceOrigin</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopy_imageColorSpace'><code><strong>imageColorSpace</strong></code></a></td>
-    <td>range of colors; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+To be deprecated.
 
 ### See Also
 
@@ -1128,42 +1190,7 @@ static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkImage_Reference#SkIm
                              <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; imageColorSpace = nullptr) ;
 </pre>
 
-Creates <a href='SkImage_Reference#SkImage'>SkImage</a> from copy of <a href='#SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvTextures'>yuvTextures</a>, an array of textures on GPU.
-<a href='#SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvTextures'>yuvTextures</a> contain pixels for  <a href='undocumented#YUV_Planes'>YUV planes</a> of <a href='SkImage_Reference#SkImage'>SkImage</a>. Returned <a href='SkImage_Reference#SkImage'>SkImage</a> has the dimensions
-<a href='#SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvTextures'>yuvTextures</a>[0] and stores pixels in <a href='#SkImage_MakeFromYUVTexturesCopyWithExternalBackend_backendTexture'>backendTexture</a>. <a href='#SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvColorSpace'>yuvColorSpace</a> describes how YUV colors
-convert to RGB colors.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_context'><code><strong>context</strong></code></a></td>
-    <td><a href='undocumented#GPU_Context'>GPU context</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvColorSpace'><code><strong>yuvColorSpace</strong></code></a></td>
-    <td>one of: <a href='SkImageInfo_Reference#kJPEG_SkYUVColorSpace'>kJPEG_SkYUVColorSpace</a>, <a href='SkImageInfo_Reference#kRec601_SkYUVColorSpace'>kRec601_SkYUVColorSpace</a>,</td>
-  </tr>
-</table>
-
-<a href='SkImageInfo_Reference#kRec709_SkYUVColorSpace'>kRec709_SkYUVColorSpace</a>
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_yuvTextures'><code><strong>yuvTextures</strong></code></a></td>
-    <td>array of YUV textures on GPU</td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_imageOrigin'><code><strong>imageOrigin</strong></code></a></td>
-    <td>one of: <a href='undocumented#kBottomLeft_GrSurfaceOrigin'>kBottomLeft_GrSurfaceOrigin</a>, <a href='undocumented#kTopLeft_GrSurfaceOrigin'>kTopLeft_GrSurfaceOrigin</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_backendTexture'><code><strong>backendTexture</strong></code></a></td>
-    <td>the resource that stores the final pixels</td>
-  </tr>
-  <tr>    <td><a name='SkImage_MakeFromYUVTexturesCopyWithExternalBackend_imageColorSpace'><code><strong>imageColorSpace</strong></code></a></td>
-    <td>range of colors; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
+To be deprecated.
 
 ### See Also
 

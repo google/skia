@@ -83,6 +83,7 @@ public:
     <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkSurface_getCanvas'>getCanvas</a>();
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkSurface_Reference#SkSurface'>SkSurface</a>> <a href='#SkSurface_makeSurface'>makeSurface</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo);
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot</a>();
+    <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkImage_Reference#SkImage'>SkImage</a>> <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& bounds);
     void draw(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>);
     bool <a href='#SkSurface_peekPixels'>peekPixels</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* <a href='SkPixmap_Reference#Pixmap'>pixmap</a>);
     bool <a href='#SkSurface_readPixels'>readPixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, int srcX, int srcY);
@@ -1294,6 +1295,30 @@ are not captured. <a href='SkImage_Reference#SkImage'>SkImage</a> allocation is 
 ### Example
 
 <div><fiddle-embed name="46f1fa0d95e590a64bed0140407ce5f7"></fiddle-embed></div>
+
+### See Also
+
+<a href='#SkSurface_draw'>draw</a> <a href='#SkSurface_getCanvas'>getCanvas</a>
+
+<a name='SkSurface_makeImageSnapshot_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkImage_Reference#SkImage'>SkImage</a>&gt; <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& bounds)
+</pre>
+
+Like the no-parameter version, this returns an <a href='SkImage_Reference#Image'>image</a> of the current <a href='SkSurface_Reference#Surface'>surface</a> contents.
+This variant takes a rectangle specifying the subset of the <a href='SkSurface_Reference#Surface'>surface</a> that is of interest.
+These bounds will be sanitized before being used.
+- If bounds extends beyond the <a href='SkSurface_Reference#Surface'>surface</a>, it will be trimmed to just the intersection of
+it and the <a href='SkSurface_Reference#Surface'>surface</a>.
+- If bounds does not intersect the <a href='SkSurface_Reference#Surface'>surface</a>, then this returns nullptr.
+- If bounds == the <a href='SkSurface_Reference#Surface'>surface</a>, then this is the same as calling the no-parameter variant.
+
+### Example
+
+<div><fiddle-embed name="b18b8ab693b09eb70a1d22ab63790cc7"></fiddle-embed></div>
 
 ### See Also
 

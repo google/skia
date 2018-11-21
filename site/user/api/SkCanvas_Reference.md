@@ -206,13 +206,21 @@ public:
     };
 
     struct ImageSetEntry {
+        ImageSetEntry(<a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>>, const <a href='SkRect_Reference#SkRect'>SkRect</a>& srcRect, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dstRect,
+                      unsigned aaFlags);
+        ImageSetEntry(<a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>>, const <a href='SkRect_Reference#SkRect'>SkRect</a>& srcRect, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dstRect,
+                      float <a href='SkColor_Reference#Alpha'>alpha</a>, unsigned aaFlags);
+        ImageSetEntry() = default;
         <a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>> fImage;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fSrcRect;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fDstRect;
+        float fAlpha;
         unsigned fAAFlags;
     };
 
     void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float <a href='SkColor_Reference#Alpha'>alpha</a>,
+                                     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
+    void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void <a href='#SkCanvas_drawText'>drawText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                   const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);

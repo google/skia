@@ -3504,7 +3504,7 @@ underline that skips Descenders.
 #Line # returns where lines intersect text; underlines ##
 #Populate
 
-#Example
+#NoExample
 #Height 128
 #Description
 Underline uses intercepts to draw on either side of the glyph Descender.
@@ -3539,7 +3539,7 @@ void draw(SkCanvas* canvas) {
 #Line # returns where lines intersect positioned text; underlines ##
 #Populate
 
-#Example
+#NoExample
     #Description
     Text intercepts draw on either side of, but not inside, Glyphs in a run.
     ##
@@ -3576,7 +3576,7 @@ void draw(SkCanvas* canvas) {
 #Line # returns where lines intersect horizontally positioned text; underlines ##
 #Populate
 
-#Example
+#NoExample
     #Height 128
     #Description
     Text intercepts do not take stroke thickness into consideration.
