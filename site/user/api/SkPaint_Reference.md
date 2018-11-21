@@ -181,12 +181,7 @@ public:
                      <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length,
                         const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
-    int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
-    int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
-                             const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
-    int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[],
-                              <a href='undocumented#SkScalar'>SkScalar</a> constY, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
+public:
     int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
                               <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const;
@@ -4283,10 +4278,8 @@ Pass nullptr for <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> to
 
 number of intersections; may be zero
 
-### Example
-
-<div><fiddle-embed name="2a0b80ed20d193c688085b79deb5bdc9"><div>Underline uses intercepts to draw on either side of the <a href='undocumented#Glyph'>glyph</a> Descender.
-</div></fiddle-embed></div>
+<div>Underline uses intercepts to draw on either side of the <a href='undocumented#Glyph'>glyph</a> Descender.
+</div>
 
 <a name='SkPaint_getPosTextIntercepts'></a>
 
@@ -4332,10 +4325,8 @@ Pass nullptr for <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a>
 
 number of intersections; may be zero
 
-### Example
-
-<div><fiddle-embed name="5b5754fdb90b44c245d72567854eca04"><div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
-</div></fiddle-embed></div>
+<div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
+</div>
 
 <a name='SkPaint_getPosTextHIntercepts'></a>
 
@@ -4384,10 +4375,8 @@ Pass nullptr for <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a
 
 number of intersections; may be zero
 
-### Example
-
-<div><fiddle-embed name="dc9851c43acc3716aca8c9a4d40d452d"><div><a href='undocumented#Text'>Text</a> intercepts do not take stroke thickness into consideration.
-</div></fiddle-embed></div>
+<div><a href='undocumented#Text'>Text</a> intercepts do not take stroke thickness into consideration.
+</div>
 
 <a name='SkPaint_getTextBlobIntercepts'></a>
 

@@ -110,7 +110,7 @@ infinity
 influence info inform information initial initialize initialized initializes initializing
 initially inline inner input insert inserts inset insets inside inspected installed instance
 instantaneous instantiated instantiation instantiations instead instruct instructs integer integers
-integral intensity intercepted intercepts interchangeably interface interior
+integral intensity intercepted intercepts interchangeably interest interface interior
 interleaved interleaving 
 intermediate internal internally interpolate interpolated interpolates interpolation interpret
 interpreted interrupted interruption intersect intersected intersecting intersection
@@ -194,7 +194,7 @@ reused reveals reverse reversed reverses revert rewinds right right-bottom right
 rotate rotate-x rotate-y rotated rotates rotating rotation roughly round rounded
 rounding rounds route routes routines row rows rule rules run runs 
 
-safe safely safer same sample sampled samples sampling satisfies satisfy satisfying
+safe safely safer same sample sampled samples sampling sanitized satisfies satisfy satisfying
 saturation savable save saved saves scale scale-x scale-y scaled scales scaling scan
 scene scope screen second second-order section sections see seek seeks segment segments select
 selecting selectively selector selects semaphore semaphores sensitive sent separate separately 
@@ -229,7 +229,7 @@ trades trading traditional transferred transferring transfers transform transfor
 transformations
 transformed transforming transforms transition transitions translate translated translates
 translating translation translucent transparency transparent travel traveled treat treated
-treating treats triangle trigger triggered triggers trivial true try turned turns twice two
+treating treats triangle trigger triggered triggers trimmed trivial true try turned turns twice two
 two-dimensional type types typically typographic 
 
 unaffected unaltered unchanged unchanging uncompressed undefined under underline
