@@ -6,27 +6,13 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
 
-none = [
-  "$_src/opts/Sk4px_none.h",
-  "$_src/opts/SkBitmapProcState_opts_none.cpp",
-]
-
-armv7 = [ "$_src/opts/SkBitmapProcState_opts_none.cpp" ]
-
+none = []
+armv7 = []
 neon = []
-
-arm64 = [ "$_src/opts/SkBitmapProcState_opts_none.cpp" ]
+arm64 = []
+sse2 = []
 
 crc32 = [ "$_src/opts/SkOpts_crc32.cpp" ]
-
-sse2 = [
-  "$_src/opts/Sk4px_SSE2.h",
-  "$_src/opts/SkBitmapProcState_opts_SSE2.h",
-  "$_src/opts/SkBitmapProcState_opts_SSE2.cpp",
-  "$_src/opts/SkColor_opts_SSE2.h",
-  "$_src/opts/opts_check_x86.cpp",
-]
-
 ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp" ]
 sse41 = [ "$_src/opts/SkOpts_sse41.cpp" ]
 sse42 = [ "$_src/opts/SkOpts_sse42.cpp" ]

@@ -261,10 +261,6 @@ bool SkBitmapProcState::chooseProcs() {
     bool translate_only = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     fMatrixProc = this->chooseMatrixProc(translate_only);
     SkASSERT(fMatrixProc);
-#if defined(SK_LEGACY_PLATFORM_MATRIX_PROCS)
-    // Look for platform specializations (only fMatrixProc anymore).
-    this->platformProcs();
-#endif
 
     if (fFilterQuality > kNone_SkFilterQuality) {
         fSampleProc32 = SkOpts::S32_alpha_D32_filter_DX;
