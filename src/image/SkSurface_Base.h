@@ -38,7 +38,7 @@ public:
      *  must faithfully represent the current contents, even if the surface
      *  is changed after this called (e.g. it is drawn to via its canvas).
      */
-    virtual sk_sp<SkImage> onNewImageSnapshot() = 0;
+    virtual sk_sp<SkImage> onNewImageSnapshot() { return nullptr; }
 
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
 
