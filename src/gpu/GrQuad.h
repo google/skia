@@ -20,11 +20,13 @@ enum class GrQuadAAFlags;
 //  1. Stays a rectangle - the matrix rectStaysRect() is true, or x(0) == x(1) && x(2) == x(3)
 //     and y(0) == y(2) && y(1) == y(3). Or under mirrors, x(0) == x(2) && x(1) == x(3) and
 //     y(0) == y(1) && y(2) == y(3).
-//  2. Is a quadrilateral - the matrix does not have perspective, but may rotate or skew, or
+//  2. Is rectilinear - the matrix does not have skew or perspective, but may rotate (unlike #1)
+//  3. Is a quadrilateral - the matrix does not have perspective, but may rotate or skew, or
 //     ws() == all ones.
-//  3. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
+//  4. Is a perspective quad - the matrix has perspective, subsuming all previous quad types.
 enum class GrQuadType {
     kRect,
+    kRectilinear,
     kStandard,
     kPerspective,
     kLast = kPerspective
