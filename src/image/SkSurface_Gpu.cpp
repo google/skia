@@ -83,7 +83,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
                                        origin, &this->props());
 }
 
-sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
+sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     if (!rtc) {
         return nullptr;
@@ -98,10 +98,14 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
 
     sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
-    // If the original render target is a buffer originally created by the client, then we don't
-    // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
-    // copy-on-write.
-    if (!srcProxy || rtc->priv().refsWrappedObjects()) {
+
+    if (subset) {
+        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), *subset,
+                                        budgeted);
+    } else if (!srcProxy || rtc->priv().refsWrappedObjects()) {
+        // If the original render target is a buffer originally created by the client, then we don't
+        // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
+        // copy-on-write.
         SkASSERT(rtc->origin() == rtc->asSurfaceProxy()->origin());
 
         srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), budgeted);
