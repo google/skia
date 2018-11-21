@@ -46,11 +46,11 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     // TODO: we could potentially track invals which don't require rebuilding the blob.
 
     SkFont font;
-    font.LEGACY_applyPaintFlags(fFlags);
     font.setTypeface(fTypeface);
     font.setSize(fSize);
     font.setScaleX(fScaleX);
     font.setSkewX(fSkewX);
+    font.setEdging(fEdging);
     font.setHinting(fHinting);
 
     // N.B.: fAlign is applied externally (in alignedPosition()), because

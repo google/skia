@@ -10,7 +10,7 @@
 
 #include "SkSGGeometryNode.h"
 
-#include "SkPaintDefaults.h"
+#include "SkFont.h"
 #include "SkPoint.h"
 #include "SkString.h"
 #include "SkTextBlob.h"
@@ -30,15 +30,15 @@ public:
     static sk_sp<Text> Make(sk_sp<SkTypeface> tf, const SkString& text);
     ~Text() override;
 
-    SG_ATTRIBUTE(Typeface, sk_sp<SkTypeface>, fTypeface)
-    SG_ATTRIBUTE(Text    , SkString         , fText    )
-    SG_ATTRIBUTE(Flags   , uint32_t         , fFlags   )
-    SG_ATTRIBUTE(Position, SkPoint          , fPosition)
-    SG_ATTRIBUTE(Size    , SkScalar         , fSize    )
-    SG_ATTRIBUTE(ScaleX  , SkScalar         , fScaleX  )
-    SG_ATTRIBUTE(SkewX   , SkScalar         , fSkewX   )
-    SG_ATTRIBUTE(Align   , SkTextUtils::Align   , fAlign   )
-    SG_ATTRIBUTE(Hinting , SkFontHinting    , fHinting )
+    SG_ATTRIBUTE(Typeface, sk_sp<SkTypeface> , fTypeface)
+    SG_ATTRIBUTE(Text    , SkString          , fText    )
+    SG_ATTRIBUTE(Position, SkPoint           , fPosition)
+    SG_ATTRIBUTE(Size    , SkScalar          , fSize    )
+    SG_ATTRIBUTE(ScaleX  , SkScalar          , fScaleX  )
+    SG_ATTRIBUTE(SkewX   , SkScalar          , fSkewX   )
+    SG_ATTRIBUTE(Align   , SkTextUtils::Align, fAlign   )
+    SG_ATTRIBUTE(Edging  , SkFont::Edging    , fEdging  )
+    SG_ATTRIBUTE(Hinting , SkFontHinting     , fHinting )
 
     // TODO: add shaping functionality.
 
@@ -56,13 +56,13 @@ private:
 
     sk_sp<SkTypeface> fTypeface;
     SkString                fText;
-    uint32_t                fFlags    = SkPaintDefaults_Flags;
     SkPoint                 fPosition = SkPoint::Make(0, 0);
-    SkScalar                fSize     = SkPaintDefaults_TextSize;
+    SkScalar                fSize     = 12;
     SkScalar                fScaleX   = 1;
     SkScalar                fSkewX    = 0;
     SkTextUtils::Align      fAlign    = SkTextUtils::kLeft_Align;
-    SkFontHinting           fHinting  = SkPaintDefaults_Hinting;
+    SkFont::Edging          fEdging   = SkFont::Edging::kAntiAlias;
+    SkFontHinting           fHinting  = kNormal_SkFontHinting;
 
     sk_sp<SkTextBlob> fBlob; // cached text blob
 
