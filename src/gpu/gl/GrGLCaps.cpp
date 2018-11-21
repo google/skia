@@ -2737,6 +2737,19 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDynamicStateArrayGeometryProcessorTextureSupport = false;
     }
 #endif
+
+    // We've seen reports from Flutter about sampler object use causing corruption and hangs on
+    // older Mali drivers.
+    // Affected drivers we're aware of are:
+    // Samsung S6: OpenGL ES 3.1 v1.r7p0-03rel0.b596bd02e7d0169c10574b57180c8b574
+    // LG K4:      OpenGL ES 3.1 v1.r7p0-02rel0.4ea33e6671ff828e33c99c982634cd65
+    // Reported on a Samsung S5. Version strings for this device begin with:
+    // OpenGL ES 3.1 v1.r7p0-03rel0
+    // https://github.com/flutter/flutter/issues/23900
+    if (ctxInfo.driver() == kARM_GrGLDriver &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(8, 0, 0)) {
+        fSamplerObjectSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
