@@ -7,6 +7,7 @@
 
 #include "SkGlyphRun.h"
 
+#include "SkFont.h"
 #include "SkTextBlob.h"
 #include "Test.h"
 
@@ -56,14 +57,8 @@ DEF_TEST(GlyphRunBlob, reporter) {
     constexpr uint16_t count = 5;
     constexpr int runCount = 2;
 
-    auto tf = SkTypeface::MakeFromName("monospace", SkFontStyle());
-
-    SkPaint font;
-    font.setTypeface(tf);
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    font.setStyle(SkPaint::kFill_Style);
+    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 1);
     font.setHinting(kNormal_SkFontHinting);
-    font.setTextSize(1u);
 
     SkTextBlobBuilder blobBuilder;
     for (int runNum = 0; runNum < runCount; runNum++) {
@@ -79,11 +74,8 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     auto blob = blobBuilder.make();
 
-    SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
     SkGlyphRunBuilder runBuilder;
-    runBuilder.drawTextBlob(font, *blob, SkPoint::Make(0, 0));
+    runBuilder.drawTextBlob(SkPaint(), *blob, SkPoint::Make(0, 0));
 
     auto runList = runBuilder.useGlyphRunList();
 

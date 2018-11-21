@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkDraw.h"
+#include "SkFont.h"
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
@@ -68,14 +69,12 @@ private:
 };
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
-    SkPaint font;
+    SkFont font;
     font.setTypeface(tf);
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    font.setStyle(SkPaint::kFill_Style);
     font.setHinting(kNormal_SkFontHinting);
-    font.setTextSize(1u);
-    font.setAntiAlias(true);
-    font.setSubpixelText(true);
+    font.setSize(1u);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setSubpixel(true);
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeWH(10, 10);
@@ -438,30 +437,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
 
 sk_sp<SkTextBlob> make_blob_causing_fallback(
         sk_sp<SkTypeface> targetTf, const SkTypeface* glyphTf, skiatest::Reporter* reporter) {
-    SkPaint paint;
-    paint.setSubpixelText(true);
-    paint.setTextSize(96);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setHinting(kNormal_SkFontHinting);
+    SkFont font(targetTf, 96);
+    font.setSubpixel(true);
+    font.setHinting(kNormal_SkFontHinting);
 
-    paint.setTypeface(targetTf);
-
-    REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(paint, SkMatrix::I()));
+    REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
 
     char s[] = "Skia";
     int runSize = strlen(s);
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeIWH(100, 100);
-    const auto& runBuffer = builder.allocRunPosH(paint, runSize, 10, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10, &bounds);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
     glyphTf->charsToGlyphs(s, SkTypeface::kUTF8_Encoding, runBuffer.glyphs, runSize);
 
     SkRect glyphBounds;
-    paint.measureText(runBuffer.glyphs, 2, &glyphBounds);
+    font.measureText(runBuffer.glyphs, 2, kGlyphID_SkTextEncoding, &glyphBounds);
 
     REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkSideTooBigForAtlas);
 

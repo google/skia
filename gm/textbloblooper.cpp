@@ -12,6 +12,7 @@
 #include "SkBlurMask.h"
 #include "SkColorMatrixFilter.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkLayerDrawLooper.h"
@@ -25,9 +26,8 @@ constexpr int kWidth = 1250;
 constexpr int kHeight = 700;
 
 // Unlike the variant in sk_tool_utils, this version positions the glyphs on a diagonal
-static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
+static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& paint,
                              SkScalar x, SkScalar y) {
-    SkPaint paint(origPaint);
     SkTDArray<uint16_t> glyphs;
 
     size_t len = strlen(text);
@@ -43,8 +43,8 @@ static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const
         *pos.append() = y + i * (advanceY / len);
     }
 
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRunPos(paint, glyphs.count());
+    const SkTextBlobBuilder::RunBuffer& run =
+            builder->allocRunPos(SkFont::LEGACY_ExtractFromPaint(paint), glyphs.count());
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
     memcpy(run.pos, pos.begin(), len * sizeof(SkScalar) * 2);
 }

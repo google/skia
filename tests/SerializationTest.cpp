@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkFixed.h"
+#include "SkFont.h"
 #include "SkFontDescriptor.h"
 #include "SkImage.h"
 #include "SkImageSource.h"
@@ -745,8 +746,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
 }
 
 DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
-    SkPaint font;
-    font.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkFont font;
     font.setTypeface(SkTypeface::MakeDefault());
 
     SkTextBlobBuilder builder;

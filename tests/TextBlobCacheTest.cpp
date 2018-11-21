@@ -8,6 +8,7 @@
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkGlyphRun.h"
 #include "SkGraphics.h"
@@ -112,10 +113,9 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
                         if (!SkToBool(lcd)) {
                             paint.setTextSize(160);
                         }
-                        const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint,
-                                                                                   maxTotalText,
-                                                                                   0, 0,
-                                                                                   nullptr);
+                        const SkTextBlobBuilder::RunBuffer& run =
+                                builder.allocRun(SkFont::LEGACY_ExtractFromPaint(paint),
+                                                 maxTotalText, 0, 0, nullptr);
                         memcpy(run.glyphs, text.get(), maxTotalText * sizeof(uint16_t));
                     }
                 }
