@@ -495,6 +495,17 @@ public:
     */
     sk_sp<SkImage> makeImageSnapshot();
 
+    /**
+     *  Like the no-parameter version, this returns an image of the current surface contents.
+     *  This variant takes a rectangle specifying the subset of the surface that is of interest.
+     *  These bounds will be sanitized before being used.
+     *  - If bounds extends beyond the surface, it will be trimmed to just the intersection of
+     *    it and the surface.
+     *  - If bounds does not intersect the surface, then this returns nullptr.
+     *  - If bounds == the surface, then this is the same as calling the no-parameter variant.
+     */
+    sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds);
+
     /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).
 
         If SkPaint paint is not nullptr, apply SkColorFilter, alpha, SkImageFilter,
