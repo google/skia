@@ -143,8 +143,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
         }
-    }
-    else {
+    } else {
         if (kNVIDIA_GrGLVendor == vendor) {
             *outDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(versionString, "OpenGL ES %d.%d NVIDIA %d.%d",
@@ -200,6 +199,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         if (5 == n) {
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
         }
+        return;
     }
 
     if (kQualcomm_GrGLVendor == vendor) {
@@ -207,6 +207,23 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         int n = sscanf(versionString, "OpenGL ES %d.%d V@%d.%d", &major, &minor, &driverMajor,
                        &driverMinor);
         if (4 == n) {
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
+        }
+        return;
+    }
+
+    if (vendor == kARM_GrGLVendor) {
+        // ARM strings seem to look like:
+        // "OpenGL ES X.Y v1.rRp0-ABrel0.<hash>" where X.Y is the OpenGL ES version, R, A, and B are
+        // digits. We've never seen anything other than 1 after v, 0 after p, or 0 after rel. Some
+        // drivers don't seem to have any driver version info at all. On the web we've seen the hash
+        // may be "-git(<hash>)" rather than preceded with a ".". There also seem to be drivers
+        // that have "dev" rather than "rel" but we're assuming those a not shipping drivers.
+        // We currently take the the version to be R.AB.0.
+        int n = sscanf(versionString, "OpenGL ES %d.%d v1.r%dp0-%drel0", &major, &minor,
+                       &driverMajor, &driverMinor);
+        if (4 == n) {
+            *outDriver = kARM_GrGLDriver;
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
         }
         return;
