@@ -401,7 +401,7 @@ DEF_SIMPLE_GM(p3_ovals, canvas, 450, 320) {
 
         canvas->drawCircle(40, 40, 30, paint);
         compare_pixel("drawDashedCircle P3 red ",
-                      canvas, 40, 5,
+                      canvas, 40, 10,
                       { 1,0,0,1 }, p3.get());
     }
 
