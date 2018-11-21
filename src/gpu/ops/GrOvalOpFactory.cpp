@@ -39,6 +39,12 @@ struct EllipseVertex {
 };
 
 static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
+
+// Produces TriStrip vertex data for an origin-centered rectangle from [-x, -y] to [x, y]
+static inline GrVertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
+    return GrVertexWriter::TriStrip<float>{ -x, -y, x, y };
+};
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1768,7 +1774,6 @@ private:
             GrColor color = ellipse.fColor.toBytes_RGBA();
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
-            const SkRect& bounds = ellipse.fDevBounds;
 
             // Compute the reciprocals of the radii here to save time in the shader
             struct { float xOuter, yOuter, xInner, yInner; } invRadii = {
@@ -1788,25 +1793,10 @@ private:
             }
 
             // The inner radius in the vertex data must be specified in normalized space.
-            verts.write(SkPoint::Make(bounds.fLeft, bounds.fTop),
-                        color,
-                        SkPoint::Make(-xMaxOffset, -yMaxOffset),
-                        invRadii);
-
-            verts.write(SkPoint::Make(bounds.fLeft, bounds.fBottom),
-                        color,
-                        SkPoint::Make(-xMaxOffset, yMaxOffset),
-                        invRadii);
-
-            verts.write(SkPoint::Make(bounds.fRight, bounds.fTop),
-                        color,
-                        SkPoint::Make(xMaxOffset, -yMaxOffset),
-                        invRadii);
-
-            verts.write(SkPoint::Make(bounds.fRight, bounds.fBottom),
-                        color,
-                        SkPoint::Make(xMaxOffset, yMaxOffset),
-                        invRadii);
+            verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fDevBounds),
+                            color,
+                            origin_centered_tri_strip(xMaxOffset, yMaxOffset),
+                            invRadii);
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
@@ -2000,8 +1990,6 @@ private:
             SkScalar xRadius = ellipse.fXRadius;
             SkScalar yRadius = ellipse.fYRadius;
 
-            const SkRect& bounds = ellipse.fBounds;
-
             // This adjusts the "radius" to include the half-pixel border
             SkScalar offsetDx = ellipse.fGeoDx / xRadius;
             SkScalar offsetDy = ellipse.fGeoDy / yRadius;
@@ -2016,29 +2004,11 @@ private:
                 innerRatioY = yRadius / ellipse.fInnerYRadius;
             }
 
-            verts.write(SkPoint::Make(bounds.fLeft, bounds.fTop),
-                        color,
-                        SkPoint::Make(-1.0f - offsetDx, -1.0f - offsetDy),
-                        SkPoint::Make(-innerRatioX - offsetDx,
-                                      -innerRatioY - offsetDy));
-
-            verts.write(SkPoint::Make(bounds.fLeft, bounds.fBottom),
-                        color,
-                        SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy),
-                        SkPoint::Make(-innerRatioX - offsetDx,
-                                       innerRatioY + offsetDy));
-
-            verts.write(SkPoint::Make(bounds.fRight, bounds.fTop),
-                        color,
-                        SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy),
-                        SkPoint::Make( innerRatioX + offsetDx,
-                                      -innerRatioY - offsetDy));
-
-            verts.write(SkPoint::Make(bounds.fRight, bounds.fBottom),
-                        color,
-                        SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy),
-                        SkPoint::Make(innerRatioX + offsetDx,
-                                      innerRatioY + offsetDy));
+            verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fBounds),
+                            color,
+                            origin_centered_tri_strip(1.0f + offsetDx, 1.0f + offsetDy),
+                            origin_centered_tri_strip(innerRatioX + offsetDx,
+                                                      innerRatioY + offsetDy));
         }
         auto pipe = fHelper.makePipeline(target);
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
