@@ -366,6 +366,9 @@ public:
     */
     void LEGACY_applyToPaint(SkPaint* paint) const;
     /** Deprecated.
+     */
+    void LEGACY_applyPaintFlags(uint32_t paintFlags);
+    /** Deprecated.
     */
     static SkFont LEGACY_ExtractFromPaint(const SkPaint& paint);
 

@@ -8,6 +8,7 @@
 #include "Benchmark.h"
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -26,22 +27,19 @@ public:
     SkTextBlobBench() {}
 
     void onDelayedSetup() override {
-        fPaint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
-        fPaint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+        fFont.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+        fFont.setSubpixel(true);
 
         // This text seems representative in both length and letter frequency.
         const char* text = "Keep your sentences short, but not overly so.";
 
-        fGlyphs.setCount(fPaint.textToGlyphs(text, strlen(text), nullptr));
-        fPaint.textToGlyphs(text, strlen(text), fGlyphs.begin());
-
-        fPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        fPaint.setSubpixelText(true);
+        fGlyphs.setCount(fFont.countText(text, strlen(text), kUTF8_SkTextEncoding));
+        fFont.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
     }
 
     sk_sp<SkTextBlob> makeBlob() {
         const SkTextBlobBuilder::RunBuffer& run =
-            fBuilder.allocRunPosH(fPaint, fGlyphs.count(), 10, nullptr);
+            fBuilder.allocRunPosH(fFont, fGlyphs.count(), 10, nullptr);
         for (int i = 0; i < fGlyphs.count(); i++) {
             run.glyphs[i] = fGlyphs[i];
             run.   pos[i] = (i+1) * 10.125;
@@ -50,9 +48,9 @@ public:
     }
 
 private:
-    SkTextBlobBuilder    fBuilder;
-    SkPaint              fPaint;
-    SkTDArray<uint16_t>  fGlyphs;
+    SkTextBlobBuilder   fBuilder;
+    SkFont              fFont;
+    SkTDArray<uint16_t> fGlyphs;
 
     typedef Benchmark INHERITED;
 };
