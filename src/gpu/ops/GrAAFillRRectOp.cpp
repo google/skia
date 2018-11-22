@@ -134,7 +134,6 @@ struct Vertex {
     std::array<float, 2> fAABloatDirection;
     float fCoverage;
     float fIsLinearCoverage;
-    std::array<float, 4> fArcCoordMatrix;
 };
 
 // This is the offset (when multiplied by radii) from the corners of a bounding box to the vertices
@@ -142,86 +141,72 @@ struct Vertex {
 // rectangles.
 static constexpr float kOctoOffset = 1/(1 + SK_ScalarRoot2Over2);
 
-// This matrix is used to calculate normalized arc coordinates.
-// (i.e., arccoord.x^2 + arccoord.y^2 == 1). The formula to find the arc coord is:
-//
-//   arccoord = arc_coord_matrix.xz * aa_bloatradius/radii + arc_coord_matrix.yw;
-//
-// See kVertexData and onEmitCode.
-static constexpr std::array<float, 4> kArcMatrices[] = {
-        {{+1, 1,  0, 0}},
-        {{-1, 1,  0, 0}},
-        {{ 0, 0, -1, 1}},
-        {{ 0, 0, +1, 1}},
-        {{+1, 1-kOctoOffset, +1, 1}},
-        {{+1, 1, +1, 1-kOctoOffset}}};
-
 static constexpr Vertex kVertexData[] = {
         // Left inset edge.
-        {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}},  {{+1,0}},  1,  1,  {{0,0,0,0}}},
-        {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}},  {{+1,0}},  1,  1,  {{0,0,0,0}}},
+        {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}},  {{+1,0}},  1,  1},
+        {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}},  {{+1,0}},  1,  1},
 
         // Top inset edge.
-        {{{1,0,0,0}},  {{-1,-1}},  {{+1,0}},  {{0,+1}},  1,  1,  {{0,0,0,0}}},
-        {{{0,1,0,0}},  {{+1,-1}},  {{-1,0}},  {{0,+1}},  1,  1,  {{0,0,0,0}}},
+        {{{1,0,0,0}},  {{-1,-1}},  {{+1,0}},  {{0,+1}},  1,  1},
+        {{{0,1,0,0}},  {{+1,-1}},  {{-1,0}},  {{0,+1}},  1,  1},
 
         // Right inset edge.
-        {{{0,1,0,0}},  {{+1,-1}},  {{0,+1}},  {{-1,0}},  1,  1,  {{0,0,0,0}}},
-        {{{0,0,1,0}},  {{+1,+1}},  {{0,-1}},  {{-1,0}},  1,  1,  {{0,0,0,0}}},
+        {{{0,1,0,0}},  {{+1,-1}},  {{0,+1}},  {{-1,0}},  1,  1},
+        {{{0,0,1,0}},  {{+1,+1}},  {{0,-1}},  {{-1,0}},  1,  1},
 
         // Bottom inset edge.
-        {{{0,0,1,0}},  {{+1,+1}},  {{-1,0}},  {{0,-1}},  1,  1,  {{0,0,0,0}}},
-        {{{0,0,0,1}},  {{-1,+1}},  {{+1,0}},  {{0,-1}},  1,  1,  {{0,0,0,0}}},
+        {{{0,0,1,0}},  {{+1,+1}},  {{-1,0}},  {{0,-1}},  1,  1},
+        {{{0,0,0,1}},  {{-1,+1}},  {{+1,0}},  {{0,-1}},  1,  1},
 
 
         // Left outset edge.
-        {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}},  {{-1,0}},  0,  1,  {{0,0,0,0}}},
-        {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}},  {{-1,0}},  0,  1,  {{0,0,0,0}}},
+        {{{0,0,0,1}},  {{-1,+1}},  {{0,-1}},  {{-1,0}},  0,  1},
+        {{{1,0,0,0}},  {{-1,-1}},  {{0,+1}},  {{-1,0}},  0,  1},
 
         // Top outset edge.
-        {{{1,0,0,0}},  {{-1,-1}},  {{+1,0}},  {{0,-1}},  0,  1,  {{0,0,0,0}}},
-        {{{0,1,0,0}},  {{+1,-1}},  {{-1,0}},  {{0,-1}},  0,  1,  {{0,0,0,0}}},
+        {{{1,0,0,0}},  {{-1,-1}},  {{+1,0}},  {{0,-1}},  0,  1},
+        {{{0,1,0,0}},  {{+1,-1}},  {{-1,0}},  {{0,-1}},  0,  1},
 
         // Right outset edge.
-        {{{0,1,0,0}},  {{+1,-1}},  {{0,+1}},  {{+1,0}},  0,  1,  {{0,0,0,0}}},
-        {{{0,0,1,0}},  {{+1,+1}},  {{0,-1}},  {{+1,0}},  0,  1,  {{0,0,0,0}}},
+        {{{0,1,0,0}},  {{+1,-1}},  {{0,+1}},  {{+1,0}},  0,  1},
+        {{{0,0,1,0}},  {{+1,+1}},  {{0,-1}},  {{+1,0}},  0,  1},
 
         // Bottom outset edge.
-        {{{0,0,1,0}},  {{+1,+1}},  {{-1,0}},  {{0,+1}},  0,  1,  {{0,0,0,0}}},
-        {{{0,0,0,1}},  {{-1,+1}},  {{+1,0}},  {{0,+1}},  0,  1,  {{0,0,0,0}}},
+        {{{0,0,1,0}},  {{+1,+1}},  {{-1,0}},  {{0,+1}},  0,  1},
+        {{{0,0,0,1}},  {{-1,+1}},  {{+1,0}},  {{0,+1}},  0,  1},
 
 
         // Top-left corner.
-        {{{1,0,0,0}},  {{-1,-1}},  {{ 0,+1}},  {{-1, 0}},  0,  0,  kArcMatrices[0]},
-        {{{1,0,0,0}},  {{-1,-1}},  {{ 0,+1}},  {{+1, 0}},  1,  0,  kArcMatrices[1]},
-        {{{1,0,0,0}},  {{-1,-1}},  {{+1, 0}},  {{ 0,+1}},  1,  0,  kArcMatrices[2]},
-        {{{1,0,0,0}},  {{-1,-1}},  {{+1, 0}},  {{ 0,-1}},  0,  0,  kArcMatrices[3]},
-        {{{1,0,0,0}},  {{-1,-1}},  {{+kOctoOffset,0}},  {{-1,-1}},  0,  0,  kArcMatrices[4]},
-        {{{1,0,0,0}},  {{-1,-1}},  {{0,+kOctoOffset}},  {{-1,-1}},  0,  0,  kArcMatrices[5]},
+        {{{1,0,0,0}},  {{-1,-1}},  {{ 0,+1}},  {{-1, 0}},  0,  0},
+        {{{1,0,0,0}},  {{-1,-1}},  {{ 0,+1}},  {{+1, 0}},  1,  0},
+        {{{1,0,0,0}},  {{-1,-1}},  {{+1, 0}},  {{ 0,+1}},  1,  0},
+        {{{1,0,0,0}},  {{-1,-1}},  {{+1, 0}},  {{ 0,-1}},  0,  0},
+        {{{1,0,0,0}},  {{-1,-1}},  {{+kOctoOffset,0}},  {{-1,-1}},  0,  0},
+        {{{1,0,0,0}},  {{-1,-1}},  {{0,+kOctoOffset}},  {{-1,-1}},  0,  0},
 
         // Top-right corner.
-        {{{0,1,0,0}},  {{+1,-1}},  {{-1, 0}},  {{ 0,-1}},  0,  0,  kArcMatrices[3]},
-        {{{0,1,0,0}},  {{+1,-1}},  {{-1, 0}},  {{ 0,+1}},  1,  0,  kArcMatrices[2]},
-        {{{0,1,0,0}},  {{+1,-1}},  {{ 0,+1}},  {{-1, 0}},  1,  0,  kArcMatrices[1]},
-        {{{0,1,0,0}},  {{+1,-1}},  {{ 0,+1}},  {{+1, 0}},  0,  0,  kArcMatrices[0]},
-        {{{0,1,0,0}},  {{+1,-1}},  {{0,+kOctoOffset}},  {{+1,-1}},  0,  0,  kArcMatrices[5]},
-        {{{0,1,0,0}},  {{+1,-1}},  {{-kOctoOffset,0}},  {{+1,-1}},  0,  0,  kArcMatrices[4]},
+        {{{0,1,0,0}},  {{+1,-1}},  {{-1, 0}},  {{ 0,-1}},  0,  0},
+        {{{0,1,0,0}},  {{+1,-1}},  {{-1, 0}},  {{ 0,+1}},  1,  0},
+        {{{0,1,0,0}},  {{+1,-1}},  {{ 0,+1}},  {{-1, 0}},  1,  0},
+        {{{0,1,0,0}},  {{+1,-1}},  {{ 0,+1}},  {{+1, 0}},  0,  0},
+        {{{0,1,0,0}},  {{+1,-1}},  {{0,+kOctoOffset}},  {{+1,-1}},  0,  0},
+        {{{0,1,0,0}},  {{+1,-1}},  {{-kOctoOffset,0}},  {{+1,-1}},  0,  0},
 
         // Bottom-right corner.
-        {{{0,0,1,0}},  {{+1,+1}},  {{ 0,-1}},  {{+1, 0}},  0,  0,  kArcMatrices[0]},
-        {{{0,0,1,0}},  {{+1,+1}},  {{ 0,-1}},  {{-1, 0}},  1,  0,  kArcMatrices[1]},
-        {{{0,0,1,0}},  {{+1,+1}},  {{-1, 0}},  {{ 0,-1}},  1,  0,  kArcMatrices[2]},
-        {{{0,0,1,0}},  {{+1,+1}},  {{-1, 0}},  {{ 0,+1}},  0,  0,  kArcMatrices[3]},
-        {{{0,0,1,0}},  {{+1,+1}},  {{-kOctoOffset,0}},  {{+1,+1}},  0,  0,  kArcMatrices[4]},
-        {{{0,0,1,0}},  {{+1,+1}},  {{0,-kOctoOffset}},  {{+1,+1}},  0,  0,  kArcMatrices[5]},
+        {{{0,0,1,0}},  {{+1,+1}},  {{ 0,-1}},  {{+1, 0}},  0,  0},
+        {{{0,0,1,0}},  {{+1,+1}},  {{ 0,-1}},  {{-1, 0}},  1,  0},
+        {{{0,0,1,0}},  {{+1,+1}},  {{-1, 0}},  {{ 0,-1}},  1,  0},
+        {{{0,0,1,0}},  {{+1,+1}},  {{-1, 0}},  {{ 0,+1}},  0,  0},
+        {{{0,0,1,0}},  {{+1,+1}},  {{-kOctoOffset,0}},  {{+1,+1}},  0,  0},
+        {{{0,0,1,0}},  {{+1,+1}},  {{0,-kOctoOffset}},  {{+1,+1}},  0,  0},
 
         // Bottom-left corner.
-        {{{0,0,0,1}},  {{-1,+1}},  {{+1, 0}},  {{ 0,+1}},  0,  0,  kArcMatrices[3]},
-        {{{0,0,0,1}},  {{-1,+1}},  {{+1, 0}},  {{ 0,-1}},  1,  0,  kArcMatrices[2]},
-        {{{0,0,0,1}},  {{-1,+1}},  {{ 0,-1}},  {{+1, 0}},  1,  0,  kArcMatrices[1]},
-        {{{0,0,0,1}},  {{-1,+1}},  {{ 0,-1}},  {{-1, 0}},  0,  0,  kArcMatrices[0]},
-        {{{0,0,0,1}},  {{-1,+1}},  {{0,-kOctoOffset}},  {{-1, 0}},  0,  0,  kArcMatrices[5]},
-        {{{0,0,0,1}},  {{-1,+1}},  {{+kOctoOffset,0}},  {{-1,+1}},  0,  0,  kArcMatrices[4]}};
+        {{{0,0,0,1}},  {{-1,+1}},  {{+1, 0}},  {{ 0,+1}},  0,  0},
+        {{{0,0,0,1}},  {{-1,+1}},  {{+1, 0}},  {{ 0,-1}},  1,  0},
+        {{{0,0,0,1}},  {{-1,+1}},  {{ 0,-1}},  {{+1, 0}},  1,  0},
+        {{{0,0,0,1}},  {{-1,+1}},  {{ 0,-1}},  {{-1, 0}},  0,  0},
+        {{{0,0,0,1}},  {{-1,+1}},  {{0,-kOctoOffset}},  {{-1, 0}},  0,  0},
+        {{{0,0,0,1}},  {{-1,+1}},  {{+kOctoOffset,0}},  {{-1,+1}},  0,  0}};
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
@@ -273,7 +258,7 @@ public:
     Processor(Flags flags)
             : GrGeometryProcessor(kGrAAFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
-        this->setVertexAttributes(kVertexAttribs, 4);
+        this->setVertexAttributes(kVertexAttribs, 3);
         this->setInstanceAttributes(kInstanceAttribs, (flags & Flags::kHasLocalCoords) ? 6 : 5);
         SkASSERT(this->vertexStride() == sizeof(Vertex));
     }
@@ -290,8 +275,7 @@ private:
     static constexpr Attribute kVertexAttribs[] = {
             {"radii_selector", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-            {"arc_coord_matrix", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+            {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
 
     static constexpr Attribute kInstanceAttribs[] = {
             {"skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
@@ -371,9 +355,8 @@ public:
 
         // Find our vertex position, adjusted for radii and bloated for AA. Our rect is drawn in
         // normalized [-1,-1,+1,+1] space.
-        v->codeAppend("float2 vertexpos = corner"
-                              "+ radius_outset * radii"
-                              "+ aa_bloat_direction.xy * aa_bloatradius;");
+        v->codeAppend("float2 aa_outset = aa_bloat_direction.xy * aa_bloatradius;");
+        v->codeAppend("float2 vertexpos = corner + radius_outset * radii + aa_outset;");
 
         // Emit transforms.
         GrShaderVar localCoord("", kFloat2_GrSLType);
@@ -398,8 +381,9 @@ public:
                            // interpolate linear coverage across y.
         v->codeAppendf(    "%s.xy = float2(0, coverage);", arcCoord.vsOut());
         v->codeAppend("} else {");
-        v->codeAppend(    "float2 arccoord = "
-                               "arc_coord_matrix.xz * aa_bloatradius/radii + arc_coord_matrix.yw;");
+                           // Find the normalized arc coordinates for our corner ellipse.
+                           // (i.e., the coordinate system where x^2 + y^2 == 1).
+        v->codeAppend(    "float2 arccoord = 1 - abs(radius_outset) + aa_outset/radii * corner;");
                            // We are a corner piece: Interpolate the arc coordinates for coverage.
                            // Emit x+1 to ensure no pixel in the arc has a x value of 0 (since x=0
                            // instructs the fragment shader to use linear coverage).
