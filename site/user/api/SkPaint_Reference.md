@@ -161,6 +161,7 @@ public:
 
     <a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
     void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding);
+    void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding);
 
     typedef <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> <a href='#SkPaint_FontMetrics'>FontMetrics</a>;
 
