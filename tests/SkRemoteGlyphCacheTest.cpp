@@ -436,30 +436,27 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
 
 sk_sp<SkTextBlob> make_blob_causing_fallback(
         sk_sp<SkTypeface> targetTf, const SkTypeface* glyphTf, skiatest::Reporter* reporter) {
-    SkPaint paint;
-    paint.setSubpixelText(true);
-    paint.setTextSize(96);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setHinting(kNormal_SkFontHinting);
+    SkFont font;
+    font.setSubpixel(true);
+    font.setSize(96);
+    font.setHinting(kNormal_SkFontHinting);
+    font.setTypeface(targetTf);
 
-    paint.setTypeface(targetTf);
-
-    REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(paint, SkMatrix::I()));
+    REPORTER_ASSERT(reporter, !SkDraw::ShouldDrawTextAsPaths(font, SkPaint(), SkMatrix::I()));
 
     char s[] = "Skia";
     int runSize = strlen(s);
 
     SkTextBlobBuilder builder;
     SkRect bounds = SkRect::MakeIWH(100, 100);
-    const auto& runBuffer = builder.allocRunPosH(paint, runSize, 10, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10, &bounds);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
     glyphTf->charsToGlyphs(s, SkTypeface::kUTF8_Encoding, runBuffer.glyphs, runSize);
 
     SkRect glyphBounds;
-    paint.measureText(runBuffer.glyphs, 2, &glyphBounds);
+    font.getWidths(runBuffer.glyphs, 1, nullptr, &glyphBounds);
 
     REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkSideTooBigForAtlas);
 

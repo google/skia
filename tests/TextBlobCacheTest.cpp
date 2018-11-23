@@ -83,9 +83,8 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     // generate textblobs
     SkTArray<sk_sp<SkTextBlob>> blobs;
     for (int i = 0; i < count; i++) {
-        SkPaint paint;
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        paint.setTextSize(48); // draw big glyphs to really stress the atlas
+        SkFont font;
+        font.setSize(48); // draw big glyphs to really stress the atlas
 
         SkString familyName;
         fm->getFamilyName(i, &familyName);
@@ -97,22 +96,27 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
             // We use a typeface which randomy returns unexpected mask formats to fuzz
             sk_sp<SkTypeface> orig(set->createTypeface(j));
             if (normal) {
-                paint.setTypeface(orig);
+                font.setTypeface(orig);
             } else {
-                paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, true));
+                font.setTypeface(sk_make_sp<SkRandomTypeface>(orig, SkPaint(), true));
             }
 
             SkTextBlobBuilder builder;
             for (int aa = 0; aa < 2; aa++) {
                 for (int subpixel = 0; subpixel < 2; subpixel++) {
                     for (int lcd = 0; lcd < 2; lcd++) {
-                        paint.setAntiAlias(SkToBool(aa));
-                        paint.setSubpixelText(SkToBool(subpixel));
-                        paint.setLCDRenderText(SkToBool(lcd));
-                        if (!SkToBool(lcd)) {
-                            paint.setTextSize(160);
+                        font.setEdging(SkFont::Edging::kAlias);
+                        if (aa) {
+                            font.setEdging(SkFont::Edging::kAntiAlias);
+                            if (lcd) {
+                                font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+                            }
                         }
-                        const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint,
+                        font.setSubpixel(SkToBool(subpixel));
+                        if (!SkToBool(lcd)) {
+                            font.setSize(160);
+                        }
+                        const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(font,
                                                                                    maxTotalText,
                                                                                    0, 0,
                                                                                    nullptr);

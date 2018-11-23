@@ -362,19 +362,17 @@ DEF_TEST(TextBlob_extended, reporter) {
 
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setSubpixelText(true);
-    paint.setTextSize(16);
-    paint.setTypeface(tf);
+    SkFont font;
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setSubpixel(true);
+    font.setSize(16);
+    font.setTypeface(tf);
 
-    int glyphCount = paint.textToGlyphs(text, strlen(text), nullptr);
+    int glyphCount = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
 
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    SkTextBlobBuilder::RunBuffer buffer = builder->allocRun(paint, glyphCount, x, y);
+    SkTextBlobBuilder::RunBuffer buffer = builder->allocRun(font, glyphCount, x, y);
 
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-    (void)paint.textToGlyphs(text, strlen(text), buffer.glyphs);
+    (void)font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, buffer.glyphs, glyphCount);
 }
 
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
