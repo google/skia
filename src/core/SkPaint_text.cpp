@@ -61,91 +61,20 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-int SkPaint::countText(const void* text, size_t byteLength) const {
-    SkASSERT(text != nullptr);
-    switch (this->getTextEncoding()) {
-        case kUTF8_TextEncoding:
-            return SkUTF::CountUTF8((const char*)text, byteLength);
-        case kUTF16_TextEncoding:
-            return SkUTF::CountUTF16((const uint16_t*)text, byteLength);
-        case kUTF32_TextEncoding:
-            return SkToInt(byteLength >> 2);
-        case kGlyphID_TextEncoding:
-            return SkToInt(byteLength >> 1);
-        default:
-            SkDEBUGFAIL("unknown text encoding");
-    }
-
-    return 0;
+int SkPaint::countText(const void* text, size_t length) const {
+    return SkFont::LEGACY_ExtractFromPaint(*this).countText(text, length,
+                                                        (SkTextEncoding)this->getTextEncoding());
 }
 
-static SkTypeface::Encoding to_encoding(SkPaint::TextEncoding e) {
-    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
-    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
-    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
-    return (SkTypeface::Encoding)e;
+int SkPaint::textToGlyphs(const void* text, size_t length, uint16_t glyphs[]) const {
+    return SkFont::LEGACY_ExtractFromPaint(*this).textToGlyphs(text, length,
+                                                           (SkTextEncoding)this->getTextEncoding(),
+                                                               glyphs, length);
 }
 
-int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
-    SkASSERT(textData != nullptr);
-
-    if (nullptr == glyphs) {
-        return this->countText(textData, byteLength);
-    }
-
-    // if we get here, we have a valid glyphs[] array, so time to fill it in
-
-    // handle this encoding before the setup for the glyphcache
-    if (this->getTextEncoding() == kGlyphID_TextEncoding) {
-        // we want to ignore the low bit of byteLength
-        memcpy(glyphs, textData, byteLength >> 1 << 1);
-        return SkToInt(byteLength >> 1);
-    }
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
-
-    const void* stop = (const char*)textData + byteLength;
-    uint16_t*   gptr = glyphs;
-    const SkTypeface::Encoding encoding = to_encoding(this->getTextEncoding());
-
-    while (textData < stop) {
-        SkUnichar unichar = SkUTFN_Next(encoding, &textData, stop);
-        if (unichar < 0) {
-            return 0;  // bad UTF-N sequence
-        }
-        *gptr++ = cache->unicharToGlyph(unichar);
-    }
-    return SkToInt(gptr - glyphs);
-}
-
-bool SkPaint::containsText(const void* textData, size_t byteLength) const {
-    if (0 == byteLength) {
-        return true;
-    }
-
-    SkASSERT(textData != nullptr);
-
-    // handle this encoding before the setup for the glyphcache
-    if (this->getTextEncoding() == kGlyphID_TextEncoding) {
-        const uint16_t* glyphID = static_cast<const uint16_t*>(textData);
-        size_t count = byteLength >> 1;
-        for (size_t i = 0; i < count; i++) {
-            if (0 == glyphID[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
-    const void* stop = (const char*)textData + byteLength;
-    const SkTypeface::Encoding encoding = to_encoding(this->getTextEncoding());
-    while (textData < stop) {
-        if (0 == cache->unicharToGlyph(SkUTFN_Next(encoding, &textData, stop))) {
-            return false;
-        }
-    }
-    return true;
+bool SkPaint::containsText(const void* text, size_t length) const {
+    return SkFont::LEGACY_ExtractFromPaint(*this).containsText(text, length,
+                                                           (SkTextEncoding)this->getTextEncoding());
 }
 
 void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar textData[]) const {
@@ -470,35 +399,8 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     return text - stop + length;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
-    SkCanonicalizePaint canon(*this);
-    const SkPaint& paint = canon.getPaint();
-    SkScalar scale = canon.getScale();
-
-    SkFontMetrics storage;
-    if (nullptr == metrics) {
-        metrics = &storage;
-    }
-
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        paint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
-        SkScalerContextFlags::kNone, SkMatrix::I(), &ad, &effects);
-
-    {
-        auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
-        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
-        *metrics = cache->getFontMetrics();
-    }
-
-    if (scale) {
-        SkPaintPriv::ScaleFontMetrics(metrics, scale);
-    }
-    return metrics->fDescent - metrics->fAscent + metrics->fLeading;
+    return SkFont::LEGACY_ExtractFromPaint(*this).getMetrics(metrics);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
