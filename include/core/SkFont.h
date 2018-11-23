@@ -291,6 +291,23 @@ public:
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
     }
 
+    /** Returns true if all text corresponds to a non-zero glyph index.
+        Returns false if any characters in text are not supported in
+        SkTypeface.
+
+        If SkTextEncoding is kGlyphID_SkTextEncoding,
+        returns true if all glyph indices in text are non-zero;
+        does not check to see if text contains valid glyph indices for SkTypeface.
+
+        Returns true if byteLength is zero.
+
+        @param text        array of characters or glyphs
+        @param byteLength  number of bytes in text array
+        @param encoding    text encoding
+        @return            true if all text corresponds to a non-zero glyph index
+     */
+    bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
+
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Returns the bounding box of text if bounds is not nullptr.
