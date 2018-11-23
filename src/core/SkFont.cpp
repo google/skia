@@ -16,6 +16,7 @@
 #include "SkTLazy.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
+#include "SkUtils.h"
 
 #define kDefault_Size       12
 #define kDefault_Flags      0
@@ -191,6 +192,43 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     (void)SkFontPriv::GetTypefaceOrDefault(*this)->charsToGlyphs(text, typefaceEncoding, glyphs,
                                                                  count);
     return count;
+}
+
+static SkTypeface::Encoding to_encoding(SkTextEncoding e) {
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)kUTF8_SkTextEncoding,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)kUTF16_SkTextEncoding, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)kUTF32_SkTextEncoding, "");
+    return (SkTypeface::Encoding)e;
+}
+
+bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncoding textEnc) const {
+    if (0 == byteLength) {
+        return true;
+    }
+
+    SkASSERT(textData != nullptr);
+
+    // handle this encoding before the setup for the glyphcache
+    if (textEnc == kGlyphID_SkTextEncoding) {
+        const uint16_t* glyphID = static_cast<const uint16_t*>(textData);
+        size_t count = byteLength >> 1;
+        for (size_t i = 0; i < count; i++) {
+            if (0 == glyphID[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
+    const void* stop = (const char*)textData + byteLength;
+    const SkTypeface::Encoding encoding = to_encoding(textEnc);
+    while (textData < stop) {
+        if (0 == cache->unicharToGlyph(SkUTFN_Next(encoding, &textData, stop))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {

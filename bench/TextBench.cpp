@@ -15,6 +15,8 @@
 #include "SkTemplates.h"
 #include "SkTypeface.h"
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+
 enum FontQuality {
     kBW,
     kAA,
@@ -175,3 +177,5 @@ DEF_BENCH( return new TextBench(STR, 16, 0x88FF0000, kBW, true); )
 
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kBW, true, true); )
 DEF_BENCH( return new TextBench(STR, 16, 0xFF000000, kAA, false, true); )
+
+#endif

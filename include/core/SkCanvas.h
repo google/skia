@@ -36,6 +36,7 @@ class SkData;
 class SkDraw;
 class SkDrawable;
 struct SkDrawShadowRec;
+class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
@@ -1876,6 +1877,10 @@ public:
     */
     void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                   const SkPaint& paint);
+
+    // Experimental
+    void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                        SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
 
     /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
         SkPaint paint.

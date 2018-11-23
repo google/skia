@@ -54,6 +54,10 @@ class SkTextBlob;
 class SkTextBlobRunIterator;
 class SkTypeface;
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+#define SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+#endif
+
 /** \class SkPaint
     SkPaint controls options applied when drawing and measuring. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -953,6 +957,8 @@ public:
         this->setTextEncoding((TextEncoding)encoding);
     }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+
 #ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
     /**
         SkFontMetrics is filled out by getFontMetrics(). SkFontMetrics contents reflect the values
@@ -1083,6 +1089,7 @@ public:
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, nullptr);
     }
+#endif
 
     /** Returns the bytes of text that fit within maxWidth.
         The text fragment fits if its advance width is less than or equal to maxWidth.
@@ -1101,6 +1108,7 @@ public:
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = nullptr) const;
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Retrieves the advance and bounds for each glyph in text, and returns
         the glyph count in text.
         Both widths and bounds may be nullptr.
@@ -1257,6 +1265,7 @@ public:
         @return  union of bounds of all glyphs
     */
     SkRect getFontBounds() const;
+#endif
 
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.
