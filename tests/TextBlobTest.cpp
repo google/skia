@@ -292,16 +292,15 @@ private:
                                                                           bounds);
             for (int i = 0; i < count; ++i) {
                 rb.glyphs[i] = i;
-                rb.pos[i] = SkIntToScalar(i);
             }
+            font.getXPos(rb.glyphs, count, rb.pos);
         } break;
         case SkTextBlobRunIterator::kFull_Positioning: {
             const SkTextBlobBuilder::RunBuffer& rb = builder.allocRunPos(font, count, bounds);
             for (int i = 0; i < count; ++i) {
                 rb.glyphs[i] = i;
-                rb.pos[i * 2] = SkIntToScalar(i);
-                rb.pos[i * 2 + 1] = -SkIntToScalar(i);
             }
+            font.getPos(rb.glyphs, count, reinterpret_cast<SkPoint*>(rb.pos));
         } break;
         default:
             SK_ABORT("unhandled positioning value");
