@@ -327,6 +327,30 @@ void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], Sk
     }
 }
 
+void SkFont::getPositions(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin) const {
+    if (count <= 0 || !pos) {
+        return;
+    }
+
+    SkCanonicalizeFont canon(*this);
+    const SkFont& font = canon.getFont();
+    SkScalar scale = canon.getScale();
+    if (!scale) {
+        scale = 1;
+    }
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(kGlyphID_SkTextEncoding, false);
+
+    const char* text = reinterpret_cast<const char*>(glyphs);
+    const char* stop = text + (count << 1);
+    for (int i = 0; i < count; ++i) {
+        const SkGlyph& g = glyphCacheProc(cache.get(), &text, stop);
+        pos[i] = origin;
+        origin.fX += g.fAdvanceX * scale;
+    }
+}
+
 void SkFont::getPaths(const uint16_t glyphs[], int count,
                       void (*proc)(uint16_t, const SkPath*, void*), void* ctx) const {
     SkFont font(*this);

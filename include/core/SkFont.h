@@ -335,6 +335,10 @@ public:
     void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
                    SkRect bounds[] = nullptr) const;
 
+    // Experimental
+    void getPositions(const uint16_t glyphs[], int count, SkPoint pos[],
+                      SkPoint origin = {0, 0}) const;
+
     /** Returns path corresponding to glyph outline.
         If glyph has an outline, copies outline to path and returns true.
         path returned may be empty.
