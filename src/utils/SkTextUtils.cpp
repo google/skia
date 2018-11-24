@@ -6,6 +6,7 @@
  */
 
 #include "SkTextUtils.h"
+#include "SkPath.h"
 
 void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkScalar x, SkScalar y,
                             const SkPaint& origPaint, Align align) {
@@ -51,3 +52,39 @@ void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkSc
     canvas->drawPosTextH(glyphs, count * sizeof(uint16_t), widths, y, paint);
 }
 
+void SkTextUtils::GetTextPath(const SkFont& font, const void* text, size_t length,
+                              SkTextEncoding encoding, SkScalar x, SkScalar y, SkPath* path) {
+    int count;
+    SkAutoTArray<uint16_t> glyphsStorage;
+    const uint16_t* glyphs;
+
+    if (encoding == kGlyphID_SkTextEncoding) {
+        count = length >> 1;
+        glyphs = static_cast<const uint16_t*>(text);
+    } else {
+        count = font.countText(text, length, encoding);
+        glyphsStorage.reset(count);
+        font.textToGlyphs(text, length, encoding, glyphsStorage.get(), count);
+        glyphs = glyphsStorage.get();
+    }
+    SkAutoTArray<SkScalar> advStorage(count);
+    SkScalar* adv = advStorage.get();
+    font.getWidths(glyphs, count, adv, nullptr);
+
+    struct Rec {
+        SkPath* fPath;
+        SkScalar* fAdv;
+        SkPoint fPos;
+    } rec = {
+        path, adv, { x, y }
+    };
+
+    path->reset();
+    font.getPaths(glyphs, count, [](uint16_t, const SkPath* src, void* ctx) {
+        Rec* rec = static_cast<Rec*>(ctx);
+        if (src) {
+            rec->fPath->addPath(*src, rec->fPos.fX, rec->fPos.fY);
+        }
+        rec->fPos.fX += *rec->fAdv++;
+    }, &rec);
+}
