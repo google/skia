@@ -40,10 +40,8 @@ public:
     sk_sp<SkTextBlob> makeBlob() {
         const SkTextBlobBuilder::RunBuffer& run =
             fBuilder.allocRunPosH(fFont, fGlyphs.count(), 10, nullptr);
-        for (int i = 0; i < fGlyphs.count(); i++) {
-            run.glyphs[i] = fGlyphs[i];
-            run.   pos[i] = (i+1) * 10.125;
-        }
+        memcpy(run.glyphs, &fGlyphs[0], fGlyphs.count() * sizeof(uint16_t));
+        fFont.getXPos(&fGlyphs[0], fGlyphs.count(), run.pos);
         return fBuilder.make();
     }
 

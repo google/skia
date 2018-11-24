@@ -466,63 +466,63 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class AutoToGlyphs {
+public:
+    AutoToGlyphs(const SkFont& font, const void* text, size_t length, SkTextEncoding encoding) {
+        if (encoding == kGlyphID_SkTextEncoding || length == 0) {
+            fGlyphs = reinterpret_cast<const uint16_t*>(text);
+            fCount = length >> 1;
+        } else {
+            fCount = font.countText(text, length, encoding);
+            fStorage.reset(fCount);
+            font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
+            fGlyphs = fStorage.get();
+        }
+    }
+
+    int count() const { return fCount; }
+    const uint16_t* glyphs() const { return fGlyphs; }
+
+private:
+    SkAutoSTArray<32, uint16_t> fStorage;
+    const uint16_t* fGlyphs;
+    int             fCount;
+};
+
 #include "SkDraw.h"
 
-void SkPaint::getTextPath(const void* textData, size_t length,
-                          SkScalar x, SkScalar y, SkPath* path) const {
-    SkASSERT(length == 0 || textData != nullptr);
-
-    const char* text = (const char*)textData;
-    if (text == nullptr || length == 0 || path == nullptr) {
-        return;
+struct PathPosRec {
+    SkPath*         fDst;
+    const SkPoint*  fPos;
+};
+static void PathPosProc(uint16_t, const SkPath* src, void* ctx) {
+    PathPosRec* rec = static_cast<PathPosRec*>(ctx);
+    if (src) {
+        rec->fDst->addPath(*src, SkMatrix::MakeTrans(rec->fPos->fX, rec->fPos->fY));
     }
-
-    SkTextToPathIter    iter(text, length, *this, false);
-    SkMatrix            matrix;
-    SkScalar            prevXPos = 0;
-
-    matrix.setScale(iter.getPathScale(), iter.getPathScale());
-    matrix.postTranslate(x, y);
-    path->reset();
-
-    SkScalar        xpos;
-    const SkPath*   iterPath;
-    while (iter.next(&iterPath, &xpos)) {
-        matrix.postTranslate(xpos - prevXPos, 0);
-        if (iterPath) {
-            path->addPath(*iterPath, matrix);
-        }
-        prevXPos = xpos;
-    }
+    rec->fPos += 1;
 }
 
-void SkPaint::getPosTextPath(const void* textData, size_t length,
-                             const SkPoint pos[], SkPath* path) const {
-    SkASSERT(length == 0 || textData != nullptr);
+void SkPaint::getTextPath(const void* text, size_t length,
+                          SkScalar x, SkScalar y, SkPath* path) const {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
+    AutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
+    SkAutoSTArray<32, SkPoint> fPos(gly.count());
+    font.getPos(gly.glyphs(), gly.count(), fPos.get(), {x, y});
 
-    const char* text = (const char*)textData;
-    if (text == nullptr || length == 0 || path == nullptr) {
-        return;
-    }
-
-    SkTextToPathIter    iter(text, length, *this, false);
-    SkMatrix            matrix;
-    SkPoint             prevPos;
-    prevPos.set(0, 0);
-
-    matrix.setScale(iter.getPathScale(), iter.getPathScale());
     path->reset();
+    PathPosRec rec = { path, fPos.get() };
+    font.getPaths(gly.glyphs(), gly.count(), PathPosProc, &rec);
+}
 
-    unsigned int    i = 0;
-    const SkPath*   iterPath;
-    while (iter.next(&iterPath, nullptr)) {
-        matrix.postTranslate(pos[i].fX - prevPos.fX, pos[i].fY - prevPos.fY);
-        if (iterPath) {
-            path->addPath(*iterPath, matrix);
-        }
-        prevPos = pos[i];
-        i++;
-    }
+void SkPaint::getPosTextPath(const void* text, size_t length,
+                             const SkPoint pos[], SkPath* path) const {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
+    AutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
+
+    path->reset();
+    PathPosRec rec = { path, pos };
+    font.getPaths(gly.glyphs(), gly.count(), PathPosProc, &rec);
 }
 
 template <SkTextInterceptsIter::TextType TextType, typename Func>

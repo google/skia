@@ -396,3 +396,46 @@ DEF_TEST(Paint_getwidths, r) {
         }
     }
 }
+
+DEF_TEST(Font_getpos, r) {
+    SkFont font;
+    const char text[] = "Hamburgefons!@#!#23425,./;'[]";
+    int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    SkAutoTArray<uint16_t> glyphStorage(count);
+    uint16_t* glyphs = glyphStorage.get();
+    (void)font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, glyphs, count);
+
+    SkAutoTArray<SkScalar> widthStorage(count);
+    SkAutoTArray<SkScalar> xposStorage(count);
+    SkAutoTArray<SkPoint> posStorage(count);
+
+    SkScalar* widths = widthStorage.get();
+    SkScalar* xpos = xposStorage.get();
+    SkPoint* pos = posStorage.get();
+
+    for (bool subpix : { false, true }) {
+        font.setSubpixel(subpix);
+        for (auto hint : { kNo_SkFontHinting, kSlight_SkFontHinting, kNormal_SkFontHinting, kFull_SkFontHinting}) {
+            font.setHinting(hint);
+            for (auto size : { 1.0f, 12.0f, 100.0f }) {
+                font.setSize(size);
+
+                font.getWidths(glyphs, count, widths);
+                font.getXPos(glyphs, count, xpos, 10);
+                font.getPos(glyphs, count, pos, {10, 20});
+
+                auto nearly_eq = [](SkScalar a, SkScalar b) {
+                    return SkScalarAbs(a - b) < 0.000001f;
+                };
+
+                SkScalar x = 10;
+                for (int i = 0; i < count; ++i) {
+                    REPORTER_ASSERT(r, nearly_eq(x,  xpos[i]));
+                    REPORTER_ASSERT(r, nearly_eq(x,   pos[i].fX));
+                    REPORTER_ASSERT(r, nearly_eq(20,  pos[i].fY));
+                    x += widths[i];
+                }
+            }
+        }
+    }
+}
