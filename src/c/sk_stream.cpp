@@ -13,37 +13,57 @@
 
 #include "sk_types_priv.h"
 
+
+// stream asset base
+
 void sk_stream_asset_destroy(sk_stream_asset_t* cstream) {
     delete AsStreamAsset(cstream);
+}
+
+
+// file stream
+
+sk_stream_filestream_t* sk_filestream_new (const char* path) {
+    return ToFileStream(new SkFILEStream(path));
 }
 
 void sk_filestream_destroy(sk_stream_filestream_t* cstream) {
     delete AsFileStream(cstream);
 }
 
-void sk_memorystream_destroy(sk_stream_memorystream_t* cstream) {
-    delete AsMemoryStream(cstream);
+bool sk_filestream_is_valid(sk_stream_filestream_t* cstream) {
+    return AsFileStream(cstream)->isValid();
 }
 
-sk_stream_filestream_t* sk_filestream_new (const char* path) {
-    return ToFileStream(new SkFILEStream(path));
-}
+
+// memory stream
 
 sk_stream_memorystream_t* sk_memorystream_new () {
     return ToMemoryStream(new SkMemoryStream());
 }
+
 sk_stream_memorystream_t* sk_memorystream_new_with_length (size_t length) {
     return ToMemoryStream(new SkMemoryStream(length));
 }
+
 sk_stream_memorystream_t* sk_memorystream_new_with_data (const void* data, size_t length, bool copyData) {
     return ToMemoryStream(new SkMemoryStream(data, length, copyData));
 }
+
 sk_stream_memorystream_t* sk_memorystream_new_with_skdata (sk_data_t* data) {
     return ToMemoryStream(new SkMemoryStream(sk_ref_sp(AsData(data))));
 }
+
 void sk_memorystream_set_memory (sk_stream_memorystream_t* cmemorystream, const void* data, size_t length, bool copyData) {
     AsMemoryStream(cmemorystream)->setMemory(data, length, copyData);
 }
+
+void sk_memorystream_destroy(sk_stream_memorystream_t* cstream) {
+    delete AsMemoryStream(cstream);
+}
+
+
+// stream
 
 size_t sk_stream_read (sk_stream_t* cstream, void* buffer, size_t size) {
     return AsStream(cstream)->read(buffer, size);
@@ -60,24 +80,31 @@ size_t sk_stream_skip (sk_stream_t* cstream, size_t size) {
 bool sk_stream_is_at_end (sk_stream_t* cstream) {
     return AsStream(cstream)->isAtEnd();
 }
+
 bool sk_stream_read_s8 (sk_stream_t* cstream, int8_t* buffer) {
     return AsStream(cstream)->readS8(buffer);
 }
+
 bool sk_stream_read_s16 (sk_stream_t* cstream, int16_t* buffer) {
     return AsStream(cstream)->readS16(buffer);
 }
+
 bool sk_stream_read_s32 (sk_stream_t* cstream, int32_t* buffer) {
     return AsStream(cstream)->readS32(buffer);
 }
+
 bool sk_stream_read_u8 (sk_stream_t* cstream, uint8_t* buffer) {
     return AsStream(cstream)->readU8(buffer);
 }
+
 bool sk_stream_read_u16 (sk_stream_t* cstream, uint16_t* buffer) {
     return AsStream(cstream)->readU16(buffer);
 }
+
 bool sk_stream_read_u32 (sk_stream_t* cstream, uint32_t* buffer) {
     return AsStream(cstream)->readU32(buffer);
 }
+
 bool sk_stream_read_bool (sk_stream_t* cstream, bool* buffer) {
     return AsStream(cstream)->readBool(buffer);
 }
@@ -114,16 +141,26 @@ const void* sk_stream_get_memory_base(sk_stream_t* cstream) {
     return AsStream(cstream)->getMemoryBase();
 }
 
+
+// file W stream
+
 void sk_filewstream_destroy(sk_wstream_filestream_t* cstream) {
     delete AsFileWStream(cstream);
 }
 
-void sk_dynamicmemorywstream_destroy(sk_wstream_dynamicmemorystream_t* cstream) {
-    delete AsDynamicMemoryWStream(cstream);
-}
-
 sk_wstream_filestream_t* sk_filewstream_new(const char* path) {
     return ToFileWStream(new SkFILEWStream(path));
+}
+
+bool sk_filewstream_is_valid(sk_wstream_filestream_t* cstream) {
+    return AsFileWStream(cstream)->isValid();
+}
+
+
+// dynamic memory W stream
+
+void sk_dynamicmemorywstream_destroy(sk_wstream_dynamicmemorystream_t* cstream) {
+    delete AsDynamicMemoryWStream(cstream);
 }
 
 sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new() {
@@ -145,6 +182,9 @@ void sk_dynamicmemorywstream_copy_to(sk_wstream_dynamicmemorystream_t* cstream, 
 bool sk_dynamicmemorywstream_write_to_stream(sk_wstream_dynamicmemorystream_t* cstream, sk_wstream_t* dst) {
     return AsDynamicMemoryWStream(cstream)->writeToStream(AsWStream(dst));
 }
+
+
+// W stream
 
 bool sk_wstream_write(sk_wstream_t* cstream, const void* buffer, size_t size) {
     return AsWStream(cstream)->write(buffer, size);

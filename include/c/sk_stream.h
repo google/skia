@@ -20,6 +20,7 @@ SK_C_API void sk_stream_asset_destroy(sk_stream_asset_t* cstream);
 
 SK_C_API sk_stream_filestream_t* sk_filestream_new(const char* path);
 SK_C_API void sk_filestream_destroy(sk_stream_filestream_t* cstream);
+SK_C_API bool sk_filestream_is_valid(sk_stream_filestream_t* cstream);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +57,7 @@ SK_C_API const void* sk_stream_get_memory_base(sk_stream_t* cstream);
 
 SK_C_API sk_wstream_filestream_t* sk_filewstream_new(const char* path);
 SK_C_API void sk_filewstream_destroy(sk_wstream_filestream_t* cstream);
+SK_C_API bool sk_filewstream_is_valid(sk_wstream_filestream_t* cstream);
 
 SK_C_API sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new(void);
 SK_C_API sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream);
