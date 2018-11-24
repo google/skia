@@ -335,6 +335,18 @@ public:
     void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
                    SkRect bounds[] = nullptr) const;
 
+    /** Experimental
+        Retrieves the positions for each glyph, beginning at the specified origin. The caller
+        must allocated at least count number of elements in the pos[] array.
+
+        @param glyphs   array of glyph indices to be positioned
+        @param count    number of glyphs
+        @param pos      returns glyphs positions
+        @param origin   location of the first glyph. Defaults to {0, 0}.
+     */
+    void getPositions(const uint16_t glyphs[], int count, SkPoint pos[],
+                      SkPoint origin = {0, 0}) const;
+
     /** Returns path corresponding to glyph outline.
         If glyph has an outline, copies outline to path and returns true.
         path returned may be empty.
@@ -345,7 +357,6 @@ public:
         @return         true if glyphID is described by path
      */
     bool getPath(uint16_t glyphID, SkPath* path) const;
-
 
     /** Returns path corresponding to glyph array.
 
