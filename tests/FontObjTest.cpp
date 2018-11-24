@@ -67,7 +67,6 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     };
 
     SkPaint paint;
-    char txt[] = "long .text .with .lots .of.dots.";
 
     unsigned mask = SkPaint::kAntiAlias_Flag            |
                     SkPaint::kFakeBoldText_Flag         |
@@ -94,15 +93,6 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
 
                     test_cachedfont(reporter, paint, font);
                     test_fontmetrics(reporter, paint, font);
-
-                    SkRect pbounds, fbounds;
-
-                    // Requesting the bounds forces a generateMetrics call.
-                    SkScalar pwidth = paint.measureText(txt, strlen(txt), &pbounds);
-                    SkScalar fwidth = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding,
-                                                      &fbounds);
-                    REPORTER_ASSERT(reporter, pwidth == fwidth);
-                    REPORTER_ASSERT(reporter, pbounds == fbounds);
                 }
             }
         }

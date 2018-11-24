@@ -1387,9 +1387,6 @@ private:
         uint32_t fBitfieldsUInt;
     };
 
-    SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
-                          int* count, SkRect* bounds) const;
-
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
      * really only used by backends which want to cache glyph masks, and need some way to know if

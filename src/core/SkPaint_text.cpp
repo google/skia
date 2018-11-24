@@ -260,87 +260,14 @@ static void set_bounds(const SkGlyph& g, SkRect* bounds) {
                 SkIntToScalar(g.fTop + g.fHeight));
 }
 
-static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
-    bounds->join(SkIntToScalar(g.fLeft) + dx,
-                 SkIntToScalar(g.fTop),
-                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
-                 SkIntToScalar(g.fTop + g.fHeight));
-}
-
 // xyIndex is 0 for fAdvanceX or 1 for fAdvanceY
 static SkScalar advance(const SkGlyph& glyph) {
     return SkFloatToScalar(glyph.fAdvanceX);
 }
 
-SkScalar SkPaint::measure_text(SkGlyphCache* cache,
-                               const char* text, size_t byteLength,
-                               int* count, SkRect* bounds) const {
-    SkASSERT(count);
-    if (byteLength == 0) {
-        *count = 0;
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return 0;
-    }
-
-    SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
-                    static_cast<SkTextEncoding>(this->getTextEncoding()), nullptr != bounds);
-
-    int         n = 1;
-    const char* stop = (const char*)text + byteLength;
-    const SkGlyph* g = &glyphCacheProc(cache, &text, stop);
-    SkScalar x = advance(*g);
-
-    if (nullptr == bounds) {
-        for (; text < stop; n++) {
-            x += advance(glyphCacheProc(cache, &text, stop));
-        }
-    } else {
-        set_bounds(*g, bounds);
-
-        for (; text < stop; n++) {
-            g = &glyphCacheProc(cache, &text, stop);
-            join_bounds_x(*g, bounds, x);
-            x += advance(*g);
-        }
-    }
-    SkASSERT(text == stop);
-
-    *count = n;
-    return x;
-}
-
-SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bounds) const {
-    const char* text = (const char*)textData;
-    SkASSERT(text != nullptr || length == 0);
-
-    SkCanonicalizePaint canon(*this);
-    const SkPaint& paint = canon.getPaint();
-    SkScalar scale = canon.getScale();
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
-
-    SkScalar width = 0;
-
-    if (length > 0) {
-        int tempCount;
-
-        width = paint.measure_text(cache.get(), text, length, &tempCount, bounds);
-        if (scale) {
-            width *= scale;
-            if (bounds) {
-                bounds->fLeft *= scale;
-                bounds->fTop *= scale;
-                bounds->fRight *= scale;
-                bounds->fBottom *= scale;
-            }
-        }
-    } else if (bounds) {
-        // ensure that even if we don't measure_text we still update the bounds
-        bounds->setEmpty();
-    }
-    return width;
+SkScalar SkPaint::measureText(const void* text, size_t length, SkRect* bounds) const {
+    return SkFont::LEGACY_ExtractFromPaint(*this).measureText(text, length,
+                                                  (SkTextEncoding)this->getTextEncoding(), bounds);
 }
 
 size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
