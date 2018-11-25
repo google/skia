@@ -4420,7 +4420,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="f2229dd5c8e76f9e12fafe59b61353c8"></fiddle-embed></div>
+<div><fiddle-embed name="728ea9089f233a71a1062e364b8c73fa"></fiddle-embed></div>
 
 <a name='SkPaint_getFontBounds'></a>
 
