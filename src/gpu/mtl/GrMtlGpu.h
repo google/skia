@@ -22,8 +22,8 @@ struct GrMtlBackendContext;
 
 class GrMtlGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrContext* context, const GrContextOptions& options,
-                         id<MTLDevice> device, id<MTLCommandQueue> queue);
+    static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
+                             id<MTLDevice> device, id<MTLCommandQueue> queue);
 
     ~GrMtlGpu() override {}
 
@@ -44,7 +44,8 @@ public:
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override { return false; }
+                       const SkIPoint& dstPoint,
+                       bool canDiscardOutsideDstRect) override { return false; }
 
     void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {}
@@ -68,6 +69,7 @@ public:
         return nullptr;
     }
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                            GrResourceProvider::SemaphoreWrapType wrapType,
                                             GrWrapOwnership ownership) override { return nullptr; }
     void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
@@ -107,8 +109,6 @@ private:
         return nullptr;
     }
 
-    gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
-
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
                       GrPixelConfig,
@@ -143,13 +143,15 @@ private:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
-    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config, bool isRT,
-                                                    GrMipMapped) override {
-        return 0;
+    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRT,
+                                                     GrMipMapped) override {
+        return GrBackendTexture();
     }
-    bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
+
+    void testingOnly_flushGpuAndSync() override {}
 
     sk_sp<GrMtlCaps> fMtlCaps;
 

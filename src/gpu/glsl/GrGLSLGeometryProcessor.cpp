@@ -16,68 +16,84 @@
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-             kFloat3_GrSLType == gpArgs.fPositionVar.getType());
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     if (!args.fGP.willUseGeoShader()) {
         // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+        SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+                 kFloat3_GrSLType == gpArgs.fPositionVar.getType());
         vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(), args.fRTAdjustName,
                                            gpArgs.fPositionVar.getType());
+        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
+            args.fVaryingHandler->setNoPerspective();
+        }
     } else {
         // Since we have a geometry shader, leave the vertex position in Skia device space for now.
         // The geometry Shader will operate in device space, and then convert the final positions to
         // normalized hardware window coordinates under the hood, once everything else has finished.
+        // The subclass must call setNoPerspective on the varying handler, if applicable.
         vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
-        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-            vBuilder->codeAppend(", 0");
+        switch (gpArgs.fPositionVar.getType()) {
+            case kFloat_GrSLType:
+                vBuilder->codeAppend(", 0"); // fallthru.
+            case kFloat2_GrSLType:
+                vBuilder->codeAppend(", 0"); // fallthru.
+            case kFloat3_GrSLType:
+                vBuilder->codeAppend(", 1"); // fallthru.
+            case kFloat4_GrSLType:
+                vBuilder->codeAppend(");");
+                break;
+            default:
+                SK_ABORT("Invalid position var type");
+                break;
         }
-        vBuilder->codeAppend(", 1);");
-    }
-
-    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-        args.fVaryingHandler->setNoPerspective();
     }
 }
 
 void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                              GrGLSLVaryingHandler* varyingHandler,
                                              GrGLSLUniformHandler* uniformHandler,
-                                             const GrShaderVar& posVar,
-                                             const char* localCoords,
+                                             const GrShaderVar& localCoordsVar,
                                              const SkMatrix& localMatrix,
                                              FPCoordTransformHandler* handler) {
+    SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
+    SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()) ||
+             3 == GrSLTypeVecLength(localCoordsVar.getType()));
+
+    bool threeComponentLocalCoords = 3 == GrSLTypeVecLength(localCoordsVar.getType());
+    SkString localCoords;
+    if (threeComponentLocalCoords) {
+        localCoords = localCoordsVar.getName();
+    } else {
+        localCoords.printf("float3(%s, 1)", localCoordsVar.c_str());
+    }
     int i = 0;
     while (const GrCoordTransform* coordTransform = handler->nextCoordTransform()) {
         SkString strUniName;
         strUniName.printf("CoordTransformMatrix_%d", i);
-        GrSLType varyingType;
-
-        uint32_t type = coordTransform->getMatrix().getType();
-        type |= localMatrix.getType();
-
-        varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kFloat3_GrSLType :
-                                                                     kFloat2_GrSLType;
         const char* uniName;
-
-
         fInstalledTransforms.push_back().fHandle = uniformHandler->addUniform(kVertex_GrShaderFlag,
                                                                               kFloat3x3_GrSLType,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
+        GrSLType varyingType = kFloat2_GrSLType;
+        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()) {
+            varyingType = kFloat3_GrSLType;
+        }
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
-
-        GrGLSLVertToFrag v(varyingType);
+        GrGLSLVarying v(varyingType);
         varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
-        SkASSERT(kFloat2_GrSLType == varyingType || kFloat3_GrSLType == varyingType);
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
         if (kFloat2_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());
+            if (threeComponentLocalCoords) {
+                vb->codeAppendf("%s /= %s.z;", v.vsOut(), localCoords.c_str());
+            }
         } else {
-            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, localCoords.c_str());
         }
         ++i;
     }

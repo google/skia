@@ -25,7 +25,7 @@
 #include "mock/MockTestContext.h"
 #include "GrCaps.h"
 
-#if defined(SK_BUILD_FOR_WIN32) && defined(SK_ENABLE_DISCRETE_GPU)
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_ENABLE_DISCRETE_GPU)
 extern "C" {
     // NVIDIA documents that the presence and value of this symbol programmatically enable the high
     // performance GPU in laptops with switchable graphics.
@@ -51,7 +51,12 @@ GrContextFactory::~GrContextFactory() {
 }
 
 void GrContextFactory::destroyContexts() {
-    for (Context& context : fContexts) {
+    // We must delete the test contexts in reverse order so that any child context is finished and
+    // deleted before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (context.fTestContext) {
             restore = context.fTestContext->makeCurrentAndAutoRestore();
@@ -67,7 +72,12 @@ void GrContextFactory::destroyContexts() {
 }
 
 void GrContextFactory::abandonContexts() {
-    for (Context& context : fContexts) {
+    // We must abandon the test contexts in reverse order so that any child context is finished and
+    // abandoned before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         if (!context.fAbandoned) {
             if (context.fTestContext) {
                 auto restore = context.fTestContext->makeCurrentAndAutoRestore();
@@ -82,7 +92,12 @@ void GrContextFactory::abandonContexts() {
 }
 
 void GrContextFactory::releaseResourcesAndAbandonContexts() {
-    for (Context& context : fContexts) {
+    // We must abandon the test contexts in reverse order so that any child context is finished and
+    // abandoned before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (!context.fAbandoned) {
             if (context.fTestContext) {
@@ -245,9 +260,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kDisableNVPR & overrides) {
         grOptions.fSuppressPathRendering = true;
     }
-    if (ContextOverrides::kUseInstanced & overrides) {
-        grOptions.fEnableInstancedRendering = true;
-    }
     if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
         grOptions.fRequireDecodeDisableForSRGB = false;
     }
@@ -267,17 +279,14 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             return ContextInfo();
         }
     }
-    if (ContextOverrides::kUseInstanced & overrides) {
-        if (GrCaps::InstancedSupport::kNone == grCtx->caps()->instancedSupport()) {
-            return ContextInfo();
-        }
-    }
     if (ContextOverrides::kRequireSRGBSupport & overrides) {
         if (!grCtx->caps()->srgbSupport()) {
             return ContextInfo();
         }
     }
 
+    // We must always add new contexts by pushing to the back so that when we delete them we delete
+    // them in reverse order in which they were made.
     Context& context = fContexts.push_back();
     context.fBackend = backend;
     context.fTestContext = testCtx.release();

@@ -14,15 +14,23 @@
 #include "SkDashPathEffect.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkRectPriv.h"
 #include "SkSurface.h"
 #include "SkClipOpPriv.h"
 
 uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
-    return fOriginalPath.getGenerationID();
+    if (const auto* lp = this->originalPathForListeners()) {
+        return lp->getGenerationID();
+    }
+    return SkPath().getGenerationID();
 }
 
 bool GrShape::testingOnly_isPath() const {
     return Type::kPath == fType;
+}
+
+bool GrShape::testingOnly_isNonVolatilePath() const {
+    return Type::kPath == fType && !fPathData.fPath.isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
@@ -219,7 +227,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
 
 static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, const GrShape& pe,
                                     const GrShape& peStroke, const GrShape& full) {
-    bool baseIsPath = base.testingOnly_isPath();
+    bool baseIsNonVolatilePath = base.testingOnly_isNonVolatilePath();
     bool peIsPath = pe.testingOnly_isPath();
     bool peStrokeIsPath = peStroke.testingOnly_isPath();
     bool fullIsPath = full.testingOnly_isPath();
@@ -235,8 +243,9 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
     uint32_t emptyID = SkPath().getGenerationID();
 
     // If we started with a real path, then our genID should match that path's gen ID (and not be
-    // empty). If we started with a simple shape, our original path should have been reset.
-    REPORTER_ASSERT(r, baseIsPath == (baseID != emptyID));
+    // empty). If we started with a simple shape or a volatile path, our original path should have
+    // been reset.
+    REPORTER_ASSERT(r, baseIsNonVolatilePath == (baseID != emptyID));
 
     // For the derived shapes, if they're simple types, their original paths should have been reset
     REPORTER_ASSERT(r, peIsPath || (peID == emptyID));
@@ -250,7 +259,7 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
 
     // From here on, we know that the path effect produced a shape that was a "real" path
 
-    if (baseIsPath) {
+    if (baseIsNonVolatilePath) {
         REPORTER_ASSERT(r, baseID == peID);
     }
 
@@ -259,7 +268,7 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
         REPORTER_ASSERT(r, peStrokeID == fullID);
     }
 
-    if (baseIsPath && peStrokeIsPath) {
+    if (baseIsNonVolatilePath && peStrokeIsPath) {
         REPORTER_ASSERT(r, baseID == peStrokeID);
         REPORTER_ASSERT(r, baseID == fullID);
     }
@@ -1199,8 +1208,8 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
         }
         void computeFastBounds(SkRect* dst, const SkRect& src) const override {
             *dst = src;
-            dst->growToInclude({0, 0});
-            dst->growToInclude({100, 100});
+            SkRectPriv::GrowToInclude(dst, {0, 0});
+            SkRectPriv::GrowToInclude(dst, {100, 100});
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
         Factory getFactory() const override { return nullptr; }
@@ -1490,6 +1499,8 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     SkPaint stroke;
     stroke.setStrokeWidth(2.f);
     stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeJoin(SkPaint::kRound_Join);
+    stroke.setStrokeCap(SkPaint::kRound_Cap);
     TestCase strokeEmptyCase(reporter, emptyPath, stroke);
     strokeEmptyCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
     TestCase strokeInvertedEmptyCase(reporter, invertedEmptyPath, stroke);
@@ -1509,25 +1520,49 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     dashAndStrokeInvertexEmptyCase.compare(reporter, fillEmptyCase,
                                            TestCase::kAllSame_ComparisonExpecation);
 
-    // A shape made from an empty rrect should behave the same as an empty path.
-    SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
+    // A shape made from an empty rrect should behave the same as an empty path when filled but not
+    // when stroked. However, dashing an empty rrect produces an empty path leaving nothing to
+    // stroke - so equivalent to filling an empty path.
+    SkRRect emptyRRect = SkRRect::MakeEmpty();
     REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
+
+    TestCase fillEmptyRRectCase(reporter, emptyRRect, fill);
+    fillEmptyRRectCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase strokeEmptyRRectCase(reporter, emptyRRect, stroke);
+    strokeEmptyRRectCase.compare(reporter, strokeEmptyCase,
+                                 TestCase::kAllDifferent_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
+
     static constexpr SkPath::Direction kDir = SkPath::kCCW_Direction;
     static constexpr int kStart = 0;
+
+    TestCase fillInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true, GrStyle(fill));
+    fillInvertedEmptyRRectCase.compare(reporter, fillInvertedEmptyCase,
+                                       TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase strokeInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true,
+                                          GrStyle(stroke));
+    strokeInvertedEmptyRRectCase.compare(reporter, strokeInvertedEmptyCase,
+                                         TestCase::kAllDifferent_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyInvertedRRectCase(reporter, emptyRRect, kDir, kStart, true,
                                                  GrStyle(dashAndStroke));
-    // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
     dashAndStrokeEmptyInvertedRRectCase.compare(reporter, fillEmptyCase,
                                                 TestCase::kAllSame_ComparisonExpecation);
 
     // Same for a rect.
     SkRect emptyRect = SkRect::MakeEmpty();
+    TestCase fillEmptyRectCase(reporter, emptyRect, fill);
+    fillEmptyRectCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRectCase(reporter, emptyRect, dashAndStroke);
     dashAndStrokeEmptyRectCase.compare(reporter, fillEmptyCase,
                                        TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyInvertedRectCase(reporter, SkRRect::MakeRect(emptyRect), kDir,
                                                 kStart, true, GrStyle(dashAndStroke));
     // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
@@ -1908,66 +1943,80 @@ DEF_TEST(GrShape_lines, r) {
 }
 
 DEF_TEST(GrShape_stroked_lines, r) {
-    // Paints to try
-    SkPaint buttCap;
-    buttCap.setStyle(SkPaint::kStroke_Style);
-    buttCap.setStrokeWidth(4);
-    buttCap.setStrokeCap(SkPaint::kButt_Cap);
+    static constexpr SkScalar kIntervals1[] = {1.f, 0.f};
+    auto dash1 = SkDashPathEffect::Make(kIntervals1, SK_ARRAY_COUNT(kIntervals1), 0.f);
+    REPORTER_ASSERT(r, dash1);
+    static constexpr SkScalar kIntervals2[] = {10.f, 0.f, 5.f, 0.f};
+    auto dash2 = SkDashPathEffect::Make(kIntervals2, SK_ARRAY_COUNT(kIntervals2), 10.f);
+    REPORTER_ASSERT(r, dash2);
 
-    SkPaint squareCap = buttCap;
-    squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+    sk_sp<SkPathEffect> pathEffects[] = {nullptr, std::move(dash1), std::move(dash2)};
 
-    SkPaint roundCap = buttCap;
-    roundCap.setStrokeCap(SkPaint::kRound_Cap);
+    for (const auto& pe : pathEffects) {
+        // Paints to try
+        SkPaint buttCap;
+        buttCap.setStyle(SkPaint::kStroke_Style);
+        buttCap.setStrokeWidth(4);
+        buttCap.setStrokeCap(SkPaint::kButt_Cap);
+        buttCap.setPathEffect(pe);
 
-    // vertical
-    SkPath linePath;
-    linePath.moveTo(4, 4);
-    linePath.lineTo(4, 5);
+        SkPaint squareCap = buttCap;
+        squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+        squareCap.setPathEffect(pe);
 
-    SkPaint fill;
+        SkPaint roundCap = buttCap;
+        roundCap.setStrokeCap(SkPaint::kRound_Cap);
+        roundCap.setPathEffect(pe);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        // vertical
+        SkPath linePath;
+        linePath.moveTo(4, 4);
+        linePath.lineTo(4, 5);
 
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        SkPaint fill;
 
-    make_TestCase(r, linePath, roundCap)->compare(r,
-        TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
-        TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    // horizontal
-    linePath.reset();
-    linePath.moveTo(4, 4);
-    linePath.lineTo(5, 4);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, roundCap)->compare(
-            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(r,
+                TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    // point
-    linePath.reset();
-    linePath.moveTo(4, 4);
-    linePath.lineTo(4, 4);
+        // horizontal
+        linePath.reset();
+        linePath.moveTo(4, 4);
+        linePath.lineTo(5, 4);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeEmpty(), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, roundCap)->compare(
-            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(
+                r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+
+        // point
+        linePath.reset();
+        linePath.moveTo(4, 4);
+        linePath.lineTo(4, 4);
+
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeEmpty(), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(
+                r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+    }
 }
 
 DEF_TEST(GrShape_short_path_keys, r) {

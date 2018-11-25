@@ -69,8 +69,8 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     return false;
 }
 
-GrGpu* GrMtlGpu::Create(GrContext* context, const GrContextOptions& options,
-                        id<MTLDevice> device, id<MTLCommandQueue> queue) {
+sk_sp<GrGpu> GrMtlGpu::Make(GrContext* context, const GrContextOptions& options,
+                            id<MTLDevice> device, id<MTLCommandQueue> queue) {
     if (!device || !queue) {
         return nullptr;
     }
@@ -78,7 +78,7 @@ GrGpu* GrMtlGpu::Create(GrContext* context, const GrContextOptions& options,
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
     }
-    return new GrMtlGpu(context, options, device, queue, featureSet);
+    return sk_sp<GrGpu>(new GrMtlGpu(context, options, device, queue, featureSet));
 }
 
 GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,

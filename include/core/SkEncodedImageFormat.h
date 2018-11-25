@@ -14,7 +14,7 @@
  *  Enum describing format of encoded data.
  */
 enum class SkEncodedImageFormat {
-#ifdef GOOGLE3
+#ifdef SK_BUILD_FOR_GOOGLE3
     kUnknown,
 #endif
     kBMP,

@@ -40,7 +40,7 @@
             AnnotateHappensAfter(__FILE__, __LINE__, &fSemaphore);
         }
     };
-#elif defined(SK_BUILD_FOR_WIN32)
+#elif defined(SK_BUILD_FOR_WIN)
     struct SkBaseSemaphore::OSSemaphore {
         HANDLE fSemaphore;
 

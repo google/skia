@@ -10,9 +10,18 @@
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLGpu.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "SkSLCompiler.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->glGpu()->glInterface(), R, X)
+
+bool valid_name(const char* name) {
+    // disallow unknown names that start with "sk_"
+    if (!strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
+        return !strcmp(name, SkSL::Compiler::RTADJUST_NAME);
+    }
+    return true;
+}
 
 GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                             uint32_t visibility,
@@ -23,6 +32,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                             int arrayCount,
                                                                             const char** outName) {
     SkASSERT(name && strlen(name));
+    SkASSERT(valid_name(name));
     SkASSERT(0 != visibility);
     SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
 
@@ -36,7 +46,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
     char prefix = 'u';
-    if ('u' == name[0]) {
+    if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
     fProgramBuilder->nameVariable(uni.fVariable.accessName(), prefix, name, mangleName);

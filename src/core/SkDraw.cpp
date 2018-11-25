@@ -18,14 +18,15 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
-#include "SkRasterizer.h"
+#include "SkRectPriv.h"
 #include "SkRRect.h"
+#include "SkScalerContext.h"
 #include "SkScan.h"
 #include "SkShader.h"
 #include "SkString.h"
@@ -379,35 +380,34 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
     if ((unsigned)mode > (unsigned)SkCanvas::kPolygon_PointMode) {
         return false;
     }
-
     if (paint.getPathEffect()) {
         return false;
     }
     SkScalar width = paint.getStrokeWidth();
+    SkScalar radius = -1;   // sentinel value, a "valid" value must be > 0
+
     if (0 == width) {
+        radius = 0.5f;
+    } else if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
+               matrix->isScaleTranslate() && SkCanvas::kPoints_PointMode == mode) {
+        SkScalar sx = matrix->get(SkMatrix::kMScaleX);
+        SkScalar sy = matrix->get(SkMatrix::kMScaleY);
+        if (SkScalarNearlyZero(sx - sy)) {
+            radius = SkScalarHalf(width * SkScalarAbs(sx));
+        }
+    }
+    if (radius > 0) {
+        // if we return true, the caller may assume that the constructed shapes can be represented
+        // using SkFixed, so we preflight that here, looking at the radius and clip-bounds
+        if (!SkRectPriv::FitsInFixed(SkRect::Make(rc->getBounds()).makeOutset(radius, radius))) {
+            return false;
+        }
         fMode = mode;
         fPaint = &paint;
         fClip = nullptr;
         fRC = rc;
-        fRadius = SK_FixedHalf;
+        fRadius = SkScalarToFixed(radius);
         return true;
-    }
-    if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
-        matrix->isScaleTranslate() && SkCanvas::kPoints_PointMode == mode) {
-        SkScalar sx = matrix->get(SkMatrix::kMScaleX);
-        SkScalar sy = matrix->get(SkMatrix::kMScaleY);
-        if (SkScalarNearlyZero(sx - sy)) {
-            if (sx < 0) {
-                sx = -sx;
-            }
-
-            fMode = mode;
-            fPaint = &paint;
-            fClip = nullptr;
-            fRC = rc;
-            fRadius = SkScalarToFixed(width * sx) >> 1;
-            return true;
-        }
     }
     return false;
 }
@@ -699,8 +699,7 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
     }
 
     if (paint.getPathEffect() || paint.getMaskFilter() ||
-        paint.getRasterizer() || !matrix.rectStaysRect() ||
-        SkPaint::kStrokeAndFill_Style == style) {
+        !matrix.rectStaysRect() || SkPaint::kStrokeAndFill_Style == style) {
         rtype = kPath_RectType;
     } else if (SkPaint::kFill_Style == style) {
         rtype = kFill_RectType;
@@ -781,7 +780,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
         }
     }
 
-    if (!SkRect::MakeLargestS32().contains(bbox)) {
+    if (!SkRectPriv::MakeLargeS32().contains(bbox)) {
         // bbox.roundOut() is undefined; use slow path.
         draw_rect_as_path(*this, prePaintRect, paint, matrix);
         return;
@@ -843,7 +842,7 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
 
     SkMask dstM;
     if (paint.getMaskFilter() &&
-        paint.getMaskFilter()->filterMask(&dstM, srcM, *fMatrix, nullptr)) {
+        as_MFB(paint.getMaskFilter())->filterMask(&dstM, srcM, *fMatrix, nullptr)) {
         mask = &dstM;
     }
     SkAutoMaskFreeImage ami(dstM.fImage);
@@ -916,10 +915,6 @@ void SkDraw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
             goto DRAW_PATH;
         }
-
-        if (paint.getRasterizer()) {
-            goto DRAW_PATH;
-        }
     }
 
     if (paint.getMaskFilter()) {
@@ -927,7 +922,8 @@ void SkDraw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
         SkRRect devRRect;
         if (rrect.transform(*fMatrix, &devRRect)) {
             SkAutoBlitterChoose blitter(fDst, *fMatrix, paint);
-            if (paint.getMaskFilter()->filterRRect(devRRect, *fMatrix, *fRC, blitter.get())) {
+            if (as_MFB(paint.getMaskFilter())->filterRRect(devRRect, *fMatrix,
+                                                           *fRC, blitter.get())) {
                 return; // filterRRect() called the blitter, so we're done
             }
         }
@@ -964,7 +960,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
         SkRect pathBounds = devPath.getBounds().makeOutset(1, 1);
 
         if (paint.getMaskFilter()) {
-            paint.getMaskFilter()->computeFastBounds(pathBounds, &pathBounds);
+            as_MFB(paint.getMaskFilter())->computeFastBounds(pathBounds, &pathBounds);
 
             // Need to outset the path to work-around a bug in blurmaskfilter. When that is fixed
             // we can remove this hack. See skbug.com/5542
@@ -989,7 +985,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     if (paint.getMaskFilter()) {
         SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
         : SkStrokeRec::kHairline_InitStyle;
-        if (paint.getMaskFilter()->filterPath(devPath, *fMatrix, *fRC, blitter, style)) {
+        if (as_MFB(paint.getMaskFilter())->filterPath(devPath, *fMatrix, *fRC, blitter, style)) {
             return; // filterPath() called the blitter, so we're done
         }
     }
@@ -1055,8 +1051,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     tmpPath.setIsVolatile(true);
 
     if (prePathMatrix) {
-        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
-                origPaint.getRasterizer()) {
+        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
             SkPath* result = pathPtr;
 
             if (!pathIsMutable) {
@@ -1108,17 +1103,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr,
                                     ComputeResScaleForStroking(*fMatrix));
         pathPtr = &tmpPath;
-    }
-
-    if (paint->getRasterizer()) {
-        SkMask  mask;
-        if (paint->getRasterizer()->rasterize(*pathPtr, *matrix,
-                            &fRC->getBounds(), paint->getMaskFilter(), &mask,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
-            this->drawDevMask(mask, *paint);
-            SkMask::FreeImage(mask.fImage);
-        }
-        return;
     }
 
     // avoid possibly allocating a new path in transform if we can
@@ -1340,7 +1324,6 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     matrix.reset();
     draw.fMatrix = &matrix;
     // call ourself with a rect
-    // is this OK if paint has a rasterizer?
     draw.drawRect(r, paintWithShader);
 }
 
@@ -1352,7 +1335,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 #include "SkTextToPathIter.h"
 #include "SkUtils.h"
 
-bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
+bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, SkScalar sizeLimit) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -1365,7 +1348,7 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
 
     SkMatrix textM;
     SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(ctm, textM);
+    return SkPaint::TooBigToUseCache(ctm, textM, sizeLimit);
 }
 
 void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
@@ -1514,10 +1497,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint32_t SkDraw::scalerContextFlags() const {
-    uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
+SkScalerContextFlags SkDraw::scalerContextFlags() const {
+    SkScalerContextFlags flags = SkScalerContextFlags::kBoostContrast;
     if (!fDst.colorSpace()) {
-        flags |= SkPaint::kFakeGamma_ScalerContextFlag;
+        flags = kFakeGammaAndBoostContrast;
     }
     return flags;
 }
@@ -1677,7 +1660,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
 
         srcM.fBounds = *bounds;
         srcM.fFormat = SkMask::kA8_Format;
-        if (!filter->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
+        if (!as_MFB(filter)->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
             return false;
         }
     }
@@ -1749,8 +1732,7 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
             // we're too big to allocate the mask, abort
             return false;
         }
-        mask->fImage = SkMask::AllocImage(size);
-        memset(mask->fImage, 0, mask->computeImageSize());
+        mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {

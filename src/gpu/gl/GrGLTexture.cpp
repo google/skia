@@ -9,6 +9,7 @@
 #include "GrGLGpu.h"
 #include "GrSemaphore.h"
 #include "GrShaderCaps.h"
+#include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -76,6 +77,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fID);
+    SkASSERT(0 != idDesc.fInfo.fFormat);
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fInfo = idDesc.fInfo;
@@ -102,6 +104,10 @@ void GrGLTexture::onAbandon() {
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
+}
+
+GrBackendTexture GrGLTexture::getBackendTexture() const {
+    return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

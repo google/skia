@@ -86,7 +86,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         subpassDesc.colorAttachmentCount = 1;
 
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == colorOp.fLoadOp) {
-            fClearValueCount++;
+            fClearValueCount = colorRef.attachment + 1;
         }
     } else {
         // I don't think there should ever be a time where we don't have a color attachment
@@ -107,7 +107,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         stencilRef.attachment = currentAttachment++;
         stencilRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == stencilOp.fLoadOp) {
-            fClearValueCount++;
+            fClearValueCount = SkTMax(fClearValueCount, stencilRef.attachment + 1);
         }
     } else {
         stencilRef.attachment = VK_ATTACHMENT_UNUSED;

@@ -79,6 +79,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
 
         SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &fStencilBits);
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &fSampleCount);
+        fSampleCount = SkTMax(fSampleCount, 1);
 
         SDL_GetWindowSize(fWindow, &fWidth, &fHeight);
         glViewport(0, 0, fWidth, fHeight);
@@ -90,7 +91,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
                                          kPremul_SkAlphaType, fDisplayParams.fColorSpace);
     fBackbufferSurface = SkSurface::MakeRaster(info);
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void RasterWindowContext_mac::onDestroyContext() {

@@ -67,7 +67,8 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
 #endif
         case kOpenGL_GrBackend: {
             GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *glInfo);
+            SkASSERT(glInfo->fFormat);
+            return GrBackendTexture(width, height, mipMapped, *glInfo);
         }
         case kMock_GrBackend: {
             GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
@@ -75,28 +76,6 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
         }
         default:
             return GrBackendTexture();
-    }
-}
-
-GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, int height,
-                                                int sampleCnt, int stencilBits,
-                                                GrPixelConfig config,
-                                                GrBackendObject handle) {
-    switch (backend) {
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, *vkInfo);
-        }
-#endif
-        case kOpenGL_GrBackend: {
-            GrGLFramebufferInfo glInfo;
-            glInfo.fFBOID = handle;
-            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, config, glInfo);
-        }
-        case kMock_GrBackend: // fall through
-        default:
-            return GrBackendRenderTarget();
     }
 }
 
@@ -168,17 +147,17 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
-    GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
+    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
 
     const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format);
-    if (!proxies[0]) {
+    if (index >= cache->getAtlasPageCount(format) || !proxies[index]) {
         return nullptr;
     }
 
-    SkASSERT(proxies[0]->priv().isExact());
+    SkASSERT(proxies[index]->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         std::move(proxies[0]), nullptr, SkBudgeted::kNo));
+                                         proxies[index], nullptr, SkBudgeted::kNo));
     return image;
 }
 
@@ -274,7 +253,17 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
+
+uint32_t GrRenderTargetContextPriv::testingOnly_getOpListID() {
+    return fRenderTargetContext->getOpList()->uniqueID();
+}
+
 uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
+    return this->testingOnly_addDrawOp(GrNoClip(), std::move(op));
+}
+
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
+                                                          std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
@@ -282,7 +271,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDraw
     SkDEBUGCODE(fRenderTargetContext->validate());
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_addDrawOp");
-    return fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
+    return fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER

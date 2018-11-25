@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "TestAtlasTextRenderer.h"
 #include "gl/GrGLDefines.h"
+#include "gl/GrGLUtil.h"
 
 using sk_gpu_test::GLTestContext;
 
@@ -74,6 +75,32 @@ private:
 GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> context)
         : fContext(std::move(context)) {
     auto restore = fContext->makeCurrentAndAutoRestore();
+
+    // First check whether the GL is supported so we can avoid spammy failures on systems
+    // where the GL simply doesn't work with this class.
+    const char* versionStr = reinterpret_cast<const char*>(callgl(GetString, GR_GL_VERSION));
+    auto version = GrGLGetVersionFromString(versionStr);
+    auto standard = GrGLGetStandardInUseFromString(versionStr);
+    switch (standard) {
+        case kNone_GrGLStandard:
+            return;
+        case kGLES_GrGLStandard:
+            if (version < GR_GL_VER(3, 0)) {
+                return;
+            }
+            break;
+        case kGL_GrGLStandard: {
+            if (version < GR_GL_VER(4, 3)) {
+                return;
+            }
+            GrGLint profileMask;
+            callgl(GetIntegerv, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
+            if (profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT) {
+                return;
+            }
+        }
+    }
+
     auto vs = callgl(CreateShader, GR_GL_VERTEX_SHADER);
     static constexpr char kGLVersionString[] = "#version 430 compatibility";
     static constexpr char kGLESVersionString[] = "#version 300 es";
@@ -98,7 +125,7 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
         uniform vec4 uDstScaleAndTranslate;
         uniform vec2 uAtlasInvSize;
 
-        layout (location = 0) in vec2 inPosition;
+        layout (location = 0) in vec3 inPosition;
         layout (location = 1) in vec4 inColor;
         layout (location = 2) in uvec2 inTextureCoords;
 
@@ -116,7 +143,7 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
             vColor = inColor;
             gl_Position = vec4(inPosition.x * uDstScaleAndTranslate.x + uDstScaleAndTranslate.y,
                                inPosition.y * uDstScaleAndTranslate.z + uDstScaleAndTranslate.w,
-                               0.0, 1.0);
+                               0.0, inPosition.z);
         }
     )";
     strings[1] = kVS;
@@ -333,8 +360,8 @@ void GLTestAtlasTextRenderer::drawSDFGlyphs(void* targetHandle, void* textureHan
     callgl(BindVertexArray, 0);
     callgl(BindBuffer, GR_GL_ARRAY_BUFFER, 0);
     callgl(BindBuffer, GR_GL_ELEMENT_ARRAY_BUFFER, 0);
-    callgl(VertexAttribPointer, 0, 2, GR_GL_FLOAT, GR_GL_FALSE, sizeof(SDFVertex), vertices);
-    size_t colorOffset = 2 * sizeof(float);
+    callgl(VertexAttribPointer, 0, 3, GR_GL_FLOAT, GR_GL_FALSE, sizeof(SDFVertex), vertices);
+    size_t colorOffset = 3 * sizeof(float);
     callgl(VertexAttribPointer, 1, 4, GR_GL_UNSIGNED_BYTE, GR_GL_TRUE, sizeof(SDFVertex),
            reinterpret_cast<const char*>(vertices) + colorOffset);
     size_t texOffset = colorOffset + sizeof(uint32_t);

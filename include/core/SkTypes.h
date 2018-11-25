@@ -34,12 +34,6 @@
 // IWYU pragma: end_exports
 
 #include <string.h>
-// TODO(herb): remove after chromuim skia/ext/SkMemory_new_handler.cpp
-// has been updated to point to private/SkMalloc.h
-#include "../private/SkMalloc.h"
-
-// enable to test new device-base clipping
-//#define SK_USE_DEVICE_CLIPPING
 
 /** \file SkTypes.h
 */
@@ -56,22 +50,6 @@
     an exception or otherwise exit.
 */
 SK_API extern void sk_abort_no_print(void);
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef override_GLOBAL_NEW
-#include <new>
-
-inline void* operator new(size_t size) {
-    return sk_malloc_throw(size);
-}
-
-inline void operator delete(void* p) {
-    sk_free(p);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
 
 #define SK_INIT_TO_AVOID_WARNING    = 0
 
@@ -234,6 +212,8 @@ template <typename D, typename S> constexpr D SkTo(S s) {
 #define SK_MinU32   0
 #define SK_NaN32    ((int) (1U << 31))
 #define SK_MaxSizeT SIZE_MAX
+static constexpr int64_t SK_MaxS64 = 0x7FFFFFFFFFFFFFFF;
+static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
 static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);

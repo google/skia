@@ -225,12 +225,12 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    auto stream = SkFILEStream::Make(GetResourcePath("test640x479.gif").c_str());
-    REPORTER_ASSERT(r, stream);
-    if (!stream) {
+    auto data = GetResourceAsData("images/test640x479.gif");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
         return;
     }
-
+    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(std::move(data)));
     std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
@@ -250,7 +250,7 @@ DEF_TEST(Gif_Sampled, r) {
 // If a GIF file is truncated before the header for the first image is defined,
 // we should not create an SkCodec.
 DEF_TEST(Codec_GifTruncated, r) {
-    sk_sp<SkData> data(GetResourceAsData("test640x479.gif"));
+    sk_sp<SkData> data(GetResourceAsData("images/test640x479.gif"));
     if (!data) {
         return;
     }
@@ -262,7 +262,7 @@ DEF_TEST(Codec_GifTruncated, r) {
 }
 
 DEF_TEST(Codec_GifTruncated2, r) {
-    sk_sp<SkData> data(GetResourceAsData("box.gif"));
+    sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
     if (!data) {
         return;
     }

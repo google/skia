@@ -29,6 +29,6 @@ SkTypeface* typeface = sk_tool_utils::create_portable_typeface(const char* name,
 SkFontStyle style);
 ~~~~
 
-Eventually, both 'set_portable_typeface()' and 'create_portable_typeface()' will be
-removed. Instead, a test-wide 'SkFontMgr' will be selected to choose portable
+Eventually, both `set_portable_typeface()` and `create_portable_typeface()` will be
+removed. Instead, a test-wide `SkFontMgr` will be selected to choose portable
 fonts or resource fonts.

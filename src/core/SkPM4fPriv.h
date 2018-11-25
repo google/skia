@@ -10,7 +10,6 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
@@ -109,15 +108,15 @@ static inline bool append_gamut_transform_noclamp(SkRasterPipeline* p,
         return false;
     }
 
-    const SkMatrix44 *fromSrc = as_CSB(src)->  toXYZD50(),
-                       *toDst = as_CSB(dst)->fromXYZD50();
+    const SkMatrix44 *fromSrc = src->  toXYZD50(),
+                       *toDst = dst->fromXYZD50();
     if (!fromSrc || !toDst) {
         SkDEBUGFAIL("We can't handle non-XYZ color spaces in append_gamut_transform().");
         return false;
     }
 
     // Slightly more sophisticated version of if (src == dst)
-    if (as_CSB(src)->toXYZD50Hash() == as_CSB(dst)->toXYZD50Hash()) {
+    if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
         return false;
     }
 

@@ -79,3 +79,7 @@ GrBackendObject GrMtlTexture::getTextureHandle() const {
     void* voidTex = (__bridge_retained void*)fTexture;
     return (GrBackendObject)voidTex;
 }
+
+GrBackendTexture GrMtlTexture::getBackendTexture() const {
+    return GrBackendTexture(); // invalid
+}

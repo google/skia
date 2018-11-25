@@ -229,6 +229,60 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     return false;
 }
 
+/** If the type represents a single value or vector return the vector length, else -1. */
+static inline int GrSLTypeVecLength(GrSLType type) {
+    switch (type) {
+        case kFloat_GrSLType:
+        case kHalf_GrSLType:
+        case kBool_GrSLType:
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kInt_GrSLType:
+        case kUint_GrSLType:
+            return 1;
+
+        case kFloat2_GrSLType:
+        case kHalf2_GrSLType:
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kInt2_GrSLType:
+        case kUint2_GrSLType:
+            return 2;
+
+        case kFloat3_GrSLType:
+        case kHalf3_GrSLType:
+        case kShort3_GrSLType:
+        case kUShort3_GrSLType:
+        case kInt3_GrSLType:
+            return 3;
+
+        case kFloat4_GrSLType:
+        case kHalf4_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort4_GrSLType:
+        case kInt4_GrSLType:
+            return 4;
+
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
+        case kHalf2x2_GrSLType:
+        case kHalf3x3_GrSLType:
+        case kHalf4x4_GrSLType:
+        case kVoid_GrSLType:
+        case kTexture2DSampler_GrSLType:
+        case kITexture2DSampler_GrSLType:
+        case kTextureExternalSampler_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
+        case kBufferSampler_GrSLType:
+        case kTexture2D_GrSLType:
+        case kSampler_GrSLType:
+            return -1;
+    }
+    SK_ABORT("Unexpected type");
+    return -1;
+}
+
 static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
     switch (type) {
         case kTexture2DSampler_GrSLType:
@@ -689,9 +743,7 @@ enum class GpuPathRenderers {
     kTessellating      = 1 << 7,
 
     kAll               = (kTessellating | (kTessellating - 1)),
-
-    // Temporarily disabling CCPR while we sort out issues with clipping.
-    kDefault           = kAll & ~kCoverageCounting,
+    kDefault           = kAll
 };
 
 /**
@@ -707,11 +759,13 @@ GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
  * We want to extend the GrPixelConfig enum to add cases for dealing with alpha_8 which is
- * internally either alpha8 or red8
+ * internally either alpha8 or red8. Also for Gray_8 which can be luminance_8 or red_8.
  */
 static constexpr GrPixelConfig kAlpha_8_as_Alpha_GrPixelConfig = kPrivateConfig1_GrPixelConfig;
 static constexpr GrPixelConfig kAlpha_8_as_Red_GrPixelConfig = kPrivateConfig2_GrPixelConfig;
 static constexpr GrPixelConfig kAlpha_half_as_Red_GrPixelConfig = kPrivateConfig3_GrPixelConfig;
+static constexpr GrPixelConfig kGray_8_as_Lum_GrPixelConfig = kPrivateConfig4_GrPixelConfig;
+static constexpr GrPixelConfig kGray_8_as_Red_GrPixelConfig = kPrivateConfig5_GrPixelConfig;
 
 /**
  * Utility functions for GrPixelConfig
@@ -729,6 +783,8 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
@@ -755,6 +811,8 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
@@ -788,6 +846,8 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
@@ -808,6 +868,8 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -837,6 +899,8 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
     switch (config) {
         case kRGB_565_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRG_float_GrPixelConfig:
             return true;
         case kAlpha_8_GrPixelConfig:
@@ -869,6 +933,8 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
             return true;
         case kUnknown_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
@@ -898,6 +964,8 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
@@ -921,6 +989,8 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
@@ -951,6 +1021,8 @@ static inline GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
+        case kGray_8_as_Lum_GrPixelConfig:
+        case kGray_8_as_Red_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
@@ -975,5 +1047,21 @@ static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig con
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
                                                 : GrPixelConfigIsClamped::kYes;
 }
+
+class GrReleaseProcHelper : public SkRefCnt {
+public:
+    // These match the definitions in SkImage, from whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
+    ~GrReleaseProcHelper() override {
+        fReleaseProc(fReleaseCtx);
+    }
+
+private:
+    ReleaseProc fReleaseProc;
+    ReleaseCtx  fReleaseCtx;
+};
 
 #endif

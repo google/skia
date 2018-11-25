@@ -82,10 +82,14 @@ static int calculate_bessel_factors(double sigma, double *gauss) {
     // "Scale-Space for Discrete Signals" by Tony Lindeberg.
     // gauss(n; var) = besselI_n(var) / (e^var)
     auto d = std::exp(var);
-    double b[6] = {besselI_0(var), besselI_1(var)};
+    double b[SkGaussFilter::kGaussArrayMax] = {besselI_0(var), besselI_1(var)};
     gauss[0] = b[0]/d;
     gauss[1] = b[1]/d;
 
+    // The code below is tricky, and written to mirror the recursive equations from the book.
+    // The maximum spread for sigma == 2 is guass[4], but in order to know to stop guass[5]
+    // is calculated. At this point n == 5 meaning that gauss[0..4] are the factors, but a 6th
+    // element was used to calculate them.
     int n = 1;
     // The recurrence relation below is from "Numerical Recipes" 3rd Edition.
     // Equation 6.5.16 p.282

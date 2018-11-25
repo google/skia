@@ -120,11 +120,11 @@ void SymbolTable::markAllFunctionsBuiltin() {
     }
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
+std::map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
     return fSymbols.begin();
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
+std::map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
 

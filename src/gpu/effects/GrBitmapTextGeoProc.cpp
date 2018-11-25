@@ -37,8 +37,9 @@ public:
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kFloat2_GrSLType);
-        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
+        GrGLSLVarying uv(kFloat2_GrSLType);
+        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrGLSLVarying texIdx(texIdxType);
         append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, nullptr);
 
@@ -58,8 +59,7 @@ public:
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             btgp.inPosition()->fName,
+                             btgp.inPosition()->asShaderVar(),
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 

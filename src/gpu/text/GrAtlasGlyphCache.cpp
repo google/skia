@@ -72,6 +72,8 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
     fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
+
+    fGlyphSizeLimit = minPlot;
 }
 
 GrAtlasGlyphCache::~GrAtlasGlyphCache() {
@@ -142,8 +144,7 @@ static bool save_pixels(GrContext* context, GrSurfaceProxy* sProxy, const char* 
     }
 
     sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
-                                                                            sk_ref_sp(sProxy),
-                                                                            nullptr));
+                                                                                sk_ref_sp(sProxy)));
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }

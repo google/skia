@@ -78,13 +78,6 @@ extern "C" {
 #if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
 
-#elif defined(__arm__)
-    StartPipelineFn ASM(start_pipeline,vfp4);
-    StageFn ASM(just_return,vfp4);
-    #define M(st) StageFn ASM(st,vfp4);
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
-
 #elif defined(__x86_64__) || defined(_M_X64)
     StartPipelineFn ASM(start_pipeline,       skx),
                     ASM(start_pipeline,       hsw),
@@ -134,8 +127,7 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
-#if defined(JUMPER_NEON_HAS_LOWP)
-    // We also compile 8-bit stages on ARMv8 as a normal part of Skia when compiled with Clang.
+#if defined(JUMPER_HAS_NEON_LOWP)
     StartPipelineFn sk_start_pipeline_lowp;
     StageFn sk_just_return_lowp;
     #define M(st) StageFn sk_##st##_lowp;
@@ -190,7 +182,7 @@ extern "C" {
                 return nullptr;                                                 \
             }
 
-    #elif defined(JUMPER_NEON_HAS_LOWP)
+    #elif defined(JUMPER_HAS_NEON_LOWP)
         template <SkRasterPipeline::StockStage st>
         static constexpr StageFn* neon_lowp();
 
@@ -215,6 +207,7 @@ extern "C" {
     LOWP(move_src_dst) LOWP(move_dst_src)
     NOPE(clamp_0) NOPE(clamp_1) LOWP(clamp_a) LOWP(clamp_a_dst)
     NOPE(unpremul) LOWP(premul) LOWP(premul_dst)
+    LOWP(force_opaque) LOWP(force_opaque_dst)
     LOWP(set_rgb) LOWP(swap_rb) LOWP(invert)
     NOPE(from_srgb) NOPE(from_srgb_dst) NOPE(to_srgb)
     LOWP(black_color) LOWP(white_color) LOWP(uniform_color)
@@ -227,6 +220,8 @@ extern "C" {
     NOPE(load_f32)  NOPE(load_f32_dst)  NOPE(store_f32)
     LOWP(load_8888) LOWP(load_8888_dst) LOWP(store_8888) LOWP(gather_8888)
     LOWP(load_bgra) LOWP(load_bgra_dst) LOWP(store_bgra) LOWP(gather_bgra)
+    NOPE(load_1010102) NOPE(load_1010102_dst) NOPE(store_1010102) NOPE(gather_1010102)
+    TODO(bilerp_clamp_8888)
     TODO(load_u16_be) TODO(load_rgb_u16_be) TODO(store_u16_be)
     NOPE(load_tables_u16_be) NOPE(load_tables_rgb_u16_be) NOPE(load_tables)
     NOPE(load_rgba) NOPE(store_rgba)
@@ -244,7 +239,7 @@ extern "C" {
     LOWP(matrix_2x3) NOPE(matrix_3x4) TODO(matrix_4x5) TODO(matrix_4x3)
     LOWP(matrix_perspective)
     NOPE(parametric_r) NOPE(parametric_g) NOPE(parametric_b)
-    NOPE(parametric_a) NOPE(gamma)
+    NOPE(parametric_a) NOPE(gamma) NOPE(gamma_dst)
     NOPE(table_r) NOPE(table_g) NOPE(table_b) NOPE(table_a)
     NOPE(lab_to_xyz)
                     TODO(mirror_x)   TODO(repeat_x)
@@ -259,10 +254,15 @@ extern "C" {
     LOWP(evenly_spaced_2_stop_gradient)
     LOWP(xy_to_unit_angle)
     LOWP(xy_to_radius)
-    TODO(xy_to_2pt_conical_quadratic_min)
-    TODO(xy_to_2pt_conical_quadratic_max)
-    TODO(xy_to_2pt_conical_linear)
-    TODO(mask_2pt_conical_degenerates) TODO(apply_vector_mask)
+    TODO(negate_x)
+    TODO(xy_to_2pt_conical_strip)
+    TODO(xy_to_2pt_conical_focal_on_circle)
+    TODO(xy_to_2pt_conical_well_behaved)
+    TODO(xy_to_2pt_conical_greater)
+    TODO(xy_to_2pt_conical_smaller)
+    TODO(alter_2pt_conical_compensate_focal)
+    TODO(alter_2pt_conical_unswap)
+    TODO(mask_2pt_conical_nan) TODO(mask_2pt_conical_degenerates) TODO(apply_vector_mask)
     TODO(byte_tables) TODO(byte_tables_rgb)
     NOPE(rgb_to_hsl) NOPE(hsl_to_rgb)
     NOPE(clut_3D) NOPE(clut_4D)
@@ -294,17 +294,6 @@ static SkOnce gChooseEngineOnce;
 static SkJumper_Engine choose_engine() {
 #if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
-
-#elif defined(__arm__)
-    if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
-        return {
-        #define M(stage) ASM(stage, vfp4),
-            { SK_RASTER_PIPELINE_STAGES(M) },
-            M(start_pipeline)
-            M(just_return)
-        #undef M
-        };
-    }
 
 #elif defined(__x86_64__) || defined(_M_X64)
     #if !defined(_MSC_VER)  // No _skx stages for Windows yet.
@@ -422,7 +411,7 @@ static SkJumper_Engine choose_engine() {
                 };
             }
 
-        #elif defined(JUMPER_NEON_HAS_LOWP)
+        #elif defined(JUMPER_HAS_NEON_LOWP)
             return {
             #define M(st) neon_lowp<SkRasterPipeline::st>(),
                 { SK_RASTER_PIPELINE_STAGES(M) },

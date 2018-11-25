@@ -21,6 +21,8 @@
 
 //#define TEST_VIA_SVG
 
+namespace skottie { class Animation; }
+
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -260,6 +262,26 @@ private:
     Path fPath;
 };
 
+#if !defined(SK_BUILD_FOR_GOOGLE3)
+class SkottieSrc final : public Src {
+public:
+    explicit SkottieSrc(Path path);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+    bool veto(SinkFlags) const override;
+
+private:
+    // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
+    static constexpr int               kTileCount = 5;
+
+    Name                               fName;
+    SkISize                            fTileSize = SkISize::MakeEmpty();
+    std::unique_ptr<skottie::Animation> fAnimation;
+};
+#endif
+
 #if defined(SK_XML)
 } // namespace DM
 
@@ -328,7 +350,7 @@ public:
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
-        SinkFlags::Multisampled ms = fSampleCount > 0 ? SinkFlags::kMultisampled
+        SinkFlags::Multisampled ms = fSampleCount > 1 ? SinkFlags::kMultisampled
                                                       : SinkFlags::kNotMultisampled;
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
@@ -492,33 +514,9 @@ private:
     std::unique_ptr<SkBBHFactory> fFactory;
 };
 
-class ViaSecondPicture : public Via {
-public:
-    explicit ViaSecondPicture(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaSingletonPictures : public Via {
-public:
-    explicit ViaSingletonPictures(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaTwice : public Via {
-public:
-    explicit ViaTwice(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaMojo : public Via {
-public:
-    explicit ViaMojo(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

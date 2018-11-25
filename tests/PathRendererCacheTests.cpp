@@ -76,12 +76,12 @@ static void test_path(skiatest::Reporter* reporter,
                       GrStyle style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
     sk_sp<GrContext> ctx = GrContext::MakeMock(nullptr);
     // The cache needs to be big enough that nothing gets flushed, or our expectations can be wrong
-    ctx->setResourceCacheLimits(100, 1000000);
-    GrResourceCache* cache = ctx->getResourceCache();
+    ctx->setResourceCacheLimits(100, 8000000);
+    GrResourceCache* cache = ctx->contextPriv().getResourceCache();
 
     sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 0,
-            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
+            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
@@ -132,7 +132,7 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, /* options */) {
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrContext* ctx) {
-        return new GrSoftwarePathRenderer(ctx->resourceProvider(), true);
+        return new GrSoftwarePathRenderer(ctx->contextPriv().proxyProvider(), true);
     };
 
     // Software path renderer creates a mask texture, but also renders with a non-AA rect, which

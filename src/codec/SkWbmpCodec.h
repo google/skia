@@ -28,7 +28,7 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t,
                        const Options&, int*) override;
     bool onRewind() override;
-    bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+    bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
                              bool srcIsOpaque, const SkColorSpace* srcCS) const override;
     // No need to Xform; all pixels are either black or white.
     bool usesColorXform() const override { return false; }

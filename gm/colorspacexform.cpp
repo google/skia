@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkColor.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkRect.h"
 #include "SkShader.h"
@@ -48,7 +47,7 @@ protected:
                      kOpaque_SkAlphaType);
 
         // Test F32 input.
-        srcSpace = as_CSB(srcSpace)->makeLinearGamma();
+        srcSpace = srcSpace->makeLinearGamma();
         xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
         xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors1,
                      SkColorSpaceXform::kRGBA_F32_ColorFormat, fSRGBColors, kNumColors,

@@ -39,6 +39,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
                                 const SkRect& bounds) {
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttribs() || this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!primProc.willUsePrimitiveRestart() || this->gpu()->caps()->usePrimitiveRestart());
     for (int i = 0; i < meshCount; ++i) {
         SkASSERT(!GrPrimTypeRequiresGeometryShaderSupport(meshes[i].primitiveType()) ||
                  this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
@@ -46,8 +47,9 @@ bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
         SkASSERT(primProc.hasInstanceAttribs() == meshes[i].isInstanced());
     }
 #endif
+    auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
 
-    if (pipeline.isBad() || !primProc.instantiate(this->gpu()->getContext()->resourceProvider())) {
+    if (pipeline.isBad() || !primProc.instantiate(resourceProvider)) {
         return false;
     }
 

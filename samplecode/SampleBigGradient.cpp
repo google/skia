@@ -186,7 +186,8 @@ static void DeleteHDCCallback(void*, void* context) {
 // required so that we can call the base class' constructor with the pixel
 // data.
 static bool Create(int width, int height, bool is_opaque, SkRasterHandleAllocator::Rec* rec) {
-    BITMAPINFOHEADER hdr = { 0 };
+    BITMAPINFOHEADER hdr;
+    memset(&hdr, 0, sizeof(hdr));
     hdr.biSize = sizeof(BITMAPINFOHEADER);
     hdr.biWidth = width;
     hdr.biHeight = -height;  // Minus means top-down bitmap.

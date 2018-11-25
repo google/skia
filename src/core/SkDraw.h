@@ -16,6 +16,7 @@
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
+#include "SkScalerContext.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -114,7 +115,7 @@ public:
     static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
-    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
+    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
     void        drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                  const SkPaint&) const;
     void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
@@ -143,7 +144,7 @@ private:
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
     /** Returns the current setting for using fake gamma and contrast. */
-    uint32_t SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+    SkScalerContextFlags SK_WARN_UNUSED_RESULT scalerContextFlags() const;
 
 public:
     SkPixmap        fDst;

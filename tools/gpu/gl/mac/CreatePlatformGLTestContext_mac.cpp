@@ -68,8 +68,8 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     SkScopeExit restorer(context_restorer());
     CGLSetCurrentContext(fContext);
 
-    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
-    if (nullptr == gl.get()) {
+    auto gl = GrGLMakeNativeInterface();
+    if (!gl) {
         SkDebugf("Context could not create GL interface.\n");
         this->destroyGLContext();
         return;
@@ -84,7 +84,7 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
         RTLD_LAZY);
 
-    this->init(gl.release());
+    this->init(std::move(gl));
 }
 
 MacGLTestContext::~MacGLTestContext() {

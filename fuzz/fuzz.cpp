@@ -10,7 +10,6 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkFlattenableSerialization.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
@@ -20,11 +19,12 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkPipe.h"
+#include "SkReadBuffer.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
-#include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
@@ -40,16 +40,24 @@ DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
         "in the directory will be used as fuzz bytes for the fuzzer, one at a "
         "time.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
-
-DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale'"
-        ", 'image_mode', 'skp', 'icc', or 'api'.");
 DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
         "PNG with this name.");
+DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
+DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
+                            "api\n"
+                            "color_deserialize\n"
+                            "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
+                            "icc\n"
+                            "image_mode\n"
+                            "image_scale\n"
+                            "path_deserialize\n"
+                            "pipe\n"
+                            "region_deserialize\n"
+                            "region_set_path\n"
+                            "skp\n"
+                            "sksl2glsl\n"
+                            "textblob");
 
-static int printUsage() {
-    SkDebugf("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n");
-    return 1;
-}
 static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
@@ -60,7 +68,9 @@ static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
+static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
+static void fuzz_skpipe(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 #if SK_SUPPORT_GPU
@@ -68,6 +78,8 @@ static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
 int main(int argc, char** argv) {
+    SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
+                                 "--help lists the valid types\n");
     SkCommandLineFlags::Parse(argc, argv);
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
@@ -126,6 +138,14 @@ static int fuzz_file(const char* path) {
             fuzz_region_deserialize(bytes);
             return 0;
         }
+        if (0 == strcmp("region_set_path", FLAGS_type[0])) {
+            fuzz_region_set_path(bytes);
+            return 0;
+        }
+        if (0 == strcmp("pipe", FLAGS_type[0])) {
+            fuzz_skpipe(bytes);
+            return 0;
+        }
         if (0 == strcmp("skp", FLAGS_type[0])) {
             fuzz_skp(bytes);
             return 0;
@@ -145,7 +165,8 @@ static int fuzz_file(const char* path) {
         }
 #endif
     }
-    return printUsage();
+    SkCommandLineFlags::PrintUsage();
+    return 1;
 }
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
@@ -440,9 +461,9 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 }
 
 static void fuzz_skp(sk_sp<SkData> bytes) {
-    SkMemoryStream stream(bytes);
+    SkReadBuffer buf(bytes->data(), bytes->size());
     SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(&stream));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromBuffer(buf));
     if (!pic) {
         SkDebugf("[terminated] Couldn't decode as a picture.\n");
         return;
@@ -457,6 +478,21 @@ static void fuzz_skp(sk_sp<SkData> bytes) {
     canvas.drawPicture(pic);
     SkDebugf("[terminated] Success! Decoded and rendered an SkPicture!\n");
     dump_png(bitmap);
+}
+
+static void fuzz_skpipe(sk_sp<SkData> bytes) {
+    SkPipeDeserializer d;
+    SkDebugf("Decoding\n");
+    sk_sp<SkPicture> pic(d.readPicture(bytes.get()));
+    if (!pic) {
+        SkDebugf("[terminated] Couldn't decode picture via SkPipe.\n");
+        return;
+    }
+    SkDebugf("Rendering\n");
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap);
+    canvas.drawPicture(pic);
+    SkDebugf("[terminated] Success! Decoded and rendered an SkPicture from SkPipe!\n");
 }
 
 static void fuzz_icc(sk_sp<SkData> bytes) {
@@ -479,7 +515,7 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
 
 static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
     SkPath path;
-    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    SkReadBuffer buf(bytes->data(), bytes->size());
     buf.readPath(&path);
     if (!buf.isValid()) {
         SkDebugf("[terminated] Couldn't deserialize SkPath.\n");
@@ -491,28 +527,18 @@ static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Initialized SkPath.\n");
 }
 
+bool FuzzRegionDeserialize(sk_sp<SkData> bytes);
+
 static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
-    SkRegion region;
-    if (!region.readFromMemory(bytes->data(), bytes->size())) {
+    if (!FuzzRegionDeserialize(bytes)) {
         SkDebugf("[terminated] Couldn't initialize SkRegion.\n");
         return;
     }
-    region.computeRegionComplexity();
-    region.isComplex();
-    SkRegion r2;
-    if (region == r2) {
-        region.contains(0,0);
-    } else {
-        region.contains(1,1);
-    }
-    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
-    s->getCanvas()->drawRegion(region, SkPaint());
-    SkDEBUGCODE(region.validate());
     SkDebugf("[terminated] Success! Initialized SkRegion.\n");
 }
 
 static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
-    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    SkReadBuffer buf(bytes->data(), bytes->size());
     auto tb = SkTextBlob::MakeFromBuffer(buf);
     if (!buf.isValid()) {
         SkDebugf("[terminated] Couldn't deserialize SkTextBlob.\n");
@@ -524,16 +550,22 @@ static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Initialized SkTextBlob.\n");
 }
 
-static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
+void FuzzRegionSetPath(Fuzz* fuzz);
 
+static void fuzz_region_set_path(sk_sp<SkData> bytes) {
+    Fuzz fuzz(bytes);
+    FuzzRegionSetPath(&fuzz);
+    SkDebugf("[terminated] region_set_path didn't crash!\n");
+}
+
+static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
     const int BitmapSize = 24;
     SkBitmap bitmap;
     bitmap.allocN32Pixels(BitmapSize, BitmapSize);
     SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
 
-    sk_sp<SkImageFilter> flattenable = SkValidatingDeserializeImageFilter(
-        bytes->data(), bytes->size());
+    auto flattenable = SkImageFilter::Deserialize(bytes->data(), bytes->size());
 
     // Adding some info, but the test passed if we got here without any trouble
     if (flattenable != nullptr) {
@@ -575,13 +607,3 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Compiled input.\n");
 }
 #endif
-
-Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
-
-void Fuzz::signalBug() { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
-
-size_t Fuzz::size() { return fBytes->size(); }
-
-bool Fuzz::exhausted() {
-    return fBytes->size() == fNextByte;
-}

@@ -7,6 +7,7 @@
 
 #include "GrProcessor.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerState.h"
@@ -17,7 +18,11 @@
 #if GR_TEST_UTILS
 
 GrResourceProvider* GrProcessorTestData::resourceProvider() {
-    return fContext->resourceProvider();
+    return fContext->contextPriv().resourceProvider();
+}
+
+GrProxyProvider* GrProcessorTestData::proxyProvider() {
+    return fContext->contextPriv().proxyProvider();
 }
 
 const GrCaps* GrProcessorTestData::caps() {
@@ -54,7 +59,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 42;
+static const int kFPFactoryCount = 38;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
 

@@ -83,8 +83,8 @@ public:
     sk_sp<GrBuffer> makeBuffer(GrBufferType, size_t, const void* data = nullptr);
 
     // Either finds and refs, or creates a static GPU buffer with the given data.
-    sk_sp<GrBuffer> findOrMakeStaticBuffer(const GrUniqueKey&, GrBufferType,
-                                           size_t, const void* data);
+    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType, size_t, const void* data,
+                                                 const GrUniqueKey&);
 
     const GrCaps* caps() const;
 

@@ -8,6 +8,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
+#include "SkPictureCommon.h"
 #include "SkStream.h"
 #include "SkFontDescriptor.h"
 
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     size_t totStreamSize = stream.getLength();
 
     SkPictInfo info;
-    if (!SkPicture::InternalOnly_StreamIsSKP(&stream, &info)) {
+    if (!SkPicture_StreamIsSKP(&stream, &info)) {
         return kNotAnSKP;
     }
 
@@ -62,28 +63,6 @@ int main(int argc, char** argv) {
         SkDebugf("Cull Rect: %f,%f,%f,%f\n",
                  info.fCullRect.fLeft, info.fCullRect.fTop,
                  info.fCullRect.fRight, info.fCullRect.fBottom);
-    }
-    if (FLAGS_flags && !FLAGS_quiet) {
-        SkDebugf("Flags: ");
-        bool needsSeparator = false;
-        if (info.fFlags & SkPictInfo::kCrossProcess_Flag) {
-            SkDebugf("kCrossProcess");
-            needsSeparator = true;
-        }
-        if (info.fFlags & SkPictInfo::kScalarIsFloat_Flag) {
-            if (needsSeparator) {
-                SkDebugf("|");
-            }
-            SkDebugf("kScalarIsFloat");
-            needsSeparator = true;
-        }
-        if (info.fFlags & SkPictInfo::kPtrIs64Bit_Flag) {
-            if (needsSeparator) {
-                SkDebugf("|");
-            }
-            SkDebugf("kPtrIs64Bit");
-        }
-        SkDebugf("\n");
     }
 
     if (!stream.readBool()) {

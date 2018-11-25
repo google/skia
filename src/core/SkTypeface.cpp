@@ -84,7 +84,7 @@ protected:
     }
 };
 
-}
+}  // namespace
 
 SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
     return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
@@ -340,15 +340,16 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     paint.setLinearText(true);
 
     SkScalerContextRec rec;
-    SkScalerContext::MakeRec(paint, nullptr, nullptr, &rec);
+    SkScalerContextEffects effects;
 
-    SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*    desc = ad.getDesc();
-    desc->init();
-    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+    SkScalerContext::MakeRecAndEffects(
+        paint, nullptr, nullptr, SkScalerContextFlags::kNone, &rec, &effects);
 
+    SkAutoDescriptor ad;
     SkScalerContextEffects noeffects;
-    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, desc, true);
+    SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, noeffects, &ad);
+
+    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, ad.getDesc(), true);
     if (!ctx) {
         return false;
     }

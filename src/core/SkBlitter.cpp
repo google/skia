@@ -13,7 +13,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
@@ -42,7 +42,8 @@ void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
  */
 
 inline static SkAlpha ScalarToAlpha(SkScalar a) {
-    return (SkAlpha)(a * 255);
+    SkAlpha alpha = (SkAlpha)(a * 255);
+    return alpha > 247 ? 0xFF : alpha < 8 ? 0 : alpha;
 }
 
 void SkBlitter::blitFatAntiRect(const SkRect& rect) {
@@ -945,7 +946,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     if (origPaint.getMaskFilter() != nullptr &&
-            origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
+            as_MFB(origPaint.getMaskFilter())->getFormat() == SkMask::k3D_Format) {
         shader3D = sk_make_sp<Sk3DShader>(sk_ref_sp(shader));
         // we know we haven't initialized lazyPaint yet, so just do it
         paint.writable()->setShader(shader3D);

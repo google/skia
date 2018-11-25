@@ -130,12 +130,12 @@ static void load_command_buffer_once() {
     once(load_command_buffer_functions);
 }
 
-static const GrGLInterface* create_command_buffer_interface() {
+static sk_sp<const GrGLInterface> create_command_buffer_interface() {
     load_command_buffer_once();
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
     }
-    return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
+    return GrGLMakeAssembledGLESInterface(gLibrary, command_buffer_get_gl_proc);
 }
 
 
@@ -289,8 +289,8 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
         return;
     }
 
-    sk_sp<const GrGLInterface> gl(create_command_buffer_interface());
-    if (nullptr == gl.get()) {
+    auto gl = create_command_buffer_interface();
+    if (!gl) {
         SkDebugf("Command Buffer: Could not create CommandBuffer GL interface.\n");
         this->destroyGLContext();
         return;
@@ -301,7 +301,7 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
         return;
     }
 
-    this->init(gl.release());
+    this->init(std::move(gl));
 }
 
 CommandBufferGLTestContext::~CommandBufferGLTestContext() {

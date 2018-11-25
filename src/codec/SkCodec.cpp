@@ -158,7 +158,7 @@ SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
 
 SkCodec::~SkCodec() {}
 
-bool SkCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+bool SkCodec::conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
                                   bool srcIsOpaque, const SkColorSpace* srcCS) const {
     if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
         return false;
@@ -173,8 +173,12 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color s
         case kRGB_565_SkColorType:
             return srcIsOpaque;
         case kGray_8_SkColorType:
-            return SkEncodedInfo::kGray_Color == srcColor && srcIsOpaque &&
+            return kGray_8_SkColorType == srcColor && srcIsOpaque &&
                    !needs_color_xform(dst, srcCS, false);
+        case kAlpha_8_SkColorType:
+            // conceptually we can convert anything into alpha_8, but we haven't actually coded
+            // all of those other conversions yet, so only return true for the case we have codec.
+            return fSrcInfo.colorType() == kAlpha_8_SkColorType;;
         default:
             return false;
     }
@@ -220,7 +224,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
                                           const Options& options) {
     const int index = options.fFrameIndex;
     if (0 == index) {
-        if (!this->conversionSupported(info, fEncodedInfo.color(), fEncodedInfo.opaque(),
+        if (!this->conversionSupported(info, fSrcInfo.colorType(), fEncodedInfo.opaque(),
                                       fSrcInfo.colorSpace())
             || !this->initializeColorXform(info, fEncodedInfo.alpha(), options.fPremulBehavior))
         {
@@ -233,8 +237,8 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         return kInvalidParameters;
     }
 
-    if (options.fSubset || info.dimensions() != fSrcInfo.dimensions()) {
-        // If we add support for these, we need to update the code that zeroes
+    if (options.fSubset) {
+        // If we add support for this, we need to update the code that zeroes
         // a kRestoreBGColor frame.
         return kInvalidParameters;
     }
@@ -249,7 +253,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
     const auto* frame = frameHolder->getFrame(index);
     SkASSERT(frame);
 
-    if (!this->conversionSupported(info, fEncodedInfo.color(), !frame->hasAlpha(),
+    if (!this->conversionSupported(info, fSrcInfo.colorType(), !frame->hasAlpha(),
                                    fSrcInfo.colorSpace())) {
         return kInvalidConversion;
     }
@@ -271,7 +275,29 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
                     // If a frame after the required frame is provided, there is no
                     // need to clear, since it must be covered by the desired frame.
                     if (options.fPriorFrame == requiredFrame) {
-                        zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+                        SkIRect prevRect = prevFrame->frameRect();
+                        if (info.dimensions() != fSrcInfo.dimensions()) {
+                            auto src = SkRect::Make(fSrcInfo.dimensions());
+                            auto dst = SkRect::Make(info.dimensions());
+                            SkMatrix map = SkMatrix::MakeRectToRect(src, dst,
+                                    SkMatrix::kCenter_ScaleToFit);
+                            SkRect asRect = SkRect::Make(prevRect);
+                            if (!map.mapRect(&asRect)) {
+                                return kInternalError;
+                            }
+                            asRect.roundIn(&prevRect);
+                            if (prevRect.isEmpty()) {
+                                // Down-scaling shrank the empty portion to nothing,
+                                // so nothing to zero.
+                                break;
+                            }
+                            if (!prevRect.intersect(SkIRect::MakeSize(info.dimensions()))) {
+                                SkCodecPrintf("rectangles do not intersect!");
+                                SkASSERT(false);
+                                break;
+                            }
+                        }
+                        zero_rect(info, pixels, rowBytes, prevRect);
                     }
                     break;
                 default:
@@ -293,9 +319,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         }
     }
 
-    FrameInfo frameInfo;
-    SkAssertResult(this->getFrameInfo(index, &frameInfo));
-    return this->initializeColorXform(info, frameInfo.fAlpha, options.fPremulBehavior)
+    return this->initializeColorXform(info, frame->reportedAlpha(), options.fPremulBehavior)
         ? kSuccess : kInvalidConversion;
 }
 
@@ -626,6 +650,10 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     if (!this->usesColorXform()) {
         return true;
     }
+    // FIXME: In SkWebpCodec, if a frame is blending with a prior frame, we don't need
+    // a colorXform to do a color correct premul, since the blend step will handle
+    // premultiplication. But there is no way to know whether we need to blend from
+    // inside this call.
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
@@ -677,4 +705,32 @@ std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
         SkAssertResult(this->onGetFrameInfo(i, &result[i]));
     }
     return result;
+}
+
+const char* SkCodec::ResultToString(Result result) {
+    switch (result) {
+        case kSuccess:
+            return "success";
+        case kIncompleteInput:
+            return "incomplete input";
+        case kErrorInInput:
+            return "error in input";
+        case kInvalidConversion:
+            return "invalid conversion";
+        case kInvalidScale:
+            return "invalid scale";
+        case kInvalidParameters:
+            return "invalid parameters";
+        case kInvalidInput:
+            return "invalid input";
+        case kCouldNotRewind:
+            return "could not rewind";
+        case kInternalError:
+            return "internal error";
+        case kUnimplemented:
+            return "unimplemented";
+        default:
+            SkASSERT(false);
+            return "bogus result value";
+    }
 }

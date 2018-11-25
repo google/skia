@@ -10,10 +10,6 @@
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
-#if defined(SK_BUILD_FOR_WIN32)
-#  define SK_BUILD_FOR_WIN
-#endif
-
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
     #ifdef NDEBUG
         #define SK_RELEASE
@@ -129,7 +125,7 @@
 #
 #endif
 
-#if defined(GOOGLE3)
+#if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
     void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
 #  define SK_DUMP_GOOGLE3_STACK() DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr)
@@ -207,7 +203,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined SK_DEBUG && defined SK_BUILD_FOR_WIN32
+#if defined SK_DEBUG && defined SK_BUILD_FOR_WIN
 #  ifdef free
 #    undef free
 #  endif
@@ -315,7 +311,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_SIZE_T_SPECIFIER
-#  if defined(_MSC_VER)
+#  if defined(_MSC_VER) && !defined(__clang__)
 #    define SK_SIZE_T_SPECIFIER "%Iu"
 #  else
 #    define SK_SIZE_T_SPECIFIER "%zu"

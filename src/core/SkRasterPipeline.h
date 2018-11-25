@@ -41,6 +41,7 @@ struct SkJumper_Engine;
     M(move_src_dst) M(move_dst_src)                                \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)                \
     M(unpremul) M(premul) M(premul_dst)                            \
+    M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(swap_rb) M(invert)                                \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                       \
     M(black_color) M(white_color) M(uniform_color)                 \
@@ -53,6 +54,8 @@ struct SkJumper_Engine;
     M(load_f32)  M(load_f32_dst)  M(store_f32)                     \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
+    M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
+    M(bilerp_clamp_8888)                                           \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)              \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be) M(load_tables) \
     M(load_rgba) M(store_rgba)                                     \
@@ -70,11 +73,12 @@ struct SkJumper_Engine;
     M(matrix_2x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)        \
     M(matrix_perspective)                                          \
     M(parametric_r) M(parametric_g) M(parametric_b)                \
-    M(parametric_a) M(gamma)                                       \
+    M(parametric_a) M(gamma) M(gamma_dst)                          \
     M(table_r) M(table_g) M(table_b) M(table_a)                    \
     M(lab_to_xyz)                                                  \
                  M(mirror_x)   M(repeat_x)                         \
                  M(mirror_y)   M(repeat_y)                         \
+    M(negate_x)                                                    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
@@ -85,9 +89,14 @@ struct SkJumper_Engine;
     M(evenly_spaced_2_stop_gradient)                               \
     M(xy_to_unit_angle)                                            \
     M(xy_to_radius)                                                \
-    M(xy_to_2pt_conical_quadratic_min)                             \
-    M(xy_to_2pt_conical_quadratic_max)                             \
-    M(xy_to_2pt_conical_linear)                                    \
+    M(xy_to_2pt_conical_strip)                                     \
+    M(xy_to_2pt_conical_focal_on_circle)                           \
+    M(xy_to_2pt_conical_well_behaved)                              \
+    M(xy_to_2pt_conical_smaller)                                   \
+    M(xy_to_2pt_conical_greater)                                   \
+    M(alter_2pt_conical_compensate_focal)                          \
+    M(alter_2pt_conical_unswap)                                    \
+    M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
     M(byte_tables) M(byte_tables_rgb)                              \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
@@ -125,11 +134,6 @@ public:
 
     void dump() const;
 
-    // Conversion from sRGB can be subtly tricky when premultiplication is involved.
-    // Use these helpers to keep things sane.
-    void append_from_srgb(SkAlphaType);
-    void append_from_srgb_dst(SkAlphaType);
-
     // Appends a stage for the specified matrix.
     // Tries to optimize the stage by analyzing the type of matrix.
     void append_matrix(SkArenaAlloc*, const SkMatrix&);
@@ -150,11 +154,6 @@ public:
 
     bool empty() const { return fStages == nullptr; }
 
-    // Used to track if we're handling values outside [0.0f, 1.0f],
-    // and to clamp back to [0.0f, 1.0f] if so.
-    void set_clamped(bool clamped) { fClamped = clamped; }
-    void clamp_if_unclamped(SkAlphaType);
-
 private:
     struct StageList {
         StageList* prev;
@@ -169,7 +168,6 @@ private:
     StageList*    fStages;
     int           fNumStages;
     int           fSlotsNeeded;
-    bool          fClamped;
 };
 
 template <size_t bytes>

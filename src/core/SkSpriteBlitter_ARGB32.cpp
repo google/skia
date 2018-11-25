@@ -10,6 +10,7 @@
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
 #include "SkColorData.h"
+#include "SkPaint.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 #include "SkXfermodePriv.h"

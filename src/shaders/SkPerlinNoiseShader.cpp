@@ -19,6 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
@@ -320,9 +321,10 @@ public:
         kFractalNoise_Type,
         kTurbulence_Type,
         kImprovedNoise_Type,
-        kFirstType = kFractalNoise_Type,
-        kLastType = kImprovedNoise_Type
+        kLast_Type = kImprovedNoise_Type
     };
+
+    static const int kMaxOctaves = 255; // numOctaves must be <= 0 and <= kMaxOctaves
 
     SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type, SkScalar baseFrequencyX,
                       SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
@@ -350,7 +352,7 @@ public:
     };
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -396,27 +398,30 @@ inline SkScalar smoothCurve(SkScalar t) {
 } // end namespace
 
 SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type,
-                                         SkScalar baseFrequencyX,
-                                         SkScalar baseFrequencyY,
-                                         int numOctaves,
-                                         SkScalar seed,
-                                         const SkISize* tileSize)
+                                                 SkScalar baseFrequencyX,
+                                                 SkScalar baseFrequencyY,
+                                                 int numOctaves,
+                                                 SkScalar seed,
+                                                 const SkISize* tileSize)
   : fType(type)
   , fBaseFrequencyX(baseFrequencyX)
   , fBaseFrequencyY(baseFrequencyY)
-  , fNumOctaves(numOctaves > 255 ? 255 : numOctaves/*[0,255] octaves allowed*/)
+  , fNumOctaves(numOctaves > kMaxOctaves ? kMaxOctaves : numOctaves/*[0,255] octaves allowed*/)
   , fSeed(seed)
   , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
   , fStitchTiles(!fTileSize.isEmpty())
 {
-    SkASSERT(numOctaves >= 0 && numOctaves < 256);
+    SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
-    Type type = (Type)buffer.readInt();
+    Type type = buffer.read32LE(kLast_Type);
+
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
-    int octaves = buffer.readInt();
+
+    int octaves = buffer.read32LE<int>(kMaxOctaves);
+
     SkScalar seed = buffer.readScalar();
     SkISize tileSize;
     tileSize.fWidth = buffer.readInt();
@@ -430,6 +435,8 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
         case kImprovedNoise_Type:
             return SkPerlinNoiseShader::MakeImprovedNoise(freqX, freqY, octaves, seed);
         default:
+            // Really shouldn't get here b.c. of earlier check on type
+            buffer.validate(false);
             return nullptr;
     }
 }
@@ -1377,7 +1384,7 @@ void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     SkASSERT(args.fContext);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -1427,7 +1434,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             auto inner =
                     GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
                                                 GrConstColorProcessor::InputMode::kModulateRGBA);
-            return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+            return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
         }
         // Emit zero.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -1435,10 +1442,11 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     }
 
     sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(
-                                                         args.fContext->resourceProvider(),
-                                                         paintingData->getPermutationsBitmap());
-    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(args.fContext->resourceProvider(),
-                                                               paintingData->getNoiseBitmap());
+                                                    args.fContext->contextPriv().proxyProvider(),
+                                                    paintingData->getPermutationsBitmap());
+    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(
+                                                    args.fContext->contextPriv().proxyProvider(),
+                                                    paintingData->getNoiseBitmap());
 
     if (permutationsProxy && noiseProxy) {
         auto inner = GrPerlinNoise2Effect::Make(fType,
@@ -1448,7 +1456,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                 std::move(permutationsProxy),
                                                 std::move(noiseProxy),
                                                 m);
-        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
     }
     return nullptr;
 }

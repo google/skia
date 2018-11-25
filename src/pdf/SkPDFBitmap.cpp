@@ -407,17 +407,12 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
-                                           SkPixelSerializer* pixelSerializer) {
+sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image, int encodingQuality) {
     SkASSERT(image);
+    SkASSERT(encodingQuality >= 0);
     sk_sp<SkData> data = image->refEncodedData();
     SkJFIFInfo info;
-    if (data && SkIsJFIF(data.get(), &info) &&
-        (!pixelSerializer ||
-         pixelSerializer->useEncodedData(data->data(), data->size()))) {
-        // If there is a SkPixelSerializer, give it a chance to
-        // re-encode the JPEG with more compression by returning false
-        // from useEncodedData.
+    if (data && SkIsJFIF(data.get(), &info)) {
         bool yuv = info.fType == SkJFIFInfo::kYCbCr;
         if (info.fSize == image->dimensions()) {  // Sanity check.
             // hold on to data, not image.
@@ -428,22 +423,20 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
         }
     }
 
-    if (pixelSerializer) {
-        SkBitmap bm;
-        SkPixmap pmap;
-        if (SkPDFUtils::ToBitmap(image.get(), &bm) && bm.peekPixels(&pmap)) {
-            data = pixelSerializer->encodeToData(pmap);
-            if (data && SkIsJFIF(data.get(), &info)) {
-                bool yuv = info.fType == SkJFIFInfo::kYCbCr;
-                if (info.fSize == image->dimensions()) {  // Sanity check.
-                    return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
-                }
+    const bool isOpaque = image_compute_is_opaque(image.get());
+
+    if (encodingQuality <= 100 && isOpaque) {
+        data = image->encodeToData(SkEncodedImageFormat::kJPEG, encodingQuality);
+        if (data && SkIsJFIF(data.get(), &info)) {
+            bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+            if (info.fSize == image->dimensions()) {  // Sanity check.
+                return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
             }
         }
     }
 
     sk_sp<SkPDFObject> smask;
-    if (!image_compute_is_opaque(image.get())) {
+    if (!isOpaque) {
         smask = sk_make_sp<PDFAlphaBitmap>(image);
     }
     #ifdef SK_PDF_IMAGE_STATS

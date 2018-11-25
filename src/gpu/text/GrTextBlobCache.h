@@ -23,11 +23,13 @@ public:
      */
     typedef void (*PFOverBudgetCB)(void* data);
 
-    GrTextBlobCache(PFOverBudgetCB cb, void* data)
+    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID)
         : fPool(0u, kMinGrowthSize)
         , fCallback(cb)
         , fData(data)
-        , fBudget(kDefaultBudget) {
+        , fBudget(kDefaultBudget)
+        , fUniqueID(uniqueID)
+        , fPurgeBlobInbox(uniqueID) {
         SkASSERT(cb && data);
     }
     ~GrTextBlobCache();
@@ -46,12 +48,12 @@ public:
 
     sk_sp<GrAtlasTextBlob> makeCachedBlob(const SkTextBlob* blob,
                                           const GrAtlasTextBlob::Key& key,
-                                          const SkMaskFilter::BlurRec& blurRec,
+                                          const SkMaskFilterBase::BlurRec& blurRec,
                                           const SkPaint& paint) {
         sk_sp<GrAtlasTextBlob> cacheBlob(this->makeBlob(blob));
         cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
-        blob->notifyAddedToCache();
+        blob->notifyAddedToCache(fUniqueID);
         return cacheBlob;
     }
 
@@ -100,7 +102,9 @@ public:
         uint32_t fID;
     };
 
-    static void PostPurgeBlobMessage(uint32_t);
+    static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
+
+    void purgeStaleBlobs();
 
 private:
     using BitmapBlobList = SkTInternalLList<GrAtlasTextBlob>;
@@ -166,55 +170,7 @@ private:
         this->checkPurge(rawBlobPtr);
     }
 
-    void checkPurge(GrAtlasTextBlob* blob = nullptr) {
-        // First, purge all stale blob IDs.
-        {
-            SkTArray<PurgeBlobMessage> msgs;
-            fPurgeBlobInbox.poll(&msgs);
-
-            for (const auto& msg : msgs) {
-                auto* idEntry = fBlobIDCache.find(msg.fID);
-                if (!idEntry) {
-                    // no cache entries for id
-                    continue;
-                }
-
-                // remove all blob entries from the LRU list
-                for (const auto& blob : idEntry->fBlobs) {
-                    fBlobList.remove(blob.get());
-                }
-
-                // drop the idEntry itself (unrefs all blobs)
-                fBlobIDCache.remove(msg.fID);
-            }
-        }
-
-        // If we are still overbudget, then unref until we are below budget again
-        if (fPool.size() > fBudget) {
-            BitmapBlobList::Iter iter;
-            iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-            GrAtlasTextBlob* lruBlob = nullptr;
-            while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                // Backup the iterator before removing and unrefing the blob
-                iter.prev();
-
-                this->remove(lruBlob);
-            }
-
-            // If we break out of the loop with lruBlob == blob, then we haven't purged enough
-            // use the call back and try to free some more.  If we are still overbudget after this,
-            // then this single textblob is over our budget
-            if (blob && lruBlob == blob) {
-                (*fCallback)(fData);
-            }
-
-#ifdef SPEW_BUDGET_MESSAGE
-            if (fPool.size() > fBudget) {
-                SkDebugf("Single textblob is larger than our whole budget");
-            }
-#endif
-        }
-    }
+    void checkPurge(GrAtlasTextBlob* blob = nullptr);
 
     static const int kMinGrowthSize = 1 << 16;
     static const int kDefaultBudget = 1 << 22;
@@ -224,6 +180,7 @@ private:
     PFOverBudgetCB fCallback;
     void* fData;
     size_t fBudget;
+    uint32_t fUniqueID;      // unique id to use for messaging
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };
 

@@ -71,6 +71,8 @@ struct Program {
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
+        // If true the destination fragment color is read sk_FragColor. It must be declared inout.
+        bool fFragColorIsInOut = false;
         // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
         // constant equivalents during compilation
         bool fReplaceSettings = true;

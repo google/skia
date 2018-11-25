@@ -14,6 +14,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRSXform.h"
+#include "SkString.h"
 #include "SkSurface.h"
 #include "SkGradientShader.h"
 

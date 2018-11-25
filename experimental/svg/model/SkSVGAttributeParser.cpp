@@ -315,7 +315,7 @@ bool SkSVGAttributeParser::parseMatrixToken(SkMatrix* matrix) {
 
 bool SkSVGAttributeParser::parseTranslateToken(SkMatrix* matrix) {
     return this->parseParenthesized("translate", [this](SkMatrix* m) -> bool {
-        SkScalar tx, ty;
+        SkScalar tx = 0.0, ty = 0.0;
         this->parseWSToken();
         if (!this->parseScalarToken(&tx)) {
             return false;
@@ -332,7 +332,7 @@ bool SkSVGAttributeParser::parseTranslateToken(SkMatrix* matrix) {
 
 bool SkSVGAttributeParser::parseScaleToken(SkMatrix* matrix) {
     return this->parseParenthesized("scale", [this](SkMatrix* m) -> bool {
-        SkScalar sx, sy;
+        SkScalar sx = 0.0, sy = 0.0;
         if (!this->parseScalarToken(&sx)) {
             return false;
         }

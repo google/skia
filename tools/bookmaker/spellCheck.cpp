@@ -96,6 +96,14 @@ void BmhParser::spellCheck(const char* match, SkCommandLineFlags::StringArray re
     checker.report(report);
 }
 
+void BmhParser::spellStatus(const char* statusFile, SkCommandLineFlags::StringArray report) const {
+    SpellCheck checker(*this);
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    string match = iter.baseDir();
+    checker.check(match.c_str());
+    checker.report(report);
+}
+
 bool SpellCheck::check(const char* match) {
     for (const auto& topic : fBmhParser.fTopicMap) {
         Definition* topicDef = topic.second;
@@ -173,11 +181,11 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kDoxygen:
             break;
+        case MarkType::kDuration:
+            break;
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->wordCheck(def->fName);
-            break;
-        case MarkType::kError:
             break;
         case MarkType::kExample:
             break;

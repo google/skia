@@ -14,9 +14,11 @@
 #include "GrContextPriv.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
+#include "SkBitmap.h"
 #include "SkPointPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
@@ -329,7 +331,8 @@ public:
                                                                            nullptr, nullptr);
 #endif
 
-        rtc->clear(nullptr, 0xFFFFFFFF, true); // clear the atlas
+        // clear the atlas
+        rtc->clear(nullptr, 0xFFFFFFFF, GrRenderTargetContext::CanClearFullscreen::kYes);
 
         int blocksInAtlas = 0;
         for (int i = 0; i < lists.count(); ++i) {
@@ -339,7 +342,7 @@ public:
 
                 // For now, we avoid the resource buffer issues and just use clears
 #if 1
-                rtc->clear(&r, op->color(), false);
+                rtc->clear(&r, op->color(), GrRenderTargetContext::CanClearFullscreen::kNo);
 #else
                 GrPaint paint;
                 paint.setColor4f(GrColor4f::FromGrColor(op->color()));
@@ -410,7 +413,8 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
                                                                       kRGBA_8888_GrPixelConfig,
                                                                       nullptr));
 
-    rtc->clear(nullptr, GrColorPackRGBA(255, 0, 0, 255), true);
+    rtc->clear(nullptr, GrColorPackRGBA(255, 0, 0, 255),
+               GrRenderTargetContext::CanClearFullscreen::kYes);
 
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
@@ -472,17 +476,16 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 }
 #else
 // TODO: this is unfortunate and must be removed. We want the atlas to be created later.
-sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
+sk_sp<GrTextureProxy> pre_create_atlas(GrProxyProvider* proxyProvider) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 32;
     desc.fHeight = 16;
     desc.fConfig = kSkia8888_GrPixelConfig;
-    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                        desc, SkBackingFit::kExact,
-                                        SkBudgeted::kYes,
-                                        GrResourceProvider::kNoPendingIO_Flag);
+
+    return proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                      GrResourceProvider::kNoPendingIO_Flag);
 }
 #endif
 
@@ -518,7 +521,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
 
     // For now (until we add a GrSuperDeferredSimpleTextureEffect), we create the final atlas
     // proxy ahead of time.
-    sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context);
+    sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context->contextPriv().proxyProvider());
 
     object.setAtlasDest(atlasDest);
 
@@ -539,7 +542,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
                                                                       kRGBA_8888_GrPixelConfig,
                                                                       nullptr));
 
-    rtc->clear(nullptr, 0xFFFFFFFF, true);
+    rtc->clear(nullptr, 0xFFFFFFFF, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Note that this doesn't include the third texture proxy
     for (int i = 0; i < kNumProxies-1; ++i) {

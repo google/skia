@@ -288,9 +288,6 @@ public:
     /// Is there support for texture parameter GL_TEXTURE_USAGE
     bool textureUsageSupport() const { return fTextureUsageSupport; }
 
-    /// Is there support for GL_RED and GL_R8
-    bool textureRedSupport() const { return fTextureRedSupport; }
-
     /// Is GL_ALPHA8 renderable
     bool alpha8IsRenderable() const { return fAlpha8IsRenderable; }
 
@@ -415,6 +412,11 @@ public:
         return fProgramBinarySupport;
     }
 
+    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
+                                GrPixelConfig*) const override;
+    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                     GrPixelConfig*) const override;
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
@@ -430,6 +432,9 @@ private:
     void init(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*);
     void initGLSL(const GrGLContextInfo&, const GrGLInterface*);
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
+
+    void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
+                                           GrShaderCaps*);
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
@@ -457,7 +462,6 @@ private:
     bool fPackRowLengthSupport : 1;
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
-    bool fTextureRedSupport : 1;
     bool fAlpha8IsRenderable: 1;
     bool fImagingSupport  : 1;
     bool fVertexArrayObjectSupport : 1;
@@ -479,20 +483,22 @@ private:
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
+    bool fClearTextureSupport : 1;
+    bool fProgramBinarySupport : 1;
+
+    // Driver workarounds
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToBoundaryValuesIsBroken : 1;
-    bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
     bool fUseDrawToClearColor : 1;
     bool fUseDrawToClearStencilClip : 1;
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
-    bool fProgramBinarySupport : 1;
+    int fMaxInstancesPerDrawArraysWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;
-    int fMaxInstancesPerDrawArraysWithoutCrashing;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {

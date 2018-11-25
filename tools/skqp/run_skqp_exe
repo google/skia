@@ -1,0 +1,53 @@
+#! /usr/bin/env python
+
+# Copyright 2018 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+import subprocess
+import tempfile
+import sysopen
+import sys
+
+def skqp(build):
+    def adb(*args):
+        sys.stdout.write("adb '" + "' '".join(args) + "'\n")
+        subprocess.check_call(['adb'] + list(args))
+
+    assert os.path.isdir(build)
+    build = os.path.abspath(build)
+
+    os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+
+    adb('shell', 'rm -rf /data/local/tmp/skqp; mkdir -p /data/local/tmp/skqp')
+
+    adb('push',
+        os.path.join(*'platform_tools/android/apps/skqp/src/main/assets'.split('/')),
+        '/data/local/tmp/skqp/skqp_assets')
+
+    adb('push', os.path.join(build, 'skqp'), '/data/local/tmp/skqp/skqp')
+
+    cmd = "cd /data/local/tmp/skqp; ./skqp skqp_assets report"
+    sys.stdout.write("adb 'shell' '%s'\n" % cmd)
+    ret = subprocess.call(['adb', 'shell', cmd])
+
+    tmpdir = tempfile.mkdtemp(prefix='skqp')
+
+    adb('pull', "/data/local/tmp/report", tmpdir)
+
+    return ret, os.path.join(tmpdir, 'report')
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
+        sys.stderr.write('Usage\n  %s BUILD_DIR\n\n' % sys.argv[0])
+        sys.exit(1)
+    try:
+        ret, report = skqp(sys.argv[1])
+    except subprocess.CalledProcessError:
+        sys.stderr.write('Command failed.\n')
+        sys.exit(1)
+
+    sys.stdout.write('\nReturn code: %d\nOutput written to "%s"\n' % (ret, report))
+    sysopen.sysopen(os.path.join(report, 'report.html'))
+

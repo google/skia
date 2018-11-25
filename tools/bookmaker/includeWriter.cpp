@@ -8,9 +8,6 @@
 #include "bookmaker.h"
 
 void IncludeWriter::descriptionOut(const Definition* def) {
-    if ("SkPoint_length" == def->fFiddle) {
-        SkDebugf("");
-    }
     const char* commentStart = def->fContentStart;
     int commentLen = (int) (def->fContentEnd - commentStart);
     bool breakOut = false;
@@ -67,7 +64,8 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                 commentStart = prop->fContentStart;
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                    this->writeBlockIndent(commentLen, commentStart);
+                    if ('\n' != commentStart[commentLen - 1] && '\n' == commentStart[commentLen]) {
                         this->lfcr();
                     }
                 }
@@ -116,6 +114,8 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                     }
                 }
                 } break;
+            case MarkType::kIn:
+            case MarkType::kLine:
             case MarkType::kToDo:
                 commentLen = (int) (prop->fStart - commentStart);
                 if (commentLen > 0) {
@@ -488,7 +488,7 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
     int longestValue = 0;
     int valueLen = 0;
     const char* lastEnd = nullptr;
-    SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
+//    SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     auto brace = child.fChildren[0];
     if (KeyWord::kClass == brace->fKeyWord) {
         brace = brace->fChildren[0];
@@ -638,7 +638,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             this->indentToColumn(column);
             int partLen = (int) (partEnd - partStart);
             // FIXME : detect this earlier; assert if #Return is empty
-            SkASSERT(partLen > 0 && partLen < 200);
+            SkASSERT(partLen > 0 && partLen < 300);  // may assert if param desc is especially long
             fIndent = column;
             this->rewriteBlock(partLen, partStart, Phrase::kYes);
             fIndent = saveIndent;
@@ -671,6 +671,24 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     this->writeCommentTrailer();
 }
 
+Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmhChildren,
+		const string& name) const {
+	for (auto memberDef : bmhChildren) {
+		if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
+			return memberDef;
+		}
+	}
+	for (auto memberDef : bmhChildren) {
+		if (MarkType::kSubtopic == memberDef->fMarkType || MarkType::kTopic == memberDef->fMarkType) {
+			Definition* result = this->findMemberCommentBlock(memberDef->fChildren, name);
+			if (result) {
+				return result;
+			}
+		}
+	}
+	return nullptr;
+}
+
 Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const Definition& child) {
     const char* blockStart = !fWroteMethod && fDeferComment ? fLastComment->fContentEnd : fStart;
     const char* blockEnd = fWroteMethod && fDeferComment ? fDeferComment->fStart - 1 :
@@ -681,21 +699,16 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
         fIndentNext = false;
     }
     fWroteMethod = false;
-    const char* commentStart = nullptr;
-    ptrdiff_t commentLen = 0;
     string name(child.fContentStart, (int) (child.fContentEnd - child.fContentStart));
-    bool isShort;
-    Definition* commentBlock = nullptr;
-    for (auto memberDef : fBmhStructDef->fChildren)  {
-        if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
-            commentStart = memberDef->fContentStart;
-            commentLen = memberDef->fContentEnd - commentStart;
-            isShort = memberDef->fShort;
-            commentBlock = memberDef;
-            SkASSERT(!isShort || memberDef->fChildren.size() == 0);
-            break;
-        }
-    }
+    Definition* commentBlock = this->findMemberCommentBlock(fBmhStructDef->fChildren, name);
+	if (!commentBlock) {
+		return memberStart->reportError<Definition*>("member missing comment block");
+	}
+	const char* commentStart = commentBlock->fContentStart;
+	ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
+	bool isShort = commentBlock->fShort;
+	SkASSERT(!isShort || commentBlock->fChildren.size() == 0);
+
     if (!isShort) {
         this->writeCommentHeader();
         bool wroteLineFeed = false;
@@ -901,7 +914,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     // skip include comment
     // if there is a series of same named methods, write one set of comments, then write all methods
     string methodName;
-    const Definition* method;
+    const Definition* method = nullptr;
     const Definition* clonedMethod = nullptr;
     const Definition* memberStart = nullptr;
     const Definition* memberEnd = nullptr;
@@ -976,34 +989,40 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     continue;
                 }
             }
-            if (Definition::Type::kBracket == child.fType && Bracket::kParen == child.fBracket) {
-                if (!clonedMethod) {
-                    if (inConstructor) {
-                        fContinuation = child.fContentStart;
-                    }
+            if (Definition::Type::kBracket == child.fType) {
+                if (Bracket::kAngle == child.fBracket) {
                     continue;
                 }
-                int alternate = 1;
-                ptrdiff_t childLen = child.fContentEnd - child.fContentStart;
-                SkASSERT(')' == child.fContentStart[childLen]);
-                ++childLen;
-                do {
-                    TextParser params(clonedMethod->fFileName, clonedMethod->fStart,
-                        clonedMethod->fContentStart, clonedMethod->fLineCount);
-                    params.skipToEndBracket('(');
-                    if (params.startsWith(child.fContentStart, childLen)) {
-                        this->methodOut(clonedMethod, child);
-                        break;
+                if (Bracket::kParen == child.fBracket) {
+                    if (!clonedMethod) {
+                        if (inConstructor) {
+                            fContinuation = child.fContentStart;
+                        }
+                        continue;
                     }
-                    ++alternate;
-                    string alternateMethod = methodName + '_' + to_string(alternate);
-                    clonedMethod = root->find(alternateMethod, RootDefinition::AllowParens::kNo);
-                } while (clonedMethod);
-                if (!clonedMethod) {
-                    return this->reportError<bool>("cloned method not found");
+                    int alternate = 1;
+                    ptrdiff_t childLen = child.fContentEnd - child.fContentStart;
+                    SkASSERT(')' == child.fContentStart[childLen]);
+                    ++childLen;
+                    do {
+                        TextParser params(clonedMethod->fFileName, clonedMethod->fStart,
+                            clonedMethod->fContentStart, clonedMethod->fLineCount);
+                        params.skipToEndBracket('(');
+                        if (params.startsWith(child.fContentStart, childLen)) {
+                            this->methodOut(clonedMethod, child);
+                            break;
+                        }
+                        ++alternate;
+                        string alternateMethod = methodName + '_' + to_string(alternate);
+                        clonedMethod = root->find(alternateMethod,
+                                RootDefinition::AllowParens::kNo);
+                    } while (clonedMethod);
+                    if (!clonedMethod) {
+                        return this->reportError<bool>("cloned method not found");
+                    }
+                    clonedMethod = nullptr;
+                    continue;
                 }
-                clonedMethod = nullptr;
-                continue;
             }
             if (Definition::Type::kWord == child.fType) {
                 if (clonedMethod) {
@@ -1027,9 +1046,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     --continueEnd;
                 }
                 methodName += string(fContinuation, continueEnd - fContinuation);
-                if ("SkIPoint::operator+" == methodName) {
-                    SkDebugf("");
-                }
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
@@ -1075,20 +1091,27 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
                     fAttrDeprecated ? fAttrDeprecated->fContentStart - 1 :
                     child.fContentStart;
+            if (Definition::Type::kBracket == def->fType && Bracket::kDebugCode == def->fBracket) {
+                auto tokenIter = def->fParent->fTokens.begin();
+                std::advance(tokenIter, def->fParentIndex - 1);
+                Definition* prior = &*tokenIter;
+                if (Definition::Type::kBracket == def->fType &&
+                        Bracket::kSlashStar == prior->fBracket) {
+                    bodyEnd = prior->fContentStart - 1;
+                }
+            }
             // FIXME: roll end-trimming into writeBlockTrim call
             while (fStart < bodyEnd && ' ' >= bodyEnd[-1]) {
                 --bodyEnd;
             }
             int blockSize = (int) (bodyEnd - fStart);
             if (blockSize) {
+                string debugstr(fStart, blockSize);
                 this->writeBlock(blockSize, fStart);
             }
             startDef = &child;
             fStart = child.fContentStart;
             methodName = root->fName + "::" + child.fName;
-                if ("SkIPoint::operator+" == methodName) {
-                    SkDebugf("");
-                }
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName, RootDefinition::AllowParens::kNo);
@@ -1440,13 +1463,29 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         root->clearVisited();
         fStart = includeMapper.second.fContentStart;
         fEnd = includeMapper.second.fContentEnd;
+        fAnonymousEnumCount = 1;
         allPassed &= this->populate(&includeMapper.second, nullptr, root);
         this->writeBlock((int) (fEnd - fStart), fStart);
         fIndent = 0;
         this->lfcr();
         this->writePending();
         fclose(fOut);
-        SkDebugf("wrote %s\n", fileName.c_str());
+        fflush(fOut);
+        size_t slash = fFileName.find_last_of('/');
+        if (string::npos == slash) {
+            slash = 0;
+        }
+        size_t back = fFileName.find_last_of('\\');
+        if (string::npos == back) {
+            back = 0;
+        }
+        string dir = fFileName.substr(0, SkTMax(slash, back) + 1);
+        string readname = dir + fileName;
+        if (this->writtenFileDiffers(fileName, readname)) {
+            SkDebugf("wrote updated %s\n", fileName.c_str());
+        } else {
+            remove(fileName.c_str());
+        }
     }
     return allPassed;
 }
@@ -1694,7 +1733,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
     int lastPrintable = 0;
     int lastSpace = -1;
     char c = 0;
-    char last;
+    char last = 0;
     bool embeddedIndirection = false;
     bool embeddedSymbol = false;
     bool hasLower = false;

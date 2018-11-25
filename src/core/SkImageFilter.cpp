@@ -8,7 +8,6 @@
 #include "SkImageFilter.h"
 
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkFuzzLogging.h"
 #include "SkImageFilterCache.h"
 #include "SkLocalMatrixImageFilter.h"
@@ -123,7 +122,6 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
         return false;
     }
 
-    SkFUZZF(("allocInputs: %d\n", count));
     this->allocInputs(count);
     for (int i = 0; i < count; i++) {
         if (buffer.readBool()) {
@@ -199,6 +197,9 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
                                                  SkIPoint* offset) const {
     SkASSERT(src && offset);
+    if (!context.isValid()) {
+        return nullptr;
+    }
 
     uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
     const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);

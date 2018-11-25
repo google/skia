@@ -68,6 +68,8 @@ public:
     // Don't. Just don't.
     void exactify();
 
+    bool doLazyInstantiation(GrResourceProvider*);
+
     static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
 private:

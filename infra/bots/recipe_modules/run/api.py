@@ -10,6 +10,7 @@ from recipe_engine import recipe_api
 
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST = [
+  'bookmaker',
   'dm',
   'dm.exe',
   'dm.app',
@@ -23,6 +24,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   '*.dll',
   '*.dylib',
   'skia_launcher',
+  'skiaserve',
   'lib/*.so',
   'vulkan-1.dll',
 ]

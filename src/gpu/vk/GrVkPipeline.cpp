@@ -57,7 +57,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
                                   VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
                                   SkSTArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
                                   VkVertexInputAttributeDescription* attributeDesc) {
-    uint32_t vertexBinding, instanceBinding;
+    uint32_t vertexBinding = 0, instanceBinding = 0;
 
     if (primProc.hasVertexAttribs()) {
         vertexBinding = bindingDescs->count();
@@ -490,6 +490,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
                                                                           &pipelineCreateInfo,
                                                                           nullptr, &vkPipeline));
     if (err) {
+        SkDebugf("Failed to create pipeline. Error: %d\n", err);
         return nullptr;
     }
 

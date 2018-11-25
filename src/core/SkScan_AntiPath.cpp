@@ -13,7 +13,7 @@
 #include "SkRegion.h"
 #include "SkAntiRun.h"
 
-#define SHIFT   2
+#define SHIFT   SK_SUPERSAMPLE_SHIFT
 #define SCALE   (1 << SHIFT)
 #define MASK    (SCALE - 1)
 
@@ -614,11 +614,8 @@ static bool ShouldUseAAA(const SkPath& path) {
 }
 
 void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
-                  const SkIRect& clipBounds, bool containedInClip, bool forceRLE) {
-#if !defined(SK_SUPPORT_LEGACY_AA_BEHAVIOR)
-    containedInClip = clipBounds.contains(ir);
-#endif
-
+                  const SkIRect& clipBounds, bool forceRLE) {
+    bool containedInClip = clipBounds.contains(ir);
     bool isInverse = path.isInverseFillType();
 
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
@@ -631,12 +628,6 @@ void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         SuperBlitter superBlit(blitter, ir, clipBounds, isInverse);
         sk_fill_path(path, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
     }
-}
-
-static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
-    const SkScalar min = -max;
-    return  r.fLeft > min && r.fTop > min &&
-            r.fRight < max && r.fBottom < max;
 }
 
 static int overflows_short_shift(int value, int shift) {
@@ -662,14 +653,17 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, shift);
 }
 
-static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
-    const SkScalar maxScalar = SkIntToScalar(maxInt);
+static SkIRect safeRoundOut(const SkRect& src) {
+    // roundOut will pin huge floats to max/min int
+    SkIRect dst = src.roundOut();
 
-    if (fitsInsideLimit(src, maxScalar)) {
-        src.roundOut(dst);
-        return true;
-    }
-    return false;
+    // intersect with a smaller huge rect, so the rect will not be considered empty for being
+    // too large. e.g. { -SK_MaxS32 ... SK_MaxS32 } is considered empty because its width
+    // exceeds signed 32bit.
+    const int32_t limit = SK_MaxS32 >> SK_SUPERSAMPLE_SHIFT;
+    (void)dst.intersect({ -limit, -limit, limit, limit});
+
+    return dst;
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
@@ -679,12 +673,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     }
 
     const bool isInverse = path.isInverseFillType();
-    SkIRect ir;
-
-    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
-        // Bounds can't fit in SkIRect; we'll return without drawing
-        return;
-    }
+    SkIRect ir = safeRoundOut(path.getBounds());
     if (ir.isEmpty()) {
         if (isInverse) {
             blitter->blitRegion(origClip);
@@ -748,19 +737,14 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
-    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-
     if (forceDAA || ShouldUseDAA(path)) {
-        SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+        SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
     } else if (ShouldUseAAA(path)) {
         // Do not use AAA if path is too complicated:
         // there won't be any speedup or significant visual improvement.
-        SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+        SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
     } else {
-        SkScan::SAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+        SkScan::SAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
     }
 
     if (isInverse) {
@@ -772,9 +756,8 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 
 #include "SkRasterClip.h"
 
-void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
-                          SkBlitter* blitter) {
-    if (clip.isEmpty()) {
+void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
 
@@ -792,7 +775,7 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter, bool forceDAA) {
-    if (clip.isEmpty()) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
 

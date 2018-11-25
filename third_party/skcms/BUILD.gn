@@ -1,0 +1,29 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+config("skcms_public") {
+  include_dirs = [ "../externals/skcms" ]
+}
+
+source_set("skcms") {
+  public_configs = [ ":skcms_public" ]
+
+  cflags = []
+  if (!is_win || is_clang) {
+    cflags += [
+      "-w",
+      "-std=c11",
+    ]
+    if (!is_clang) {
+      # This seems to be the default in newer GCCs, but of course we test with older GCCs.
+      cflags += [ "-flax-vector-conversions" ]
+    }
+  }
+
+  defines = []
+  sources = [
+    "../externals/skcms/skcms.c",
+  ]
+}

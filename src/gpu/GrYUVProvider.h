@@ -30,15 +30,14 @@ public:
 
     /**
      *  On success, this returns a texture proxy that has converted the YUV data from the provider
-     *  into a form that is supported by the GPU (typically transformed into RGB). If useCache
-     *  is true, then the texture will automatically have a key added, so it can be retrieved
-     *  from the cache (assuming it is requested by a provider w/ the same genID). If srcColorSpace
-     *  and dstColorSpace are specified, then a color conversion from src to dst will be applied to
-     *  the pixels.
+     *  into a form that is supported by the GPU (typically transformed into RGB). The texture will
+     *  automatically have a key added, so it can be retrieved from the cache (assuming it is
+     *  requested by a provider w/ the same genID). If srcColorSpace and dstColorSpace are
+     *  specified, then a color conversion from src to dst will be applied to the pixels.
      *
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
-    sk_sp<GrTextureProxy> refAsTextureProxy(GrContext*, const GrSurfaceDesc&, bool useCache,
+    sk_sp<GrTextureProxy> refAsTextureProxy(GrContext*, const GrSurfaceDesc&,
                                             const SkColorSpace* srcColorSpace,
                                             const SkColorSpace* dstColorSpace);
 

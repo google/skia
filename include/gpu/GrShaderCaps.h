@@ -116,6 +116,17 @@ public:
     // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
     bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
 
+    // If this returns true some operation (could be a no op) must be called between floor and abs
+    // to make sure the driver compiler doesn't inline them together which can cause a driver bug in
+    // the shader.
+    bool mustDoOpBetweenFloorAndAbs() const { return fMustDoOpBetweenFloorAndAbs; }
+
+    // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
+    bool canUseFragCoord() const { return fCanUseFragCoord; }
+
+    // If true interpolated vertex shader outputs are inaccurate.
+    bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -132,6 +143,14 @@ public:
     const char* shaderDerivativeExtensionString() const {
         SkASSERT(this->shaderDerivativeSupport());
         return fShaderDerivativeExtensionString;
+    }
+
+    // Returns the string of an extension that must be enabled in the shader to support geometry
+    // shaders. If nullptr is returned then no extension needs to be enabled. Before calling this
+    // function, the caller must verify that geometryShaderSupport exists.
+    const char* geometryShaderExtensionString() const {
+        SkASSERT(this->geometryShaderSupport());
+        return fGeometryShaderExtensionString;
     }
 
     // Returns the string of an extension that must be enabled in the shader to support
@@ -196,7 +215,14 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
-    bool disableImageMultitexturingSupport() const { return fDisableImageMultitexturing; }
+    /**
+     * In general using multiple texture units for image rendering seems to be a win at smaller
+     * sizes of dst rects and a loss at larger sizes. Dst rects above this pixel area threshold will
+     * not use multitexturing.
+     */
+    size_t disableImageMultitexturingDstRectAreaThreshold() const {
+        return fDisableImageMultitexturingDstRectAreaThreshold;
+    }
 
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
@@ -233,7 +259,6 @@ private:
     bool fFBFetchNeedsCustomOutput : 1;
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
-    bool fCanUseAnyFunctionInShader : 1;
     bool fFlatInterpolationSupport : 1;
     bool fPreferFlatInterpolation : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
@@ -245,20 +270,24 @@ private:
     bool fVertexIDSupport : 1;
     bool fFloatIs32Bits : 1;
     bool fHalfIs32Bits : 1;
-    bool fDisableImageMultitexturing : 1;
 
     // Used for specific driver bug work arounds
+    bool fCanUseAnyFunctionInShader : 1;
     bool fCanUseMinAndAbsTogether : 1;
     bool fCanUseFractForNegativeValues : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fAtan2ImplementedAsAtanYOverX : 1;
+    bool fMustDoOpBetweenFloorAndAbs : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
+    bool fCanUseFragCoord : 1;
+    bool fInterpolantsAreInaccurate : 1;
 
     const char* fVersionDeclString;
 
     const char* fShaderDerivativeExtensionString;
+    const char* fGeometryShaderExtensionString;
     const char* fGSInvocationsExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
@@ -277,12 +306,15 @@ private:
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
 
+    size_t fDisableImageMultitexturingDstRectAreaThreshold;
+
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
     GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
     GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
 
-    friend class GrGLCaps;  // For initialization.
+    friend class GrCaps;  // For initialization.
+    friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
     friend class GrVkCaps;

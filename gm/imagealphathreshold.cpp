@@ -12,6 +12,7 @@
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -101,12 +102,7 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, alphaType, std::move(cs));
 
-    sk_sp<SkSurface> result = canvas->makeSurface(info);
-    if (!result) {
-        result = SkSurface::MakeRaster(info);
-    }
-
-    return result;
+    return sk_tool_utils::makeSurface(canvas, info);
 }
 
 class ImageAlphaThresholdSurfaceGM : public skiagm::GM {

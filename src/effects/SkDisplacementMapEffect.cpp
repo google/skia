@@ -147,12 +147,12 @@ SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 
 sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();
-    ChannelSelectorType ysel = (ChannelSelectorType)buffer.readInt();
+
+    ChannelSelectorType xsel = buffer.read32LE(kLast_ChannelSelectorType);
+    ChannelSelectorType ysel = buffer.read32LE(kLast_ChannelSelectorType);
     SkScalar scale = buffer.readScalar();
-    return Make(xsel, ysel, scale,
-                common.getInput(0), common.getInput(1),
-                &common.cropRect());
+
+    return Make(xsel, ysel, scale, common.getInput(0), common.getInput(1), &common.cropRect());
 }
 
 void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {

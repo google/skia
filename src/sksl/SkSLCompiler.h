@@ -25,8 +25,8 @@
 #define SK_TRANSFORMEDCOORDS2D_BUILTIN 10005
 #define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_FRAGCOORD_BUILTIN              15
-#define SK_VERTEXID_BUILTIN                5
-#define SK_INSTANCEID_BUILTIN              6
+#define SK_VERTEXID_BUILTIN               42
+#define SK_INSTANCEID_BUILTIN             43
 #define SK_CLIPDISTANCE_BUILTIN            3
 #define SK_INVOCATIONID_BUILTIN            8
 #define SK_POSITION_BUILTIN                0
@@ -45,6 +45,9 @@ class IRGenerator;
  */
 class Compiler : public ErrorReporter {
 public:
+    static constexpr const char* RTADJUST_NAME  = "sk_RTAdjust";
+    static constexpr const char* PERVERTEX_NAME = "sk_PerVertex";
+
     enum Flags {
         kNone_Flags = 0,
         // permits static if/switch statements to be used with non-constant tests. This is used when

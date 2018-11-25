@@ -77,7 +77,8 @@ protected:
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
-                std::unique_ptr<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
+                const auto& caps = *renderTargetContext->caps()->shaderCaps();
+                auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
                 SkASSERT(fp);
                 if (fp) {
                     GrPaint grPaint;

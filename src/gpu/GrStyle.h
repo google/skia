@@ -81,7 +81,7 @@ public:
         this->initPathEffect(std::move(pe));
     }
 
-    GrStyle(const GrStyle& that) : fStrokeRec(SkStrokeRec::kFill_InitStyle) { *this = that; }
+    GrStyle(const GrStyle& that) = default;
 
     explicit GrStyle(const SkPaint& paint) : fStrokeRec(paint) {
         this->initPathEffect(paint.refPathEffect());
@@ -187,6 +187,7 @@ private:
 
     struct DashInfo {
         DashInfo() : fType(SkPathEffect::kNone_DashType) {}
+        DashInfo(const DashInfo& that) { *this = that; }
         DashInfo& operator=(const DashInfo& that) {
             fType = that.fType;
             fPhase = that.fPhase;

@@ -9,7 +9,6 @@
 #define SkEvent_DEFINED
 
 #include "SkMetaData.h"
-#include "SkString.h"
 
 /** Unique 32bit id used to identify an instance of SkEventSink. When events are
     posted, they are posted to a specific sinkID. When it is time to dispatch the
@@ -27,35 +26,18 @@ typedef uint32_t SkEventSinkID;
  */
 class SkEvent {
 public:
-    /**
-     *  Function pointer that takes an event, returns true if it "handled" it.
-     */
-    typedef bool (*Proc)(const SkEvent& evt);
-
     SkEvent();
-    explicit SkEvent(const SkString& type);
     explicit SkEvent(const char type[]);
     SkEvent(const SkEvent& src);
     ~SkEvent();
 
-    /** Copy the event's type into the specified SkString parameter */
-    void getType(SkString* str) const;
-
     /** Returns true if the event's type matches exactly the specified type (case sensitive) */
-    bool isType(const SkString& str) const;
-
-    /** Returns true if the event's type matches exactly the specified type (case sensitive) */
-    bool isType(const char type[], size_t len = 0) const;
+    bool isType(const char type[]) const;
 
     /**
      *  Set the event's type to the specified string.
      */
-    void setType(const SkString&);
-
-    /**
-     *  Set the event's type to the specified string.
-     */
-    void setType(const char type[], size_t len = 0);
+    void setType(const char type[]);
 
     /**
      *  Return the event's unnamed 32bit field. Default value is 0
@@ -123,8 +105,6 @@ public:
         return fMeta.setScalars(name, count, values);
     }
     /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
-    void setString(const char name[], const SkString& value) { fMeta.setString(name, value.c_str()); }
-    /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
     void setString(const char name[], const char value[]) { fMeta.setString(name, value); }
     /** Add/replace the named pointer field to the event. There is no XML equivalent for this call */
     void setPtr(const char name[], void* value) { fMeta.setPtr(name, value); }
@@ -142,10 +122,10 @@ public:
 
 private:
     SkMetaData      fMeta;
-    mutable char*   fType;  // may be characters with low bit set to know that it is not a pointer
+    char*           fType;
     uint32_t        f32;
 
-    void initialize(const char* type, size_t typeLen);
+    void initialize(const char* type);
 };
 
 #endif

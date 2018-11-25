@@ -20,7 +20,6 @@
 
 #include "SkBitmap.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkImageEncoderFns.h"
 #include "SkStream.h"
 #include "SkTemplates.h"

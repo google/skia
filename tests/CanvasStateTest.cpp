@@ -40,7 +40,7 @@ public:
     OpenLibResult(skiatest::Reporter* reporter) {
         if (FLAGS_library.count() == 1) {
             fHandle = dlopen(FLAGS_library[0], RTLD_LAZY | RTLD_LOCAL);
-            REPORTER_ASSERT_MESSAGE(reporter, fHandle != nullptr, "Failed to open library!");
+            REPORTER_ASSERT(reporter, fHandle != nullptr, "Failed to open library!");
         } else {
             fHandle = nullptr;
         }

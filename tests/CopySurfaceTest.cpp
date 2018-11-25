@@ -11,6 +11,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
@@ -20,6 +21,7 @@
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
@@ -73,17 +75,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
-                            sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
-                                                                    srcDesc, SkBudgeted::kNo,
-                                                                    srcPixels.get(),
-                                                                    kRowBytes));
-
-                            sk_sp<GrTextureProxy> dst(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
-                                                                    dstDesc, SkBudgeted::kNo,
-                                                                    dstPixels.get(),
-                                                                    kRowBytes));
+                            sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
+                                             srcDesc, SkBudgeted::kNo, srcPixels.get(), kRowBytes);
+                            sk_sp<GrTextureProxy> dst = proxyProvider->createTextureProxy(
+                                             dstDesc, SkBudgeted::kNo, dstPixels.get(), kRowBytes);
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");
@@ -91,8 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             }
 
                             sk_sp<GrSurfaceContext> dstContext =
-                                   context->contextPriv().makeWrappedSurfaceContext(std::move(dst),
-                                                                                    nullptr);
+                                   context->contextPriv().makeWrappedSurfaceContext(std::move(dst));
 
                             bool result = dstContext->copy(src.get(), srcRect, dstPoint);
 

@@ -61,10 +61,6 @@ public:
         return fWriter.snapshotAsData();
     }
 
-    const SkPictureContentInfo& contentInfo() const {
-        return fContentInfo;
-    }
-
     void setFlags(uint32_t recordFlags) {
         fRecordFlags = recordFlags;
     }
@@ -104,7 +100,6 @@ private:
         size_t offset = fWriter.bytesWritten();
 
         this->predrawNotify();
-        fContentInfo.addOperation();
 
         SkASSERT(0 != *size);
         SkASSERT(((uint8_t) drawType) == drawType);
@@ -246,8 +241,6 @@ protected:
     }
 
 private:
-    SkPictureContentInfo fContentInfo;
-
     SkTArray<SkPaint>  fPaints;
 
     struct PathHash {

@@ -99,6 +99,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
 
     glXGetConfig(fDisplay, fVisualInfo, GLX_STENCIL_SIZE, &fStencilBits);
     glXGetConfig(fDisplay, fVisualInfo, GLX_SAMPLES_ARB, &fSampleCount);
+    fSampleCount = SkTMax(fSampleCount, 1);
 
     XWindow root;
     int x, y;
@@ -107,7 +108,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                  &border_width, &depth);
     glViewport(0, 0, fWidth, fHeight);
 
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 GLWindowContext_xlib::~GLWindowContext_xlib() {

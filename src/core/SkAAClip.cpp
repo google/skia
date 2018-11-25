@@ -9,6 +9,7 @@
 #include "SkAtomics.h"
 #include "SkBlitter.h"
 #include "SkColorData.h"
+#include "SkRectPriv.h"
 #include "SkPath.h"
 #include "SkScan.h"
 #include "SkUtils.h"

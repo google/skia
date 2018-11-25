@@ -78,9 +78,9 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                     newStyle.width() == 5);
 }
 DEF_TEST(TypefaceStyle, reporter) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("/fonts/Em.ttf"));
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/Em.ttf"));
     if (!stream) {
-        REPORT_FAILURE(reporter, "/fonts/Em.ttf", SkString("Cannot load resource"));
+        REPORT_FAILURE(reporter, "fonts/Em.ttf", SkString("Cannot load resource"));
         return;
     }
     sk_sp<SkData> data(SkData::MakeFromStream(stream.get(), stream->getLength()));
@@ -95,7 +95,7 @@ DEF_TEST(TypefaceStyle, reporter) {
 }
 
 DEF_TEST(TypefaceAxes, reporter) {
-    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
         REPORT_FAILURE(reporter, "distortable", SkString());
         return;
@@ -138,7 +138,7 @@ DEF_TEST(TypefaceAxes, reporter) {
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
-    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
         REPORT_FAILURE(reporter, "distortable", SkString());
         return;

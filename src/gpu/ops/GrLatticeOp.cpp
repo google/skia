@@ -14,6 +14,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
 #include "SkRect.h"
 
@@ -152,8 +153,8 @@ private:
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                patch.fViewMatrix.mapPointsWithStride(
-                        positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
+                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, positions, vertexStride,
+                                                  kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
         helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
@@ -244,7 +245,8 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     // edge of the image subset, respectively.
     std::unique_ptr<int[]> xdivs;
     std::unique_ptr<int[]> ydivs;
-    std::unique_ptr<SkCanvas::Lattice::Flags[]> flags;
+    std::unique_ptr<SkCanvas::Lattice::RectType[]> flags;
+    std::unique_ptr<SkColor[]> colors;
     SkIRect subset;
     do {
         imgW = random->nextRangeU(1, 1000);
@@ -271,14 +273,17 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
         bool hasFlags = random->nextBool();
         if (hasFlags) {
             int n = (lattice.fXCount + 1) * (lattice.fYCount + 1);
-            flags.reset(new SkCanvas::Lattice::Flags[n]);
+            flags.reset(new SkCanvas::Lattice::RectType[n]);
+            colors.reset(new SkColor[n]);
             for (int i = 0; i < n; ++i) {
-                flags[i] = random->nextBool() ? SkCanvas::Lattice::kTransparent_Flags
-                                              : (SkCanvas::Lattice::Flags)0;
+                flags[i] = random->nextBool() ? SkCanvas::Lattice::kTransparent
+                                              : SkCanvas::Lattice::kDefault;
             }
-            lattice.fFlags = flags.get();
+            lattice.fRectTypes = flags.get();
+            lattice.fColors = colors.get();
         } else {
-            lattice.fFlags = nullptr;
+            lattice.fRectTypes = nullptr;
+            lattice.fColors = nullptr;
         }
     } while (!SkLatticeIter::Valid(imgW, imgH, lattice));
 

@@ -27,7 +27,7 @@ public:
 
     bool isValid() const { return SkToBool(this->gl()); }
 
-    const GrGLInterface *gl() const { return fGL.get(); }
+    const GrGLInterface* gl() const { return fGL.get(); }
 
     /** Used for testing EGLImage integration. Take a GL_TEXTURE_2D and wraps it in an EGL Image */
     virtual GrEGLImage texture2DToEGLImage(GrGLuint /*texID*/) const { return nullptr; }
@@ -83,7 +83,7 @@ protected:
     /*
      * Methods that sublcasses must call from their constructors and destructors.
      */
-    void init(const GrGLInterface *, std::unique_ptr<FenceSync> = nullptr);
+    void init(sk_sp<const GrGLInterface>, std::unique_ptr<FenceSync> = nullptr);
 
     void teardown() override;
 

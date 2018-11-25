@@ -7,6 +7,7 @@
 
 #include "SkInternalAtlasTextContext.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextRenderer.h"
 #include "text/GrAtlasGlyphCache.h"
@@ -30,27 +31,31 @@ SkInternalAtlasTextContext::SkInternalAtlasTextContext(sk_sp<SkAtlasTextRenderer
     options.fAllowMultipleGlyphCacheTextures = GrContextOptions::Enable::kNo;
     options.fMinDistanceFieldFontSize = 0.f;
     options.fGlyphsAsPathsFontSize = SK_ScalarInfinity;
+    options.fDistanceFieldGlyphVerticesAlwaysHaveW = GrContextOptions::Enable::kYes;
     fGrContext = GrContext::MakeMock(nullptr, options);
 }
 
 SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     if (fDistanceFieldAtlas.fProxy) {
-        SkASSERT(1 == fGrContext->getAtlasGlyphCache()->getAtlasPageCount(kA8_GrMaskFormat));
+#ifdef SK_DEBUG
+        auto atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
+        SkASSERT(1 == atlasGlyphCache->getAtlasPageCount(kA8_GrMaskFormat));
+#endif
         fRenderer->deleteTexture(fDistanceFieldAtlas.fTextureHandle);
     }
 }
 
 GrAtlasGlyphCache* SkInternalAtlasTextContext::atlasGlyphCache() {
-    return fGrContext->getAtlasGlyphCache();
+    return fGrContext->contextPriv().getAtlasGlyphCache();
 }
 
 GrTextBlobCache* SkInternalAtlasTextContext::textBlobCache() {
-    return fGrContext->getTextBlobCache();
+    return fGrContext->contextPriv().getTextBlobCache();
 }
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
         GrDeferredTextureUploadFn&& upload) {
-    auto token = this->nextDrawToken();
+    auto token = fTokenTracker.nextDrawToken();
     fInlineUploads.append(&fArena, InlineUpload{std::move(upload), token});
     return token;
 }
@@ -58,11 +63,11 @@ GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
 GrDeferredUploadToken SkInternalAtlasTextContext::addASAPUpload(
         GrDeferredTextureUploadFn&& upload) {
     fASAPUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    return fTokenTracker.nextTokenToFlush();
 }
 
 void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyphCnt,
-                                            void* targetHandle) {
+                                            const SkMatrix& matrix, void* targetHandle) {
     auto vertexDataSize = sizeof(SkAtlasTextRenderer::SDFVertex) * 4 * glyphCnt;
     auto vertexData = fArena.makeArrayDefault<char>(vertexDataSize);
     memcpy(vertexData, srcVertexData, vertexDataSize);
@@ -72,12 +77,14 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
         // This isn't expected by SkAtlasTextRenderer subclasses.
         vertex->fTextureCoord.fX /= 2;
         vertex->fTextureCoord.fY /= 2;
+        matrix.mapHomogeneousPoints(&vertex->fPosition, &vertex->fPosition, 1);
     }
-    fDraws.append(&fArena, Draw{glyphCnt, this->issueDrawToken(), targetHandle, vertexData});
+    fDraws.append(&fArena,
+                  Draw{glyphCnt, fTokenTracker.issueDrawToken(), targetHandle, vertexData});
 }
 
 void SkInternalAtlasTextContext::flush() {
-    auto* atlasGlyphCache = fGrContext->getAtlasGlyphCache();
+    auto* atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
     if (!fDistanceFieldAtlas.fProxy) {
         SkASSERT(1 == atlasGlyphCache->getAtlasPageCount(kA8_GrMaskFormat));
         fDistanceFieldAtlas.fProxy = atlasGlyphCache->getProxies(kA8_GrMaskFormat)->get();
@@ -98,17 +105,16 @@ void SkInternalAtlasTextContext::flush() {
     for (const auto& upload : fASAPUploads) {
         upload(writePixelsFn);
     }
-    auto draw = fDraws.begin();
     auto inlineUpload = fInlineUploads.begin();
-    while (draw != fDraws.end()) {
-        while (inlineUpload != fInlineUploads.end() && inlineUpload->fToken == draw->fToken) {
+    for (const auto& draw : fDraws) {
+        while (inlineUpload != fInlineUploads.end() && inlineUpload->fToken == draw.fToken) {
             inlineUpload->fUpload(writePixelsFn);
             ++inlineUpload;
         }
-        auto vertices = reinterpret_cast<const SkAtlasTextRenderer::SDFVertex*>(draw->fVertexData);
-        fRenderer->drawSDFGlyphs(draw->fTargetHandle, fDistanceFieldAtlas.fTextureHandle, vertices,
-                                 draw->fGlyphCnt);
-        ++draw;
+        auto vertices = reinterpret_cast<const SkAtlasTextRenderer::SDFVertex*>(draw.fVertexData);
+        fRenderer->drawSDFGlyphs(draw.fTargetHandle, fDistanceFieldAtlas.fTextureHandle, vertices,
+                                 draw.fGlyphCnt);
+        fTokenTracker.flushToken();
     }
     fASAPUploads.reset();
     fInlineUploads.reset();

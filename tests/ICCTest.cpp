@@ -39,8 +39,7 @@ DEF_TEST(ICC_ToXYZD50, r) {
         0.74519f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    sk_sp<SkData> data = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
     sk_sp<SkICC> z30 = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, z30.get(), true, z30Reference);
 
@@ -49,15 +48,15 @@ DEF_TEST(ICC_ToXYZD50, r) {
         0.75368f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
     sk_sp<SkICC> z32 = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, z32.get(), true, z32Reference);
 
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperLeft.icc");
     sk_sp<SkICC> upperLeft = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, upperLeft.get(), false, z32Reference);
 
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperRight.icc");
     sk_sp<SkICC> upperRight = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, upperRight.get(), false, z32Reference);
 }
@@ -82,27 +81,35 @@ DEF_TEST(ICC_IsNumericalTransferFn, r) {
     referenceFn.fF = 0.0f;
     referenceFn.fG = 2.2f;
 
-    sk_sp<SkData> data = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
     sk_sp<SkICC> z30 = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, z30.get(), true, referenceFn);
 
-    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
     sk_sp<SkICC> z32 = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, z32.get(), true, referenceFn);
 
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperLeft.icc");
     sk_sp<SkICC> upperLeft = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, upperLeft.get(), false, referenceFn);
 
-    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    data = GetResourceAsData("icc_profiles/upperRight.icc");
     sk_sp<SkICC> upperRight = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, upperRight.get(), false, referenceFn);
 }
 
+DEF_TEST(ICC_Adobe, r) {
+    // Test that the color spaces produced by our procedural Adobe factory, and the official
+    // Adobe ICC profile match exactly.
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/AdobeRGB1998.icc");
+    sk_sp<SkColorSpace> fromIcc = SkColorSpace::MakeICC(data->data(), data->size());
+    sk_sp<SkColorSpace> procedural = SkColorSpace::MakeRGB(g2Dot2_TransferFn,
+                                                           SkColorSpace::kAdobeRGB_Gamut);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(fromIcc.get(), procedural.get()));
+}
+
 static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTransferFn& fn,
-                                  const SkMatrix44& toXYZD50, SkColorSpace* reference,
-                                  bool writeToFile) {
+                                  const SkMatrix44& toXYZD50, bool writeToFile) {
     sk_sp<SkData> profile = SkICC::WriteToICC(fn, toXYZD50);
     if (writeToFile) {
         SkFILEWStream stream("out.icc");
@@ -110,7 +117,8 @@ static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTrans
     }
 
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(profile->data(), profile->size());
-    REPORTER_ASSERT(r, SkColorSpace::Equals(reference, colorSpace.get()));
+    sk_sp<SkColorSpace> reference = SkColorSpace::MakeRGB(fn, toXYZD50);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(reference.get(), colorSpace.get()));
 }
 
 DEF_TEST(ICC_WriteICC, r) {
@@ -124,8 +132,7 @@ DEF_TEST(ICC_WriteICC, r) {
     adobeFn.fG = 2.2f;
     SkMatrix44 adobeMatrix(SkMatrix44::kUninitialized_Constructor);
     adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
-    test_write_icc(r, adobeFn, adobeMatrix,
-                   SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named).get(), false);
+    test_write_icc(r, adobeFn, adobeMatrix, false);
 
     SkColorSpaceTransferFn srgbFn;
     srgbFn.fA = 1.0f / 1.055f;
@@ -137,8 +144,7 @@ DEF_TEST(ICC_WriteICC, r) {
     srgbFn.fG = 2.4f;
     SkMatrix44 srgbMatrix(SkMatrix44::kUninitialized_Constructor);
     srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
-    test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeSRGB().get(),
-                   false);
+    test_write_icc(r, srgbFn, srgbMatrix, false);
 
     SkString adobeTag = SkICCGetColorProfileTag(adobeFn, adobeMatrix);
     SkString srgbTag = SkICCGetColorProfileTag(srgbFn, srgbMatrix);
@@ -175,10 +181,6 @@ public:
 DEF_TEST(ICC_RawTransferFns, r) {
     sk_sp<SkICC> srgb = ICCTest::MakeICC(SkColorSpace::MakeSRGB());
     test_raw_transfer_fn(r, srgb.get());
-
-    sk_sp<SkICC> adobe =
-            ICCTest::MakeICC(SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named));
-    test_raw_transfer_fn(r, adobe.get());
 
     // Lookup-table based gamma curves
     constexpr size_t tableSize = 10;

@@ -45,8 +45,15 @@ public:
             kPerVertex,
             kPerInstance
         };
-
-        const char*          fName;
+        GrShaderVar asShaderVar() const {
+            return GrShaderVar(fName, GrVertexAttribTypeToSLType(fType),
+                               GrShaderVar::kIn_TypeModifier);
+        }
+        bool isInitialized() const { return SkToBool(fName); }
+        Attribute() = default;
+        Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
+                : fName(name), fType(type), fOffsetInRecord(offset), fInputRate(rate) {}
+        const char*          fName = nullptr;
         GrVertexAttribType   fType;
         int                  fOffsetInRecord;
         InputRate            fInputRate;
@@ -81,6 +88,8 @@ public:
     // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
     // we put these calls on the base class to prevent having to cast
     virtual bool willUseGeoShader() const = 0;
+
+    bool willUsePrimitiveRestart() const { return fWillUsePrimitiveRestart; }
 
     /**
      * Computes a transformKey from an array of coord transforms. Will only look at the first
@@ -131,6 +140,8 @@ protected:
         return fAttribs.back();
     }
 
+    void setWillUsePrimitiveRestart() { fWillUsePrimitiveRestart = true; }
+
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
     void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
@@ -138,9 +149,10 @@ private:
     void notifyRefCntIsZero() const final {}
     virtual bool hasExplicitLocalCoords() const = 0;
 
-    SkSTArray<8, Attribute>   fAttribs;
-    int                       fVertexStride = 0;
-    int                       fInstanceStride = 0;
+    SkSTArray<8, Attribute> fAttribs;
+    int fVertexStride = 0;
+    int fInstanceStride = 0;
+    bool fWillUsePrimitiveRestart = false;
 
     typedef GrProcessor INHERITED;
 };

@@ -24,7 +24,7 @@ public:
     SkScalerContext_DW(sk_sp<DWriteFontTypeface>,
                        const SkScalerContextEffects&,
                        const SkDescriptor*);
-    virtual ~SkScalerContext_DW();
+    ~SkScalerContext_DW() override;
 
 protected:
     unsigned generateGlyphCount() override;

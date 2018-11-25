@@ -244,9 +244,13 @@ private:
 // since these objects have no need for destructors. However, GCC and clang throw a warning when a
 // class has virtual functions and a non-virtual destructor. We suppress that warning here and
 // for the subclasses.
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 class GrXPFactory {
 public:
@@ -316,8 +320,11 @@ private:
                                                   const GrCaps&,
                                                   GrPixelConfigIsClamped) const = 0;
 };
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic pop
 #endif
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties);

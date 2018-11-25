@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBase64.h"
@@ -539,7 +539,7 @@ public:
     SkScalerContext_GDI(sk_sp<LogFontTypeface>,
                         const SkScalerContextEffects&,
                         const SkDescriptor* desc);
-    virtual ~SkScalerContext_GDI();
+    ~SkScalerContext_GDI() override;
 
     // Returns true if the constructor was able to complete all of its
     // initializations (which may include calling GDI).
@@ -821,7 +821,8 @@ uint16_t SkScalerContext_GDI::generateCharToGlyph(SkUnichar utf32) {
         static const int numWCHAR = 2;
         static const int maxItems = 2;
         // MSDN states that this can be nullptr, but some things don't work then.
-        SCRIPT_CONTROL sc = { 0 };
+        SCRIPT_CONTROL sc;
+        memset(&sc, 0, sizeof(sc));
         // Add extra item to SCRIPT_ITEM to work around a bug (now documented).
         // https://bugzilla.mozilla.org/show_bug.cgi?id=366643
         SCRIPT_ITEM si[maxItems + 1];
@@ -1920,7 +1921,7 @@ SkStreamAsset* LogFontTypeface::onOpenStream(int* ttcIndex) const {
 
     SkMemoryStream* stream = nullptr;
     DWORD tables[2] = {kTTCTag, 0};
-    for (int i = 0; i < SK_ARRAY_COUNT(tables); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(tables); i++) {
         DWORD bufferSize = GetFontData(hdc, tables[i], 0, nullptr, 0);
         if (bufferSize == GDI_ERROR) {
             call_ensure_accessible(lf);
@@ -1976,7 +1977,8 @@ static uint16_t nonBmpCharToGlyph(HDC hdc, SCRIPT_CACHE* scriptCache, const WCHA
     static const int numWCHAR = 2;
     static const int maxItems = 2;
     // MSDN states that this can be nullptr, but some things don't work then.
-    SCRIPT_CONTROL scriptControl = { 0 };
+    SCRIPT_CONTROL scriptControl;
+    memset(&scriptControl, 0, sizeof(scriptControl));
     // Add extra item to SCRIPT_ITEM to work around a bug (now documented).
     // https://bugzilla.mozilla.org/show_bug.cgi?id=366643
     SCRIPT_ITEM si[maxItems + 1];
@@ -2048,7 +2050,7 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         WCHAR scratch[scratchCount];
         int glyphIndex = 0;
         const char* currentUtf8 = reinterpret_cast<const char*>(chars);
-        SkUnichar currentChar;
+        SkUnichar currentChar = 0;
         if (glyphCount) {
             currentChar = SkUTF8_NextUnichar(&currentUtf8);
         }
@@ -2475,4 +2477,4 @@ private:
 
 sk_sp<SkFontMgr> SkFontMgr_New_GDI() { return sk_make_sp<SkFontMgrGDI>(); }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

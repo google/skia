@@ -48,10 +48,10 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 class DrawShipView : public SampleView {
 public:
     DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
-        fAtlas = GetResourceAsImage("ship.png");
+        fAtlas = GetResourceAsImage("images/ship.png");
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
-            fAtlas = GetResourceAsImage("baby_tux.png");
+            fAtlas = GetResourceAsImage("images/baby_tux.png");
             if (!fAtlas) {
                 SkDebugf("\nCould not decode file baby_tux.png. Did you forget"
                          " to set the resourcePath?\n");

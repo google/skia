@@ -14,8 +14,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
-        : fVertexPool(gpu), fIndexPool(gpu), fGpu(gpu), fResourceProvider(resourceProvider) {}
+GrOpFlushState::GrOpFlushState(GrGpu* gpu,
+                               GrResourceProvider* resourceProvider,
+                               GrTokenTracker* tokenTracker)
+        : fVertexPool(gpu)
+        , fIndexPool(gpu)
+        , fGpu(gpu)
+        , fResourceProvider(resourceProvider)
+        , fTokenTracker(tokenTracker) {
+}
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
@@ -28,7 +35,7 @@ GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds) {
     SkASSERT(this->rtCommandBuffer());
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOpID == opID) {
-        GrDeferredUploadToken drawToken = this->nextTokenToFlush();
+        GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
             this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
@@ -39,7 +46,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
                                       fMeshes.begin() + fCurrMesh, nullptr, fCurrDraw->fMeshCnt,
                                       opBounds);
         fCurrMesh += fCurrDraw->fMeshCnt;
-        this->flushToken();
+        fTokenTracker->flushToken();
         ++fCurrDraw;
     }
 }
@@ -47,7 +54,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
 void GrOpFlushState::preExecuteDraws() {
     fVertexPool.unmap();
     fIndexPool.unmap();
-    for (auto& upload : fAsapUploads) {
+    for (auto& upload : fASAPUploads) {
         this->doUpload(upload);
     }
     // Setup execution iterators.
@@ -62,7 +69,7 @@ void GrOpFlushState::reset() {
     fVertexPool.reset();
     fIndexPool.reset();
     fArena.reset();
-    fAsapUploads.reset();
+    fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
     fMeshes.reset();
@@ -71,46 +78,50 @@ void GrOpFlushState::reset() {
 }
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
-    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* proxy, int left, int top,
-                                                     int width, int height, GrPixelConfig config,
+    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
+                                                     int width, int height, GrPixelConfig srcConfig,
                                                      const void* buffer, size_t rowBytes) {
-        GrSurface* surface = proxy->priv().peekSurface();
+        GrSurface* dstSurface = dstProxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        fGpu->getWritePixelsInfo(surface, proxy->origin(), width, height, proxy->config(),
-                                 &drawPreference, &tempInfo);
+        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(),
+                                      width, height, srcConfig,
+                                      &drawPreference, &tempInfo)) {
+            return false;
+        }
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(surface, proxy->origin(), left, top, width, height,
-                                           config, buffer, rowBytes);
+            return this->fGpu->writePixels(dstSurface, dstProxy->origin(),
+                                           left, top, width, height,
+                                           srcConfig, buffer, rowBytes);
         }
         GrSurfaceDesc desc;
-        desc.fOrigin = proxy->origin();
+        desc.fOrigin = dstProxy->origin();
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fConfig = proxy->config();
+        desc.fConfig = dstProxy->config();
         sk_sp<GrTexture> temp(this->fResourceProvider->createApproxTexture(
                 desc, GrResourceProvider::kNoPendingIO_Flag));
         if (!temp) {
             return false;
         }
-        if (!fGpu->writePixels(temp.get(), proxy->origin(), 0, 0, width, height, desc.fConfig,
+        if (!fGpu->writePixels(temp.get(), dstProxy->origin(), 0, 0, width, height, desc.fConfig,
                                buffer, rowBytes)) {
             return false;
         }
-        return fGpu->copySurface(surface, proxy->origin(), temp.get(), proxy->origin(),
+        return fGpu->copySurface(dstSurface, dstProxy->origin(), temp.get(), dstProxy->origin(),
                                  SkIRect::MakeWH(width, height), {left, top});
     };
     upload(wp);
 }
 
 GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
-    return fInlineUploads.append(&fArena, std::move(upload), this->nextDrawToken())
+    return fInlineUploads.append(&fArena, std::move(upload), fTokenTracker->nextDrawToken())
             .fUploadBeforeToken;
 }
 
 GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
-    fAsapUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    fASAPUploads.append(&fArena, std::move(upload));
+    return fTokenTracker->nextTokenToFlush();
 }
 
 void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
@@ -125,14 +136,14 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
         // uploads, add this mesh to it.
         if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline) {
             if (fInlineUploads.begin() == fInlineUploads.end() ||
-                fInlineUploads.tail()->fUploadBeforeToken != this->nextDrawToken()) {
+                fInlineUploads.tail()->fUploadBeforeToken != fTokenTracker->nextDrawToken()) {
                 ++lastDraw.fMeshCnt;
                 return;
             }
         }
     }
     auto& draw = fDraws.append(&fArena);
-    GrDeferredUploadToken token = this->issueDrawToken();
+    GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
 
     draw.fGeometryProcessor.reset(gp);
     draw.fPipeline = pipeline;

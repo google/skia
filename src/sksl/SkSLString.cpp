@@ -165,6 +165,14 @@ bool StringFragment::operator!=(const char* s) const {
     return 0 != s[fLength];
 }
 
+bool StringFragment::operator<(StringFragment other) const {
+    int comparison = strncmp(fChars, other.fChars, std::min(fLength, other.fLength));
+    if (comparison) {
+        return comparison < 0;
+    }
+    return fLength < other.fLength;
+}
+
 bool operator==(const char* s1, StringFragment s2) {
     return s2 == s1;
 }

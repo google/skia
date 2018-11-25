@@ -13,7 +13,7 @@
 
 class GrCaps;
 class GrDeferredProxyUploader;
-class GrResourceCache;
+class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureOpList;
 class GrTextureProxyPriv;
@@ -61,18 +61,37 @@ public:
     const GrTextureProxyPriv texPriv() const;
 
 protected:
+    // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
     friend class GrTextureProxyPriv;
 
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
+
+    // Lazy-callback version
+    // There are two main use cases for lazily-instantiated proxies:
+    //   basic knowledge - width, height, config, origin are known
+    //   minimal knowledge - only config is known.
+    //
+    // The basic knowledge version is used for DDL where we know the type of proxy we are going to
+    // use, but we don't have access to the GPU yet to instantiate it.
+    //
+    // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
+    // know the final size until flush time.
+    GrTextureProxy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc, GrMipMapped,
+                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
+
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     ~GrTextureProxy() override;
 
-    SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
+    SkDestinationSurfaceColorMode mipColorMode() const {
+        SkASSERT(LazyState::kNot == this->lazyInstantiationState());
+        return fMipColorMode;
+    }
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
@@ -80,8 +99,8 @@ private:
     GrMipMapped fMipMapped;
     SkDestinationSurfaceColorMode fMipColorMode;
 
-    GrUniqueKey fUniqueKey;
-    GrResourceCache* fCache; // only set when fUniqueKey is valid
+    GrUniqueKey      fUniqueKey;
+    GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
 
     // Only used for proxies whose contents are being prepared on a worker thread. This object
     // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
@@ -91,8 +110,10 @@ private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
     // Methods made available via GrTextureProxy::CacheAccess
-    void setUniqueKey(GrResourceCache*, const GrUniqueKey&);
+    void setUniqueKey(GrProxyProvider*, const GrUniqueKey&);
     void clearUniqueKey();
+
+    SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled in when we need to instantiate

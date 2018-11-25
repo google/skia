@@ -11,6 +11,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
@@ -38,6 +39,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     if (!context->caps()->isConfigTexturable(kRGBA_8888_sint_GrPixelConfig)) {
         return;
     }
+
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    auto resourceProvider = context->contextPriv().resourceProvider();
+
     static const int kS = UINT8_MAX + 1;
     static const size_t kRowBytes = kS * sizeof(int32_t);
 
@@ -66,27 +71,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
-        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(context->resourceProvider(),
-                                                                      desc,
-                                                                      SkBudgeted::kYes,
-                                                                      levels, 2));
+        sk_sp<GrTextureProxy> temp = proxyProvider->createMipMapProxy(
+                                                                desc, SkBudgeted::kYes, levels, 2);
         REPORTER_ASSERT(reporter, !temp);
     }
 
-    // Test that we can create an integer texture.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                               desc, SkBudgeted::kYes,
-                                                               testData.get(),
-                                                               kRowBytes);
-    REPORTER_ASSERT(reporter, proxy);
-    if (!proxy) {
-        return;
-    }
+    sk_sp<GrSurfaceContext> sContext;
+    // Test that we can create a non-mipmapped integer texture.
+    {
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                                                        testData.get(), kRowBytes);
+        REPORTER_ASSERT(reporter, proxy);
+        if (!proxy) {
+            return;
+        }
 
-    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                    std::move(proxy), nullptr);
-    if (!sContext) {
-        return;
+        sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
+        if (!sContext) {
+            return;
+        }
     }
 
     std::unique_ptr<int32_t[]> readData(new int32_t[kS * kS]);
@@ -262,7 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         if (!fp) {
             return;
         }
-        rtContext->clear(nullptr, 0xDDAABBCC, true);
+        rtContext->clear(nullptr, 0xDDAABBCC, GrRenderTargetContext::CanClearFullscreen::kYes);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
@@ -277,8 +280,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         // No rendering to integer textures.
         GrSurfaceDesc intRTDesc = desc;
         intRTDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        sk_sp<GrTexture> temp(context->resourceProvider()->createTexture(intRTDesc,
-                                                                         SkBudgeted::kYes));
+        sk_sp<GrTexture> temp(resourceProvider->createTexture(intRTDesc, SkBudgeted::kYes));
         REPORTER_ASSERT(reporter, !temp);
     }
 }

@@ -27,16 +27,12 @@ class GrClearOp;
 class GrCaps;
 class GrRenderTargetProxy;
 
-namespace gr_instanced {
-    class InstancedRendering;
-}
-
 class GrRenderTargetOpList final : public GrOpList {
 private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrResourceProvider*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
@@ -56,9 +52,6 @@ public:
      * Empties the draw buffer of any queued up draws.
      */
     void endFlush() override;
-
-    void abandonGpuResources() override;
-    void freeGpuResources() override;
 
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
@@ -114,17 +107,13 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint) override;
 
-    gr_instanced::InstancedRendering* instancedRendering() const {
-        SkASSERT(fInstancedRendering);
-        return fInstancedRendering.get();
-    }
-
     GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
 
     SkDEBUGCODE(void dump() const override;)
 
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
@@ -136,10 +125,25 @@ private:
                 fDstProxy = *dstProxy;
             }
         }
+
+        void visitProxies(const GrOp::VisitProxyFunc& func) const {
+            if (fOp) {
+                fOp->visitProxies(func);
+            }
+            if (fDstProxy.proxy()) {
+                func(fDstProxy.proxy());
+            }
+            if (fAppliedClip) {
+                fAppliedClip->visitProxies(func);
+            }
+        }
+
         std::unique_ptr<GrOp> fOp;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void purgeOpsWithUninstantiatedProxies() override;
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
@@ -151,8 +155,6 @@ private:
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
                            const DstProxy* bDstTexture, const GrCaps&);
-
-    std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;

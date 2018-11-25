@@ -50,6 +50,7 @@
 #include "SkVertices.h"
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
+#define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
 class SkNoPixelsDevice : public SkBaseDevice {
 public:
@@ -960,20 +961,20 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     SkIRect ir;
     if (bounds) {
         SkRect r;
-
         ctm.mapRect(&r, *bounds);
         r.roundOut(&ir);
-        // early exit if the layer's bounds are clipped out
-        if (!ir.intersect(clipBounds)) {
-            if (BoundsAffectsClip(saveLayerFlags)) {
-                fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
-                fMCRec->fRasterClip.setEmpty();
-                fDeviceClipBounds.setEmpty();
-            }
-            return false;
-        }
     } else {    // no user bounds, so just use the clip
         ir = clipBounds;
+    }
+
+    // early exit if the layer's bounds are clipped out
+    if (!ir.intersect(clipBounds)) {
+        if (BoundsAffectsClip(saveLayerFlags)) {
+            fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
+            fMCRec->fRasterClip.setEmpty();
+            fDeviceClipBounds.setEmpty();
+        }
+        return false;
     }
     SkASSERT(!ir.isEmpty());
 
@@ -1395,6 +1396,9 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
+    if (!rect.isFinite()) {
+        return;
+    }
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
@@ -1764,11 +1768,18 @@ void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkP
     this->onDrawImage(image, x, y, paint);
 }
 
+// Returns true if the rect can be "filled" : non-empty and finite
+static bool fillable(const SkRect& r) {
+    SkScalar w = r.width();
+    SkScalar h = r.height();
+    return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
+}
+
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
-    if (dst.isEmpty() || src.isEmpty()) {
+    if (!fillable(dst) || !fillable(src)) {
         return;
     }
     this->onDrawImageRect(image, &src, dst, paint, constraint);
@@ -2607,6 +2618,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
+    RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
@@ -2909,32 +2921,6 @@ std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, vo
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
-                                                 const SkPaint* paint, const SkRect& bounds)
-    : fCanvas(canvas)
-    , fSaveCount(canvas->getSaveCount())
-{
-    if (paint) {
-        SkRect newBounds = bounds;
-        if (matrix) {
-            matrix->mapRect(&newBounds);
-        }
-        canvas->saveLayer(&newBounds, paint);
-    } else if (matrix) {
-        canvas->save();
-    }
-
-    if (matrix) {
-        canvas->concat(*matrix);
-    }
-}
-
-SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
-    fCanvas->restoreToCount(fSaveCount);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
     : INHERITED(SkIRect::MakeWH(width, height), kConservativeRasterClip_InitFlag) {}
 
@@ -3008,3 +2994,7 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
     }
     return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl)) : nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+

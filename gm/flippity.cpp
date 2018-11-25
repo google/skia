@@ -12,6 +12,8 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "SkImage_Gpu.h"
 
 static const int kNumMatrices = 6;
@@ -92,6 +94,7 @@ static SkColor swap_red_and_blue(SkColor c) {
 static sk_sp<SkImage> make_reference_image(GrContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkASSERT(kNumLabels == labels.count());
 
     SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
@@ -129,9 +132,8 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
         }
     }
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                               desc, SkBudgeted::kYes,
-                                                               bm.getPixels(), bm.rowBytes());
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                                                    bm.getPixels(), bm.rowBytes());
     if (!proxy) {
         return nullptr;
     }

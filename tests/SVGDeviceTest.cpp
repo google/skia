@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
+
+#ifdef SK_XML
+
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDOM.h"
@@ -144,3 +148,5 @@ DEF_TEST(SVGDevice_whitespace_pos, reporter) {
         test_whitespace_pos(reporter, tests[i].tst_in, tests[i].tst_out);
     }
 }
+
+#endif

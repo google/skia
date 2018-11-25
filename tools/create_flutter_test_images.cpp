@@ -15,7 +15,7 @@
  *  Create a color space that swaps the red, green, and blue channels.
  */
 static sk_sp<SkColorSpace> gbr_color_space() {
-    return as_CSB(SkColorSpace::MakeSRGB())->makeColorSpin();
+    return SkColorSpace::MakeSRGB()->makeColorSpin();
 }
 
 /**
@@ -36,7 +36,7 @@ static sk_sp<SkColorSpace> wide_gamut_color_space() {
 }
 
 int main(int argc, char** argv) {
-    sk_sp<SkImage> image = GetResourceAsImage("flutter_logo.jpg");
+    sk_sp<SkImage> image = GetResourceAsImage("images/flutter_logo.jpg");
     if (!image) {
         SkDebugf("Cannot find flutter_logo.jpg in resources.\n");
         return 1;

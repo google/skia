@@ -65,7 +65,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
-            int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
+            int maxWinding = 0, sumWinding = 0, oppMaxWinding = 0, oppSumWinding = 0;
             if (sortable) {
                 segment->setUpWindings(start, end, &sumMiWinding, &sumSuWinding,
                         &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
@@ -178,8 +178,9 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
     return true;
 }
 
-// pretty picture:
-// https://docs.google.com/a/google.com/drawings/d/1sPV8rPfpEFXymBp3iSbDRWAycp1b-7vD9JP2V-kn9Ss/edit?usp=sharing
+// diagram of why this simplifcation is possible is here:
+// https://skia.org/dev/present/pathops link at bottom of the page
+// https://drive.google.com/file/d/0BwoLUwz9PYkHLWpsaXd0UDdaN00/view?usp=sharing
 static const SkPathOp gOpInverse[kReverseDifference_SkPathOp + 1][2][2] = {
 //                  inside minuend                               outside minuend
 //     inside subtrahend     outside subtrahend      inside subtrahend     outside subtrahend

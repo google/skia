@@ -21,8 +21,7 @@ public:
         : fUrlDataManager(urlDataManager)
         , fJson(Json::objectValue) {}
 
-    bool isCrossProcess() const override { return false; }
-
+    void writePad32(const void* buffer, size_t bytes) override;
     void writeByteArray(const void* data, size_t size) override;
     void writeBool(bool value) override;
     void writeScalar(SkScalar value) override;

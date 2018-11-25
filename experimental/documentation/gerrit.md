@@ -94,6 +94,16 @@ Updating a Change
     The title of this patch set will be "this is the patch set comment message".
 
 
+Using `git cl try`
+------------------
+
+On your current branch, after uploading to gerrit:
+
+    git cl issue $(experimental/tools/gerrit-change-id-to-number @)
+
+Now `git cl try` and `bin/try` will work correctly.
+
+
 Scripting
 ---------
 
@@ -104,6 +114,10 @@ You may want to make git aliases for common tasks:
 The following alias amends the head without editing the commit message:
 
     git config alias.amend-head 'commit --all --amend --reuse-message=@'
+
+Set the CL issue numnber:
+
+    git config alias.setcl '!git-cl issue $(experimental/tools/gerrit-change-id-to-number @)'
 
 The following shell script will squash all commits on the current branch,
 assuming that the branch has an upstream topic branch.

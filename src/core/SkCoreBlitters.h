@@ -11,6 +11,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkBlitter.h"
 #include "SkBlitRow.h"
+#include "SkPaint.h"
 #include "SkShaderBase.h"
 #include "SkXfermodePriv.h"
 

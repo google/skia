@@ -11,10 +11,10 @@
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrDrawingManager.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
-#include "GrResourceProvider.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
 #include "GrTextureProxy.h"
@@ -190,6 +190,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return true;
     }
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    const auto* caps = context->caps()->shaderCaps();
+    int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticFPs = context->caps()->maxClipAnalyticFPs();
     if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
         // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
@@ -200,9 +203,13 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
         SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.
     }
+    auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, renderTargetContext->priv().maxWindowRectangles(),
-                              maxAnalyticFPs);
+    GrReducedClip reducedClip(*fStack, devBounds, caps, maxWindowRectangles, maxAnalyticFPs, ccpr);
+    if (InitialState::kAllOut == reducedClip.initialState() &&
+        reducedClip.maskElements().isEmpty()) {
+        return false;
+    }
 
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
         out->hardClip().addScissor(reducedClip.scissor(), bounds);
@@ -213,14 +220,28 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                             GrWindowRectsState::Mode::kExclusive);
     }
 
-    if (std::unique_ptr<GrFragmentProcessor> clipFPs = reducedClip.detachAnalyticFPs()) {
+    if (!reducedClip.maskElements().isEmpty()) {
+        if (!this->applyClipMask(context, renderTargetContext, reducedClip, hasUserStencilSettings,
+                                 out)) {
+            return false;
+        }
+    }
+
+    // The opList ID must not be looked up until AFTER producing the clip mask (if any). That step
+    // can cause a flush or otherwise change which opList our draw is going into.
+    uint32_t opListID = renderTargetContext->getOpList()->uniqueID();
+    int rtWidth = renderTargetContext->width(), rtHeight = renderTargetContext->height();
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(proxyProvider, opListID,
+                                                              rtWidth, rtHeight)) {
         out->addCoverageFP(std::move(clipFPs));
     }
 
-    if (reducedClip.maskElements().isEmpty()) {
-        return InitialState::kAllIn == reducedClip.initialState();
-    }
+    return true;
+}
 
+bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                                    const GrReducedClip& reducedClip, bool hasUserStencilSettings,
+                                    GrAppliedClip* out) const {
 #ifdef SK_DEBUG
     SkASSERT(reducedClip.hasScissor());
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
@@ -305,12 +326,12 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t cli
 
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    sk_sp<GrTextureProxy> proxy(resourceProvider->findOrCreateProxyByUniqueKey(
+    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kBottomLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
@@ -336,7 +357,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
     }
 
     SkASSERT(result->origin() == kBottomLeft_GrSurfaceOrigin);
-    resourceProvider->assignUniqueKeyToProxy(key, result.get());
+    proxyProvider->assignUniqueKeyToProxy(key, result.get());
     add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
 
     return result;
@@ -423,7 +444,9 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findOrCreateProxyByUniqueKey(
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                   key, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
@@ -443,9 +466,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fConfig = kAlpha_8_GrPixelConfig;
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
-        proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                             SkBackingFit::kApprox, SkBudgeted::kYes,
-                                             GrResourceProvider::kNoPendingIO_Flag);
+        proxy = proxyProvider->createProxy(desc, SkBackingFit::kApprox, SkBudgeted::kYes,
+                                           GrResourceProvider::kNoPendingIO_Flag);
 
         auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
         GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();
@@ -477,7 +499,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     }
 
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-    context->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
+    proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
     add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
     return proxy;
 }

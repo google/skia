@@ -115,26 +115,22 @@ static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
         SkOTTableName::Iterator::Record record;
         size_t nameIndex = 0;
         while (nameIndex < test[i].nameCount && iter.next(record)) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                strcmp(test[i].names[nameIndex].name, record.name.c_str()) == 0,
-                "Name did not match."
-            );
+            REPORTER_ASSERT(reporter,
+                            strcmp(test[i].names[nameIndex].name, record.name.c_str()) == 0,
+                            "Name did not match.");
 
-            REPORTER_ASSERT_MESSAGE(reporter,
-                strcmp(test[i].names[nameIndex].language, record.language.c_str()) == 0,
-                "Language did not match."
-            );
+            REPORTER_ASSERT(reporter,
+                            strcmp(test[i].names[nameIndex].language, record.language.c_str()) == 0,
+                            "Language did not match.");
 
             //printf("%s <%s>\n", record.name.c_str(), record.language.c_str());
 
             ++nameIndex;
         }
 
-        REPORTER_ASSERT_MESSAGE(reporter, nameIndex == test[i].nameCount,
-                                "Fewer names than expected.");
+        REPORTER_ASSERT(reporter, nameIndex == test[i].nameCount, "Fewer names than expected.");
 
-        REPORTER_ASSERT_MESSAGE(reporter, !iter.next(record),
-                                "More names than expected.");
+        REPORTER_ASSERT(reporter, !iter.next(record), "More names than expected.");
     }
 }
 
@@ -183,10 +179,10 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             SkOTTableName::Iterator familyNameIter(*((SkOTTableName*)nameTableData.get()),
                 SkOTTableName::Record::NameID::Predefined::FontFamilyName);
             while (familyNameIter.next(record)) {
-                REPORTER_ASSERT_MESSAGE(reporter,
-                    SkOTTableName::Record::NameID::Predefined::FontFamilyName == record.type,
-                    "Requested family name, got something else."
-                );
+                REPORTER_ASSERT(
+                        reporter,
+                        SkOTTableName::Record::NameID::Predefined::FontFamilyName == record.type,
+                        "Requested family name, got something else.");
                 if (verbose) {
                     SkDebugf("{%s} <%s>\n", record.name.c_str(), record.language.c_str());
                 }
@@ -195,10 +191,10 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             SkOTTableName::Iterator styleNameIter(*((SkOTTableName*)nameTableData.get()),
                 SkOTTableName::Record::NameID::Predefined::FontSubfamilyName);
             while (styleNameIter.next(record)) {
-                REPORTER_ASSERT_MESSAGE(reporter,
-                    SkOTTableName::Record::NameID::Predefined::FontSubfamilyName == record.type,
-                    "Requested subfamily name, got something else."
-                );
+                REPORTER_ASSERT(
+                        reporter,
+                        SkOTTableName::Record::NameID::Predefined::FontSubfamilyName == record.type,
+                        "Requested subfamily name, got something else.");
                 if (verbose) {
                     SkDebugf("{{%s}} <%s>\n", record.name.c_str(), record.language.c_str());
                 }

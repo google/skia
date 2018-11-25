@@ -10,6 +10,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkJSONCPP.h"
 
 #include <algorithm>
 #include <cmath>
@@ -52,6 +53,7 @@ enum class KeyWord {
     kElse,
     kEndif,
     kEnum,
+    kError,
     kFloat,
     kFriend,
     kIf,
@@ -94,9 +96,9 @@ enum class MarkType {
     kDeprecated,
     kDescription,
     kDoxygen,
+    kDuration,
     kEnum,
     kEnumClass,
-    kError,
     kExample,
     kExperimental,
     kExternal,
@@ -105,7 +107,9 @@ enum class MarkType {
     kFunction,
     kHeight,
     kImage,
+	kIn,
     kLegend,
+	kLine,
     kLink,
     kList,
     kLiteral,  // don't lookup hyperlinks, do substitution, etc
@@ -116,11 +120,13 @@ enum class MarkType {
     kOutdent,
     kParam,
     kPlatform,
+    kPopulate,
     kPrivate,
     kReturn,
     kRoot,
     kRow,
     kSeeAlso,
+    kSet,
     kStdOut,
     kStruct,
     kSubstitute,
@@ -173,6 +179,12 @@ enum class KeyProperty {
     kNumber,
     kObject,
     kPreprocessor,
+};
+
+enum class StatusFilter {
+    kCompleted,
+    kInProgress,
+    kUnknown,
 };
 
 struct IncludeKey {
@@ -228,6 +240,7 @@ class TextParser : public NonAssignable {
     TextParser() {}  // only for ParserCommon to call
     friend class ParserCommon;
 public:
+    virtual ~TextParser() {}
     class Save {
     public:
         Save(TextParser* parser) {
@@ -636,6 +649,10 @@ public:
         }
     }
 
+    // FIXME: nothing else in TextParser knows from C++ --
+    // there could be a class between TextParser and ParserCommon
+    virtual string typedefName();
+
     const char* wordEnd() const {
         const char* end = fChar;
         while (isalnum(end[0]) || '_' == end[0] || '-' == end[0]) {
@@ -690,7 +707,7 @@ public:
         fEnd = writer;
     }
 
-    virtual ~EscapeParser() {
+    ~EscapeParser() override {
         delete fStorage;
     }
 private:
@@ -809,11 +826,24 @@ public:
     bool crossCheck2(const Definition& includeToken) const;
     bool crossCheck(const Definition& includeToken) const;
     bool crossCheckInside(const char* start, const char* end, const Definition& includeToken) const;
+
+    const Definition* csParent() const {
+        Definition* test = fParent;
+        while (test) {
+            if (MarkType::kStruct == test->fMarkType || MarkType::kClass == test->fMarkType) {
+                return test;
+            }
+            test = test->fParent;
+        }
+        return nullptr;
+    }
+
     bool exampleToScript(string* result, ExampleOptions ) const;
     string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
     string formatFunction() const;
     const Definition* hasChild(MarkType markType) const;
+    bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
     bool isClone() const { return fClone; }
 
@@ -829,6 +859,7 @@ public:
     }
 
     virtual bool isRoot() const { return false; }
+    bool isStructOrClass() const;
 
     int length() const {
         return (int) (fContentEnd - fContentStart);
@@ -855,6 +886,7 @@ public:
     }
 
     virtual RootDefinition* rootParent() { SkASSERT(0); return nullptr; }
+    virtual const RootDefinition* rootParent() const { SkASSERT(0); return nullptr; }
     void setCanonicalFiddle();
 
     void setParentIndex() {
@@ -922,10 +954,11 @@ public:
     RootDefinition* asRoot() override { return this; }
     const RootDefinition* asRoot() const override { return this; }
     void clearVisited();
-    bool dumpUnVisited(bool skip);
+    bool dumpUnVisited();
     const Definition* find(const string& ref, AllowParens ) const;
     bool isRoot() const override { return true; }
     RootDefinition* rootParent() override { return fRootParent; }
+    const RootDefinition* rootParent() const override { return fRootParent; }
     void setRootParent(RootDefinition* rootParent) { fRootParent = rootParent; }
 
     unordered_map<string, RootDefinition*> fBranches;
@@ -939,6 +972,7 @@ struct IClassDefinition : public Definition {
     unordered_map<string, Definition*> fMembers;
     unordered_map<string, Definition*> fMethods;
     unordered_map<string, Definition*> fStructs;
+    unordered_map<string, Definition*> fTypedefs;
 };
 
 struct Reference {
@@ -965,7 +999,7 @@ public:
     {
     }
 
-    virtual ~ParserCommon() {
+    ~ParserCommon() override {
     }
 
     void addDefinition(Definition* def) {
@@ -1018,6 +1052,7 @@ public:
     }
 
     bool parseFile(const char* file, const char* suffix);
+    bool parseStatus(const char* file, const char* suffix, StatusFilter filter);
     virtual bool parseFromFile(const char* path) = 0;
     bool parseSetup(const char* path);
 
@@ -1025,6 +1060,8 @@ public:
         fParent->fContentEnd = fParent->fTerminator = fChar;
         fParent = fParent->fParent;
     }
+
+    const char* ReadToBuffer(string filename, int* size);
 
     virtual void reset() = 0;
 
@@ -1052,7 +1089,6 @@ public:
     void singleLF() {
         fMaxLF = 1;
     }
-
 
     void writeBlock(int size, const char* data) {
         SkAssertResult(writeBlockTrim(size, data));
@@ -1090,6 +1126,7 @@ public:
         this->writeString(str.c_str());
     }
 
+    bool writtenFileDiffers(string filename, string readname);
 
     unordered_map<string, sk_sp<SkData>> fRawData;
     unordered_map<string, vector<char>> fLFOnly;
@@ -1109,7 +1146,28 @@ private:
     typedef TextParser INHERITED;
 };
 
+struct JsonStatus {
+    const Json::Value& fObject;
+    Json::Value::iterator fIter;
+    string fName;
+};
 
+class StatusIter : public ParserCommon {
+public:
+    StatusIter(const char* statusFile, const char* suffix, StatusFilter);
+    ~StatusIter() override {}
+    string baseDir();
+    bool empty() { return fStack.empty(); }
+    bool next(string* file);
+protected:
+    bool parseFromFile(const char* path) override;
+    void reset() override;
+private:
+    vector<JsonStatus> fStack;
+    Json::Value fRoot;
+    const char* fSuffix;
+    StatusFilter fFilter;
+};
 
 class BmhParser : public ParserCommon {
 public:
@@ -1123,6 +1181,7 @@ public:
         kYes,   // resolved, output
         kOut,   // not resolved, but output
         kLiteral, // output untouched (FIXME: is this really different from kOut?)
+		kClone, // resolved, output, with references to clones as well
     };
 
     enum class Exemplary {
@@ -1150,6 +1209,7 @@ public:
 #define R_Y Resolvable::kYes
 #define R_N Resolvable::kNo
 #define R_O Resolvable::kOut
+#define R_C Resolvable::kClone
 
 #define E_Y Exemplary::kYes
 #define E_N Exemplary::kNo
@@ -1160,7 +1220,7 @@ public:
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
   { "",            nullptr,      MarkType::kNone,         R_Y, E_N, 0 }
-, { "A",           nullptr,      MarkType::kAnchor,       R_Y, E_N, 0 }
+, { "A",           nullptr,      MarkType::kAnchor,       R_N, E_N, 0 }
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
@@ -1171,43 +1231,50 @@ public:
 , { "Define",      nullptr,      MarkType::kDefine,       R_O, E_N, M_ST }
 , { "DefinedBy",   nullptr,      MarkType::kDefinedBy,    R_N, E_N, M(Method) }
 , { "Deprecated",  nullptr,      MarkType::kDeprecated,   R_Y, E_N, 0 }
-, { "Description", nullptr,      MarkType::kDescription,  R_Y, E_N, M(Example) }
+, { "Description", nullptr,      MarkType::kDescription,  R_Y, E_N, M(Example) | M(NoExample) }
 , { "Doxygen",     nullptr,      MarkType::kDoxygen,      R_Y, E_N, 0 }
+, { "Duration",    nullptr,      MarkType::kDuration,     R_N, E_N, M(Example) | M(NoExample) }
 , { "Enum",        &fEnumMap,    MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",   &fClassMap,   MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
-, { "Error",       nullptr,      MarkType::kError,        R_N, E_N, M(Example) }
 , { "Example",     nullptr,      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
 , { "Formula",     nullptr,      MarkType::kFormula,      R_O, E_N,
                                                     M(Column) | M_ST | M(Member) | M(Method) | M_D }
-, { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) }
-, { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) }
-, { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) }
+, { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
+, { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
+, { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
+, { "In",          nullptr,      MarkType::kIn,           R_N, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
+, { "Line",        nullptr,      MarkType::kLine,         R_N, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
 , { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
-, { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M(Class) | M(Struct) }
+, { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M_CSST }
 , { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
-, { "NoExample",   nullptr,      MarkType::kNoExample,    R_Y, E_N, 0 }
+, { "NoExample",   nullptr,      MarkType::kNoExample,    R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
-, { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) }
+, { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
+, { "Populate",    nullptr,      MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
 , { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
 , { "Return",      nullptr,      MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",            nullptr,      MarkType::kRoot,         R_Y, E_N, 0 }
 , { "",            nullptr,      MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N, M_CSST | M_E | M(Method) }
-, { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) }
+, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_C, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
+, { "Set",         nullptr,      MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
+, { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Struct",      &fClassMap,   MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
 , { "Substitute",  nullptr,      MarkType::kSubstitute,   R_N, E_N, M_ST }
 , { "Subtopic",    nullptr,      MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
 , { "Table",       nullptr,      MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
 , { "Template",    nullptr,      MarkType::kTemplate,     R_Y, E_N, 0 }
-, { "",            nullptr,      MarkType::kText,         R_Y, E_N, 0 }
+, { "",            nullptr,      MarkType::kText,         R_N, E_N, 0 }
 , { "Time",        nullptr,      MarkType::kTime,         R_Y, E_N, M(Track) }
 , { "ToDo",        nullptr,      MarkType::kToDo,         R_N, E_N, 0 }
 , { "Topic",       nullptr,      MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
@@ -1215,7 +1282,7 @@ public:
 , { "Typedef",     &fTypedefMap, MarkType::kTypedef,      R_Y, E_N, M(Class) | M_ST }
 , { "",            nullptr,      MarkType::kUnion,        R_Y, E_N, 0 }
 , { "Volatile",    nullptr,      MarkType::kVolatile,     R_N, E_N, M(StdOut) }
-, { "Width",       nullptr,      MarkType::kWidth,        R_N, E_N, M(Example) } }
+, { "Width",       nullptr,      MarkType::kWidth,        R_N, E_N, M(Example) | M(NoExample) } }
 , fSkip(skip)
         {
             this->reset();
@@ -1245,7 +1312,7 @@ public:
     int endHashCount() const;
     bool endTableColumn(const char* end, const char* terminator);
 
-    RootDefinition* findBmhObject(MarkType markType, const string& typeName) {
+    RootDefinition* findBmhObject(MarkType markType, const string& typeName) const {
         auto map = fMaps[(int) markType].fBmh;
         if (!map) {
             return nullptr;
@@ -1288,10 +1355,12 @@ public:
 
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
+	bool skipToString();
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
+    void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
-    string typedefName();
+    string typedefName() override;
     string uniqueName(const string& base, MarkType markType);
     string uniqueRootName(const string& base, MarkType markType);
     void validate() const;
@@ -1362,9 +1431,9 @@ public:
         , { nullptr,        MarkType::kDeprecated }
         , { nullptr,        MarkType::kDescription }
         , { nullptr,        MarkType::kDoxygen }
+        , { nullptr,        MarkType::kDuration }
         , { &fIEnumMap,     MarkType::kEnum }
         , { &fIEnumMap,     MarkType::kEnumClass }
-        , { nullptr,        MarkType::kError }
         , { nullptr,        MarkType::kExample }
         , { nullptr,        MarkType::kExperimental }
         , { nullptr,        MarkType::kExternal }
@@ -1372,9 +1441,11 @@ public:
         , { nullptr,        MarkType::kFormula }
         , { nullptr,        MarkType::kFunction }
         , { nullptr,        MarkType::kHeight }
-        , { nullptr,        MarkType::kImage }
-        , { nullptr,        MarkType::kLegend }
-        , { nullptr,        MarkType::kLink }
+		, { nullptr,        MarkType::kImage }
+		, { nullptr,        MarkType::kIn }
+		, { nullptr,        MarkType::kLegend }
+		, { nullptr,        MarkType::kLine }
+		, { nullptr,        MarkType::kLink }
         , { nullptr,        MarkType::kList }
         , { nullptr,        MarkType::kLiteral }
         , { nullptr,        MarkType::kMarkChar }
@@ -1384,11 +1455,13 @@ public:
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPlatform }
+        , { nullptr,        MarkType::kPopulate }
         , { nullptr,        MarkType::kPrivate }
         , { nullptr,        MarkType::kReturn }
         , { nullptr,        MarkType::kRoot }
         , { nullptr,        MarkType::kRow }
         , { nullptr,        MarkType::kSeeAlso }
+        , { nullptr,        MarkType::kSet }
         , { nullptr,        MarkType::kStdOut }
         , { &fIStructMap,   MarkType::kStruct }
         , { nullptr,        MarkType::kSubstitute }
@@ -1429,7 +1502,7 @@ public:
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(const Definition& );
-    void dumpEnum(const Definition& );
+    void dumpEnum(const Definition& , const string& name);
     void dumpMethod(const Definition& );
     void dumpMember(const Definition& );
     bool dumpTokens(const string& directory);
@@ -1472,11 +1545,12 @@ public:
     bool parseEnum(Definition* child, Definition* markupDef);
 
     bool parseFromFile(const char* path) override {
+        this->reset();
         if (!INHERITED::parseSetup(path)) {
             return false;
         }
         string name(path);
-        return parseInclude(name);
+        return this->parseInclude(name);
     }
 
     bool parseInclude(const string& name);
@@ -1485,7 +1559,7 @@ public:
     bool parseObject(Definition* child, Definition* markupDef);
     bool parseObjects(Definition* parent, Definition* markupDef);
     bool parseTemplate();
-    bool parseTypedef();
+    bool parseTypedef(Definition* child, Definition* markupDef);
     bool parseUnion();
 
     void popBracket() {
@@ -1502,6 +1576,9 @@ public:
         this->addDefinition(container);
     }
 
+    static void RemoveFile(const char* docs, const char* includes);
+    static void RemoveOneFile(const char* docs, const char* includesFileOrPath);
+
     void reset() override {
         INHERITED::resetCommon();
         fRootTopic = nullptr;
@@ -1515,6 +1592,8 @@ public:
         fInEnum = false;
         fInFunction = false;
         fInString = false;
+        fFailed = false;
+        fPriorEnum = nullptr;
     }
 
     void setBracketShortCuts(Bracket bracket) {
@@ -1630,6 +1709,14 @@ public:
         this->lf(1);
     }
 
+    void writeTableRow(size_t pad1, const string& col1, size_t pad2, const string& col2) {
+        this->lf(1);
+        string row = "# " + col1 + string(pad1 - col1.length(), ' ') + " # " +
+                col2 + string(pad2 - col2.length(), ' ') + " ##";
+        this->writeString(row);
+        this->lf(1);
+    }
+
     void writeTableTrailer() {
         this->lf(1);
         this->writeString("#Table ##");
@@ -1683,6 +1770,8 @@ protected:
     Definition* fRootTopic;
     Definition* fInBrace;
     Definition* fLastObject;
+    Definition* fPriorEnum;
+    int fPriorIndex;
     const char* fIncludeWord;
     char fPrev;
     bool fInChar;
@@ -1691,6 +1780,7 @@ protected:
     bool fInEnum;
     bool fInFunction;
     bool fInString;
+    bool fFailed;
 
     typedef ParserCommon INHERITED;
 };
@@ -1764,6 +1854,7 @@ public:
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
+	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, const string& name) const;
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
             const char* data, bool hasIndirection);
@@ -1782,7 +1873,6 @@ public:
         fMethodDef = nullptr;
         fBmhStructDef = nullptr;
         fAttrDeprecated = nullptr;
-        fAnonymousEnumCount = 1;
         fInStruct = false;
         fWroteMethod = false;
         fIndentNext = false;
@@ -1796,7 +1886,6 @@ public:
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
     void structSizeMembers(const Definition& child);
-
 private:
     BmhParser* fBmhParser;
     Definition* fDeferComment;
@@ -1882,6 +1971,7 @@ public:
     bool appendFile(const string& path);
     bool closeCatalog();
     bool openCatalog(const char* inDir, const char* outDir);
+    bool openStatus(const char* inDir, const char* outDir);
 
     bool parseFromFile(const char* path) override ;
 private:
@@ -1896,9 +1986,14 @@ private:
 
 class HackParser : public ParserCommon {
 public:
-    HackParser() : ParserCommon() {
+    HackParser(const BmhParser& bmhParser)
+        : ParserCommon()
+        , fBmhParser(bmhParser) {
         this->reset();
     }
+
+    void addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
+            bool lfAfter);
 
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
@@ -1911,7 +2006,19 @@ public:
         INHERITED::resetCommon();
     }
 
+    string searchTable(const Definition* tableHolder, const Definition* match);
+
+    void topicIter(const Definition* );
+
 private:
+    const BmhParser& fBmhParser;
+    const Definition* fClassesAndStructs;
+    const Definition* fConstants;
+    const Definition* fConstructors;
+    const Definition* fMemberFunctions;
+    const Definition* fMembers;
+    const Definition* fOperators;
+    const Definition* fRelatedFunctions;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -1924,7 +2031,19 @@ public:
         this->reset();
     }
 
-    bool buildReferences(const char* path, const char* outDir);
+    bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
+    bool buildStatus(const char* docDir, const char* mdOutDir);
+
+    static constexpr const char* kClassesAndStructs = "Classes_and_Structs";
+    static constexpr const char* kConstants = "Constants";
+    static constexpr const char* kConstructors = "Constructors";
+    static constexpr const char* kMemberFunctions = "Member_Functions";
+    static constexpr const char* kMembers = "Members";
+    static constexpr const char* kOperators = "Operators";
+    static constexpr const char* kOverview = "Overview";
+    static constexpr const char* kRelatedFunctions = "Related_Functions";
+    static constexpr const char* kSubtopics = "Subtopics";
+
 private:
     enum class TableState {
         kNone,
@@ -1936,15 +2055,21 @@ private:
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def) const;
     void childrenOut(const Definition* def, const char* contentStart);
+    const Definition* csParent() const;
     const Definition* findParamType();
     const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
     string linkName(const Definition* ) const;
-    string linkRef(const string& leadingSpaces, const Definition*, const string& ref) const;
+    string linkRef(const string& leadingSpaces, const Definition*, const string& ref,
+			BmhParser::Resolvable ) const;
     void markTypeOut(Definition* );
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
-    bool parseFromFile(const char* path) override {
-        return true;
+    void overviewOut();
+    bool parseFromFile(const char* path) override { return true; }
+    void populateTables(const Definition* def);
+
+    vector<const Definition*>& populator(const char* key) {
+        return fPopulators.find(key)->second.fMembers;
     }
 
     void reset() override {
@@ -1977,11 +2102,22 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
+    void rowOut(const char * name, const string& description);
+    void subtopicOut(vector<const Definition*>& data);
+    void subtopicsOut();
+
+    struct TableContents {
+        string fDescription;
+        vector<const Definition*> fMembers;
+    };
+
+    unordered_map<string, TableContents> fPopulators;
+    vector<const Definition*> fClassStack;
 
     const BmhParser& fBmhParser;
     const Definition* fEnumClass;
     Definition* fMethod;
-    RootDefinition* fRoot;
+    const RootDefinition* fRoot;
     const Definition* fLastParam;
     TableState fTableState;
     bool fHasFiddle;
@@ -2001,6 +2137,8 @@ public:
         : TextParser(fileName, start, end, lineCount)
         , fClassName(className) {
     }
+
+    ~MethodParser() override {}
 
     void skipToMethodStart() {
         if (!fClassName.length()) {
@@ -2065,5 +2203,7 @@ private:
     string fClassName;
     typedef TextParser INHERITED;
 };
+
+bool SelfCheck(const BmhParser& );
 
 #endif

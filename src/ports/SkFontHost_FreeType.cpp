@@ -46,7 +46,7 @@
 // Flag SK_FREETYPE_DLOPEN: also try dlopen to get newer features.
 #define SK_FREETYPE_DLOPEN (0x1)
 #ifndef SK_FREETYPE_MINIMUM_RUNTIME_VERSION
-#  if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined (GOOGLE3)
+#  if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined (SK_BUILD_FOR_GOOGLE3)
 #    define SK_FREETYPE_MINIMUM_RUNTIME_VERSION (((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))
 #  else
 #    define SK_FREETYPE_MINIMUM_RUNTIME_VERSION ((2 << 24) | (3 << 16) | (11 << 8) | (SK_FREETYPE_DLOPEN))
@@ -364,7 +364,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
         FT_Face rawFace;
         FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rawFace);
         if (err) {
-            SkDEBUGF(("ERROR: unable to open font '%x'\n", fontID));
+            SK_TRACEFTR(err, "unable to open font '%x'", fontID);
             return nullptr;
         }
         rec->fFace.reset(rawFace);
@@ -852,7 +852,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         FT_Size size;
         FT_Error err = FT_New_Size(fFaceRec->fFace.get(), &size);
         if (err != 0) {
-            SkDEBUGF(("FT_New_Size(%s) returned 0x%x.\n", fFaceRec->fFace->family_name, err));
+            SK_TRACEFTR(err, "FT_New_Size(%s) failed.", fFaceRec->fFace->family_name);
             return nullptr;
         }
         return size;
@@ -864,15 +864,15 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 
     FT_Error err = FT_Activate_Size(ftSize.get());
     if (err != 0) {
-        SkDEBUGF(("FT_Activate_Size(%s) returned 0x%x.\n", fFaceRec->fFace->family_name, err));
+        SK_TRACEFTR(err, "FT_Activate_Size(%s) failed.", fFaceRec->fFace->family_name);
         return;
     }
 
     if (FT_IS_SCALABLE(fFaceRec->fFace)) {
         err = FT_Set_Char_Size(fFaceRec->fFace.get(), scaleX, scaleY, 72, 72);
         if (err != 0) {
-            SkDEBUGF(("FT_Set_CharSize(%s, %f, %f) returned 0x%x.\n",
-                      fFaceRec->fFace->family_name, fScale.fX, fScale.fY, err));
+            SK_TRACEFTR(err, "FT_Set_CharSize(%s, %f, %f) failed.",
+                         fFaceRec->fFace->family_name, fScale.fX, fScale.fY);
             return;
         }
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
@@ -885,8 +885,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 
         err = FT_Select_Size(fFaceRec->fFace.get(), fStrikeIndex);
         if (err != 0) {
-            SkDEBUGF(("FT_Select_Size(%s, %d) returned 0x%x.\n",
-                      fFaceRec->fFace->family_name, fStrikeIndex, err));
+            SK_TRACEFTR(err, "FT_Select_Size(%s, %d) failed.",
+                         fFaceRec->fFace->family_name, fStrikeIndex);
             fStrikeIndex = -1;
             return;
         }
@@ -1210,8 +1210,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
     FT_Error err = FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags);
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d width:%d height:%d rb:%d flags:%d) returned 0x%x\n",
-                  glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(), fLoadGlyphFlags, err));
+        SK_TRACEFTR(err, "SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d "
+                     "width:%d height:%d rb:%d flags:%d) failed.",
+                     glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(),
+                     fLoadGlyphFlags);
         clear_glyph_image(glyph);
         return;
     }
@@ -1246,8 +1248,8 @@ void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
 
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
-                  glyphID, flags, err));
+        SK_TRACEFTR(err, "SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d "
+                     "flags:%d) failed.", glyphID, flags);
         path->reset();
         return;
     }
@@ -1294,7 +1296,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     SkScalar x_height = 0.0f;
     SkScalar avgCharWidth = 0.0f;
     SkScalar cap_height = 0.0f;
-    SkScalar strikeoutThickness, strikeoutPosition;
+    SkScalar strikeoutThickness = 0.0f, strikeoutPosition = 0.0f;
     TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
     if (os2) {
         x_height = SkIntToScalar(os2->sxHeight) / upem * fScale.y();

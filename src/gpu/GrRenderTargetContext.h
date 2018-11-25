@@ -8,10 +8,10 @@
 #ifndef GrRenderTargetContext_DEFINED
 #define GrRenderTargetContext_DEFINED
 
-#include "../private/GrInstancedPipelineInfo.h"
 #include "../private/GrRenderTargetProxy.h"
 #include "GrColor.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
 #include "GrTypesPriv.h"
@@ -31,6 +31,7 @@ class GrFixedClip;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
 class GrRenderTargetOpList;
+class GrShape;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
@@ -80,14 +81,19 @@ public:
      */
     void discard();
 
+    enum class CanClearFullscreen : bool {
+        kNo = false,
+        kYes = true
+    };
+
     /**
      * Clear the entire or rect of the render target, ignoring any clips.
      * @param rect  the rect to clear or the whole thing if rect is NULL.
      * @param color the color to clear to.
-     * @param canIgnoreRect allows partial clears to be converted to whole
-     *                      clears on platforms for which that is cheap
+     * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
+     *                           tiling platforms where that is an optimization.
      */
-    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect);
+    void clear(const SkIRect* rect, GrColor color, CanClearFullscreen);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -140,11 +146,10 @@ public:
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
      * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect'
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
-     * device space. The edges of the rendered rectangle are not antialiased. This asserts that the
-     * view matrix does not have perspective.
+     * device space. This asserts that the view matrix does not have perspective.
      */
     void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
-                           GrColor, const SkRect& srcRect, const SkRect& dstRect,
+                           GrColor, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                            const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 
     /**
@@ -167,13 +172,11 @@ public:
      * Use a fast method to render the ambient and spot shadows for a path.
      * Will return false if not possible for the given path.
      *
-     * @param color        shadow color.
      * @param viewMatrix   transformation matrix
      * @param path         the path to shadow
      * @param rec          parameters for shadow rendering
      */
     bool drawFastShadow(const GrClip&,
-                        GrColor color,
                         const SkMatrix& viewMatrix,
                         const SkPath& path,
                         const SkDrawShadowRec& rec);
@@ -345,7 +348,7 @@ public:
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
-        if (!fRenderTargetProxy->instantiate(fContext->resourceProvider())) {
+        if (!fRenderTargetProxy->instantiate(fContext->contextPriv().resourceProvider())) {
             return nullptr;
         }
         return fRenderTargetProxy->priv().peekRenderTarget();
@@ -404,13 +407,13 @@ private:
     friend class GrMSAAPathRenderer;                 // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
-    friend class GrCCPRAtlas;                        // for access to addDrawOp
+    friend class GrCCAtlas;                          // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     // for a unit test
     friend void test_draw_op(GrRenderTargetContext*, std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
-    void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
+    void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,
@@ -428,8 +431,8 @@ private:
                         const SkRect& rect,
                         const GrUserStencilSettings* ss);
 
-    void internalDrawPath(
-            const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
+    void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,
+                                    const GrShape&);
 
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
@@ -453,7 +456,6 @@ private:
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
     sk_sp<GrRenderTargetOpList> fOpList;
-    GrInstancedPipelineInfo fInstancedPipelineInfo;
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpList;

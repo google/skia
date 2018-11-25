@@ -65,9 +65,8 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
         SkPoint3::Make(0, 0, 4),
         SkPoint3::Make(100, 0, 600),
         800.f,
-        0.035f,
-        0.25f,
-        SK_ColorBLACK,
+        0x08000000,
+        0x40000000,
         0
     };
     SkRect bounds;

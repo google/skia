@@ -14,7 +14,6 @@
 #include "GrTexture.h"
 
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
@@ -162,28 +161,56 @@ bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSema
 
 bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
 
-    data->set(rtc->origin(), rtc->width(), rtc->height(), rtc->colorSpaceInfo().config(),
-              rtc->numColorSamples());
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    data->set(ctx->threadSafeProxy(), maxResourceCount, maxResourceBytes,
+              rtc->origin(), rtc->width(), rtc->height(),
+              rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+              rtc->colorSpaceInfo().refColorSpace(), this->props());
+
     return true;
 }
 
 bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
 
-    return data.origin() == rtc->origin() && data.width() == rtc->width() &&
+    // As long as the current state if the context allows for greater or equal resources,
+    // we allow the DDL to be replayed.
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    return data.contextInfo() && data.contextInfo()->matches(ctx) &&
+           data.cacheMaxResourceCount() <= maxResourceCount &&
+           data.cacheMaxResourceBytes() <= maxResourceBytes &&
+           data.origin() == rtc->origin() && data.width() == rtc->width() &&
            data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
-           data.sampleCount() == rtc->numColorSamples();
+           data.fsaaType() == rtc->fsaaType() && data.stencilCount() == rtc->numStencilSamples() &&
+           SkColorSpace::Equals(data.colorSpace(), rtc->colorSpaceInfo().colorSpace()) &&
+           data.surfaceProps() == rtc->surfaceProps();
 }
 
-void SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
-    if (!this->isCompatible(dl->characterization())) {
-        return;
+bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
+    if (!this->isCompatible(ddl->characterization())) {
+        return false;
     }
 
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
     // Ultimately need to pass opLists from the DeferredDisplayList on to the
     // SkGpuDevice's renderTargetContext.
-    dl->draw(this);
+    return ddl->draw(this);
+#else
+    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
+
+    ctx->contextPriv().copyOpListsFromDDL(ddl, rtc->asRenderTargetProxy());
+    return true;
+#endif
 }
 
 
@@ -229,7 +256,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     if (!SkSurface_Gpu::Valid(info)) {
         return nullptr;
     }
-
+    sampleCount = SkTMax(1, sampleCount);
     GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     if (!ctx->caps()->mipMapSupport()) {
@@ -245,6 +272,23 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
+                                                        sk_sp<GrRenderTargetContext> rtc) {
+    if (!context) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
+                                                rtc->width(), rtc->height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace> colorSpace,
@@ -255,6 +299,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     tex,
@@ -272,6 +317,53 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
+                              int sampleCnt, SkColorType ct, sk_sp<SkColorSpace> cs,
+                              bool texturable) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
+
+    if (!SkSurface_Gpu::Valid(info)) {
+        return false;
+    }
+
+    if (!ctx->caps()->validateBackendTexture(tex, ct, config)) {
+        return false;
+    }
+
+    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 1)) {
+        return false;
+    }
+
+    if (ctx->caps()->getSampleCount(sampleCnt, *config) != sampleCnt) {
+        return false;
+    }
+
+    if (texturable && !ctx->caps()->isConfigTexturable(*config)) {
+        return false;
+    }
+    return true;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   SkColorType colorType,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    sampleCnt = SkTMax(1, sampleCnt);
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  sampleCnt, colorType, colorSpace, true)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendTexture(context, texCopy, origin, sampleCnt, colorSpace, props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
@@ -305,6 +397,44 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget& rt,
+                                    GrPixelConfig* config, SkColorType ct, sk_sp<SkColorSpace> cs) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
+
+    if (!SkSurface_Gpu::Valid(info)) {
+        return false;
+    }
+
+    if (!ctx->caps()->validateBackendRenderTarget(rt, ct, config)) {
+        return false;
+    }
+
+    if (!ctx->caps()->isConfigRenderable(*config, false)) {
+        return false;
+    }
+
+    return true;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTarget& rt,
+                                                        GrSurfaceOrigin origin,
+                                                        SkColorType colorType,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    GrBackendRenderTarget rtCopy = rt;
+    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendRenderTarget(context, rtCopy, origin, colorSpace, props);
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
                                                                  const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
@@ -317,6 +447,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> rtc(
         context->contextPriv().makeBackendTextureAsRenderTargetRenderTargetContext(
@@ -335,6 +466,27 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                                 const GrBackendTexture& tex,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 SkColorType colorType,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    sampleCnt = SkTMax(1, sampleCnt);
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  sampleCnt, colorType, colorSpace, false)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendTextureAsRenderTarget(context, texCopy, origin, sampleCnt, colorSpace,
+                                                props);
 }
 
 #endif

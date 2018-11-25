@@ -29,7 +29,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     if (surf->readPixels(output, x, y)) {
         REPORTER_ASSERT(reporter, 0 == pixel[0]);
     } else {
-        REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
+        REPORTER_ASSERT(reporter, false, "readPixels failed");
     }
 
     SkPaint paint;
@@ -44,7 +44,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
         // appear the same.
         REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);
     } else {
-        REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
+        REPORTER_ASSERT(reporter, false, "readPixels failed");
     }
 }
 

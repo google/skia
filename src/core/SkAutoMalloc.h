@@ -144,7 +144,7 @@ public:
                 SkASSERT(fPtr != fStorage); // otherwise we lied when setting didChangeAlloc.
                 fPtr = fStorage;
             } else {
-                fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+                fPtr = sk_malloc_throw(size);
             }
 
             fSize = size;
@@ -157,8 +157,8 @@ public:
 private:
     // Align up to 32 bits.
     static const size_t kSizeAlign4 = SkAlign4(kSizeRequested);
-#if defined(GOOGLE3)
-    // Stack frame size is limited for GOOGLE3. 4k is less than the actual max, but some functions
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
     static const size_t kMaxBytes = 4 * 1024;
     static const size_t kSize = kSizeRequested > kMaxBytes ? kMaxBytes : kSizeAlign4;

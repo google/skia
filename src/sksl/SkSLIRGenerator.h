@@ -62,7 +62,8 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
-    void convertProgram(const char* text,
+    void convertProgram(Program::Kind kind,
+                        const char* text,
                         size_t length,
                         SymbolTable& types,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
@@ -156,12 +157,15 @@ private:
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
     void convertEnum(const ASTEnum& e);
     std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
+    // returns a statement which converts sk_Position from device to normalized coordinates
+    std::unique_ptr<Statement> getNormalizeSkPositionCode();
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
     void getConstantInt(const Expression& value, int64_t* out);
 
+    Program::Kind fKind;
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
     std::shared_ptr<SymbolTable> fRootSymbolTable;
@@ -175,6 +179,10 @@ private:
     ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
+    Variable* fSkPerVertex;
+    Variable* fRTAdjust;
+    Variable* fRTAdjustInterfaceBlock;
+    int fRTAdjustFieldIndex;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

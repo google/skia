@@ -72,6 +72,10 @@ public:
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
     }
 
+    bool operator==(const SkSurfaceProps& that) const {
+        return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry;
+    }
+
 private:
     SkSurfaceProps();
 

@@ -20,7 +20,6 @@
 #include "SkArenaAlloc.h"
 #include "SkCoreBlitters.h"
 #include "SkColorSpaceXform.h"
-#include "SkColorSpace_Base.h"
 
 struct Matrix43 {
     float fMat[12];    // column major
@@ -89,12 +88,6 @@ protected:
     bool onAppendStages(const StageRec& rec) const override {
         rec.fPipeline->append_seed_shader();
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
-        // In theory we should never need to clamp. However, either due to imprecision in our
-        // matrix43, or the scan converter passing us pixel centers that in fact are not within
-        // the triangle, we do see occasional (slightly) out-of-range values, so we add these
-        // clamp stages. It would be nice to find a way to detect when these are not needed.
-        rec.fPipeline->append(SkRasterPipeline::clamp_0);
-        rec.fPipeline->append(SkRasterPipeline::clamp_a);
         return true;
     }
 
@@ -163,7 +156,7 @@ static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* devi
         }
     } else {
         auto srcCS = SkColorSpace::MakeSRGB();
-        auto dstCS = as_CSB(deviceCS)->makeLinearGamma();
+        auto dstCS = deviceCS->makeLinearGamma();
         SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
                                  srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
                                  count, SkColorSpaceXform::kPremul_AlphaOp);

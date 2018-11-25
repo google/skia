@@ -30,6 +30,7 @@ class GrIndexBuffer;
 struct GrMockOptions;
 class GrOvalRenderer;
 class GrPath;
+class GrProxyProvider;
 class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
@@ -56,12 +57,15 @@ public:
     static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
     static GrContext* Create(GrBackend, GrBackendContext);
 
-    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
+    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
+    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
+    // Deprecated
     static sk_sp<GrContext> MakeGL(const GrGLInterface*);
+    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
 
 #ifdef SK_VULKAN
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*, const GrContextOptions&);
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*);
+    static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>, const GrContextOptions&);
+    static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>);
 #endif
 
 #ifdef SK_METAL
@@ -111,7 +115,7 @@ public:
     }
 
     /**
-     * Abandons all GPU resources and assumes the underlying backend 3D API context is not longer
+     * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
      * GrContext and any of its created resource objects will not make backend 3D API calls. Content
@@ -187,10 +191,15 @@ public:
     void purgeAllUnlockedResources();
 
     /**
-     * Purge GPU resources that haven't been used in the past 'ms' milliseconds, regardless of
-     * whether the context is currently under budget.
+     * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
+     * otherwise marked for deletion, regardless of whether the context is under budget.
      */
-    void purgeResourcesNotUsedInMs(std::chrono::milliseconds ms);
+    void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
+
+    // Temporary compatibility API for Android.
+    void purgeResourcesNotUsedInMs(std::chrono::milliseconds msNotUsed) {
+        this->performDeferredCleanup(msNotUsed);
+    }
 
     /**
      * Purge unlocked resources from the cache until the the provided byte count has been reached
@@ -205,20 +214,7 @@ public:
     void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources);
 
     /** Access the context capabilities */
-    const GrCaps* caps() const { return fCaps; }
-
-    /**
-     * Returns the recommended sample count for a render target when using this
-     * context.
-     *
-     * @param  config the configuration of the render target.
-     * @param  dpi the display density in dots per inch.
-     *
-     * @return sample count that should be perform well and have good enough
-     *         rendering quality for the display. Alternatively returns 0 if
-     *         MSAA is not supported or recommended to be used by default.
-     */
-    int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
+    const GrCaps* caps() const { return fCaps.get(); }
 
     /*
      * Create a new render target context backed by a deferred-style
@@ -230,7 +226,7 @@ public:
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
+                                                 int sampleCnt = 1,
                                                  GrMipMapped = GrMipMapped::kNo,
                                                  GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                                  const SkSurfaceProps* surfaceProps = nullptr,
@@ -246,7 +242,7 @@ public:
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
+                                                 int sampleCnt = 1,
                                                  GrMipMapped = GrMipMapped::kNo,
                                                  GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                                  const SkSurfaceProps* surfaceProps = nullptr,
@@ -291,14 +287,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
-    GrGpu* getGpu() { return fGpu; }
-    const GrGpu* getGpu() const { return fGpu; }
-    GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
-    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
-    GrResourceProvider* resourceProvider() { return fResourceProvider; }
-    const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
-    GrResourceCache* getResourceCache() { return fResourceCache; }
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -330,7 +319,7 @@ public:
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results
         if it gets cached or used more generally. */
-    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format);
+    sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index = 0);
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
@@ -343,11 +332,16 @@ public:
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
 
+protected:
+    GrContext(GrContextThreadSafeProxy*);
+    GrContext(GrBackend);
+
 private:
-    GrGpu*                                  fGpu;
-    const GrCaps*                           fCaps;
+    sk_sp<GrGpu>                            fGpu;
+    sk_sp<const GrCaps>                     fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
+    GrProxyProvider*                        fProxyProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
@@ -379,16 +373,14 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
-    GrBackend                               fBackend;
+    const GrBackend                         fBackend;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
-    GrContext(); // init must be called after the constructor.
-    bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
-    bool init(const GrContextOptions& options);
+    bool init(const GrContextOptions&); // init must be called after either constructor.
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they
@@ -420,15 +412,28 @@ private:
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
 class GrContextThreadSafeProxy : public SkRefCnt {
-private:
-    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID)
-        : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID) {}
+public:
+    bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
-    sk_sp<const GrCaps> fCaps;
-    uint32_t            fContextUniqueID;
+private:
+    // DDL TODO: need to add unit tests for backend & maybe options
+    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
+                             uint32_t uniqueID,
+                             GrBackend backend,
+                             const GrContextOptions& options)
+        : fCaps(std::move(caps))
+        , fContextUniqueID(uniqueID)
+        , fBackend(backend)
+        , fOptions(options) {
+    }
+
+    sk_sp<const GrCaps>    fCaps;
+    const uint32_t         fContextUniqueID;
+    const GrBackend        fBackend;
+    const GrContextOptions fOptions;
 
     friend class GrContext;
+    friend class GrContextPriv;
     friend class SkImage;
 
     typedef SkRefCnt INHERITED;

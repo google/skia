@@ -330,9 +330,13 @@ namespace {
         void draw(SkCanvas* c, const SkMatrix&) const {
             auto xdivs = pod<int>(this, 0),
                  ydivs = pod<int>(this, xs*sizeof(int));
+            auto colors = (0 == fs) ? nullptr :
+                          pod<SkColor>(this, (xs+ys)*sizeof(int));
             auto flags = (0 == fs) ? nullptr :
-                                     pod<SkCanvas::Lattice::Flags>(this, (xs+ys)*sizeof(int));
-            c->drawImageLattice(image.get(), {xdivs, ydivs, flags, xs, ys, &src}, dst, &paint);
+                         pod<SkCanvas::Lattice::RectType>(this, (xs+ys)*sizeof(int)+
+                                                          fs*sizeof(SkColor));
+            c->drawImageLattice(image.get(), {xdivs, ydivs, flags, xs, ys, &src, colors}, dst,
+                                &paint);
         }
     };
 
@@ -619,14 +623,16 @@ void SkLiteDL::drawImageRect(sk_sp<const SkImage> image, const SkRect* src, cons
 void SkLiteDL::drawImageLattice(sk_sp<const SkImage> image, const SkCanvas::Lattice& lattice,
                                 const SkRect& dst, const SkPaint* paint) {
     int xs = lattice.fXCount, ys = lattice.fYCount;
-    int fs = lattice.fFlags ? (xs + 1) * (ys + 1) : 0;
-    size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::Flags);
+    int fs = lattice.fRectTypes ? (xs + 1) * (ys + 1) : 0;
+    size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::RectType)
+                   + fs * sizeof(SkColor);
     SkASSERT(lattice.fBounds);
     void* pod = this->push<DrawImageLattice>(bytes, std::move(image), xs, ys, fs, *lattice.fBounds,
                                              dst, paint);
     copy_v(pod, lattice.fXDivs, xs,
                 lattice.fYDivs, ys,
-                lattice.fFlags, fs);
+                lattice.fColors, fs,
+                lattice.fRectTypes, fs);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,

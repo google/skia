@@ -19,13 +19,13 @@
 #include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpuThreads.h"
-#include "SkCommonFlagsPathRenderer.h"
+#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkDebugfTracer.h"
+#include "SkDocument.h"
 #include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
+#include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
 #include "SkLeanWindows.h"
@@ -56,7 +56,7 @@ extern void SkPDFImageDumpStats();
 
 #include <stdlib.h>
 
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 #endif
 
@@ -94,10 +94,6 @@ DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.")
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
 DEFINE_bool(ddl, false, "If true, use DeferredDisplayLists for GPU SKP rendering.");
-
-#if SK_SUPPORT_GPU
-DEFINE_pathrenderer_flag;
-#endif
 
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
@@ -216,7 +212,7 @@ static void find_culprit() {
     }
 }
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
@@ -343,7 +339,7 @@ static void gather_gold() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static const char* kNewline = "\r\n";
 #else
     static const char* kNewline = "\n";
@@ -731,7 +727,7 @@ static void push_codec_srcs(Path path) {
         };
         for (const char* brdExt : brdExts) {
             if (0 == strcmp(brdExt, ext)) {
-                bool gray = codec->getEncodedInfo().color() == SkEncodedInfo::kGray_Color;
+                bool gray = codec->getInfo().colorType() == kGray_8_SkColorType;
                 push_brd_srcs(path, gray);
                 break;
             }
@@ -788,6 +784,9 @@ static bool gather_srcs() {
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
+#if !defined(SK_BUILD_FOR_GOOGLE3)
+    gather_file_srcs<SkottieSrc>(FLAGS_jsons, "json");
+#endif
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif
@@ -895,9 +894,16 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
         auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
 
+        SINK("g8",      RasterSink, kGray_8_SkColorType);
         SINK("565",     RasterSink, kRGB_565_SkColorType);
+        SINK("4444",    RasterSink, kARGB_4444_SkColorType);
         SINK("8888",    RasterSink, kN32_SkColorType);
         SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
+        SINK("rgba",    RasterSink, kRGBA_8888_SkColorType);
+        SINK("bgra",    RasterSink, kBGRA_8888_SkColorType);
+        SINK("rgbx",    RasterSink, kRGB_888x_SkColorType);
+        SINK("1010102", RasterSink, kRGBA_1010102_SkColorType);
+        SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
         SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
         SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
@@ -919,7 +925,7 @@ static sk_sp<SkColorSpace> adobe_rgb() {
 }
 
 static sk_sp<SkColorSpace> rgb_to_gbr() {
-    return as_CSB(SkColorSpace::MakeSRGB())->makeColorSpin();
+    return SkColorSpace::MakeSRGB()->makeColorSpin();
 }
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
@@ -928,14 +934,11 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
-    VIA("twice",     ViaTwice,             wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
-    VIA("2ndpic",    ViaSecondPicture,     wrapped);
-    VIA("sp",        ViaSingletonPictures, wrapped);
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 
@@ -1299,9 +1302,6 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
-extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
-
-
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -1317,7 +1317,7 @@ int main(int argc, char** argv) {
 
     initializeEventTracingForTools();
 
-#if !defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)
+#if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
     setbuf(stdout, nullptr);
@@ -1347,9 +1347,7 @@ int main(int argc, char** argv) {
 
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
-    grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
-    grCtxOptions.fExecutor = GpuExecutorForTools();
+    SetCtxOptionsFromCommonFlags(&grCtxOptions);
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
@@ -1357,12 +1355,8 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     gCreateTypefaceDelegate = &create_from_name;
 
-    {
-        SkString testResourcePath = GetResourcePath("color_wheel.png");
-        SkFILEStream testResource(testResourcePath.c_str());
-        if (!testResource.isValid()) {
-            info("Some resources are missing.  Do you need to set --resourcePath?\n");
-        }
+    if (nullptr == GetResourceAsData("images/color_wheel.png")) {
+        info("Some resources are missing.  Do you need to set --resourcePath?\n");
     }
     gather_gold();
     gather_uninteresting_hashes();

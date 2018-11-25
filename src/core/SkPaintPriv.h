@@ -64,6 +64,9 @@ public:
     }
 
     static bool ShouldDither(const SkPaint&, SkColorType);
+
+    // returns 0 if buffer is invalid for specified encoding
+    static int ValidCountText(const void* text, size_t length, SkPaint::TextEncoding);
 };
 
 #endif

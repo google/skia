@@ -48,7 +48,7 @@ protected:
 
 private:
     SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>,
-                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>);
+                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>, SkEncodedOrigin);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 
@@ -58,22 +58,22 @@ private:
 
     class Frame : public SkFrame {
     public:
-        Frame(int i, bool alpha)
+        Frame(int i, SkEncodedInfo::Alpha alpha)
             : INHERITED(i)
-            , fReportsAlpha(alpha)
+            , fReportedAlpha(alpha)
         {}
         Frame(Frame&& other)
             : INHERITED(other.frameId())
-            , fReportsAlpha(other.fReportsAlpha)
+            , fReportedAlpha(other.fReportedAlpha)
         {}
 
     protected:
-        bool onReportsAlpha() const override {
-            return fReportsAlpha;
+        SkEncodedInfo::Alpha onReportedAlpha() const override {
+            return fReportedAlpha;
         }
 
     private:
-        const bool fReportsAlpha;
+        const SkEncodedInfo::Alpha fReportedAlpha;
 
         typedef SkFrame INHERITED;
     };

@@ -213,7 +213,7 @@ bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const 
     return asSB(const_cast<SkSurface*>(this))->onCharacterize(characterization);
 }
 
-void SkSurface::draw(SkDeferredDisplayList* ddl) {
+bool SkSurface::draw(SkDeferredDisplayList* ddl) {
     return asSB(this)->onDraw(ddl);
 }
 
@@ -247,14 +247,21 @@ sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
 
 #if !SK_SUPPORT_GPU
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
-                                             int, GrSurfaceOrigin, const SkSurfaceProps*, bool) {
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&, int,
+                                             GrSurfaceOrigin, const SkSurfaceProps*, bool) {
     return nullptr;
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace>, const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   SkColorType, sk_sp<SkColorSpace>,
+                                                   const SkSurfaceProps*) {
     return nullptr;
 }
 
@@ -266,10 +273,29 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        SkColorType,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*) {
+    return nullptr;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
                                                                  const GrBackendTexture&,
                                                                  GrSurfaceOrigin origin,
                                                                  int sampleCnt,
+                                                                 sk_sp<SkColorSpace>,
+                                                                 const SkSurfaceProps*) {
+    return nullptr;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext*,
+                                                                 const GrBackendTexture&,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 SkColorType,
                                                                  sk_sp<SkColorSpace>,
                                                                  const SkSurfaceProps*) {
     return nullptr;

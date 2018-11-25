@@ -17,7 +17,7 @@ DEF_TEST(F16Stages, r) {
         -1.25f, -0.5f, 1.25f, 2.0f,
         0,0,0,0, 0,0,0,0,  // pad a bit to make sure we qualify for platform-specific code
     };
-    uint16_t halfs[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+    uint64_t halfs[4] = {0,0,0,0};
 
     SkJumper_MemoryCtx f32 = { floats, 0 },
                        f16 = { halfs,  0 };
@@ -28,14 +28,14 @@ DEF_TEST(F16Stages, r) {
         p.append(SkRasterPipeline::store_f16, &f16);
         p.run(0,0,16/4,1);
     }
-    REPORTER_ASSERT(r, halfs[0] == 0x0000);
-    REPORTER_ASSERT(r, halfs[1] == 0x3400);
-    REPORTER_ASSERT(r, halfs[2] == 0x3800);
-    REPORTER_ASSERT(r, halfs[3] == 0x3c00);
-    REPORTER_ASSERT(r, halfs[4] == 0xbd00);
-    REPORTER_ASSERT(r, halfs[5] == 0xb800);
-    REPORTER_ASSERT(r, halfs[6] == 0x3d00);
-    REPORTER_ASSERT(r, halfs[7] == 0x4000);
+    REPORTER_ASSERT(r, ((halfs[0] >>  0) & 0xffff) == 0x0000);
+    REPORTER_ASSERT(r, ((halfs[0] >> 16) & 0xffff) == 0x3400);
+    REPORTER_ASSERT(r, ((halfs[0] >> 32) & 0xffff) == 0x3800);
+    REPORTER_ASSERT(r, ((halfs[0] >> 48) & 0xffff) == 0x3c00);
+    REPORTER_ASSERT(r, ((halfs[1] >>  0) & 0xffff) == 0xbd00);
+    REPORTER_ASSERT(r, ((halfs[1] >> 16) & 0xffff) == 0xb800);
+    REPORTER_ASSERT(r, ((halfs[1] >> 32) & 0xffff) == 0x3d00);
+    REPORTER_ASSERT(r, ((halfs[1] >> 48) & 0xffff) == 0x4000);
 
     {
         SkRasterPipeline_<256> p;

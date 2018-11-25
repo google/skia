@@ -11,7 +11,6 @@
 #include "SkColor.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
-#include "SkPixelSerializer.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
@@ -20,10 +19,13 @@
 class SkBitmap;
 class SkCanvas;
 class SkColorFilter;
+class SkImage;
 class SkPaint;
 class SkPath;
 class SkRRect;
 class SkShader;
+class SkSurface;
+class SkSurfaceProps;
 class SkTestFont;
 class SkTextBlobBuilder;
 
@@ -79,8 +81,12 @@ namespace sk_tool_utils {
      *
      *  If the colorType is half-float, then maxDiff is interpreted as 0..255 --> 0..1
      */
-    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0);
-    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0);
+    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
 
     // private to sk_tool_utils
     sk_sp<SkTypeface> create_font(const char* name, SkFontStyle);
@@ -107,6 +113,9 @@ namespace sk_tool_utils {
 
     SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
                                   int textSize, const char* str);
+
+    // If the canvas does't make a surface (e.g. recording), make a raster surface
+    sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);
 
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
     void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
@@ -239,23 +248,8 @@ namespace sk_tool_utils {
         return SkEncodeImage(&buf, src , f, q) ? buf.detachAsData() : nullptr;
     }
 
-    /**
-     * Uses SkEncodeImage to serialize images that are not already
-     * encoded as SkEncodedImageFormat::kPNG images.
-     */
-    inline sk_sp<SkPixelSerializer> MakePixelSerializer() {
-        struct EncodeImagePixelSerializer final : SkPixelSerializer {
-            bool onUseEncodedData(const void*, size_t) override { return true; }
-            SkData* onEncode(const SkPixmap& pmap) override {
-                return EncodeImageToData(pmap, SkEncodedImageFormat::kPNG, 100).release();
-            }
-        };
-        return sk_make_sp<EncodeImagePixelSerializer>();
-    }
-
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
-
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

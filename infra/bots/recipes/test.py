@@ -59,6 +59,10 @@ def dm_flags(api, bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend(['--threads', '4'])
 
+  # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
+  if 'CPU' in bot and 'Nexus7' in bot:
+    args.extend(['--threads', '2'])
+
   if 'Chromecast' in bot:
     args.extend(['--threads', '0'])
 
@@ -75,8 +79,8 @@ def dm_flags(api, bot):
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
   if ('NexusPlayer' in bot or
-      'Nexus10' in bot or
-      'PixelC' in bot):
+      'PixelC' in bot or
+      'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
@@ -91,9 +95,9 @@ def dm_flags(api, bot):
       configs.remove('pdf')
 
     if '-GCE-' in bot:
+      configs.extend(['g8'])
       configs.extend(['565'])
       configs.extend(['f16'])
-      configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
@@ -109,6 +113,10 @@ def dm_flags(api, bot):
       configs = ['8888', 'tiles_rt-8888']
 
     if 'NativeFonts' in bot:
+      configs = ['8888']
+
+    # Just do the basic config on Chromecast to avoid OOM.
+    if 'Chromecast' in bot:
       configs = ['8888']
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
@@ -175,11 +183,11 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ bleed_alpha_image_shader')
       blacklist('gltestthreading gm _ savelayer_with_backdrop')
       blacklist('gltestthreading gm _ persp_shaders_bw')
+      blacklist('gltestthreading gm _ dftext_blob_persp')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
-          'IntelIris540'  in bot or
           'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
           'IntelHD2000'   in bot or
@@ -187,19 +195,6 @@ def dm_flags(api, bot):
           'Nexus7'        in bot or
           'NexusPlayer'   in bot):
         configs.remove('glessrgb')
-
-    # Test instanced rendering on a limited number of platforms
-    if 'NVIDIA_Shield' in bot or 'PixelC' in bot:
-      # Multisampled instanced configs use nvpr so we substitute inst msaa
-      # configs for nvpr msaa configs.
-      old = gl_prefix + 'nvpr'
-      new = gl_prefix + 'inst'
-      configs = [x.replace(old, new) for x in configs]
-      # We also test non-msaa instanced.
-      configs.append(new)
-    elif 'MacMini7.1' in bot and 'TSAN' not in bot:
-      # The TSAN bot disables GL buffer mapping which is required for inst.
-      configs.extend([gl_prefix + 'inst'])
 
     # Test SkColorSpaceXformCanvas on a few bots
     if 'GTX1070' in bot:
@@ -228,7 +223,7 @@ def dm_flags(api, bot):
       configs = ['gles']
 
     if 'Chromecast' in bot:
-      configs = ['gles', '8888']
+      configs = ['gles']
 
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
@@ -276,6 +271,10 @@ def dm_flags(api, bot):
   # Not any point to running these.
   blacklist('gbr-8888 image _ _')
   blacklist('gbr-8888 colorImage _ _')
+
+  # --src image --config g8 means "decode into Gray8", which isn't supported.
+  blacklist('g8 image _ _')
+  blacklist('g8 colorImage _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
@@ -425,7 +424,7 @@ def dm_flags(api, bot):
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
-  if 'Win' in bot or 'Android' in bot or 'Chromecast' in bot:
+  if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
   if 'Mac' in bot and 'CPU' in bot:
@@ -435,25 +434,19 @@ def dm_flags(api, bot):
 
   # skia:4769
   for test in ['drawfilter']:
-    blacklist([    'sp-8888', 'gm', '_', test])
     blacklist([   'pic-8888', 'gm', '_', test])
-    blacklist(['2ndpic-8888', 'gm', '_', test])
     blacklist([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
   for test in ['gamut', 'complexclip4_bw', 'complexclip4_aa']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist([     'lite-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that not support tiles_rt
@@ -489,7 +482,7 @@ def dm_flags(api, bot):
     blacklist(['glmsaa8',   'image', 'gen_codec_gpu', 'abnormal.wbmp'])
     blacklist(['glesmsaa4', 'image', 'gen_codec_gpu', 'abnormal.wbmp'])
 
-  if 'Nexus5' in bot:
+  if 'Nexus5' in bot and 'GPU' in bot:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
@@ -529,15 +522,26 @@ def dm_flags(api, bot):
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
 
-  if 'Chromecast' in bot: # skia:6581
-    match.append('~matrixconvolution')
-    match.append('~blur_image_filter')
-    match.append('~blur_0.01')
+  if 'Chromecast' in bot:
+    if 'GPU' in bot:
+      # skia:6687
+      match.append('~matrixconvolution')
+      match.append('~blur_image_filter')
+      match.append('~blur_0.01')
+      match.append('~lighting')
+      match.append('~imageblur2')
+      match.append('~animated-image-blurs')
+    # skia:7497
+    match.append('~readpixels') # dies with "Caught signal 7 [Bus error]"
+    match.append('~SkRasterPipeline_tail')
+    # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
     match.append('~GM_animated-image-blurs')
-
-  if 'Nexus10' in bot:
-    match.append('~CopySurface') # skia:5509
-    match.append('~SRGBReadWritePixels') # skia:6097
+    match.append('~verylarge')
+    match.append('~ImageFilterBlurLargeImage')
+    match.append('~TextBlobCache')
+    match.append('~bigbitmaprect_')
+    match.append('~savelayer_clipmask')
+    match.append('~DrawBitmapRect')
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
@@ -554,19 +558,10 @@ def dm_flags(api, bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
-  # By default, we test with GPU threading enabled. Leave PixelC devices
-  # running without threads, just to get some coverage of that code path.
-  if 'PixelC' in bot:
+  # By default, we test with GPU threading enabled, unless specifically
+  # disabled.
+  if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
-
-  if 'float_cast_overflow' in bot and 'CPU' in bot:
-    # skia:4632
-    for config in ['565', '8888', 'f16', 'srgb']:
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
@@ -597,17 +592,20 @@ def dm_flags(api, bot):
                   '~^SpecialImage_Gpu$',
                   '~^SurfaceSemaphores$'])
 
-  if ('Vulkan' in bot and api.vars.is_linux and
-      ('IntelIris540' in bot or 'IntelIris640' in bot)):
+  if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~VkHeapTests']) # skia:6245
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
     # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
     match.append('~^ClearOp$')
+    match.append('~^CopySurface$')
+    match.append('~^ImageNewShader_GPU$')
     match.append('~^InitialTextureClear$')
+    match.append('~^PinnedImageTest$')
     match.append('~^ReadPixels_Gpu$')
     match.append('~^ReadPixels_Texture$')
+    match.append('~^SRGBReadWritePixels$')
     match.append('~^VkUploadPixelsTests$')
     match.append('~^WritePixelsNonTexture_Gpu$')
     match.append('~^WritePixels_Gpu$')
@@ -687,6 +685,7 @@ def dm_flags(api, bot):
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
+    match.append('~SkImage_makeNonTextureImage')
 
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
@@ -709,6 +708,10 @@ def dm_flags(api, bot):
 
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
+
+  if '-arm-' in bot and 'ASAN' in bot:
+    # TODO: can we run with env allocator_may_return_null=1 instead?
+    match.append('~BadImage')
 
   if blacklisted:
     args.append('--blacklist')
@@ -836,47 +839,48 @@ def test_steps(api):
   properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
   properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
-  args = [
-    'dm',
-    '--resourcePath', api.flavor.device_dirs.resource_dir,
-    '--skps', api.flavor.device_dirs.skp_dir,
-    '--images', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'dm'),
-    '--colorImages', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'colorspace'),
-    '--nameByHash',
-    '--properties'
-  ] + properties
+  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
+    # Due to limited disk space, we only deal with skps and one image.
+    args = [
+      'dm',
+      '--resourcePath', api.flavor.device_dirs.resource_dir,
+      '--skps', api.flavor.device_dirs.skp_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
+      '--nameByHash',
+      '--properties'
+    ] + properties
+  else:
+    args = [
+      'dm',
+      '--resourcePath', api.flavor.device_dirs.resource_dir,
+      '--skps', api.flavor.device_dirs.skp_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.images_dir, 'dm'),
+      '--colorImages', api.flavor.device_path_join(
+          api.flavor.device_dirs.images_dir, 'colorspace'),
+      '--nameByHash',
+      '--properties'
+    ] + properties
 
-  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
 
   args.append('--key')
   args.extend(key_params(api))
+
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
   if api.vars.upload_dm_results:
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
-  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
-    # Due to limited disk space, we only deal with skps and one image.
-    args = [
-      'dm',
-      '--undefok',   # This helps branches that may not know new flags.
-      '--resourcePath', api.flavor.device_dirs.resource_dir,
-      '--skps', api.flavor.device_dirs.skp_dir,
-      '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
-    ]
-
   args.extend(dm_flags(api, api.vars.builder_name))
 
   # See skia:2789.
-  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
-  if 'AbandonGpuContext' in extra_config_parts:
+  if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in extra_config_parts:
+  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in extra_config_parts:
+  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
@@ -911,24 +915,27 @@ TEST_BUILDERS = [
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
-  'Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android_ASAN',
+  ('Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
+   '-Android_NoGPUThreads'),
+  'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
   'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
-  'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-All-Android',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
+  'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
@@ -938,7 +945,7 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
-  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
+  'Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'

@@ -1,6 +1,12 @@
 #Topic Canvas
 #Alias Canvas_Reference
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 #Class SkCanvas
 
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -24,172 +30,55 @@ destination.
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.  
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# topics                 # description                                 ##
-#Legend ##
-#ToDo generate a TOC here ##
-#Table ##
-#Subtopic ##
+#Subtopic Related_Functions
+#Populate
+##
 
 #Subtopic Constants
-#Table
-#Legend
-# constants                      # description                                 ##
-#Legend ##
-# Lattice::Flags                 # Controls Lattice transparency. ##
-# PointMode                      # Sets drawPoints options. ##
-# SaveLayerFlags                 # Sets SaveLayerRec options. ##
-# SrcRectConstraint              # Sets drawImageRect options. ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
-#Subtopic Structs
-#Table
-#Legend
-# struct                         # description                                 ##
-#Legend ##
-# Lattice                        # Divides Bitmap, Image into a rectangular grid. ##
-# SaveLayerRec                   # Contains state to create Layer. ##
-#Table ##
-#Subtopic ##
+#Subtopic Classes_and_Structs
+#Populate
+##
 
 #Subtopic Constructors
 
 Create the desired type of Surface to obtain its Canvas when possible. Constructors are useful
 when no Surface is required, and some helpers implicitly create Raster_Surface.
 
-#Table
-#Legend
-#                                                               # description                                     ##
-#Legend ##
-# SkCanvas()                                                    # No Surface, no dimensions.                      ##
-# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # No Surface, set dimensions, Surface_Properties. ##
-# SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
-# SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
-# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
-# MakeRasterDirect                                              # Creates from SkImageInfo and Pixel_Storage.     ##
-# MakeRasterDirectN32                                           # Creates from image data and Pixel_Storage.      ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# function                         # description                                                   ##
-#Legend ##
-# accessTopLayerPixels             # Returns writable pixel access if available. ##
-# accessTopRasterHandle            # Returns context that tracks Clip and Matrix. ##
-# clear()                          # Fills Clip with Color. ##
-# clipPath                         # Combines Clip with Path. ##
-# clipRRect                        # Combines Clip with Round_Rect. ##
-# clipRect                         # Combines Clip with Rect. ##
-# clipRegion                       # Combines Clip with Region. ##
-# concat()                         # Multiplies Matrix by Matrix. ##
-# discard()                        # Makes Canvas contents undefined. ##
-# drawAnnotation                   # Associates a Rect with a key-value pair.##
-# drawArc                          # Draws Arc using Clip, Matrix, and Paint.##
-# drawAtlas                        # Draws sprites using Clip, Matrix, and Paint.##
-# drawBitmap                       # Draws Bitmap at (x, y) position. ##
-# drawBitmapLattice                # Draws proportionally stretched Bitmap. ##
-# drawBitmapNine                   # Draws Nine_Patch Bitmap. ##
-# drawBitmapRect                   # Draws Bitmap, source Rect to destination Rect. ##
-# drawCircle                       # Draws Circle using Clip, Matrix, and Paint. ##
-# drawColor                        # Fills Clip with Color and Blend_Mode. ##
-# drawDRRect                       # Draws double Round_Rect stroked or filled. ##
-# drawDrawable                     # Draws Drawable, encapsulated drawing commands. ##
-# drawIRect                        # Draws IRect using Clip, Matrix, and Paint. ##
-# drawImage                        # Draws Image at (x, y) position. ##
-# drawImageLattice                 # Draws proportionally stretched Image. ##
-# drawImageNine                    # Draws Nine_Patch Image. ##
-# drawImageRect                    # Draws Image, source Rect to destination Rect. ##
-# drawLine                         # Draws line segment between two points.##
-# drawOval                         # Draws Oval using Clip, Matrix, and Paint. ##
-# drawPaint                        # Fills Clip with Paint. ##
-# drawPatch                        # Draws Coons_Patch. ##
-# drawPath                         # Draws Path using Clip, Matrix, and Paint. ##
-# drawPicture                      # Draws Picture using Clip and Matrix. ##
-# drawPoint                        # Draws point at (x, y) position. ##
-# drawPoints                       # Draws array as points, lines, polygon. ##
-# drawPosText                      # Draws text at array of (x, y) positions. ##
-# drawPosTextH                     # Draws text at x positions with common baseline. ##
-# drawRRect                        # Draws Round_Rect using Clip, Matrix, and Paint. ##
-# drawRect                         # Draws Rect using Clip, Matrix, and Paint. ##
-# drawRegion                       # Draws Region using Clip, Matrix, and Paint. ##
-# drawRoundRect                    # Draws Round_Rect using Clip, Matrix, and Paint. ##
-# drawText                         # Draws text at (x, y), using font advance. ##
-# drawTextBlob                     # Draws text with arrays of positions and Paint. ##
-# drawTextOnPath                   # Draws text following Path contour. ##
-# drawTextOnPathHV                 # Draws text following Path with offsets. ##
-# drawTextRSXform                  # Draws text with array of RSXform. ##
-# drawString                       # Draws null terminated string at (x, y) using font advance. ##
-# drawVertices                     # Draws Vertices, a triangle mesh. ##
-# flush()                          # Triggers execution of all pending draw operations. ##
-# getBaseLayerSize                 # Gets size of base Layer in global coordinates. ##
-# getDeviceClipBounds              # Returns IRect bounds of Clip. ##
-# getDrawFilter                    # Legacy; to be deprecated. ##
-# getGrContext                     # Returns GPU_Context of the GPU_Surface. ##
-# getLocalClipBounds               # Returns Clip bounds in source coordinates. ##
-# getMetaData                      # Associates additional data with the canvas. ##
-# getProps                         # Copies Surface_Properties if available. ##
-# getSaveCount                     # Returns depth of stack containing Clip and Matrix. ##
-# getTotalMatrix                   # Returns Matrix. ##
-# imageInfo                        # Returns Image_Info for Canvas. ##
-# isClipEmpty                      # Returns if Clip is empty. ##
-# isClipRect                       # Returns if Clip is Rect and not empty. ##
-# MakeRasterDirect                 # Creates Canvas from SkImageInfo and pixel data. ##
-# MakeRasterDirectN32              # Creates Canvas from image specifications and pixel data. ##
-# makeSurface                      # Creates Surface matching SkImageInfo and SkSurfaceProps. ##
-# peekPixels                       # Returns if Canvas has direct access to its pixels. ##
-# quickReject                      # Returns if Rect is outside Clip. ##
-# readPixels                       # Copies and converts rectangle of pixels from Canvas. ##
-# resetMatrix                      # Resets Matrix to identity. ##
-# restore()                        # Restores changes to Clip and Matrix, pops save stack. ##
-# restoreToCount                   # Restores changes to Clip and Matrix to given depth. ##
-# rotate()                         # Rotates Matrix. ##
-# save()                           # Saves Clip and Matrix on stack. ##
-# saveLayer                        # Saves Clip and Matrix on stack; creates Layer. ##
-# saveLayerAlpha                   # Saves Clip and Matrix on stack; creates Layer; sets opacity. ##
-# saveLayerPreserveLCDTextRequests # Saves Clip and Matrix on stack; creates Layer for LCD text. ##
-# scale()                          # Scales Matrix. ##
-# setAllowSimplifyClip             # Experimental. ##
-# setDrawFilter                    # Legacy; to be deprecated. ##
-# setMatrix                        # Sets Matrix. ##
-# skew()                           # Skews Matrix. #
-# translate()                      # Translates Matrix. ##
-# writePixels                      # Copies and converts rectangle of pixels to Canvas. ##
-#Table ##
-#Subtopic ##
-
-#Topic Overview ##
+#Populate
+##
 
 # ------------------------------------------------------------------------------
 
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
                                                           size_t rowBytes,
                                                           const SkSurfaceProps* props = nullptr)
+#Line # creates from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Canvas that will draw directly into pixels.
 
 Canvas is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are zero or positive;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
+info contains Color_Type and Alpha_Type supported by Raster_Surface;
 pixels is not nullptr;
-rowBytes is zero or large enough to contain info width pixels of Image_Color_Type.
+rowBytes is zero or large enough to contain info width pixels of Color_Type.
 
 Pass zero for rowBytes to compute rowBytes from info width and size of pixel. 
 If rowBytes is greater than zero, it must be equal to or greater than
-info width times bytes required for Image_Color_Type.
+info width times bytes required for Color_Type.
 
 Pixel buffer size should be info height times computed rowBytes.
 Pixels are not initialized.
 To access pixels after drawing, call flush() or peekPixels.
 
-#Param info  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space, of Raster_Surface;
+#Param info  width, height, Color_Type, Alpha_Type, Color_Space, of Raster_Surface;
              width, or height, or both, may be zero
 ##
 #Param pixels  pointer to destination pixels buffer
@@ -244,11 +133,12 @@ void draw(SkCanvas* ) {
 
 #Method static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
                                                          size_t rowBytes) 
+#Line # creates from image data and Pixel_Storage ##
 
 Allocates raster Canvas specified by inline image specification. Subsequent Canvas
 calls draw into pixels.
-Image_Color_Type is set to kN32_SkColorType.
-Image_Alpha_Type is set to kPremul_SkAlphaType.
+Color_Type is set to kN32_SkColorType.
+Alpha_Type is set to kPremul_SkAlphaType.
 To access pixels after drawing, call flush() or peekPixels.
 
 Canvas is returned if all parameters are valid.
@@ -259,7 +149,7 @@ rowBytes is zero or large enough to contain width pixels of kN32_SkColorType.
 
 Pass zero for rowBytes to compute rowBytes from width and size of pixel. 
 If rowBytes is greater than zero, it must be equal to or greater than
-width times bytes required for Image_Color_Type.
+width times bytes required for Color_Type.
 
 Pixel buffer size should be height times rowBytes.
 
@@ -317,6 +207,7 @@ void draw(SkCanvas* ) {
 
 #Method SkCanvas()
 
+#Line # creates with no Surface, no dimensions ##
 Creates an empty Canvas with no backing device or pixels, with 
 a width and height of zero.
 
@@ -369,6 +260,7 @@ void draw(SkCanvas* canvas) {
 
 #Method SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)
 
+#Line # no Surface, set dimensions, Surface_Properties ##
 Creates Canvas of the specified dimensions without a Surface.
 Used by Subclasses with custom implementations for draw methods.
 
@@ -404,6 +296,7 @@ different characteristics, it is best not to rely on this legacy behavior.
 
 #Method explicit SkCanvas(SkBaseDevice* device)
 
+#Line # to be deprecated ##
 Construct a canvas that draws into device.
 Used by child classes of SkCanvas.
 
@@ -413,10 +306,8 @@ Used by child classes of SkCanvas.
 
 #Return         Canvas that can be used to draw into device ##
 
-#Example
-#Error "Unsure how to create a meaningful example."
- SkPDFCanvas::SkPDFCanvas(const sk_sp<SkPDFDevice>& dev)
-    : SkCanvas(dev.get()) {}
+#ToDo  unsure how to create a meaningful example ##
+#NoExample
 ##
 
 #ToDo either remove doc or figure out a way to fiddle it ##
@@ -429,6 +320,7 @@ Used by child classes of SkCanvas.
 
 #Method explicit SkCanvas(const SkBitmap& bitmap)
 
+#Line # uses existing Bitmap ##
 Construct a canvas that draws into bitmap.
 Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed Surface. 
 
@@ -439,7 +331,7 @@ May be deprecated in the future.
 
 #ToDo Should be deprecated? ##
 
-#Param bitmap   width, height, Image_Color_Type, Image_Alpha_Type, and pixel
+#Param bitmap   width, height, Color_Type, Alpha_Type, and pixel
                 storage of Raster_Surface
 ##
 
@@ -489,7 +381,7 @@ The actual output depends on the installed fonts.
 ##
 
 #EnumClass ColorBehavior
-
+#Line # Android framework only ##
 #Private
 Android framework only.
 ##
@@ -506,6 +398,7 @@ Android framework only.
 
 #Method SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)
 
+#Line # Android framework only ##
 #Private
 Android framework only.
 ##
@@ -522,13 +415,14 @@ Android framework only.
 
 #Method SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 
+#Line # uses existing Bitmap and Surface_Properties ##
 Construct a canvas that draws into bitmap.
 Use props to match the device characteristics, like LCD striping.
 
 bitmap is copied so that subsequently editing bitmap will not affect
 constructed Canvas.
 
-#Param bitmap   width, height, Image_Color_Type, Image_Alpha_Type,
+#Param bitmap   width, height, Color_Type, Alpha_Type,
                 and pixel storage of Raster_Surface 
 ##
 #Param props    order and orientation of RGB striping; and whether to use
@@ -584,8 +478,9 @@ The actual output depends on the installed fonts.
 
 #Method virtual ~SkCanvas()
 
-Draw saved Layers, if any.
-Free up resources used by Canvas.
+#Line # draws saved Layers, frees resources ##
+Draws saved Layers, if any.
+Frees up resources used by Canvas.
 
 #Example
 #Description
@@ -619,6 +514,7 @@ void draw(SkCanvas* canvas) {
 
 #Method SkMetaData& getMetaData()
 
+#Line # associates additional data with the canvas ##
 Returns storage to associate additional data with the canvas.
 The storage is freed when Canvas is deleted.
 
@@ -649,10 +545,11 @@ The storage is freed when Canvas is deleted.
 
 #Method SkImageInfo imageInfo() const
 
+#Line # returns Image_Info for Canvas ##
 Returns Image_Info for Canvas. If Canvas is not associated with Raster_Surface or
-GPU_Surface, returned Image_Color_Type is set to kUnknown_SkColorType.
+GPU_Surface, returned Color_Type is set to kUnknown_SkColorType.
 
-#Return  dimensions and Image_Color_Type of Canvas ##
+#Return  dimensions and Color_Type of Canvas ##
 
 #Example
     SkCanvas emptyCanvas;
@@ -673,6 +570,7 @@ GPU_Surface, returned Image_Color_Type is set to kUnknown_SkColorType.
 
 #Method bool getProps(SkSurfaceProps* props) const
 
+#Line # copies Surface_Properties if available ##
 If Canvas is associated with Raster_Surface or
 GPU_Surface, copies Surface_Properties and returns true. Otherwise,
 return false and leave props unchanged.
@@ -707,6 +605,7 @@ return false and leave props unchanged.
 
 #Method void flush()
 
+#Line # triggers execution of all pending draw operations ##
 Triggers the immediate execution of all pending draw operations. 
 If Canvas is associated with GPU_Surface, resolves all pending GPU operations.
 If Canvas is associated with Raster_Surface, has no effect; raster draw
@@ -729,8 +628,8 @@ In an overview section on managing the GPU, include:
 for posterity: this doesn't show a difference: fiddle.skia.org/c/@flushfail
 ##
 
-#Example
-#Error "haven't thought of a useful example to put here"
+#ToDo haven't thought of a useful example to put here ##
+#NoExample
 ##
 
 #SeeAlso peekPixels SkSurface::flush() GrContext::flush() SkSurface::prepareForExternalIO GrContext::abandonContext()
@@ -741,6 +640,7 @@ for posterity: this doesn't show a difference: fiddle.skia.org/c/@flushfail
 
 #Method virtual SkISize getBaseLayerSize() const
 
+#Line # returns size of base Layer in global coordinates ##
 Gets the size of the base or root Layer in global canvas coordinates. The
 origin of the base Layer is always (0,0). The area available for drawing may be
 smaller (due to clipping or saveLayer).
@@ -776,13 +676,14 @@ smaller (due to clipping or saveLayer).
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
 
+#Line # creates Surface matching SkImageInfo and SkSurfaceProps ##
 Creates Surface matching info and props, and associates it with Canvas.
 Returns nullptr if no match found.
 
 If props is nullptr, matches Surface_Properties in Canvas. If props is nullptr and Canvas
 does not have Surface_Properties, creates Surface with default Surface_Properties.
 
-#Param info  width, height, Image_Color_Type, Image_Alpha_Type, and Color_Space ##
+#Param info  width, height, Color_Type, Alpha_Type, and Color_Space ##
 #Param props  Surface_Properties to match; may be nullptr to match Canvas ##
 
 #Return  Surface matching info and props, or nullptr if no match is available ##
@@ -809,6 +710,7 @@ does not have Surface_Properties, creates Surface with default Surface_Propertie
 
 #Method virtual GrContext* getGrContext()
 
+#Line # returns GPU_Context of the GPU_Surface ##
 Returns GPU_Context of the GPU_Surface associated with Canvas.
 
 #Return GPU_Context, if available; nullptr otherwise ##
@@ -833,6 +735,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr)
 
+#Line # returns writable pixel access if available ##
 Returns the pixel base address, Image_Info, rowBytes, and origin if the pixels
 can be read directly. The returned address is only valid
 while Canvas is in scope and unchanged. Any Canvas call or Surface call
@@ -915,6 +818,7 @@ void draw(SkCanvas* canvas) {
 
 #Method SkRasterHandleAllocator::Handle accessTopRasterHandle() const
 
+#Line # returns context that tracks Clip and Matrix ##
 Returns custom context that tracks the Matrix and Clip.
 
 Use Raster_Handle_Allocator to blend Skia drawing with custom drawing, typically performed
@@ -974,6 +878,7 @@ the drawing destination.
 
 #Method bool peekPixels(SkPixmap* pixmap)
 
+#Line # returns if Canvas has direct access to its pixels ##
 Returns true if Canvas has direct access to its pixels.
 
 Pixels are readable when Device is raster. Pixels are not readable when Canvas
@@ -1006,6 +911,7 @@ Canvas or Surface call may invalidate the pixmap values.
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY)
+#Line # copies and converts rectangle of pixels from Canvas ##
 
 Copies Rect of pixels from Canvas into dstPixels. Matrix and Clip are
 ignored. 
@@ -1022,7 +928,7 @@ class like SkDumpCanvas.
 
 The destination pixel storage must be allocated by the caller.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. dstPixels contents outside Rect intersection are unchanged.
 
@@ -1037,7 +943,7 @@ Does not copy, and returns false if:
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
 
-#Param dstInfo  width, height, Image_Color_Type, and Image_Alpha_Type of dstPixels ##
+#Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
 #Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
 #Param srcX  offset into readable pixels in x; may be negative ##
@@ -1114,7 +1020,7 @@ class like SkDumpCanvas.
 
 Caller must allocate pixel storage in pixmap if needed.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination Rects
 are copied. pixmap pixels contents outside Rect intersection are unchanged.
 
@@ -1177,7 +1083,7 @@ class like SkDumpCanvas.
 
 Caller must allocate pixel storage in bitmap if needed.
 
-Bitmap values are converted only if Image_Color_Type and Image_Alpha_Type
+Bitmap values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Bitmap pixels outside Rect intersection are unchanged.
 
@@ -1225,6 +1131,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y)
 
+#Line # copies and converts rectangle of pixels to Canvas ##
 Copies Rect from pixels to Canvas. Matrix and Clip are ignored.
 Source Rect corners are (0, 0) and (info.width(), info.height()).
 Destination Rect corners are (x, y) and
@@ -1238,7 +1145,7 @@ Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Canvas pixels outside Rect intersection are unchanged.
 
@@ -1249,13 +1156,13 @@ Does not copy, and returns false if:
 
 #List
 # Source and destination rectangles do not intersect. ##
-# pixels could not be converted to this->imageInfo().colorType() or
-this->imageInfo().alphaType(). ##
+# pixels could not be converted to Canvas imageInfo().colorType() or
+  imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document-based. ##
 # rowBytes is too small to contain one row of pixels. ##
 ##
 
-#Param info  width, height, Image_Color_Type, and Image_Alpha_Type of pixels ##
+#Param info  width, height, Color_Type, and Alpha_Type of pixels ##
 #Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
 #Param rowBytes  size of one row of pixels; info.width() times pixel size, or larger ##
 #Param x  offset into Canvas writable pixels in x; may be negative ##
@@ -1296,7 +1203,7 @@ Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Canvas pixels outside Rect intersection are unchanged.
 
@@ -1308,8 +1215,8 @@ Does not copy, and returns false if:
 #List
 # Source and destination rectangles do not intersect. ##
 # bitmap does not have allocated pixels. ##
-# bitmap pixels could not be converted to this->imageInfo().colorType() or
-this->imageInfo().alphaType(). ##
+# bitmap pixels could not be converted to Canvas imageInfo().colorType() or
+  imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document based. ##
 # bitmap pixels are inaccessible; for instance, bitmap wraps a texture. ##
 ##
@@ -1344,7 +1251,8 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
-#Topic State_Stack
+#Subtopic State_Stack
+#Line # stack of state for hierarchical drawing ##
 
 Canvas maintains a stack of state that allows hierarchical drawing, commonly used
 to implement windows and views. The initial state has an identity matrix and and
@@ -1416,6 +1324,8 @@ void draw(SkCanvas* canvas) {
 
 #Method int save()
 
+#In State_Stack
+#Line # saves Clip and Matrix on stack ##
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms).
 Calling restore() discards changes to Matrix, Clip, and Draw_Filter,
 restoring the Matrix, Clip, and Draw_Filter to their state when save() was called.
@@ -1458,6 +1368,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void restore()
 
+#In State_Stack
+#Line # restores changes to Clip and Matrix, pops save stack ##
 Removes changes to Matrix, Clip, and Draw_Filter since Canvas state was
 last saved. The state is removed from the stack. 
 
@@ -1480,6 +1392,8 @@ void draw(SkCanvas* canvas) {
 
 #Method int getSaveCount() const
 
+#In State_Stack
+#Line # returns depth of stack containing Clip and Matrix ##
 Returns the number of saved states, each containing: Matrix, Clip, and Draw_Filter.
 Equals the number of save() calls less the number of restore() calls plus one. 
 The save count of a new canvas is one.
@@ -1510,6 +1424,8 @@ depth = 1
 
 #Method void restoreToCount(int saveCount)
 
+#In State_Stack
+#Line # restores changes to Clip and Matrix to given depth ##
 Restores state to Matrix, Clip, and Draw_Filter values when save(), saveLayer,
 saveLayerPreserveLCDTextRequests, or saveLayerAlpha returned saveCount.
 
@@ -1538,13 +1454,14 @@ depth = 1
 
 ##
 
-#Topic State_Stack ##
+#Subtopic State_Stack ##
 
 # ------------------------------------------------------------------------------
 
-#Topic Layer
+#Subtopic Layer
 #Substitute layer
 #Alias Layers
+#Line # temporary Bitmap to draw into ##
 
 Layer allocates a temporary Bitmap to draw into. When the drawing is
 complete, the Bitmap is drawn into the Canvas. 
@@ -1558,6 +1475,8 @@ Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode.
 
 #Method int saveLayer(const SkRect* bounds, const SkPaint* paint)
 
+#In Layer
+#Line # saves Clip and Matrix on stack; creates Layer ##
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms),
 and allocates a Bitmap for subsequent drawing.
 Calling restore() discards changes to Matrix, Clip, and Draw_Filter,
@@ -1605,6 +1524,7 @@ void draw(SkCanvas* canvas) {
 
 #Method int saveLayer(const SkRect& bounds, const SkPaint* paint) 
 
+#In Layer
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms),
 and allocates a Bitmap for subsequent drawing.
 Calling restore() discards changes to Matrix, Clip, and Draw_Filter,
@@ -1653,6 +1573,8 @@ void draw(SkCanvas* canvas) {
 
 #Method int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
 
+#In Layer
+#Line # saves Clip and Matrix on stack; creates Layer for LCD text ##
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms),
 and allocates a Bitmap for subsequent drawing.
 LCD_Text is preserved when the Layer is drawn to the prior Layer.
@@ -1710,6 +1632,8 @@ incorrect blending.
 
 #Method int saveLayerAlpha(const SkRect* bounds, U8CPU alpha)
 
+#In Layer
+#Line # saves Clip and Matrix on stack; creates Layer; sets opacity ##
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms),
 and allocates Bitmap for subsequent drawing.
 
@@ -1749,8 +1673,13 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 
 ##
 
-#Enum
+#ToDo 
+add new markup to associate typedef SaveLayerFlags with Enum so that, for
+documentation purposes, this enum is named rather than anonymous
+##
 
+#Enum
+#Line # sets SaveLayerRec options ##
 #Code
     enum {
         kIsOpaque_SaveLayerFlag = 1 << 0,
@@ -1818,7 +1747,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Struct SaveLayerRec
-
+#Line # contains the state used to create the Layer ##
 #Code
     struct SaveLayerRec {
         SaveLayerRec*(...
@@ -2008,6 +1937,7 @@ Implementation is not complete; has no effect if Device is GPU-backed.
 
 #Method int saveLayer(const SaveLayerRec& layerRec)
 
+#In Layer
 Saves Matrix, Clip, and Draw_Filter (Draw_Filter deprecated on most platforms),
 and allocates Bitmap for subsequent drawing.
 
@@ -2034,7 +1964,7 @@ Where Layer was cleared, the original image will draw unchanged.
 Outside of the circle the mandrill is brightened.
 ##
     #Image 3
-    // sk_sp<SkImage> image = GetResourceAsImage("mandrill_256.png");
+    // sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(image, 0, 0, nullptr);
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;
@@ -2053,13 +1983,16 @@ Outside of the circle the mandrill is brightened.
 
 ##
 
-#Topic Layer ##
+#Subtopic Layer ##
 
 # ------------------------------------------------------------------------------
-#Topic Matrix
+#Subtopic Matrix
+#Line # coordinate transformation ##
 
 #Method void translate(SkScalar dx, SkScalar dy)
 
+#In Matrix
+#Line # translates Matrix ##
 Translate Matrix by dx along the x-axis and dy along the y-axis.
 
 Mathematically, replace Matrix with a translation matrix
@@ -2110,6 +2043,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void scale(SkScalar sx, SkScalar sy)
 
+#In Matrix
+#Line # scales Matrix ##
 Scale Matrix by sx on the x-axis and sy on the y-axis.
 
 Mathematically, replace Matrix with a scale matrix
@@ -2142,6 +2077,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void rotate(SkScalar degrees)
 
+#In Matrix
+#Line # rotates Matrix ##
 Rotate Matrix by degrees. Positive degrees rotates clockwise.
 
 Mathematically, replace Matrix with a rotation matrix
@@ -2179,6 +2116,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void rotate(SkScalar degrees, SkScalar px, SkScalar py)
 
+#In Matrix
 Rotate Matrix by degrees about a point at (px, py). Positive degrees rotates
 clockwise.
 
@@ -2212,6 +2150,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void skew(SkScalar sx, SkScalar sy)
 
+#In Matrix
+#Line # skews Matrix ##
 Skew Matrix by sx on the x-axis and sy on the y-axis. A positive value of sx
 skews the drawing right as y increases; a positive value of sy skews the drawing
 down as x increases.
@@ -2257,6 +2197,8 @@ the result with Matrix.
 
 #Method void concat(const SkMatrix& matrix)
 
+#In Matrix
+#Line # multiplies Matrix by Matrix ##
 Replace Matrix with matrix Premultiplied with existing Matrix.
 
 This has the effect of transforming the drawn geometry by matrix, before
@@ -2289,6 +2231,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setMatrix(const SkMatrix& matrix)
 
+#In Matrix
+#Line # sets Matrix ##
 Replace Matrix with matrix.
 Unlike concat(), any prior matrix state is overwritten.
 
@@ -2315,6 +2259,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void resetMatrix()
 
+#In Matrix
+#Line # resets Matrix to identity ##
 Sets Matrix to the identity matrix.
 Any prior matrix state is overwritten.
 
@@ -2338,6 +2284,8 @@ void draw(SkCanvas* canvas) {
 
 #Method const SkMatrix& getTotalMatrix() const
 
+#In Matrix
+#Line # returns Matrix ##
 Returns Matrix.
 This does not account for translation by Device or Surface.
 
@@ -2354,10 +2302,11 @@ This does not account for translation by Device or Surface.
 
 ##
 
-#Topic Matrix ##
+#Subtopic Matrix ##
 
 # ------------------------------------------------------------------------------
-#Topic Clip
+#Subtopic Clip
+#Line # stack of clipping Paths ##
 
 Clip is built from a stack of clipping paths. Each Path in the
 stack can be constructed from one or more Path_Contour elements. The 
@@ -2418,6 +2367,8 @@ and is unaffected by Matrix.
 
 #Method void clipRect(const SkRect& rect, SkClipOp op, bool doAntiAlias)
 
+#In Clip
+#Line # combines Clip with Rect ##
 Replace Clip with the intersection or difference of Clip and rect,
 with an Aliased or Anti-aliased clip edge. rect is transformed by Matrix
 before it is combined with Clip.
@@ -2448,6 +2399,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipRect(const SkRect& rect, SkClipOp op) 
 
+#In Clip
 Replace Clip with the intersection or difference of Clip and rect.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 rect is transformed by Matrix before it is combined with Clip.
@@ -2476,6 +2428,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipRect(const SkRect& rect, bool doAntiAlias = false) 
 
+#In Clip
 Replace Clip with the intersection of Clip and rect.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 rect is transformed by Matrix
@@ -2517,6 +2470,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void androidFramework_setDeviceClipRestriction(const SkIRect& rect)
 
+#In Clip
+#Line # for use by Android framework ##
 Sets the maximum clip rectangle, which can be set by clipRect, clipRRect and
 clipPath and intersect the current clip with the specified rect.
 The maximum clip affects only future clipping operations; it is not retroactive.
@@ -2535,6 +2490,8 @@ This is private API to be used only by Android framework.
 
 #Method void clipRRect(const SkRRect& rrect, SkClipOp op, bool doAntiAlias)
 
+#In Clip
+#Line # combines Clip with Round_Rect ##
 Replace Clip with the intersection or difference of Clip and rrect,
 with an Aliased or Anti-aliased clip edge.
 rrect is transformed by Matrix
@@ -2564,6 +2521,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipRRect(const SkRRect& rrect, SkClipOp op) 
 
+#In Clip
 Replace Clip with the intersection or difference of Clip and rrect.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 rrect is transformed by Matrix before it is combined with Clip.
@@ -2588,6 +2546,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipRRect(const SkRRect& rrect, bool doAntiAlias = false) 
 
+#In Clip
 Replace Clip with the intersection of Clip and rrect,
 with an Aliased or Anti-aliased clip edge.
 rrect is transformed by Matrix before it is combined with Clip.
@@ -2612,6 +2571,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipPath(const SkPath& path, SkClipOp op, bool doAntiAlias)
 
+#In Clip
+#Line # combines Clip with Path ##
 Replace Clip with the intersection or difference of Clip and path,
 with an Aliased or Anti-aliased clip edge. Path_Fill_Type determines if path
 describes the area inside or outside its contours; and if Path_Contour overlaps
@@ -2653,6 +2614,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipPath(const SkPath& path, SkClipOp op) 
 
+#In Clip
 Replace Clip with the intersection or difference of Clip and path.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 Path_Fill_Type determines if path
@@ -2694,6 +2656,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void clipPath(const SkPath& path, bool doAntiAlias = false) 
 
+#In Clip
 Replace Clip with the intersection of Clip and path.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 Path_Fill_Type determines if path
@@ -2738,6 +2701,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setAllowSimplifyClip(bool allow) 
 
+#In Clip
+#Line # experimental ##
 #Experimental
 Only used for testing.
 ##
@@ -2750,6 +2715,8 @@ Set to simplify clip stack using PathOps.
 
 #Method void clipRegion(const SkRegion& deviceRgn, SkClipOp op = SkClipOp::kIntersect)
 
+#In Clip
+#Line # combines Clip with Region ##
 Replace Clip with the intersection or difference of Clip and Region deviceRgn.
 Resulting Clip is Aliased; pixels are fully contained by the clip.
 deviceRgn is unaffected by Matrix.
@@ -2785,6 +2752,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool quickReject(const SkRect& rect) const
 
+#In Clip
+#Line # returns if Rect is outside Clip ##
 Return true if Rect rect, transformed by Matrix, can be quickly determined to be
 outside of Clip. May return false even though rect is outside of Clip.
 
@@ -2818,6 +2787,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool quickReject(const SkPath& path) const
 
+#In Clip
 Return true if path, transformed by Matrix, can be quickly determined to be
 outside of Clip. May return false even though path is outside of Clip.
 
@@ -2854,6 +2824,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkRect getLocalClipBounds() const 
 
+#In Clip
+#Line # returns Clip bounds in source coordinates ##
 Return bounds of Clip, transformed by inverse of Matrix. If Clip is empty,
 return SkRect::MakeEmpty, where all Rect sides equal zero.
 
@@ -2899,6 +2871,7 @@ is Anti-aliased.
 
 #Method bool getLocalClipBounds(SkRect* bounds) const 
 
+#In Clip
 Return bounds of Clip, transformed by inverse of Matrix. If Clip is empty,
 return false, and set bounds to SkRect::MakeEmpty, where all Rect sides equal zero.
 
@@ -2935,6 +2908,8 @@ is Anti-aliased.
 
 #Method SkIRect getDeviceClipBounds() const 
 
+#In Clip
+#Line # returns IRect bounds of Clip ##
 Return IRect bounds of Clip, unaffected by Matrix. If Clip is empty,
 return SkRect::MakeEmpty, where all Rect sides equal zero.
 
@@ -2986,6 +2961,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool getDeviceClipBounds(SkIRect* bounds) const 
 
+#In Clip
 Return IRect bounds of Clip, unaffected by Matrix. If Clip is empty,
 return false, and set bounds to SkRect::MakeEmpty, where all Rect sides equal zero.
 
@@ -3015,12 +2991,13 @@ Unlike getLocalClipBounds, bounds is not outset.
 
 ##
 
-#Topic Clip ##
+#Subtopic Clip ##
 
 # ------------------------------------------------------------------------------
 
 #Method void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver)
 
+#Line # fills Clip with Color and Blend_Mode ##
 Fill Clip with Color color.
 mode determines how Color_ARGB is combined with destination.
 
@@ -3043,6 +3020,7 @@ mode determines how Color_ARGB is combined with destination.
 
 #Method void clear(SkColor color) 
 
+#Line # fills Clip with Color ##
 Fill Clip with Color color using SkBlendMode::kSrc. 
 This has the effect of replacing all pixels contained by Clip with color.
 
@@ -3071,6 +3049,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void discard() 
 
+#Line # makes Canvas contents undefined ##
 Make Canvas contents undefined. Subsequent calls that read Canvas pixels,
 such as drawing with SkBlendMode, return undefined results. discard() does
 not change Clip or Matrix.
@@ -3095,7 +3074,8 @@ any cached data is deleted when owning Surface or Device is deleted.
 
 #Method void drawPaint(const SkPaint& paint)
 
-Fill Clip with Paint paint. Paint components Rasterizer, Mask_Filter, Shader,
+#Line # fills Clip with Paint ##
+Fill Clip with Paint paint. Paint components Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Blend_Mode affect drawing;
 Path_Effect in paint is ignored.
 
@@ -3120,6 +3100,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Enum PointMode
+#Line # sets drawPoints options ##
 
 #Code
     enum PointMode {
@@ -3176,6 +3157,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint)
 
+#Line # draws array as points, lines, polygon ##
 Draw pts using Clip, Matrix and Paint paint.
 count is the number of points; if count is less than one, has no effect.
 mode may be one of: kPoints_PointMode, kLines_PointMode, or kPolygon_PointMode.
@@ -3256,6 +3238,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)
 
+#Line # draws point at (x, y) position ##
 Draw point at (x, y) using Clip, Matrix and Paint paint.
 
 The shape of point drawn depends on paint Paint_Stroke_Cap.
@@ -3325,6 +3308,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)
 
+#Line # draws line segment between two points ##
 Draws line segment from (x0, y0) to (x1, y1) using Clip, Matrix, and Paint paint.
 In paint: Paint_Stroke_Width describes the line thickness;
 Paint_Stroke_Cap draws the end rounded or square;
@@ -3381,6 +3365,7 @@ Paint_Style is ignored, as if were set to SkPaint::kStroke_Style.
 
 #Method void drawRect(const SkRect& rect, const SkPaint& paint)
 
+#Line # draws Rect using Clip, Matrix, and Paint ##
 Draw Rect rect using Clip, Matrix, and Paint paint.
 In paint: Paint_Style determines if rectangle is stroked or filled; 
 if stroked, Paint_Stroke_Width describes the line thickness, and
@@ -3417,6 +3402,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawIRect(const SkIRect& rect, const SkPaint& paint) 
 
+#Line # draws IRect using Clip, Matrix, and Paint ##
 Draw IRect rect using Clip, Matrix, and Paint paint.
 In paint: Paint_Style determines if rectangle is stroked or filled; 
 if stroked, Paint_Stroke_Width describes the line thickness, and
@@ -3447,6 +3433,7 @@ Paint_Stroke_Join draws the corners rounded or square.
 
 #Method void drawRegion(const SkRegion& region, const SkPaint& paint)
 
+#Line # draws Region using Clip, Matrix, and Paint ##
 Draw Region region using Clip, Matrix, and Paint paint.
 In paint: Paint_Style determines if rectangle is stroked or filled; 
 if stroked, Paint_Stroke_Width describes the line thickness, and
@@ -3477,6 +3464,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawOval(const SkRect& oval, const SkPaint& paint)
 
+#Line # draws Oval using Clip, Matrix, and Paint ##
 Draw Oval oval using Clip, Matrix, and Paint.
 In paint: Paint_Style determines if Oval is stroked or filled; 
 if stroked, Paint_Stroke_Width describes the line thickness.
@@ -3508,6 +3496,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawRRect(const SkRRect& rrect, const SkPaint& paint)
 
+#Line # draws Round_Rect using Clip, Matrix, and Paint ##
 Draw Round_Rect rrect using Clip, Matrix, and Paint paint.
 In paint: Paint_Style determines if rrect is stroked or filled; 
 if stroked, Paint_Stroke_Width describes the line thickness.
@@ -3547,6 +3536,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint)
 
+#Line # draws double Round_Rect stroked or filled ##
 Draw Round_Rect outer and inner
 using Clip, Matrix, and Paint paint. 
 outer must contain inner or the drawing is undefined.
@@ -3601,6 +3591,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)
 
+#Line # draws Circle using Clip, Matrix, and Paint ##
 Draw Circle at (cx, cy) with radius using Clip, Matrix, and Paint paint.
 If radius is zero or less, nothing is drawn.
 In paint: Paint_Style determines if Circle is stroked or filled; 
@@ -3658,6 +3649,7 @@ if stroked, Paint_Stroke_Width describes the line thickness.
 
 #Method void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint)
+#Line # draws Arc using Clip, Matrix, and Paint ##
 
 Draw Arc using Clip, Matrix, and Paint paint.
 
@@ -3722,6 +3714,7 @@ If Rect oval is empty or sweepAngle is zero, nothing is drawn.
 
 #Method void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint)
 
+#Line # draws Round_Rect using Clip, Matrix, and Paint ##
 Draw Round_Rect bounded by Rect rect, with corner radii (rx, ry) using Clip,
 Matrix, and Paint paint.
 
@@ -3769,6 +3762,7 @@ Paint_Stroke_Join.
 
 #Method void drawPath(const SkPath& path, const SkPaint& paint)
 
+#Line # draws Path using Clip, Matrix, and Paint ##
 Draw Path path using Clip, Matrix, and Paint paint.
 Path contains an array of Path_Contour, each of which may be open or closed.
 
@@ -3829,13 +3823,16 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
-#Topic Draw_Image
+#Subtopic Draw_Image
+#Line # draws Image to Canvas ##
 
 drawImage, drawImageRect, and drawImageNine can be called with a bare pointer or
 a smart pointer as a convenience. The pairs of calls are otherwise identical.
 
 #Method void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
 
+#In Draw_Image
+#Line # draws Image at (x, y) position ##
 Draw Image image, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
 
@@ -3875,6 +3872,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
                    const SkPaint* paint = nullptr) 
+#In Draw_Image
 
 Draw Image image, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
@@ -3913,6 +3911,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Enum SrcRectConstraint
+#Line # sets drawImageRect options ##
 
 #Code
     enum SrcRectConstraint {
@@ -3983,6 +3982,8 @@ void draw(SkCanvas* canvas) {
 #Method void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                        const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
+#Line # draws Image, source Rect to destination Rect ##
 
 Draw Rect src of Image image, scaled and translated to fill Rect dst.
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
@@ -4047,6 +4048,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                        const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
 
 Draw IRect isrc of Image image, scaled and translated to fill Rect dst.
 Note that isrc is on integer pixel boundaries; dst may include fractional
@@ -4092,6 +4094,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
 
 Draw Image image, scaled and translated to fill Rect dst, using Clip, Matrix,
 and optional Paint paint.
@@ -4134,6 +4137,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& src, const SkRect& dst,
                        const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint) 
+#In Draw_Image
 
 Draw Rect src of Image image, scaled and translated to fill Rect dst.
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
@@ -4189,6 +4193,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
                        const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint) 
+#In Draw_Image
 
 Draw IRect isrc of Image image, scaled and translated to fill Rect dst.
 isrc is on integer pixel boundaries; dst may include fractional boundaries.
@@ -4241,6 +4246,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint) 
+#In Draw_Image
 
 Draw Image image, scaled and translated to fill Rect dst,
 using Clip, Matrix, and optional Paint paint.
@@ -4291,6 +4297,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr)
+#In Draw_Image
+#Line # draws Nine_Patch Image ##
 
 Draw Image image stretched proportionally to fit into Rect dst.
 IRect center divides the image into nine sections: four sides, four corners, and
@@ -4357,6 +4365,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr) 
+#In Draw_Image
 
 Draw Image image stretched proportionally to fit into Rect dst.
 IRect center divides the image into nine sections: four sides, four corners, and
@@ -4424,6 +4433,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                     const SkPaint* paint = nullptr)
+#In Draw_Image
+#Line # draws Bitmap at (x, y) position ##
 
 Draw Bitmap bitmap, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
@@ -4476,6 +4487,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
+#Line # draws Bitmap, source Rect to destination Rect ##
 
 Draw Rect src of Bitmap bitmap, scaled and translated to fill Rect dst.
 Additionally transform draw using Clip, Matrix, and optional Paint paint.
@@ -4533,6 +4546,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
                         const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
 
 Draw IRect isrc of Bitmap bitmap, scaled and translated to fill Rect dst.
 isrc is on integer pixel boundaries; dst may include fractional boundaries.
@@ -4591,6 +4605,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint)
+#In Draw_Image
 
 Draw Bitmap bitmap, scaled and translated to fill Rect dst.
 bitmap bounds is on integer pixel boundaries; dst may include fractional boundaries.
@@ -4642,6 +4657,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = nullptr)
+#In Draw_Image
+#Line # draws Nine_Patch Bitmap ##
 
 Draw Bitmap bitmap stretched proportionally to fit into Rect dst.
 IRect center divides the bitmap into nine sections: four sides, four corners,
@@ -4708,17 +4725,18 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 #Struct Lattice
-
+#Line # divides Bitmap or Image into a rectangular grid ##
 #Code
     struct Lattice {
-        enum Flags {...
+        enum RectType ...
 
-        const int*     fXDivs;
-        const int*     fYDivs;
-        const Flags*   fFlags;
-        int            fXCount;
-        int            fYCount;
-        const SkIRect* fBounds;
+        const int*      fXDivs;
+        const int*      fYDivs;
+        const RectType* fRectTypes;
+        int             fXCount;
+        int             fYCount;
+        const SkIRect*  fBounds;
+        const SkColor*  fColors;
     };
 ##
 
@@ -4730,17 +4748,28 @@ void draw(SkCanvas* canvas) {
     The grid entries not on even columns and rows are scaled to fit the
     remaining space, if any.
 
-    #Enum Flags
+    #Enum RectType
         #Code
-            enum Flags : uint8_t {
-                kTransparent_Flags = 1 << 0,
+            enum RectType : uint8_t {
+                kDefault = 0,
+                kTransparent,
+                kFixedColor,
             };
         ##
 
-        Optional setting per rectangular grid entry to make it transparent.
+        Optional setting per rectangular grid entry to make it transparent,
+        or to fill the grid entry with a color.
 
-        #Const kTransparent_Flags 1
-            Set to skip lattice rectangle by making it transparent.
+        #Const kDefault 0
+            Draws Bitmap into lattice rectangle.
+        ##
+
+        #Const kTransparent 1
+            Skips lattice rectangle by making it transparent.
+        ##
+
+        #Const kFixedColor 2
+            Draws one of fColors into lattice rectangle.
         ##
     ##
 
@@ -4760,13 +4789,15 @@ void draw(SkCanvas* canvas) {
         grid entries.
     ##
 
-    #Member const Flags*  fFlags
-        Optional array of Flags, one per rectangular grid entry:
+    #Member const RectType* fRectTypes
+        Optional array of fill types, one per rectangular grid entry:
         array length must be
     #Formula
         (fXCount + 1) * (fYCount + 1)
     ##
         .
+
+        Each RectType is one of: kDefault, kTransparent, kFixedColor.
 
         Array entries correspond to the rectangular grid entries, ascending
         left to right and then top to bottom.
@@ -4787,10 +4818,24 @@ void draw(SkCanvas* canvas) {
        If nullptr, source bounds is dimensions of Bitmap or Image.
     ##
 
+    #Member const SkColor*   fColors
+       Optional array of colors, one per rectangular grid entry.
+       Array length must be
+       #Formula
+       (fXCount + 1) * (fYCount + 1)
+       ##
+       .
+
+       Array entries correspond to the rectangular grid entries, ascending
+       left to right, then top to bottom.
+    ##
+
 #Struct Lattice ##
 
 #Method void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                            const SkPaint* paint = nullptr)
+#In Draw_Image
+#Line # draws proportionally stretched Bitmap ##
 
 Draw Bitmap bitmap stretched proportionally to fit into Rect dst.
 
@@ -4848,13 +4893,14 @@ void draw(SkCanvas* canvas) {
     }
     const int xDivs[] = { center.fLeft, center.fRight };
     const int yDivs[] = { center.fTop, center.fBottom };
-    SkCanvas::Lattice::Flags flags[3][3];
-    memset(flags, 0, sizeof(flags));  
-    flags[1][1] = SkCanvas::Lattice::kTransparent_Flags;
-    SkCanvas::Lattice lattice = { xDivs, yDivs, flags[0], SK_ARRAY_COUNT(xDivs),
-         SK_ARRAY_COUNT(yDivs), nullptr };
+    SkCanvas::Lattice::RectType fillTypes[3][3];
+    memset(fillTypes, 0, sizeof(fillTypes));
+    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;
+    SkColor dummy[9];  // temporary pending bug fix
+    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),
+         SK_ARRAY_COUNT(yDivs), nullptr, dummy };
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
-        canvas->drawBitmapLattice(bitmap, lattice , SkRect::MakeWH(dest, 110 - dest), nullptr);
+        canvas->drawBitmapLattice(bitmap, lattice, SkRect::MakeWH(dest, 110 - dest), nullptr);
         canvas->translate(dest + 4, 0);
     }
 }
@@ -4868,6 +4914,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr)
+#In Draw_Image
+#Line # draws proportionally stretched Image ##
 
 Draw Image image stretched proportionally to fit into Rect dst.
 
@@ -4923,11 +4971,12 @@ void draw(SkCanvas* canvas) {
     }
     const int xDivs[] = { center.fLeft, center.fRight };
     const int yDivs[] = { center.fTop, center.fBottom };
-    SkCanvas::Lattice::Flags flags[3][3];
-    memset(flags, 0, sizeof(flags));  
-    flags[1][1] = SkCanvas::Lattice::kTransparent_Flags;
-    SkCanvas::Lattice lattice = { xDivs, yDivs, flags[0], SK_ARRAY_COUNT(xDivs),
-         SK_ARRAY_COUNT(yDivs), nullptr };
+    SkCanvas::Lattice::RectType fillTypes[3][3];
+    memset(fillTypes, 0, sizeof(fillTypes));  
+    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;
+    SkColor dummy[9];  // temporary pending bug fix
+    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),
+         SK_ARRAY_COUNT(yDivs), nullptr, dummy };
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     SkImage* imagePtr = image.get();
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
@@ -4941,12 +4990,13 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic Draw_Image ##
+#Subtopic Draw_Image ##
 
 # ------------------------------------------------------------------------------
 
 #Method void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                   const SkPaint& paint)
+#Line # draws text at (x, y), using font advance ##
 
 Draw text, with origin at (x, y), using Clip, Matrix, and Paint paint.
 
@@ -4957,7 +5007,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 text draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5002,6 +5052,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
 
+#Line # draws null terminated string at (x, y) using font advance ##
 Draw null terminated string, with origin at (x, y), using Clip, Matrix, and
 Paint paint.
 
@@ -5013,7 +5064,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5046,7 +5097,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5071,6 +5122,7 @@ filled 12 point black Glyphs.
 
 #Method void drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                      const SkPaint& paint)
+#Line # draws text at array of (x, y) positions ##
 
 Draw each glyph in text with the origin in pos array, using Clip, Matrix, and
 Paint paint. The number of entries in pos array must match the number of Glyphs
@@ -5082,7 +5134,7 @@ by default each glyph left side bearing is positioned at x and its
 baseline is positioned at y. Text size is affected by Matrix and
 Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5114,6 +5166,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
                       const SkPaint& paint)
+#Line # draws text at x positions with common baseline ##
 
 Draw each glyph in text with its (x, y) origin composed from xpos array and
 constY, using Clip, Matrix, and Paint paint. The number of entries in xpos array
@@ -5125,7 +5178,7 @@ by default each glyph left side bearing is positioned at an xpos element and
 its baseline is positioned at constY. Text size is affected by Matrix and
 Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5156,6 +5209,7 @@ baseline.
 
 #Method void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
                           SkScalar vOffset, const SkPaint& paint)
+#Line # draws text following Path with offsets ##
 
 Draw text on Path path, using Clip, Matrix, and Paint paint.
 
@@ -5170,7 +5224,7 @@ UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
 baseline at origin y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5204,6 +5258,7 @@ filled 12 point black Glyphs.
 
 #Method void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                         const SkMatrix* matrix, const SkPaint& paint)
+#Line # draws text following Path contour ##
 
 Draw text on Path path, using Clip, Matrix, and Paint paint.
 
@@ -5218,7 +5273,7 @@ UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
 baseline at origin y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5258,6 +5313,7 @@ filled 12 point black Glyphs.
 
 #Method void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                          const SkRect* cullRect, const SkPaint& paint)
+#Line # draws text with array of RSXform ##
 
 Draw text, transforming each glyph by the corresponding SkRSXform,
 using Clip, Matrix, and Paint paint.
@@ -5268,7 +5324,7 @@ each glyph.
 Optional Rect cullRect is a conservative bounds of text, taking into account
 RSXform and paint. If cullRect is outside of Clip, canvas can skip drawing.
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5308,6 +5364,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
 
+#Line # draws text with arrays of positions and Paint ##
 Draw Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
@@ -5316,7 +5373,9 @@ Paint_Text_Align, Paint_Hinting, Anti-alias, Paint_Fake_Bold,
 Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
 Subpixel_Text, and Paint_Vertical_Text.
 
-Elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader, Color_Filter, 
+Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+
+Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter,
 Image_Filter, and Draw_Looper; apply to blob.
 
 #Param  blob     Glyphs, positions, and their paints' text size, typeface, and so on ##
@@ -5333,6 +5392,7 @@ Image_Filter, and Draw_Looper; apply to blob.
         uint16_t glyphs[len];
         SkPaint paint;
         paint.textToGlyphs(bunny, len, glyphs);
+        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         int runs[] = { 3, 1, 3 };
         SkPoint textPos = { 20, 100 };
         int glyphIndex = 0;
@@ -5341,7 +5401,7 @@ Image_Filter, and Draw_Looper; apply to blob.
             const SkTextBlobBuilder::RunBuffer& run = 
                     textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);
             memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);
-            textPos.fX += paint.measureText(&bunny[glyphIndex], runLen, nullptr);
+            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);
             glyphIndex += runLen;
         }
         sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
@@ -5366,7 +5426,9 @@ Paint_Text_Align, Paint_Hinting, Anti-alias, Paint_Fake_Bold,
 Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
 Subpixel_Text, and Paint_Vertical_Text.
 
-Elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader, Color_Filter, 
+Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+
+Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter, 
 Image_Filter, and Draw_Looper; apply to blob.
 
 #Param  blob     Glyphs, positions, and their paints' text size, typeface, and so on ##
@@ -5385,6 +5447,7 @@ Paint attributes related to text, like text size, have no effect on paint passed
         SkPaint paint;
         paint.setTextSize(50);
         paint.setColor(SK_ColorRED);
+        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
         const SkTextBlobBuilder::RunBuffer& run = 
                 textBlobBuilder.allocRun(paint, 1, 20, 100);
         run.glyphs[0] = 20;
@@ -5403,6 +5466,7 @@ Paint attributes related to text, like text size, have no effect on paint passed
 
 #Method void drawPicture(const SkPicture* picture) 
 
+#Line # draws Picture using Clip and Matrix ##
 Draw Picture picture, using Clip and Matrix.
 Clip and Matrix are unchanged by picture contents, as if
 save() was called before and restore() was called after drawPicture.
@@ -5557,6 +5621,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)
 
+#Line # draws Vertices, a triangle mesh ##
 Draw Vertices vertices, a triangle mesh, using Clip and Matrix.
 If Vertices_Texs and Vertices_Colors are defined in vertices, and Paint paint
 contains Shader, Blend_Mode mode combines Vertices_Colors with Shader.
@@ -5614,6 +5679,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)
+#Line # draws Coons_Patch ##
 
 Draws a Coons_Patch: the interpolation of four cubics with shared corners, 
 associating a color, and optionally a texture coordinate, with each corner.
@@ -5756,6 +5822,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                    const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
                    const SkPaint* paint)
+#Line # draws sprites using Clip, Matrix, and Paint ##
 
 Draw a set of sprites from atlas, using Clip, Matrix, and optional Paint paint.
 paint uses Anti-alias, Color_Alpha, Color_Filter, Image_Filter, and Blend_Mode
@@ -5911,6 +5978,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)
 
+#Line # draws Drawable, encapsulated drawing commands ##
 Draw Drawable drawable using Clip and Matrix, concatenated with 
 optional matrix.
 
@@ -6001,6 +6069,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void drawAnnotation(const SkRect& rect, const char key[], SkData* value)
 
+#Line # associates a Rect with a key-value pair ##
 Associate Rect on Canvas when an annotation; a key-value pair, where the key is
 a null-terminated utf8 string, and optional value is stored as Data.
 
@@ -6059,6 +6128,7 @@ Document_PDF, use annotations.
 
 #Method SkDrawFilter* getDrawFilter() const
 
+#Line # legacy; to be deprecated ##
 Legacy call to be deprecated.
 
 #Deprecated 
@@ -6068,6 +6138,7 @@ Legacy call to be deprecated.
 
 #Method virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter)
 
+#Line # legacy; to be deprecated ##
 Legacy call to be deprecated.
 
 #Deprecated 
@@ -6079,6 +6150,7 @@ Legacy call to be deprecated.
 
 #Method virtual bool isClipEmpty() const
 
+#Line # returns if Clip is empty ##
 Returns true if Clip is empty; that is, nothing will draw.
 
 May do work when called; it should not be called
@@ -6108,6 +6180,7 @@ work until Clip changes.
 
 #Method virtual bool isClipRect() const
 
+#Line # returns if Clip is Rect and not empty ##
 Returns true if Clip is Rect and not empty.
 Returns false if the clip is empty, or if it is not Rect.
 
@@ -6130,90 +6203,5 @@ Returns false if the clip is empty, or if it is not Rect.
 ##
 
 #Class SkCanvas ##
-
-#Class SkAutoCanvasRestore
-
-Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
-goes out of scope. Use this to guarantee that the canvas is restored to a known
-state.
-
-#Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
-
-Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
-
-#Param canvas  Canvas to guard ##
-#Param doSave  call SkCanvas::save() ##
-
-#Return utility to restore Canvas state on destructor ##
-
-#Example
-#Height 128
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
-    for (SkScalar sx : { -1, 1 } ) {
-        for (SkScalar sy : { -1, 1 } ) {
-            SkAutoCanvasRestore autoRestore(canvas, true);
-            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);
-            canvas->concat(m);
-            canvas->drawString("R", 0, 0, p);
-        }
-    }
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method ~SkAutoCanvasRestore()
-
-Restores Canvas to saved state. Destructor is called when container goes out of
-scope.
-
-#NoExample
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method void restore()
-
-Restores Canvas to saved state immediately. Subsequent calls and
-~SkAutoCanvasRestore have no effect.
-
-#Example
-for (bool callRestore : { false, true } ) {
-    for (bool saveCanvas : {false, true} ) {
-        SkAutoCanvasRestore autoRestore(canvas, saveCanvas);
-        if (!saveCanvas) {
-            canvas->save();
-        }
-        SkDebugf("saveCanvas: %s  before restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-        if (callRestore) autoRestore.restore();
-        SkDebugf("saveCanvas: %s  after restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-    }
-}
-SkDebugf("final count: %d\n", canvas->getSaveCount());
-#StdOut
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 2
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 2
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 1
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 1
-final count: 1
-##
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Class SkAutoCanvasRestore ##
 
 #Topic Canvas ##

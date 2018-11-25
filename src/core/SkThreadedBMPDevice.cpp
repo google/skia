@@ -8,205 +8,29 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
-#include <mutex>
-#include <vector>
-
-constexpr int MAX_CACHE_LINE = 64;
-
-// Some basic logics and data structures that are shared across the current experimental schedulers.
-class TiledDrawSchedulerBase : public TiledDrawScheduler {
-public:
-    TiledDrawSchedulerBase(int tiles, WorkFunc work)
-            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fWork(std::move(work)) {}
-
-    void signal() override {
-        fDrawCnt++;
-    }
-    void finish() override {
-        fIsFinishing.store(true, std::memory_order_relaxed);
+void SkThreadedBMPDevice::DrawQueue::reset() {
+    if (fTasks) {
+        fTasks->finish();
     }
 
-protected:
-    const int                   fTileCnt;
-    std::atomic<bool>           fIsFinishing;
-    std::atomic<int>            fDrawCnt;
-    WorkFunc                    fWork;
-};
+    fSize = 0;
 
-class TiledDrawSchedulerBySpinning : public TiledDrawSchedulerBase {
-public:
-    TiledDrawSchedulerBySpinning(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
-
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
-
-    bool next(int& tileIndex) final {
-        int& drawIndex = fScheduleData[tileIndex].fDrawIndex;
-        SkASSERT(drawIndex <= fDrawCnt);
-        while (true) {
-            bool isFinishing = fIsFinishing.load(std::memory_order_relaxed);
-            if (isFinishing && drawIndex >= fDrawCnt) {
-                return false;
-            } else if (drawIndex < fDrawCnt) {
-                fWork(tileIndex, drawIndex++);
-                return true;
-            }
+    // using TaskGroup2D = SkSpinningTaskGroup2D;
+    using TaskGroup2D = SkFlexibleTaskGroup2D;
+    auto draw2D = [this](int row, int column){
+        SkThreadedBMPDevice::DrawElement& element = fElements[column];
+        if (!SkIRect::Intersects(fDevice->fTileBounds[row], element.fDrawBounds)) {
+            return;
         }
-    }
-
-private:
-    // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
-
-        int fDrawIndex; // next draw index for this tile
+        element.fDrawFn(nullptr, element.fDS, fDevice->fTileBounds[row]);
     };
-
-    std::vector<TileScheduleData>  fScheduleData;
-};
-
-class TiledDrawSchedulerFlexible : public TiledDrawSchedulerBase {
-public:
-    TiledDrawSchedulerFlexible(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
-
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
-
-    bool next(int& tileIndex) final {
-        int failCnt = 0;
-        while (true) {
-            TileScheduleData& scheduleData = fScheduleData[tileIndex];
-            bool locked = scheduleData.fMutex.try_lock();
-            bool processed = false;
-
-            if (locked) {
-                if (scheduleData.fDrawIndex < fDrawCnt) {
-                    fWork(tileIndex, scheduleData.fDrawIndex++);
-                    processed = true;
-                } else {
-                    failCnt += fIsFinishing.load(std::memory_order_relaxed);
-                }
-                scheduleData.fMutex.unlock();
-            }
-
-            if (processed) {
-                return true;
-            } else {
-                if (failCnt >= fTileCnt) {
-                    return false;
-                }
-                tileIndex = (tileIndex + 1) % fTileCnt;
-            }
-        }
-    }
-
-private:
-    // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
-
-        int         fDrawIndex; // next draw index for this tile
-        std::mutex  fMutex;     // the mutex for the thread to acquire
-    };
-
-    std::vector<TileScheduleData>  fScheduleData;
-};
-
-class TiledDrawSchedulerBySemaphores : public TiledDrawSchedulerBase {
-public:
-    TiledDrawSchedulerBySemaphores(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
-
-
-    void signal() final {
-        this->TiledDrawSchedulerBase::signal();
-        signalRoot();
-    }
-
-    void finish() final {
-        this->TiledDrawSchedulerBase::finish();
-        signalRoot();
-    }
-
-    bool next(int& tileIndex) final {
-        SkASSERT(tileIndex >= 0 && tileIndex < fTileCnt);
-        TileScheduleData& scheduleData = fScheduleData[tileIndex];
-        while (true) {
-            scheduleData.fSemaphore.wait();
-            int leftChild = (tileIndex + 1) * 2 - 1;
-            int rightChild = leftChild + 1;
-            if (leftChild < fTileCnt) {
-                fScheduleData[leftChild].fSemaphore.signal();
-            }
-            if (rightChild < fTileCnt) {
-                fScheduleData[rightChild].fSemaphore.signal();
-            }
-
-            bool isFinishing = fIsFinishing.load(std::memory_order_relaxed);
-            if (isFinishing && scheduleData.fDrawIndex >= fDrawCnt) {
-                return false;
-            } else {
-                SkASSERT(scheduleData.fDrawIndex < fDrawCnt);
-                fWork(tileIndex, scheduleData.fDrawIndex++);
-                return true;
-            }
-        }
-    }
-
-private:
-    // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
-
-        int         fDrawIndex;
-        SkSemaphore fSemaphore;
-    };
-
-    void signalRoot() {
-        SkASSERT(fTileCnt > 0);
-        fScheduleData[0].fSemaphore.signal();
-    }
-
-    std::vector<TileScheduleData> fScheduleData;
-};
-
-void SkThreadedBMPDevice::startThreads() {
-    SkASSERT(fQueueSize == 0);
-
-    TiledDrawScheduler::WorkFunc work = [this](int tileIndex, int drawIndex){
-        auto& element = fQueue[drawIndex];
-        if (SkIRect::Intersects(fTileBounds[tileIndex], element.fDrawBounds)) {
-            element.fDrawFn(fTileBounds[tileIndex]);
-        }
-    };
-
-    // using Scheduler = TiledDrawSchedulerBySemaphores;
-    // using Scheduler = TiledDrawSchedulerBySpinning;
-    using Scheduler = TiledDrawSchedulerFlexible;
-    fScheduler.reset(new Scheduler(fTileCnt, work));
-
-    // We intentionally call the int parameter tileIndex although it ranges from 0 to fThreadCnt-1.
-    // For some schedulers (e.g., TiledDrawSchedulerBySemaphores and TiledDrawSchedulerBySpinning),
-    // fThreadCnt should be equal to fTileCnt so it doesn't make a difference.
-    //
-    // For TiledDrawSchedulerFlexible, the input tileIndex provides only a hint about which tile
-    // the current thread should draw; the scheduler may later modify that tileIndex to draw on
-    // another tile.
-    fTaskGroup->batch(fThreadCnt, [this](int tileIndex){
-        while (fScheduler->next(tileIndex)) {}
-    });
-}
-
-void SkThreadedBMPDevice::finishThreads() {
-    fScheduler->finish();
-    fTaskGroup->wait();
-    fQueueSize = 0;
-    fScheduler.reset(nullptr);
+    fTasks.reset(new TaskGroup2D(draw2D, fDevice->fTileCnt, fDevice->fExecutor,
+                                 fDevice->fThreadCnt));
+    fTasks->start();
 }
 
 SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
@@ -216,6 +40,7 @@ SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
         : INHERITED(bitmap)
         , fTileCnt(tiles)
         , fThreadCnt(threads <= 0 ? tiles : threads)
+        , fQueue(this)
 {
     if (executor == nullptr) {
         fInternalExecutor = SkExecutor::MakeFIFOThreadPool(fThreadCnt);
@@ -230,95 +55,78 @@ SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
     for(int tid = 0; tid < fTileCnt; ++tid, top += h) {
         fTileBounds.push_back(SkIRect::MakeLTRB(0, top, w, top + h));
     }
-    fQueueSize = 0;
-    fTaskGroup.reset(new SkTaskGroup(*fExecutor));
-    startThreads();
+    fQueue.reset();
 }
 
 void SkThreadedBMPDevice::flush() {
-    finishThreads();
-    startThreads();
+    fQueue.reset();
 }
 
-// Having this captured in lambda seems to be faster than saving this in DrawElement
-struct SkThreadedBMPDevice::DrawState {
-    SkPixmap fDst;
-    SkMatrix fMatrix;
-    SkRasterClip fRC;
-
-    explicit DrawState(SkThreadedBMPDevice* dev) {
-        // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fDst)) {
-            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fDst.reset(dev->imageInfo(), nullptr, 0);
-        }
-        fMatrix = dev->ctm();
-        fRC = dev->fRCStack.rc();
+SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
+    // we need fDst to be set, and if we're actually drawing, to dirty the genID
+    if (!dev->accessPixels(&fDst)) {
+        // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+        fDst.reset(dev->imageInfo(), nullptr, 0);
     }
-
-    SkDraw getThreadDraw(SkRasterClip& threadRC, const SkIRect& threadBounds) const {
-        SkDraw draw;
-        draw.fDst = fDst;
-        draw.fMatrix = &fMatrix;
-        threadRC = fRC;
-        threadRC.op(threadBounds, SkRegion::kIntersect_Op);
-        draw.fRC = &threadRC;
-        return draw;
-    }
-};
+    fMatrix = dev->ctm();
+    fRC = dev->fRCStack.rc();
+}
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
-    if (drawBounds.isLargest()) {
-        return SkIRect::MakeLargest();
+    if (drawBounds == SkRectPriv::MakeLargest()) {
+        return SkRectPriv::MakeILarge();
     }
     SkRect transformedBounds;
     this->ctm().mapRect(&transformedBounds, drawBounds);
     return transformedBounds.roundOut();
 }
 
-// The do {...} while (false) is to enforce trailing semicolon as suggested by mtklein@
-#define THREADED_DRAW(drawBounds, actualDrawCall)                                                  \
-    do {                                                                                           \
-        if (fQueueSize == MAX_QUEUE_SIZE) {                                                        \
-            this->flush();                                                                         \
-        }                                                                                          \
-        DrawState ds(this);                                                                        \
-        SkASSERT(fQueueSize < MAX_QUEUE_SIZE);                                                     \
-        fQueue[fQueueSize++] = {                                                                   \
-            this->transformDrawBounds(drawBounds),                                                 \
-            [=](const SkIRect& tileBounds) {                                                       \
-                SkRasterClip tileRC;                                                               \
-                SkDraw draw = ds.getThreadDraw(tileRC, tileBounds);                                \
-                draw.actualDrawCall;                                                               \
-            },                                                                                     \
-        };                                                                                         \
-        fScheduler->signal();                                                                      \
-    } while (false)
+SkDraw SkThreadedBMPDevice::DrawState::getDraw() const {
+    SkDraw draw;
+    draw.fDst = fDst;
+    draw.fMatrix = &fMatrix;
+    draw.fRC = &fRC;
+    return draw;
+}
+
+SkThreadedBMPDevice::TileDraw::TileDraw(const DrawState& ds, const SkIRect& tileBounds)
+        : fTileRC(ds.fRC) {
+    fDst = ds.fDst;
+    fMatrix = &ds.fMatrix;
+    fTileRC.op(tileBounds, SkRegion::kIntersect_Op);
+    fRC = &fTileRC;
+}
 
 static inline SkRect get_fast_bounds(const SkRect& r, const SkPaint& p) {
     SkRect result;
     if (p.canComputeFastBounds()) {
         result = p.computeFastBounds(r, &result);
     } else {
-        result = SkRect::MakeLargest();
+        result = SkRectPriv::MakeLargest();
     }
     return result;
 }
 
 void SkThreadedBMPDevice::drawPaint(const SkPaint& paint) {
-    THREADED_DRAW(SkRect::MakeLargest(), drawPaint(paint));
+    SkRect drawBounds = SkRectPriv::MakeLargest();
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPaint(paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         const SkPoint pts[], const SkPaint& paint) {
-    // TODO tighter drawBounds
-    SkRect drawBounds = SkRect::MakeLargest();
-    THREADED_DRAW(drawBounds, drawPoints(mode, count, pts, paint, nullptr));
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPoints(mode, count, pts, paint, nullptr);
+    });
 }
 
 void SkThreadedBMPDevice::drawRect(const SkRect& r, const SkPaint& paint) {
     SkRect drawBounds = get_fast_bounds(r, paint);
-    THREADED_DRAW(drawBounds, drawRect(r, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawRect(r, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -331,16 +139,19 @@ void SkThreadedBMPDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) 
     this->drawPath(path, paint, nullptr, false);
 #else
     SkRect drawBounds = get_fast_bounds(rrect.getBounds(), paint);
-    THREADED_DRAW(drawBounds, drawRRect(rrect, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawRRect(rrect, paint);
+    });
 #endif
 }
 
 void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
-    SkRect drawBounds = path.isInverseFillType() ? SkRect::MakeLargest()
+    SkRect drawBounds = path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
-    // For thread safety, make path imutable
-    THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
+        TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
+    });
 }
 
 void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
@@ -349,39 +160,52 @@ void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScala
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
     SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
     matrix.mapRect(&drawBounds);
-    THREADED_DRAW(drawBounds, drawBitmap(bitmap, matrix, nullptr, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, nullptr, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    THREADED_DRAW(drawBounds, drawSprite(bitmap, x, y, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(bitmap, x, y, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawText((const char*)text, len, x, y, paint, &this->surfaceProps()));
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawText((const char*)text, len, x, y, paint,
+                                          &this->surfaceProps());
+    });
 }
 
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
-                                          paint, &surfaceProps()));
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
+                                             paint, &surfaceProps());
+    });
 }
 
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawVertices(vertices->mode(), vertices->vertexCount(),
-                                           vertices->positions(), vertices->texCoords(),
-                                           vertices->colors(), bmode, vertices->indices(),
-                                           vertices->indexCount(), paint));
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawVertices(vertices->mode(), vertices->vertexCount(),
+                                              vertices->positions(), vertices->texCoords(),
+                                              vertices->colors(), bmode, vertices->indices(),
+                                              vertices->indexCount(), paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
-    THREADED_DRAW(drawBounds,
-                  drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap,
+                                            x, y, paint);
+    });
 }

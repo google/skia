@@ -566,7 +566,7 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(qe);
 
-            GrGLSLVertToFrag v(kHalf4_GrSLType);
+            GrGLSLVarying v(kHalf4_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->fName);
 
@@ -582,8 +582,7 @@ public:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 qe.fInPosition->fName,
+                                 qe.fInPosition->asShaderVar(),
                                  qe.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 

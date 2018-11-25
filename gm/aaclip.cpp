@@ -11,6 +11,52 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+
+#include "SkCubicMap.h"
+
+static void test_cubic(SkCanvas* canvas) {
+    const SkPoint pts[] = {
+        { 0.333333f, 0.333333f }, { 0.666666f, 0.666666f },
+        { 1, 0 }, { 0, 1 },
+        { 0, 1 }, { 1, 0 },
+        { 0, 0 }, { 1, 1 },
+        { 1, 1 }, { 0, 0 },
+        { 0, 1 }, { 0, 1 },
+        { 1, 0 }, { 1, 0 },
+    };
+
+    SkPaint paint0, paint1;
+    paint0.setAntiAlias(true);  paint0.setStrokeWidth(3/256.0f); paint0.setColor(SK_ColorRED);
+    paint1.setAntiAlias(true);
+
+    SkCubicMap cmap;
+
+    canvas->translate(10, 266);
+    canvas->scale(256, -256);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); i += 2) {
+        cmap.setPts(pts[i], pts[i+1]);
+
+        const int N = 128;
+        SkPoint tmp0[N+1], tmp1[N+1], tmp2[N+1];
+        for (int j = 0; j <= N; ++j) {
+            float p = j * 1.0f / N;
+            tmp0[j] = cmap.computeFromT(p);
+            tmp1[j].set(p, cmap.computeYFromX(p));
+            tmp2[j].set(p, cmap.hackYFromX(p));
+        }
+
+        canvas->save();
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp1, paint1);
+        canvas->translate(0, -1.2f);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp2, paint1);
+        canvas->restore();
+
+        canvas->translate(1.1f, 0);
+    }
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +187,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (0) { test_cubic(canvas); return; }
+
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

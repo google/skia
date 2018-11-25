@@ -14,6 +14,7 @@
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
 #include "SkPointPriv.h"
+#include "SkString.h"
 #include "SkView.h"
 
 #if 0

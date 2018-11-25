@@ -7,6 +7,8 @@
 
 #include "GrBackendSurface.h"
 
+#include "gl/GrGLUtil.h"
+
 #ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
 #include "vk/GrVkUtil.h"
@@ -38,6 +40,17 @@ GrBackendTexture::GrBackendTexture(int width,
         : fWidth(width)
         , fHeight(height)
         , fConfig(config)
+        , fMipMapped(mipMapped)
+        , fBackend(kOpenGL_GrBackend)
+        , fGLInfo(glInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrMipMapped mipMapped,
+                                   const GrGLTextureInfo& glInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
         , fMipMapped(mipMapped)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
@@ -93,7 +106,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
-        , fSampleCnt(sampleCnt)
+        , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
@@ -108,9 +121,22 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              const GrGLFramebufferInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
-        , fSampleCnt(sampleCnt)
+        , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
         , fConfig(config)
+        , fBackend(kOpenGL_GrBackend)
+        , fGLInfo(glInfo) {}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrGLFramebufferInfo& glInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(SkTMax(1, sampleCnt))
+        , fStencilBits(stencilBits)
+        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 

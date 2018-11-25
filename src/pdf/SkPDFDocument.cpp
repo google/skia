@@ -29,7 +29,7 @@ void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& objec
 }
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
 static_assert((SKPDF_MAGIC[0] & 0x7F) == "Skia"[0], "");
 static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
 static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
@@ -172,16 +172,9 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             void (*doneProc)(SkWStream*, bool),
-                             SkScalar rasterDpi,
-                             const SkDocument::PDFMetadata& metadata,
-                             sk_sp<SkPixelSerializer> jpegEncoder,
-                             bool pdfa)
-    : SkDocument(stream, doneProc)
-    , fRasterDpi(rasterDpi)
-    , fMetadata(metadata)
-    , fPDFA(pdfa) {
-    fCanon.fPixelSerializer = std::move(jpegEncoder);
+                             const SkDocument::PDFMetadata& metadata)
+    : SkDocument(stream)
+    , fMetadata(metadata) {
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -200,7 +193,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
         // if this is the first page if the document.
         fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
         fDests = sk_make_sp<SkPDFDict>();
-        if (fPDFA) {
+        if (fMetadata.fPDFA) {
             SkPDFMetadata::UUID uuid = SkPDFMetadata::CreateUUID(fMetadata);
             // We use the same UUID for Document ID and Instance ID since this
             // is the first revision of this document (and Skia does not
@@ -404,7 +397,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         return;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
-    if (fPDFA) {
+    if (fMetadata.fPDFA) {
         SkASSERT(fXMP);
         docCatalog->insertObjRef("Metadata", fXMP);
         // Don't specify OutputIntents if we are not in PDF/A mode since
@@ -431,34 +424,22 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    void (*proc)(SkWStream*, bool),
-                                    SkScalar dpi,
-                                    const SkDocument::PDFMetadata& metadata,
-                                    sk_sp<SkPixelSerializer> jpeg,
-                                    bool pdfa) {
-    if (dpi <= 0) {
-        dpi = 72.0f;
+                                    const SkDocument::PDFMetadata& metadata) {
+    SkDocument::PDFMetadata meta = metadata;
+    if (meta.fRasterDPI <= 0) {
+        meta.fRasterDPI = 72.0f;
     }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, dpi, metadata,
-                                              std::move(jpeg), pdfa)
-                  : nullptr;
+    if (meta.fEncodingQuality < 0) {
+        meta.fEncodingQuality = 0;
+    }
+    return stream ? sk_make_sp<SkPDFDocument>(stream, meta) : nullptr;
 }
 
-sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
-    auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    auto stream = skstd::make_unique<SkFILEWStream>(path);
-    return stream->isValid()
-                   ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi,
-                                       SkDocument::PDFMetadata(), nullptr,
-                                       false)
-                   : nullptr;
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
+    return SkPDFMakeDocument(stream, metadata);
 }
 
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
-                                      SkScalar dpi,
-                                      const SkDocument::PDFMetadata& metadata,
-                                      sk_sp<SkPixelSerializer> jpegEncoder,
-                                      bool pdfa) {
-    return SkPDFMakeDocument(stream, nullptr, dpi, metadata,
-                             std::move(jpegEncoder), pdfa);
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
+    return SkPDFMakeDocument(stream, PDFMetadata());
 }
+

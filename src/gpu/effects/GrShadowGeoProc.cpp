@@ -39,8 +39,7 @@ public:
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             rsgp.inPosition()->fName,
+                             rsgp.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");

@@ -10,7 +10,6 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrOpList.h"
-#include "SkColorSpace_Base.h"
 #include "SkGr.h"
 
 #include "../private/GrAuditTrail.h"

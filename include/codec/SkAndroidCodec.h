@@ -19,6 +19,32 @@
  */
 class SK_API SkAndroidCodec : SkNoncopyable {
 public:
+    enum class ExifOrientationBehavior {
+        /**
+         *  Ignore any exif orientation markers in the data.
+         *
+         *  getInfo's width and height will match the header of the image, and
+         *  no processing will be done to match the marker.
+         */
+        kIgnore,
+
+        /**
+         *  Respect the exif orientation marker.
+         *
+         *  getInfo's width and height will represent what they should be after
+         *  applying the orientation. For example, if the marker specifies a
+         *  rotation by 90 degrees, they will be swapped relative to the header.
+         *  getAndroidPixels will apply the orientation as well.
+         */
+        kRespect,
+    };
+
+    /**
+     *  Pass ownership of an SkCodec to a newly-created SkAndroidCodec.
+     */
+    static std::unique_ptr<SkAndroidCodec> MakeFromCodec(std::unique_ptr<SkCodec>,
+            ExifOrientationBehavior = ExifOrientationBehavior::kIgnore);
+
     /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
@@ -28,6 +54,8 @@ public:
      *
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
+     *
+     *  ExifOrientationBehavior is set to kIgnore.
      */
     static std::unique_ptr<SkAndroidCodec> MakeFromStream(std::unique_ptr<SkStream>,
                                                           SkPngChunkReader* = nullptr);
@@ -38,12 +66,12 @@ public:
      *
      *  The SkPngChunkReader handles unknown chunks in PNGs.
      *  See SkCodec.h for more details.
+     *
+     *  ExifOrientationBehavior is set to kIgnore.
      */
     static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
 
     virtual ~SkAndroidCodec();
-
-    const SkEncodedInfo& getEncodedInfo() const;
 
     const SkImageInfo& getInfo() const { return fInfo; }
 
@@ -86,6 +114,17 @@ public:
      */
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
                                                 sk_sp<SkColorSpace> prefColorSpace = nullptr);
+
+    /**
+     *  Compute the appropriate sample size to get to |size|.
+     *
+     *  @param size As an input parameter, the desired output size of
+     *      the decode. As an output parameter, the smallest sampled size
+     *      larger than the input.
+     *  @return the sample size to set AndroidOptions::fSampleSize to decode
+     *      to the output |size|.
+     */
+    int computeSampleSize(SkISize* size) const;
 
     /**
      *  Returns the dimensions of the scaled output image, for an input
@@ -228,11 +267,10 @@ public:
         return this->getAndroidPixels(info, pixels, rowBytes);
     }
 
-protected:
-
-    SkAndroidCodec(SkCodec*);
-
     SkCodec* codec() const { return fCodec.get(); }
+
+protected:
+    SkAndroidCodec(SkCodec*, ExifOrientationBehavior = ExifOrientationBehavior::kIgnore);
 
     virtual SkISize onGetSampledDimensions(int sampleSize) const = 0;
 
@@ -242,11 +280,8 @@ protected:
             size_t rowBytes, const AndroidOptions& options) = 0;
 
 private:
-
-    // This will always be a reference to the info that is contained by the
-    // embedded SkCodec.
-    const SkImageInfo& fInfo;
-
-    std::unique_ptr<SkCodec> fCodec;
+    const SkImageInfo               fInfo;
+    const ExifOrientationBehavior   fOrientationBehavior;
+    std::unique_ptr<SkCodec>        fCodec;
 };
 #endif // SkAndroidCodec_DEFINED

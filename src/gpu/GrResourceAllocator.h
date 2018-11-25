@@ -47,19 +47,28 @@ public:
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end);
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+                     SkDEBUGCODE(, bool isDirectDstRead = false));
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy) {
-        this->addInterval(proxy, fNumOps, fNumOps);
+    void addInterval(GrSurfaceProxy* proxy
+                     SkDEBUGCODE(, bool isDirectDstRead = false)) {
+        this->addInterval(proxy, fNumOps, fNumOps SkDEBUGCODE(, isDirectDstRead));
     }
+
+    enum class AssignError {
+        kNoError,
+        kFailedProxyInstantiation
+    };
 
     // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;
     // false when nothing remains to be executed.
+    // If any proxy fails to instantiate, the AssignError will be set to kFailedProxyInstantiation.
+    // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
     // This is used to execute a portion of the queued opLists in order to reduce the total
     // amount of GPU resources required.
-    bool assign(int* startIndex, int* stopIndex);
+    bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
     void markEndOfOpList(int opListIndex);
 
@@ -120,8 +129,9 @@ private:
         void setNext(Interval* next) { fNext = next; }
 
         void extendEnd(unsigned int newEnd) {
-            SkASSERT(newEnd >= fEnd);
-            fEnd = newEnd;
+            if (newEnd > fEnd) {
+                fEnd = newEnd;
+            }
         }
 
         void assign(sk_sp<GrSurface>);
@@ -171,7 +181,8 @@ private:
     IntervalList           fIntvlList;         // All the intervals sorted by increasing start
     IntervalList           fActiveIntvls;      // List of live intervals during assignment
                                                // (sorted by increasing end)
-    unsigned int           fNumOps = 0;
+    unsigned int           fNumOps = 1;        // op # 0 is reserved for uploads at the start
+                                               // of a flush
     SkTArray<unsigned int> fEndOfOpListOpIndices;
     int                    fCurOpListIndex = 0;
 

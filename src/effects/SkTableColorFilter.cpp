@@ -113,13 +113,6 @@ public:
         if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
         if (fFlags & kB_Flag) { b = ptr;             }
 
-        // If our inputs are out of range, we'd attempt to read values outside our tables.
-        // We could finesse this with p->clamp_if_unclamped(kPremul_SkAlphaType) here, but
-        // this filter is already slow enough that I'd rather just be paranoid and safe.
-        p->append(SkRasterPipeline::clamp_0);
-        p->append(SkRasterPipeline::clamp_a);
-        p->set_clamped(true);
-
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::unpremul);
         }
@@ -322,6 +315,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 
 #include "GrColorSpaceInfo.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureStripAtlas.h"
 #include "SkGr.h"
@@ -460,7 +454,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     if (-1 == row) {
         atlas = nullptr;
 
-        proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bitmap);
+        proxy = GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), bitmap);
     } else {
         proxy = atlas->asTextureProxyRef();
     }

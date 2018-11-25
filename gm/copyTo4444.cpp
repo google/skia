@@ -32,7 +32,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm, bm4444;
-        if (!GetResourceAsBitmap("dog.jpg", &bm)) {
+        if (!GetResourceAsBitmap("images/dog.jpg", &bm)) {
             SkDebugf("Could not decode the file. Did you forget to set the "
                      "resourcePath?\n");
             return;

@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColor.h"
+#include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkLayerDrawLooper.h"
@@ -181,8 +182,8 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if (nullptr == mf) {
         return false;
     }
-    SkMaskFilter::BlurRec maskBlur;
-    if (!mf->asABlur(&maskBlur)) {
+    SkMaskFilterBase::BlurRec maskBlur;
+    if (!as_MFB(mf)->asABlur(&maskBlur)) {
         return false;
     }
 

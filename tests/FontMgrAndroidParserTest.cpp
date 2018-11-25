@@ -10,6 +10,7 @@
 #include "SkFixed.h"
 #include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
+#include "SkOSFile.h"
 #include "SkTypeface.h"
 #include "Test.h"
 
@@ -224,8 +225,14 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
 }
 
 DEF_TEST(FontMgrAndroidLegacyMakeTypeface, reporter) {
+    constexpr char fontsXmlFilename[] = "fonts/fonts.xml";
     SkString basePath = GetResourcePath("fonts/");
-    SkString fontsXml = GetResourcePath("fonts/fonts.xml");
+    SkString fontsXml = GetResourcePath(fontsXmlFilename);
+
+    if (!sk_exists(fontsXml.c_str())) {
+        ERRORF(reporter, "file missing: %s\n", fontsXmlFilename);
+        return;
+    }
 
     SkFontMgr_Android_CustomFonts custom;
     custom.fSystemFontUse = SkFontMgr_Android_CustomFonts::kOnlyCustom;

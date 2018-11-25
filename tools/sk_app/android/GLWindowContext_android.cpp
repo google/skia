@@ -70,6 +70,8 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     SkAssertResult(eglBindAPI(EGL_OPENGL_ES_API));
 
     EGLint numConfigs = 0;
+    EGLint eglSampleCnt = fDisplayParams.fMSAASampleCount > 1 ? fDisplayParams.fMSAASampleCount > 1
+                                                              : 0;
     const EGLint configAttribs[] = {
         EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -78,8 +80,8 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
         EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, fDisplayParams.fMSAASampleCount ? 1 : 0,
-        EGL_SAMPLES, fDisplayParams.fMSAASampleCount,
+        EGL_SAMPLE_BUFFERS, eglSampleCnt ? 1 : 0,
+        EGL_SAMPLES, eglSampleCnt,
         EGL_NONE
     };
 
@@ -121,7 +123,7 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
-    // GLWindowContext::initializeContext will call GrGLCreateNativeInterface so we
+    // GLWindowContext::initializeContext will call GrGLMakeNativeInterface so we
     // won't call it here.
 
     glClearStencil(0);
@@ -131,8 +133,9 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
 
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_STENCIL_SIZE, &fStencilBits);
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
+    fSampleCount = SkTMax(fSampleCount, 1);
 
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void GLWindowContext_android::onDestroyContext() {

@@ -1,0 +1,869 @@
+#Topic Image_Info
+#Alias Image_Info_Reference
+
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
+#Subtopic Constants
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+#Subtopic Alpha_Type
+#Line # incomplete ##
+#Alias Alpha_Type
+#Alias Alpha_Types
+#Enum SkAlphaType
+#Line # incomplete ##
+
+#Code
+    enum SkAlphaType {
+        kUnknown_SkAlphaType,
+        kOpaque_SkAlphaType,
+        kPremul_SkAlphaType,
+        kUnpremul_SkAlphaType,
+        kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
+    };
+##
+
+Describes how to interpret the alpha component of a pixel.
+
+#Const kUnknown_SkAlphaType 0
+##
+#Const kOpaque_SkAlphaType 1
+All pixels are stored as opaque.
+##
+#Const kPremul_SkAlphaType 2
+All pixels have their alpha premultiplied in their color components.
+This is the natural format for the rendering target pixels.
+##
+#Const kUnpremul_SkAlphaType 3
+All pixels have their color components stored without any regard to the
+alpha. e.g. this is the default configuration for PNG images.
+kUnpremul_SkAlphaType is supported only for input images. Rendering cannot
+generate this on output.
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum SkAlphaType ##
+#Subtopic Alpha_Type ##
+
+# ------------------------------------------------------------------------------
+#Subtopic Color_Type
+#Line # incomplete ##
+#Alias Native_Color_Type
+#Substitute native SkColorType
+#Alias Color_Type
+#Alias Color_Types
+#Enum SkColorType
+#Line # incomplete ##
+
+#Code
+    enum SkColorType {
+        kUnknown_SkColorType,
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16_SkColorType,
+        kLastEnum_SkColorType = kRGBA_F16_SkColorType,
+        kN32_SkColorType = kBGRA_8888_SkColorType,
+        kN32_SkColorType = kRGBA_8888_SkColorType,
+    };
+##
+
+Describes how to interpret the components of a pixel.
+kN32_SkColorType is an alias for whichever 32 bit Color_ARGB format is the "native"
+form for skia's blitters. Use this if you don't have a swizzle preference
+for 32 bit pixels.
+
+#Const kUnknown_SkColorType 0
+##
+#Const kAlpha_8_SkColorType 1
+##
+#Const kRGB_565_SkColorType 2
+##
+#Const kARGB_4444_SkColorType 3
+##
+#Const kRGBA_8888_SkColorType 4
+##
+#Const kRGB_888x_SkColorType 5
+##
+#Const kBGRA_8888_SkColorType 6
+##
+#Const kRGBA_1010102_SkColorType 7
+##
+#Const kRGB_101010x_SkColorType 8
+##
+#Const kGray_8_SkColorType 9
+##
+#Const kRGBA_F16_SkColorType 10
+##
+#ToDo  can be 4 or 6; how to document? ##
+#Const kN32_SkColorType 4
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum SkColorType ##
+#Subtopic Color_Type ##
+
+# ------------------------------------------------------------------------------
+#Enum SkYUVColorSpace
+#Line # incomplete ##
+
+#Code
+    enum SkYUVColorSpace {
+        kJPEG_SkYUVColorSpace,
+        kRec601_SkYUVColorSpace,
+        kRec709_SkYUVColorSpace,
+        kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
+    };
+##
+
+Describes the color space a YUV pixel.
+
+#Const kJPEG_SkYUVColorSpace 0
+Standard JPEG color space.
+##
+#Const kRec601_SkYUVColorSpace 1
+SDTV standard Rec. 601 color space. Uses "studio swing" [16, 235] color
+range. See http://en.wikipedia.org/wiki/Rec._601 for details.
+##
+#Const kRec709_SkYUVColorSpace 2
+HDTV standard Rec. 709 color space. Uses "studio swing" [16, 235] color
+range. See http://en.wikipedia.org/wiki/Rec._709 for details.
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum SkYUVColorSpace ##
+
+# ------------------------------------------------------------------------------
+#EnumClass SkDestinationSurfaceColorMode
+#Line # incomplete ##
+
+#Code
+    enum class SkDestinationSurfaceColorMode {
+        kLegacy,
+        kGammaAndColorSpaceAware,
+    };
+##
+
+#Const kLegacy 0
+##
+#Const kGammaAndColorSpaceAware 1
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#EnumClass SkDestinationSurfaceColorMode ##
+
+# ------------------------------------------------------------------------------
+
+#Struct SkImageInfo
+
+Describe an image's dimensions and pixel type.
+Used for both src images and render-targets (surfaces).
+
+#Subtopic Operators
+#Populate
+##
+
+#Subtopic Member_Functions
+#Populate
+##
+
+#Subtopic Constructors
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo()
+
+#In Constructors
+#Line # creates with zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
+                            sk_sp<SkColorSpace> cs = nullptr)
+#In Constructors
+#Line # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
+
+#Param width  incomplete ##
+#Param height  incomplete ##
+#Param ct  incomplete ##
+#Param at  incomplete ##
+#Param cs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
+                               sk_sp<SkColorSpace> cs = nullptr)
+#In Constructors
+#Line # creates Image_Info with Native_Color_Type ##
+
+Sets colortype to kN32_SkColorType.
+
+#Param width  incomplete ##
+#Param height  incomplete ##
+#Param at  incomplete ##
+#Param cs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeS32(int width, int height, SkAlphaType at)
+
+#In Constructors
+#Line # creates Image_Info with Native_Color_Type, sRGB Color_Space ##
+Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
+
+#Param width  incomplete ##
+#Param height  incomplete ##
+#Param at  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
+
+#In Constructors
+#Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
+Sets colortype to kN32_SkColorType, and the alphatype to premul.
+
+#Param width  incomplete ##
+#Param height  incomplete ##
+#Param cs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeN32Premul(const SkISize& size)
+
+#In Constructors
+#Param size  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeA8(int width, int height)
+
+#In Constructors
+#Line # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType ##
+#Param width  incomplete ##
+#Param height  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeUnknown(int width, int height)
+
+#In Constructors
+#Line # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType ##
+#Param width  incomplete ##
+#Param height  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkImageInfo MakeUnknown()
+
+#In Constructors
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+
+# ------------------------------------------------------------------------------
+
+#Method int width() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int height() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkColorType colorType() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkAlphaType alphaType() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkColorSpace* colorSpace() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkColorSpace> refColorSpace() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmpty() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isOpaque() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkISize dimensions() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkIRect bounds() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool gammaCloseToSRGB() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo makeWH(int newWidth, int newHeight) const
+
+#Line # creates Image_Info with changed dimensions ##
+Creates Image_Info with the same colortype and alphatype as this info,
+but with the specified width and height.
+
+#Param newWidth  incomplete ##
+#Param newHeight  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
+
+#Line # creates Image_Info with changed Alpha_Type ##
+#Param newAlphaType  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo makeColorType(SkColorType newColorType) const
+
+#Line # creates Image_Info with changed Color_Type ##
+#Param newColorType  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
+
+#Line # creates Image_Info with changed Color_Space ##
+#Param cs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int bytesPerPixel() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int shiftPerPixel() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint64_t minRowBytes64() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t minRowBytes() const
+
+#Line # incomplete ##
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t computeOffset(int x, int y, size_t rowBytes) const
+
+#Line # incomplete ##
+#Param x  incomplete ##
+#Param y  incomplete ##
+#Param rowBytes  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator==(const SkImageInfo& other)_const
+
+#Line # incomplete ##
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator!=(const SkImageInfo& other)_const
+
+#Line # incomplete ##
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void unflatten(SkReadBuffer& buffer)
+
+#Line # incomplete ##
+#Param buffer  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void flatten(SkWriteBuffer& buffer) const
+
+#Line # incomplete ##
+#Param buffer  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t computeByteSize(size_t rowBytes) const
+
+#Line # incomplete ##
+Returns the size (in bytes) of the image buffer that this info needs, given the specified
+rowBytes. The rowBytes must be >= this->minRowBytes().
+if (height == 0) {
+return 0;
+} else {
+return (height - 1) * rowBytes + width * bytes_per_pixel.
+
+If the calculation overflows this returns SK_MaxSizeT.
+
+#Param rowBytes  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t computeMinByteSize() const
+
+#Line # incomplete ##
+Returns the minimum size (in bytes) of the image buffer that this info needs.
+If the calculation overflows, or if the height is 0, this returns 0.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool ByteSizeOverflowed(size_t byteSize)
+
+#Line # incomplete ##
+Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
+
+#Param byteSize  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool validRowBytes(size_t rowBytes) const
+
+#Line # incomplete ##
+#Param rowBytes  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void reset()
+
+#Line # incomplete ##
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void validate() const
+
+#Line # incomplete ##
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkImageInfo ##
+
+#Topic Image_Info ##

@@ -14,6 +14,7 @@
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include "SkColor_opts_SSE2.h"
+    #include <immintrin.h>
 #endif
 
 namespace SK_OPTS_NS {

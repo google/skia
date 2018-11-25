@@ -23,7 +23,6 @@
 #include "SkHighContrastFilter.h"
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
-#include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkLumaColorFilter.h"
@@ -37,6 +36,7 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
+#include "SkShaderMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkToSRGBColorFilter.h"
@@ -61,15 +61,14 @@
  */
 void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
+    SkMaskFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SkBlurMaskFilter::InitializeFlattenables();
     SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();
+    SkShaderMaskFilter::InitializeFlattenables();
 
     // DrawLooper
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
-
-    // Rasterizer
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
 
     // ColorFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)

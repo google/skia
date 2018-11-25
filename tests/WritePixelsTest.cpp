@@ -15,7 +15,9 @@
 #if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrTest.h"
 #endif
 
@@ -410,11 +412,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        for (int sampleCnt : {0, 4}) {
+        for (int sampleCnt : {1, 4}) {
             sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                                  SkBudgeted::kNo, ii, sampleCnt,
                                                                  origin, nullptr));
-            if (!surface && sampleCnt > 0) {
+            if (!surface && sampleCnt > 1) {
                 // Some platforms don't support MSAA
                 continue;
             }
@@ -425,25 +427,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        for (int sampleCnt : {0, 4}) {
-            auto handle = context->getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
-            GrBackendTexture backendTexture = GrTest::CreateBackendTexture(
-                    ctxInfo.backend(), DEV_W, DEV_H, kSkia8888_GrPixelConfig, GrMipMapped::kNo,
-                    handle);
+        for (int sampleCnt : {1, 4}) {
+            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
+            SkColorType colorType;
+            if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
+                colorType = kRGBA_8888_SkColorType;
+            } else {
+                colorType = kBGRA_8888_SkColorType;
+            }
             sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
-                    context, backendTexture, origin, sampleCnt, nullptr, nullptr));
+                    context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
             if (!surface) {
-                context->getGpu()->deleteTestingOnlyBackendTexture(handle);
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
                 continue;
             }
 
             test_write_pixels(reporter, surface.get());
 
             surface.reset();
-            context->getGpu()->deleteTestingOnlyBackendTexture(handle);
+            gpu->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }
 }
@@ -473,6 +479,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // in between uses of the shared backing resource).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     static const int kFullSize = 62;
     static const int kHalfSize = 31;
@@ -496,10 +503,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fHeight = 64;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                                                  SkBackingFit::kApprox,
-                                                                  SkBudgeted::kYes);
-        temp->instantiate(context->resourceProvider());
+        sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(desc, SkBackingFit::kApprox,
+                                                                SkBudgeted::kYes);
+        temp->instantiate(context->contextPriv().resourceProvider());
     }
 
     // Create the surfaces and flush them to ensure there is no lingering pendingIO

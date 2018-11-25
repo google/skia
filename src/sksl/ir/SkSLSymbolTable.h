@@ -8,8 +8,8 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
+#include <map>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 #include "SkSLErrorReporter.h"
 #include "SkSLSymbol.h"
@@ -43,9 +43,9 @@ public:
 
     void markAllFunctionsBuiltin();
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator begin();
+    std::map<StringFragment, const Symbol*>::iterator begin();
 
-    std::unordered_map<StringFragment, const Symbol*>::iterator end();
+    std::map<StringFragment, const Symbol*>::iterator end();
 
     const std::shared_ptr<SymbolTable> fParent;
 
@@ -56,7 +56,7 @@ private:
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
-    std::unordered_map<StringFragment, const Symbol*> fSymbols;
+    std::map<StringFragment, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
 };

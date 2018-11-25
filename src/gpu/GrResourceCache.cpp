@@ -10,6 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrProxyProvider.h"
 #include "GrTexture.h"
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTracing.h"
@@ -64,7 +65,8 @@ private:
 
 
 GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
-    : fTimestamp(0)
+    : fProxyProvider(nullptr)
+    , fTimestamp(0)
     , fMaxCount(kDefaultMaxCount)
     , fMaxBytes(kDefaultMaxSize)
     , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
@@ -196,15 +198,10 @@ void GrResourceCache::releaseAll() {
 
     this->processFreedGpuResources();
 
+    SkASSERT(fProxyProvider); // better have called setProxyProvider
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
     // they also have a raw pointer back to this class (which is presumably going away)!
-    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
-        GrTextureProxy& tmp = *iter;
-
-        this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
-    }
-    SkASSERT(!fUniquelyKeyedProxies.count());
+    fProxyProvider->removeAllUniqueKeys();
 
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
@@ -588,9 +585,11 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
 }
 
 void GrResourceCache::processInvalidUniqueKeys(
-    const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
+                                            const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
+    SkASSERT(fProxyProvider); // better have called setProxyProvider
+
     for (int i = 0; i < msgs.count(); ++i) {
-        this->processInvalidProxyUniqueKey(msgs[i].key());
+        fProxyProvider->processInvalidProxyUniqueKey(msgs[i].key());
 
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
@@ -861,97 +860,3 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 }
 
 #endif
-
-void GrResourceCache::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
-    SkASSERT(surf->getUniqueKey().isValid());
-    proxy->cacheAccess().setUniqueKey(this, surf->getUniqueKey());
-    SkASSERT(proxy->getUniqueKey() == surf->getUniqueKey());
-    // multiple proxies can't get the same key
-    SkASSERT(!fUniquelyKeyedProxies.find(surf->getUniqueKey()));
-    fUniquelyKeyedProxies.add(proxy);
-}
-
-void GrResourceCache::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
-    SkASSERT(key.isValid());
-    SkASSERT(proxy);
-
-    // If there is already a GrResource with this key then the caller has violated the normal
-    // usage pattern of uniquely keyed resources (e.g., they have created one w/o first seeing
-    // if it already existed in the cache).
-    SkASSERT(!this->findAndRefUniqueResource(key));
-
-    // Uncached resources can never have a unique key, unless they're wrapped resources. Wrapped
-    // resources are a special case: the unique keys give us a weak ref so that we can reuse the
-    // same resource (rather than re-wrapping). When a wrapped resource is no longer referenced,
-    // it will always be released - it is never converted to a scratch resource.
-    if (SkBudgeted::kNo == proxy->isBudgeted() &&
-                    (!proxy->priv().isInstantiated() ||
-                     !proxy->priv().peekSurface()->resourcePriv().refsWrappedObjects())) {
-        return;
-    }
-
-    SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
-
-    proxy->cacheAccess().setUniqueKey(this, key);
-    SkASSERT(proxy->getUniqueKey() == key);
-    fUniquelyKeyedProxies.add(proxy);
-}
-
-sk_sp<GrTextureProxy> GrResourceCache::findProxyByUniqueKey(const GrUniqueKey& key,
-                                                            GrSurfaceOrigin origin) {
-
-    sk_sp<GrTextureProxy> result = sk_ref_sp(fUniquelyKeyedProxies.find(key));
-    if (result) {
-        SkASSERT(result->origin() == origin);
-    }
-    return result;
-}
-
-sk_sp<GrTextureProxy> GrResourceCache::findOrCreateProxyByUniqueKey(const GrUniqueKey& key,
-                                                                    GrSurfaceOrigin origin) {
-    sk_sp<GrTextureProxy> result = this->findProxyByUniqueKey(key, origin);
-    if (result) {
-        return result;
-    }
-
-    GrGpuResource* resource = findAndRefUniqueResource(key);
-    if (!resource) {
-        return nullptr;
-    }
-
-    sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
-    SkASSERT(texture);
-
-    result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
-    SkASSERT(result->getUniqueKey() == key);
-    // MakeWrapped should've added this for us
-    SkASSERT(fUniquelyKeyedProxies.find(key));
-    return result;
-}
-
-void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
-    // Note: this method is called for the whole variety of GrGpuResources so often 'key'
-    // will not be in 'fUniquelyKeyedProxies'.
-    GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
-    if (proxy) {
-        this->processInvalidProxyUniqueKey(key, proxy, false);
-    }
-}
-
-void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
-                                                   bool invalidateSurface) {
-    SkASSERT(proxy);
-    SkASSERT(proxy->getUniqueKey().isValid());
-    SkASSERT(proxy->getUniqueKey() == key);
-
-    fUniquelyKeyedProxies.remove(key);
-    proxy->cacheAccess().clearUniqueKey();
-
-    if (invalidateSurface && proxy->priv().isInstantiated()) {
-        GrSurface* surface = proxy->priv().peekSurface();
-        if (surface) {
-            surface->resourcePriv().removeUniqueKey();
-        }
-    }
-}
-

@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkRectPriv.h"
 
 #include "Test.h"
 
@@ -98,7 +99,7 @@ DEF_TEST(RTreeMakeLargest, r) {
     // used to fall into an infinite loop.
 
     SkRTreeFactory factory;
-    std::unique_ptr<SkBBoxHierarchy> bbh{ factory(SkRect::MakeLargest()) };
+    std::unique_ptr<SkBBoxHierarchy> bbh{ factory(SkRectPriv::MakeLargest()) };
 
     SkRect rects[] = { {0,0, 10,10}, {5,5,15,15} };
     bbh->insert(rects, SK_ARRAY_COUNT(rects));

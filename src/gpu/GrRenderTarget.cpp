@@ -16,6 +16,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
+#include "SkRectPriv.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
                                GrRenderTargetFlags flags,
@@ -26,10 +27,10 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
         , fMultisampleSpecsID(0)
         , fFlags(flags) {
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled) || fSampleCnt > 0);
+    SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled) || fSampleCnt > 1);
     SkASSERT(!(fFlags & GrRenderTargetFlags::kWindowRectsSupport) ||
              gpu->caps()->maxWindowRectangles() > 0);
-    fResolveRect.setLargestInverted();
+    fResolveRect = SkRectPriv::MakeILargestInverted();
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
@@ -48,12 +49,16 @@ void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {
 void GrRenderTarget::overrideResolveRect(const SkIRect rect) {
     fResolveRect = rect;
     if (fResolveRect.isEmpty()) {
-        fResolveRect.setLargestInverted();
+        fResolveRect = SkRectPriv::MakeILargestInverted();
     } else {
         if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
-            fResolveRect.setLargestInverted();
+            fResolveRect = SkRectPriv::MakeILargestInverted();
         }
     }
+}
+
+void GrRenderTarget::flagAsResolved() {
+    fResolveRect = SkRectPriv::MakeILargestInverted();
 }
 
 void GrRenderTarget::onRelease() {

@@ -8,13 +8,11 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTArray.h"
-#include "instanced/InstancedRendering.h"
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
@@ -38,8 +36,6 @@ public:
 
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
-
-    gr_instanced::OpAllocator* instancingAllocator();
 
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                          sk_sp<SkColorSpace>,
@@ -68,7 +64,8 @@ public:
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
     void flushIfNecessary() {
-        if (fContext->getResourceCache()->requestsFlush()) {
+        GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
+        if (resourceCache && resourceCache->requestsFlush()) {
             this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
         }
     }
@@ -81,6 +78,9 @@ public:
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
+
+    void moveOpListsToDDL(SkDeferredDisplayList* ddl);
+    void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
 private:
     GrDrawingManager(GrContext* context,
@@ -95,7 +95,6 @@ private:
             , fAtlasTextContext(nullptr)
             , fPathRendererChain(nullptr)
             , fSoftwarePathRenderer(nullptr)
-            , fFlushState(context->getGpu(), context->resourceProvider())
             , fFlushing(false) {}
 
     void abandon();
@@ -141,13 +140,10 @@ private:
     GrPathRendererChain*              fPathRendererChain;
     GrSoftwarePathRenderer*           fSoftwarePathRenderer;
 
-    GrOpFlushState                    fFlushState;
+    GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
-
-    // Lazily allocated
-    std::unique_ptr<gr_instanced::OpAllocator> fInstancingAllocator;
 };
 
 #endif

@@ -122,7 +122,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 5 * SCALE) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     SkBitmap bitmap;
-    if (GetResourceAsBitmap("color_wheel.png", &bitmap)) {
+    if (GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
         bitmap.setImmutable();
         draw(canvas, p, bitmap, kN32_SkColorType, "Native 32");
 
@@ -211,10 +211,9 @@ static void make_color_test_bitmap_variant(
     SkASSERT(alphaType == kPremul_SkAlphaType || alphaType == kUnpremul_SkAlphaType);
     bm->allocPixels(
         SkImageInfo::Make(SCALE, SCALE, colorType, alphaType, colorSpace));
-    SkPixmap pm;
-    bm->peekPixels(&pm);
-    for (int y = 0; y < bm->height(); y++) {
-        for (int x = 0; x < bm->width(); x++) {
+    const SkPixmap& pm = bm->pixmap();
+    for (int y = 0; y < pm.height(); y++) {
+        for (int x = 0; x < pm.width(); x++) {
             *pm.writable_addr32(x, y) = make_pixel(x, y, alphaType);
         }
     }

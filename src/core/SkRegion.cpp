@@ -8,6 +8,7 @@
 
 #include "SkAtomics.h"
 #include "SkRegionPriv.h"
+#include "SkSafeMath.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
@@ -139,19 +140,14 @@ bool SkRegion::setEmpty() {
     return false;
 }
 
-bool SkRegion::setRect(int32_t left, int32_t top,
-                       int32_t right, int32_t bottom) {
-    if (left >= right || top >= bottom) {
+bool SkRegion::setRect(const SkIRect& r) {
+    if (r.isEmpty()) {
         return this->setEmpty();
     }
     this->freeRuns();
-    fBounds.set(left, top, right, bottom);
+    fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
-}
-
-bool SkRegion::setRect(const SkIRect& r) {
-    return this->setRect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
 bool SkRegion::setRegion(const SkRegion& src) {
@@ -292,6 +288,11 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     fRunHead = fRunHead->ensureWritable();
     memcpy(fRunHead->writable_runs(), runs, count * sizeof(RunType));
     fRunHead->computeRunBounds(&fBounds);
+
+    // Our computed bounds might be too large, so we have to check here.
+    if (fBounds.isEmpty()) {
+        return this->setEmpty();
+    }
 
     SkDEBUGCODE(this->validate();)
 
@@ -1129,6 +1130,21 @@ size_t SkRegion::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
+static bool validate_run_count(int ySpanCount, int intervalCount, int runCount) {
+    // return 2 + 3 * ySpanCount + 2 * intervalCount;
+    if (ySpanCount < 1 || intervalCount < 2) {
+        return false;
+    }
+    SkSafeMath safeMath;
+    int sum = 2;
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    return safeMath && sum == runCount;
+}
+
 // Validate that a memory sequence is a valid region.
 // Try to check all possible errors.
 // never read beyond &runs[runCount-1].
@@ -1139,7 +1155,7 @@ static bool validate_run(const int32_t* runs,
                          int32_t intervalCount) {
     // Region Layout:
     //    Top ( Bottom Span_Interval_Count ( Left Right )* Sentinel )+ Sentinel
-    if (ySpanCount < 1 || intervalCount < 2 || runCount != 2 + 3 * ySpanCount + 2 * intervalCount) {
+    if (!validate_run_count(SkToInt(ySpanCount), SkToInt(intervalCount), runCount)) {
         return false;
     }
     SkASSERT(runCount >= 7);  // 7==SkRegion::kRectRegionRuns
@@ -1184,7 +1200,7 @@ static bool validate_run(const int32_t* runs,
             return false;  // too many intervals
         }
         bool firstInterval = true;
-        int32_t lastRight;  // check that x-intervals are distinct and ordered.
+        int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {
             rect.fLeft = *runs++;
             rect.fRight = *runs++;

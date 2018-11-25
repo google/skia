@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkColorShader.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"

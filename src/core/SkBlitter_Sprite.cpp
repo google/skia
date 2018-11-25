@@ -113,19 +113,26 @@ public:
         fPaintColor = SkColor4f_from_SkColor(paint.getColor(), fDst.colorSpace());
 
         SkRasterPipeline p(fAlloc);
+        void* ctx = &fSrcPtr;
         switch (fSource.colorType()) {
-            case kAlpha_8_SkColorType:   p.append(SkRasterPipeline::load_a8,   &fSrcPtr); break;
-            case kGray_8_SkColorType:    p.append(SkRasterPipeline::load_g8,   &fSrcPtr); break;
-            case kRGB_565_SkColorType:   p.append(SkRasterPipeline::load_565,  &fSrcPtr); break;
-            case kARGB_4444_SkColorType: p.append(SkRasterPipeline::load_4444, &fSrcPtr); break;
-            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_bgra, &fSrcPtr); break;
-            case kRGBA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &fSrcPtr); break;
-            case kRGBA_F16_SkColorType:  p.append(SkRasterPipeline::load_f16,  &fSrcPtr); break;
+            case kAlpha_8_SkColorType:      p.append(SkRasterPipeline::load_a8,      ctx); break;
+            case kGray_8_SkColorType:       p.append(SkRasterPipeline::load_g8,      ctx); break;
+            case kRGB_565_SkColorType:      p.append(SkRasterPipeline::load_565,     ctx); break;
+            case kARGB_4444_SkColorType:    p.append(SkRasterPipeline::load_4444,    ctx); break;
+            case kBGRA_8888_SkColorType:    p.append(SkRasterPipeline::load_bgra,    ctx); break;
+            case kRGBA_8888_SkColorType:    p.append(SkRasterPipeline::load_8888,    ctx); break;
+            case kRGBA_1010102_SkColorType: p.append(SkRasterPipeline::load_1010102, ctx); break;
+            case kRGBA_F16_SkColorType:     p.append(SkRasterPipeline::load_f16,     ctx); break;
+
+            case kRGB_888x_SkColorType:     p.append(SkRasterPipeline::load_8888,    ctx);
+                                            p.append(SkRasterPipeline::force_opaque     ); break;
+            case kRGB_101010x_SkColorType:  p.append(SkRasterPipeline::load_1010102, ctx);
+                                            p.append(SkRasterPipeline::force_opaque     ); break;
             default: SkASSERT(false);
         }
         if (fDst.colorSpace() &&
                 (!fSource.colorSpace() || fSource.colorSpace()->gammaCloseToSRGB())) {
-            p.append_from_srgb(fSource.alphaType());
+            p.append(SkRasterPipeline::from_srgb);
         }
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);
@@ -142,11 +149,15 @@ public:
     }
 
     void blitRect(int x, int y, int width, int height) override {
-        int bpp = fSource.info().bytesPerPixel();
-
         fSrcPtr.stride = fSource.rowBytesAsPixels();
-        fSrcPtr.pixels = (char*)fSource.addr(x-fLeft, y-fTop) - bpp * x
-                                                              - bpp * y * fSrcPtr.stride;
+
+        // We really want fSrcPtr.pixels = fSource.addr(-fLeft, -fTop) here, but that asserts.
+        // Instead we ask for addr(-fLeft+x, -fTop+y), then back up (x,y) manually.
+        // Representing bpp as a size_t keeps all this math in size_t instead of int,
+        // which could wrap around with large enough fSrcPtr.stride and y.
+        size_t bpp = fSource.info().bytesPerPixel();
+        fSrcPtr.pixels = (char*)fSource.addr(-fLeft+x, -fTop+y) - bpp * x
+                                                                - bpp * y * fSrcPtr.stride;
 
         fBlitter->blitRect(x,y,width,height);
     }
@@ -199,7 +210,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
                 break;
         }
     }
-    if (!blitter) {
+    if (!blitter && !paint.getMaskFilter()) {
         blitter = allocator->make<SkRasterPipelineSpriteBlitter>(source, allocator);
     }
 

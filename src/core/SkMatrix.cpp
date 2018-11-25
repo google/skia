@@ -6,7 +6,7 @@
  */
 
 #include "SkFloatBits.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkNx.h"
 #include "SkPaint.h"
 #include "SkPoint3.h"
@@ -1037,30 +1037,49 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
+void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[],
+                                                  size_t dstStride, const SkPoint3 src[],
+                                                  size_t srcStride, int count) {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
     SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
 
     if (count > 0) {
-        if (this->isIdentity()) {
-            memcpy(dst, src, count * sizeof(SkPoint3));
+        if (mx.isIdentity()) {
+            if (src != dst) {
+                if (srcStride == sizeof(SkPoint3) && dstStride == sizeof(SkPoint3)) {
+                    memcpy(dst, src, count * sizeof(SkPoint3));
+                } else {
+                    for (int i = 0; i < count; ++i) {
+                        *dst = *src;
+                        dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
+                        src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) +
+                                                                srcStride);
+                    }
+                }
+            }
             return;
         }
         do {
             SkScalar sx = src->fX;
             SkScalar sy = src->fY;
             SkScalar sw = src->fZ;
-            src++;
-
-            SkScalar x = sdot(sx, fMat[kMScaleX], sy, fMat[kMSkewX],  sw, fMat[kMTransX]);
-            SkScalar y = sdot(sx, fMat[kMSkewY],  sy, fMat[kMScaleY], sw, fMat[kMTransY]);
-            SkScalar w = sdot(sx, fMat[kMPersp0], sy, fMat[kMPersp1], sw, fMat[kMPersp2]);
+            src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) + srcStride);
+            const SkScalar* mat = mx.fMat;
+            typedef SkMatrix M;
+            SkScalar x = sdot(sx, mat[M::kMScaleX], sy, mat[M::kMSkewX],  sw, mat[M::kMTransX]);
+            SkScalar y = sdot(sx, mat[M::kMSkewY],  sy, mat[M::kMScaleY], sw, mat[M::kMTransY]);
+            SkScalar w = sdot(sx, mat[M::kMPersp0], sy, mat[M::kMPersp1], sw, mat[M::kMPersp2]);
 
             dst->set(x, y, w);
-            dst++;
+            dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
         } while (--count);
     }
+}
+
+void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
+    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst, sizeof(SkPoint3), src,
+                                                 sizeof(SkPoint3), count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1636,10 +1655,8 @@ size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     if (length < sizeInMemory) {
         return 0;
     }
-    if (buffer) {
-        memcpy(fMat, buffer, sizeInMemory);
-        this->setTypeMask(kUnknown_Mask);
-    }
+    memcpy(fMat, buffer, sizeInMemory);
+    this->setTypeMask(kUnknown_Mask);
     return sizeInMemory;
 }
 

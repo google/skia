@@ -82,7 +82,7 @@ public:
 
             // Setup pass through color
             if (gp.hasVertexColor()) {
-                GrGLSLVertToFrag varying(kHalf4_GrSLType);
+                GrGLSLVarying varying(kHalf4_GrSLType);
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
@@ -144,8 +144,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gpArgs->fPositionVar,
-                                     gp.inLocalCoords()->fName,
+                                     gp.inLocalCoords()->asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             } else {
@@ -153,8 +152,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gpArgs->fPositionVar,
-                                     gp.inPosition()->fName,
+                                     gp.inPosition()->asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             }

@@ -29,6 +29,13 @@ public:
 
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
+    AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto lo = _mm_setr_ps(a[0], b[0], c[0], a[1]),
+             hi = _mm_setr_ps(b[1], c[1],    0,    0);
+        _mm_storeu_ps((float*)dst, lo);
+        _mm_storel_pi(((__m64*)dst) + 2, hi);
+    }
+
     AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
@@ -83,6 +90,13 @@ public:
 
     AI static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
     AI void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
+
+    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
+        SkNx lo = SkNx::Load((const float*)ptr+0),
+             hi = SkNx::Load((const float*)ptr+4);
+        *x = SkNx{lo[0], lo[2], hi[0], hi[2]};
+        *y = SkNx{lo[1], lo[3], hi[1], hi[3]};
+    }
 
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
         __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),

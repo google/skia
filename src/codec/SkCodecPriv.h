@@ -13,6 +13,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkEncodedInfo.h"
+#include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
 
@@ -294,5 +295,7 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSp
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
+
+bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation);
 
 #endif // SkCodecPriv_DEFINED

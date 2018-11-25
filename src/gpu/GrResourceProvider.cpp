@@ -15,12 +15,12 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
 #include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
-#include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "../private/GrSingleOwner.h"
 #include "SkGr.h"
@@ -46,11 +46,11 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fQuadIndexBufferKey = gQuadIndexBufferKey;
 }
 
-bool GrResourceProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
-    return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
-}
-
 bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount = 0) {
+    if (desc.fSampleCnt < 1) {
+        return false;
+    }
+
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return false;
     }
@@ -58,11 +58,11 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
         return false;
     }
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
             return false;
         }
     } else {
-        if (desc.fSampleCnt) {
+        if (desc.fSampleCnt > 1) {
             return false;
         }
     }
@@ -115,9 +115,9 @@ static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
     return true;
 }
 
-sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc& desc,
-                                                             SkBudgeted budgeted,
-                                                             const GrMipLevel& mipLevel) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
+                                                   SkBudgeted budgeted,
+                                                   const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
 
     if (this->isAbandoned()) {
@@ -133,31 +133,33 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     }
 
     GrContext* context = fGpu->getContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     SkImageInfo srcInfo;
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
+        // DDL TODO: remove this use of createInstantiatedProxy and convert it to a testing-only
+        // method.
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
+                                                                             SkBackingFit::kExact,
+                                                                             budgeted);
         if (proxy) {
-            sk_sp<GrSurfaceContext> sContext =
-                       context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+                                                                                std::move(proxy));
             if (sContext) {
                 if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                    return sContext->asTextureProxyRef();
+                    return sk_ref_sp(sContext->asTextureProxy()->priv().peekTexture());
                 }
             }
         }
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, &mipLevel, 1));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
+    return fGpu->createTexture(desc, budgeted, &mipLevel, 1);
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
-
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -276,40 +278,29 @@ void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,
     resource->resourcePriv().setUniqueKey(key);
 }
 
-void GrResourceProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
-    ASSERT_SINGLE_OWNER
-    if (this->isAbandoned() || !proxy) {
-        return;
-    }
-    fCache->processInvalidProxyUniqueKey(key, proxy, true);
-}
-
 sk_sp<GrGpuResource> GrResourceProvider::findResourceByUniqueKey(const GrUniqueKey& key) {
     ASSERT_SINGLE_OWNER
     return this->isAbandoned() ? nullptr
                                : sk_sp<GrGpuResource>(fCache->findAndRefUniqueResource(key));
 }
 
-void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(key.isValid());
-    if (this->isAbandoned() || !proxy) {
-        return;
+sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrBufferType intendedType,
+                                                                 size_t size,
+                                                                 const void* data,
+                                                                 const GrUniqueKey& key) {
+    if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
+        return buffer;
     }
-
-    fCache->assignUniqueKeyToProxy(key, proxy);
-}
-
-sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key,
-                                                               GrSurfaceOrigin origin) {
-    ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fCache->findProxyByUniqueKey(key, origin);
-}
-
-sk_sp<GrTextureProxy> GrResourceProvider::findOrCreateProxyByUniqueKey(const GrUniqueKey& key,
-                                                                       GrSurfaceOrigin origin) {
-    ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fCache->findOrCreateProxyByUniqueKey(key, origin);
+    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, 0,
+                                         data)) {
+        // We shouldn't bin and/or cachestatic buffers.
+        SkASSERT(buffer->sizeInBytes() == size);
+        SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+        SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
+        buffer->resourcePriv().setUniqueKey(key);
+        return sk_sp<const GrBuffer>(buffer);
+    }
+    return nullptr;
 }
 
 sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
@@ -480,7 +471,7 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return this->gpu()->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
+    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {
@@ -488,9 +479,12 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool 
 }
 
 sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                            SemaphoreWrapType wrapType,
                                                             GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore, ownership);
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,
+                                                                      wrapType,
+                                                                      ownership);
 }
 
 void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {

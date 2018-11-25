@@ -30,8 +30,7 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpuThreads.h"
-#include "SkCommonFlagsPathRenderer.h"
+#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
@@ -47,7 +46,6 @@
 #include "SkTaskGroup.h"
 #include "SkTraceEvent.h"
 #include "Stats.h"
-#include "ThermalManager.h"
 #include "ios_utils.h"
 
 #include <stdlib.h>
@@ -55,7 +53,7 @@
 
 extern bool gSkForceRasterPipelineBlitter;
 
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 #endif
 
@@ -128,8 +126,6 @@ DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
-DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,TimeoutMs for "
-                                                "thermalManager\n");
 DEFINE_bool(csv, false, "Print status in CSV format");
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
@@ -137,10 +133,6 @@ DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
 
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
-
-#if SK_SUPPORT_GPU
-DEFINE_pathrenderer_flag;
-#endif
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -607,6 +599,7 @@ public:
                       , fGMs(skiagm::GMRegistry::Head())
                       , fCurrentRecording(0)
                       , fCurrentPiping(0)
+                      , fCurrentDeserialPicture(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
                       , fCurrentSVG(0)
@@ -763,6 +756,21 @@ public:
             fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
             fSKPOps   = pic->approximateOpCount();
             return new PipingBench(name.c_str(), pic.get());
+        }
+
+        // Add all .skps as DeserializePictureBenchs.
+        while (fCurrentDeserialPicture < fSKPs.count()) {
+            const SkString& path = fSKPs[fCurrentDeserialPicture++];
+            sk_sp<SkData> data = SkData::MakeFromFileName(path.c_str());
+            if (!data) {
+                continue;
+            }
+            SkString name = SkOSPath::Basename(path.c_str());
+            fSourceType = "skp";
+            fBenchType  = "deserial";
+            fSKPBytes = static_cast<double>(data->size());
+            fSKPOps   = 0;
+            return new DeserializePictureBench(name.c_str(), std::move(data));
         }
 
         // Then once each for each scale as SKPBenches (playback).
@@ -1091,6 +1099,7 @@ private:
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
     int fCurrentRecording;
     int fCurrentPiping;
+    int fCurrentDeserialPicture;
     int fCurrentScale;
     int fCurrentSKP;
     int fCurrentSVG;
@@ -1136,9 +1145,7 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
 #if SK_SUPPORT_GPU
-    grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grContextOpts.fAllowPathMaskCaching = FLAGS_cachePathMasks;
-    grContextOpts.fExecutor = GpuExecutorForTools();
+    SetCtxOptionsFromCommonFlags(&grContextOpts);
 #endif
 
     if (FLAGS_veryVerbose) {
@@ -1204,16 +1211,6 @@ int main(int argc, char** argv) {
     SkTArray<Config> configs;
     create_configs(&configs);
 
-#ifdef THERMAL_MANAGER_SUPPORTED
-    int tmEnabled, tmThreshold, tmSleepTimeMs, tmTimeoutMs;
-    if (4 != sscanf(FLAGS_useThermalManager[0], "%d,%d,%d,%d",
-                    &tmEnabled, &tmThreshold, &tmSleepTimeMs, &tmTimeoutMs)) {
-        SkDebugf("Can't parse %s from --useThermalManager.\n", FLAGS_useThermalManager[0]);
-        exit(1);
-    }
-    ThermalManager tm(tmThreshold, tmSleepTimeMs, tmTimeoutMs);
-#endif
-
     if (FLAGS_keepAlive) {
         start_keepalive();
     }
@@ -1244,11 +1241,6 @@ int main(int argc, char** argv) {
             bench->delayedSetup();
         }
         for (int i = 0; i < configs.count(); ++i) {
-#ifdef THERMAL_MANAGER_SUPPORTED
-            if (tmEnabled && !tm.coolOffIfNecessary()) {
-                SkDebugf("Could not cool off, timings will be throttled\n");
-            }
-#endif
             Target* target = is_enabled(b, configs[i]);
             if (!target) {
                 continue;

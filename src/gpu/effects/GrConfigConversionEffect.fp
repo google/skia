@@ -1,6 +1,15 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 @header {
     #include "GrClip.h"
     #include "GrContext.h"
+    #include "GrContextPriv.h"
+    #include "GrProxyProvider.h"
     #include "GrRenderTargetContext.h"
 }
 
@@ -40,15 +49,20 @@
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
+        // Adding discard to appease vulkan validation warning about loading uninitialized data on
+        // draw
+        readRTC->discard();
+
         GrSurfaceDesc desc;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fWidth = kSize;
         desc.fHeight = kSize;
         desc.fConfig = kConfig;
 
-        sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                       desc,
-                                                                       SkBudgeted::kYes, data, 0);
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+        sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                                                            data, 0);
         if (!dataProxy) {
             return false;
         }
@@ -76,6 +90,10 @@
         if (!readRTC->readPixels(ii, firstRead, 0, 0, 0)) {
             return false;
         }
+
+        // Adding discard to appease vulkan validation warning about loading uninitialized data on
+        // draw
+        tempRTC->discard();
 
         paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), SkMatrix::I());
         paint2.addColorFragmentProcessor(std::move(upmToPM));

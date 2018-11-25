@@ -112,7 +112,7 @@ struct Config {
     DoubleOption font_size = DoubleOption("-z", "Font size", 8.0f);
     DoubleOption left_margin = DoubleOption("-m", "Left margin", 20.0f);
     DoubleOption line_spacing_ratio =
-            DoubleOption("-h", "Line spacing ratio", 1.5f);
+            DoubleOption("-h", "Line spacing ratio", 0.25f);
     StringOption output_file_name =
             StringOption("-o", ".pdf output file name", "out-skiahf.pdf");
 
@@ -138,7 +138,16 @@ public:
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
-        if (!pageCanvas || current_y > config->page_height.value) {
+        SkTextBlobBuilder textBlobBuilder;
+        SkPoint endPoint = shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true,
+                                        SkPoint{0, 0},
+                                        config->page_width.value - 2*config->left_margin.value);
+        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+        // If we don't have a page, or if we're not at the start of the page and the blob won't fit
+        if (!pageCanvas ||
+              (current_y > config->line_spacing_ratio.value * config->font_size.value &&
+               current_y + endPoint.y() > config->page_height.value)
+        ) {
             if (pageCanvas) {
                 document->endPage();
             }
@@ -149,14 +158,11 @@ public:
             current_x = config->left_margin.value;
             current_y = config->line_spacing_ratio.value * config->font_size.value;
         }
-        SkTextBlobBuilder textBlobBuilder;
-        shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true, SkPoint{0, 0});
-        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
         pageCanvas->drawTextBlob(
                 blob.get(), SkDoubleToScalar(current_x),
                 SkDoubleToScalar(current_y), glyph_paint);
         // Advance to the next line.
-        current_y += config->line_spacing_ratio.value * config->font_size.value;
+        current_y += endPoint.y() + config->line_spacing_ratio.value * config->font_size.value;
     }
 
 private:
@@ -171,15 +177,13 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkDocument> MakePDFDocument(const Config &config,
-                                         SkWStream *wStream) {
+static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStream) {
     SkDocument::PDFMetadata pdf_info;
     pdf_info.fTitle = config.title.value.c_str();
     pdf_info.fAuthor = config.author.value.c_str();
     pdf_info.fSubject = config.subject.value.c_str();
     pdf_info.fKeywords = config.keywords.value.c_str();
     pdf_info.fCreator = config.creator.value.c_str();
-    bool pdfa = false;
     #if 0
         SkTime::DateTime now;
         SkTime::GetDateTime(&now);
@@ -187,10 +191,9 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config,
         pdf_info.fCreation.fDateTime = now;
         pdf_info.fModified.fEnabled = true;
         pdf_info.fModified.fDateTime = now;
-        pdfa = true;
+        pdf_info.fPDFA = true;
     #endif
-    return SkDocument::MakePDF(wStream, SK_ScalarDefaultRasterDPI, pdf_info,
-                               nullptr, pdfa);
+    return SkDocument::MakePDF(wStream, pdf_info);
 }
 
 int main(int argc, char **argv) {
@@ -208,6 +211,7 @@ int main(int argc, char **argv) {
     SkShaper shaper(typeface);
     assert(shaper.good());
     //SkString line("This is هذا هو الخط a line.");
+    //SkString line("⁧This is a line هذا هو الخط.⁩");
     for (std::string line; std::getline(std::cin, line);) {
         placement.WriteLine(shaper, line.c_str(), line.size());
     }

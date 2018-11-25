@@ -111,4 +111,4 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 
 
-DEF_GM( return new FilterIndiaBoxGM("box.gif"); )
+DEF_GM( return new FilterIndiaBoxGM("images/box.gif"); )

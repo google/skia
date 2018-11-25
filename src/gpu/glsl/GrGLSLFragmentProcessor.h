@@ -134,8 +134,6 @@ public:
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
-
     int numChildProcessors() const { return fChildProcessors.count(); }
 
     GrGLSLFragmentProcessor* childProcessor(int index) {

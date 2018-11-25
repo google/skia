@@ -8,7 +8,7 @@
 #include "GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
 #include "SkGr.h"
 #include "SkPixelRef.h"
@@ -207,7 +207,9 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
+    GrProxyProvider* proxyProvider = fDesc.fContext->contextPriv().proxyProvider();
+
+    sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
         GrSurfaceDesc texDesc;
@@ -216,23 +218,20 @@ void GrTextureStripAtlas::lockTexture() {
         texDesc.fHeight = fDesc.fHeight;
         texDesc.fConfig = fDesc.fConfig;
 
-        proxy = GrSurfaceProxy::MakeDeferred(fDesc.fContext->resourceProvider(),
-                                             texDesc, SkBackingFit::kExact,
-                                             SkBudgeted::kYes,
-                                             GrResourceProvider::kNoPendingIO_Flag);
+        proxy = proxyProvider->createProxy(texDesc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                           GrResourceProvider::kNoPendingIO_Flag);
         if (!proxy) {
             return;
         }
 
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-        fDesc.fContext->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
+        proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
     }
     SkASSERT(proxy);
-    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
-                                                                          nullptr);
+    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
 }
 
 void GrTextureStripAtlas::unlockTexture() {

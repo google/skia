@@ -35,12 +35,13 @@ const (
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
 	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
 	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
-	DEFAULT_OS_DEBIAN    = "Debian-9.1"
-	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
-	DEFAULT_OS_MAC       = "Mac-10.13.1"
+	DEFAULT_OS_DEBIAN    = "Debian-9.4"
+	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
+	DEFAULT_OS_MAC       = "Mac-10.13.3"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -118,14 +119,16 @@ func linuxGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if parts["role"] == "Housekeeper" {
+	if strings.Contains(jobName, "Bookmaker") {
+		return "Build-Debian9-GCC-x86_64-Release"
+	} else if parts["role"] == "Housekeeper" {
 		return "Build-Debian9-GCC-x86_64-Release-Shared"
-	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
+	} else if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
-			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI"}
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !util.In(part, ignore) {
@@ -197,7 +200,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-15063",
+			"Win10":      "Windows-10-16299.248",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -206,6 +209,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}[os]
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
+		}
+		if os == "Win10" && parts["model"] == "Golo" {
+			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
+			// 1709.
+			d["os"] = "Windows-10-15063"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -216,17 +224,15 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// than CPU or GPU.
 			deviceInfo, ok := map[string][]string{
 				"AndroidOne":      {"sprout", "MOB30Q"},
-				"Chorizo":         {"chorizo", "1.24_82923"},
-				"GalaxyJ5":        {"j5xnlte", "MMB29M"},
+				"Chorizo":         {"chorizo", "1.30_109591"},
 				"GalaxyS6":        {"zerofltetmo", "NRD90M_G920TUVU5FQK1"},
 				"GalaxyS7_G930A":  {"heroqlteatt", "NRD90M_G930AUCS4BQC2"},
 				"GalaxyS7_G930FD": {"herolte", "NRD90M_G930FXXU1DQAS"},
 				"MotoG4":          {"athene", "NPJ25.93-14"},
-				"NVIDIA_Shield":   {"foster", "NRD90M"},
-				"Nexus10":         {"manta", "LMY49J"},
-				"Nexus5":          {"hammerhead", "M4B30Z"},
+				"NVIDIA_Shield":   {"foster", "NRD90M_1915764_848"},
+				"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
-				"Nexus7":          {"grouper", "LMY47V"}, // 2012 Nexus 7
+				"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7
 				"NexusPlayer":     {"fugu", "OPR6.170623.021"},
 				"Pixel":           {"sailfish", "OPR3.170623.008"},
 				"Pixel2XL":        {"taimen", "OPD1.170816.023"},
@@ -238,6 +244,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
+			// TODO(kjlubick): Remove the python dimension after we have removed the
+			// Nexus5x devices from the local lab (on Monday, Dec 11, 2017 should be fine).
+			d["python"] = "2.7.9" // This indicates a RPI, e.g. in Skolo.  Golo is 2.7.12
+			if parts["model"] == "Nexus5x" {
+				d["python"] = "2.7.12"
+			}
 		} else if strings.Contains(parts["os"], "iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
@@ -274,6 +286,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
+			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_WIN {
+				// Use normal-size machines for Test and Perf tasks on Win GCE.
+				d["machine_type"] = "n1-standard-16"
+			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
@@ -284,7 +300,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD530":    "8086:1912-21.20.16.4590",
 					"IntelHD4400":   "8086:0a16-20.19.15.4703",
 					"IntelHD4600":   "8086:0412-20.19.15.4703",
-					"IntelIris540":  "8086:1926-21.20.16.4590",
+					"IntelIris540":  "8086:1926-21.20.16.4839",
 					"IntelIris6100": "8086:162b-20.19.15.4703",
 					"RadeonHD7770":  "1002:683d-22.19.165.512",
 					"RadeonR9M470X": "1002:6646-22.19.165.512",
@@ -310,7 +326,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelBayTrail": "8086:0f31",
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
-					"IntelIris540":  "8086:1926",
 					"IntelIris640":  "8086:5926",
 					"QuadroP400":    "10de:1cb3-384.59",
 				}[parts["cpu_or_gpu_value"]]
@@ -326,19 +341,25 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
+				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
+				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
+					// Run all tasks on Golo machines for now.
+					d["cpu"] = "x86-64-i7-4578U"
+				}
 			} else if strings.Contains(parts["os"], "ChromeOS") {
-				gpu, ok := map[string]string{
-					"MaliT604":           "MaliT604",
-					"MaliT764":           "MaliT764",
-					"MaliT860":           "MaliT860",
-					"PowerVRGX6250":      "PowerVRGX6250",
-					"TegraK1":            "TegraK1",
-					"IntelHDGraphics615": "IntelHDGraphics615",
+				version, ok := map[string]string{
+					"MaliT604":           "9901.12.0",
+					"MaliT764":           "10172.0.0",
+					"MaliT860":           "10172.0.0",
+					"PowerVRGX6250":      "10176.5.0",
+					"TegraK1":            "10172.0.0",
+					"IntelHDGraphics615": "10032.17.0",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", parts["cpu_or_gpu_value"])
 				}
-				d["gpu"] = gpu
+				d["gpu"] = parts["cpu_or_gpu_value"]
+				d["release_version"] = version
 			} else {
 				glog.Fatalf("Unknown GPU mapping for OS %q.", parts["os"])
 			}
@@ -350,6 +371,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
+			// Use many-core machines for Build tasks on Win GCE, except for Goma.
+			if strings.Contains(parts["extra_config"], "Goma") {
+				d["machine_type"] = "n1-standard-16"
+			} else {
+				d["machine_type"] = "n1-highcpu-64"
+			}
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
@@ -424,6 +451,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		isolateFile: "isolate_ndk_linux.isolate",
 		cipdPkg:     "android_ndk_linux",
 	},
+	ISOLATE_SDK_LINUX_NAME: {
+		isolateFile: "isolate_android_sdk_linux.isolate",
+		cipdPkg:     "android_sdk_linux",
+	},
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
 		isolateFile: "isolate_win_toolchain.isolate",
 		cipdPkg:     "win_toolchain",
@@ -480,7 +511,10 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
-		if strings.Contains(name, "Mac") {
+		if parts["extra_config"] == "Android_Framework" {
+			// Do not need a toolchain when building the
+			// Android Framework.
+		} else if strings.Contains(name, "Mac") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
 		} else if strings.Contains(name, "Win") {
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
@@ -488,6 +522,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkgs = append(pkgs, pkg)
 		} else {
 			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+			if strings.Contains(name, "SKQP") {
+				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME))
+			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
@@ -546,6 +583,35 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	if !util.In(name, JOBS) {
 		glog.Fatalf("Job %q is missing from the JOBS list!", name)
 	}
+
+	// Upload the skiaserve binary only for Linux Android compile bots.
+	// See skbug.com/7399 for context.
+	if parts["configuration"] == "Release" &&
+		parts["extra_config"] == "Android" &&
+		!strings.Contains(parts["os"], "Win") &&
+		!strings.Contains(parts["os"], "Mac") {
+		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
+		b.MustAddTask(uploadName, &specs.TaskSpec{
+			Dependencies: []string{name},
+			Dimensions:   linuxGceDimensions(),
+			ExtraArgs: []string{
+				"--workdir", "../../..", "upload_skiaserve",
+				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+				fmt.Sprintf("buildername=%s", name),
+				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+			},
+			// We're using the same isolate as upload_dm_results
+			Isolate:  relpath("upload_dm_results.isolate"),
+			Priority: 0.8,
+		})
+		return uploadName
+	}
+
 	return name
 }
 
@@ -674,6 +740,55 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 	return name
 }
 
+// bookmaker generates a Bookmaker task. Returns the name of the last task
+// in the generated chain of tasks, which the Job should add as a dependency.
+func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
+		Dependencies: []string{compileTaskName},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "bookmaker",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:          relpath("compile_skia.isolate"),
+		Priority:         0.8,
+		ExecutionTimeout: 2 * time.Hour,
+		IoTimeout:        2 * time.Hour,
+	})
+	return name
+}
+
+// androidFrameworkCompile generates an Android Framework Compile task. Returns
+// the name of the last task in the generated chain of tasks, which the Job
+// should add as a dependency.
+func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		Dimensions: linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "android_compile",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("compile_skia.isolate"),
+		Priority: 0.8,
+	})
+	return name
+}
+
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
@@ -697,10 +812,19 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+func getParentRevisionName(compileTaskName string, parts map[string]string) string {
+	if parts["extra_config"] == "" {
+		return compileTaskName + "-ParentRevision"
+	} else {
+		return compileTaskName + "_ParentRevision"
+	}
+}
+
 // calmbench generates a calmbench task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
+func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, compileParentName string) string {
 	s := &specs.TaskSpec{
+		Dependencies: []string{compileTaskName, compileParentName},
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
 		Dimensions:   swarmDimensions(parts),
 		ExtraArgs: []string{
@@ -714,7 +838,7 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("infra_skia.isolate"),
+		Isolate:  relpath("calmbench.isolate"),
 		Priority: 0.8,
 	}
 
@@ -767,9 +891,14 @@ func doUpload(name string) bool {
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	deps := []string{compileTaskName}
+	if strings.Contains(name, "Android_ASAN") {
+		deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+	}
+
 	s := &specs.TaskSpec{
 		CipdPackages:     pkgs,
-		Dependencies:     []string{compileTaskName},
+		Dependencies:     deps,
 		Dimensions:       swarmDimensions(parts),
 		ExecutionTimeout: 4 * time.Hour,
 		Expiration:       20 * time.Hour,
@@ -806,6 +935,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.Expiration = 48 * time.Hour
 		s.IoTimeout = time.Hour
 		s.CipdPackages = append(s.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+		s.Dimensions = append(s.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		s.ExecutionTimeout = 9 * time.Hour
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
@@ -987,6 +1117,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.Expiration = 48 * time.Hour
 		s.IoTimeout = time.Hour
 		s.CipdPackages = append(s.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
+		s.Dimensions = append(s.Dimensions, "valgrind:1")
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		s.ExecutionTimeout = 9 * time.Hour
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
@@ -1066,12 +1197,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Compile bots.
 	if parts["role"] == "Build" {
-		deps = append(deps, compile(b, name, parts))
-	}
-
-	// Calmbench bots.
-	if parts["role"] == "Calmbench" {
-		deps = append(deps, calmbench(b, name, parts))
+		if parts["extra_config"] == "Android_Framework" {
+			// Android Framework compile tasks use a different recipe.
+			deps = append(deps, androidFrameworkCompile(b, name))
+		} else {
+			deps = append(deps, compile(b, name, parts))
+		}
 	}
 
 	// Most remaining bots need a compile task.
@@ -1080,16 +1211,26 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if err != nil {
 		glog.Fatal(err)
 	}
+	compileParentName := getParentRevisionName(compileTaskName, compileTaskParts)
+	compileParentParts, err := jobNameSchema.ParseJobName(compileParentName)
+	if err != nil {
+		glog.Fatal(err)
+	}
+
 	// These bots do not need a compile task.
-	if parts["role"] != "Build" && parts["role"] != "Calmbench" &&
+	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
 		compile(b, compileTaskName, compileTaskParts)
+		if parts["role"] == "Calmbench" {
+			compile(b, compileParentName, compileParentParts)
+		}
 	}
 
 	// Housekeepers.
@@ -1098,6 +1239,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
+	}
+	if strings.Contains(name, "Bookmaker") {
+		deps = append(deps, bookmaker(b, name, compileTaskName))
 	}
 
 	// Common assets needed by the remaining bots.
@@ -1142,6 +1286,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// Perf bots.
 	if parts["role"] == "Perf" && !strings.Contains(name, "-CT_") {
 		deps = append(deps, perf(b, name, parts, compileTaskName, pkgs))
+	}
+
+	// Calmbench bots.
+	if parts["role"] == "Calmbench" {
+		deps = append(deps, calmbench(b, name, parts, compileTaskName, compileParentName))
 	}
 
 	// Add the Job spec.

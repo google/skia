@@ -374,14 +374,80 @@ static SkPath create_path_24() {
      return path;
 }
 
+// An edge collapse event which also collapses a neighbour, requiring
+// its event to be removed.
+static SkPath create_path_25() {
+    SkPath path;
+    path.moveTo( 43.44110107421875,  148.15106201171875);
+    path.lineTo( 44.64471435546875,  148.16748046875);
+    path.lineTo( 46.35009765625,     147.403076171875);
+    path.lineTo( 46.45404052734375,  148.34906005859375);
+    path.lineTo( 45.0400390625,      148.54205322265625);
+    path.lineTo( 44.624053955078125, 148.9810791015625);
+    path.lineTo( 44.59405517578125,  149.16107177734375);
+    path.lineTo( 44.877044677734375, 149.62005615234375);
+    path.lineTo(144.373016357421875,  68.8070068359375);
+    return path;
+}
+
+// An edge collapse event causes an edge to become collinear, requiring
+// its event to be removed.
+static SkPath create_path_26() {
+    SkPath path;
+    path.moveTo( 43.44110107421875,  148.15106201171875);
+    path.lineTo( 44.64471435546875,  148.16748046875);
+    path.lineTo( 46.35009765625,     147.403076171875);
+    path.lineTo( 46.45404052734375,  148.34906005859375);
+    path.lineTo( 45.0400390625,      148.54205322265625);
+    path.lineTo( 44.624053955078125, 148.9810791015625);
+    path.lineTo( 44.59405517578125,  149.16107177734375);
+    path.lineTo( 44.877044677734375, 149.62005615234375);
+    path.lineTo(144.373016357421875,  68.8070068359375);
+    return path;
+}
+
+// A path which results in non-finite points when stroked and bevelled for AA.
+static SkPath create_path_27() {
+     SkPath path;
+     path.moveTo(8.5027233009104409507e+37, 1.7503381025241130639e+37);
+     path.lineTo(7.0923661737711584874e+37, 1.4600074517285415699e+37);
+     path.lineTo(7.0848733446033294691e+37, 1.4584649744781838604e+37);
+     path.lineTo(-2.0473916115129349496e+37, -4.2146796450364162012e+36);
+     path.lineTo(2.0473912312177548811e+37, 4.2146815465123165435e+36);
+     return path;
+}
+
+// AA stroking this path produces intersection failures on bevelling.
+// This should skip the point, but not assert.
+static SkPath create_path_28() {
+    SkPath path;
+    path.moveTo(-7.5952312625177475154e+21, -2.6819185100266674911e+24);
+    path.lineTo(  1260.3787841796875,   1727.7947998046875);
+    path.lineTo(  1260.5567626953125,   1728.0386962890625);
+    path.lineTo(1.1482511310557754163e+21, 4.054538502765980051e+23);
+    path.lineTo(-7.5952312625177475154e+21, -2.6819185100266674911e+24);
+    return path;
+}
+
+// A quad which generates a huge number of points (>2B) when uniformly
+// linearized. This should not hang or OOM.
+static SkPath create_path_29() {
+    SkPath path;
+    path.moveTo(10, 0);
+    path.lineTo(0, 0);
+    path.quadTo(10, 0, 0, 8315084722602508288);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
     GrColorSpaceInfo colorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig);
-    SkShaderBase::AsFPArgs args(ctx, &SkMatrix::I(), &SkMatrix::I(),
-                                SkFilterQuality::kLow_SkFilterQuality, &colorSpaceInfo);
+    GrFPArgs args(ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality,
+                  &colorSpaceInfo);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 
@@ -420,18 +486,16 @@ static void test_path(GrContext* ctx,
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
-                                                                  SkBackingFit::kApprox,
-                                                                  800, 800,
-                                                                  kRGBA_8888_GrPixelConfig,
-                                                                  nullptr,
-                                                                  0,
-                                                                  GrMipMapped::kNo,
-                                                                  kTopLeft_GrSurfaceOrigin));
+            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
 
     ctx->flush();
+    // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
+    rtc->discard();
+
     test_path(ctx, rtc.get(), create_path_0());
     test_path(ctx, rtc.get(), create_path_1());
     test_path(ctx, rtc.get(), create_path_2());
@@ -460,5 +524,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_22());
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
+    test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_29());
 }
 #endif

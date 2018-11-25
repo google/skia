@@ -939,6 +939,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
@@ -1052,7 +1053,14 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
             fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
-            fragBuilder->codeAppendf("half tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+            fragBuilder->codeAppendf("half tiled_t = t_1 - 2.0 * floor(t_1 * 0.5) - 1.0;");
+            if (shaderCaps->mustDoOpBetweenFloorAndAbs()) {
+                // At this point the expected value of tiled_t should between -1 and 1, so this
+                // clamp has no effect other than to break up the floor and abs calls and make sure
+                // the compiler doesn't merge them back together.
+                fragBuilder->codeAppendf("tiled_t = clamp(tiled_t, -1.0, 1.0);");
+            }
+            fragBuilder->codeAppendf("tiled_t = abs(tiled_t);");
             break;
     }
 
@@ -1292,8 +1300,8 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
             // extracted to a subset or mipmapped).
             sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
-                                                            args.fContext->resourceProvider(),
-                                                            bitmap);
+                                                     args.fContext->contextPriv().proxyProvider(),
+                                                     bitmap);
             if (!proxy) {
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;
@@ -1378,8 +1386,7 @@ GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     if (fUseColors4f) {
         fColorSpace = GrTest::TestColorSpace(random);
         if (fColorSpace) {
-            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fColorSpace)->type());
-            fColorSpace = static_cast<SkColorSpace_XYZ*>(fColorSpace.get())->makeLinearGamma();
+            fColorSpace = fColorSpace->makeLinearGamma();
         }
     }
 

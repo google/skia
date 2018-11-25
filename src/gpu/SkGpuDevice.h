@@ -30,7 +30,7 @@ class SkSpecialImage;
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SK_API SkGpuDevice : public SkClipStackDevice {
+class SkGpuDevice : public SkClipStackDevice {
 public:
     enum InitContents {
         kClear_InitContents,

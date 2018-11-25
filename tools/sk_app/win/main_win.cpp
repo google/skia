@@ -62,15 +62,28 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
 
     Application* app = Application::Create(argc, argv, (void*)hInstance);
 
-    MSG msg = { 0 };
+    MSG msg;
+    memset(&msg, 0, sizeof(msg));
+
+    bool idled = false;
 
     // Main message loop
     while (WM_QUIT != msg.message) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
+
+            if (WM_PAINT == msg.message) {
+                // Ensure that call onIdle at least once per WM_PAINT, or mouse events can
+                // overwhelm the message processing loop, and prevent animation from running.
+                if (!idled) {
+                    app->onIdle();
+                }
+                idled = false;
+            }
             DispatchMessage(&msg);
         } else {
             app->onIdle();
+            idled = true;
         }
     }
 

@@ -81,6 +81,9 @@ static inline float sk_float_pow(float base, float exp) {
 #define SK_MaxS32FitsInFloat    2147483520
 #define SK_MinS32FitsInFloat    -SK_MaxS32FitsInFloat
 
+#define SK_MaxS64FitsInFloat    (SK_MaxS64 >> (63-24) << (63-24))   // 0x7fffff8000000000
+#define SK_MinS64FitsInFloat    -SK_MaxS64FitsInFloat
+
 /**
  *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
  */
@@ -97,6 +100,15 @@ static inline int sk_double_saturate2int(double x) {
     x = SkTMin<double>(x, SK_MaxS32);
     x = SkTMax<double>(x, SK_MinS32);
     return (int)x;
+}
+
+/**
+ *  Return the closest int64_t for the given float. Returns SK_MaxS64FitsInFloat for NaN.
+ */
+static inline int64_t sk_float_saturate2int64(float x) {
+    x = SkTMin<float>(x, SK_MaxS64FitsInFloat);
+    x = SkTMax<float>(x, SK_MinS64FitsInFloat);
+    return (int64_t)x;
 }
 
 #define sk_float_floor2int(x)   sk_float_saturate2int(sk_float_floor(x))

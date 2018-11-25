@@ -92,9 +92,10 @@ enum class GrGLANGLEVendor {
     kIntel
 };
 
-enum class GrGLANGLERenderer{
+enum class GrGLANGLERenderer {
     kUnknown,
-    kIvyBridge
+    kIvyBridge,
+    kSkylake
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,5 +248,6 @@ void GrGLClearErr(const GrGLInterface* gl);
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test);
 
+GrPixelConfig GrGLSizedFormatToPixelConfig(GrGLenum sizedFormat);
 
 #endif

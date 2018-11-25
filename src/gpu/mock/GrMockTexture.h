@@ -20,18 +20,19 @@ public:
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
         this->registerWithCache(budgeted);
     }
-    ~GrMockTexture() override {
-        if (fReleaseProc) {
-            fReleaseProc(fReleaseCtx);
-        }
-    }
+    ~GrMockTexture() override {}
+
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
+    GrBackendTexture getBackendTexture() const override {
+        return GrBackendTexture(this->width(), this->height(), this->config(),
+                                this->texturePriv().mipMapped(), fInfo);
+    }
+
     void textureParamsModified() override {}
-    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
-        fReleaseProc = proc;
-        fReleaseCtx = ctx;
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
+        fReleaseHelper = std::move(releaseHelper);
     }
 
 protected:
@@ -41,18 +42,15 @@ protected:
             : GrSurface(gpu, desc)
             , INHERITED(gpu, desc, kITexture2DSampler_GrSLType, GrSamplerState::Filter::kMipMap,
                         mipMapsStatus)
-            , fInfo(info)
-            , fReleaseProc(nullptr)
-            , fReleaseCtx(nullptr) {}
+            , fInfo(info) {}
 
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
     }
 
 private:
-    GrMockTextureInfo fInfo;
-    ReleaseProc fReleaseProc;
-    ReleaseCtx fReleaseCtx;
+    GrMockTextureInfo          fInfo;
+    sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };
@@ -68,6 +66,11 @@ public:
     }
     ResolveType getResolveType() const override { return kCanResolve_ResolveType; }
     GrBackendObject getRenderTargetHandle() const override { return 0; }
+
+    GrBackendRenderTarget getBackendRenderTarget() const override {
+        return GrBackendRenderTarget(); // invalid
+    }
+
     bool canAttemptStencilAttachment() const override { return true; }
     bool completeStencilAttachment() override { return true; }
     GrTexture* asTexture() override { return this; }
@@ -87,8 +90,13 @@ private:
     }
 
     size_t onGpuMemorySize() const override {
+        int numColorSamples = this->numColorSamples();
+        if (numColorSamples > 1) {
+            // Add one to account for the resolve buffer.
+            ++numColorSamples;
+        }
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      this->numStencilSamples(),
+                                      numColorSamples,
                                       this->texturePriv().mipMapped());
     }
 

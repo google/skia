@@ -17,6 +17,7 @@
 #include "GrSamplerState.h"
 #include "GrShaderVar.h"
 #include "GrSurfaceProxyPriv.h"
+#include "GrSurfaceProxyRef.h"
 #include "GrTextureProxy.h"
 #include "SkMath.h"
 #include "SkString.h"
@@ -68,8 +69,6 @@ public:
         kBigKeyProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,
         kCircleGeometryProcessor_ClassID,
-        kCircleInside2PtConicalEffect_ClassID,
-        kCircleOutside2PtConicalEffect_ClassID,
         kCircularRRectEffect_ClassID,
         kColorMatrixEffect_ClassID,
         kColorTableEffect_ClassID,
@@ -82,11 +81,9 @@ public:
         kDefaultGeoProc_ClassID,
         kDIEllipseGeometryProcessor_ClassID,
         kDisableColorXP_ClassID,
-        kEdge2PtConicalEffect_ClassID,
+        kTwoPointConicalEffect_ClassID,
         kEllipseGeometryProcessor_ClassID,
         kEllipticalRRectEffect_ClassID,
-        kFocalInside2PtConicalEffect_ClassID,
-        kFocalOutside2PtConicalEffect_ClassID,
         kGP_ClassID,
         kGrAARectEffect_ClassID,
         kGrAlphaThresholdFragmentProcessor_ClassID,
@@ -94,8 +91,9 @@ public:
         kGrBicubicEffect_ClassID,
         kGrBitmapTextGeoProc_ClassID,
         kGrBlurredEdgeFragmentProcessor_ClassID,
-        kGrCCPRCoverageProcessor_ClassID,
-        kGrCCPRPathProcessor_ClassID,
+        kGrCCClipProcessor_ClassID,
+        kGrCCCoverageProcessor_ClassID,
+        kGrCCPathProcessor_ClassID,
         kGrCircleBlurFragmentProcessor_ClassID,
         kGrCircleEffect_ClassID,
         kGrColorSpaceXformEffect_ClassID,
@@ -138,6 +136,7 @@ public:
         kGrSweepGradient_ClassID,
         kGrTextureDomainEffect_ClassID,
         kGrUnpremulInputFragmentProcessor_ClassID,
+        kGrYUVtoRGBEffect_ClassID,
         kHighContrastFilterEffect_ClassID,
         kInstanceProcessor_ClassID,
         kLumaColorFilterEffect_ClassID,
@@ -153,7 +152,6 @@ public:
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
         kTextureGeometryProcessor_ClassID,
-        kYUVtoRGBEffect_ClassID
     };
 
     virtual ~GrProcessor() = default;

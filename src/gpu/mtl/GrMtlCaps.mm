@@ -162,9 +162,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fFenceSyncSupport = true;   // always available in Metal
     fCrossContextTextureSupport = false;
-
-    fMaxColorSampleCount = 4; // minimum required by spec
-    fMaxStencilSampleCount = 4; // minimum required by spec
 }
 
 int GrMtlCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {

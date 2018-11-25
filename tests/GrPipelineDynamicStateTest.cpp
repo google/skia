@@ -146,7 +146,7 @@ private:
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
     GrContext* const context = ctxInfo.grContext();
-    GrResourceProvider* rp = context->resourceProvider();
+    GrResourceProvider* rp = context->contextPriv().resourceProvider();
 
     sk_sp<GrRenderTargetContext> rtc(
         context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kScreenSize, kScreenSize,
@@ -192,7 +192,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     uint32_t resultPx[kScreenSize * kScreenSize];
 
     for (ScissorState scissorState : {ScissorState::kEnabled, ScissorState::kDisabled}) {
-        rtc->clear(nullptr, 0xbaaaaaad, true);
+        rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->priv().testingOnly_addDrawOp(
             skstd::make_unique<GrPipelineDynamicStateTestOp>(scissorState, vbuff));
         rtc->readPixels(SkImageInfo::Make(kScreenSize, kScreenSize,

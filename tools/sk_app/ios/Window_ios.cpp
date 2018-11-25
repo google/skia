@@ -49,7 +49,7 @@ bool Window_ios::initWindow() {
 
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
-    if (fRequestedDisplayParams.fMSAASampleCount > 0) {
+    if (fRequestedDisplayParams.fMSAASampleCount > 1) {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fRequestedDisplayParams.fMSAASampleCount);
     } else {

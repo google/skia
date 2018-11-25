@@ -832,6 +832,7 @@
 #define GR_GL_T2F_N3F_V3F                        0x2A2B
 #define GR_GL_T2F_C4F_N3F_V3F                    0x2A2C
 #define GR_GL_T4F_C4F_N3F_V4F                    0x2A2D
+#define GR_GL_PRIMITIVE_RESTART_FIXED_INDEX      0x8D69
 
 /* Buffer Object */
 #define GR_GL_READ_ONLY                          0x88B8

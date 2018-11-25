@@ -15,16 +15,17 @@
 #include "SkDashPathEffect.h"
 #include "SkImageFilter.h"
 #include "SkJsonWriteBuffer.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkObjectParser.h"
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
+#include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
-#include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "picture_utils.h"
 #include "SkClipOpPriv.h"
@@ -860,7 +861,7 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable,
     }
     const void* data;
     int size = decode_data(jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
-    SkValidatingReadBuffer buffer(data, size);
+    SkReadBuffer buffer(data, size);
     sk_sp<SkFlattenable> result = factory(buffer);
     if (!buffer.isValid()) {
         SkDebugf("invalid buffer loading flattenable\n");
@@ -1070,8 +1071,8 @@ static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target,
                                    UrlDataManager& urlDataManager) {
     SkMaskFilter* maskFilter = paint.getMaskFilter();
     if (maskFilter != nullptr) {
-        SkMaskFilter::BlurRec blurRec;
-        if (maskFilter->asABlur(&blurRec)) {
+        SkMaskFilterBase::BlurRec blurRec;
+        if (as_MFB(maskFilter)->asABlur(&blurRec)) {
             Json::Value blur(Json::objectValue);
             blur[SKDEBUGCANVAS_ATTRIBUTE_SIGMA] = Json::Value(blurRec.fSigma);
             switch (blurRec.fStyle) {
@@ -1272,13 +1273,13 @@ Json::Value SkDrawCommand::MakeJsonLattice(const SkCanvas::Lattice& lattice) {
         YDivs.append(Json::Value(lattice.fYDivs[i]));
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEYDIVS] = YDivs;
-    if (nullptr != lattice.fFlags) {
+    if (nullptr != lattice.fRectTypes) {
         Json::Value flags(Json::arrayValue);
         int flagCount = 0;
         for (int row = 0; row < lattice.fYCount+1; row++) {
             Json::Value flagsRow(Json::arrayValue);
             for (int column = 0; column < lattice.fXCount+1; column++) {
-                flagsRow.append(Json::Value(lattice.fFlags[flagCount++]));
+                flagsRow.append(Json::Value(lattice.fRectTypes[flagCount++]));
             }
             flags.append(flagsRow);
         }
@@ -2741,7 +2742,7 @@ bool SkDrawPointsCommand::render(SkCanvas* canvas) const {
 
     bounds.setEmpty();
     for (unsigned int i = 0; i < fCount; ++i) {
-        bounds.growToInclude(fPts[i]);
+        SkRectPriv::GrowToInclude(&bounds, fPts[i]);
     }
 
     xlate_and_scale_to_bounds(canvas, bounds);

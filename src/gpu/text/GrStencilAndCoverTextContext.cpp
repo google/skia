@@ -53,9 +53,6 @@ GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
 }
 
 bool GrStencilAndCoverTextContext::internalCanDraw(const SkPaint& skPaint) {
-    if (skPaint.getRasterizer()) {
-        return false;
-    }
     if (skPaint.getMaskFilter()) {
         return false;
     }
@@ -560,7 +557,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
     SkASSERT(fInstanceData);
 
     if (fInstanceData->count()) {
-        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx->resourceProvider()));
+        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx->contextPriv().resourceProvider()));
         if (fLastDrawnGlyphsID != glyphs->uniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
             glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());
@@ -608,8 +605,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
 
 SkGlyphCache* GrStencilAndCoverTextContext::TextRun::getGlyphCache() const {
     if (!fDetachedGlyphCache) {
-        fDetachedGlyphCache = fFont.detachCache(nullptr, SkPaint::kNone_ScalerContextFlags,
-                                                nullptr);
+        fDetachedGlyphCache = SkGlyphCache::DetachCacheUsingPaint(fFont, nullptr,
+                                                                  SkScalerContextFlags::kNone,
+                                                                  nullptr);
     }
     return fDetachedGlyphCache;
 }

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 // This controls the range of values added to color channels
 layout(key) in int rangeType;
 
@@ -6,6 +13,8 @@ layout(key) in int rangeType;
         int rangeType;
         switch (dstConfig) {
             case kGray_8_GrPixelConfig:
+            case kGray_8_as_Lum_GrPixelConfig:
+            case kGray_8_as_Red_GrPixelConfig:
             case kRGBA_8888_GrPixelConfig:
             case kBGRA_8888_GrPixelConfig:
             case kSRGBA_8888_GrPixelConfig:

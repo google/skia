@@ -95,7 +95,7 @@ namespace sk_tools {
             default: SkASSERT(false);  // DM doesn't support any other formats, does it?
         }
         if (bitmap.info().gammaCloseToSRGB()) {
-            p.append_from_srgb(kUnpremul_SkAlphaType);
+            p.append(SkRasterPipeline::from_srgb);
         }
         p.append(SkRasterPipeline::unpremul);
         p.append(SkRasterPipeline::clamp_0);

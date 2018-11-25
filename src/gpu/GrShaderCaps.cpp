@@ -34,9 +34,12 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fCanUseFractForNegativeValues = true;
     fMustForceNegatedAtanParamToFloat = false;
     fAtan2ImplementedAsAtanYOverX = false;
+    fMustDoOpBetweenFloorAndAbs = false;
     fRequiresLocalOutputColorForFBFetch = false;
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
+    fCanUseFragCoord = true;
+    fInterpolantsAreInaccurate = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
@@ -51,6 +54,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
+    fGeometryShaderExtensionString = nullptr;
     fGSInvocationsExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
@@ -68,11 +72,9 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMaxCombinedSamplers = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 
-#if GR_TEST_UTILS
-    fDisableImageMultitexturing = options.fDisableImageMultitexturing;
-#else
-    fDisableImageMultitexturing = false;
-#endif
+    // TODO: Default this to 0 and only enable image multitexturing when a "safe" threshold is
+    // known for a GPU class.
+    fDisableImageMultitexturingDstRectAreaThreshold = std::numeric_limits<size_t>::max();
 }
 
 void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
@@ -108,10 +110,13 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);
     writer->appendBool("Can use fract() for negative values", fCanUseFractForNegativeValues);
     writer->appendBool("Must force negated atan param to float", fMustForceNegatedAtanParamToFloat);
+    writer->appendBool("Must do op between floor and abs", fMustDoOpBetweenFloorAndAbs);
     writer->appendBool("Must use local out color for FBFetch", fRequiresLocalOutputColorForFBFetch);
     writer->appendBool("Must obfuscate uniform color", fMustObfuscateUniformColor);
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
+    writer->appendBool("Can use gl_FragCoord", fCanUseFragCoord);
+    writer->appendBool("Interpolants are inaccurate", fInterpolantsAreInaccurate);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
@@ -130,13 +135,30 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
-    writer->appendBool("Disable image multitexturing", fDisableImageMultitexturing);
+    writer->appendU64("Disable image multitexturing dst area threshold",
+                      fDisableImageMultitexturingDstRectAreaThreshold);
 
     writer->endObject();
 }
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    if (options.fDisableDriverCorrectnessWorkarounds) {
+        SkASSERT(fCanUseAnyFunctionInShader);
+        SkASSERT(fCanUseMinAndAbsTogether);
+        SkASSERT(fCanUseFractForNegativeValues);
+        SkASSERT(!fMustForceNegatedAtanParamToFloat);
+        SkASSERT(!fAtan2ImplementedAsAtanYOverX);
+        SkASSERT(!fMustDoOpBetweenFloorAndAbs);
+        SkASSERT(!fRequiresLocalOutputColorForFBFetch);
+        SkASSERT(!fMustObfuscateUniformColor);
+        SkASSERT(!fMustGuardDivisionEvenAfterExplicitZeroCheck);
+        SkASSERT(fCanUseFragCoord);
+        SkASSERT(!fInterpolantsAreInaccurate);
+    }
 #if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
+    if (options.fDisableImageMultitexturing) {
+        fDisableImageMultitexturingDstRectAreaThreshold = 0;
+    }
 #endif
 }

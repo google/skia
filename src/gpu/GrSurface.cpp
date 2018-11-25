@@ -29,8 +29,9 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
         // We own one color value for each MSAA sample.
-        int colorValuesPerPixel = SkTMax(1, desc.fSampleCnt);
-        if (desc.fSampleCnt) {
+        SkASSERT(desc.fSampleCnt >= 1);
+        int colorValuesPerPixel = desc.fSampleCnt;
+        if (desc.fSampleCnt > 1) {
             // Worse case, we own the resolve buffer so that is one more sample per pixel.
             colorValuesPerPixel += 1;
         }

@@ -19,7 +19,7 @@ using the ordinary library search path.
 
 In contrast, the developer-oriented default is an unoptimized build with full
 debug symbols and all third-party dependencies built from source and embedded
-into libskia.  This is how do all our manual and automated testing.
+into libskia.  This is how we do all our manual and automated testing.
 
 Skia offers several features that make use of third-party libraries, like
 libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
@@ -83,12 +83,10 @@ can use one of these commands to fetch the NDK our bots use:
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
 
-    bin/gn gen out/arm      --args='ndk="/tmp/ndk" target_cpu="arm"'
-    bin/gn gen out/arm64    --args='ndk="/tmp/ndk" target_cpu="arm64"'
-    bin/gn gen out/mips64el --args='ndk="/tmp/ndk" target_cpu="mips64el"'
-    bin/gn gen out/mipsel   --args='ndk="/tmp/ndk" target_cpu="mipsel"'
-    bin/gn gen out/x64      --args='ndk="/tmp/ndk" target_cpu="x64"'
-    bin/gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
+    bin/gn gen out/arm   --args='ndk="/tmp/ndk" target_cpu="arm"'
+    bin/gn gen out/arm64 --args='ndk="/tmp/ndk" target_cpu="arm64"'
+    bin/gn gen out/x64   --args='ndk="/tmp/ndk" target_cpu="x64"'
+    bin/gn gen out/x86   --args='ndk="/tmp/ndk" target_cpu="x86"'
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
 Tweaking `ndk_api` gives you access to newer Android features like Vulkan.
@@ -207,8 +205,12 @@ This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator
     bin/gn gen out/ios32  --args='target_os="ios" target_cpu="arm"'
     bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
 
-This will also package (and for devices, sign) iOS test binaries. For the moment a
-Google provisioning profile is needed to sign.
+This will also package (and for devices, sign) iOS test binaries. This defaults to a
+Google signing identity and provisioning profile. To use a different one set `skia_ios_identity`
+to match your code signing identity and `skia_ios_profile` to the name of your provisioning
+profile, e.g. `skia_ios_identity=".*Jane Doe.*" skia_ios_profile="iPad Profile"`. A list of
+identities can be found by typing `security find-identity` on the command line. The name of the
+provisioning profile should be available on the Apple Developer site.
 
 For signed packages `ios-deploy` makes installing and running them on a device easy:
 
@@ -219,20 +221,28 @@ Alternatively you can generate an Xcode project by passing `--ide=xcode` to `bin
 If you find yourself missing a Google signing identity or provisioning profile,
 you'll want to have a read through go/appledev.
 
+Deploying to a device with an OS older than the current SDK doesn't currently work through Xcode,
+but can be done on the command line by setting the environment variable IPHONEOS_DEPLOYMENT_TARGET
+to the desired OS version.
+
 Windows
 -------
 
-Skia can build on Windows with Visual Studio 2015 Update 3, or Visual Studio
-2017 by setting `msvc = 2017` in GN.  No older versions are supported. The bots
-use a packaged 2015 toolchain, which Googlers can download like this:
+Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3.
+If GN is unable to locate either of those, it will print an error message. In that
+case, you can pass your `VC` path to GN via `win_vc`.
+
+The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
-If you pass that downloaded path to GN via `windk`, you can build using that
-toolchain instead of your own from Visual Studio.  This toolchain is the only
-way we support 32-bit builds with 2015, by also setting `target_cpu="x86"`.
-32-bit builds should work with the default 2017 install if you follow the
-directions GN prints to set up your environment.
+You can then pass the VC and SDK paths to GN by setting your GN args:
+
+    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
+    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+
+This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
+There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
 
 ### Visual Studio Solutions
 

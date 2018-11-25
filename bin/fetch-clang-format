@@ -19,7 +19,11 @@ def fetch(target):
                 'buildtools/mac/' + target     if 'darwin' in sys.platform else \
                 'buildtools/win/'+ target + '.exe'
 
-  sha1 = open(target_path + '.sha1').read().strip()
+  sha1_path = target_path + '.sha1'
+  if not os.path.exists(sha1_path):
+    print sha1_path, 'is missing. Did you run `tools/git-sync-deps`?'
+    exit(1)
+  sha1 = open(sha1_path).read().strip()
 
   def sha1_of_file(path):
     h = hashlib.sha1()

@@ -23,6 +23,8 @@ public:
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
         kTriangleFan_VertexMode,
+
+        kLast_VertexMode = kTriangleFan_VertexMode,
     };
 
     /**

@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
+#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrTest.h"
 #include "Test.h"
@@ -19,7 +20,7 @@
 using sk_gpu_test::GrContextFactory;
 
 void subheap_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     // memtype doesn't matter, we're just testing the suballocation algorithm so we'll use 0
     GrVkSubHeap heap(gpu, 0, 0, 64 * 1024, 32);
@@ -116,7 +117,7 @@ void subheap_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     // memtype/heap index don't matter, we're just testing the allocation algorithm so we'll use 0
     GrVkHeap heap(gpu, GrVkHeap::kSubAlloc_Strategy, 64 * 1024);
@@ -158,7 +159,6 @@ void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, heap.allocSize() == 128 * 1024 && heap.usedSize() == 0 * 1024);
     // heap should not grow here (allocating more than subheap size)
     REPORTER_ASSERT(reporter, heap.alloc(128 * 1024, kAlignment, kMemType, kHeapIndex, &alloc0));
-    REPORTER_ASSERT(reporter, 0 == alloc0.fSize);
     REPORTER_ASSERT(reporter, heap.allocSize() == 128 * 1024 && heap.usedSize() == 0 * 1024);
     heap.free(alloc0);
     REPORTER_ASSERT(reporter, heap.alloc(24 * 1024, kAlignment, kMemType, kHeapIndex, &alloc0));
@@ -176,7 +176,7 @@ void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void singlealloc_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     // memtype/heap index don't matter, we're just testing the allocation algorithm so we'll use 0
     GrVkHeap heap(gpu, GrVkHeap::kSingleAlloc_Strategy, 64 * 1024);

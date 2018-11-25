@@ -10,7 +10,6 @@
 #ifdef SK_HAS_JPEG_LIBRARY
 
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
@@ -40,7 +39,7 @@ public:
 
     jpeg_compress_struct* cinfo() { return &fCInfo; }
 
-    jmp_buf& jmpBuf() { return fErrMgr.fJmpBuf; }
+    skjpeg_error_mgr* errorMgr() { return &fErrMgr; }
 
     transform_scanline_proc proc() const { return fProc; }
 
@@ -187,7 +186,9 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     }
 
     std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
-    if (setjmp(encoderMgr->jmpBuf())) {
+
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(encoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return nullptr;
     }
 
@@ -224,7 +225,8 @@ SkJpegEncoder::SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr> encoderMgr, const
 SkJpegEncoder::~SkJpegEncoder() {}
 
 bool SkJpegEncoder::onEncodeRows(int numRows) {
-    if (setjmp(fEncoderMgr->jmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fEncoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return false;
     }
 

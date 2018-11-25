@@ -21,14 +21,15 @@
 #include "SkMakeUnique.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
-#include "SkPixelSerializer.h"
 #include "SkRRect.h"
+#include "SkSerialProcs.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
 #include "Test.h"
 
 #include "Resources.h"
+#include "sk_pixel_iter.h"
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
@@ -221,50 +222,6 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     }
 }
 
-namespace {
-
-const char* kSerializedData = "serialized";
-
-class MockSerializer : public SkPixelSerializer {
-public:
-    MockSerializer(sk_sp<SkData> (*func)()) : fFunc(func), fDidEncode(false) { }
-
-    bool didEncode() const { return fDidEncode; }
-
-protected:
-    bool onUseEncodedData(const void*, size_t) override {
-        return false;
-    }
-
-    SkData* onEncode(const SkPixmap&) override {
-        fDidEncode = true;
-        return fFunc().release();
-    }
-
-private:
-    sk_sp<SkData> (*fFunc)();
-    bool fDidEncode;
-
-    typedef SkPixelSerializer INHERITED;
-};
-
-} // anonymous namespace
-
-// Test that SkImage encoding observes custom pixel serializers.
-DEF_TEST(Image_Encode_Serializer, reporter) {
-    MockSerializer serializer([]() -> sk_sp<SkData> {
-        return SkData::MakeWithCString(kSerializedData);
-    });
-    sk_sp<SkImage> image(create_image());
-    sk_sp<SkData> encoded = image->encodeToData(&serializer);
-    sk_sp<SkData> reference(SkData::MakeWithCString(kSerializedData));
-
-    REPORTER_ASSERT(reporter, serializer.didEncode());
-    REPORTER_ASSERT(reporter, encoded);
-    REPORTER_ASSERT(reporter, encoded->size() > 0);
-    REPORTER_ASSERT(reporter, encoded->equals(reference.get()));
-}
-
 // Test that image encoding failures do not break picture serialization/deserialization.
 DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(100, 100));
@@ -279,21 +236,22 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     REPORTER_ASSERT(reporter, picture);
     REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);
 
-    MockSerializer emptySerializer([]() -> sk_sp<SkData> { return SkData::MakeEmpty(); });
-    MockSerializer nullSerializer([]() -> sk_sp<SkData> { return nullptr; });
-    MockSerializer* serializers[] = { &emptySerializer, &nullSerializer };
+    bool was_called = false;
+    SkSerialProcs procs;
+    procs.fImageProc = [](SkImage*, void* called) {
+        *(bool*)called = true;
+        return SkData::MakeEmpty();
+    };
+    procs.fImageCtx = &was_called;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(serializers); ++i) {
-        SkDynamicMemoryWStream wstream;
-        REPORTER_ASSERT(reporter, !serializers[i]->didEncode());
-        picture->serialize(&wstream, serializers[i]);
-        REPORTER_ASSERT(reporter, serializers[i]->didEncode());
+    REPORTER_ASSERT(reporter, !was_called);
+    auto data = picture->serialize(&procs);
+    REPORTER_ASSERT(reporter, was_called);
+    REPORTER_ASSERT(reporter, data && data->size() > 0);
 
-        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
-        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream.get()));
-        REPORTER_ASSERT(reporter, deserialized);
-        REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
-    }
+    auto deserialized = SkPicture::MakeFromData(data->data(), data->size());
+    REPORTER_ASSERT(reporter, deserialized);
+    REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
 }
 
 // Test that a draw that only partially covers the drawing surface isn't
@@ -766,22 +724,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
 
     GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->contextPriv().getGpu();
 
-    GrBackendObject backendTexHandle =
-            ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
-                    pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true);
-
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(ctx->contextPriv().getBackend(),
-                                                               kWidth,
-                                                               kHeight,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               GrMipMapped::kNo,
-                                                               backendTexHandle);
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+               pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
     TextureReleaseChecker releaseChecker;
     GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kPremul_SkAlphaType, nullptr,
+        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kRGBA_8888_SkColorType,
+                                 kPremul_SkAlphaType, nullptr,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
     GrSurfaceOrigin readBackOrigin;
@@ -806,7 +758,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+    gpu->deleteTestingOnlyBackendTexture(&backendTex);
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
@@ -907,13 +859,9 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             otherTestContext->makeCurrent();
             canvas->flush();
 
-            // This readPixels call is needed for Vulkan to make sure the ReleaseProc is called.
-            // Even though we flushed above, this does not guarantee the command buffer will finish
-            // which is when we call the ReleaseProc. The readPixels forces a CPU sync so we know
-            // that the command buffer has finished and we've called the ReleaseProc.
-            SkBitmap bitmap;
-            bitmap.allocPixels(info);
-            canvas->readPixels(bitmap, 0, 0);
+            // This is specifically here for vulkan to guarantee the command buffer will finish
+            // which is when we call the ReleaseProc.
+            otherCtx->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
         }
 
         // Case #6: Verify that only one context can be using the image at a time
@@ -939,8 +887,18 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
                     ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxySecondRef);
 
-            // Releae all refs from the original context
+            // Release first ref from the original context
             proxy.reset(nullptr);
+
+            // We released one proxy but not the other from the current borrowing context. Make sure
+            // a new context is still not able to borrow the texture.
+            otherTestContext->makeCurrent();
+            otherProxy = as_IB(refImg)->asTextureProxyRef(otherCtx, GrSamplerState::ClampNearest(),
+                                                          nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, !otherProxy);
+
+            // Release second ref from the original context
+            testContext->makeCurrent();
             proxySecondRef.reset(nullptr);
 
             // Now we should be able to borrow the texture from the other context
@@ -957,7 +915,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 }
 
 DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
-    sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
+    sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
     SkASSERT(data.get());
 
     test_cross_context_image(reporter, options, [&data](GrContext* ctx) {
@@ -968,7 +926,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
-    SkAssertResult(GetResourceAsBitmap("mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
+    SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
 
     test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
@@ -1252,10 +1210,10 @@ static inline bool almost_equal(int a, int b) {
 
 DEF_TEST(Image_ColorSpace, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-    sk_sp<SkImage> image = GetResourceAsImage("mandrill_512_q075.jpg");
+    sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_512_q075.jpg");
     REPORTER_ASSERT(r, srgb.get() == image->colorSpace());
 
-    image = GetResourceAsImage("webp-color-profile-lossy.webp");
+    image = GetResourceAsImage("images/webp-color-profile-lossy.webp");
     SkColorSpaceTransferFn fn;
     bool success = image->colorSpace()->isNumericalTransferFn(&fn);
     REPORTER_ASSERT(r, success);
@@ -1311,7 +1269,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x31, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
 
-    srgbImage = GetResourceAsImage("1x1.png");
+    srgbImage = GetResourceAsImage("images/1x1.png");
     p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
     success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, success);
@@ -1441,3 +1399,32 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu, reporter, ctxInfo) {
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
 }
 #endif
+
+static sk_sp<SkImage> any_image_will_do() {
+    return GetResourceAsImage("images/mandrill_32.png");
+}
+
+DEF_TEST(Image_nonfinite_dst, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(10, 10);
+    auto img = any_image_will_do();
+    SkPaint paint;
+
+    for (SkScalar bad : { SK_ScalarInfinity, SK_ScalarNaN}) {
+        for (int bits = 1; bits <= 15; ++bits) {
+            SkRect dst = { 0, 0, 10, 10 };
+            if (bits & 1) dst.fLeft = bad;
+            if (bits & 2) dst.fTop = bad;
+            if (bits & 4) dst.fRight = bad;
+            if (bits & 8) dst.fBottom = bad;
+
+            surf->getCanvas()->drawImageRect(img, dst, &paint);
+
+            // we should draw nothing
+            sk_tool_utils::PixelIter iter(surf.get());
+            while (void* addr = iter.next()) {
+                REPORTER_ASSERT(reporter, *(SkPMColor*)addr == 0);
+            }
+        }
+    }
+}
+

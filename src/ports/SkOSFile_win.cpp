@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkLeanWindows.h"
 #include "SkMalloc.h"
@@ -132,7 +132,8 @@ size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
         return SIZE_MAX;
     }
 
-    OVERLAPPED overlapped = {0};
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
     ULARGE_INTEGER winOffset;
     winOffset.QuadPart = offset;
     overlapped.Offset = winOffset.LowPart;
@@ -272,4 +273,4 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir) {
     return self.fHandle != (HANDLE)~0 && get_the_file(self.fHandle, name, dataPtr, getDir);
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

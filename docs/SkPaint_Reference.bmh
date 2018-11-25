@@ -1,5 +1,11 @@
-﻿#Topic Paint
+#Topic Paint
 #Alias Paint_Reference
+
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
 
 #Class SkPaint
 
@@ -29,225 +35,38 @@ Paint describes a single color, a single font, a single image quality, and so on
 Multiple colors are drawn either by using multiple paints or with objects like
 Shader attached to Paint.
 
-#Topic Overview
-
-#Subtopic Subtopics
-#ToDo not all methods are in topics ##
-#ToDo subtopics are not in topics ##
-#Table
-#Legend
-# topics                 # description                                 ##
-#Legend ##
-# Initializers           # Constructors and initialization.            ##
-# Destructor             # Paint termination.                          ##
-# Management             # Paint copying, moving, comparing.           ##
-# Hinting                # Glyph outline adjustment.                   ##
-# Flags                  # Attributes represented by single bits.      ##
-# Anti-alias             # Approximating coverage with transparency.   ##
-# Dither                 # Distributing color error.                   ##
-# Device_Text            # Increase precision of glyph position.       ##
-# Font_Embedded_Bitmaps  # Custom sized bitmap Glyphs.                 ##
-# Automatic_Hinting      # Always adjust glyph paths.                  ##
-# Vertical_Text          # Orient text from top to bottom.             ##
-# Fake_Bold              # Approximate font styles.                    ##
-# Full_Hinting_Spacing   # Glyph spacing affected by hinting.          ##
-# Filter_Quality_Methods # Get and set Filter_Quality.                 ##
-# Color_Methods          # Get and set Color.                          ##
-# Style                  # Geometry filling, stroking.                 ##
-# Stroke_Width           # Thickness perpendicular to geometry.        ##
-# Miter_Limit            # Maximum length of stroked corners.          ##
-# Stroke_Cap             # Decorations at ends of open strokes.        ##
-# Stroke_Join            # Decoration at corners of strokes.           ##
-# Fill_Path              # Make Path from Path_Effect, stroking.       ##
-# Shader_Methods         # Get and set Shader.                         ##
-# Color_Filter_Methods   # Get and set Color_Filter.                   ##
-# Blend_Mode_Methods     # Get and set Blend_Mode.                     ##
-# Path_Effect_Methods    # Get and set Path_Effect.                    ##
-# Mask_Filter_Methods    # Get and set Mask_Filter.                    ##
-# Typeface_Methods       # Get and set Typeface.                       ##
-# Rasterizer_Methods     # Get and set Rasterizer.                     ##
-# Image_Filter_Methods   # Get and set Image_Filter.                   ##
-# Draw_Looper_Methods    # Get and set Draw_Looper.                    ##
-# Text_Align             # Text placement relative to position.        ##
-# Text_Size              # Overall height in points.                   ##
-# Text_Scale_X           # Text horizontal scale.                      ##
-# Text_Skew_X            # Text horizontal slant.                      ##
-# Text_Encoding          # Text encoded as characters or Glyphs.       ##
-# Font_Metrics           # Common glyph dimensions.                    ##
-# Measure_Text           # Width, height, bounds of text.              ##
-# Text_Path              # Geometry of Glyphs.                         ##
-# Text_Intercepts        # Advanced underline, strike through.         ##
-# Fast_Bounds            # Approximate area required by Paint.         ##
-#Table ##
-#Subtopic ##
+#Subtopic Related_Functions
+#Populate
+##
 
 #Subtopic Constants
-#Table
-#Legend
-# constants                      # description                                 ##
-#Legend ##
-# Align                          # Glyph locations relative to text position.  ##
-# Cap                            # Start and end geometry on stroked shapes.   ##
-# Flags                          # Values described by bits and masks.         ##
-# FontMetrics::FontMetricsFlags  # Valid Font_Metrics.                         ##
-# Hinting                        # Level of glyph outline adjustment.          ##
-# Join                           # Corner geometry on stroked shapes.          ##
-# Style                          # Stroke, fill, or both.                      ##
-# TextEncoding                   # Character or glyph encoded size.            ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
-#Subtopic Structs
-#Table
-#Legend
-# struct                         # description                                 ##
-#Legend ##
-# FontMetrics                    # Typeface values.                            ##
-#Table ##
-#Subtopic ##
+#Subtopic Classes_and_Structs
+#Populate
+##
 
 #Subtopic Constructors
-#Table
-#Legend
-#                                # description                                 ##
-#Legend ##
-# SkPaint()                      # Constructs with default values.             ##
-# SkPaint(const SkPaint& paint)  # Makes a shallow copy.                       ##
-# SkPaint(SkPaint&& paint)       # Moves paint without copying it.             ##
-# ~SkPaint()                     # Decreases Reference_Count of owned objects. ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Operators
-#Table
-#Legend
-# operator                                       # description                      ##
-#Legend ##
-# operator=(const SkPaint& paint)                # Makes a shallow copy.            ##
-# operator=(SkPaint&& paint)                     # Moves paint without copying it.  ##
-# operator==(const SkPaint& a, const SkPaint& b) # Compares paints for equality.    ##
-# operator!=(const SkPaint& a, const SkPaint& b) # Compares paints for inequality.  ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# function              # description                                           ##
-#Legend ##
-# breakText             # Returns text that fits in a width.                    ##
-# canComputeFastBounds  # Returns true if settings allow for fast bounds computation. ##
-# computeFastBounds     # Returns fill bounds for quick reject tests.           ##
-# computeFastStrokeBounds # Returns stroke bounds for quick reject tests.       ##
-# containsText          # Returns if all text corresponds to Glyphs.            ##
-# countText             # Returns number of Glyphs in text.                     ##
-# doComputeFastBounds   # Returns bounds for quick reject tests.                ##
-# flatten()             # Serializes into a buffer.                             ##
-# getAlpha              # Returns Color_Alpha, color opacity.                   ##
-# getBlendMode          # Returns Blend_Mode, how colors combine with Device.   ##
-# getColor              # Returns Color_Alpha and Color_RGB, one drawing color. ##
-# getColorFilter        # Returns Color_Filter, how colors are altered.         ##
-# getDrawLooper         # Returns Draw_Looper, multiple layers.                 ##
-# getFillPath           # Returns fill path equivalent to stroke.               ##
-# getFilterQuality      # Returns Filter_Quality, image filtering level.        ##
-# getFlags              # Returns Flags stored in a bit field.                  ##
-# getFontBounds         # Returns union all glyph bounds.                       ##
-# getFontMetrics        # Returns Typeface metrics scaled by text size.         ##
-# getFontSpacing        # Returns recommended spacing between lines.            ##
-# getHash               # Returns a shallow hash for equality checks.           ##
-# getHinting            # Returns Hinting, glyph outline adjustment level.      ##
-# getImageFilter        # Returns Image_Filter, alter pixels; blur.             ##
-# getMaskFilter         # Returns Mask_Filter, alterations to Mask_Alpha.       ##
-# getPathEffect         # Returns Path_Effect, modifications to path geometry; dashing. ##
-# getPosTextPath        # Returns Path equivalent to positioned text.           ##
-# getPosTextIntercepts  # Returns where lines intersect positioned text; underlines. ##
-# getPosTextHIntercepts # Returns where lines intersect horizontally positioned text; underlines. ##
-# getRasterizer         # Returns Rasterizer, Mask_Alpha generation from Path.  ##
-# getShader             # Returns Shader, multiple drawing colors; gradients.   ##  
-# getStrokeCap          # Returns Cap, the area drawn at path ends.             ##
-# getStrokeJoin         # Returns Join, geometry on path corners.               ##
-# getStrokeMiter        # Returns Miter_Limit, angles with sharp corners.       ##
-# getStrokeWidth        # Returns thickness of the stroke.                      ##
-# getStyle              # Returns Style: stroke, fill, or both.                 ##
-# getTextAlign          # Returns Align: left, center, or right.                ##
-# getTextBlobIntercepts # Returns where lines intersect Text_Blob; underlines.  ##
-# getTextEncoding       # Returns character or glyph encoded size.    b         ##
-# getTextIntercepts     # Returns where lines intersect text; underlines.       ##
-# getTextPath           # Returns Path equivalent to text.                      ##
-# getTextScaleX         # Returns the text horizontal scale; condensed text.    ##
-# getTextSkewX          # Returns the text horizontal skew; oblique text.       ##
-# getTextSize           # Returns text size in points.                          ##
-# getTextWidths         # Returns advance and bounds for each glyph in text.    ##
-# getTypeface           # Returns Typeface, font description.                   ##
-# glyphsToUnichars      # Converts Glyphs into text.                            ##
-# isAntiAlias           # Returns true if Anti-alias is set.                    ##
-# isAutohinted          # Returns true if Glyphs are always hinted.             ##
-# isDevKernText         # Returns true if Full_Hinting_Spacing is set.          ##
-# isDither              # Returns true if Dither is set.                        ##
-# isEmbeddedBitmapText  # Returns true if Font_Embedded_Bitmaps is set.         ##
-# isFakeBoldText        # Returns true if Fake_Bold is set.                     ##
-# isLCDRenderText       # Returns true if LCD_Text is set.                      ##
-# isSrcOver             # Returns true if Blend_Mode is SkBlendMode::kSrcOver.   ##
-# isSubpixelText        # Returns true if Subpixel_Text is set.                 ##
-# isVerticalText        # Returns true if Vertical_Text is set.                 ##
-# measureText           # Returns advance width and bounds of text.             ##
-# nothingToDraw         # Returns true if Paint prevents all drawing.           ##
-# refColorFilter        # References Color_Filter, how colors are altered.      ##
-# refDrawLooper         # References Draw_Looper, multiple layers.              ##
-# refImageFilter        # References Image_Filter, alter pixels; blur.          ##
-# refMaskFilter         # References Mask_Filter, alterations to Mask_Alpha.    ##
-# refPathEffect         # References Path_Effect, modifications to path geometry; dashing. ##
-# refRasterizer         # References Rasterizer, mask generation from path.     ##
-# refShader             # References Shader, multiple drawing colors; gradients. ##  
-# refTypeface           # References Typeface, font description.                ##
-# reset()               # Sets to default values.                               ##
-# setAlpha              # Sets Color_Alpha, color opacity.                      ##
-# setAntiAlias          # Sets or clears Anti-alias.                            ##
-# setARGB               # Sets color by component.                              ##
-# setAutohinted         # Sets Glyphs to always be hinted.                      ##
-# setBlendMode          # Sets Blend_Mode, how colors combine with destination. ##
-# setColor              # Sets Color_Alpha and Color_RGB, one drawing color.    ##
-# setColorFilter        # Sets Color_Filter, alters color.                      ##
-# setDevKernText        # Sets or clears Full_Hinting_Spacing.                  ##
-# setDither             # Sets or clears Dither.                                ##
-# setDrawLooper         # Sets Draw_Looper, multiple layers.                    ##
-# setEmbeddedBitmapText # Sets or clears Font_Embedded_Bitmaps.                 ##
-# setFakeBoldText       # Sets or clears Fake_Bold.                             ##
-# setFilterQuality      # Sets Filter_Quality, the image filtering level.       ##
-# setFlags              # Sets multiple Flags in a bit field.                   ##
-# setHinting            # Sets Hinting, glyph outline adjustment level.         ##
-# setLCDRenderText      # Sets or clears LCD_Text.                              ##
-# setMaskFilter         # Sets Mask_Filter, alterations to Mask_Alpha.          ##
-# setPathEffect         # Sets Path_Effect, modifications to path geometry; dashing. ##
-# setRasterizer         # Sets Rasterizer, Mask_Alpha generation from Path.     ##
-# setImageFilter        # Sets Image_Filter, alter pixels; blur.                ##
-# setShader             # Sets Shader, multiple drawing colors; gradients.      ##  
-# setStrokeCap          # Sets Cap, the area drawn at path ends.                ##
-# setStrokeJoin         # Sets Join, geometry on path corners.                  ##
-# setStrokeMiter        # Sets Miter_Limit, angles with sharp corners.          ##
-# setStrokeWidth        # Sets thickness of the stroke.                         ##
-# setStyle              # Sets Style: stroke, fill, or both.                    ##
-# setSubpixelText       # Sets or clears Subpixel_Text.                         ##
-# setTextAlign          # Sets Align: left, center, or right.                   ##
-# setTextEncoding       # Sets character or glyph encoded size.                 ##
-# setTextScaleX         # Sets the text horizontal scale; condensed text.       ##
-# setTextSkewX          # Sets the text horizontal skew; oblique text.          ##
-# setTextSize           # Sets text size in points.                             ##
-# setTypeface           # Sets Typeface, font description.                      ##
-# setVerticalText       # Sets or clears Vertical_Text.                         ##
-# textToGlyphs          # Converts text into glyph indices.                     ##
-# toString              # Converts Paint to machine readable form.              ##
-# unflatten()           # Populates from a serialized stream.                   ##
-#Table ##
-#Subtopic ##
-
-#Topic Overview ##
+#Populate
+##
 
 # ------------------------------------------------------------------------------
-#Topic Initializers
+#Subtopic Initializers
+#Line # constructors and initialization ##
 
 #Method SkPaint()
 
+#In Initializers
+#Line # constructs with default values ##
 Constructs Paint with default values.
 
 #Table
@@ -273,7 +92,6 @@ Constructs Paint with default values.
 # Miter_Limit            # 4                        ##
 # Mask_Filter            # nullptr                  ##
 # Path_Effect            # nullptr                  ##
-# Rasterizer             # nullptr                  ##
 # Shader                 # nullptr                  ##
 # Style                  # kFill_Style              ##
 # Text_Align             # kLeft_Align              ##
@@ -316,12 +134,14 @@ $$$#  # restore original markup character
 
 #Method SkPaint(const SkPaint& paint)
 
+#In Initializers
+#Line # makes a shallow copy ##
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter are shared
 between the original paint and the copy. Objects containing Reference_Count increment
 their references by one.
 
-The referenced objects Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+The referenced objects Path_Effect, Shader, Mask_Filter, Color_Filter,
 Draw_Looper, and Image_Filter cannot be modified after they are created.
 This prevents objects with Reference_Count from being modified once Paint refers to them.
 
@@ -348,6 +168,8 @@ This prevents objects with Reference_Count from being modified once Paint refers
 
 #Method SkPaint(SkPaint&& paint)
 
+#In Initializers
+#Line # moves paint without copying it ##
     Implements a move constructor to avoid increasing the reference counts
     of objects referenced by the paint.
 
@@ -375,6 +197,8 @@ This prevents objects with Reference_Count from being modified once Paint refers
 
 #Method void reset()
 
+#In Initializers
+#Line # sets to default values ##
 Sets all Paint contents to their initial values. This is equivalent to replacing
 Paint with the result of SkPaint().
 
@@ -391,15 +215,15 @@ Paint with the result of SkPaint().
 
 ##
 
-#Topic ##
+#Subtopic Initializers ##
 
 # ------------------------------------------------------------------------------
-#Topic Destructor
 
 #Method ~SkPaint()
 
+#Line # decreases Reference_Count of owned objects ##
 Decreases Paint Reference_Count of owned objects: Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter. If the
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter. If the
 objects containing Reference_Count go to zero, they are deleted.
 
 #NoExample 
@@ -407,14 +231,17 @@ objects containing Reference_Count go to zero, they are deleted.
 
 ##
 
-##
+
 # ------------------------------------------------------------------------------
-#Topic Management
+#Subtopic Management
+#Line # paint copying, moving, comparing ##
 
 #Method SkPaint& operator=(const SkPaint& paint)
 
+#In Management
+#Line # makes a shallow copy ##
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter are shared
 between the original paint and the copy. Objects containing Reference_Count in the
 prior destination are decreased by one, and the referenced objects are deleted if the
 resulting count is zero. Objects containing Reference_Count in the parameter paint
@@ -443,6 +270,8 @@ are increased by one. paint is unmodified.
 
 #Method SkPaint& operator=(SkPaint&& paint)
 
+#In Management
+#Line # moves paint without copying it ##
 Moves the paint to avoid increasing the reference counts
 of objects referenced by the paint parameter. Objects containing Reference_Count in the
 prior destination are decreased by one; those objects are deleted if the resulting count
@@ -471,8 +300,10 @@ After the call, paint is undefined, and can be safely destructed.
 
 #Method bool operator==(const SkPaint& a, const SkPaint& b)
 
+#In Management
+#Line # compares paints for equality ##
     Compares a and b, and returns true if a and b are equivalent. May return false
-    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter,
     Draw_Looper, or Image_Filter have identical contents but different pointers.
 
     #Param a  Paint to compare ##
@@ -502,8 +333,10 @@ After the call, paint is undefined, and can be safely destructed.
 
 #Method bool operator!=(const SkPaint& a, const SkPaint& b)
 
+#In Management
+#Line # compares paints for inequality ##
     Compares a and b, and returns true if a and b are not equivalent. May return true
-    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter,
     Draw_Looper, or Image_Filter have identical contents but different pointers.
 
     #Param a  Paint to compare ##
@@ -530,6 +363,8 @@ After the call, paint is undefined, and can be safely destructed.
 
 #Method uint32_t getHash() const
 
+#In Management
+#Line # returns a shallow hash for equality checks ##
 Returns a hash generated from Paint values and pointers.
 Identical hashes guarantee that the paints are
 equivalent, but differing hashes do not guarantee that the paints have differing
@@ -562,60 +397,27 @@ The hash returned is platform and implementation specific.
 
 #Method void flatten(SkWriteBuffer& buffer) const
 
+#In Management
+#Line # serializes into a buffer ##
 Serializes Paint into a buffer. A companion unflatten() call
 can reconstitute the paint at a later time.
 
 #Param buffer  Write_Buffer receiving the flattened Paint data ##
 
-#Example
-    class PaintDumper : public SkWriteBuffer {
-    public:
-        bool isCrossProcess() const override { return false; };
-        void writeByteArray(const void* data, size_t size) override {}
-        void writeBool(bool value) override {}
-        void writeScalar(SkScalar value) override {}
-        void writeScalarArray(const SkScalar* value, uint32_t count) override {}
-        void writeInt(int32_t value) override {}
-        void writeIntArray(const int32_t* value, uint32_t count) override {}
-        void writeUInt(uint32_t value) override {}
-        void writeString(const char* value) override {}
-        void writeFlattenable(const SkFlattenable* flattenable) override {}
-        void writeColorArray(const SkColor* color, uint32_t count) override {}
-        void writeColor4f(const SkColor4f& color) override {}
-        void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}
-        void writePoint(const SkPoint& point) override {}
-        void writePointArray(const SkPoint* point, uint32_t count) override {}
-        void writeMatrix(const SkMatrix& matrix) override {}
-        void writeIRect(const SkIRect& rect) override {}
-        void writeRect(const SkRect& rect) override {}
-        void writeRegion(const SkRegion& region) override {}
-        void writePath(const SkPath& path) override {}
-        size_t writeStream(SkStream* stream, size_t length) override { return 0; }
-        void writeBitmap(const SkBitmap& bitmap) override {}
-        void writeImage(const SkImage*) override {}
-        void writeTypeface(SkTypeface* typeface) override {}
-        void writePaint(const SkPaint& paint) override {}
+# why is flatten() public? 
+#Bug 6172 ##
 
-        void writeColor(SkColor color) override {
-            SkDebugf("color = 0x%08x\n", color);
-        }
-    } dumper;
-
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
-    paint.flatten(dumper);
-
-    #StdOut
-        color = 0xffff0000
-    ##
+#NoExample
 ##
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method void unflatten(SkReadBuffer& buffer)
+#Method bool unflatten(SkReadBuffer& buffer)
 
+#In Management
+#Line # populates from a serialized stream ##
 Populates Paint, typically from a serialized stream, created by calling
 flatten() at an earlier time.
 
@@ -623,6 +425,8 @@ SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
 by the client.
 
 #Param buffer  serialized data describing Paint content ##
+
+#Return false if the buffer contains invalid data ##
 
 # why is unflatten() public? 
 #Bug 6172 ##
@@ -634,12 +438,14 @@ by the client.
 
 ##
 
-#Topic Management ##
+#Subtopic Management ##
 
 # ------------------------------------------------------------------------------
-#Topic Hinting
+#Subtopic Hinting
+#Line # glyph outline adjustment ##
 
 #Enum Hinting
+#Line # level of glyph outline adjustment ##
 
 #Code
     enum Hinting {
@@ -708,6 +514,8 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
 
 #Method Hinting getHinting() const
 
+#In Hinting
+#Line # returns Hinting, glyph outline adjustment level ##
     Returns level of glyph outline adjustment.
 
     #Return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting ##
@@ -725,6 +533,8 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
 
 #Method void setHinting(Hinting hintingLevel)
 
+#In Hinting
+#Line # sets Hinting, glyph outline adjustment level ##
     Sets level of glyph outline adjustment.
     Does not check for valid values of hintingLevel.
 
@@ -751,11 +561,13 @@ Set SkPaintDefaults_Hinting at compile time to change the default setting.
     ##
 ##
 
-#Topic ##
+#Subtopic Hinting ##
 # ------------------------------------------------------------------------------
-#Topic Flags
+#Subtopic Flags
+#Line # attributes represented by single bits ##
 
 #Enum Flags
+#Line # values described by bits and masks ##
 
 #Code
     enum Flags {
@@ -828,6 +640,7 @@ Flags default to all flags clear, disabling the associated feature.
 #Enum ##
 
 #Enum ReserveFlags
+#Line # values described by bits and masks ##
 
 #Private 
 To be deprecated; only valid for Android framework.
@@ -853,6 +666,8 @@ To be deprecated; only valid for Android framework.
 
 #Method uint32_t getFlags() const
 
+#In Flags
+#Line # returns Flags stored in a bit field ##
 Returns paint settings described by Flags. Each setting uses one
 bit, and can be tested with Flags members.
 
@@ -873,6 +688,8 @@ bit, and can be tested with Flags members.
 
 #Method void setFlags(uint32_t flags)
 
+#In Flags
+#Line # sets multiple Flags in a bit field ##
 Replaces Flags with flags, the union of the Flags members.
 All Flags members may be cleared, or one or more may be set.
 
@@ -892,10 +709,12 @@ All Flags members may be cleared, or one or more may be set.
 
 ##
 
-#Topic ##
+#Subtopic Flags ##
 # ------------------------------------------------------------------------------
-#Topic Anti-alias
+#Subtopic Anti-alias
 #Alias Anti-alias  # permit hyphen in topic name, should probably not substitute hyphen with _
+#In Related_Functions
+#Line # approximating coverage with transparency ##
 
 Anti-alias drawing approximates partial pixel coverage with transparency.
 If kAntiAlias_Flag is clear, pixel centers contained by the shape edge are drawn opaque.
@@ -919,7 +738,7 @@ Anti-alias is disabled by default.
 Anti-alias can be enabled by default by setting SkPaintDefaults_Flags to kAntiAlias_Flag
 at compile time.
 
-    #Example
+#Example
     #Width 512
     #Description
         A red line is drawn with transparency on the edges to make it look smoother.
@@ -948,9 +767,11 @@ at compile time.
             canvas->translate(15, 0);
         }
     }
-    ##
+##
 
 #Method bool isAntiAlias() const
+#In Anti-alias
+#Line # returns true if Anti-alias is set ##
 
     If true, pixels on the active edges of Path may be drawn with partial transparency.
 
@@ -975,6 +796,8 @@ at compile time.
 
 #Method void setAntiAlias(bool aa)
 
+#In Anti-alias
+#Line # sets or clears Anti-alias ##
     Requests, but does not require, that Path edge pixels draw opaque or with
     partial transparency.
 
@@ -996,9 +819,10 @@ at compile time.
 
 ##
 
-#Topic ##
+#Subtopic Antialias ##
 # ------------------------------------------------------------------------------
-#Topic Dither
+#Subtopic Dither
+#Line # distributing color error ##
 
 Dither increases fidelity by adjusting the color of adjacent pixels. 
 This can help to smooth color transitions and reducing banding in gradients.
@@ -1077,6 +901,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isDither() const
 
+#In Dither
+#Line # returns true if Dither is set ##
     If true, color error may be distributed to smooth color transition.
      
     Equivalent to getFlags masked with kDither_Flag.
@@ -1101,6 +927,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setDither(bool dither)
 
+#In Dither
+#Line # sets or clears Dither ##
     Requests, but does not require, to distribute color error.
 
     Sets kDither_Flag if dither is true.
@@ -1125,9 +953,10 @@ void draw(SkCanvas* canvas) {
 
 #SeeAlso Gradient Color_RGB-565
 
-#Topic ##
+#Subtopic Dither ##
 # ------------------------------------------------------------------------------
-#Topic Device_Text
+#Subtopic Device_Text
+#Line # increase precision of glyph position ##
 
 LCD_Text and Subpixel_Text increase the precision of glyph position.
 
@@ -1172,9 +1001,11 @@ kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
     canvas->scale(9, 9);
     canvas->drawBitmap(bitmap, 4, -1);
 ##
+#Subtopic Device_Text ##
 
 #Subtopic Linear_Text
-#Alias Linear_Text # makes this a top level name, since it is under subtopic Device_Text
+#Alias Linear_Text
+#Line # selects text rendering as Glyph or Path ##
 
 Linear_Text selects whether text is rendered as a Glyph or as a Path.
 If kLinearText_Flag is set, it has the same effect as setting Hinting to kNormal_Hinting.
@@ -1182,6 +1013,8 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 
 #Method bool isLinearText() const
 
+#Line # returns true if text is converted to Path ##
+#In Linear_Text
     If true, text is converted to Path before drawing and measuring.
 
     Equivalent to getFlags masked with kLinearText_Flag.
@@ -1212,6 +1045,8 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 
 #Method void setLinearText(bool linearText)
 
+#Line # converts to Path before draw or measure ##
+#In Linear_Text
     If true, text is converted to Path before drawing and measuring.
     By default, kLinearText_Flag is clear.
 
@@ -1243,10 +1078,11 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
     #SeeAlso isLinearText Hinting
 ##
 
-#Subtopic ##
+#Subtopic Linear_Text ##
 
 #Subtopic Subpixel_Text
-#Alias Subpixel_Text # makes this a top level name, since it is under subtopic Device_Text
+#Alias Subpixel_Text
+#Line # uses pixel transparency to represent fractional offset ##
 
 Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset. 
 As the opaqueness
@@ -1254,6 +1090,8 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 
 #Method bool isSubpixelText() const
     
+#In Subpixel_Text
+#Line # returns true if Subpixel_Text is set ##
     If true, Glyphs at different sub-pixel positions may differ on pixel edge coverage.
 
     Equivalent to getFlags masked with kSubpixelText_Flag.
@@ -1278,6 +1116,8 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 
 #Method void setSubpixelText(bool subpixelText)
 
+#In Subpixel_Text
+#Line # sets or clears Subpixel_Text ##
     Requests, but does not require, that Glyphs respect sub-pixel positioning.
 
     Sets kSubpixelText_Flag if subpixelText is true.
@@ -1298,9 +1138,10 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 
 ##
 
-#Subtopic ##
+#Subtopic Subpixel_Text ##
 
 #Subtopic LCD_Text
+#Line # text relying on the order of Color_RGB stripes ##
 #Alias LCD_Text # makes this a top level name, since it is under subtopic Device_Text
 
 When set, Flags kLCDRenderText_Flag takes advantage of the organization of Color_RGB stripes that 
@@ -1311,6 +1152,8 @@ the color components as Color_RGB or Color_RBG.
 
 #Method bool isLCDRenderText() const
 
+#In LCD_Text
+#Line # returns true if LCD_Text is set ##
     If true, Glyphs may use LCD striping to improve glyph edges.
 
     Returns true if Flags kLCDRenderText_Flag is set.
@@ -1335,6 +1178,8 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 
 #Method void setLCDRenderText(bool lcdText)
 
+#In LCD_Text
+#Line # sets or clears LCD_Text ##
     Requests, but does not require, that Glyphs use LCD striping for glyph edges.
 
     Sets kLCDRenderText_Flag if lcdText is true.
@@ -1356,11 +1201,11 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 
 ##
 
-#Subtopic ##
+#Subtopic LCD_Text ##
 
-#Topic ##
 # ------------------------------------------------------------------------------
-#Topic Font_Embedded_Bitmaps
+#Subtopic Font_Embedded_Bitmaps
+#Line # custom sized bitmap Glyphs ##
 #Alias Font_Embedded_Bitmaps # long-winded enough, alias so I don't type Paint_Font_...
 
 Font_Embedded_Bitmaps allows selecting custom sized bitmap Glyphs.
@@ -1395,7 +1240,7 @@ kEmbeddedBitmapText_Flag at compile time.
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(13);
-    paint.setTypeface(MakeResourceAsTypeface("/fonts/hintgasp.ttf"));
+    paint.setTypeface(MakeResourceAsTypeface("fonts/hintgasp.ttf"));
     for (bool embedded : { false, true}) {
         paint.setEmbeddedBitmapText(embedded);
         offscreen.drawString("A", embedded ? 5 : 15, 15, paint);
@@ -1407,6 +1252,8 @@ kEmbeddedBitmapText_Flag at compile time.
 
 #Method bool isEmbeddedBitmapText() const
 
+#In Font_Embedded_Bitmaps
+#Line # returns true if Font_Embedded_Bitmaps is set ##
     If true, Font_Engine may return Glyphs from font bitmaps instead of from outlines.
 
     Equivalent to getFlags masked with kEmbeddedBitmapText_Flag.
@@ -1435,6 +1282,8 @@ kEmbeddedBitmapText_Flag at compile time.
 
 #Method void setEmbeddedBitmapText(bool useEmbeddedBitmapText)
 
+#In Font_Embedded_Bitmaps
+#Line # sets or clears Font_Embedded_Bitmaps ##
     Requests, but does not require, to use bitmaps in fonts instead of outlines.
 
     Sets kEmbeddedBitmapText_Flag if useEmbeddedBitmapText is true.
@@ -1455,9 +1304,10 @@ kEmbeddedBitmapText_Flag at compile time.
 
 ##
 
-#Topic ##
+#Subtopic Font_Embedded_Bitmaps ##
 # ------------------------------------------------------------------------------
-#Topic Automatic_Hinting
+#Subtopic Automatic_Hinting
+#Line # always adjust glyph paths ##
 #Substitute auto-hinting
 
 If Hinting is set to kNormal_Hinting or kFull_Hinting, Automatic_Hinting
@@ -1469,6 +1319,8 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 #Method bool isAutohinted() const
 
+#In Automatic_Hinting
+#Line # returns true if Glyphs are always hinted ##
     If true, and if Hinting is set to kNormal_Hinting or kFull_Hinting, and if
     platform uses FreeType as the Font_Manager, instruct the Font_Manager to always hint
     Glyphs.
@@ -1498,6 +1350,8 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 #Method void setAutohinted(bool useAutohinter)
 
+#In Automatic_Hinting
+#Line # sets Glyphs to always be hinted ##
     If Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
     instruct the Font_Manager to always hint Glyphs.
     Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
@@ -1532,9 +1386,10 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 ##
 
-#Topic ##
+#Subtopic Automatic_Hinting ##
 # ------------------------------------------------------------------------------
-#Topic Vertical_Text
+#Subtopic Vertical_Text
+#Line # orient text from top to bottom ##
 
 Text may be drawn by positioning each glyph, or by positioning the first glyph and
 using Font_Advance to position subsequent Glyphs. By default, each successive glyph
@@ -1574,6 +1429,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isVerticalText() const
 
+#In Vertical_Text
+#Line # returns true if Vertical_Text is set ##
     If true, Glyphs are drawn top to bottom instead of left to right.
 
     Equivalent to getFlags masked with kVerticalText_Flag.
@@ -1598,6 +1455,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setVerticalText(bool verticalText)
 
+#In Vertical_Text
+#Line # sets or clears Vertical_Text ##
     If true, text advance positions the next glyph below the previous glyph instead of to the
     right of previous glyph.
 
@@ -1619,10 +1478,11 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Vertical_Text ##
 # ------------------------------------------------------------------------------
 
-#Topic Fake_Bold
+#Subtopic Fake_Bold
+#Line # approximate font styles ##
 
 Fake_Bold approximates the bold font style accompanying a normal font when a bold font face
 is not available. Skia does not provide font substitution; it is up to the client to find the
@@ -1656,6 +1516,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isFakeBoldText() const
 
+#In Fake_Bold
+#Line # returns true if Fake_Bold is set ##
     If true, approximate bold by increasing the stroke width when creating glyph bitmaps
     from outlines.
 
@@ -1681,6 +1543,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setFakeBoldText(bool fakeBoldText)
 
+#In Fake_Bold
+#Line # sets or clears Fake_Bold ##
     Use increased stroke width when creating glyph bitmaps to approximate a bold typeface.
 
     Sets kFakeBoldText_Flag if fakeBoldText is true.
@@ -1701,10 +1565,11 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Fake_Bold ##
 
 # ------------------------------------------------------------------------------
-#Topic Full_Hinting_Spacing
+#Subtopic Full_Hinting_Spacing
+#Line # glyph spacing affected by hinting ##
 #Alias Full_Hinting_Spacing # long winded enough -- maybe things with two underscores auto-aliased?
 
 if Hinting is set to kFull_Hinting, Full_Hinting_Spacing adjusts the character
@@ -1717,6 +1582,8 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 
 #Method bool isDevKernText() const
 
+#In Full_Hinting_Spacing
+#Line # returns true if Full_Hinting_Spacing is set ##
     Returns if character spacing may be adjusted by the hinting difference.
 
     Equivalent to getFlags masked with kDevKernText_Flag.
@@ -1736,6 +1603,8 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 
 #Method void setDevKernText(bool devKernText)
 
+#In Full_Hinting_Spacing
+#Line # sets or clears Full_Hinting_Spacing ##
     Requests, but does not require, to use hinting to adjust glyph spacing.
 
     Sets kDevKernText_Flag if devKernText is true.
@@ -1756,9 +1625,10 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 
 ##
 
-#Topic ##
+#Subtopic Full_Hinting_Spacing ##
 # ------------------------------------------------------------------------------
-#Topic Filter_Quality_Methods
+#Subtopic Filter_Quality_Methods
+#Line # get and set Filter_Quality ##
 
 Filter_Quality trades speed for image filtering when the image is scaled.
 A lower Filter_Quality draws faster, but has less fidelity.
@@ -1795,6 +1665,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkFilterQuality getFilterQuality() const
 
+#In Filter_Quality_Methods
+#Line # returns Filter_Quality, image filtering level ##
 Returns Filter_Quality, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
 
@@ -1817,6 +1689,8 @@ draws faster; a higher setting looks better when the image is scaled.
 
 #Method void setFilterQuality(SkFilterQuality quality)
 
+#In Filter_Quality_Methods
+#Line # sets Filter_Quality, the image filtering level ##
 Sets Filter_Quality, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
 Does not check to see if quality is valid. 
@@ -1840,20 +1714,30 @@ Does not check to see if quality is valid.
 
 ##
 
-#Topic ##
+#Subtopic Filter_Quality_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Color_Methods
+#Subtopic Color_Methods
+#Line # get and set Color ##
 
-Color specifies the Color_RGB_Red, Color_RGB_Blue, Color_RGB_Green, and Color_Alpha values used to draw a filled
-or stroked shape in a
-32-bit value. Each component occupies 8-bits, ranging from zero: no contribution;
-to 255: full intensity. All values in any combination are valid.
+#Table
+#Legend
+# name                  # description                                          ##
+#Legend ##
+# getColor              # returns Color_Alpha and Color_RGB, one drawing color ##
+# setColor              # sets Color_Alpha and Color_RGB, one drawing color    ##
+#Table ##
 
-Color is not Premultiplied;
-Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+Color specifies the Color_RGB_Red, Color_RGB_Blue, Color_RGB_Green, and Color_Alpha
+values used to draw a filled or stroked shape in a 32-bit value. Each component
+occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
+All values in any combination are valid.
 
-The bit positions of Color_Alpha and Color_RGB are independent of the bit positions
-on the output device, which may have more or fewer bits, and may have a different arrangement.
+Color is not Premultiplied; Color_Alpha sets the transparency independent of
+Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+
+The bit positions of Color_Alpha and Color_RGB are independent of the bit
+positions on the output device, which may have more or fewer bits, and may have
+a different arrangement.
 
 #Table
 #Legend
@@ -1878,6 +1762,8 @@ on the output device, which may have more or fewer bits, and may have a differen
 
 #Method SkColor getColor() const
 
+#In Color_Methods
+#Line # returns Color_Alpha and Color_RGB, one drawing color ##
     Retrieves Alpha and Color_RGB, Unpremultiplied, packed into 32 bits.
     Use helpers SkColorGetA, SkColorGetR, SkColorGetG, and SkColorGetB to extract
     a color component.
@@ -1902,12 +1788,14 @@ on the output device, which may have more or fewer bits, and may have a differen
 
 #Method void setColor(SkColor color)
 
+#In Color_Methods
+#Line # sets Color_Alpha and Color_RGB, one drawing color ##
     Sets Alpha and Color_RGB used when stroking and filling. The color is a 32-bit value,
     Unpremultiplied, packing 8-bit components for Alpha, Red, Blue, and Green. 
 
     #Param color    Unpremultiplied Color_ARGB ##
-        
-    #Example
+    
+    #Example
         SkPaint green1, green2;
         unsigned a = 255;
         unsigned r = 0;
@@ -1925,13 +1813,17 @@ on the output device, which may have more or fewer bits, and may have a differen
     #SeeAlso SkColor setARGB SkColorSetARGB
 
 ##
+#Subtopic Color_Methods ##
 
 #Subtopic Alpha_Methods
+#Line # get and set Alpha ##
 
 Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
 
 #Method uint8_t getAlpha() const
 
+#In Alpha_Methods
+#Line # returns Color_Alpha, color opacity ##
     Retrieves Alpha from the Color used when stroking and filling.
 
     #Return  Alpha ranging from zero, fully transparent, to 255, fully opaque ##
@@ -1949,6 +1841,8 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 
 #Method void setAlpha(U8CPU a)
 
+#In Alpha_Methods
+#Line # sets Color_Alpha, color opacity ##
     Replaces Alpha, leaving Color_RGB 
     unchanged. An out of range value triggers an assert in the debug
     build. a is a value from zero to 255.
@@ -1970,10 +1864,12 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 
 ##
 
-#Subtopic ##
+#Subtopic Alpha_Methods ##
 
 #Method void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 
+#In Color_Methods
+#Line # sets color by component ##
     Sets Color used when drawing solid fills. The color components range from 0 to 255.
     The color is Unpremultiplied; Alpha sets the transparency independent of Color_RGB.
 
@@ -1997,10 +1893,9 @@ Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color
 
 ##
 
-#Topic Color_Methods ##
-
 # ------------------------------------------------------------------------------
-#Topic Style
+#Subtopic Style
+#Line # geometry filling, stroking ##
 
 Style specifies if the geometry is filled, stroked, or both filled and stroked.
 Some shapes ignore Style and are always drawn filled or stroked.
@@ -2012,13 +1907,14 @@ Set Style to kStroke_Style to stroke the shape.
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill
-
+#Line # fill and stroke ##
 #ToDo write up whatever generalities make sense to describe filling  ##
 
 #SeeAlso Path_Fill_Type
-#Subtopic ##
+#Subtopic Fill ##
 
 #Subtopic Stroke
+#Line # lines and curves with width ##
 The stroke covers the area described by following the shape edge with a pen or brush of
 Stroke_Width. The area covered where the shape starts and stops is described by Stroke_Cap.
 The area covered where the shape turns a corner is described by Stroke_Join.
@@ -2026,9 +1922,10 @@ The stroke is centered on the shape; it extends equally on either side of the sh
 
 As Stroke_Width gets smaller, the drawn path frame is thinner. Stroke_Width less than one
 may have gaps, and if kAntiAlias_Flag is set, Color_Alpha will increase to visually decrease coverage.
-#Subtopic ##
+#Subtopic Stroke ##
 
 #Subtopic Hairline
+#Line # lines and curves with minimal width ##
 #Alias Hairline # maybe should be Stroke_Hairline ?
 
 Stroke_Width of zero has a special meaning and switches drawing to use Hairline.
@@ -2043,9 +1940,10 @@ pixel. If kAntiAlias_Flag is set, transparency is applied twice, resulting in a 
 GPU-backed implementations apply transparency at a later drawing stage, avoiding double hit pixels
 while stroking.
 
-#Subtopic ##
+#Subtopic Hairline ##
 
 #Enum Style
+#Line # stroke, fill, or both ##
 
 #Code
     enum Style {
@@ -2087,10 +1985,10 @@ a fill draw.
     and the set Path_Fill_Type is ignored. 
 ##
 
-#Enum ##
+#Enum Style ##
 
 #Enum
-
+#Line # number of Style defines ##
 #Code
     enum {
         kStyleCount = kStrokeAndFill_Style + 1,
@@ -2106,6 +2004,8 @@ May be used to verify that Style is a legal value.
 
 #Method Style getStyle() const
 
+#In Style
+#Line # returns Style: stroke, fill, or both ##
     Whether the geometry is filled, stroked, or filled and stroked.
 
     #Return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style ##
@@ -2125,6 +2025,8 @@ May be used to verify that Style is a legal value.
 
 #Method void setStyle(Style style)
 
+#In Style
+#Line # sets Style: stroke, fill, or both ##
     Sets whether the geometry is filled, stroked, or filled and stroked.
     Has no effect if style is not a legal Style value.
 
@@ -2164,10 +2066,11 @@ May be used to verify that Style is a legal value.
 ##
 
 #SeeAlso Path_Fill_Type Path_Effect Style_Fill Style_Stroke
-#Topic Style ##
+#Subtopic Style ##
 
 # ------------------------------------------------------------------------------
-#Topic Stroke_Width
+#Subtopic Stroke_Width
+#Line # thickness perpendicular to geometry ##
 
 Stroke_Width sets the width for stroking. The width is the thickness
 of the stroke perpendicular to the path direction when the paint style is 
@@ -2205,6 +2108,8 @@ The default width for the paint is zero.
 
 #Method SkScalar getStrokeWidth() const
 
+#In Stroke_Width
+#Line # returns thickness of the stroke ##
     Returns the thickness of the pen used by Paint to
     outline the shape.
 
@@ -2223,6 +2128,8 @@ The default width for the paint is zero.
 
 #Method void setStrokeWidth(SkScalar width)
 
+#In Stroke_Width
+#Line # sets thickness of the stroke ##
     Sets the thickness of the pen used by the paint to
     outline the shape. 
     Has no effect if width is less than zero. 
@@ -2243,9 +2150,10 @@ The default width for the paint is zero.
 
 ##
 
-#Topic ##
+#Subtopic Stroke_Width ##
 # ------------------------------------------------------------------------------
-#Topic Miter_Limit
+#Subtopic Miter_Limit
+#Line # maximum length of stroked corners ##
 
 Miter_Limit specifies the maximum miter length,
 relative to the stroke width.
@@ -2326,6 +2234,8 @@ Here are some miter limits and the angles that triggers them.
 
 #Method SkScalar getStrokeMiter() const
 
+#In Miter_Limit
+#Line # returns Miter_Limit, angles with sharp corners ##
     The limit at which a sharp corner is drawn beveled.
 
     #Return  zero and greater Miter_Limit ##
@@ -2345,6 +2255,8 @@ Here are some miter limits and the angles that triggers them.
 
 #Method void setStrokeMiter(SkScalar miter)
 
+#In Miter_Limit
+#Line # sets Miter_Limit, angles with sharp corners ##
     The limit at which a sharp corner is drawn beveled.
     Valid values are zero and greater.
     Has no effect if miter is less than zero.
@@ -2367,11 +2279,13 @@ Here are some miter limits and the angles that triggers them.
 
 ##
 
-#Topic ##
+#Subtopic Miter_Limit ##
 # ------------------------------------------------------------------------------
-#Topic Stroke_Cap
+#Subtopic Stroke_Cap
+#Line # decorations at ends of open strokes ##
 
 #Enum Cap
+#Line # start and end geometry on stroked shapes ##
 
 #Code
     enum Cap {
@@ -2449,6 +2363,8 @@ Stroke_Cap is kButt_Cap by default.
 
 #Method Cap getStrokeCap() const
 
+#In Stroke_Cap
+#Line # returns Cap, the area drawn at path ends ##
     The geometry drawn at the beginning and end of strokes.
 
     #Return  one of: kButt_Cap, kRound_Cap, kSquare_Cap ##
@@ -2468,6 +2384,8 @@ Stroke_Cap is kButt_Cap by default.
 
 #Method void setStrokeCap(Cap cap)
 
+#In Stroke_Cap
+#Line # sets Cap, the area drawn at path ends ##
     The geometry drawn at the beginning and end of strokes.
 
     #Param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
@@ -2489,9 +2407,10 @@ Stroke_Cap is kButt_Cap by default.
     #SeeAlso Stroke_Cap getStrokeCap
 ##
 
-#Topic ##
+#Subtopic Stroke_Cap ##
 # ------------------------------------------------------------------------------
-#Topic Stroke_Join
+#Subtopic Stroke_Join
+#Line # decoration at corners of strokes ##
 
 Stroke_Join draws at the sharp corners of an open or closed Path_Contour.
 
@@ -2519,6 +2438,7 @@ the following curve, the pair of curves meet at Stroke_Join.
 ##
 
 #Enum Join
+#Line # corner geometry on stroked shapes ##
 #Code
     enum Join {
         kMiter_Join,
@@ -2598,7 +2518,9 @@ void draw(SkCanvas* canvas) {
 
 #Method Join getStrokeJoin() const
 
-    The geometry drawn at the corners of strokes. 
+#In Stroke_Join
+#Line # returns Join, geometry on path corners ##
+    The geometry drawn at the corners of strokes.
 
     #Return  one of: kMiter_Join, kRound_Join, kBevel_Join ##
 
@@ -2617,7 +2539,9 @@ void draw(SkCanvas* canvas) {
 
 #Method void setStrokeJoin(Join join)
 
-    The geometry drawn at the corners of strokes. 
+#In Stroke_Join
+#Line # sets Join, geometry on path corners ##
+    The geometry drawn at the corners of strokes.
 
     #Param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
                  otherwise, has no effect 
@@ -2640,9 +2564,10 @@ void draw(SkCanvas* canvas) {
 
 #SeeAlso Miter_Limit
 
-#Topic Stroke_Join ##
+#Subtopic Stroke_Join ##
 # ------------------------------------------------------------------------------
-#Topic Fill_Path
+#Subtopic Fill_Path
+#Line # make Path from Path_Effect, stroking ##
 
 Fill_Path creates a Path by applying the Path_Effect, followed by the Style_Stroke.
 
@@ -2664,6 +2589,8 @@ returns false since Hairline has no filled equivalent.
 
 #Method bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                      SkScalar resScale = 1) const
+#In Fill_Path
+#Line # returns fill path equivalent to stroke ##
 
     The filled equivalent of the stroked path.
 
@@ -2711,6 +2638,7 @@ returns false since Hairline has no filled equivalent.
 
 #Method bool getFillPath(const SkPath& src, SkPath* dst) const
 
+#In Fill_Path
     The filled equivalent of the stroked path.
 
     Replaces dst with the src path modified by Path_Effect and Style_Stroke.
@@ -2742,9 +2670,10 @@ returns false since Hairline has no filled equivalent.
 
 #SeeAlso Style_Stroke Stroke_Width Path_Effect
 
-#Topic ##
+#Subtopic Fill_Path ##
 # ------------------------------------------------------------------------------
-#Topic Shader_Methods
+#Subtopic Shader_Methods
+#Line # get and set Shader ##
 
 Shader defines the colors used when drawing a shape.
 Shader may be an image, a gradient, or a computed fill.
@@ -2793,6 +2722,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkShader* getShader() const
 
+#In Shader_Methods
+#Line # returns Shader, multiple drawing colors; gradients ##
     Optional colors used when filling a path, such as a gradient.
 
     Does not alter Shader Reference_Count.
@@ -2817,6 +2748,8 @@ void draw(SkCanvas* canvas) {
 
 #Method sk_sp<SkShader> refShader() const
 
+#In Shader_Methods
+#Line # references Shader, multiple drawing colors; gradients ##
     Optional colors used when filling a path, such as a gradient.
 
     Increases Shader Reference_Count by one.
@@ -2842,6 +2775,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setShader(sk_sp<SkShader> shader)
 
+#In Shader_Methods
+#Line # sets Shader, multiple drawing colors; gradients ##
     Optional colors used when filling a path, such as a gradient.
 
     Sets Shader to shader, decreasing Reference_Count of the previous Shader.
@@ -2864,9 +2799,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Shader_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Color_Filter_Methods
+#Subtopic Color_Filter_Methods
+#Line # get and set Color_Filter ##
 
 Color_Filter alters the color used when drawing a shape.
 Color_Filter may apply Blend_Mode, transform the color through a matrix, or composite multiple filters.
@@ -2891,6 +2827,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkColorFilter* getColorFilter() const
 
+#In Color_Filter_Methods
+#Line # returns Color_Filter, how colors are altered ##
     Returns Color_Filter if set, or nullptr.
     Does not alter Color_Filter Reference_Count.
     
@@ -2913,6 +2851,8 @@ void draw(SkCanvas* canvas) {
 
 #Method sk_sp<SkColorFilter> refColorFilter() const
 
+#In Color_Filter_Methods
+#Line # references Color_Filter, how colors are altered ##
     Returns Color_Filter if set, or nullptr.
     Increases Color_Filter Reference_Count by one.
 
@@ -2936,6 +2876,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setColorFilter(sk_sp<SkColorFilter> colorFilter)
 
+#In Color_Filter_Methods
+#Line # sets Color_Filter, alters color ##
 Sets Color_Filter to filter, decreasing Reference_Count of the previous
 Color_Filter. Pass nullptr to clear Color_Filter.
 
@@ -2957,9 +2899,10 @@ Increments filter Reference_Count by one.
 
 ##
 
-#Topic ##
+#Subtopic Color_Filter_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Blend_Mode_Methods
+#Subtopic Blend_Mode_Methods
+#Line # get and set Blend_Mode ##
 
 Blend_Mode describes how Color combines with the destination color.
 The default setting, SkBlendMode::kSrcOver, draws the source color
@@ -2985,6 +2928,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkBlendMode getBlendMode() const
 
+#In Blend_Mode_Methods
+#Line # returns Blend_Mode, how colors combine with Device ##
     Returns Blend_Mode.
     By default, returns SkBlendMode::kSrcOver.
 
@@ -3010,6 +2955,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isSrcOver() const
 
+#In Blend_Mode_Methods
+#Line # returns true if Blend_Mode is SkBlendMode::kSrcOver ##
     Returns true if Blend_Mode is SkBlendMode::kSrcOver, the default.
 
     #Return  true if Blend_Mode is SkBlendMode::kSrcOver  ##
@@ -3032,6 +2979,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setBlendMode(SkBlendMode mode)
 
+#In Blend_Mode_Methods
+#Line # sets Blend_Mode, how colors combine with destination ##
     Sets Blend_Mode to mode. 
     Does not check for valid input.
 
@@ -3053,9 +3002,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Blend_Mode_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Path_Effect_Methods
+#Subtopic Path_Effect_Methods
+#Line # get and set Path_Effect ##
 
 Path_Effect modifies the path geometry before drawing it.
 Path_Effect may implement dashing, custom fill effects and custom stroke effects.
@@ -3077,6 +3027,8 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 
 #Method SkPathEffect* getPathEffect() const
 
+#In Path_Effect_Methods
+#Line # returns Path_Effect, modifications to path geometry; dashing ##
     Returns Path_Effect if set, or nullptr.
     Does not alter Path_Effect Reference_Count.
     
@@ -3101,6 +3053,8 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 
 #Method sk_sp<SkPathEffect> refPathEffect() const
 
+#In Path_Effect_Methods
+#Line # references Path_Effect, modifications to path geometry; dashing ##
     Returns Path_Effect if set, or nullptr.
     Increases Path_Effect Reference_Count by one.
 
@@ -3127,6 +3081,8 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 
 #Method void setPathEffect(sk_sp<SkPathEffect> pathEffect)
 
+#In Path_Effect_Methods
+#Line # sets Path_Effect, modifications to path geometry; dashing ##
 Sets Path_Effect to pathEffect, decreasing Reference_Count of the previous
 Path_Effect. Pass nullptr to leave the path geometry unaltered.
 
@@ -3144,13 +3100,13 @@ Increments pathEffect Reference_Count by one.
 
 ##
 
-#Topic ##
+#Subtopic Path_Effect_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Mask_Filter_Methods
+#Subtopic Mask_Filter_Methods
+#Line # get and set Mask_Filter ##
 
 Mask_Filter uses coverage of the shape drawn to create Mask_Alpha.
-Mask_Filter operates at a lower level than Rasterizer; Mask_Filter takes a Mask,
-and returns a Mask.
+Mask_Filter takes a Mask, and returns a Mask.
 
 Mask_Filter may change the geometry and transparency of the shape, such as
 creating a blur effect. Set Mask_Filter to nullptr to prevent Mask_Filter from
@@ -3166,6 +3122,8 @@ modifying the draw.
 
 #Method SkMaskFilter* getMaskFilter() const
 
+#In Mask_Filter_Methods
+#Line # returns Mask_Filter, alterations to Mask_Alpha ##
     Returns Mask_Filter if set, or nullptr.
     Does not alter Mask_Filter Reference_Count.
     
@@ -3189,6 +3147,8 @@ modifying the draw.
 
 #Method sk_sp<SkMaskFilter> refMaskFilter() const
 
+#In Mask_Filter_Methods
+#Line # references Mask_Filter, alterations to Mask_Alpha ##
     Returns Mask_Filter if set, or nullptr.
 
     Increases Mask_Filter Reference_Count by one.
@@ -3214,11 +3174,12 @@ modifying the draw.
 
 #Method void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
 
+#In Mask_Filter_Methods
+#Line # sets Mask_Filter, alterations to Mask_Alpha ##
 Sets Mask_Filter to maskFilter, decreasing Reference_Count of the previous
 Mask_Filter. Pass nullptr to clear Mask_Filter and leave Mask_Filter effect on
 Mask_Alpha unaltered.
 
-Does not affect Rasterizer.
 Increments maskFilter Reference_Count by one.
 
     #Param maskFilter   modifies clipping mask generated from drawn geometry ##
@@ -3235,9 +3196,10 @@ Increments maskFilter Reference_Count by one.
 
 ##
 
-#Topic ##
+#Subtopic Mask_Filter_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Typeface_Methods
+#Subtopic Typeface_Methods
+#Line # get and set Typeface ##
 
 Typeface identifies the font used when drawing and measuring text.
 Typeface may be specified by name, from a file, or from a data stream.
@@ -3260,6 +3222,8 @@ implementation.
 
 #Method SkTypeface* getTypeface() const
 
+#In Typeface_Methods
+#Line # returns Typeface, font description ##
     Returns Typeface if set, or nullptr.
     Increments Typeface Reference_Count by one.
     
@@ -3269,7 +3233,7 @@ implementation.
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
-           paint.setTypeface(SkTypeface::MakeFromName("Times New Roman", SkFontStyle()));
+           paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
            SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
         }
 
@@ -3283,6 +3247,8 @@ implementation.
 
 #Method sk_sp<SkTypeface> refTypeface() const
 
+#In Typeface_Methods
+#Line # references Typeface, font description ##
     Increases Typeface Reference_Count by one.
 
     #Return  Typeface if previously set, nullptr otherwise ##
@@ -3290,7 +3256,7 @@ implementation.
     #Example
         void draw(SkCanvas* canvas) {
            SkPaint paint1, paint2;
-           paint1.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+           paint1.setTypeface(SkTypeface::MakeFromName("monospace", 
                     SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                     SkFontStyle::kItalic_Slant)));
            SkDebugf("typeface1 %c= typeface2\n",
@@ -3310,6 +3276,8 @@ implementation.
 
 #Method void setTypeface(sk_sp<SkTypeface> typeface)
 
+#In Typeface_Methods
+#Line # sets Typeface, font description ##
 Sets Typeface to typeface, decreasing Reference_Count of the previous Typeface. 
 Pass nullptr to clear Typeface and use the default typeface. Increments
 typeface Reference_Count by one.
@@ -3320,144 +3288,19 @@ typeface Reference_Count by one.
     #Height 64
         void draw(SkCanvas* canvas) {
             SkPaint paint;
-            paint.setTypeface(SkTypeface::MakeFromName("Courier New", SkFontStyle()));
-            canvas->drawString("Courier New", 10, 30, paint);
+            paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+            canvas->drawString("hamburgerfons", 10, 30, paint);
             paint.setTypeface(nullptr);
-            canvas->drawString("default", 10, 50, paint);
+            canvas->drawString("hamburgerfons", 10, 50, paint);
         }
     ##
 
 ##
 
-#Topic ##
+#Subtopic Typeface_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Rasterizer_Methods
-
-Rasterizer controls how shapes are converted to Mask_Alpha. 
-Rasterizer operates at a higher level than Mask_Filter; Rasterizer takes a Path,
-and returns a Mask.
-
-Rasterizer may change the geometry and transparency of the shape, such as
-creating a shadow effect. Rasterizer forms the base of Rasterizer_Layer, which
-creates effects like embossing and outlining.
-
-Rasterizer applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals,
-Path, and Text.
-
-#Example
-#Height 64
-    void draw(SkCanvas* canvas) {
-        SkLayerRasterizer::Builder layerBuilder;
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(1);
-        layerBuilder.addLayer(paint);
-        paint.setAlpha(0x10);
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setBlendMode(SkBlendMode::kSrc);
-        layerBuilder.addLayer(paint);
-        paint.reset();
-        paint.setAntiAlias(true);
-        paint.setTextSize(50);
-        paint.setRasterizer(layerBuilder.detach());
-        canvas->drawString("outline", 10, 50, paint);
-    }
-##
-
-#Method SkRasterizer* getRasterizer() const
-
-    Returns Rasterizer if set, or nullptr.
-    Does not alter Rasterizer Reference_Count.
-    
-    #Return  Rasterizer if previously set, nullptr otherwise ##
-
-    #Example
-    #Function
-        class DummyRasterizer : public SkRasterizer {
-        public:
-            SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer)
-        };
-
-        sk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&) {
-            return sk_make_sp<DummyRasterizer>();
-        }
-
-    #Function ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            DummyRasterizer dummy;
-            SkDebugf("nullptr %c= rasterizer\n", paint.getRasterizer() ? '!' : '=');
-            paint.setRasterizer(sk_make_sp<DummyRasterizer>());
-            SkDebugf("nullptr %c= rasterizer\n", paint.getRasterizer() ? '!' : '=');
-        }
-
-        #StdOut
-            nullptr == rasterizer
-            nullptr != rasterizer
-        ##
-    ##
-
-##
-
-#Method sk_sp<SkRasterizer> refRasterizer() const
-
-    Returns Rasterizer if set, or nullptr.
-    Increases Rasterizer Reference_Count by one.
-
-    #Return  Rasterizer if previously set, nullptr otherwise ##
-
-    #Example
-        void draw(SkCanvas* canvas) {
-           SkLayerRasterizer::Builder layerBuilder;
-           SkPaint paint1, paint2;
-           layerBuilder.addLayer(paint2);
-           paint1.setRasterizer(layerBuilder.detach());
-           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
-           paint2.setRasterizer(paint1.refRasterizer());
-           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
-        }
-
-        #StdOut
-            rasterizer unique: true
-            rasterizer unique: false
-        ##
-    ##
-
-##
-
-#Method void setRasterizer(sk_sp<SkRasterizer> rasterizer)
-
-Sets Rasterizer to rasterizer, decreasing Reference_Count of the previous
-Rasterizer. Pass nullptr to clear Rasterizer and leave Rasterizer effect on
-Mask_Alpha unaltered.
-
-Does not affect Mask_Filter.
-Increments rasterizer Reference_Count by one.
-
-    #Param rasterizer  how geometry is converted to Mask_Alpha ##
-
-    #Example
-    #Height 64
-        SkLayerRasterizer::Builder layerBuilder;
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(2);
-        layerBuilder.addLayer(paint);
-        paint.reset();
-        paint.setAntiAlias(true);
-        paint.setTextSize(50);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3));
-        paint.setRasterizer(layerBuilder.detach());
-        canvas->drawString("blurry out", 0, 50, paint);
-    ##
-
-##
-
-#Topic ##
-# ------------------------------------------------------------------------------
-#Topic Image_Filter_Methods
+#Subtopic Image_Filter_Methods
+#Line # get and set Image_Filter ##
 
 Image_Filter operates on the pixel representation of the shape, as modified by Paint
 with Blend_Mode set to SkBlendMode::kSrcOver. Image_Filter creates a new bitmap,
@@ -3466,7 +3309,7 @@ which is drawn to the device using the set Blend_Mode.
 Image_Filter is higher level than Mask_Filter; for instance, an Image_Filter
 can operate on all channels of Color, while Mask_Filter generates Alpha only.
 Image_Filter operates independently of and can be used in combination with
-Mask_Filter and Rasterizer.
+Mask_Filter.
 
 #Example
     #ToDo explain why the two draws are so different ##
@@ -3488,6 +3331,8 @@ Mask_Filter and Rasterizer.
 
 #Method SkImageFilter* getImageFilter() const
 
+#In Image_Filter_Methods
+#Line # returns Image_Filter, alter pixels; blur ##
     Returns Image_Filter if set, or nullptr.
     Does not alter Image_Filter Reference_Count.
     
@@ -3511,6 +3356,8 @@ Mask_Filter and Rasterizer.
 
 #Method sk_sp<SkImageFilter> refImageFilter() const
 
+#In Image_Filter_Methods
+#Line # references Image_Filter, alter pixels; blur ##
     Returns Image_Filter if set, or nullptr.
     Increases Image_Filter Reference_Count by one.
 
@@ -3535,11 +3382,12 @@ Mask_Filter and Rasterizer.
 
 #Method void setImageFilter(sk_sp<SkImageFilter> imageFilter)
 
+#In Image_Filter_Methods
+#Line # sets Image_Filter, alter pixels; blur ##
 Sets Image_Filter to imageFilter, decreasing Reference_Count of the previous
 Image_Filter. Pass nullptr to clear Image_Filter, and remove Image_Filter effect
 on drawing.
 
-Does not affect Rasterizer or Mask_Filter.
 Increments imageFilter Reference_Count by one.
 
     #Param imageFilter  how Image is sampled when transformed ##
@@ -3565,9 +3413,10 @@ Increments imageFilter Reference_Count by one.
 
 ##
 
-#Topic ##
+#Subtopic Image_Filter_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Draw_Looper_Methods
+#Subtopic Draw_Looper_Methods
+#Line # get and set Draw_Looper ##
 
 Draw_Looper sets a modifier that communicates state from one Draw_Layer
 to another to construct the draw.
@@ -3597,6 +3446,8 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 
 #Method SkDrawLooper* getDrawLooper() const
 
+#In Draw_Looper_Methods
+#Line # returns Draw_Looper, multiple layers ##
     Returns Draw_Looper if set, or nullptr.
     Does not alter Draw_Looper Reference_Count.
     
@@ -3621,6 +3472,8 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 
 #Method sk_sp<SkDrawLooper> refDrawLooper() const
 
+#In Draw_Looper_Methods
+#Line # references Draw_Looper, multiple layers ##
     Returns Draw_Looper if set, or nullptr.
     Increases Draw_Looper Reference_Count by one.
 
@@ -3646,6 +3499,8 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 
 #Method SkDrawLooper* getLooper() const
 
+#Line # deprecated ##
+#In Draw_Looper_Methods
 Deprecated.
 
 #Deprecated
@@ -3657,6 +3512,8 @@ Deprecated.
 
 #Method void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 
+#In Draw_Looper_Methods
+#Line # sets Draw_Looper, multiple layers ##
 Sets Draw_Looper to drawLooper, decreasing Reference_Count of the previous
 drawLooper.  Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on
 drawing unaltered.
@@ -3682,6 +3539,8 @@ Increments drawLooper Reference_Count by one.
 
 #Method void setLooper(sk_sp<SkDrawLooper> drawLooper)
 
+#Line # deprecated ##
+#In Draw_Looper_Methods
 Deprecated.
 
 #Deprecated
@@ -3692,11 +3551,13 @@ Deprecated.
 
 ##
 
-#Topic ##
+#Subtopic Draw_Looper_Methods ##
 # ------------------------------------------------------------------------------
-#Topic Text_Align
+#Subtopic Text_Align
+#Line # text placement relative to position ##
 
 #Enum Align
+#Line # glyph locations relative to text position ##
 #Code
     enum Align {
         kLeft_Align,
@@ -3739,6 +3600,7 @@ Align defaults to kLeft_Align.
 #Enum ##
 
 #Enum
+#Line # number of Text_Align values ##
 
 #Code
     enum {
@@ -3792,6 +3654,8 @@ Align defaults to kLeft_Align.
 
 #Method Align getTextAlign() const
 
+#In Text_Align
+#Line # returns Align: left, center, or right ##
     Returns Text_Align.
     Returns kLeft_Align if Text_Align has not been set.
 
@@ -3809,6 +3673,8 @@ Align defaults to kLeft_Align.
 
 #Method void    setTextAlign(Align align)
 
+#In Text_Align
+#Line # sets Align: left, center, or right ##
     Sets Text_Align to align.
     Has no effect if align is an invalid value.
 
@@ -3833,9 +3699,10 @@ Align defaults to kLeft_Align.
 
 ##
 
-#Topic ##
+#Subtopic Text_Align ##
 # ------------------------------------------------------------------------------
-#Topic Text_Size
+#Subtopic Text_Size
+#Line # overall height in points ##
 
 Text_Size adjusts the overall text size in points.
 Text_Size can be set to any positive value or zero.
@@ -3856,6 +3723,8 @@ Set SkPaintDefaults_TextSize at compile time to change the default setting.
 
 #Method SkScalar getTextSize() const
 
+#In Text_Size
+#Line # returns text size in points ##
     Returns Text_Size in points.
 
     #Return  typographic height of text ##
@@ -3869,6 +3738,8 @@ Set SkPaintDefaults_TextSize at compile time to change the default setting.
 
 #Method void setTextSize(SkScalar textSize)
 
+#In Text_Size
+#Line # sets text size in points ##
     Sets Text_Size in points.
     Has no effect if textSize is not greater than or equal to zero.
      
@@ -3883,9 +3754,10 @@ Set SkPaintDefaults_TextSize at compile time to change the default setting.
 
 ##
 
-#Topic ##
+#Subtopic Text_Size ##
 # ------------------------------------------------------------------------------
-#Topic Text_Scale_X
+#Subtopic Text_Scale_X
+#Line # text horizontal scale ##
 
 Text_Scale_X adjusts the text horizontal scale.
 Text scaling approximates condensed and expanded type faces when the actual face
@@ -3910,6 +3782,8 @@ Text_Scale_X defaults to 1.
 
 #Method SkScalar getTextScaleX() const
 
+#In Text_Scale_X
+#Line # returns the text horizontal scale; condensed text ##
     Returns Text_Scale_X.
     Default value is 1.
 
@@ -3925,6 +3799,8 @@ Text_Scale_X defaults to 1.
 
 #Method void setTextScaleX(SkScalar scaleX)
 
+#In Text_Scale_X
+#Line # sets the text horizontal scale; condensed text ##
     Sets Text_Scale_X.
     Default value is 1.
      
@@ -3938,9 +3814,10 @@ Text_Scale_X defaults to 1.
 
 ##
 
-#Topic ##
+#Subtopic Text_Scale_X ##
 
-#Topic Text_Skew_X
+#Subtopic Text_Skew_X
+#Line # text horizontal slant ##
 
 
 Text_Skew_X adjusts the text horizontal slant.
@@ -3966,6 +3843,8 @@ Text_Skew_X defaults to 0.
 
 #Method SkScalar getTextSkewX() const
 
+#In Text_Skew_X
+#Line # returns the text horizontal skew; oblique text ##
     Returns Text_Skew_X.
     Default value is zero.
 
@@ -3980,6 +3859,8 @@ Text_Skew_X defaults to 0.
 
 #Method void setTextSkewX(SkScalar skewX)
 
+#In Text_Skew_X
+#Line # sets the text horizontal skew; oblique text ##
     Sets Text_Skew_X.
     Default value is zero.
 
@@ -3993,12 +3874,14 @@ Text_Skew_X defaults to 0.
 
 ##
 
-#Topic ##
+#Subtopic Text_Skew_X ##
 
 # ------------------------------------------------------------------------------
-#Topic Text_Encoding
+#Subtopic Text_Encoding
+#Line # text encoded as characters or Glyphs ##
 
 #Enum TextEncoding
+#Line # character or glyph encoded size ##
 
 #Code
     enum TextEncoding {
@@ -4075,6 +3958,8 @@ void draw(SkCanvas* canvas) {
 
 #Method TextEncoding getTextEncoding() const
 
+#In Text_Encoding
+#Line # returns character or glyph encoded size ##
     Returns Text_Encoding.
     Text_Encoding determines how character code points are mapped to font glyph indices.
 
@@ -4101,6 +3986,8 @@ void draw(SkCanvas* canvas) {
 
 #Method void setTextEncoding(TextEncoding encoding)
 
+#In Text_Encoding
+#Line # sets character or glyph encoded size ##
     Sets Text_Encoding to encoding. 
     Text_Encoding determines how character code points are mapped to font glyph indices.
     Invalid values for encoding are ignored.
@@ -4121,9 +4008,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Text_Encoding ##
 # ------------------------------------------------------------------------------
-#Topic Font_Metrics
+#Subtopic Font_Metrics
+#Line # common glyph dimensions ##
 
 Font_Metrics describe dimensions common to the Glyphs in Typeface.
 The dimensions are computed by Font_Manager from font data and do not take 
@@ -4178,6 +4066,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Struct FontMetrics
+#Line # values computed by Font_Manager using Typeface ##
 
 #Code
     struct FontMetrics {
@@ -4227,6 +4116,7 @@ void draw(SkCanvas* canvas) {
     are valid, since their value may be zero.
 
     #Enum FontMetricsFlags
+#Line # valid Font_Metrics ##
 
     #Code
         enum FontMetricsFlags {
@@ -4404,6 +4294,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const
 
+#In Font_Metrics
+#Line # returns Typeface metrics scaled by text size ##
     Returns Font_Metrics associated with Typeface.
     The return value is the recommended spacing between lines: the sum of metrics
     descent, ascent, and leading.
@@ -4442,13 +4334,15 @@ void draw(SkCanvas* canvas) {
 
 #Method SkScalar getFontSpacing() const
 
+#In Font_Metrics
+#Line # returns recommended spacing between lines ##
     Returns the recommended spacing between lines: the sum of metrics
     descent, ascent, and leading.
     Result is scaled by Text_Size but does not take into account
     dimensions required by stroking and Path_Effect.
     Returns the same result as getFontMetrics.
 
-    #Return         recommended spacing between lines ##
+    #Return         recommended spacing between lines ##
 
     #Example
         SkPaint paint;
@@ -4470,6 +4364,8 @@ void draw(SkCanvas* canvas) {
 
 #Method SkRect getFontBounds() const
 
+#In Font_Metrics
+#Line # returns union all glyph bounds ##
 Returns the union of bounds of all Glyphs.
 Returned dimensions are computed by Font_Manager from font data, 
 ignoring Hinting. Includes Text_Size, Text_Scale_X,
@@ -4497,11 +4393,12 @@ FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
 ##
 
-#Topic ##
+#Subtopic Font_Metrics ##
 # ------------------------------------------------------------------------------
 
 #Method int textToGlyphs(const void* text, size_t byteLength,
                      SkGlyphID glyphs[]) const
+#Line # converts text into glyph indices ##
 
 Converts text into glyph indices.
 Returns the number of glyph indices represented by text.
@@ -4541,6 +4438,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method int countText(const void* text, size_t byteLength) const
 
+#Line # returns number of Glyphs in text ##
     Returns the number of Glyphs in text.
     Uses Text_Encoding to count the Glyphs.
     Returns the same result as textToGlyphs.
@@ -4565,6 +4463,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method bool containsText(const void* text, size_t byteLength) const
 
+#Line # returns if all text corresponds to Glyphs ##
     Returns true if all text corresponds to a non-zero glyph index. 
     Returns false if any characters in text are not supported in
     Typeface.
@@ -4632,6 +4531,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method void glyphsToUnichars(const SkGlyphID glyphs[],
                               int count, SkUnichar text[]) const
+#Line # converts Glyphs into text ##
 
     Converts glyphs into text if possible. 
     Glyph values without direct Unicode equivalents are mapped to zero. 
@@ -4667,10 +4567,13 @@ text contains an invalid UTF-8 sequence, zero is returned.
 ##
 
 # ------------------------------------------------------------------------------
-#Topic Measure_Text
+#Subtopic Measure_Text
+#Line # width, height, bounds of text ##
 
 #Method SkScalar measureText(const void* text, size_t length, SkRect* bounds) const
 
+#In Measure_Text
+#Line # returns advance width and bounds of text ##
     Returns the advance width of text if kVerticalText_Flag is clear,
     and the height of text if kVerticalText_Flag is set.
     The advance is the normal distance to move before drawing additional text.
@@ -4707,6 +4610,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method SkScalar measureText(const void* text, size_t length) const
 
+#In Measure_Text
     Returns the advance width of text if kVerticalText_Flag is clear,
     and the height of text if kVerticalText_Flag is set.
     The advance is the normal distance to move before drawing additional text.
@@ -4735,6 +4639,8 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method size_t breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = nullptr) const
+#In Measure_Text
+#Line # returns text that fits in a width ##
 
     Returns the bytes of text that fit within maxWidth.
     If kVerticalText_Flag is clear, the text fragment fits if its advance width is less than or
@@ -4779,6 +4685,8 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = nullptr) const
+#In Measure_Text
+#Line # returns advance and bounds for each glyph in text ##
 
     Retrieves the advance and bounds for each glyph in text, and returns
     the glyph count in text.
@@ -4838,14 +4746,17 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 ##
 
-#Topic ##
+#Subtopic Measure_Text ##
 # ------------------------------------------------------------------------------
-#Topic Text_Path
+#Subtopic Text_Path
+#Line # geometry of Glyphs ##
 
 Text_Path describes the geometry of Glyphs used to draw text.
 
 #Method void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const
+#In Text_Path
+#Line # returns Path equivalent to text ##
 
 Returns the geometry as Path equivalent to the drawn text.
 Uses Text_Encoding to decode text, Typeface to get the glyph paths,
@@ -4882,6 +4793,8 @@ Uses x, y, and Text_Align to position path.
 
 #Method void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const
+#In Text_Path
+#Line # returns Path equivalent to positioned text ##
 
 Returns the geometry as Path equivalent to the drawn text.
 Uses Text_Encoding to decode text, Typeface to get the glyph paths,
@@ -4914,9 +4827,10 @@ pos contains a position for each glyph.
 
 ##
 
-#Topic ##
+#Subtopic Text_Path ##
 # ------------------------------------------------------------------------------
-#Topic Text_Intercepts
+#Subtopic Text_Intercepts
+#Line # advanced underline, strike through ##
 
 Text_Intercepts describe the intersection of drawn text Glyphs with a pair
 of lines parallel to the text advance. Text_Intercepts permits creating a
@@ -4924,6 +4838,8 @@ underline that skips Descenders.
 
 #Method int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
                           const SkScalar bounds[2], SkScalar* intervals) const
+#In Text_Intercepts
+#Line # returns where lines intersect text; underlines ##
 
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
@@ -4977,6 +4893,8 @@ void draw(SkCanvas* canvas) {
 
 #Method int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
                              const SkScalar bounds[2], SkScalar* intervals) const
+#In Text_Intercepts
+#Line # returns where lines intersect positioned text; underlines ##
 
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
@@ -5030,6 +4948,8 @@ void draw(SkCanvas* canvas) {
 #Method int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
                                   SkScalar constY, const SkScalar bounds[2],
                                   SkScalar* intervals) const
+#In Text_Intercepts
+#Line # returns where lines intersect horizontally positioned text; underlines ##
 
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
@@ -5088,15 +5008,19 @@ void draw(SkCanvas* canvas) {
 
 #Method int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
                               SkScalar* intervals) const
+#In Text_Intercepts
+#Line # returns where lines intersect Text_Blob; underlines ##
 
     Returns the number of intervals that intersect bounds.
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
     the string. 
-    Uses Text_Encoding to decode text, Typeface to get the glyph paths,
+    Uses Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses run array and Text_Align to position intervals.
     
+    Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+
     Pass nullptr for intervals to determine the size of the interval array.
     
     intervals are cached to improve performance for multiple calls.
@@ -5111,6 +5035,7 @@ void draw(SkCanvas* canvas) {
     #Height 143
         void draw(SkCanvas* canvas) {
             SkPaint paint;
+            paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
             paint.setTextSize(120);
             SkPoint textPos = { 20, 110 };
             int len = 3;
@@ -5140,11 +5065,12 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic ##
+#Subtopic Text_Intercepts ##
 # ------------------------------------------------------------------------------
 
 #Method bool nothingToDraw() const
 
+#Line # returns true if Paint prevents all drawing ##
     Returns true if Paint prevents all drawing;
     otherwise, the Paint may or may not allow drawing.
 
@@ -5180,7 +5106,8 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
-#Topic Fast_Bounds
+#Subtopic Fast_Bounds
+#Line # approximate area required by Paint ##
     #Private  
     To be made private. 
     ##
@@ -5189,7 +5116,9 @@ Fast_Bounds methods conservatively outset a drawing bounds by additional area
 Paint may draw to.
 
 #Method bool canComputeFastBounds() const
-    #Private  
+    
+#In Fast_Bounds
+#Line # returns true if settings allow for fast bounds computation ###Private  
     (to be made private)
     ##
 
@@ -5201,7 +5130,9 @@ Paint may draw to.
 ##
 
 #Method const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
-    #Private  
+    
+#In Fast_Bounds
+#Line # returns fill bounds for quick reject tests ###Private  
     (to be made private)
     ##
 
@@ -5236,6 +5167,8 @@ Paint may draw to.
 
 #Method const SkRect& computeFastStrokeBounds(const SkRect& orig,
                                               SkRect* storage) const
+#In Fast_Bounds
+#Line # returns stroke bounds for quick reject tests ##
     #Private  
     (to be made private)
     ##
@@ -5248,6 +5181,8 @@ Paint may draw to.
 
 #Method const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                           Style style) const
+#In Fast_Bounds
+#Line # returns bounds for quick reject tests ##
     #Private  
     (to be made private)
     ##
@@ -5263,11 +5198,12 @@ Paint may draw to.
     #Return  fast computed bounds ##
 ##
 
-#Topic Fast_Bounds ##
+#Subtopic Fast_Bounds Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
-#Method void toString(SkString* str) const;
+#Method void toString(SkString* str) const
 
+#Line # converts Paint to machine readable form ##
 #DefinedBy SK_TO_STRING_NONVIRT() ##
 
 #Private

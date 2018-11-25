@@ -51,6 +51,7 @@ struct GrMockOptions {
     bool fIntegerSupport = false;
     bool fFlatInterpolationSupport = false;
     int fMaxVertexSamplers = 0;
+    int fMaxFragmentSamplers = 8;
     bool fShaderDerivativeSupport = true;
 };
 

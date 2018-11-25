@@ -87,16 +87,8 @@ public:
     // init() so the op can initialize itself
     Geometry& geometry() { return fGeoData[0]; }
 
-    void init() {
-        const Geometry& geo = fGeoData[0];
-        fColor = geo.fColor;
-        SkRect bounds;
-        geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
-                                       geo.fY);
-        // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
-        // we treat this as a set of non-AA rects rendered with a texture.
-        this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
-    }
+    /** Called after this->geometry() has been configured. */
+    void init();
 
     const char* name() const override { return "AtlasTextOp"; }
 
@@ -140,7 +132,6 @@ private:
     GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
             , fGeoDataAllocSize(kMinGeometryAllocated)
-            , fColor(paint.getColor())
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
 
@@ -186,8 +177,7 @@ private:
 
     inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
-    GrColor color() const { return fColor; }
-    const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
+    GrColor color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     int numGlyphs() const { return fNumGlyphs; }
 
@@ -199,7 +189,6 @@ private:
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
-    GrColor fColor;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
     bool fUsesLocalCoords;
@@ -212,6 +201,7 @@ private:
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
     bool fUseGammaCorrectDistanceTable;
+    uint32_t fDFGPFlags = 0;
 
     typedef GrMeshDrawOp INHERITED;
 };

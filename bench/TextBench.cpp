@@ -71,7 +71,7 @@ protected:
     void onDelayedSetup() override {
         if (fDoColorEmoji) {
             SkASSERT(kBW == fFQ);
-            fColorEmojiTypeface = MakeResourceAsTypeface("/fonts/Funkster.ttf");
+            fColorEmojiTypeface = MakeResourceAsTypeface("fonts/Funkster.ttf");
         }
 
         if (fDoPos) {

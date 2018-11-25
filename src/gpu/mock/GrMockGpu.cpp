@@ -24,18 +24,18 @@ int GrMockGpu::NextExternalTextureID() {
     return sk_atomic_dec(&gID) - 1;
 }
 
-GrGpu* GrMockGpu::Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
-                         GrContext* context) {
-    return Create(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
+sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
+                             const GrContextOptions& contextOptions, GrContext* context) {
+    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
 }
 
-GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOptions& contextOptions,
-                         GrContext* context) {
+sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
+                             const GrContextOptions& contextOptions, GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return new GrMockGpu(context, *mockOptions, contextOptions);
+    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
 
@@ -90,22 +90,31 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
     return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
 }
 
-GrBackendObject GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                           GrPixelConfig config, bool isRT,
-                                                           GrMipMapped) {
-    auto info = new GrMockTextureInfo;
-    info->fID = NextExternalTextureID();
-    fOutstandingTestingOnlyTextureIDs.add(info->fID);
-    return reinterpret_cast<GrBackendObject>(info);
+GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                            GrPixelConfig config, bool isRT,
+                                                            GrMipMapped) {
+    GrMockTextureInfo info;
+    info.fID = NextExternalTextureID();
+    fOutstandingTestingOnlyTextureIDs.add(info.fID);
+    return GrBackendTexture(w, h, config, info);
 }
 
-bool GrMockGpu::isTestingOnlyBackendTexture(GrBackendObject object) const {
-    return fOutstandingTestingOnlyTextureIDs.contains(
-            reinterpret_cast<const GrMockTextureInfo*>(object)->fID);
+bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
+    SkASSERT(kMock_GrBackend == tex.backend());
+
+    const GrMockTextureInfo* info = tex.getMockTextureInfo();
+    if (!info) {
+        return false;
+    }
+
+    return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
 }
 
-void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendObject object, bool abandonTexture) {
-    auto info = reinterpret_cast<const GrMockTextureInfo*>(object);
-    fOutstandingTestingOnlyTextureIDs.remove(info->fID);
-    delete info;
+void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandonTexture) {
+    SkASSERT(kMock_GrBackend == tex->backend());
+
+    const GrMockTextureInfo* info = tex->getMockTextureInfo();
+    if (info) {
+        fOutstandingTestingOnlyTextureIDs.remove(info->fID);
+    }
 }

@@ -10,6 +10,8 @@
 
 #include "GrRenderTarget.h"
 
+#include "GrBackendSurface.h"
+
 #import <Metal/Metal.h>
 
 class GrMtlGpu;
@@ -39,6 +41,10 @@ public:
     }
 
     GrBackendObject getRenderTargetHandle() const override;
+
+    GrBackendRenderTarget getBackendRenderTarget() const override {
+        return GrBackendRenderTarget(); // invalid
+    }
 
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,

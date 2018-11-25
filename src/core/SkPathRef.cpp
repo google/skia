@@ -13,6 +13,16 @@
 #include "SkPathPriv.h"
 #include "SkSafeMath.h"
 
+// Conic weights must be 0 < weight <= finite
+static bool validate_conic_weights(const SkScalar weights[], int count) {
+    for (int i = 0; i < count; ++i) {
+        if (weights[i] <= 0 || !SkScalarIsFinite(weights[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
                           int incReserveVerbs,
@@ -189,6 +199,34 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
     SkDEBUGCODE((*dst)->validate();)
 }
 
+static bool validate_verb_sequence(const uint8_t verbs[], int vCount) {
+    // verbs are stored backwards, but we need to visit them in logical order to determine if
+    // they form a valid sequence.
+
+    bool needsMoveTo = true;
+    bool invalidSequence = false;
+
+    for (int i = vCount - 1; i >= 0; --i) {
+        switch (verbs[i]) {
+            case SkPath::kMove_Verb:
+                needsMoveTo = false;
+                break;
+            case SkPath::kLine_Verb:
+            case SkPath::kQuad_Verb:
+            case SkPath::kConic_Verb:
+            case SkPath::kCubic_Verb:
+                invalidSequence |= needsMoveTo;
+                break;
+            case SkPath::kClose_Verb:
+                needsMoveTo = true;
+                break;
+            default:
+                return false;   // unknown verb
+        }
+    }
+    return !invalidSequence;
+}
+
 // Given the verb array, deduce the required number of pts and conics,
 // or if an invalid verb is encountered, return false.
 static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr,
@@ -285,8 +323,14 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     // Check that the verbs are valid, and imply the correct number of pts and conics
     {
         int pCount, cCount;
+        if (!validate_verb_sequence(ref->verbsMemBegin(), ref->countVerbs())) {
+            return nullptr;
+        }
         if (!deduce_pts_conics(ref->verbsMemBegin(), ref->countVerbs(), &pCount, &cCount) ||
             pCount != ref->countPoints() || cCount != ref->fConicWeights.count()) {
+            return nullptr;
+        }
+        if (!validate_conic_weights(ref->fConicWeights.begin(), ref->fConicWeights.count())) {
             return nullptr;
         }
         // Check that the bounds match the serialized bounds.
@@ -753,9 +797,6 @@ bool SkPathRef::isValid() const {
         return false;
     }
     if ((nullptr == fPoints) != (nullptr == fVerbs)) {
-        return false;
-    }
-    if (nullptr == fPoints && 0 != fFreeSpace) {
         return false;
     }
     if (nullptr == fPoints && 0 != fFreeSpace) {

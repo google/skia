@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkDWrite.h"
 #include "SkDWriteFontFileStream.h"
@@ -911,7 +911,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamIndex(std::unique_ptr<S
             SkTScopedComPtr<IDWriteFontFace> fontFace;
             HRN(font->CreateFontFace(&fontFace));
 
-            UINT32 faceIndex = fontFace->GetIndex();
+            int faceIndex = fontFace->GetIndex();
             if (faceIndex == ttcIndex) {
                 return sk_sp<SkTypeface>(DWriteFontTypeface::Create(fFactory.get(),
                                                   fontFace.get(), font.get(), fontFamily.get(),
@@ -1086,4 +1086,4 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontM
     }
     return sk_make_sp<SkFontMgr_Indirect>(std::move(impl), std::move(proxy));
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -9,6 +9,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -21,7 +22,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skia/resources",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -46,7 +47,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -82,13 +83,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -100,7 +102,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -108,6 +110,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -118,7 +121,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -126,6 +129,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -136,7 +140,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -144,6 +148,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -156,7 +161,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -181,7 +186,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -189,13 +194,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -234,13 +240,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -252,7 +259,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -260,6 +267,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -270,7 +278,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -278,6 +286,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -288,7 +297,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -296,6 +305,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -308,7 +318,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skimage",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -333,7 +343,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -341,13 +351,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -386,13 +397,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -404,7 +416,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -412,6 +424,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -422,7 +435,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -430,6 +443,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -440,7 +454,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -448,6 +462,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -460,7 +475,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/svg",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -485,7 +500,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -493,13 +508,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SVG_VERSION",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -510,7 +526,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -518,6 +534,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -528,7 +545,7 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -536,6 +553,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -576,10 +594,10 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
-      "adb.1.0.35",
-      "PixelC",
-      "0.6"
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "/usr/bin/adb.1.0.35",
+      "0",
+      "userspace"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -588,39 +606,80 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Scale CPU to 0.600000",
+    "name": "Set CPU 0's governor to userspace",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@model = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@target_percent = float(sys.argv[3])@@@",
+      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@print log@@@",
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if model == 'Nexus10':@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]@@@",
-      "@@@STEP_LOG_LINE@python.inline@elif model == 'Nexus7':@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Nexus7 claims to support 1300000, but only really allows 1200000@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,@@@",
-      "@@@STEP_LOG_LINE@python.inline@                     860000, 1000000, 1100000, 1200000]@@@",
-      "@@@STEP_LOG_LINE@python.inline@else:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Most devices give a list of their available frequencies.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"%s\" > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root])\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
+      "/usr/bin/adb.1.0.35",
+      "0.6",
+      "0"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Scale CPU 0 to 0.600000",
+    "timeout": 30,
+    "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Check for message like '/system/bin/sh: file not found'@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if available_freqs and '/system/bin/sh' not in available_freqs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    available_freqs = sorted(@@@",
-      "@@@STEP_LOG_LINE@python.inline@        int(i) for i in available_freqs.strip().split())@@@",
-      "@@@STEP_LOG_LINE@python.inline@  else:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    raise Exception('Could not get list of available frequencies: %s' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@                    available_freqs)@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@target_percent = float(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[3])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@root = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# All devices we test on give a list of their available frequencies.@@@",
+      "@@@STEP_LOG_LINE@python.inline@available_freqs = subprocess.check_output([ADB, 'shell',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    'cat %s/scaling_available_frequencies' % root])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Check for message like '/system/bin/sh: file not found'@@@",
+      "@@@STEP_LOG_LINE@python.inline@if available_freqs and '/system/bin/sh' not in available_freqs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  available_freqs = sorted(@@@",
+      "@@@STEP_LOG_LINE@python.inline@      int(i) for i in available_freqs.strip().split())@@@",
+      "@@@STEP_LOG_LINE@python.inline@else:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('Could not get list of available frequencies: %s' %@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  available_freqs)@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@maxfreq = available_freqs[-1]@@@",
       "@@@STEP_LOG_LINE@python.inline@target = int(round(maxfreq * target_percent))@@@",
@@ -632,15 +691,19 @@
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@print 'Setting frequency to %d' % freq@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# If scaling_max_freq is lower than our attempted setting, it won't take.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# We must set min first, because if we try to set max to be less than min@@@",
+      "@@@STEP_LOG_LINE@python.inline@# (which sometimes happens after certain devices reboot) it returns a@@@",
+      "@@@STEP_LOG_LINE@python.inline@# perplexing permissions error.@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_min_freq' % root])@@@",
       "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_max_freq' % (freq, root)])@@@",
       "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_setspeed' % (freq, root)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@time.sleep(5)@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_freq = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed']).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '%s/scaling_cur_freq' % root]).strip()@@@",
       "@@@STEP_LOG_LINE@python.inline@if actual_freq != str(freq):@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
       "@@@STEP_LOG_LINE@python.inline@                  % (actual_freq, freq))@@@",
@@ -649,13 +712,118 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif prior_status == str(value):\n  print 'CPU %d online already %d' % (cpu, value)\n  sys.exit()\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "/usr/bin/adb.1.0.35",
+      "0",
+      "0"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Disabling CPU 0",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
+      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'CPU %d online already %d' % (cpu, value)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif prior_status == str(value):\n  print 'CPU %d online already %d' % (cpu, value)\n  sys.exit()\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "/usr/bin/adb.1.0.35",
+      "1",
+      "0"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Disabling CPU 1",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@print log@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
+      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'CPU %d online already %d' % (cpu, value)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
       "push",
       "[START_DIR]/out/Release/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -672,7 +840,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --useThermalManager 1,1,10,1000 --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 glesnvpr4 glesnvprdit4 glesinst glesinst4 --gpuThreads 0 --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm64 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value TegraX1 extra_config Android_Skpbench model PixelC os Android; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 glesnvpr4 glesnvprdit4 --gpuThreads 0 --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm64 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value TegraX1 extra_config Android_Skpbench model PixelC os Android; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
@@ -686,13 +854,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "push",
       "[START_DIR]/tmp/nanobench.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -703,12 +872,13 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "logcat",
       "-c"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -721,7 +891,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "nanobench.sh"
     ],
@@ -738,9 +908,9 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
       "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
@@ -765,13 +935,14 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
@@ -784,7 +955,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/out/Release"
     ],
     "env": {
@@ -802,7 +973,7 @@
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -817,11 +988,12 @@
   },
   {
     "cmd": [
-      "adb.1.0.35",
+      "/usr/bin/adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",

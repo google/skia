@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrTextureProxy.h"
 #include "SkHalf.h"
 
@@ -33,6 +33,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         return;
     }
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkTDArray<T> controlPixelData, readBuffer;
     controlPixelData.setCount(arraySize);
     readBuffer.setCount(arraySize);
@@ -51,16 +52,16 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                     desc, SkBudgeted::kNo,
-                                                                     controlPixelData.begin(), 0);
+
+        sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(
+                                           desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;
         }
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                    std::move(fpProxy), nullptr);
+                                                                            std::move(fpProxy));
         REPORTER_ASSERT(reporter, sContext);
 
         bool result = context->contextPriv().readSurfacePixels(sContext.get(),

@@ -21,11 +21,11 @@ namespace sk_app {
 class WindowContext {
 public:
     WindowContext(const DisplayParams& params)
-        : fContext(nullptr)
-        , fDisplayParams(params)
-        , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
-        , fSampleCount(0)
-        , fStencilBits(0) {}
+            : fContext(nullptr)
+            , fDisplayParams(params)
+            , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
+            , fSampleCount(1)
+            , fStencilBits(0) {}
 
     virtual ~WindowContext() {}
 
@@ -61,7 +61,6 @@ protected:
     int               fWidth;
     int               fHeight;
     DisplayParams     fDisplayParams;
-    GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
 
     // parameters obtained from the native window

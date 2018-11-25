@@ -50,6 +50,17 @@ bool Catalog::openCatalog(const char* inDir, const char* outDir) {
     return true;
 }
 
+bool Catalog::openStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    string unused;
+    // FIXME: iterate through only chosen files by setting fDocsDir to iter
+    // read one file to find directory
+    if (!iter.next(&unused)) {
+        return false;
+    }
+    return openCatalog(iter.baseDir().c_str(), outDir);
+}
+
 bool Catalog::closeCatalog() {
     if (fOut) {
         this->lf(1);
@@ -107,10 +118,10 @@ bool Catalog::pngOut(Definition* example) {
     return true;
 }
 
-bool Catalog::textOut(Definition* example, const char* stdOutStart,
+bool Catalog::textOut(Definition* def, const char* stdOutStart,
     const char* stdOutEnd) {
     string result;
-    if (!example->exampleToScript(&result, Definition::ExampleOptions::kText)) {
+    if (!def->exampleToScript(&result, Definition::ExampleOptions::kText)) {
         return false;
     }
     if (result.length() > 0) {
@@ -127,11 +138,31 @@ bool Catalog::textOut(Definition* example, const char* stdOutStart,
         size_t pos = 0;
         size_t len = stdOutEnd - stdOutStart;
         string example;
+        const Definition* stdOut = def->hasChild(MarkType::kStdOut);
+        const Definition* outVolatile = stdOut ? stdOut->hasChild(MarkType::kVolatile) : nullptr;
+        if (outVolatile) {
+            stdOutStart = outVolatile->fContentStart;
+            while ('\n' == stdOutStart[0]) {
+                ++stdOutStart;
+            }
+            len = stdOut->fContentEnd - stdOutStart;
+        }
         while ((size_t) pos < len) {
             example += '"' == stdOutStart[pos] ? "\\\"" :
                 '\\' == stdOutStart[pos] ? "\\\\" :
+                '\n' == stdOutStart[pos] ? "\\\\n" :
                 string(&stdOutStart[pos], 1);
+            if (outVolatile && '\n' == stdOutStart[pos]) {
+                ++pos;
+                while ((size_t) pos < len && ' ' == stdOutStart[pos]) {
+                    ++pos;
+                }
+                continue;
+            }
             ++pos;
+        }
+        if (outVolatile) {
+            example += "\\\\n";
         }
         this->writeBlock(example.length(), example.c_str());
         this->writeString("\"");

@@ -162,15 +162,9 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 
     sk_sp<SkPicture> picture;
 
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        // Newer code won't serialize pictures in disallow-cross-process-picture mode.
-        // Assert that they didn't serialize anything except a false here.
-        buffer.validate(!buffer.readBool());
-    } else {
-        bool didSerialize = buffer.readBool();
-        if (didSerialize) {
-            picture = SkPicture::MakeFromBuffer(buffer);
-        }
+    bool didSerialize = buffer.readBool();
+    if (didSerialize) {
+        picture = SkPicture::MakeFromBuffer(buffer);
     }
     return SkPictureShader::Make(picture, mx, my, &lm, &tile);
 }
@@ -181,14 +175,8 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fTmy);
     buffer.writeRect(fTile);
 
-    // The deserialization code won't trust that our serialized picture is safe to deserialize.
-    // So write a 'false' telling it that we're not serializing a picture.
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        buffer.writeBool(false);
-    } else {
-        buffer.writeBool(true);
-        fPicture->flatten(buffer);
-    }
+    buffer.writeBool(true);
+    fPicture->flatten(buffer);
 }
 
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkMatrix* localM,
@@ -369,7 +357,7 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     int maxTextureSize = 0;
     if (args.fContext) {
         maxTextureSize = args.fContext->caps()->maxTextureSize();
@@ -381,8 +369,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         return nullptr;
     }
     return as_SB(bitmapShader)
-            ->asFragmentProcessor(SkShaderBase::AsFPArgs(args.fContext, args.fViewMatrix, nullptr,
-                                                         args.fFilterQuality,
-                                                         args.fDstColorSpaceInfo));
+            ->asFragmentProcessor(GrFPArgs(args.fContext, args.fViewMatrix,
+                                           args.fFilterQuality, args.fDstColorSpaceInfo));
 }
 #endif

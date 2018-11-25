@@ -35,6 +35,9 @@ int Type::coercionCost(const Type& other) const {
     if (this->isUnsigned() && other.isUnsigned()) {
         return 1;
     }
+    if (this->isUnsigned() && other.isSigned() && other.priority() > priority()) {
+        return 1;
+    }
     for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
         if (*fCoercibleTypes[i] == other) {
             return (int) i + 1;

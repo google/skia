@@ -10,7 +10,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorSpaceXform_Base.h"
-#include "SkColorSpace_Base.h"
 #include "SkRasterPipeline.h"
 
 class SkColorSpace_A2B;

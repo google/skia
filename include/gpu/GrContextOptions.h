@@ -78,10 +78,6 @@ struct GrContextOptions {
         level and LOD control (ie desktop or ES3). */
     bool fDoManualMipmapping = false;
 
-    /** Enable instanced rendering as long as all required functionality is supported by the HW.
-        Instanced rendering is still experimental at this point and disabled by default. */
-    bool fEnableInstancedRendering = false;
-
     /**
      * Disables distance field rendering for paths. Distance field computation can be expensive,
      * and yields no benefit if a path is not rendered multiple times with different transforms.
@@ -145,6 +141,13 @@ struct GrContextOptions {
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 
     /**
+     * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.
+     * This does not affect code path choices that are made for perfomance reasons nor does it
+     * override other GrContextOption settings.
+     */
+    bool fDisableDriverCorrectnessWorkarounds = false;
+
+    /**
      * Cache in which to store compiled shader binaries between runs.
      */
     PersistentCache* fPersistentCache = nullptr;
@@ -171,6 +174,11 @@ struct GrContextOptions {
     bool fSuppressPathRendering = false;
 
     /**
+     * If true, the caps will never support geometry shaders.
+     */
+    bool fSuppressGeometryShaders = false;
+
+    /**
      * Render everything in wireframe
      */
     bool fWireframeMode = false;
@@ -185,6 +193,14 @@ struct GrContextOptions {
      * supported GPUs.
      */
     bool fDisableImageMultitexturing = false;
+#endif
+
+#if SK_SUPPORT_ATLAS_TEXT
+    /**
+     * Controls whether distance field glyph vertices always have 3 components even when the view
+     * matrix does not have perspective.
+     */
+    Enable fDistanceFieldGlyphVerticesAlwaysHaveW = Enable::kDefault;
 #endif
 };
 

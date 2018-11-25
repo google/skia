@@ -67,13 +67,14 @@ sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
 
         SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &fStencilBits);
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &fSampleCount);
+        fSampleCount = SkTMax(fSampleCount, 1);
 
         SDL_GL_GetDrawableSize(fWindow, &fWidth, &fHeight);
         glViewport(0, 0, fWidth, fHeight);
     } else {
         SkDebugf("MakeCurrent failed: %s\n", SDL_GetError());
     }
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void GLWindowContext_ios::onDestroyContext() {

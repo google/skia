@@ -23,10 +23,6 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
-    gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fRenderTargetContext->getRTOpList()->instancedRendering();
-    }
-
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
@@ -47,7 +43,9 @@ public:
                opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
-    void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
+    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
+
+    void clear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
@@ -108,7 +106,9 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
+    uint32_t testingOnly_getOpListID();
     uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
+    uint32_t testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();

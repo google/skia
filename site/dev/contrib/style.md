@@ -81,7 +81,7 @@ int herdCats(const Array& cats) {
 Enum values are prefixed with k. Unscoped enum values are post fixed with
 an underscore and singular name of the enum name. The enum itself should be
 singular for exclusive values or plural for a bitfield. If a count is needed it
-is  k&lt;singular enum name&gt;Count and not be a member of the enum (see example):
+is  `k<singular enum name>Count` and not be a member of the enum (see example):
 
 <!--?prettify?-->
 ~~~~
@@ -167,8 +167,8 @@ Ganesh macros that are GL-specific should be prefixed GR_GL.
 #define GR_GL_TEXTURE0 0xdeadbeef
 ~~~~
 
-Ganesh prefers that macros are always defined and the use of #if MACRO rather than 
-#ifdef MACRO.
+Ganesh prefers that macros are always defined and the use of `#if MACRO` rather than 
+`#ifdef MACRO`.
 
 <!--?prettify?-->
 ~~~~
@@ -179,14 +179,14 @@ Ganesh prefers that macros are always defined and the use of #if MACRO rather th
 #endif
 ~~~~
 
-Skia tends to use #ifdef SK_MACRO for boolean flags.
+Skia tends to use `#ifdef SK_MACRO` for boolean flags.
 
 Braces
 ------
 
-Open braces don't get a newline. “else” and “else if” appear on same line as
+Open braces don't get a newline. `else` and `else if` appear on same line as
 opening and closing braces unless preprocessor conditional compilation
-interferes. Braces are always used with if, else, while, for, and do.
+interferes. Braces are always used with `if`, `else`, `while`, `for`, and `do`.
 
 <!--?prettify?-->
 ~~~~
@@ -296,8 +296,8 @@ Classes
 -------
 
 Unless there is a need for forward declaring something, class declarations
-should be ordered public, protected, private. Each should be preceded by a
-newline. Within each visibility section (public, private), fields should not be
+should be ordered `public`, `protected`, `private`. Each should be preceded by a
+newline. Within each visibility section (`public`, `private`), fields should not be
 intermixed with methods.
 
 <!--?prettify?-->
@@ -410,6 +410,7 @@ if (count > 0) {
 ~~~~
 
 Comments
+--------
 
 We use doxygen-style comments.
 
@@ -435,16 +436,16 @@ We follow the Google C++ guide for ints and are slowly making older code conform
 
 (http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Integer_Types)
 
-Summary: Use int unless you have need a guarantee on the bit count, then use
-stdint.h types (int32_t, etc). Assert that counts, etc are not negative instead
-of using unsigned. Bitfields use uint32_t unless they have to be made shorter
+Summary: Use `int` unless you have need a guarantee on the bit count, then use
+`stdint.h` types (`int32_t`, etc). Assert that counts, etc are not negative instead
+of using unsigned. Bitfields use `uint32_t` unless they have to be made shorter
 for packing or performance reasons.
 
-nullptr, 0
+`nullptr`, 0
 -------
 
-Use nullptr for pointers, 0 for ints. We prefer explicit nullptr comparisons when
-checking for nullptr pointers (as documentation):
+Use `nullptr` for pointers, 0 for ints. We prefer explicit `nullptr` comparisons when
+checking for `nullptr` pointers (as documentation):
 
 <!--?prettify?-->
 ~~~~
@@ -453,7 +454,7 @@ if (nullptr == x) {  // slightly preferred over if (!x)
 }
 ~~~~
 
-When checking non-nullptr pointers explicit comparisons are not required because it
+When checking non-`nullptr` pointers explicit comparisons are not required because it
 reads like a double negative:
 
 <!--?prettify?-->
@@ -485,8 +486,8 @@ modify_foo(&foo);
 ~~~~
 
 This way, if return value optimization cannot be used there is no performance
-hit. It also means that modify_foo can actually return a boolean for whether the
-call was successful. In this case, initialization of foo can potentially be
+hit. It also means that `modify_foo` can actually return a boolean for whether the
+call was successful. In this case, initialization of `foo` can potentially be
 skipped on failure (assuming the constructor for SkFoo does no initialization).
 
 <!--?prettify?-->
@@ -504,7 +505,7 @@ bool modify_foo(SkFoo* foo) {
 Function Parameters
 -------------------
 
-Mandatory constant object parameters are passed to functions as const references
+Mandatory constant object parameters are passed to functions as `const` references
 if they are not retained by the receiving function. Optional constant object
 parameters are passed to functions as const pointers. Objects that the called
 function will retain, either directly or indirectly, are passed as pointers.
@@ -521,8 +522,8 @@ SkScalar SkPaint::getFontMetrics(FontMetric* metrics, SkScalar scale) const;
 void SkContainer::insert(const SkFoo* foo);
 ~~~~
 
-If function arguments or parameters do not all fit on one line, they may be
-lined up with the first parameter on the same line
+If function arguments or parameters do not all fit on one line, the overflowing 
+parameters may be lined up with the first parameter on the next line
 
 <!--?prettify?-->
 ~~~~
@@ -533,7 +534,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst,
 }
 ~~~~
 
-or placed on the next line indented eight spaces
+or all parameters placed on the next line and indented eight spaces
 
 <!--?prettify?-->
 ~~~~

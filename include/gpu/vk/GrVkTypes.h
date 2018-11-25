@@ -31,7 +31,21 @@
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
-    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
+    GrVkAlloc()
+            : fMemory(VK_NULL_HANDLE)
+            , fOffset(0)
+            , fSize(0)
+            , fFlags(0)
+            , fUsesSystemHeap(false) {}
+
+    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
+            : fMemory(memory)
+            , fOffset(offset)
+            , fSize(size)
+            , fFlags(flags)
+            , fUsesSystemHeap(false) {}
+
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
     VkDeviceSize   fOffset;
     VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
     uint32_t       fFlags;
@@ -39,8 +53,10 @@ struct GrVkAlloc {
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
     };
+private:
+    friend class GrVkHeap; // For access to usesSystemHeap
+    bool fUsesSystemHeap;
 };
-
 struct GrVkImageInfo {
     /**
      * If the image's format is sRGB (GrVkFormatIsSRGB returns true), then the image must have
@@ -52,6 +68,8 @@ struct GrVkImageInfo {
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
     uint32_t       fLevelCount;
+    uint32_t       fInitialQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    uint32_t       fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle

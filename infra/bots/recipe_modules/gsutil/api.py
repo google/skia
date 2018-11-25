@@ -12,7 +12,7 @@ class GSUtilApi(recipe_api.RecipeApi):
     """Run gsutil with the given args."""
     return self.m.step(step_name, cmd=['gsutil'] + list(args))
 
-  def cp(self, name, src, dst, extra_args=None):
+  def cp(self, name, src, dst, extra_args=None, multithread=False):
     """Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
     Args:
@@ -21,10 +21,14 @@ class GSUtilApi(recipe_api.RecipeApi):
       dst: string. Same as src.
       extra_args: optional list of args to be passed to gsutil. e.g. [-Z] asks
         all files be compressed with gzip after upload and before download.
+      multi_thread: if the -m argument should be used to copy multiple items
+        at once (e.g. gsutil -m cp foo* gs://bar/dir)
 
     If the operation fails, it will be retried multiple times.
     """
     cmd = ['cp']
+    if multithread:
+      cmd = ['-m'] + cmd
     if extra_args:
       cmd.extend(extra_args)
     cmd.extend([src, dst])

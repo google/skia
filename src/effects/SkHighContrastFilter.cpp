@@ -143,15 +143,17 @@ void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
     SkHighContrastConfig config;
     config.fGrayscale = buffer.readBool();
-    config.fInvertStyle = static_cast<InvertStyle>(buffer.readInt());
+    config.fInvertStyle = buffer.read32LE(InvertStyle::kLast);
     config.fContrast = buffer.readScalar();
+
     return SkHighContrastFilter::Make(config);
 }
 
 sk_sp<SkColorFilter> SkHighContrastFilter::Make(
     const SkHighContrastConfig& config) {
-    if (!config.isValid())
+    if (!config.isValid()) {
         return nullptr;
+    }
     return sk_make_sp<SkHighContrast_Filter>(config);
 }
 

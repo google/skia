@@ -11,36 +11,31 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContextOptions& options) {
-    // We haven't validated the GrGLInterface yet, so check for GetString function pointer
-    if (!interface->fFunctions.fGetString) {
-        return nullptr;
-    }
-    ConstructorArgs args;
-    args.fInterface = interface;
-
-    const GrGLubyte* verUByte;
-    GR_GL_CALL_RET(interface, verUByte, GetString(GR_GL_VERSION));
-    const char* ver = reinterpret_cast<const char*>(verUByte);
-
-    const GrGLubyte* rendererUByte;
-    GR_GL_CALL_RET(interface, rendererUByte, GetString(GR_GL_RENDERER));
-    const char* renderer = reinterpret_cast<const char*>(rendererUByte);
-
+std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interface,
+                                               const GrContextOptions& options) {
     if (!interface->validate()) {
         return nullptr;
     }
 
+    const GrGLubyte* verUByte;
+    GR_GL_CALL_RET(interface.get(), verUByte, GetString(GR_GL_VERSION));
+    const char* ver = reinterpret_cast<const char*>(verUByte);
+
+    const GrGLubyte* rendererUByte;
+    GR_GL_CALL_RET(interface.get(), rendererUByte, GetString(GR_GL_RENDERER));
+    const char* renderer = reinterpret_cast<const char*>(rendererUByte);
+
+    ConstructorArgs args;
     args.fGLVersion = GrGLGetVersionFromString(ver);
     if (GR_GL_INVALID_VER == args.fGLVersion) {
         return nullptr;
     }
 
-    if (!GrGLGetGLSLGeneration(interface, &args.fGLSLGeneration)) {
+    if (!GrGLGetGLSLGeneration(interface.get(), &args.fGLSLGeneration)) {
         return nullptr;
     }
 
-    args.fVendor = GrGLGetVendor(interface);
+    args.fVendor = GrGLGetVendor(interface.get());
 
     args.fRenderer = GrGLGetRendererFromString(renderer);
 
@@ -62,8 +57,9 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
                       &args.fDriver, &args.fDriverVersion);
 
     args.fContextOptions = &options;
+    args.fInterface = std::move(interface);
 
-    return new GrGLContext(args);
+    return std::unique_ptr<GrGLContext>(new GrGLContext(std::move(args)));
 }
 
 GrGLContext::~GrGLContext() {
@@ -77,8 +73,8 @@ SkSL::Compiler* GrGLContext::compiler() const {
     return fCompiler;
 }
 
-GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
-    fInterface.reset(SkRef(args.fInterface));
+GrGLContextInfo::GrGLContextInfo(ConstructorArgs&& args) {
+    fInterface = std::move(args.fInterface);
     fGLVersion = args.fGLVersion;
     fGLSLGeneration = args.fGLSLGeneration;
     fVendor = args.fVendor;

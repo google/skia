@@ -607,6 +607,7 @@
       "~XfermodeImageFilterCroppedInput_Gpu",
       "~GrDefaultPathRendererTest",
       "~GrMSAAPathRendererTest",
+      "~SkImage_makeNonTextureImage",
       "--nonativeFonts",
       "--verbose"
     ],

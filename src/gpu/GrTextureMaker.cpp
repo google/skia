@@ -9,8 +9,9 @@
 
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerState& params,
                                                                SkColorSpace* dstColorSpace,
@@ -27,33 +28,29 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
         *texColorSpace = this->getColorSpace(dstColorSpace);
     }
 
+    GrGpu* gpu = fContext->contextPriv().getGpu();
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
                                                                  AllowedTexGenType::kCheap));
     if (original) {
-        if (!fContext->getGpu()->isACopyNeededForTextureParams(original.get(), params, &copyParams,
-                                                               scaleAdjust)) {
+        if (!gpu->isACopyNeededForTextureParams(original.get(), params, &copyParams, scaleAdjust)) {
             return original;
         }
     } else {
-        if (!fContext->getGpu()->isACopyNeededForTextureParams(this->width(), this->height(),
-                                                               params, &copyParams, scaleAdjust)) {
+        if (!gpu->isACopyNeededForTextureParams(this->width(), this->height(),
+                                                params, &copyParams, scaleAdjust)) {
             return this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
                                                  AllowedTexGenType::kAny);
         }
     }
 
-    GrSurfaceOrigin origOrigin;
+    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+
+    GrSurfaceOrigin origOrigin = original ? original->origin() : kTopLeft_GrSurfaceOrigin;
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey, dstColorSpace);
     sk_sp<GrTextureProxy> cachedProxy;
     if (copyKey.isValid()) {
-        if (original) {
-            origOrigin = original->origin();
-        } else {
-            origOrigin = kTopLeft_GrSurfaceOrigin;
-        }
-        cachedProxy = fContext->resourceProvider()->findOrCreateProxyByUniqueKey(copyKey,
-                                                                                 origOrigin);
+        cachedProxy = proxyProvider->findOrCreateProxyByUniqueKey(copyKey, origOrigin);
         if (cachedProxy && (!willBeMipped || GrMipMapped::kYes == cachedProxy->mipMapped())) {
             return cachedProxy;
         }
@@ -87,9 +84,9 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
             // If we had a cachedProxy, that means there already is a proxy in the cache which
             // matches the key, but it does not have mip levels and we require them. Thus we must
             // remove the unique key from that proxy.
-            fContext->resourceProvider()->removeUniqueKeyFromProxy(copyKey, cachedProxy.get());
+            proxyProvider->removeUniqueKeyFromProxy(copyKey, cachedProxy.get());
         }
-        fContext->resourceProvider()->assignUniqueKeyToProxy(copyKey, result.get());
+        proxyProvider->assignUniqueKeyToProxy(copyKey, result.get());
         this->didCacheCopy(copyKey);
     }
     return result;

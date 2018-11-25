@@ -53,9 +53,12 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
             return true;
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return false;
-        case kGray_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig: // fall through
+        case kGray_8_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR8Unorm;
             return true;
+        case kGray_8_as_Lum_GrPixelConfig:
+            return false;
         case kRGBA_float_GrPixelConfig:
             *format = MTLPixelFormatRGBA32Float;
             return true;

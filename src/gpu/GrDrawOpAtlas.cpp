@@ -8,8 +8,10 @@
 #include "GrDrawOpAtlas.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
@@ -180,13 +182,13 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
     // If our most recent upload has already occurred then we have to insert a new
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
     // This new update will piggy back on that previously scheduled update.
-    if (plot->lastUploadToken() < target->nextTokenToFlush()) {
+    if (plot->lastUploadToken() < target->tokenTracker()->nextTokenToFlush()) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
+        if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
             return false;
         }
 
@@ -242,7 +244,8 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if ((fNumPages == this->maxPages() && plot->lastUseToken() < target->nextTokenToFlush()) ||
+        if ((fNumPages == this->maxPages() &&
+             plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
@@ -275,7 +278,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     Plot* plot = nullptr;
     for (int pageIdx = (int)(fNumPages-1); pageIdx >= 0; --pageIdx) {
         Plot* currentPlot = fPages[pageIdx].fPlotList.tail();
-        if (currentPlot->lastUseToken() != target->nextDrawToken()) {
+        if (currentPlot->lastUseToken() != target->tokenTracker()->nextDrawToken()) {
             plot = currentPlot;
             break;
         }
@@ -307,7 +310,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
+    if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
         return false;
     }
     GrTextureProxy* proxy = fProxies[pageIdx].get();
@@ -452,6 +455,8 @@ bool GrDrawOpAtlas::createNewPage() {
         return false;
     }
 
+    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -459,20 +464,9 @@ bool GrDrawOpAtlas::createNewPage() {
     desc.fHeight = fTextureHeight;
     desc.fConfig = fPixelConfig;
 
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
-    if (texture) {
-        // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-        // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-        // should receive special attention.
-        // Note: When switching over to the deferred proxy, use the kExact flag to create
-        // the atlas and assert that the width & height are powers of 2.
-        fProxies[fNumPages] = GrSurfaceProxy::MakeWrapped(std::move(texture),
-                                                          kTopLeft_GrSurfaceOrigin);
-    }
+    SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
+    fProxies[fNumPages] = proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                                     GrResourceProvider::kNoPendingIO_Flag);
     if (!fProxies[fNumPages]) {
         return false;
     }

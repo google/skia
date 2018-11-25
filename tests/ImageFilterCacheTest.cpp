@@ -180,13 +180,14 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 
-static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
+static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -196,36 +197,32 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) 
     desc.fHeight = kFullSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(resourceProvider,
-                                        desc, SkBudgeted::kYes,
-                                        srcBM.getPixels(),
-                                        srcBM.rowBytes());
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                             srcBM.getPixels(), srcBM.rowBytes());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->resourceProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
     if (!srcProxy) {
         return;
     }
 
-    if (!srcProxy->instantiate(context->resourceProvider())) {
+    if (!srcProxy->instantiate(context->contextPriv().resourceProvider())) {
         return;
     }
     GrTexture* tex = srcProxy->priv().peekTexture();
 
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                               kFullSize,
-                                                               kFullSize,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               GrMipMapped::kNo,
-                                                               tex->getTextureHandle());
+    GrBackendTexture backendTex = tex->getBackendTexture();
+
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
                                                      backendTex,
                                                      texOrigin,
-                                                     kPremul_SkAlphaType, nullptr));
+                                                     kRGBA_8888_SkColorType,
+                                                     kPremul_SkAlphaType, nullptr,
+                                                     nullptr, nullptr));
     if (!srcImage) {
         return;
     }
@@ -253,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->resourceProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
     if (!srcProxy) {
         return;
     }

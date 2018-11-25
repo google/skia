@@ -114,7 +114,11 @@ struct SkMask {
      */
     void* getAddr(int x, int y) const;
 
-    static uint8_t* AllocImage(size_t bytes);
+    enum AllocType {
+        kUninit_Alloc,
+        kZeroInit_Alloc,
+    };
+    static uint8_t* AllocImage(size_t bytes, AllocType = kUninit_Alloc);
     static void FreeImage(void* image);
 
     enum CreateMode {

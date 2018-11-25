@@ -21,14 +21,24 @@ public:
     // Creates an invalid backend texture.
     GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
                      const GrGLTextureInfo& glInfo);
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendTexture(int width,
+                     int height,
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
 
@@ -73,7 +83,10 @@ public:
 
 private:
     // Friending for access to the GrPixelConfig
+    friend class SkImage;
     friend class SkSurface;
+    friend class GrBackendTextureImageGenerator;
+    friend class GrProxyProvider;
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
@@ -99,11 +112,20 @@ public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
+                          const GrGLFramebufferInfo& glInfo);
+
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
                           const GrGLFramebufferInfo& glInfo);
 
 #ifdef SK_VULKAN
@@ -136,6 +158,8 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
+    friend class SkSurface_Gpu;
+    friend class SkImage_Gpu;
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;

@@ -65,9 +65,8 @@ protected:
         fRec.fZPlaneParams = SkPoint3::Make(0, 0, kElevation);
         fRec.fLightPos = SkPoint3::Make(270, 0, 600);
         fRec.fLightRadius = 800;
-        fRec.fAmbientAlpha = 0.1f;
-        fRec.fSpotAlpha = 0.25f;
-        fRec.fColor = SK_ColorBLACK;
+        fRec.fAmbientColor = 0x19000000;
+        fRec.fSpotColor = 0x40000000;
         fRec.fFlags = 0;
         if (fTransparent) {
             fRec.fFlags |= SkShadowFlags::kTransparentOccluder_ShadowFlag;

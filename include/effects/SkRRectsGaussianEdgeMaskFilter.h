@@ -9,6 +9,7 @@
 #define SkRRectsGaussianEdgeMaskFilter_DEFINED
 
 #include "SkMaskFilter.h"
+#include "SkScalar.h"
 
 class SkRRect;
 

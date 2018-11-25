@@ -10,7 +10,6 @@
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXform_Base.h"
-#include "SkColorSpaceXformImageGenerator.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkConvertPixels.h"
@@ -324,35 +323,6 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
     return SkMakeImageFromRasterBitmapPriv(bm, cpm, kNeedNewImageUniqueID);
 }
 
-sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id,
-                                       SkCopyPixelsMode cpm) {
-    if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
-            bm.rowBytes() < bm.info().minRowBytes() || !dstCS) {
-        return nullptr;
-    }
-
-    sk_sp<SkColorSpace> srcCS = bm.info().refColorSpace();
-    if (!srcCS) {
-        // Treat nullptr as sRGB.
-        srcCS = SkColorSpace::MakeSRGB();
-    }
-
-    sk_sp<SkImage> image = nullptr;
-
-    // For the Android use case, this is very likely to be true.
-    if (SkColorSpace::Equals(srcCS.get(), dstCS.get())) {
-        SkASSERT(kNeedNewImageUniqueID == id || bm.getGenerationID() == id);
-        image = SkMakeImageFromRasterBitmapPriv(bm, cpm, id);
-    } else {
-        image = SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(bm, dstCS, cpm,
-                                                                                 id));
-    }
-
-    // If the caller suplied an id, we must propagate that to the image we return
-    SkASSERT(kNeedNewImageUniqueID == id || image->uniqueID() == id);
-    return image;
-}
-
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
     return ((const SkImage_Raster*)image)->getPixelRef();
 }
@@ -364,10 +334,9 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
         // pixelref since the caller might call setImmutable() themselves
         // (thus changing our state).
         if (fBitmap.isImmutable()) {
+            SkIPoint origin = fBitmap.pixelRefOrigin();
             bitmap->setInfo(fBitmap.info(), fBitmap.rowBytes());
-            bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()),
-                                fBitmap.pixelRefOrigin().x(),
-                                fBitmap.pixelRefOrigin().y());
+            bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()), origin.x(), origin.y());
             return true;
         }
     }

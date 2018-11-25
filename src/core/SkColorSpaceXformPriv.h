@@ -8,7 +8,6 @@
 #ifndef SkColorSpaceXformPriv_DEFINED
 #define SkColorSpaceXformPriv_DEFINED
 
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkHalf.h"
 #include "SkSRGB.h"

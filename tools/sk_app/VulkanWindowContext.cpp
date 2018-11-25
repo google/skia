@@ -72,7 +72,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(QueuePresentKHR);
     GET_DEV_PROC(GetDeviceQueue);
 
-    fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeVulkan(fBackendContext, fDisplayParams.fGrContextOptions);
 
     fSurface = fCreateVkSurfaceFn(instance);
     if (VK_NULL_HANDLE == fSurface) {
@@ -185,10 +185,10 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
     bool wantSRGB = srgbColorSpace == params.fColorSpace;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
-        GrPixelConfig config = GrVkFormatToPixelConfig(surfaceFormats[i].format);
-        if (kUnknown_GrPixelConfig != config &&
-            GrPixelConfigIsSRGB(config) == wantSRGB) {
-            surfaceFormat = surfaceFormats[i].format;
+        VkFormat localFormat = surfaceFormats[i].format;
+        if (GrVkFormatIsSupported(localFormat) &&
+            GrVkFormatIsSRGB(localFormat, nullptr) == wantSRGB) {
+            surfaceFormat = localFormat;
             colorSpace = surfaceFormats[i].colorSpace;
             break;
         }
@@ -199,6 +199,20 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
 
     if (VK_FORMAT_UNDEFINED == surfaceFormat) {
         return false;
+    }
+
+    SkColorType colorType;
+    switch (surfaceFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM: // fall through
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            colorType = kRGBA_8888_SkColorType;
+            break;
+        case VK_FORMAT_B8G8R8A8_UNORM: // fall through
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            colorType = kBGRA_8888_SkColorType;
+            break;
+        default:
+            return false;
     }
 
     // If mailbox mode is available, use it, as it is the lowest-latency non-
@@ -254,15 +268,12 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fBackendContext->fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
-    this->createBuffers(swapchainCreateInfo.imageFormat);
+    this->createBuffers(swapchainCreateInfo.imageFormat, colorType);
 
     return true;
 }
 
-void VulkanWindowContext::createBuffers(VkFormat format) {
-    fPixelConfig = GrVkFormatToPixelConfig(format);
-    SkASSERT(kUnknown_GrPixelConfig != fPixelConfig);
-
+void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) {
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
     fImages = new VkImage[fImageCount];
@@ -276,7 +287,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
 
         GrVkImageInfo info;
         info.fImage = fImages[i];
-        info.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
+        info.fAlloc = GrVkAlloc();
         info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
@@ -287,6 +298,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext.get(), backendTex,
                                                                        kTopLeft_GrSurfaceOrigin,
                                                                        fSampleCount,
+                                                                       colorType,
                                                                        fDisplayParams.fColorSpace,
                                                                        &fSurfaceProps);
     }

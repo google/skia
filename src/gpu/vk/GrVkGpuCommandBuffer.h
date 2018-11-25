@@ -143,13 +143,25 @@ private:
 
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-                 const SkIPoint& dstPoint)
-            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+                 const SkIPoint& dstPoint, bool shouldDiscardDst)
+            : fSrc(src)
+            , fSrcOrigin(srcOrigin)
+            , fSrcRect(srcRect)
+            , fDstPoint(dstPoint)
+            , fShouldDiscardDst(shouldDiscardDst) {}
 
         GrSurface*      fSrc;
         GrSurfaceOrigin fSrcOrigin;
         SkIRect         fSrcRect;
         SkIPoint        fDstPoint;
+        bool            fShouldDiscardDst;
+    };
+
+    enum class LoadStoreState {
+        kUnknown,
+        kStartsWithClear,
+        kStartsWithDiscard,
+        kLoadAndStore,
     };
 
     struct CommandBufferInfo {
@@ -157,12 +169,16 @@ private:
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
         SkRect                                 fBounds;
-        bool                                   fIsEmpty;
-        bool                                   fStartsWithClear;
+        bool                                   fIsEmpty = true;
+        LoadStoreState                         fLoadStoreState = LoadStoreState::kUnknown;
         // The PreDrawUploads and PreCopies are sent to the GPU before submitting the secondary
         // command buffer.
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
         SkTArray<CopyInfo>                     fPreCopies;
+        // Array of images that will be sampled and thus need to be transfered to sampled layout
+        // before submitting the secondary command buffers. This must happen after we do any predraw
+        // uploads or copies.
+        SkTArray<GrVkImage*>                   fSampledImages;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffers.back();

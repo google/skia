@@ -13,10 +13,12 @@
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
+#include "SkImage.h"
 #include "SkPixelRef.h"
 #include "SkPM4f.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkTestScalerContext.h"
 #include "SkTextBlob.h"
 
@@ -53,7 +55,7 @@ sk_sp<SkTypeface> emoji_typeface() {
     return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
 
 #else
-    return MakeResourceAsTypeface("/fonts/Funkster.ttf");
+    return MakeResourceAsTypeface("fonts/Funkster.ttf");
 
 #endif
 }
@@ -513,11 +515,12 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
         return SkMax32(dr, SkMax32(dg, SkMax32(db, da)));
     }
 
-    bool equal_pixels(const SkPixmap& a, const SkPixmap& b, unsigned maxDiff) {
+    bool equal_pixels(const SkPixmap& a, const SkPixmap& b, unsigned maxDiff,
+                      bool respectColorSpace) {
         if (a.width() != b.width() ||
             a.height() != b.height() ||
             a.colorType() != b.colorType() ||
-            a.colorSpace() != b.colorSpace())
+            (respectColorSpace && (a.colorSpace() != b.colorSpace())))
         {
             return false;
         }
@@ -538,8 +541,32 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
         return true;
     }
 
-    bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, unsigned maxDiff) {
+    bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, unsigned maxDiff,
+                      bool respectColorSpaces) {
         SkPixmap pm0, pm1;
-        return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) && equal_pixels(pm0, pm1, maxDiff);
+        return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) &&
+               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
+    }
+
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff,
+                      bool respectColorSpaces) {
+        // ensure that peekPixels will succeed
+        auto imga = a->makeRasterImage();
+        auto imgb = b->makeRasterImage();
+        a = imga.get();
+        b = imgb.get();
+
+        SkPixmap pm0, pm1;
+        return a->peekPixels(&pm0) && b->peekPixels(&pm1) &&
+               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
+    }
+
+    sk_sp<SkSurface> makeSurface(SkCanvas* canvas, const SkImageInfo& info,
+                                 const SkSurfaceProps* props) {
+        auto surf = canvas->makeSurface(info, props);
+        if (!surf) {
+            surf = SkSurface::MakeRaster(info, props);
+        }
+        return surf;
     }
 }  // namespace sk_tool_utils

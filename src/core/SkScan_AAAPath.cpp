@@ -1685,10 +1685,8 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkScan::AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
-                         const SkIRect& clipBounds, bool containedInClip, bool forceRLE) {
-#if !defined(SK_SUPPORT_LEGACY_AA_BEHAVIOR)
-    containedInClip = clipBounds.contains(ir);
-#endif
+                         const SkIRect& clipBounds, bool forceRLE) {
+    bool containedInClip = clipBounds.contains(ir);
     bool isInverse = path.isInverseFillType();
 
     // The mask blitter (where we store intermediate alpha values directly in a mask, and then call

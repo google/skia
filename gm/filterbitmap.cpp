@@ -196,7 +196,8 @@ protected:
       }
 
       void makeBitmap() override {
-        if (!GetResourceAsBitmap(fFilename.c_str(), &fBM)) {
+        SkString resource = SkStringPrintf("images/%s", fFilename.c_str());
+        if (!GetResourceAsBitmap(resource.c_str(), &fBM)) {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }

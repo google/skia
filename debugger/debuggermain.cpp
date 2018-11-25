@@ -18,7 +18,7 @@ static void usage(const char * argv0) {
 }
 
 int main(int argc, char *argv[]) {
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     // Set numeric formatting to default. Otherwise shaders will have numbers with wrong comma.
     // QApplication documentation recommends setlocale("LC_NUMERIC", "C") after QApplication
     // constuction.  However, the components Qt calls (X11 libs, ..) will override that.

@@ -38,23 +38,6 @@ UPDATE_SKPS_GITCOOKIES_GS_PATH = (
     'gs://skia-buildbots/artifacts/server/.gitcookies_update-skps')
 
 
-class DownloadGitCookies(object):
-  """Class to download gitcookies from GS."""
-  def __init__(self, gs_path, local_path, api):
-    self._gs_path = gs_path
-    self._local_path = local_path
-    self._api = api
-
-  def __enter__(self):
-    cmd = ['gsutil', 'cp', self._gs_path, self._local_path]
-    self._api.step('download gitcookies', cmd=cmd, infra_step=True)
-
-  def __exit__(self, exc_type, _value, _traceback):
-    if self._api.path.exists(self._local_path):
-      self._api.file.remove('remove %s' % self._local_path, self._local_path)
-
-
-
 def RunSteps(api):
   # Check out Chrome.
   api.core.setup()
@@ -101,7 +84,7 @@ def RunSteps(api):
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir,
            '--gitcookies', str(update_skps_gitcookies)]
-    with DownloadGitCookies(
+    with api.infra.DownloadGitCookies(
         UPDATE_SKPS_GITCOOKIES_GS_PATH, update_skps_gitcookies, api):
       with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Upload SKPs', cmd=cmd)

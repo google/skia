@@ -10,6 +10,12 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+#define FPRINTF(...)                \
+    if (fDebugOut) {                \
+        SkDebugf(__VA_ARGS__);      \
+    }                               \
+    fprintf(fOut, __VA_ARGS__)
+
 static void add_ref(const string& leadingSpaces, const string& ref, string* result) {
     *result += leadingSpaces + ref;
 }
@@ -26,6 +32,15 @@ static string preformat(const string& orig) {
         }
     }
     return result;
+}
+
+static bool all_lower(const string& ref) {
+	for (auto ch : ref) {
+		if (!islower(ch)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 // FIXME: preserve inter-line spaces and don't add new ones
@@ -63,12 +78,13 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         } else {
             leadingSpaces = string(base, wordStart - base);
         }
-        if (!strncmp("SkPoint::operator-()", start, 20)) {
-            SkDebugf("");
-        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
-            break;
+            if (!t.eof() && '~' == base[0] && !isalnum(base[1])) {
+                t.next();
+            } else {
+                break;
+            }
         }
         if (start >= t.fChar) {
             continue;
@@ -77,11 +93,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
-        if (412 == t.fLineCount) {
-            SkDebugf("");
-        }
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
+            if (MarkType::kExternal == def->fMarkType) {
+                add_ref(leadingSpaces, ref, &result);
+                continue;
+            }
             SkASSERT(def->fFiddle.length());
             if (!t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 if (!t.skipToEndBracket(')')) {
@@ -120,8 +137,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     ref = fullRef;
                 }
-            }
-            result += linkRef(leadingSpaces, def, ref);
+			} else if (BmhParser::Resolvable::kClone != resolvable &&
+					all_lower(ref) && (t.eof() || '(' != t.peek())) {
+				add_ref(leadingSpaces, ref, &result);
+				continue;
+			}
+			result += linkRef(leadingSpaces, def, ref, resolvable);
             continue;
         }
         if (!t.eof() && '(' == t.peek()) {
@@ -133,7 +154,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             ref = string(start, t.fChar - start);
             if (const Definition* def = this->isDefined(t, ref, true)) {
                 SkASSERT(def->fFiddle.length());
-                result += linkRef(leadingSpaces, def, ref);
+				result += linkRef(leadingSpaces, def, ref, resolvable);
                 continue;
             }
         }
@@ -160,7 +181,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // will also need to see if Example Description matches var in example
             const Definition* def;
             if (fMethod && (def = fMethod->hasParam(ref))) {
-                result += linkRef(leadingSpaces, def, ref);
+				result += linkRef(leadingSpaces, def, ref, resolvable);
                 fLastParam = def;
                 distFromParam = 0;
                 continue;
@@ -174,15 +195,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         const Definition* paramType = this->findParamType();
                         if (paramType) {
                             string fullName = paramType->fName + "::" + ref;
-                            bool found = false;
-                            for (auto child : paramType->fChildren) {
-                                if (fullName == child->fName) {
-                                    result += linkRef(leadingSpaces, paramType, ref);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (found) {
+                            if (paramType->hasMatch(fullName)) {
+								result += linkRef(leadingSpaces, paramType, ref, resolvable);
                                 continue;
                             }
                         }
@@ -198,37 +212,37 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         }
         auto topicIter = fBmhParser.fTopicMap.find(ref);
         if (topicIter != fBmhParser.fTopicMap.end()) {
-            result += linkRef(leadingSpaces, topicIter->second, ref);
+			result += linkRef(leadingSpaces, topicIter->second, ref, resolvable);
             continue;
         }
         bool startsSentence = t.sentenceEnd(start);
         if (!t.eof() && ' ' != t.peek()) {
-            add_ref(leadingSpaces, ref, &result);
+			add_ref(leadingSpaces, ref, &result);
             continue;
         }
         if (t.fChar + 1 >= t.fEnd || (!isupper(t.fChar[1]) && startsSentence)) {
-            add_ref(leadingSpaces, ref, &result);
+			add_ref(leadingSpaces, ref, &result);
             continue;
         }
         if (isupper(t.fChar[1]) && startsSentence) {
             TextParser next(t.fFileName, &t.fChar[1], t.fEnd, t.fLineCount);
             string nextWord(next.fChar, next.wordEnd() - next.fChar);
             if (this->isDefined(t, nextWord, true)) {
-                add_ref(leadingSpaces, ref, &result);
+				add_ref(leadingSpaces, ref, &result);
                 continue;
             }
         }
-        Definition* test = fRoot;
+        const Definition* test = fRoot;
         do {
             if (!test->isRoot()) {
                 continue;
             }
             for (string prefix : { "_", "::" } ) {
-                RootDefinition* root = test->asRoot();
+                const RootDefinition* root = test->asRoot();
                 string prefixed = root->fName + prefix + ref;
                 if (const Definition* def = root->find(prefixed,
                         RootDefinition::AllowParens::kYes)) {
-                    result += linkRef(leadingSpaces, def, ref);
+					result += linkRef(leadingSpaces, def, ref, resolvable);
                     goto found;
                 }
             }
@@ -243,16 +257,21 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     return result;
 }
 
-bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
-    if (!sk_isdir(fileOrPath)) {
-        if (!this->buildRefFromFile(fileOrPath, outDir)) {
-            SkDebugf("failed to parse %s\n", fileOrPath);
+bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
+    if (!sk_isdir(mdFileOrPath)) {
+        SkString mdFile = SkOSPath::Basename(mdFileOrPath);
+        SkString bmhFile = SkOSPath::Join(docDir, mdFile.c_str());
+        bmhFile.remove(bmhFile.size() - 3, 3);
+        bmhFile += ".bmh";
+        SkString mdPath = SkOSPath::Dirname(mdFileOrPath);
+        if (!this->buildRefFromFile(bmhFile.c_str(), mdPath.c_str())) {
+            SkDebugf("failed to parse %s\n", mdFileOrPath);
             return false;
         }
     } else {
-        SkOSFile::Iter it(fileOrPath, ".bmh");
+        SkOSFile::Iter it(docDir, ".bmh");
         for (SkString file; it.next(&file); ) {
-            SkString p = SkOSPath::Join(fileOrPath, file.c_str());
+            SkString p = SkOSPath::Join(docDir, file.c_str());
             const char* hunk = p.c_str();
             if (!SkStrEndsWith(hunk, ".bmh")) {
                 continue;
@@ -260,10 +279,23 @@ bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
             if (SkStrEndsWith(hunk, "markup.bmh")) {  // don't look inside this for now
                 continue;
             }
-            if (!this->buildRefFromFile(hunk, outDir)) {
+            if (!this->buildRefFromFile(hunk, mdFileOrPath)) {
                 SkDebugf("failed to parse %s\n", hunk);
                 return false;
             }
+        }
+    }
+    return true;
+}
+
+bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    for (string file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->buildRefFromFile(hunk, outDir)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
         }
     }
     return true;
@@ -285,8 +317,16 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     match += ".bmh";
     fOut = nullptr;
     string fullName;
-    for (const auto& topic : fBmhParser.fTopicMap) {
-        Definition* topicDef = topic.second;
+
+    vector<string> keys;
+    keys.reserve(fBmhParser.fTopicMap.size());
+    for (const auto& it : fBmhParser.fTopicMap) {
+        keys.push_back(it.first);
+    }
+    std::sort(keys.begin(), keys.end());
+    for (auto key : keys) {
+        string s(key);
+        auto topicDef = fBmhParser.fTopicMap.at(s);
         if (topicDef->fParent) {
             continue;
         }
@@ -303,7 +343,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 fullName += '/';
             }
             fullName += filename;
-            fOut = fopen(fullName.c_str(), "wb");
+            fOut = fopen(filename.c_str(), "wb");
             if (!fOut) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
@@ -313,16 +353,35 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 header.replace(underscorePos, 1, " ");
             }
             SkASSERT(string::npos == header.find('_'));
-            fprintf(fOut, "%s", header.c_str());
+            FPRINTF("%s", header.c_str());
             this->lfAlways(1);
-            fprintf(fOut, "===");
+            FPRINTF("===");
         }
+        fPopulators[kClassesAndStructs].fDescription = "embedded struct and class members";
+        fPopulators[kConstants].fDescription = "enum and enum class, const values";
+        fPopulators[kConstructors].fDescription = "functions that construct";
+        fPopulators[kMemberFunctions].fDescription = "static functions and member methods";
+        fPopulators[kMembers].fDescription = "member values";
+        fPopulators[kOperators].fDescription = "operator overloading methods";
+        fPopulators[kRelatedFunctions].fDescription = "similar methods grouped together";
+        fPopulators[kSubtopics].fDescription = "";
+        this->populateTables(fRoot);
         this->markTypeOut(topicDef);
     }
     if (fOut) {
         this->writePending();
         fclose(fOut);
-        SkDebugf("wrote %s\n", fullName.c_str());
+        fflush(fOut);
+        if (this->writtenFileDiffers(filename, fullName)) {
+            fOut = fopen(fullName.c_str(), "wb");
+            int writtenSize;
+            const char* written = ReadToBuffer(filename, &writtenSize);
+            fwrite(written, 1, writtenSize, fOut);
+            fclose(fOut);
+            fflush(fOut);
+            SkDebugf("wrote updated %s\n", fullName.c_str());
+        }
+        remove(filename.c_str());
         fOut = nullptr;
     }
     return true;
@@ -372,6 +431,24 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = nullptr;
     }
+}
+
+const Definition* MdOut::csParent() const {
+    const Definition* csParent = fRoot->csParent();
+    if (!csParent) {
+        const Definition* topic = fRoot;
+        while (topic && MarkType::kTopic != topic->fMarkType) {
+            topic = topic->fParent;
+        }
+        for (auto child : topic->fChildren) {
+            if (child->isStructOrClass() || MarkType::kTypedef == child->fMarkType) {
+                csParent = child;
+                break;
+            }
+        }
+        SkASSERT(csParent || string::npos == fRoot->fFileName.find("Sk"));
+    }
+    return csParent;
 }
 
 const Definition* MdOut::findParamType() {
@@ -436,12 +513,12 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         if (const Definition* definition = fRoot->find(ref, RootDefinition::AllowParens::kYes)) {
             return definition;
         }
-        Definition* test = fRoot;
+        const Definition* test = fRoot;
         do {
             if (!test->isRoot()) {
                 continue;
             }
-            RootDefinition* root = test->asRoot();
+            const RootDefinition* root = test->asRoot();
             for (auto& leaf : root->fBranches) {
                 if (ref == leaf.first) {
                     return leaf.second;
@@ -464,6 +541,11 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
                         return topicIter->second;
                     }
                 }
+            }
+            string fiddlePrefixed = root->fFiddle + "_" + ref;
+            auto topicIter = fBmhParser.fTopicMap.find(fiddlePrefixed);
+            if (topicIter != fBmhParser.fTopicMap.end()) {
+                return topicIter->second;
             }
         } while ((test = test->fParent));
     }
@@ -566,12 +648,12 @@ string MdOut::linkName(const Definition* ref) const {
 // for now, hard-code to html links
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
-        const string& ref) const {
-    string buildup;
+        const string& ref, BmhParser::Resolvable resolvable) const {
+	string buildup;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
     size_t under = str->find('_');
-    Definition* curRoot = fRoot;
+    const Definition* curRoot = fRoot;
     string classPart = string::npos != under ? str->substr(0, under) : *str;
     bool classMatch = curRoot->fName == classPart;
     while (curRoot->fParent) {
@@ -617,7 +699,32 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
-    return leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
+    string result = leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
+	if (BmhParser::Resolvable::kClone == resolvable && MarkType::kMethod == def->fMarkType &&
+			def->fCloned && !def->fClone) {
+		bool found = false;
+		string match = def->fName;
+		if ("()" == match.substr(match.length() - 2)) {
+			match = match.substr(0, match.length() - 2);
+		}
+		match += '_';
+		auto classIter = fBmhParser.fClassMap.find(classPart);
+		if (fBmhParser.fClassMap.end() != classIter) {
+			for (char num = '2'; num <= '9'; ++num) {
+				string clone = match + num;
+				const auto& leafIter = classIter->second.fLeaves.find(clone);
+				if (leafIter != classIter->second.fLeaves.end()) {
+					result += "<sup><a href=\"" + buildup + "_" + num + "\">[" + num + "]</a></sup>";
+					found = true;
+				}
+			}
+
+		}
+		if (!found) {
+			SkDebugf("");  // convenient place to set a breakpoint
+		}
+	}
+	return result;
 }
 
 void MdOut::markTypeOut(Definition* def) {
@@ -627,35 +734,46 @@ void MdOut::markTypeOut(Definition* def) {
             (!def->fParent || MarkType::kConst != def->fParent->fMarkType) &&
             TableState::kNone != fTableState) {
         this->writePending();
-        fprintf(fOut, "</table>");
+        FPRINTF("</table>");
         this->lf(2);
         fTableState = TableState::kNone;
     }
     switch (def->fMarkType) {
         case MarkType::kAlias:
             break;
-        case MarkType::kAnchor:
-            break;
+        case MarkType::kAnchor: {
+            if (fColumn > 0) {
+                this->writeSpace();
+            }
+            this->writePending();
+            TextParser parser(def);
+            const char* start = parser.fChar;
+            parser.skipToEndBracket(" # ");
+            string anchorText(start, parser.fChar - start);
+            parser.skipExact(" # ");
+            string anchorLink(parser.fChar, parser.fEnd - parser.fChar);
+            FPRINTF("<a href=\"%s\">%s", anchorLink.c_str(), anchorText.c_str());
+            } break;
         case MarkType::kBug:
             break;
         case MarkType::kClass:
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Class %s", this->linkName(def).c_str(),
+            FPRINTF("<a name=\"%s\"></a> Class %s", this->linkName(def).c_str(),
                     def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kCode:
             this->lfAlways(2);
-            fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
+            FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                     "width: 62.5em; background-color: #f0f0f0\">");
             this->lf(1);
             break;
         case MarkType::kColumn:
             this->writePending();
             if (fInList) {
-                fprintf(fOut, "    <td>");
+                FPRINTF("    <td>");
             } else {
-                fprintf(fOut, "| ");
+                FPRINTF("| ");
             }
             break;
         case MarkType::kComment:
@@ -663,7 +781,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kConst: {
             if (TableState::kNone == fTableState) {
                 this->mdHeaderOut(3);
-                fprintf(fOut, "Constants\n"
+                FPRINTF("Constants\n"
                         "\n"
                         "<table>");
                 fTableState = TableState::kRow;
@@ -671,19 +789,19 @@ void MdOut::markTypeOut(Definition* def) {
             }
             if (TableState::kRow == fTableState) {
                 this->writePending();
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
                 fTableState = TableState::kColumn;
             }
             this->writePending();
-            fprintf(fOut, "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
+            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
                     def->fFiddle.c_str(), def->fName.c_str());
             const char* lineEnd = strchr(textStart, '\n');
             SkASSERT(lineEnd < def->fTerminator);
             SkASSERT(lineEnd > textStart);
             SkASSERT((int) (lineEnd - textStart) == lineEnd - textStart);
-            fprintf(fOut, "<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
-            fprintf(fOut, "<td>");
+            FPRINTF("<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
+            FPRINTF("<td>");
             textStart = lineEnd;
         } break;
         case MarkType::kDefine:
@@ -695,21 +813,21 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kDescription:
             fInDescription = true;
             this->writePending();
-            fprintf(fOut, "<div>");
+            FPRINTF("<div>");
             break;
         case MarkType::kDoxygen:
+            break;
+        case MarkType::kDuration:
             break;
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
+            FPRINTF("<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(2);
-            break;
-        case MarkType::kError:
             break;
         case MarkType::kExample: {
             this->mdHeaderOut(3);
-            fprintf(fOut, "Example\n"
+            FPRINTF("Example\n"
                             "\n");
             fHasFiddle = true;
             bool showGpu = false;
@@ -724,20 +842,22 @@ void MdOut::markTypeOut(Definition* def) {
                 }
             }
             if (fHasFiddle) {
-                fprintf(fOut, "<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
+                SkASSERT(def->fHash.length() > 0);
+                FPRINTF("<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
                 if (showGpu) {
-                    fprintf(fOut, "gpu=\"true\"");
+                    FPRINTF(" gpu=\"true\"");
                     if (gpuAndCpu) {
-                        fprintf(fOut, "cpu=\"true\"");
+                        FPRINTF(" cpu=\"true\"");
                     }
                 }
-                fprintf(fOut, ">");
+                FPRINTF(">");
             } else {
-                fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em; font-size: 13px"
+                SkASSERT(def->fHash.length() == 0);
+                FPRINTF("<pre style=\"padding: 1em 1em 1em 1em; font-size: 13px"
                         " width: 62.5em; background-color: #f0f0f0\">");
                 this->lfAlways(1);
                 if (def->fWrapper.length() > 0) {
-                    fprintf(fOut, "%s", def->fWrapper.c_str());
+                    FPRINTF("%s", def->fWrapper.c_str());
                 }
                 fRespectLeadingSpace = true;
             }
@@ -756,14 +876,18 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kImage:
             break;
+        case MarkType::kIn:
+            break;
         case MarkType::kLegend:
+            break;
+        case MarkType::kLine:
             break;
         case MarkType::kLink:
             break;
         case MarkType::kList:
             fInList = true;
             this->lfAlways(2);
-            fprintf(fOut, "<table>");
+            FPRINTF("<table>");
             this->lf(1);
             break;
         case MarkType::kLiteral:
@@ -777,7 +901,7 @@ void MdOut::markTypeOut(Definition* def) {
             tp.skipWhiteSpace();
             const char* end = tp.trimmedBracketEnd('\n');
             this->lfAlways(2);
-            fprintf(fOut, "<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
+            FPRINTF("<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
                     def->fFiddle.c_str(), (int) (end - tp.fChar), tp.fChar);
             this->lf(2);
             } break;
@@ -785,19 +909,19 @@ void MdOut::markTypeOut(Definition* def) {
             string method_name = def->methodName();
             string formattedStr = def->formatFunction();
 
-            if (!def->isClone()) {
-                this->lfAlways(2);
-                fprintf(fOut, "<a name=\"%s\"></a>", def->fFiddle.c_str());
+			this->lfAlways(2);
+			FPRINTF("<a name=\"%s\"></a>", def->fFiddle.c_str());
+			if (!def->isClone()) {
                 this->mdHeaderOutLF(2, 1);
-                fprintf(fOut, "%s", method_name.c_str());
-                this->lf(2);
-            }
+                FPRINTF("%s", method_name.c_str());
+			}
+			this->lf(2);
 
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
             // TODO: 50em below should match limit = 80 in formatFunction()
             this->writePending();
             string preformattedStr = preformat(formattedStr);
-            fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
+            FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                                     "width: 62.5em; background-color: #f0f0f0\">\n"
                             "%s\n"
                             "</pre>",  preformattedStr.c_str());
@@ -821,7 +945,7 @@ void MdOut::markTypeOut(Definition* def) {
                 fTableState = TableState::kRow;
             }
             if (TableState::kRow == fTableState) {
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
                 fTableState = TableState::kColumn;
             }
@@ -845,11 +969,23 @@ void MdOut::markTypeOut(Definition* def) {
         } break;
         case MarkType::kPlatform:
             break;
+        case MarkType::kPopulate: {
+            SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
+            string name = def->fParent->fName;
+            if (kSubtopics == name) {
+                this->subtopicsOut();
+            } else {
+                SkASSERT(kClassesAndStructs == name || kConstants == name || kConstructors == name
+                        || kMemberFunctions == name || kMembers == name || kOperators == name
+                        || kRelatedFunctions == name);
+                this->subtopicOut(this->populator(name.c_str()));
+            }
+            } break;
         case MarkType::kPrivate:
             break;
         case MarkType::kReturn:
             this->mdHeaderOut(3);
-            fprintf(fOut, "Return Value");
+            FPRINTF("Return Value");
             if (!this->checkParamReturnBody(def)) {
                 return;
             }
@@ -857,14 +993,16 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kRow:
             if (fInList) {
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
             }
             break;
         case MarkType::kSeeAlso:
             this->mdHeaderOut(3);
-            fprintf(fOut, "See Also");
+            FPRINTF("See Also");
             this->lf(2);
+            break;
+        case MarkType::kSet:
             break;
         case MarkType::kStdOut: {
             TextParser code(def);
@@ -877,23 +1015,23 @@ void MdOut::markTypeOut(Definition* def) {
             code.skipSpace();
             while (!code.eof()) {
                 const char* end = code.trimmedLineEnd();
-                fprintf(fOut, "%.*s\n", (int) (end - code.fChar), code.fChar);
+                FPRINTF("%.*s\n", (int) (end - code.fChar), code.fChar);
                 code.skipToLineStart();
             }
-            fprintf(fOut, "~~~~");
+            FPRINTF("~~~~");
             this->lf(2);
             } break;
         case MarkType::kStruct:
             fRoot = def->asRoot();
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
+            FPRINTF("<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
+            FPRINTF("<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
             this->lf(2);
             break;
         case MarkType::kTable:
@@ -909,7 +1047,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kTopic:
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> %s", this->linkName(def).c_str(),
+            FPRINTF("<a name=\"%s\"></a> %s", this->linkName(def).c_str(),
                     printable.c_str());
             this->lf(1);
             break;
@@ -932,23 +1070,28 @@ void MdOut::markTypeOut(Definition* def) {
     }
     this->childrenOut(def, textStart);
     switch (def->fMarkType) {  // post child work, at least for tables
+        case MarkType::kAnchor:
+            if (fColumn > 0) {
+                this->writeSpace();
+            }
+            break;
         case MarkType::kCode:
             this->writePending();
-            fprintf(fOut, "</pre>");
+            FPRINTF("</pre>");
             this->lf(2);
             break;
         case MarkType::kColumn:
             if (fInList) {
                 this->writePending();
-                fprintf(fOut, "</td>");
+                FPRINTF("</td>");
                 this->lf(1);
             } else {
-                fprintf(fOut, " ");
+                FPRINTF(" ");
             }
             break;
         case MarkType::kDescription:
             this->writePending();
-            fprintf(fOut, "</div>");
+            FPRINTF("</div>");
             fInDescription = false;
             break;
         case MarkType::kEnum:
@@ -958,22 +1101,26 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kExample:
             this->writePending();
             if (fHasFiddle) {
-                fprintf(fOut, "</fiddle-embed></div>");
+                FPRINTF("</fiddle-embed></div>");
             } else {
                 this->lfAlways(1);
                 if (def->fWrapper.length() > 0) {
-                    fprintf(fOut, "}");
+                    FPRINTF("}");
                     this->lfAlways(1);
                 }
-                fprintf(fOut, "</pre>");
+                FPRINTF("</pre>");
             }
             this->lf(2);
             fRespectLeadingSpace = false;
             break;
+        case MarkType::kLink:
+            this->writeString("</a>");
+            this->writeSpace();
+            break;
         case MarkType::kList:
             fInList = false;
             this->writePending();
-            fprintf(fOut, "</table>");
+            FPRINTF("</table>");
             this->lf(2);
             break;
         case MarkType::kLegend: {
@@ -984,15 +1131,15 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(columnCount > 0);
             this->writePending();
             for (size_t index = 0; index < columnCount; ++index) {
-                fprintf(fOut, "| --- ");
+                FPRINTF("| --- ");
             }
-            fprintf(fOut, " |");
+            FPRINTF(" |");
             this->lf(1);
             } break;
         case MarkType::kMethod:
             fMethod = nullptr;
             this->lfAlways(2);
-            fprintf(fOut, "---");
+            FPRINTF("---");
             this->lf(2);
             break;
         case MarkType::kConst:
@@ -1000,8 +1147,8 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(TableState::kColumn == fTableState);
             fTableState = TableState::kRow;
             this->writePending();
-            fprintf(fOut, "</td>\n");
-            fprintf(fOut, "  </tr>");
+            FPRINTF("</td>\n");
+            FPRINTF("  </tr>");
             this->lf(1);
             break;
         case MarkType::kReturn:
@@ -1010,9 +1157,9 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kRow:
             if (fInList) {
-                fprintf(fOut, "  </tr>");
+                FPRINTF("  </tr>");
             } else {
-                fprintf(fOut, "|");
+                FPRINTF("|");
             }
             this->lf(1);
             break;
@@ -1032,9 +1179,60 @@ void MdOut::markTypeOut(Definition* def) {
 void MdOut::mdHeaderOutLF(int depth, int lf) {
     this->lfAlways(lf);
     for (int index = 0; index < depth; ++index) {
-        fprintf(fOut, "#");
+        FPRINTF("#");
     }
-    fprintf(fOut, " ");
+    FPRINTF(" ");
+}
+
+void MdOut::populateTables(const Definition* def) {
+    const Definition* csParent = this->csParent();
+    for (auto child : def->fChildren) {
+        if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType) {
+            bool legacyTopic = fPopulators.end() != fPopulators.find(child->fName);
+            if (!legacyTopic && child->fName != kOverview) {
+                this->populator(kRelatedFunctions).push_back(child);
+            }
+            this->populateTables(child);
+            continue;
+        }
+        if (child->isStructOrClass()) {
+            if (fClassStack.size() > 0) {
+                this->populator(kClassesAndStructs).push_back(child);
+            }
+            fClassStack.push_back(child);
+            this->populateTables(child);
+            fClassStack.pop_back();
+            continue;
+        }
+        if (MarkType::kEnum == child->fMarkType || MarkType::kEnumClass == child->fMarkType) {
+            this->populator(kConstants).push_back(child);
+            continue;
+        }
+        if (MarkType::kMember == child->fMarkType) {
+            this->populator(kMembers).push_back(child);
+            continue;
+        }
+        if (MarkType::kMethod != child->fMarkType) {
+            continue;
+        }
+        if (child->fClone) {
+            continue;
+        }
+        if (Definition::MethodType::kConstructor == child->fMethodType
+                || Definition::MethodType::kDestructor == child->fMethodType) {
+            this->populator(kConstructors).push_back(child);
+            continue;
+        }
+        if (Definition::MethodType::kOperator == child->fMethodType) {
+            this->populator(kOperators).push_back(child);
+            continue;
+        }
+        this->populator(kMemberFunctions).push_back(child);
+        if (csParent && (0 == child->fName.find(csParent->fName + "::Make")
+                || 0 == child->fName.find(csParent->fName + "::make"))) {
+            this->populator(kConstructors).push_back(child);
+        }
+    }
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
@@ -1079,22 +1277,28 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
             paragraph.skipToEndBracket('\n');
             ptrdiff_t lineLength = paragraph.fChar - contentStart;
             if (lineLength) {
-                this->writePending();
-                fprintf(fOut, "%.*s", (int) lineLength, contentStart);
+                while (lineLength && contentStart[lineLength - 1] <= ' ') {
+                    --lineLength;
+                }
+                string str(contentStart, lineLength);
+                this->writeString(str.c_str());
             }
+#if 0
             int linefeeds = 0;
             while (lineLength > 0 && '\n' == contentStart[--lineLength]) {
+
                 ++linefeeds;
             }
             if (lineLength > 0) {
                 this->nl();
             }
             fLinefeeds += linefeeds;
+#endif
             if (paragraph.eof()) {
                 break;
             }
             if ('\n' == paragraph.next()) {
-                linefeeds = 1;
+                int linefeeds = 1;
                 if (!paragraph.eof() && '\n' == paragraph.peek()) {
                     linefeeds = 2;
                 }
@@ -1103,9 +1307,68 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
         }
 #if 0
         while (end > start && end[0] == '\n') {
-            fprintf(fOut, "\n");
+            FPRINTF("\n");
             --end;
         }
 #endif
+    }
+}
+
+void MdOut::rowOut(const char* name, const string& description) {
+    this->lfAlways(1);
+    FPRINTF("| ");
+    this->resolveOut(name, name + strlen(name), BmhParser::Resolvable::kYes);
+    FPRINTF(" | ");
+    this->resolveOut(&description.front(), &description.back() + 1, BmhParser::Resolvable::kYes);
+    FPRINTF(" |");
+    this->lf(1);
+}
+
+void MdOut::subtopicsOut() {
+    const Definition* csParent = this->csParent();
+    SkASSERT(csParent);
+    this->rowOut("name", "description");
+    this->rowOut("---", "---");
+    for (auto item : { kClassesAndStructs, kConstants, kConstructors, kMemberFunctions,
+            kMembers, kOperators, kRelatedFunctions } ) {
+        for (auto entry : this->populator(item)) {
+            if (entry->csParent() == csParent) {
+                string description = fPopulators.find(item)->second.fDescription;
+                if (kConstructors == item) {
+                    description += " " + csParent->fName;
+                }
+                this->rowOut(item, description);
+                break;
+            }
+        }
+    }
+}
+
+void MdOut::subtopicOut(vector<const Definition*>& data) {
+    const Definition* csParent = this->csParent();
+    SkASSERT(csParent);
+    fRoot = csParent->asRoot();
+    this->rowOut("name", "description");
+    this->rowOut("---", "---");
+    std::map<string, const Definition*> items;
+    for (auto entry : data) {
+        if (entry->csParent() != csParent) {
+            continue;
+        }
+        size_t start = entry->fName.find_last_of("::");
+        string name = entry->fName.substr(string::npos == start ? 0 : start + 1);
+        items[name] = entry;
+    }
+    for (auto entry : items) {
+        const Definition* oneLiner = nullptr;
+        for (auto child : entry.second->fChildren) {
+            if (MarkType::kLine == child->fMarkType) {
+                oneLiner = child;
+                break;
+            }
+        }
+        SkASSERT(oneLiner);
+        this->rowOut(entry.first.c_str(), string(oneLiner->fContentStart,
+            oneLiner->fContentEnd - oneLiner->fContentStart));
     }
 }

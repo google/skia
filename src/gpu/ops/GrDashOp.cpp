@@ -17,6 +17,7 @@
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGr.h"
+#include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -88,6 +89,9 @@ struct DashCircleVertex {
 static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
                             const SkMatrix& viewMatrix, const SkPoint pts[2]) {
     SkVector vecSrc = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vecSrc.set(1.0, 0.0);
+    }
     SkScalar magSrc = vecSrc.length();
     SkScalar invSrc = magSrc ? SkScalarInvert(magSrc) : 0;
     vecSrc.scale(invSrc);
@@ -107,6 +111,9 @@ static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 // Stores the rotation matrix in rotMatrix, and the mapped points in ptsRot
 static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
     SkVector vec = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vec.set(1.0, 0.0);
+    }
     SkScalar mag = vec.length();
     SkScalar inv = mag ? SkScalarInvert(mag) : 0;
 
@@ -175,7 +182,7 @@ void setup_dashed_rect_common(const SkRect& rect, const SkMatrix& matrix, T* ver
     vertices[idx + 2].fPos = SkPoint::Make(rect.fRight, rect.fTop);
     vertices[idx + 3].fPos = SkPoint::Make(rect.fRight, rect.fBottom);
 
-    matrix.mapPointsWithStride(&vertices[idx].fPos, sizeof(T), 4);
+    SkMatrixPriv::MapPointsWithStride(matrix, &vertices[idx].fPos, sizeof(T), 4);
 }
 
 static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
@@ -489,6 +496,19 @@ private:
                         lineDone = true;
                     }
                 }
+            }
+
+            if (draw.fPtsRot[0].fX == draw.fPtsRot[1].fX &&
+                (0 != endAdj || 0 == startAdj) &&
+                hasCap) {
+                // At this point the fPtsRot[0]/[1] represent the start and end of the inner rect of
+                // dashes that we want to draw. The only way they can be equal is if the on interval
+                // is zero (or an edge case if the end of line ends at a full off interval, but this
+                // is handled as well). Thus if the on interval is zero then we need to draw a cap
+                // at this position if the stroke has caps. The spec says we only draw this point if
+                // point lies between [start of line, end of line). Thus we check if we are at the
+                // end (but not the start), and if so we don't draw the cap.
+                lineDone = false;
             }
 
             if (startAdj != 0) {
@@ -890,12 +910,12 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(dce);
 
     // XY are dashPos, Z is dashInterval
-    GrGLSLVertToFrag dashParams(kHalf3_GrSLType);
+    GrGLSLVarying dashParams(kHalf3_GrSLType);
     varyingHandler->addVarying("DashParam", &dashParams);
     vertBuilder->codeAppendf("%s = %s;", dashParams.vsOut(), dce.inDashParams()->fName);
 
     // x refers to circle radius - 0.5, y refers to cicle's center x coord
-    GrGLSLVertToFrag circleParams(kHalf2_GrSLType);
+    GrGLSLVarying circleParams(kHalf2_GrSLType);
     varyingHandler->addVarying("CircleParams", &circleParams);
     vertBuilder->codeAppendf("%s = %s;", circleParams.vsOut(), dce.inCircleParams()->fName);
 
@@ -910,8 +930,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         dce.inPosition()->fName,
+                         dce.inPosition()->asShaderVar(),
                          dce.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -1093,13 +1112,13 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(de);
 
     // XY refers to dashPos, Z is the dash interval length
-    GrGLSLVertToFrag inDashParams(kFloat3_GrSLType);
+    GrGLSLVarying inDashParams(kFloat3_GrSLType);
     varyingHandler->addVarying("DashParams", &inDashParams);
     vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
-    GrGLSLVertToFrag inRectParams(kFloat4_GrSLType);
+    GrGLSLVarying inRectParams(kFloat4_GrSLType);
     varyingHandler->addVarying("RectParams", &inRectParams);
     vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
@@ -1114,8 +1133,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         de.inPosition()->fName,
+                         de.inPosition()->asShaderVar(),
                          de.localMatrix(),
                          args.fFPCoordTransformHandler);
 

@@ -255,7 +255,7 @@ protected:
     GrGradientEffect(ClassID classID, const CreateArgs&, bool isOpaque);
     explicit GrGradientEffect(const GrGradientEffect&);  // facilitates clone() implementations
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     // Helper function used by derived class factories to handle color space transformation and
     // modulation by input alpha.
@@ -280,7 +280,7 @@ protected:
         } else {
             fp = std::move(gradientFP);
         }
-        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
     }
 
 #if GR_TEST_UTILS
@@ -291,7 +291,7 @@ protected:
         the gradient factory. (The constructor may decide not to use stops, in which case fStops
         will be nullptr). */
     struct RandomGradientParams {
-        static const int kMaxRandomGradientColors = 5;
+        static constexpr int kMaxRandomGradientColors = 5;
 
         RandomGradientParams(SkRandom* r);
 
@@ -338,6 +338,7 @@ private:
     PremulType            fPremulType; // This is already baked into the table for texture
                                        // gradients, and only changes behavior for gradients
                                        // that don't use a texture.
+
     typedef GrFragmentProcessor INHERITED;
 
 };

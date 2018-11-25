@@ -67,7 +67,11 @@ void GrOpList::endFlush() {
 
 void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
         fDeferredProxies[i]->instantiate(resourceProvider);
+#else
+        SkASSERT(fDeferredProxies[i]->priv().isInstantiated());
+#endif
     }
 }
 

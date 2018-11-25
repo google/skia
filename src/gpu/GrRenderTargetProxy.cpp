@@ -26,7 +26,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fSampleCnt > 0) {
+    if (caps.usesMixedSamples() && fSampleCnt > 1) {
         fRenderTargetFlags |= GrRenderTargetFlags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
@@ -34,12 +34,24 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
     }
 }
 
+// Lazy-callback version
+GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
+                                         const GrSurfaceDesc& desc,
+                                         SkBackingFit fit, SkBudgeted budgeted,
+                                         uint32_t flags)
+        : INHERITED(std::move(callback), desc, fit, budgeted, flags)
+        , fSampleCnt(desc.fSampleCnt)
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
+    SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
+}
+
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
-    : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-    , fNeedsStencil(false)
-    , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
+        : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
+        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
@@ -49,6 +61,9 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (LazyState::kNot != this->lazyInstantiationState()) {
+        return false;
+    }
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kFlags,
@@ -82,11 +97,15 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
 }
 
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
-    int colorSamplesPerPixel = this->numColorSamples() + 1;
+    int colorSamplesPerPixel = this->numColorSamples();
+    if (colorSamplesPerPixel > 1) {
+        // Add one for the resolve buffer.
+        ++colorSamplesPerPixel;
+    }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, GrMipMapped::kNo,
-                                  SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+                                  colorSamplesPerPixel, GrMipMapped::kNo, !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 in half4 circleRect;
 in half textureRadius;
 in half solidRadius;
@@ -13,12 +20,8 @@ uniform half4 circleData;
     kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
-@constructorParams {
-    GrResourceProvider* resourceProvider
-}
-
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider*,
                                                      const SkRect& circle, float sigma);
 }
 
@@ -28,7 +31,7 @@ uniform half4 circleData;
 }
 
 @cpp {
-    #include "GrResourceProvider.h"
+    #include "GrProxyProvider.h"
 
     // Computes an unnormalized half kernel (right side). Returns the summation of all the half
     // kernel values.
@@ -184,11 +187,14 @@ uniform half4 circleData;
         return profile;
     }
 
-    static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resourceProvider,
+    static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvider,
                                                         const SkRect& circle,
                                                         float sigma,
                                                         float* solidRadius, float* textureRadius) {
         float circleR = circle.width() / 2.0f;
+        if (circleR < SK_ScalarNearlyZero) {
+            return nullptr;
+        }
         // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
         // profile texture (binned by powers of 2).
         SkScalar sigmaToCircleRRatio = sigma / circleR;
@@ -224,7 +230,7 @@ uniform half4 circleData;
         builder.finish();
 
         sk_sp<GrTextureProxy> blurProfile =
-                      resourceProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
+                      proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
         if (!blurProfile) {
             static constexpr int kProfileTextureWidth = 512;
             GrSurfaceDesc texDesc;
@@ -243,30 +249,30 @@ uniform half4 circleData;
                                                     kProfileTextureWidth));
             }
 
-            blurProfile = GrSurfaceProxy::MakeDeferred(resourceProvider,
-                                                       texDesc, SkBudgeted::kYes, profile.get(), 0);
+            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes,
+                                                            profile.get(), 0);
             if (!blurProfile) {
                 return nullptr;
             }
 
             SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
-            resourceProvider->assignUniqueKeyToProxy(key, blurProfile.get());
+            proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
         }
 
         return blurProfile;
     }
 
     std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
-            GrResourceProvider* resourceProvider, const SkRect& circle, float sigma) {
+            GrProxyProvider* proxyProvider, const SkRect& circle, float sigma) {
         float solidRadius;
         float textureRadius;
-        sk_sp<GrTextureProxy> profile(create_profile_texture(resourceProvider, circle, sigma,
+        sk_sp<GrTextureProxy> profile(create_profile_texture(proxyProvider, circle, sigma,
                                                              &solidRadius, &textureRadius));
         if (!profile) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
-                circle, textureRadius, solidRadius, std::move(profile), resourceProvider));
+                circle, textureRadius, solidRadius, std::move(profile)));
     }
 }
 
@@ -283,5 +289,5 @@ void main() {
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f,10.f);
     SkRect circle = SkRect::MakeWH(wh, wh);
-    return GrCircleBlurFragmentProcessor::Make(testData->resourceProvider(), circle, sigma);
+    return GrCircleBlurFragmentProcessor::Make(testData->proxyProvider(), circle, sigma);
 }

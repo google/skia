@@ -34,14 +34,22 @@ static void init_skia(int w, int h) {
 
     GrGLFramebufferInfo framebufferInfo;
     framebufferInfo.fFBOID = 0;  // assume default framebuffer
+    // We are always using OpenGL and we use RGBA8 internal format for both RGBA and BGRA configs in
+    // OpenGL.
+    framebufferInfo.fFormat = GR_GL_RGBA8;
+    SkColorType colorType;
+    if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
+        colorType = kRGBA_8888_SkColorType;
+    } else {
+        colorType = kBGRA_8888_SkColorType;
+    }
     GrBackendRenderTarget backendRenderTarget(w, h,
                                               0, // sample count
                                               0, // stencil bits
-                                              kSkia8888_GrPixelConfig,
                                               framebufferInfo);
 
     sSurface = SkSurface::MakeFromBackendRenderTarget(sContext, backendRenderTarget,
-                                                      kBottomLeft_GrSurfaceOrigin,
+                                                      kBottomLeft_GrSurfaceOrigin, colortype,
                                                       nullptr, nullptr).release();
 }
 
@@ -83,7 +91,7 @@ int main(void) {
     float       times[32];
     int         currentTime;
 
-    sk_sp<SkData> imageData(SkData::MakeFromFileName("ship.png"));
+    sk_sp<SkData> imageData(SkData::MakeFromFileName("images/ship.png"));
     atlas.reset(SkImage::NewFromEncoded(imageData.get()));
     if (!atlas) {
         SkDebugf("\nCould not decode file ship.png\n");

@@ -10,7 +10,6 @@
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -50,31 +49,37 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
         return false;
     }
 
-    const uint8_t* data = marker->data;
     constexpr uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
-    if (memcmp(data, kExifSig, sizeof(kExifSig))) {
+    if (memcmp(marker->data, kExifSig, sizeof(kExifSig))) {
         return false;
     }
 
+    // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
+    constexpr size_t kOffset = 6;
+    return is_orientation_marker(marker->data + kOffset, marker->data_length - kOffset,
+            orientation);
+}
+
+bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation) {
     bool littleEndian;
-    if (!is_valid_endian_marker(data + 6, &littleEndian)) {
+    if (!is_valid_endian_marker(data, &littleEndian)) {
         return false;
     }
 
     // Get the offset from the start of the marker.
-    // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
-    uint32_t offset = get_endian_int(data + 10, littleEndian);
-    offset += sizeof(kExifSig) + 1;
+    // Though this only reads four bytes, use a larger int in case it overflows.
+    uint64_t offset = get_endian_int(data + 4, littleEndian);
 
     // Require that the marker is at least large enough to contain the number of entries.
-    if (marker->data_length < offset + 2) {
+    if (data_length < offset + 2) {
         return false;
     }
     uint32_t numEntries = get_endian_short(data + offset, littleEndian);
 
     // Tag (2 bytes), Datatype (2 bytes), Number of elements (4 bytes), Data (4 bytes)
     const uint32_t kEntrySize = 12;
-    numEntries = SkTMin(numEntries, (marker->data_length - offset - 2) / kEntrySize);
+    const auto max = SkTo<uint32_t>((data_length - offset - 2) / kEntrySize);
+    numEntries = SkTMin(numEntries, max);
 
     // Advance the data to the start of the entries.
     data += offset + 2;
@@ -192,7 +197,8 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
-    if (setjmp(decoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return decoderMgr->returnFailure("ReadHeader", kInvalidInput);
     }
 
@@ -449,7 +455,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
  * dimensions if possible
  */
 bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFalse("onDimensionsSupported");
     }
 
@@ -488,7 +495,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
 int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
                           const Options& opts) {
     // Set the jump location for libjpeg-turbo errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return 0;
     }
 
@@ -555,7 +563,7 @@ static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorTy
         return false;
     }
 
-    bool hasCMYKColorSpace = as_CSB(srcInfo.colorSpace())->onIsCMYK();
+    bool hasCMYKColorSpace = SkColorSpace::kCMYK_Type ==  srcInfo.colorSpace()->type();
     return !hasCMYKColorSpace || !hasColorSpaceXform;
 }
 
@@ -575,7 +583,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
 
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
@@ -679,7 +688,8 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options) {
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");
         return kInvalidInput;
     }
@@ -755,7 +765,8 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
 
 bool SkJpegCodec::onSkipScanlines(int count) {
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFalse("onSkipScanlines");
     }
 
@@ -852,7 +863,8 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
     }
 
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 

@@ -65,9 +65,9 @@ name and contact info to the AUTHORS file as a part of your CL.
 Now that you've made a change and written a test for it, it's ready for the code
 review! Submit a patch and getting it reviewed is fairly easy with depot tools.
 
-Use git-cl, which comes with [depot
+Use `git-cl`, which comes with [depot
 tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
-For help, run git-cl help.
+For help, run `git cl help`.
 
 ### Find a reviewer
 
@@ -78,7 +78,7 @@ has been editing it.
 ### Uploading changes for review
 
 Skia uses the Gerrit code review tool. Skia's instance is [skia-review](http://skia-review.googlesource.com).
-Use git cl to upload your change:
+Use `git cl` to upload your change:
 
 <!--?prettify lang=sh?-->
 
@@ -99,11 +99,11 @@ Skia's trybots allow testing and verification of changes before they land in the
 repo. You need to have permission to trigger try jobs; if you need permission,
 ask a committer. After uploading your CL to [Gerrit](https://skia-review.googlesource.com/),
 you may trigger a try job for any job listed in tasks.json, either via the
-Gerrit UI, using "git cl try", eg.
+Gerrit UI, using `git cl try`, eg.
 
     git cl try -B skia.primary -b Some-Tryjob-Name
 
-or using bin/try, a small wrapper for "git cl try" which helps to choose try jobs.
+or using bin/try, a small wrapper for `git cl try` which helps to choose try jobs.
 From a Skia checkout:
 
     bin/try --list
@@ -125,7 +125,7 @@ at it.
 
 _Note_: If you don't see editing commands on the review page, click **Sign in**
 in the upper right. _Hint_: You can add -r reviewer@example.com --send-mail to
-send the email directly when uploading a change using git-cl.
+send the email directly when uploading a change using `git-cl`.
 
 
 The review process
@@ -155,8 +155,8 @@ code, commit it again locally, and then run git cl upload again e.g.
     git cl upload
 
 Once you're ready for another review, use **Reply** again to send another
-notification (it is helpful to tell the review what you did with respect to each
-of their comments). When the reviewer is happy with your patch, they will
+notification (it is helpful to tell the reviewer what you did with respect to 
+each of their comments). When the reviewer is happy with your patch, they will
 approve your change by setting the Code-Review label to "+1".
 
 _Note_: As you work through the review process, both you and your reviewers
@@ -176,7 +176,7 @@ Final Testing
 
 Skia's principal downstream user is Chromium, and any change to Skia rendering
 output can break Chromium. If your change alters rendering in any way, you are
-expected to test for and alleviate this. (You may be able to find a Skia team
+expected to test for and alleviate this. You may be able to find a Skia team
 member to help you, but the onus remains on each individual contributor to avoid
 breaking Chrome.
 
@@ -219,7 +219,7 @@ adjustments at his/her discretion).  If so, you can mark your change as
   *  when landing externally contributed patches, please note the original
      contributor's identity (and provide a link to the original codereview) in the commit message
 
-    git-cl will squash all your commits into a single one with the description you used when you uploaded your change.
+    `git-cl` will squash all your commits into a single one with the description you used when you uploaded your change.
 
     ~~~~
     git cl land

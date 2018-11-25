@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkWGL.h"
 
@@ -126,6 +126,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                   int formatCount,
                                   HDC dc,
                                   int desiredSampleCount) const {
+    SkASSERT(desiredSampleCount >= 1);
     if (formatCount <= 0) {
         return -1;
     }
@@ -146,7 +147,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                      &kQueryAttr,
                                      &numSamples);
         rankedFormats[i].fFormat =  formats[i];
-        rankedFormats[i].fSampleCnt = numSamples;
+        rankedFormats[i].fSampleCnt = SkTMax(1, numSamples);
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
     SkTQSort(rankedFormats.begin(),
@@ -158,6 +159,10 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                               sizeof(PixelFormat));
     if (idx < 0) {
         idx = ~idx;
+    }
+    // If the caller asked for non-MSAA fail if the closest format has MSAA.
+    if (desiredSampleCount == 1 && rankedFormats[idx].fSampleCnt != 1) {
+        return -1;
     }
     return rankedFormats[idx].fFormat;
 }
@@ -381,7 +386,7 @@ static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
                 SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
                 0,
             };
-            for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
+            for (size_t v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
                 coreProfileAttribs[1] = kCoreGLVersions[2 * v];
                 coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
                 glrc = extensions.createContextAttribs(dc, shareContext, coreProfileAttribs);
@@ -423,7 +428,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
 
     int pixelFormatsToTry[] = { -1, -1 };
     get_pixel_formats_to_try(dc, extensions, true, msaaSampleCount, deepColor, pixelFormatsToTry);
-    for (int f = 0;
+    for (size_t f = 0;
          !set && -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry);
          ++f) {
         PIXELFORMATDESCRIPTOR pfd;
@@ -503,4 +508,4 @@ SkWGLPbufferContext::SkWGLPbufferContext(HPBUFFER pbuffer, HDC dc, HGLRC glrc)
     , fGLRC(glrc) {
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

@@ -540,6 +540,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
                                       SkScalar tolScale,
                                       SkTArray<SkPoint, true>* quads) {
+    if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
+        return;
+    }
     SkPoint chopped[10];
     int count = SkChopCubicAtInflections(p, chopped);
 
@@ -557,6 +560,9 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                                          SkScalar tolScale,
                                                          SkPathPriv::FirstDirection dir,
                                                          SkTArray<SkPoint, true>* quads) {
+    if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
+        return;
+    }
     SkPoint chopped[10];
     int count = SkChopCubicAtInflections(p, chopped);
 

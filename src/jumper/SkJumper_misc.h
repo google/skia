@@ -8,12 +8,12 @@
 #ifndef SkJumper_misc_DEFINED
 #define SkJumper_misc_DEFINED
 
-#include "SkJumper.h"  // for memcpy()
+#include <string.h>  // for memcpy()
 
-// Miscellany used by SkJumper_stages.cpp and SkJumper_vectors.h.
+// Miscellany used by SkJumper_stages.cpp and SkJumper_stages_lowp.cpp.
 
 // Every function in this file should be marked static and inline using SI.
-#if defined(JUMPER_IS_OFFLINE)
+#if defined(__clang__)
     #define SI __attribute__((always_inline)) static inline
 #else
     #define SI static inline

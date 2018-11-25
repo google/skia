@@ -82,6 +82,15 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
     return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, idDesc, sb));
 }
 
+GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
+    GrGLFramebufferInfo fbi;
+    fbi.fFBOID = fRTFBOID;
+    fbi.fFormat = this->getGLGpu()->glCaps().configSizedInternalFormat(this->config());
+
+    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+                                 this->numStencilSamples(), fbi);
+}
+
 size_t GrGLRenderTarget::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                   fNumSamplesOwnedPerPixel, GrMipMapped::kNo);
@@ -215,7 +224,7 @@ int GrGLRenderTarget::msaaSamples() const {
     if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
         // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
         // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
-        return SkTMax(1, this->numStencilSamples());
+        return this->numStencilSamples();
     }
 
     // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use

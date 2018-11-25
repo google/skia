@@ -38,7 +38,6 @@
 
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
-#include "SkBlurImageFilter_opts.h"
 #include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
 #include "SkSwizzler_opts.h"
@@ -52,10 +51,6 @@ namespace SkOpts {
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
 #define DEFINE_DEFAULT(name) decltype(name) name = SK_OPTS_NS::name
     DEFINE_DEFAULT(create_xfermode);
-
-    DEFINE_DEFAULT(box_blur_xx);
-    DEFINE_DEFAULT(box_blur_xy);
-    DEFINE_DEFAULT(box_blur_yx);
 
     DEFINE_DEFAULT(dilate_x);
     DEFINE_DEFAULT(dilate_y);

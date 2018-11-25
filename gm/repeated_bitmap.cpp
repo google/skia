@@ -35,9 +35,9 @@ static void draw_rotated_image(SkCanvas* canvas, const SkImage* image) {
 }
 
 DEF_SIMPLE_GM(repeated_bitmap, canvas, 576, 576) {
-    draw_rotated_image(canvas, GetResourceAsImage("randPixels.png").get());
+    draw_rotated_image(canvas, GetResourceAsImage("images/randPixels.png").get());
 }
 
 DEF_SIMPLE_GM(repeated_bitmap_jpg, canvas, 576, 576) {
-    draw_rotated_image(canvas, GetResourceAsImage("color_wheel.jpg").get());
+    draw_rotated_image(canvas, GetResourceAsImage("images/color_wheel.jpg").get());
 }

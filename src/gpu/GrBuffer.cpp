@@ -16,7 +16,7 @@ GrBuffer* GrBuffer::CreateCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType
     if (gpu->caps()->mustClearUploadedBufferData()) {
         cpuData = sk_calloc_throw(sizeInBytes);
     } else {
-        cpuData = sk_malloc_flags(sizeInBytes, SK_MALLOC_THROW);
+        cpuData = sk_malloc_throw(sizeInBytes);
     }
     if (data) {
         memcpy(cpuData, data, sizeInBytes);

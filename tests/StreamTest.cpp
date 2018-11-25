@@ -287,7 +287,26 @@ DEF_TEST(StreamPeek, reporter) {
     test_fully_peekable_stream(reporter, &memStream, memStream.getLength());
 
     // Test an arbitrary file stream. file streams do not support peeking.
-    SkFILEStream fileStream(GetResourcePath("baby_tux.webp").c_str());
+    auto tmpdir = skiatest::GetTmpDir();
+    if (tmpdir.isEmpty()) {
+        ERRORF(reporter, "no tmp dir!");
+        return;
+    }
+    auto path = SkOSPath::Join(tmpdir.c_str(), "file");
+    {
+        SkFILEWStream wStream(path.c_str());
+        constexpr char filename[] = "images/baby_tux.webp";
+        auto data = GetResourceAsData(filename);
+        if (!data || data->size() == 0) {
+            ERRORF(reporter, "resource missing: %s\n", filename);
+            return;
+        }
+        if (!wStream.isValid() || !wStream.write(data->data(), data->size())) {
+            ERRORF(reporter, "error wrtiting to file %s", path.c_str());
+            return;
+        }
+    }
+    SkFILEStream fileStream(path.c_str());
     REPORTER_ASSERT(reporter, fileStream.isValid());
     if (!fileStream.isValid()) {
         return;

@@ -1,72 +1,87 @@
 SkPoint Reference
 ===
 
-# <a name="Vector"></a> Vector
-
 # <a name="Point"></a> Point
 
-# <a name="SkPoint"></a> Struct SkPoint
-
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
-| --- | ---  |
+| name | description |
+| --- | --- |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPoint_Reference#SkPoint">SkPoint</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Members">Members</a> | member values |
+| <a href="#Operators">Operators</a> | operator overloading methods |
+
+# <a name="SkPoint"></a> Struct SkPoint
+
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | --- |
+| <a href="#SkPoint_Make">Make</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs |
 
 ## <a name="Operators"></a> Operators
 
-| description | function |
-| --- | ---  |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> | Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale</a>. |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#Point">Point</a>. |
-| <a href="#SkPoint">SkPoint</a>& <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> | Multiplies <a href="#Point">Point</a> by <a href="#SkPoint_scale">scale</a> factor. |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | Returns <a href="#Point">Point</a> <a href="#SkPoint_offset">offset</a> by <a href="SkPoint_Reference#Vector">Vector</a>. |
-| <a href="SkPoint_Reference#SkVector">SkVector</a> <a href="#SkPoint_subtract_operator">operator-(const SkPoint& a, const SkPoint& b)</a> | Returns <a href="SkPoint_Reference#Vector">Vector</a> between <a href="#Point">Points</a>. |
-| bool <a href="#SkPoint_notequal_operator">operator!=(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are unequal. |
-| bool <a href="#SkPoint_equal_operator">operator==(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are equal. |
-| void <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a> | Adds <a href="SkPoint_Reference#Vector">Vector</a> to <a href="#Point">Point</a>. |
-| void <a href="#SkPoint_subtractfrom_operator">operator-=(const SkVector& v)</a> | Subtracts <a href="SkPoint_Reference#Vector">Vector</a> from <a href="#Point">Point</a>. |
+| name | description |
+| --- | --- |
+| <a href="#SkPoint_notequal_operator">operator!=(const SkPoint& a, const SkPoint& b)</a> | returns true if <a href="#Point">Point</a> are unequal |
+| <a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> | returns <a href="#Point">Point</a> multiplied by scale |
+| <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> | multiplies <a href="#Point">Point</a> by scale factor |
+| <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | returns <a href="#Point">Point</a> offset by <a href="SkPoint_Reference#Vector">Vector</a> |
+| <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a> | adds <a href="SkPoint_Reference#Vector">Vector</a> to <a href="#Point">Point</a> |
+| <a href="#SkPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#Point">Point</a> |
+| <a href="#SkPoint_subtract_operator">operator-(const SkPoint& a, const SkPoint& b)</a> | returns <a href="SkPoint_Reference#Vector">Vector</a> between <a href="#Point">Points</a> |
+| <a href="#SkPoint_subtractfrom_operator">operator-=(const SkVector& v)</a> | subtracts <a href="SkPoint_Reference#Vector">Vector</a> from <a href="#Point">Point</a> |
+| <a href="#SkPoint_equal_operator">operator==(const SkPoint& a, const SkPoint& b)</a> | returns true if <a href="#Point">Point</a> are equal |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
-| --- | ---  |
-| <a href="#SkPoint_CrossProduct">CrossProduct</a> | Returns <a href="#SkPoint_cross">cross</a> product. |
-| <a href="#SkPoint_Distance">Distance</a> | Returns straight-line distance between points. |
-| <a href="#SkPoint_DotProduct">DotProduct</a> | Returns <a href="#SkPoint_dot">dot</a> product. |
-| <a href="#SkPoint_Length">Length</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_Make">Make</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs. |
-| <a href="#SkPoint_Normalize">Normalize</a> | Sets <a href="#SkPoint_length">length</a> to one, and returns prior <a href="#SkPoint_length">length</a>. |
-| <a href="#SkPoint_Offset">Offset</a> | Translates <a href="#Point">Point</a> array. |
-| <a href="#SkPoint_cross">cross</a> | Returns <a href="#SkPoint_cross">cross</a> product. |
-| <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_dot">dot</a> | Returns <a href="#SkPoint_dot">dot</a> product. |
-| <a href="#SkPoint_equals">equals</a> | Returns true if <a href="#Point">Points</a> are equal. |
-| <a href="#SkPoint_isFinite">isFinite</a> | Returns true if no member is infinite or <a href="undocumented#NaN">NaN</a>. |
-| <a href="#SkPoint_isZero">isZero</a> | Returns true if both members equal zero. |
-| <a href="#SkPoint_iset">iset</a> | Sets to integer input. |
-| <a href="#SkPoint_length">length</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_negate">negate</a> | Reverses the sign of both members. |
-| <a href="#SkPoint_normalize">normalize</a> | Sets <a href="#SkPoint_length">length</a> to one, preserving direction. |
-| <a href="#SkPoint_offset">offset</a> | Translates <a href="#Point">Point</a>. |
-| <a href="#SkPoint_scale">scale</a> | Multiplies <a href="#Point">Point</a> by <a href="#SkPoint_scale">scale</a> factor. |
-| <a href="#SkPoint_set">set</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input. |
-| <a href="#SkPoint_setAbs">setAbs</a> | Sets sign of both members to positive. |
-| <a href="#SkPoint_setLength">setLength</a> | Sets straight-line distance to origin. |
-| <a href="#SkPoint_setNormalize">setNormalize</a> | Sets <a href="#SkPoint_length">length</a> to one, in direction of (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>). |
-| <a href="#SkPoint_x">x</a> | Returns <a href="#SkPoint_fX">fX</a>. |
-| <a href="#SkPoint_y">y</a> | Returns <a href="#SkPoint_fY">fY</a>. |
+| name | description |
+| --- | --- |
+| <a href="#SkPoint_CrossProduct">CrossProduct</a> | returns cross product |
+| <a href="#SkPoint_Distance">Distance</a> | returns straight-line distance between points |
+| <a href="#SkPoint_DotProduct">DotProduct</a> | returns dot product |
+| <a href="#SkPoint_Length">Length</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_Make">Make</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs |
+| <a href="#SkPoint_Normalize">Normalize</a> | sets length to one, and returns prior length |
+| <a href="#SkPoint_Offset">Offset</a> | translates <a href="#Point">Point</a> array |
+| <a href="#SkPoint_cross">cross</a> | returns cross product |
+| <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_dot">dot</a> | returns dot product |
+| <a href="#SkPoint_equals">equals</a> | returns true if <a href="#Point">Points</a> are equal |
+| <a href="#SkPoint_isFinite">isFinite</a> | returns true if no member is infinite or NaN |
+| <a href="#SkPoint_isZero">isZero</a> | returns true if both members equal zero |
+| <a href="#SkPoint_iset">iset</a> | sets to integer input |
+| <a href="#SkPoint_length">length</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_negate">negate</a> | reverses the sign of both members |
+| <a href="#SkPoint_normalize">normalize</a> | sets length to one, preserving direction |
+| <a href="#SkPoint_offset">offset</a> | translates <a href="#Point">Point</a> |
+| <a href="#SkPoint_scale">scale</a> | multiplies <a href="#Point">Point</a> by scale factor |
+| <a href="#SkPoint_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input |
+| <a href="#SkPoint_setAbs">setAbs</a> | sets sign of both members to positive |
+| <a href="#SkPoint_setLength">setLength</a> | sets straight-line distance to origin |
+| <a href="#SkPoint_setNormalize">setNormalize</a> | sets length to one, in direction of (x, y) |
+| <a href="#SkPoint_x">x</a> | returns <a href="#SkPoint_fX">fX</a> |
+| <a href="#SkPoint_y">y</a> | returns <a href="#SkPoint_fY">fY</a> |
+
+## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkPoint_fX">fX</a> | x-axis value |
+| <a href="#SkPoint_fY">fY</a> | y-axis value |
 
 <a name="SkPoint_fX"> <code><strong>SkScalar  fX</strong></code> </a>
 
-<a href="#SkPoint_x">x</a>-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
-infinities and <a href="undocumented#NaN">NaN</a>.
+x-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
+infinities and NaN.
 
 <a name="SkPoint_fY"> <code><strong>SkScalar  fY</strong></code> </a>
 
-<a href="#SkPoint_y">y</a>-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
-infinities and <a href="undocumented#NaN">NaN</a>.
+y-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
+infinities and NaN.
 
 <a name="SkPoint_Make"></a>
 ## Make
@@ -75,20 +90,20 @@ infinities and <a href="undocumented#NaN">NaN</a>.
 static constexpr SkPoint Make(SkScalar x, SkScalar y)
 </pre>
 
-Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_x">x</a>, <a href="#SkPoint_fY">fY</a> to <a href="#SkPoint_y">y</a>. Used both to <a href="#SkPoint_set">set</a> <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>.
+Sets <a href="#SkPoint_fX">fX</a> to x, <a href="#SkPoint_fY">fY</a> to y. Used both to set <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_Make_x"> <code><strong>x </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPoint_x">x</a>-axis value of constructed <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a></td>
+<a href="undocumented#SkScalar">SkScalar</a> x-axis value of constructed <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a></td>
   </tr>  <tr>    <td><a name="SkPoint_Make_y"> <code><strong>y </strong></code> </a></td> <td>
-<a href="undocumented#SkScalar">SkScalar</a> <a href="#SkPoint_y">y</a>-axis value of constructed <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a></td>
+<a href="undocumented#SkScalar">SkScalar</a> y-axis value of constructed <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href="#Point">Point</a> (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>)
+<a href="#Point">Point</a> (x, y)
 
 ### Example
 
@@ -104,7 +119,7 @@ all equal
 
 ### See Also
 
-<a href="#SkPoint_set">set</a> <a href="#SkPoint_iset">iset</a> <a href="#SkIPoint_Make">SkIPoint::Make</a>
+<a href="#SkPoint_set">set</a> <a href="#SkPoint_iset">iset</a><sup><a href="#SkPoint_iset_2">[2]</a></sup> <a href="#SkIPoint_Make">SkIPoint::Make</a>
 
 ---
 
@@ -115,7 +130,7 @@ all equal
 SkScalar x() const
 </pre>
 
-Returns <a href="#SkPoint_x">x</a>-axis value of <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a>.
+Returns x-axis value of <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a>.
 
 ### Return Value
 
@@ -146,7 +161,7 @@ pt1.fX == pt1.x()
 SkScalar y() const
 </pre>
 
-Returns <a href="#SkPoint_y">y</a>-axis value of <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a>.
+Returns y-axis value of <a href="#Point">Point</a> or <a href="SkPoint_Reference#Vector">Vector</a>.
 
 ### Return Value
 
@@ -209,7 +224,7 @@ pt.isZero() == true
 void set(SkScalar x, SkScalar y)
 </pre>
 
-Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_x">x</a> and <a href="#SkPoint_fY">fY</a> to <a href="#SkPoint_y">y</a>.
+Sets <a href="#SkPoint_fX">fX</a> to x and <a href="#SkPoint_fY">fY</a> to y.
 
 ### Parameters
 
@@ -234,7 +249,7 @@ pt1 == pt2
 
 ### See Also
 
-<a href="#SkPoint_iset">iset</a> <a href="#SkPoint_Make">Make</a>
+<a href="#SkPoint_iset">iset</a><sup><a href="#SkPoint_iset_2">[2]</a></sup> <a href="#SkPoint_Make">Make</a>
 
 ---
 
@@ -245,11 +260,11 @@ pt1 == pt2
 void iset(int32_t x, int32_t y)
 </pre>
 
-Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_x">x</a> and <a href="#SkPoint_fY">fY</a> to <a href="#SkPoint_y">y</a>, promoting integers to <a href="undocumented#SkScalar">SkScalar</a> values.
+Sets <a href="#SkPoint_fX">fX</a> to x and <a href="#SkPoint_fY">fY</a> to y, promoting integers to <a href="undocumented#SkScalar">SkScalar</a> values.
 
-Assigning a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may cause a compiler 
+Assigning a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may cause a compiler
 error, triggered by narrowing conversion of int to <a href="undocumented#SkScalar">SkScalar</a>. This safely
-casts <a href="#SkPoint_x">x</a> and <a href="#SkPoint_y">y</a> to avoid the error. 
+casts x and y to avoid the error.
 
 ### Parameters
 
@@ -270,6 +285,8 @@ new value for <a href="#SkPoint_fY">fY</a></td>
 
 ---
 
+<a name="SkPoint_iset_2"></a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void iset(const SkIPoint& p)
 </pre>
@@ -278,7 +295,7 @@ Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_iset_2_p">p</a>.<a href="
 
 Assigning an <a href="SkIPoint_Reference#IPoint">IPoint</a> containing a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may
 cause a compiler error, triggered by narrowing conversion of int to <a href="undocumented#SkScalar">SkScalar</a>.
-This safely casts <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fY">fY</a> to avoid the error. 
+This safely casts <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fY">fY</a> to avoid the error.
 
 ### Parameters
 
@@ -350,7 +367,7 @@ pt: nan, -nan  abs: nan, nan
 static void Offset(SkPoint points[], int count, const SkVector& offset)
 </pre>
 
-Adds <a href="#SkPoint_offset">offset</a> to each <a href="#Point">Point</a> in <a href="#SkPoint_Offset_points">points</a> array with <a href="#SkPoint_Offset_count">count</a> entries.
+Adds offset to each <a href="#Point">Point</a> in <a href="#SkPoint_Offset_points">points</a> array with <a href="#SkPoint_Offset_count">count</a> entries.
 
 ### Parameters
 
@@ -373,11 +390,13 @@ entries in array</td>
 
 ---
 
+<a name="SkPoint_Offset_2"></a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy)
 </pre>
 
-Adds <a href="#SkPoint_offset">offset</a> (<a href="#SkPoint_Offset_2_dx">dx</a>, <a href="#SkPoint_Offset_2_dy">dy</a>) to each <a href="#Point">Point</a> in <a href="#SkPoint_Offset_2_points">points</a> array of <a href="#SkPoint_length">length</a> <a href="#SkPoint_Offset_2_count">count</a>.
+Adds offset (<a href="#SkPoint_Offset_2_dx">dx</a>, <a href="#SkPoint_Offset_2_dy">dy</a>) to each <a href="#Point">Point</a> in <a href="#SkPoint_Offset_2_points">points</a> array of length <a href="#SkPoint_Offset_2_count">count</a>.
 
 ### Parameters
 
@@ -409,7 +428,7 @@ added to <a href="#SkPoint_fY">fY</a> in <a href="#SkPoint_Offset_2_points">poin
 void offset(SkScalar dx, SkScalar dy)
 </pre>
 
-Adds <a href="#SkPoint_offset">offset</a> (<a href="#SkPoint_offset_dx">dx</a>, <a href="#SkPoint_offset_dy">dy</a>) to <a href="#Point">Point</a>.
+Adds offset (<a href="#SkPoint_offset_dx">dx</a>, <a href="#SkPoint_offset_dy">dy</a>) to <a href="#Point">Point</a>.
 
 ### Parameters
 
@@ -426,7 +445,7 @@ added to <a href="#SkPoint_fY">fY</a></td>
 
 ### See Also
 
-<a href="#SkPoint_Offset">Offset</a> <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a>
+<a href="#SkPoint_Offset">Offset</a><sup><a href="#SkPoint_Offset_2">[2]</a></sup> <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a>
 
 ---
 
@@ -437,7 +456,7 @@ added to <a href="#SkPoint_fY">fY</a></td>
 SkScalar length() const
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)</pre>
@@ -454,7 +473,7 @@ straight-line distance to origin
 
 ### See Also
 
-<a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> <a href="#SkPoint_Length">Length</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_Distance">Distance</a>
+<a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> <a href="#SkPoint_Length">Length</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_Distance">Distance</a>
 
 ---
 
@@ -465,7 +484,7 @@ straight-line distance to origin
 SkScalar distanceToOrigin() const
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)</pre>
@@ -482,7 +501,7 @@ straight-line distance to origin
 
 ### See Also
 
-<a href="#SkPoint_length">length</a> <a href="#SkPoint_Length">Length</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_Distance">Distance</a>
+<a href="#SkPoint_length">length</a> <a href="#SkPoint_Length">Length</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_Distance">Distance</a>
 
 ---
 
@@ -494,12 +513,12 @@ bool normalize()
 </pre>
 
 Scales (<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a>) so that <a href="#SkPoint_length">length</a> returns one, while preserving ratio of <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_fY">fY</a>,
-if possible. If prior <a href="#SkPoint_length">length</a> is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and returns
+if possible. If prior length is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and returns
 false; otherwise returns true.
 
 ### Return Value
 
-true if former <a href="#SkPoint_length">length</a> is not zero or nearly zero
+true if former length is not zero or nearly zero
 
 ### Example
 
@@ -507,7 +526,7 @@ true if former <a href="#SkPoint_length">length</a> is not zero or nearly zero
 
 ### See Also
 
-<a href="#SkPoint_Normalize">Normalize</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_length">length</a> <a href="#SkPoint_Length">Length</a>
+<a href="#SkPoint_Normalize">Normalize</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_length">length</a> <a href="#SkPoint_Length">Length</a>
 
 ---
 
@@ -518,8 +537,8 @@ true if former <a href="#SkPoint_length">length</a> is not zero or nearly zero
 bool setNormalize(SkScalar x, SkScalar y)
 </pre>
 
-Sets <a href="SkPoint_Reference#Vector">Vector</a> to (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) scaled so <a href="#SkPoint_length">length</a> returns one, and so that
-(<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a>) is proportional to (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>).  If (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoint_length">length</a> is nearly zero,
+Sets <a href="SkPoint_Reference#Vector">Vector</a> to (x, y) scaled so <a href="#SkPoint_length">length</a> returns one, and so that
+(<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_fY">fY</a>) is proportional to (x, y).  If (x, y) length is nearly zero,
 sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and returns false; otherwise returns true.
 
 ### Parameters
@@ -533,7 +552,7 @@ proportional value for <a href="#SkPoint_fY">fY</a></td>
 
 ### Return Value
 
-true if (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoint_length">length</a> is not zero or nearly zero
+true if (x, y) length is not zero or nearly zero
 
 ### Example
 
@@ -541,7 +560,7 @@ true if (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoi
 
 ### See Also
 
-<a href="#SkPoint_normalize">normalize</a> <a href="#SkPoint_setLength">setLength</a>
+<a href="#SkPoint_normalize">normalize</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup>
 
 ---
 
@@ -552,8 +571,8 @@ true if (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoi
 bool setLength(SkScalar length)
 </pre>
 
-Scales <a href="SkPoint_Reference#Vector">Vector</a> so that <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> returns <a href="#SkPoint_length">length</a>, if possible. If former
-<a href="#SkPoint_length">length</a> is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and return false; otherwise returns
+Scales <a href="SkPoint_Reference#Vector">Vector</a> so that <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> returns length, if possible. If former
+length is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and return false; otherwise returns
 true.
 
 ### Parameters
@@ -565,7 +584,7 @@ straight-line distance to origin</td>
 
 ### Return Value
 
-true if former <a href="#SkPoint_length">length</a> is not zero or nearly zero
+true if former length is not zero or nearly zero
 
 ### Example
 
@@ -577,12 +596,14 @@ true if former <a href="#SkPoint_length">length</a> is not zero or nearly zero
 
 ---
 
+<a name="SkPoint_setLength_2"></a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool setLength(SkScalar x, SkScalar y, SkScalar length)
 </pre>
 
-Sets <a href="SkPoint_Reference#Vector">Vector</a> to (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) scaled to <a href="#SkPoint_length">length</a>, if possible. If former
-<a href="#SkPoint_length">length</a> is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and return false; otherwise returns
+Sets <a href="SkPoint_Reference#Vector">Vector</a> to (x, y) scaled to length, if possible. If former
+length is nearly zero, sets <a href="SkPoint_Reference#Vector">Vector</a> to (0, 0) and return false; otherwise returns
 true.
 
 ### Parameters
@@ -598,7 +619,7 @@ straight-line distance to origin</td>
 
 ### Return Value
 
-true if (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoint_length">length</a> is not zero or nearly zero
+true if (x, y) length is not zero or nearly zero
 
 ### Example
 
@@ -617,7 +638,7 @@ true if (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>) <a href="#SkPoi
 void scale(SkScalar scale, SkPoint* dst) const
 </pre>
 
-Sets <a href="#SkPoint_scale_dst">dst</a> to <a href="#Point">Point</a> times <a href="#SkPoint_scale">scale</a>. <a href="#SkPoint_scale_dst">dst</a> may be <a href="#Point">Point</a> to modify <a href="#Point">Point</a> in place.
+Sets <a href="#SkPoint_scale_dst">dst</a> to <a href="#Point">Point</a> times scale. <a href="#SkPoint_scale_dst">dst</a> may be <a href="#Point">Point</a> to modify <a href="#Point">Point</a> in place.
 
 ### Parameters
 
@@ -634,15 +655,17 @@ storage for scaled <a href="#Point">Point</a></td>
 
 ### See Also
 
-<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_setLength">setLength</a>
+<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup>
 
 ---
+
+<a name="SkPoint_scale_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void scale(SkScalar value)
 </pre>
 
-Scales <a href="#Point">Point</a> in place by <a href="#SkPoint_scale">scale</a>.
+Scales <a href="#Point">Point</a> in place by scale.
 
 ### Parameters
 
@@ -657,7 +680,7 @@ factor to multiply <a href="#Point">Point</a> by</td>
 
 ### See Also
 
-<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_setLength">setLength</a>
+<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup>
 
 ---
 
@@ -786,7 +809,7 @@ Subtracts <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_subtra
 SkPoint operator*(SkScalar scale) _const
 </pre>
 
-Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale</a>.
+Returns <a href="#Point">Point</a> multiplied by scale.
 
 ### Parameters
 
@@ -797,7 +820,7 @@ Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale<
 
 ### Return Value
 
-<a href="#Point">Point</a> as (<a href="#SkPoint_fX">fX</a> * <a href="#SkPoint_scale">scale</a>, <a href="#SkPoint_fY">fY</a> * <a href="#SkPoint_scale">scale</a>)
+<a href="#Point">Point</a> as (<a href="#SkPoint_fX">fX</a> * scale, <a href="#SkPoint_fY">fY</a> * scale)
 
 ### Example
 
@@ -805,7 +828,7 @@ Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale<
 
 ### See Also
 
-<a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_scale">scale</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_setNormalize">setNormalize</a>
+<a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> <a href="#SkPoint_scale">scale</a><sup><a href="#SkPoint_scale_2">[2]</a></sup> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_setNormalize">setNormalize</a>
 
 ---
 
@@ -816,8 +839,8 @@ Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale<
 SkPoint& operator*=(SkScalar scale)
 </pre>
 
-Multiplies <a href="#Point">Point</a> by <a href="#SkPoint_scale">scale</a>. Sets <a href="#Point">Point</a> to:
-(<a href="#SkPoint_fX">fX</a> * <a href="#SkPoint_scale">scale</a>, <a href="#SkPoint_fY">fY</a> * <a href="#SkPoint_scale">scale</a>)
+Multiplies <a href="#Point">Point</a> by scale. Sets <a href="#Point">Point</a> to:
+(<a href="#SkPoint_fX">fX</a> * scale, <a href="#SkPoint_fY">fY</a> * scale)
 
 ### Parameters
 
@@ -836,7 +859,7 @@ reference to <a href="#Point">Point</a>
 
 ### See Also
 
-<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_scale">scale</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_setNormalize">setNormalize</a>
+<a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> <a href="#SkPoint_scale">scale</a><sup><a href="#SkPoint_scale_2">[2]</a></sup> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_setNormalize">setNormalize</a>
 
 ---
 
@@ -851,7 +874,7 @@ Returns true if both <a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_fY">fY</
 
 ### Return Value
 
-true for values other than infinities and <a href="undocumented#NaN">NaN</a>
+true for values other than infinities and NaN
 
 ### Example
 
@@ -881,7 +904,7 @@ pt: nan, -1  finite: false
 bool equals(SkScalar x, SkScalar y) const
 </pre>
 
-Returns true if <a href="#Point">Point</a> is equivalent to <a href="#Point">Point</a> constructed from (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>).
+Returns true if <a href="#Point">Point</a> is equivalent to <a href="#Point">Point</a> constructed from (x, y).
 
 ### Parameters
 
@@ -894,7 +917,7 @@ value compared with <a href="#SkPoint_fY">fY</a></td>
 
 ### Return Value
 
-true if <a href="#Point">Point</a> <a href="#SkPoint_equals">equals</a> (<a href="#SkPoint_x">x</a>, <a href="#SkPoint_y">y</a>)
+true if <a href="#Point">Point</a> equals (x, y)
 
 ### Example
 
@@ -1045,10 +1068,10 @@ Can also be used to subtract <a href="SkPoint_Reference#Vector">Vector</a> from 
 SkPoint operator+(const SkPoint& a, const SkVector& b)
 </pre>
 
-Returns <a href="#Point">Point</a> resulting from <a href="#Point">Point</a> <a href="#SkPoint_add_operator_a">a</a> <a href="#SkPoint_offset">offset</a> by <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_add_operator_b">b</a>, computed as:
+Returns <a href="#Point">Point</a> resulting from <a href="#Point">Point</a> <a href="#SkPoint_add_operator_a">a</a> offset by <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_add_operator_b">b</a>, computed as:
 (<a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fX">fX</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_add_operator_a">a</a>.<a href="#SkPoint_fY">fY</a> + <a href="#SkPoint_add_operator_b">b</a>.<a href="#SkPoint_fY">fY</a>).
 
-Can also be used to <a href="#SkPoint_offset">offset</a> <a href="#Point">Point</a> <a href="#SkPoint_add_operator_b">b</a> by <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_add_operator_a">a</a>, returning <a href="#Point">Point</a>.
+Can also be used to offset <a href="#Point">Point</a> <a href="#SkPoint_add_operator_b">b</a> by <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_add_operator_a">a</a>, returning <a href="#Point">Point</a>.
 Can also be used to add <a href="SkPoint_Reference#Vector">Vector</a> to <a href="SkPoint_Reference#Vector">Vector</a>, returning <a href="SkPoint_Reference#Vector">Vector</a>.
 
 ### Parameters
@@ -1062,7 +1085,7 @@ Can also be used to add <a href="SkPoint_Reference#Vector">Vector</a> to <a href
 
 ### Return Value
 
-<a href="#Point">Point</a> equal to <a href="#SkPoint_add_operator_a">a</a> <a href="#SkPoint_offset">offset</a> by <a href="#SkPoint_add_operator_b">b</a>
+<a href="#Point">Point</a> equal to <a href="#SkPoint_add_operator_a">a</a> offset by <a href="#SkPoint_add_operator_b">b</a>
 
 ### Example
 
@@ -1081,7 +1104,7 @@ Can also be used to add <a href="SkPoint_Reference#Vector">Vector</a> to <a href
 static SkScalar Length(SkScalar x, SkScalar y)
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(x * x + y * y)</pre>
@@ -1091,9 +1114,9 @@ sqrt(x * x + y * y)</pre>
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_Length_x"> <code><strong>x </strong></code> </a></td> <td>
-component of <a href="#SkPoint_length">length</a></td>
+component of length</td>
   </tr>  <tr>    <td><a name="SkPoint_Length_y"> <code><strong>y </strong></code> </a></td> <td>
-component of <a href="#SkPoint_length">length</a></td>
+component of length</td>
   </tr>
 </table>
 
@@ -1107,7 +1130,7 @@ straight-line distance to origin
 
 ### See Also
 
-<a href="#SkPoint_length">length</a> <a href="#SkPoint_Distance">Distance</a> <a href="#SkPoint_setLength">setLength</a>
+<a href="#SkPoint_length">length</a> <a href="#SkPoint_Distance">Distance</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup>
 
 ---
 
@@ -1119,23 +1142,23 @@ static SkScalar Normalize(SkVector* vec)
 </pre>
 
 Scales (<a href="#SkPoint_Normalize_vec">vec</a>-><a href="#SkPoint_fX">fX</a>, <a href="#SkPoint_Normalize_vec">vec</a>-><a href="#SkPoint_fY">fY</a>) so that <a href="#SkPoint_length">length</a> returns one, while preserving ratio of <a href="#SkPoint_Normalize_vec">vec</a>-><a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_Normalize_vec">vec</a>-><a href="#SkPoint_fY">fY</a>,
-if possible. If original <a href="#SkPoint_length">length</a> is nearly zero, sets <a href="#SkPoint_Normalize_vec">vec</a> to (0, 0) and returns zero;
-otherwise, returns <a href="#SkPoint_length">length</a> of <a href="#SkPoint_Normalize_vec">vec</a> before <a href="#SkPoint_Normalize_vec">vec</a> is scaled.
+if possible. If original length is nearly zero, sets <a href="#SkPoint_Normalize_vec">vec</a> to (0, 0) and returns zero;
+otherwise, returns length of <a href="#SkPoint_Normalize_vec">vec</a> before <a href="#SkPoint_Normalize_vec">vec</a> is scaled.
 
-Returned prior <a href="#SkPoint_length">length</a> may be <a href="undocumented#SK_ScalarInfinity">SK ScalarInfinity</a> if it can not be represented by <a href="undocumented#SkScalar">SkScalar</a>.
+Returned prior length may be <a href="undocumented#SK_ScalarInfinity">SK ScalarInfinity</a> if it can not be represented by <a href="undocumented#SkScalar">SkScalar</a>.
 
-Note that <a href="#SkPoint_normalize">normalize</a> is faster if prior <a href="#SkPoint_length">length</a> is not required.
+Note that <a href="#SkPoint_normalize">normalize</a> is faster if prior length is not required.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_Normalize_vec"> <code><strong>vec </strong></code> </a></td> <td>
-normalized to unit <a href="#SkPoint_length">length</a></td>
+normalized to unit length</td>
   </tr>
 </table>
 
 ### Return Value
 
-original <a href="#SkPoint_Normalize_vec">vec</a> <a href="#SkPoint_length">length</a>
+original <a href="#SkPoint_Normalize_vec">vec</a> length
 
 ### Example
 
@@ -1143,7 +1166,7 @@ original <a href="#SkPoint_Normalize_vec">vec</a> <a href="#SkPoint_length">leng
 
 ### See Also
 
-<a href="#SkPoint_normalize">normalize</a> <a href="#SkPoint_setLength">setLength</a> <a href="#SkPoint_Length">Length</a>
+<a href="#SkPoint_normalize">normalize</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup> <a href="#SkPoint_Length">Length</a>
 
 ---
 
@@ -1154,7 +1177,7 @@ original <a href="#SkPoint_Normalize_vec">vec</a> <a href="#SkPoint_length">leng
 static SkScalar Distance(const SkPoint& a, const SkPoint& b)
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> between <a href="#SkPoint_Distance_a">a</a> and <a href="#SkPoint_Distance_b">b</a>.
+Returns the Euclidean_Distance between <a href="#SkPoint_Distance_a">a</a> and <a href="#SkPoint_Distance_b">b</a>.
 
 ### Parameters
 
@@ -1175,7 +1198,7 @@ straight-line distance from <a href="#SkPoint_Distance_a">a</a> to <a href="#SkP
 
 ### See Also
 
-<a href="#SkPoint_length">length</a> <a href="#SkPoint_setLength">setLength</a>
+<a href="#SkPoint_length">length</a> <a href="#SkPoint_setLength">setLength</a><sup><a href="#SkPoint_setLength_2">[2]</a></sup>
 
 ---
 
@@ -1186,14 +1209,14 @@ straight-line distance from <a href="#SkPoint_Distance_a">a</a> to <a href="#SkP
 static SkScalar DotProduct(const SkVector& a, const SkVector& b)
 </pre>
 
-Returns the <a href="#SkPoint_dot">dot</a> product of <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_DotProduct_a">a</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_DotProduct_b">b</a>.
+Returns the dot product of <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_DotProduct_a">a</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_DotProduct_b">b</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_DotProduct_a"> <code><strong>a </strong></code> </a></td> <td>
-left side of <a href="#SkPoint_dot">dot</a> product</td>
+left side of dot product</td>
   </tr>  <tr>    <td><a name="SkPoint_DotProduct_b"> <code><strong>b </strong></code> </a></td> <td>
-right side of <a href="#SkPoint_dot">dot</a> product</td>
+right side of dot product</td>
   </tr>
 </table>
 
@@ -1218,18 +1241,18 @@ product of input magnitudes and cosine of the angle between them
 static SkScalar CrossProduct(const SkVector& a, const SkVector& b)
 </pre>
 
-Returns the <a href="#SkPoint_cross">cross</a> product of <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_a">a</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_b">b</a>.
+Returns the cross product of <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_a">a</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_b">b</a>.
 
-<a href="#SkPoint_CrossProduct_a">a</a> and <a href="#SkPoint_CrossProduct_b">b</a> form three-dimensional vectors with z equal to zero. The <a href="#SkPoint_cross">cross</a> product
-is <a href="#SkPoint_CrossProduct_a">a</a> three-dimensional vector with <a href="#SkPoint_x">x</a> and <a href="#SkPoint_y">y</a> equal to zero. The <a href="#SkPoint_cross">cross</a> product z
-term <a href="#SkPoint_equals">equals</a> the returned value.
+<a href="#SkPoint_CrossProduct_a">a</a> and <a href="#SkPoint_CrossProduct_b">b</a> form three-dimensional vectors with z equal to zero. The cross product
+is <a href="#SkPoint_CrossProduct_a">a</a> three-dimensional vector with x and y equal to zero. The cross product z
+term equals the returned value.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_CrossProduct_a"> <code><strong>a </strong></code> </a></td> <td>
-left side of <a href="#SkPoint_cross">cross</a> product</td>
+left side of cross product</td>
   </tr>  <tr>    <td><a name="SkPoint_CrossProduct_b"> <code><strong>b </strong></code> </a></td> <td>
-right side of <a href="#SkPoint_cross">cross</a> product</td>
+right side of cross product</td>
   </tr>
 </table>
 
@@ -1254,16 +1277,16 @@ area spanned by <a href="#Vector">Vectors</a> signed by angle direction
 SkScalar cross(const SkVector& vec) const
 </pre>
 
-Returns the <a href="#SkPoint_cross">cross</a> product of <a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a>.
+Returns the cross product of <a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a>.
 
 <a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a> form three-dimensional vectors with z equal to zero. The
-<a href="#SkPoint_cross">cross</a> product is a three-dimensional vector with <a href="#SkPoint_x">x</a> and <a href="#SkPoint_y">y</a> equal to zero.
-The <a href="#SkPoint_cross">cross</a> product z term <a href="#SkPoint_equals">equals</a> the returned value.
+cross product is a three-dimensional vector with x and y equal to zero.
+The cross product z term equals the returned value.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_cross_vec"> <code><strong>vec </strong></code> </a></td> <td>
-right side of <a href="#SkPoint_cross">cross</a> product</td>
+right side of cross product</td>
   </tr>
 </table>
 
@@ -1288,12 +1311,12 @@ area spanned by <a href="#Vector">Vectors</a> signed by angle direction
 SkScalar dot(const SkVector& vec) const
 </pre>
 
-Returns the <a href="#SkPoint_dot">dot</a> product of <a href="SkPoint_Reference#Vector">Vector</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_dot_vec">vec</a>.
+Returns the dot product of <a href="SkPoint_Reference#Vector">Vector</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_dot_vec">vec</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPoint_dot_vec"> <code><strong>vec </strong></code> </a></td> <td>
-right side of <a href="#SkPoint_dot">dot</a> product</td>
+right side of dot product</td>
   </tr>
 </table>
 
@@ -1311,3 +1334,4 @@ product of input magnitudes and cosine of the angle between them
 
 ---
 
+# <a name="Vector"></a> Vector

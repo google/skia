@@ -15,6 +15,7 @@ class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetPriv;
 class GrStencilAttachment;
+class GrBackendRenderTarget;
 
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.
@@ -32,10 +33,11 @@ public:
     const GrRenderTarget* asRenderTarget() const  override { return this; }
 
     // GrRenderTarget
-    bool isStencilBufferMultisampled() const { return fSampleCnt > 0; }
+    bool isStencilBufferMultisampled() const { return fSampleCnt > 1; }
 
     GrFSAAType fsaaType() const {
-        if (!fSampleCnt) {
+        SkASSERT(fSampleCnt >= 1);
+        if (fSampleCnt <= 1) {
             SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled));
             return GrFSAAType::kNone;
         }
@@ -52,7 +54,7 @@ public:
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
     int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 1 : fSampleCnt;
     }
 
     /**
@@ -76,7 +78,7 @@ public:
      * Call to indicate that GrRenderTarget was externally resolved. This may
      * allow Gr to skip a redundant resolve step.
      */
-    void flagAsResolved() { fResolveRect.setLargestInverted(); }
+    void flagAsResolved();
 
     /**
      * @return true if the GrRenderTarget requires MSAA resolving
@@ -103,6 +105,8 @@ public:
      *  platform. e.g. on OpenGL, return the FBO ID.
      */
     virtual GrBackendObject getRenderTargetHandle() const = 0;
+
+    virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
     // Checked when this object is asked to attach a stencil buffer.
     virtual bool canAttemptStencilAttachment() const = 0;

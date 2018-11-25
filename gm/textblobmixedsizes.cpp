@@ -35,7 +35,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.setTypeface(MakeResourceAsTypeface("/fonts/HangingS.ttf"));
+        paint.setTypeface(MakeResourceAsTypeface("fonts/HangingS.ttf"));
 
         const char* text = "Skia";
 

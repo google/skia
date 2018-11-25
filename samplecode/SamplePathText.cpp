@@ -66,14 +66,13 @@ public:
 
     void onDrawContent(SkCanvas* canvas) override {
         if (fDoClip) {
-            SkMatrix oldMatrix = canvas->getTotalMatrix();
-            canvas->setMatrix(SkMatrix::MakeScale(this->width(), this->height()));
+            SkPath deviceSpaceClipPath = fClipPath;
+            deviceSpaceClipPath.transform(SkMatrix::MakeScale(this->width(), this->height()));
             canvas->save();
-            canvas->clipPath(fClipPath, SkClipOp::kDifference, true);
+            canvas->clipPath(deviceSpaceClipPath, SkClipOp::kDifference, true);
             canvas->clear(SK_ColorBLACK);
             canvas->restore();
-            canvas->clipPath(fClipPath, SkClipOp::kIntersect, true);
-            canvas->setMatrix(oldMatrix);
+            canvas->clipPath(deviceSpaceClipPath, SkClipOp::kIntersect, true);
         }
         this->drawGlyphs(canvas);
     }

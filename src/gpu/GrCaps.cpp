@@ -6,6 +6,8 @@
  */
 
 #include "GrCaps.h"
+
+#include "GrBackendSurface.h"
 #include "GrContextOptions.h"
 #include "GrWindowRectangles.h"
 #include "SkJSONWriter.h"
@@ -17,6 +19,8 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kAlpha_8_as_Alpha_GrPixelConfig: return "Alpha8_asAlpha";
         case kAlpha_8_as_Red_GrPixelConfig: return "Alpha8_asRed";
         case kGray_8_GrPixelConfig: return "Gray8";
+        case kGray_8_as_Lum_GrPixelConfig: return "Gray8_asLum";
+        case kGray_8_as_Red_GrPixelConfig: return "Gray8_asRed";
         case kRGB_565_GrPixelConfig: return "RGB565";
         case kRGBA_4444_GrPixelConfig: return "RGBA444";
         case kRGBA_8888_GrPixelConfig: return "RGBA8888";
@@ -50,14 +54,13 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMultisampleDisableSupport = false;
     fInstanceAttribSupport = false;
     fUsesMixedSamples = false;
+    fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
-    fFullClearIsFree = false;
+    fPreferFullscreenClears = false;
     fMustClearUploadedBufferData = false;
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
-
-    fInstancedSupport = InstancedSupport::kNone;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
@@ -67,8 +70,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxVertexAttributes = 0;
     fMaxRenderTargetSize = 1;
     fMaxTextureSize = 1;
-    fMaxColorSampleCount = 0;
-    fMaxStencilSampleCount = 0;
     fMaxRasterSamples = 0;
     fMaxWindowRectangles = 0;
 
@@ -87,7 +88,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWireframeMode = false;
 #endif
     fBufferMapThreshold = options.fBufferMapThreshold;
-    fAvoidInstancedDrawsToFPTargets = false;
     fBlacklistCoverageCounting = false;
     fAvoidStencilBuffers = false;
 
@@ -96,12 +96,23 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     this->onApplyOptionsOverrides(options);
+    if (options.fDisableDriverCorrectnessWorkarounds) {
+        // We always blacklist coverage counting on Vulkan currently. TODO: Either stop doing that
+        // or disambiguate blacklisting from incomplete implementation.
+        // SkASSERT(!fBlacklistCoverageCounting);
+        SkASSERT(!fAvoidStencilBuffers);
+        SkASSERT(!fAdvBlendEqBlacklist);
+    }
+
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
     fMaxTileSize = fMaxTextureSize;
 #if GR_TEST_UTILS
     // If the max tile override is zero, it means we should use the max texture size.
     if (options.fMaxTileSizeOverride && options.fMaxTileSizeOverride < fMaxTextureSize) {
         fMaxTileSize = options.fMaxTileSizeOverride;
+    }
+    if (options.fSuppressGeometryShaders) {
+        fShaderCaps->fGeometryShaderSupport = false;
     }
 #endif
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
@@ -150,8 +161,9 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
     writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Uses Mixed Samples", fUsesMixedSamples);
+    writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
-    writer->appendBool("Full screen clear is free", fFullClearIsFree);
+    writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Sample shading support", fSampleShadingSupport);
     writer->appendBool("Fence sync support", fFenceSyncSupport);
@@ -168,25 +180,9 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Vertex Attributes", fMaxVertexAttributes);
     writer->appendS32("Max Texture Size", fMaxTextureSize);
     writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
-    writer->appendS32("Max Color Sample Count", fMaxColorSampleCount);
-    writer->appendS32("Max Stencil Sample Count", fMaxStencilSampleCount);
     writer->appendS32("Max Raster Samples", fMaxRasterSamples);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Max Clip Analytic Fragment Processors", fMaxClipAnalyticFPs);
-
-    static const char* kInstancedSupportNames[] = {
-        "None",
-        "Basic",
-        "Multisampled",
-        "Mixed Sampled",
-    };
-    GR_STATIC_ASSERT(0 == (int)InstancedSupport::kNone);
-    GR_STATIC_ASSERT(1 == (int)InstancedSupport::kBasic);
-    GR_STATIC_ASSERT(2 == (int)InstancedSupport::kMultisampled);
-    GR_STATIC_ASSERT(3 == (int)InstancedSupport::kMixedSampled);
-    GR_STATIC_ASSERT(4 == SK_ARRAY_COUNT(kInstancedSupportNames));
-
-    writer->appendString("Instanced Support", kInstancedSupportNames[(int)fInstancedSupport]);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
@@ -227,3 +223,4 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+

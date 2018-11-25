@@ -46,7 +46,7 @@ public:
 
     explicit GrShape(const SkRect& rect) : GrShape(rect, GrStyle::SimpleFill()) {}
 
-    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style), fOriginalPath(path) {
+    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -91,7 +91,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint), fOriginalPath(path) {
+    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -338,7 +338,8 @@ public:
             case Type::kRRect:
                 if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
                     return SkPath::kConic_SegmentMask;
-                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type) {
+                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type ||
+                           fRRectData.fRRect.getType() == SkRRect::kEmpty_Type) {
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
@@ -374,13 +375,14 @@ public:
 
     /**
      * Helpers that are only exposed for unit tests, to determine if the shape is a path, and get
-     * the generation ID of the *original* path.
+     * the generation ID of the *original* path. This is the path that will receive
+     * GenIDChangeListeners added to this shape.
      */
     uint32_t testingOnly_getOriginalGenerationID() const;
     bool testingOnly_isPath() const;
+    bool testingOnly_isNonVolatilePath() const;
 
 private:
-
     enum class Type {
         kEmpty,
         kInvertedEmpty,
@@ -436,6 +438,11 @@ private:
     void attemptToSimplifyPath();
     void attemptToSimplifyRRect();
     void attemptToSimplifyLine();
+
+    bool attemptToSimplifyStrokedLineToRRect();
+
+    /** Gets the path that gen id listeners should be added to. */
+    const SkPath* originalPathForListeners() const;
 
     // Defaults to use when there is no distinction between even/odd and winding fills.
     static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
@@ -506,7 +513,7 @@ private:
         } fLineData;
     };
     GrStyle                     fStyle;
-    SkPath                      fOriginalPath;
+    SkTLazy<SkPath>             fInheritedPathForListeners;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
 };
 #endif

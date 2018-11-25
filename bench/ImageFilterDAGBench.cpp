@@ -58,7 +58,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fImage = GetResourceAsImage("mandrill_512.png");
+        fImage = GetResourceAsImage("images/mandrill_512.png");
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {

@@ -18,6 +18,20 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     self.m.vars.android_bin_dir = self.m.path.join(self.m.vars.android_bin_dir,
                                                    'bin')
 
+    # Disk space is extremely tight on the Chromecasts (~100M) There is not
+    # enough space on the android_data_dir (/cache/skia) to fit the images,
+    # resources, executable and output the dm images.  So, we have dm_out be
+    # on the tempfs (i.e. RAM) /dev/shm. (which is about 140M)
+
+    self.device_dirs = default_flavor.DeviceDirs(
+        dm_dir        = '/dev/shm/skia/dm_out',
+        perf_data_dir = self.m.vars.android_data_dir + 'perf',
+        resource_dir  = self.m.vars.android_data_dir + 'resources',
+        images_dir    = self.m.vars.android_data_dir + 'images',
+        skp_dir       = self.m.vars.android_data_dir + 'skps',
+        svg_dir       = self.m.vars.android_data_dir + 'svgs',
+        tmp_dir       = self.m.vars.android_data_dir)
+
   @property
   def user_ip_host(self):
     if not self._user_ip:
@@ -97,11 +111,6 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     super(GNChromecastFlavorUtils, self).install()
     self._adb('mkdir ' + self.m.vars.android_bin_dir,
               'shell', 'mkdir', '-p', self.m.vars.android_bin_dir)
-    # TODO(kjlubick): Remove this after we are backfilled up and don't need
-    # to manually delete this
-    self._ssh('Delete old nanobench', 'rm', '/cache/skia/nanobench',
-              abort_on_failure=False, fail_build_on_failure=False,
-              infra_step=True)
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:

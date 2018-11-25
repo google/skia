@@ -35,9 +35,7 @@ public:
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
-    }
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;
@@ -75,11 +73,6 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
-    // Check whether we support using draws for copies.
-    bool supportsCopiesAsDraws() const {
-        return fSupportsCopiesAsDraws;
-    }
-
     // On Nvidia there is a current bug where we must the current command buffer before copy
     // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
     // as draws.
@@ -101,6 +94,13 @@ public:
         return fNewCBOnPipelineChange;
     }
 
+    // On certain Intel devices/drivers (IntelHD405) there is a bug if we try to flush non-coherent
+    // memory and pass in VK_WHOLE_SIZE. This returns whether or not it is safe to use VK_WHOLE_SIZE
+    // or not.
+    bool canUseWholeSizeOnFlushMappedMemory() const {
+        return fCanUseWholeSizeOnFlushMappedMemory;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -111,10 +111,17 @@ public:
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
+    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
+                                GrPixelConfig*) const override;
+    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                     GrPixelConfig*) const override;
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
+        kARM_VkVendor = 5045,
         kImagination_VkVendor = 4112,
+        kIntel_VkVendor = 32902,
         kNvidia_VkVendor = 4318,
         kQualcomm_VkVendor = 20803,
     };
@@ -125,11 +132,11 @@ private:
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
     void initShaderCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
-    void initSampleCount(const VkPhysicalDeviceProperties& properties);
-
 
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
+
+    void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
     struct ConfigInfo {
         ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
@@ -160,13 +167,13 @@ private:
 
     bool fMustDoCopiesFromOrigin;
 
-    bool fSupportsCopiesAsDraws;
-
     bool fMustSubmitCommandsBeforeCopyOp;
 
     bool fMustSleepOnTearDown;
 
     bool fNewCBOnPipelineChange;
+
+    bool fCanUseWholeSizeOnFlushMappedMemory;
 
     typedef GrCaps INHERITED;
 };

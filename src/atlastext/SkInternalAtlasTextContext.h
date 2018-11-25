@@ -14,6 +14,7 @@
 #include "SkRefCnt.h"
 
 class SkAtlasTextRenderer;
+class SkMatrix;
 class GrContext;
 class GrAtlasGlyphCache;
 class GrTextBlobCache;
@@ -34,11 +35,11 @@ public:
     GrAtlasGlyphCache* atlasGlyphCache();
     GrTextBlobCache* textBlobCache();
 
-    GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) override;
+    const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }
+    GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
+    GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
-    GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) override;
-
-    void recordDraw(const void* vertexData, int glyphCnt, void* targetHandle);
+    void recordDraw(const void* vertexData, int glyphCnt, const SkMatrix&, void* targetHandle);
 
     void flush();
 
@@ -69,6 +70,7 @@ private:
         GrDeferredUploadToken fToken;
     };
 
+    GrTokenTracker fTokenTracker;
     SkArenaAllocList<InlineUpload> fInlineUploads;
     SkArenaAllocList<Draw> fDraws;
     SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;

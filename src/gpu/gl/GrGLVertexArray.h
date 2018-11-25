@@ -45,17 +45,23 @@ public:
              size_t offsetInBytes,
              int divisor = 0);
 
+    enum class EnablePrimitiveRestart : bool {
+        kYes = true,
+        kNo = false
+    };
+
     /**
      * This function enables the first 'enabledCount' vertex arrays and disables the rest.
      */
-    void enableVertexArrays(const GrGLGpu*, int enabledCount);
+    void enableVertexArrays(const GrGLGpu*, int enabledCount,
+                            EnablePrimitiveRestart = EnablePrimitiveRestart::kNo);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
-        fEnabledCountIsValid = false;
+        fEnableStateIsValid = false;
     }
 
     /**
@@ -82,9 +88,10 @@ private:
         int                       fDivisor;
     };
 
-    SkSTArray<16, AttribArrayState, true>   fAttribArrayStates;
-    int                                     fNumEnabledArrays;
-    bool                                    fEnabledCountIsValid;
+    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
+    int fNumEnabledArrays;
+    EnablePrimitiveRestart fPrimitiveRestartEnabled;
+    bool fEnableStateIsValid = false;
 };
 
 /**

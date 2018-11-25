@@ -223,8 +223,24 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    SkColor c;
+    bool isFixedColor = false;
+    const SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
+
+    while (iter.next(&srcR, &dstR, &isFixedColor, &c)) {
+          if (isFixedColor || (srcR.width() <= 1.0f && srcR.height() <= 1.0f &&
+                               image->readPixels(info, &c, 4, srcR.fLeft, srcR.fTop))) {
+              // Fast draw with drawRect, if this is a patch containing a single color
+              // or if this is a patch containing a single pixel.
+              if (0 != c || !paint.isSrcOver()) {
+                   SkPaint paintCopy(paint);
+                   int alpha = SkAlphaMul(SkColorGetA(c), SkAlpha255To256(paint.getAlpha()));
+                   paintCopy.setColor(SkColorSetA(c, alpha));
+                   this->drawRect(dstR, paintCopy);
+              }
+        } else {
+            this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+        }
     }
 }
 
@@ -386,6 +402,10 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
             case SkPath::kQuad_Verb:
                 morphpoints(dstP, &srcP[1], 2, meas, matrix);
                 dst->quadTo(dstP[0], dstP[1]);
+                break;
+            case SkPath::kConic_Verb:
+                morphpoints(dstP, &srcP[1], 2, meas, matrix);
+                dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
                 break;
             case SkPath::kCubic_Verb:
                 morphpoints(dstP, &srcP[1], 3, meas, matrix);

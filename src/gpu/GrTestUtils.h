@@ -14,6 +14,7 @@
 
 #include "../private/SkTemplates.h"
 #include "GrColor.h"
+#include "GrFPArgs.h"
 #include "GrSamplerState.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
@@ -54,12 +55,12 @@ class TestAsFPArgs {
 public:
     TestAsFPArgs(GrProcessorTestData*);
     ~TestAsFPArgs();
-    const SkShaderBase::AsFPArgs& args() const { return fArgs; }
+    const GrFPArgs& args() const { return fArgs; }
 
 private:
-    SkShaderBase::AsFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
     std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
+    GrFPArgs fArgs;
 };
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which

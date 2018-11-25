@@ -273,7 +273,7 @@ public:
         SkString str;
         str.appendf("# combined: %d\n", fRects.count());
         for (int i = 0; i < fRects.count(); ++i) {
-            const RectInfo& geo = fRects[0];
+            const RectInfo& geo = fRects[i];
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
                         geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
                         geo.fRect.fBottom);

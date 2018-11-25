@@ -22,9 +22,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkEmbossMaskFilter.h"
-#include "SkFlattenableSerialization.h"
 #include "SkImageSource.h"
-#include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
@@ -512,13 +510,6 @@ static SkPaint make_paint() {
                                                    make_typeface_style()));
     }
 
-    SkLayerRasterizer::Builder rasterizerBuilder;
-    SkPaint paintForRasterizer;
-    if (R(2) == 1) {
-        paintForRasterizer = make_paint();
-    }
-    rasterizerBuilder.addLayer(paintForRasterizer);
-    paint.setRasterizer(rasterizerBuilder.detach());
     paint.setImageFilter(make_image_filter());
     sk_sp<SkData> data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
     paint.setTextAlign(make_paint_align());
@@ -723,7 +714,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
 
 static sk_sp<SkImageFilter> make_serialized_image_filter() {
     sk_sp<SkImageFilter> filter(make_image_filter(false));
-    sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
+    sk_sp<SkData> data(filter->serialize());
     const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
     size_t len = data->size();
 #ifdef SK_ADD_RANDOM_BIT_FLIPS
@@ -748,7 +739,7 @@ static sk_sp<SkImageFilter> make_serialized_image_filter() {
         }
     }
 #endif // SK_ADD_RANDOM_BIT_FLIPS
-    return SkValidatingDeserializeImageFilter(ptr, len);
+    return SkImageFilter::Deserialize(ptr, len);
 }
 
 static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {

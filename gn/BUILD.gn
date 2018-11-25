@@ -39,7 +39,6 @@ config("default") {
 
   if (is_win) {
     cflags += [
-      "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
@@ -54,32 +53,18 @@ config("default") {
       "NOMINMAX",
     ]
 
-    _include_dirs = [
-      #2017
-      "$windk/VC/Tools/MSVC/14.10.25017/include",
-
-      #2015
-      "$windk/VC/include",
-
-      # For local builds.
-      # 2017
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
-
-      # 2015
-      "$windk/../Windows Kits/8.1/Include/shared",
-      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-      "$windk/../Windows Kits/8.1/Include/um",
-      "$windk/../Windows Kits/8.1/Include/winrt",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.14393.0/shared",
-      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-      "$windk/win_sdk/Include/10.0.14393.0/um",
-      "$windk/win_sdk/Include/10.0.14393.0/winrt",
+    if (msvc == 2015) {
+      _include_dirs = [ "$win_vc/include" ]
+    } else {  # 2017
+      _include_dirs = [ "$win_vc/Tools/MSVC/$win_toolchain_version/include" ]
+    }
+    _include_dirs += [
+      "$win_sdk/Include/$win_sdk_version/shared",
+      "$win_sdk/Include/$win_sdk_version/ucrt",
+      "$win_sdk/Include/$win_sdk_version/um",
+      "$win_sdk/Include/$win_sdk_version/winrt",
     ]
+
     if (is_clang) {
       foreach(dir, _include_dirs) {
         cflags += [
@@ -92,28 +77,18 @@ config("default") {
     }
 
     lib_dirs = [
-      # For local builds.
-      # 2017
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
-
-      #2015
-      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
-
-      # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
+      "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
+      "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
     ]
-
-    #2017
-    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
-
-    #2015
-    if (target_cpu == "x86") {
-      lib_dirs += [ "$windk/VC/lib" ]
-    } else {
-      lib_dirs += [ "$windk/VC/lib/amd64" ]
+    if (msvc == 2015) {
+      if (target_cpu == "x86") {
+        lib_dirs += [ "$win_vc/lib" ]
+      } else {
+        lib_dirs += [ "$win_vc/lib/amd64" ]
+      }
+    } else {  # 2017
+      lib_dirs +=
+          [ "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu" ]
     }
   } else {
     cflags += [
@@ -137,12 +112,9 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "mipsel") {
-    cflags += [ "-march=mips32r2" ]
-  } else if (current_cpu == "mips64el") {
-    asmflags += [ "-integrated-as" ]
-    cflags += [ "-integrated-as" ]
-  } else if (current_cpu == "x86" && !is_win) {
+  } else if (current_cpu == "x86" && is_win) {
+    cflags += [ "/arch:SSE2" ]
+  } else if (current_cpu == "x86") {
     asmflags += [ "-m32" ]
     cflags += [
       "-m32",
@@ -171,9 +143,9 @@ config("default") {
       "--target=$ndk_target",
     ]
     cflags_cc += [
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib/include",
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
@@ -181,18 +153,15 @@ config("default") {
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     lib_dirs = [
-      "$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib",
+      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
 
-    if (current_cpu == "mips64el") {
-      # The r15b NDK deployed on our bots fails to find /usr/lib64 in  the
-      # MIPS64 sysroots, so we must point Clang at /usr/lib64 manually.
-      lib_dirs += [ "$ndk/platforms/$ndk_platform/usr/lib64" ]
-      ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
-    }
-
-    libs += [ "gnustl_static" ]
+    libs += [
+      "c++_static",
+      "c++abi",
+      "android_support",
+    ]
   }
 
   if (is_ios) {
@@ -230,18 +199,44 @@ config("default") {
   if (is_linux) {
     libs += [ "pthread" ]
   }
+  if (is_mac) {
+    # Disable linker warnings.  They're usually just annoyances like,
+    #   ld: warning: text-based stub file
+    #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
+    #     /System/Library/Frameworks/foo.framework/foo are out of sync.
+    #     Falling back to library file for linking.
+    ldflags += [ "-Wl,-w" ]
+  }
 
   if (sanitize != "") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
-    if (sanitize == "ASAN") {
-      sanitizers = "address,bool,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
-      if (!is_mac) {
-        sanitizers += ",function"  # Not supported on Mac.
+    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+      # ASAN implicitly runs all UBSAN checks also.
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      if (!is_mac && !is_win) {
+        sanitizers += ",function"  # Not supported on Mac or Win.
       }
-      if (!is_debug) {
-        sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
+      if (!is_win) {
+        sanitizers += ",vptr"  # Not supported on Win.
+      }
+      if (!is_debug && !is_win) {
+        # No-op with somewhat annoying warning at -O0.
+        # Seems to be broken on Win.
+        sanitizers += ",object-size"
+      }
+      if (sanitize == "ASAN") {
+        sanitizers += ",address"
+      }
+      if (is_android) {
+        # Android only easily supports address for now
+        # UBSAN runs into linking errors
+        sanitizers = "address"
+
+        # recommended by
+        # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
+        cflags += [ "-fno-omit-frame-pointer" ]
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
@@ -254,6 +249,9 @@ config("default") {
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
     ]
+    if (!is_win) {
+      cflags += [ "-fno-omit-frame-pointer" ]
+    }
     ldflags += [ "-fsanitize=$sanitizers" ]
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
@@ -288,11 +286,6 @@ config("warnings") {
       "/wd4291",  # no matching operator delete found;
                   # memory will not be freed if initialization throws an exception
     ]
-    if (is_clang) {
-      # Shouldn't be necessary for local builds. With distributed builds, files may lose
-      # their case during copy, causing case-sensitivity mismatch on remote machines.
-      cflags += [ "-Wno-nonportable-include-path" ]
-    }
   } else {
     cflags += [
       "-Wall",
@@ -306,88 +299,94 @@ config("warnings") {
       "-Wno-maybe-uninitialized",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
+  }
 
-    if (is_clang) {
-      cflags += [
-        "-Weverything",
-        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
-      ]
+  if (is_clang) {
+    cflags += [
+      "-Weverything",
+      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+    ]
 
-      if (target_cpu == "arm" && is_ios) {
-        # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
-        # We're pretty sure it's actually 8-byte alignment.
-        cflags += [ "-Wno-over-aligned" ]
-      }
-
-      # TODO: fix after we're building with Clang 5
-      cflags += [
-        "-Wno-cast-qual",
-        "-Wno-unused-template",
-        "-Wno-zero-as-null-pointer-constant",
-      ]
-
-      cflags += [
-        "-Wno-cast-align",
-        "-Wno-conditional-uninitialized",
-        "-Wno-conversion",
-        "-Wno-disabled-macro-expansion",
-        "-Wno-documentation",
-        "-Wno-documentation-unknown-command",
-        "-Wno-double-promotion",
-        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-        "-Wno-float-conversion",
-        "-Wno-float-equal",
-        "-Wno-format-nonliteral",
-        "-Wno-global-constructors",  # TODO: OK outside libskia
-        "-Wno-gnu-zero-variadic-macro-arguments",
-        "-Wno-missing-prototypes",
-        "-Wno-missing-variable-declarations",
-        "-Wno-pedantic",
-        "-Wno-reserved-id-macro",
-        "-Wno-shadow",
-        "-Wno-shift-sign-overflow",
-        "-Wno-sign-conversion",
-        "-Wno-signed-enum-bitfield",
-        "-Wno-switch-enum",
-        "-Wno-undef",
-        "-Wno-unreachable-code",
-        "-Wno-unreachable-code-break",
-        "-Wno-unreachable-code-return",
-        "-Wno-unused-macros",
-        "-Wno-unused-member-function",
-      ]
-      cflags_cc += [
-        "-Wno-abstract-vbase-init",
-        "-Wno-weak-vtables",
-      ]
-
-      # We are unlikely to want to fix these.
-      cflags += [
-        "-Wno-covered-switch-default",
-        "-Wno-deprecated",
-        "-Wno-implicit-fallthrough",
-        "-Wno-missing-noreturn",
-        "-Wno-old-style-cast",
-        "-Wno-padded",
-      ]
-      cflags_cc += [
-        "-Wno-c++98-compat",
-        "-Wno-c++98-compat-pedantic",
-        "-Wno-undefined-func-template",
-      ]
-      cflags_objc += [
-        "-Wno-direct-ivar-access",
-        "-Wno-objc-interface-ivars",
-      ]
-      cflags_objcc += [
-        "-Wno-direct-ivar-access",
-        "-Wno-objcc-interface-ivars",
-      ]
+    if (target_cpu == "arm" && is_ios) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
+      # We're pretty sure it's actually 8-byte alignment.
+      cflags += [ "-Wno-over-aligned" ]
     }
+    if (target_cpu == "x86" && is_android) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit x86 Android builds.
+      # We're pretty sure it's actually 8-byte alignment.  See OverAlignedTest.cpp for more info.
+      cflags += [ "-Wno-over-aligned" ]
+    }
+
+    # Shouldn't be necessary for local builds. With distributed Windows builds, files may lose
+    # their case during copy, causing case-sensitivity mismatch on remote machines.
+    cflags += [
+      "-Wno-nonportable-include-path",
+      "-Wno-nonportable-system-include-path",
+    ]
+
+    # TODO: These would all be really great warnings to turn on.
+    cflags += [
+      "-Wno-cast-align",
+      "-Wno-cast-qual",
+      "-Wno-conversion",
+      "-Wno-disabled-macro-expansion",
+      "-Wno-documentation",
+      "-Wno-documentation-unknown-command",
+      "-Wno-double-promotion",
+      "-Wno-exit-time-destructors",  # TODO: OK outside libskia
+      "-Wno-float-equal",
+      "-Wno-format-nonliteral",
+      "-Wno-global-constructors",  # TODO: OK outside libskia
+      "-Wno-missing-prototypes",
+      "-Wno-missing-variable-declarations",
+      "-Wno-pedantic",
+      "-Wno-reserved-id-macro",
+      "-Wno-shadow",
+      "-Wno-shift-sign-overflow",
+      "-Wno-signed-enum-bitfield",
+      "-Wno-switch-enum",
+      "-Wno-undef",
+      "-Wno-unreachable-code",
+      "-Wno-unreachable-code-break",
+      "-Wno-unreachable-code-return",
+      "-Wno-unused-macros",
+      "-Wno-unused-member-function",
+      "-Wno-unused-template",
+      "-Wno-zero-as-null-pointer-constant",
+    ]
+    cflags_cc += [
+      "-Wno-abstract-vbase-init",
+      "-Wno-weak-vtables",
+    ]
+
+    # We are unlikely to want to fix these.
+    cflags += [
+      "-Wno-covered-switch-default",
+      "-Wno-deprecated",
+      "-Wno-implicit-fallthrough",
+      "-Wno-missing-noreturn",
+      "-Wno-old-style-cast",
+      "-Wno-padded",
+      "-Wno-newline-eof",
+    ]
+    cflags_cc += [
+      "-Wno-c++98-compat",
+      "-Wno-c++98-compat-pedantic",
+      "-Wno-undefined-func-template",
+    ]
+    cflags_objc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objc-interface-ivars",
+    ]
+    cflags_objcc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objcc-interface-ivars",
+    ]
   }
 }
 config("warnings_except_public_headers") {
-  if (!is_win) {
+  if (!is_win || is_clang) {
     cflags = [ "-Wno-unused-parameter" ]
   }
 }
@@ -409,8 +408,8 @@ config("debug_symbols") {
       "-funwind-tables",  # Helps make in-process backtraces fuller.
     ]
   } else if (is_win) {
-    cflags = [ "/Zi" ]
-    ldflags = [ "/DEBUG" ]
+    cflags = [ "/Z7" ]
+    ldflags = [ "/DEBUG:FASTLINK" ]
   } else {
     cflags = [ "-g" ]
   }
@@ -431,7 +430,6 @@ config("release") {
     cflags = [
       "/O2",
       "/Zc:inline",
-      "/GS-",
     ]
     ldflags = [
       "/OPT:ICF",

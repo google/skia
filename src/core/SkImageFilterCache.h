@@ -28,6 +28,7 @@ struct SkImageFilterCacheKey {
                                      sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t),
                                      "image_filter_key_tight_packing");
         fMatrix.getType();  // force initialization of type, so hashes match
+        SkASSERT(fMatrix.isFinite());   // otherwise we can't rely on == self when comparing keys
     }
 
     uint32_t fUniqueID;

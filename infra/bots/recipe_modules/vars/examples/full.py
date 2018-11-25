@@ -22,6 +22,8 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-x86_64-Release-ParentRevision',
+  'Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-PDFium',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
@@ -32,7 +34,7 @@ TEST_BUILDERS = [
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
   'Upload-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
   'Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
-  "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+  'Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
 ]
 
 

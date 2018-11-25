@@ -9,6 +9,7 @@
 
 #include "GrBackendSemaphore.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
@@ -21,6 +22,10 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 #include "GrTextureOpList.h"
+#include "GrTextureProxy.h"
+#include "GrTextureProxyPriv.h"
+
+#include "SkDeferredDisplayList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -58,9 +63,6 @@ GrDrawingManager::~GrDrawingManager() {
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->abandonGpuResources();
-    }
     this->cleanup();
 }
 
@@ -76,19 +78,6 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->freeGpuResources();
-    }
-
-}
-
-gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
-    if (fInstancingAllocator) {
-        return fInstancingAllocator.get();
-    }
-
-    fInstancingAllocator = fContext->getGpu()->createInstancedRenderingAllocator();
-    return fInstancingAllocator.get();
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
@@ -134,6 +123,11 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     SkASSERT(result);
 #endif
 
+    GrGpu* gpu = fContext->contextPriv().getGpu();
+
+    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
+                              &fTokenTracker);
+
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
     // stack here is to preserve the flush tokens.
@@ -150,12 +144,20 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                                       fFlushingOpListIDs.begin(), fFlushingOpListIDs.count(),
                                       &renderTargetContexts);
             for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
-                sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
+                sk_sp<GrRenderTargetOpList> onFlushOpList = sk_ref_sp(rtc->getRTOpList());
                 if (!onFlushOpList) {
                     continue;   // Odd - but not a big deal
                 }
+#ifdef SK_DEBUG
+                // OnFlush callbacks are already invoked during flush, and are therefore expected to
+                // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
+                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
+                    SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
+                    SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
+                });
+#endif
                 onFlushOpList->makeClosed(*fContext->caps());
-                onFlushOpList->prepare(&fFlushState);
+                onFlushOpList->prepare(&flushState);
                 fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
             }
             renderTargetContexts.reset();
@@ -173,7 +175,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(fContext->resourceProvider());
+        GrResourceAllocator alloc(fContext->contextPriv().resourceProvider());
         for (int i = 0; i < fOpLists.count(); ++i) {
             fOpLists[i]->gatherProxyIntervals(&alloc);
             alloc.markEndOfOpList(i);
@@ -183,10 +185,18 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         startIndex = 0;
         stopIndex = fOpLists.count();
 #else
-        while (alloc.assign(&startIndex, &stopIndex))
+        GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
+        while (alloc.assign(&startIndex, &stopIndex, &error))
 #endif
         {
-            if (this->executeOpLists(startIndex, stopIndex, &fFlushState)) {
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+            if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
+                for (int i = startIndex; i < stopIndex; ++i) {
+                    fOpLists[i]->purgeOpsWithUninstantiatedProxies();
+                }
+            }
+#endif
+            if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
                 flushed = true;
             }
         }
@@ -194,15 +204,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     fOpLists.reset();
 
-    GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
-                                                                   backendSemaphores);
+    GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
 
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
-        fContext->getResourceCache()->notifyFlushOccurred(type);
+        fContext->contextPriv().getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush(), fFlushingOpListIDs.begin(),
+        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
                                    fFlushingOpListIDs.count());
     }
     fFlushingOpListIDs.reset();
@@ -222,7 +231,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         }
 
 #ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
+        if (!fOpLists[i]->instantiate(fContext->contextPriv().resourceProvider())) {
             SkDebugf("OpList failed to instantiate.\n");
             fOpLists[i] = nullptr;
             continue;
@@ -233,7 +242,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
         // TODO: handle this instantiation via lazy surface proxies?
         // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
+        fOpLists[i]->instantiateDeferredProxies(fContext->contextPriv().resourceProvider());
         fOpLists[i]->prepare(flushState);
     }
 
@@ -262,7 +271,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     }
 
     SkASSERT(!flushState->commandBuffer());
-    SkASSERT(flushState->nextDrawToken() == flushState->nextTokenToFlush());
+    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
 
     // We reset the flush state before the OpLists so that the last resources to be freed are those
     // that are written to in the OpLists. This helps to make sure the most recently used resources
@@ -291,25 +300,47 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     }
     SkASSERT(proxy);
 
-    GrSemaphoresSubmitted result;
+    GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores) {
         result = this->flush(proxy, numSemaphores, backendSemaphores);
     }
 
-    if (!proxy->instantiate(fContext->resourceProvider())) {
+    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return result;
     }
 
+    GrGpu* gpu = fContext->contextPriv().getGpu();
     GrSurface* surface = proxy->priv().peekSurface();
 
-    if (fContext->getGpu() && surface->asRenderTarget()) {
-        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
+    if (gpu && surface->asRenderTarget()) {
+        gpu->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
     }
     return result;
 }
 
 void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fOnFlushCBObjects.push_back(onFlushCBObject);
+}
+
+void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        // no opList should receive a new command after this
+        fOpLists[i]->makeClosed(*fContext->caps());
+    }
+
+    ddl->fOpLists = std::move(fOpLists);
+#endif
+}
+
+void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
+                                          GrRenderTargetProxy* newDest) {
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+    // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
+    // The lazy proxy that references it (in the copied opLists) will steal its GrTexture.
+    ddl->fLazyProxyData->fReplayDest = newDest;
+    fOpLists.push_back_n(ddl->fOpLists.count(), ddl->fOpLists.begin());
+#endif
 }
 
 sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,
@@ -323,8 +354,10 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
+    auto resourceProvider = fContext->contextPriv().resourceProvider();
+
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
-                                                                fContext->getGpu(),
+                                                                resourceProvider,
                                                                 fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
@@ -345,7 +378,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->resourceProvider(),
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
                                                       textureProxy,
                                                       fContext->getAuditTrail()));
 
@@ -383,7 +416,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     if (!pr && allowSW) {
         if (!fSoftwarePathRenderer) {
             fSoftwarePathRenderer =
-                    new GrSoftwarePathRenderer(fContext->resourceProvider(),
+                    new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
                                                fOptionsForPathRendererChain.fAllowPathMaskCaching);
         }
         if (GrPathRenderer::CanDrawPath::kNo != fSoftwarePathRenderer->canDrawPath(args)) {

@@ -9,6 +9,7 @@
 #define SkScopeExit_DEFINED
 
 #include "SkTypes.h"
+#include <functional>
 
 /** SkScopeExit calls a std:::function<void()> in its destructor. */
 class SkScopeExit {

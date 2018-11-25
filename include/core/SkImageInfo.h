@@ -45,7 +45,7 @@ enum SkAlphaType {
      */
     kUnpremul_SkAlphaType,
 
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
+    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
 };
 
 static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
@@ -57,6 +57,9 @@ static inline bool SkAlphaTypeIsValid(unsigned value) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+/** Temporary macro that allows us to add new color types without breaking Chrome compile. */
+#define SK_EXTENDED_COLOR_TYPES
 
 /**
  *  Describes how to interpret the components of a pixel.
@@ -71,7 +74,10 @@ enum SkColorType {
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
     kRGBA_8888_SkColorType,
+    kRGB_888x_SkColorType,
     kBGRA_8888_SkColorType,
+    kRGBA_1010102_SkColorType,
+    kRGB_101010x_SkColorType,
     kGray_8_SkColorType,
     kRGBA_F16_SkColorType,
 
@@ -82,44 +88,42 @@ enum SkColorType {
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
     kN32_SkColorType = kRGBA_8888_SkColorType,
 #else
-    #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+    #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
 #endif
 };
 
 static int SkColorTypeBytesPerPixel(SkColorType ct) {
-    static const uint8_t gSize[] = {
-        0,  // Unknown
-        1,  // Alpha_8
-        2,  // RGB_565
-        2,  // ARGB_4444
-        4,  // RGBA_8888
-        4,  // BGRA_8888
-        1,  // kGray_8
-        8,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
-    return gSize[ct];
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return 1;
+        case kRGB_565_SkColorType:      return 2;
+        case kARGB_4444_SkColorType:    return 2;
+        case kRGBA_8888_SkColorType:    return 4;
+        case kBGRA_8888_SkColorType:    return 4;
+        case kRGB_888x_SkColorType:     return 4;
+        case kRGBA_1010102_SkColorType: return 4;
+        case kRGB_101010x_SkColorType:  return 4;
+        case kGray_8_SkColorType:       return 1;
+        case kRGBA_F16_SkColorType:     return 8;
+    }
+    return 0;
 }
 
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
-    static const uint8_t gShift[] = {
-        0,  // Unknown
-        0,  // Alpha_8
-        1,  // RGB_565
-        1,  // ARGB_4444
-        2,  // RGBA_8888
-        2,  // BGRA_8888
-        0,  // kGray_8
-        3,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
-    return gShift[ct];
+    switch (ct) {
+        case kUnknown_SkColorType:      return 0;
+        case kAlpha_8_SkColorType:      return 0;
+        case kRGB_565_SkColorType:      return 1;
+        case kARGB_4444_SkColorType:    return 1;
+        case kRGBA_8888_SkColorType:    return 2;
+        case kRGB_888x_SkColorType:     return 2;
+        case kBGRA_8888_SkColorType:    return 2;
+        case kRGBA_1010102_SkColorType: return 2;
+        case kRGB_101010x_SkColorType:  return 2;
+        case kGray_8_SkColorType:       return 0;
+        case kRGBA_F16_SkColorType:     return 3;
+    }
+    return 0;
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
@@ -161,7 +165,7 @@ enum SkYUVColorSpace {
        range. See http://en.wikipedia.org/wiki/Rec._709 for details. */
     kRec709_SkYUVColorSpace,
 
-    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace
+    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -297,8 +301,8 @@ public:
         return !(*this == other);
     }
 
-    void unflatten(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const;
+    void unflatten(SkReadBuffer& buffer);
+    void flatten(SkWriteBuffer& buffer) const;
 
     /**
      *  Returns the size (in bytes) of the image buffer that this info needs, given the specified

@@ -43,13 +43,17 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
-            break;
-        case kRGB_565_SkColorType:
-            canonicalAlphaType = kOpaque_SkAlphaType;
-            break;
-        case kN32_SkColorType:
-            break;
+        case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
         case kRGBA_F16_SkColorType:
+            break;
+        case kGray_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
+            canonicalAlphaType = kOpaque_SkAlphaType;
             break;
         default:
             return false;
@@ -519,7 +523,6 @@ SkImageFilterCache* SkBitmapDevice::getImageFilterCache() {
 
 bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
     if (kN32_SkColorType != fBitmap.colorType() ||
-        paint.getRasterizer() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
         paint.getStyle() != SkPaint::kFill_Style ||

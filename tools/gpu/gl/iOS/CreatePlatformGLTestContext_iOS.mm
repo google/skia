@@ -66,7 +66,7 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
         "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
         RTLD_LAZY);
 
-    this->init(gl.release());
+    this->init(std::move(gl));
 }
 
 IOSGLTestContext::~IOSGLTestContext() {

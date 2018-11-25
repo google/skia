@@ -28,25 +28,25 @@ protected:
                                 const GrGLSLProgramDataManager& pdman,
                                 FPCoordTransformIter*);
 
-    // Emit a uniform matrix for each coord transform.
-    void emitTransforms(GrGLSLVertexBuilder* vb,
-                        GrGLSLVaryingHandler* varyingHandler,
-                        GrGLSLUniformHandler* uniformHandler,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
-                        FPCoordTransformHandler* handler) {
-        this->emitTransforms(vb, varyingHandler, uniformHandler,
-                             posVar, localCoords, SkMatrix::I(), handler);
-    }
-
-    // Emit pre-transformed coords as a varying per coord-transform.
+    // Emit transformed local coords from the vertex shader as a uniform matrix and varying per
+    // coord-transform. localCoordsVar must be a 2- or 3-component vector. If it is 3 then it is
+    // assumed to be a 2D homogeneous coordinate.
     void emitTransforms(GrGLSLVertexBuilder*,
                         GrGLSLVaryingHandler*,
                         GrGLSLUniformHandler*,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
+                        const GrShaderVar& localCoordsVar,
                         const SkMatrix& localMatrix,
                         FPCoordTransformHandler*);
+
+    // Version of above that assumes identity for the local matrix.
+    void emitTransforms(GrGLSLVertexBuilder* vb,
+                        GrGLSLVaryingHandler* varyingHandler,
+                        GrGLSLUniformHandler* uniformHandler,
+                        const GrShaderVar& localCoordsVar,
+                        FPCoordTransformHandler* handler) {
+        this->emitTransforms(vb, varyingHandler, uniformHandler, localCoordsVar, SkMatrix::I(),
+                             handler);
+    }
 
     struct GrGPArgs {
         // Used to specify the output variable used by the GP to store its device position. It can

@@ -7,9 +7,10 @@
 
 #include "GrTextureProducer.h"
 #include "GrClip.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
 #include "GrTextureProxy.h"
+#include "SkRectPriv.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -24,8 +25,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     GrMipMapped mipMapped = dstWillRequireMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr,
-        0, mipMapped, inputProxy->origin());
+            SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr,
+            1, mipMapped, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }
@@ -39,7 +40,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
         bool resizing = localRect.width()  != dstRect.width() ||
                         localRect.height() != dstRect.height();
-        needsDomain = resizing && !GrResourceProvider::IsFunctionallyExact(inputProxy.get());
+        needsDomain = resizing && !GrProxyProvider::IsFunctionallyExact(inputProxy.get());
     }
 
     if (needsDomain) {
@@ -84,7 +85,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 
     SkASSERT(proxyBounds.contains(constraintRect));
 
-    const bool proxyIsExact = GrResourceProvider::IsFunctionallyExact(proxy);
+    const bool proxyIsExact = GrProxyProvider::IsFunctionallyExact(proxy);
 
     // If the constraint rectangle contains the whole proxy then no need for a domain.
     if (constraintRect.contains(proxyBounds) && proxyIsExact) {
@@ -141,7 +142,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         // we check whether the filter would reach across the edge of the proxy.
         // We will only set the sides that are required.
 
-        domainRect->setLargest();
+        *domainRect = SkRectPriv::MakeLargest();
         if (coordsLimitedToConstraintRect) {
             // We may be able to use the fact that the texture coords are limited to the constraint
             // rect in order to avoid having to add a domain.
