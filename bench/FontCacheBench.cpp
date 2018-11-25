@@ -184,9 +184,9 @@ protected:
                 }
             } else {
                 fFont.getPaths(fGlyphs, SK_ARRAY_COUNT(fGlyphs),
-                               [](uint16_t, const SkPath* src, void* ctx) {
+                               [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                                    if (src) {
-                                       *static_cast<SkPath*>(ctx) = *src;
+                                       src->transform(mx, static_cast<SkPath*>(ctx));
                                    }
                                }, &path);
             }
