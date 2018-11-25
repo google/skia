@@ -12,6 +12,7 @@
 #include "SkScalar.h"
 #include "SkTypeface.h"
 
+class SkMatrix;
 class SkPaint;
 class SkPath;
 struct SkFontMetrics;
@@ -376,7 +377,7 @@ public:
         @param ctx           function context
    */
     void getPaths(const uint16_t glyphIDs[], int count,
-                  void (*glyphPathProc)(uint16_t glyphID, const SkPath* pathOrNull, void* ctx),
+                  void (*glyphPathProc)(const SkPath* pathOrNull, const SkMatrix& mx, void* ctx),
                   void* ctx) const;
 
     /** Returns SkFontMetrics associated with SkTypeface.
