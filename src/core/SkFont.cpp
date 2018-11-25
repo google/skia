@@ -359,22 +359,19 @@ void SkFont::getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScal
 }
 
 void SkFont::getPaths(const uint16_t glyphs[], int count,
-                      void (*proc)(uint16_t, const SkPath*, void*), void* ctx) const {
+                      void (*proc)(const SkPath*, const SkMatrix&, void*), void* ctx) const {
     SkFont font(*this);
     SkScalar scale = font.setupForAsPaths(nullptr);
+    if (!scale) {
+        scale = 1;
+    }
+    const SkMatrix mx = SkMatrix::MakeScale(scale, scale);
 
     auto exclusive = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
     auto cache = exclusive.get();
 
     for (int i = 0; i < count; ++i) {
-        const SkPath* orig = cache->findPath(cache->getGlyphIDMetrics(glyphs[i]));
-        if (orig && scale) {
-            SkPath tmp;
-            orig->transform(SkMatrix::MakeScale(scale, scale), &tmp);
-            proc(glyphs[i], &tmp, ctx);
-        } else {
-            proc(glyphs[i], orig, ctx);
-        }
+        proc(cache->findPath(cache->getGlyphIDMetrics(glyphs[i])), mx, ctx);
     }
 }
 
@@ -384,10 +381,10 @@ bool SkFont::getPath(uint16_t glyphID, SkPath* path) const {
         bool    fWasSet;
     } pair = { path, false };
 
-    this->getPaths(&glyphID, 1, [](uint16_t, const SkPath* orig, void* ctx) {
+    this->getPaths(&glyphID, 1, [](const SkPath* orig, const SkMatrix& mx, void* ctx) {
         Pair* pair = static_cast<Pair*>(ctx);
         if (orig) {
-            *pair->fPath = *orig;
+            orig->transform(mx, pair->fPath);
             pair->fWasSet = true;
         }
     }, &pair);

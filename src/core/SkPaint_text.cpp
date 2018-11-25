@@ -495,10 +495,12 @@ struct PathPosRec {
     SkPath*         fDst;
     const SkPoint*  fPos;
 };
-static void PathPosProc(uint16_t, const SkPath* src, void* ctx) {
+static void PathPosProc(const SkPath* src, const SkMatrix& mx, void* ctx) {
     PathPosRec* rec = static_cast<PathPosRec*>(ctx);
     if (src) {
-        rec->fDst->addPath(*src, SkMatrix::MakeTrans(rec->fPos->fX, rec->fPos->fY));
+        SkMatrix m(mx);
+        m.postTranslate(rec->fPos->fX, rec->fPos->fY);
+        rec->fDst->addPath(*src, m);
     }
     rec->fPos += 1;
 }
