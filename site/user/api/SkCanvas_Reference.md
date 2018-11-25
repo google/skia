@@ -224,6 +224,8 @@ public:
                                      <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void <a href='#SkCanvas_drawText'>drawText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                   const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
+    void drawSimpleText(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding,
+                        <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
     void <a href='#SkCanvas_drawString'>drawString</a>(const char* <a href='undocumented#String'>string</a>, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
     void <a href='#SkCanvas_drawString'>drawString</a>(const <a href='undocumented#SkString'>SkString</a>& <a href='undocumented#String'>string</a>, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
     void <a href='#SkCanvas_drawPosText'>drawPosText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
@@ -5323,7 +5325,7 @@ apply to <a href='SkPath_Reference#Path'>Path</a> created from <a href='#SkCanva
 
 ### Example
 
-<div><fiddle-embed name="5f823814ec9df1f912a2ea943bedfca1"></fiddle-embed></div>
+<div><fiddle-embed name="a207bbd7317bfbdadbda8af884631e46"></fiddle-embed></div>
 
 ### See Also
 
@@ -5368,8 +5370,7 @@ Elements of <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>: <a href='#Path_E
 
 ### Example
 
-<div><fiddle-embed name="af4c69fbbd165c8b0eb0c9bd49ccbd8d"><div><a href='SkPaint_Reference#Paint'>Paint</a> attributes unrelated to <a href='undocumented#Text'>text</a>, like <a href='SkColor_Reference#Color'>color</a>, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> in allocated <a href='#Text_Blob'>Text_Blob</a>.
-<a href='SkPaint_Reference#Paint'>Paint</a> attributes related to <a href='undocumented#Text'>text</a>, like <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> passed to <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>.
+<div><fiddle-embed name="1cae21e7b63b24de3eca0bbd9be1936b"><div><a href='SkPaint_Reference#Paint'>Paint</a> attributes related to <a href='undocumented#Text'>text</a>, like <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> passed to <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>.
 </div></fiddle-embed></div>
 
 ### See Also
