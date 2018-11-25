@@ -106,7 +106,8 @@ blob equals nullptr
     SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
     SkPaint paint;
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-    paint.textToGlyphs("x", 1, builder.allocRun(paint, 1, 20, 20).glyphs);
+    SkFont font;
+    paint.textToGlyphs("x", 1, builder.allocRun(font, 1, 20, 20).glyphs);
     blob = builder.make();
     SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
     blob = builder.make();
