@@ -3619,19 +3619,18 @@ void draw(SkCanvas* canvas) {
 #Example
     #Height 143
         void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-            paint.setTextSize(120);
+            SkFont font;
+            font.setSize(120);
             SkPoint textPos = { 20, 110 };
             int len = 3;
             SkTextBlobBuilder textBlobBuilder;
             const SkTextBlobBuilder::RunBuffer& run =
-                    textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);
+                    textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);
             run.glyphs[0] = 10;
             run.glyphs[1] = 20;
             run.glyphs[2] = 30;
             sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
-            canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);
+            SkPaint paint;
             SkScalar bounds[] = { 116, 134 };
             int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
             std::vector<SkScalar> intervals;
