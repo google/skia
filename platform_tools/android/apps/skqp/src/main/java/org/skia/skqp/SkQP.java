@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class SkQP {
-    protected native void nInit(AssetManager assetManager, String dataDir, boolean experimentalMode);
-    protected native float nExecuteGM(int gm, int backend) throws SkQPException;
+    protected native void nInit(AssetManager assetManager, String dataDir);
+    protected native long nExecuteGM(int gm, int backend) throws SkQPException;
     protected native String[] nExecuteUnitTest(int test);
     protected native void nMakeReport();
 
@@ -42,13 +42,13 @@ public class SkQP {
 
         // Note: nInit will initialize the mGMs, mBackends and mUnitTests fields.
         AssetManager assetManager = context.getResources().getAssets();
-        this.nInit(assetManager, outputDirPath, true);
+        this.nInit(assetManager, outputDirPath);
 
         for (int backend = 0; backend < mBackends.length; backend++) {
           String classname = kSkiaGM + mBackends[backend];
           for (int gm = 0; gm < mGMs.length; gm++) {
               String testName = kSkiaGM + mBackends[backend] + "_" +mGMs[gm];
-              float value = java.lang.Float.MAX_VALUE;
+              long value = java.lang.Long.MAX_VALUE;
               String error = null;
               Log.w(LOG_PREFIX, "Running: " + testName);
               try {
