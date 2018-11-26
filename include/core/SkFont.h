@@ -323,7 +323,8 @@ public:
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const;
 
-    /** Retrieves the advance and bounds for each glyph in glyphs.
+    /** DEPRECATED
+        Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.
         If widths is not nullptr, widths must be an array of count entries.
         if bounds is not nullptr, bounds must be an array of count entries.
@@ -333,8 +334,63 @@ public:
         @param widths      returns text advances for each glyph; may be nullptr
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
     */
+    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
+        this->getWidthsBounds(glyphs, count, widths, bounds, nullptr, nullptr);
+    }
+
+    // DEPRECATED
+    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[], std::nullptr_t) const {
+        this->getWidths(glyphs, count, widths);
+    }
+
+    /** Experimental
+        Retrieves the advance and bounds for each glyph in glyphs.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of count entries.
+        if bounds is not nullptr, bounds must be an array of count entries.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param widths      returns text advances for each glyph
+     */
     void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
-                   SkRect bounds[] = nullptr) const;
+                   const SkMatrix* ctm = nullptr) const {
+        this->getWidthsBounds(glyphs, count, widths, nullptr, nullptr, ctm);
+    }
+
+    /** Experimental.
+        Retrieves the advance and bounds for each glyph in glyphs.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of count entries.
+        if bounds is not nullptr, bounds must be an array of count entries.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param widths      returns text advances for each glyph; may be nullptr
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+        @param paint       optional, specifies stroking, patheffect and maskfilter
+        @param ctm         optional, specifics addtional transformation
+     */
+    void getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
+                         const SkPaint* paint, const SkMatrix* ctm) const;
+
+
+    /** Experimental.
+        Retrieves the bounds for each glyph in glyphs.
+        bounds must be an array of count entries.
+        If paint is not nullptr, its stroking, patheffect and maskfilter fields will be respected.
+        If ctm is not nullptr, it will be used to determine the bounds.
+
+        @param glyphs      array of glyph indices to be measured
+        @param count       number of glyphs
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+        @param paint       optional, specifies stroking, patheffect and maskfilter
+        @param ctm         optional, specifics addtional transformation
+     */
+    void getBounds(const uint16_t glyphs[], int count, SkRect bounds[], const SkPaint* paint,
+                   const SkMatrix* ctm) const {
+        this->getWidthsBounds(glyphs, count, nullptr, bounds, paint, ctm);
+    }
 
     /** Experimental
         Retrieves the positions for each glyph, beginning at the specified origin. The caller

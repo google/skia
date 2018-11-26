@@ -136,6 +136,10 @@ public:
 
     static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont&);
 
+    static ExclusiveStrikePtr FindOrCreateStrikeExclusive(const SkFont& font,
+                                                          const SkPaint* paint,
+                                                          const SkMatrix* mx);
+
     static std::unique_ptr<SkScalerContext> CreateScalerContext(
             const SkDescriptor&, const SkScalerContextEffects&, const SkTypeface&);
 
