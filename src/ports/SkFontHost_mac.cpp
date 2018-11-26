@@ -822,7 +822,7 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
         CFDictionaryAddValue(cfTraits.get(), kCTFontWeightTrait, cfFontWeight.get());
     }
     // CTFontTraits (width)
-    CGFloat ctWidth = fontstyle_to_ct_width(style.weight());
+    CGFloat ctWidth = fontstyle_to_ct_width(style.width());
     SkUniqueCFRef<CFNumberRef> cfFontWidth(
             CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctWidth));
     if (cfFontWidth) {
