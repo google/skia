@@ -79,14 +79,6 @@ struct GrVertexWriter {
         this->write(remainder...);
     }
 
-    template <typename... Args>
-    void write(const Sk4f& vector, const Args&... remainder) {
-        float buffer[4];
-        vector.store(buffer);
-        this->write<float, 4>(buffer);
-        this->write(remainder...);
-    }
-
     void write() {}
 
     /**
