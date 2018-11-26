@@ -455,10 +455,12 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
 
     glyphTf->charsToGlyphs(s, SkTypeface::kUTF8_Encoding, runBuffer.glyphs, runSize);
 
+#if 0
     SkRect glyphBounds;
     font.getWidths(runBuffer.glyphs, 1, nullptr, &glyphBounds);
 
     REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+#endif
 
     for (int i = 0; i < runSize; i++) {
         runBuffer.pos[i] = i * 10;
