@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fcee6f1_36661194",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-26T19:04:36Z",
+      "side": 1,
+      "message": ":(",
+      "range": {
+        "startLine": 1102,
+        "startChar": 18,
+        "endLine": 1102,
+        "endChar": 23
+      },
+      "revId": "31cf1a2607ce74d182e328ba6a7c2b823381c360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
