@@ -47,4 +47,27 @@ public:
     static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);
 };
 
+class SkAutoToGlyphs {
+public:
+    SkAutoToGlyphs(const SkFont& font, const void* text, size_t length, SkTextEncoding encoding) {
+        if (encoding == kGlyphID_SkTextEncoding || length == 0) {
+            fGlyphs = reinterpret_cast<const uint16_t*>(text);
+            fCount = length >> 1;
+        } else {
+            fCount = font.countText(text, length, encoding);
+            fStorage.reset(fCount);
+            font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
+            fGlyphs = fStorage.get();
+        }
+    }
+
+    int count() const { return fCount; }
+    const uint16_t* glyphs() const { return fGlyphs; }
+
+private:
+    SkAutoSTArray<32, uint16_t> fStorage;
+    const uint16_t* fGlyphs;
+    int             fCount;
+};
+
 #endif
