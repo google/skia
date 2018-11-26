@@ -49,6 +49,8 @@ class AndroidCompileException(Exception):
 def _create_task_dict(options):
   """Creates a dict representation of the requested task."""
   params = {}
+  params['lunch_target'] = options.lunch_target
+  params['mmma_targets'] = options.mmma_targets
   params['issue'] = options.issue
   params['patchset'] = options.patchset
   params['hash'] = options.hash
@@ -191,6 +193,13 @@ def pretty_task_str(task):
 
 def main():
   option_parser = optparse.OptionParser()
+  option_parser.add_option(
+      '', '--lunch_target', type=str, default='',
+      help='The lunch target the android compile bot should build with.')
+  option_parser.add_option(
+      '', '--mmma_targets', type=str, default='',
+      help='The comma-separated mmma targets the android compile bot should '
+           'build.')
   option_parser.add_option(
       '', '--issue', type=int, default=0,
       help='The Gerrit change number to get the patch from.')
