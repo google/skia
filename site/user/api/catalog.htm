@@ -3571,8 +3571,8 @@
         "stdout": "blob equals nullptr"
     },
         "SkTextBlobBuilder_make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(paint, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
-    "hash": "595f6ae785a623ac26059f0573fda995",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "hash": "a6b09a31f2877ba813c6a4e9e3fef1fa",
     "file": "SkTextBlobBuilder_Reference",
     "name": "SkTextBlobBuilder::make()",
         "stdout": "blob equals nullptr\\nblob does not equal nullptr\\nblob equals nullptr\\n"
@@ -5244,18 +5244,18 @@
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "5f823814ec9df1f912a2ea943bedfca1",
+    "hash": "a207bbd7317bfbdadbda8af884631e46",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob"
 },
     "SkCanvas_drawTextBlob_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkFont font;\n    font.setSize(50);\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "af4c69fbbd165c8b0eb0c9bd49ccbd8d",
+    "hash": "1cae21e7b63b24de3eca0bbd9be1936b",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
 },
@@ -7116,10 +7116,10 @@
     "name": "SkPaint::getPosTextPath"
 },
     "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
     "width": 256,
     "height": 143,
-    "hash": "f2229dd5c8e76f9e12fafe59b61353c8",
+    "hash": "728ea9089f233a71a1062e364b8c73fa",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextBlobIntercepts"
 },
@@ -9036,10 +9036,10 @@
     "name": "SkTextBlob::MakeFromText"
 },
     "SkTextBlob_bounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
     "width": 256,
     "height": 70,
-    "hash": "52ba6c8a9483df8c373fdb49b32a5e19",
+    "hash": "a22a490fd43bcc1cd3e26430debfb99e",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::bounds()"
 },
@@ -9060,10 +9060,10 @@
     "name": "SkTextBlob::serialize_2"
 },
     "SkTextBlob_uniqueID": {
-    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n        paint.setTextScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n        paint.setTextScaleX(0.5);\n        SkFont font;\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "5a29bcc0076950339c955149c34e1d46",
+    "hash": "fdd9c8c4470cc4f725af779e9d6db6e4",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::uniqueID"
 },
