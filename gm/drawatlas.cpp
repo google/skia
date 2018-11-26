@@ -9,6 +9,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
 #include "sk_tool_utils.h"
@@ -105,17 +106,18 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               const SkPoint xy[], const SkPath& path, const SkPaint& paint,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
-    int count = paint.countText(text, length);
+    int count = font.countText(text, length, (SkTextEncoding)paint.getTextEncoding());
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
     SkScalar* widths = (SkScalar*)(xform + count);
 
     // Compute a conservative bounds so we can cull the draw
-    const SkRect font = paint.getFontBounds();
-    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(font.fLeft), SkScalarAbs(font.fRight)),
-                                SkTMax(SkScalarAbs(font.fTop), SkScalarAbs(font.fBottom)));
+    const SkRect fbounds = font.getBounds();
+    const SkScalar max = SkTMax(SkTMax(SkScalarAbs(fbounds.fLeft), SkScalarAbs(fbounds.fRight)),
+                                SkTMax(SkScalarAbs(fbounds.fTop), SkScalarAbs(fbounds.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
     paint.getTextWidths(text, length, widths);

@@ -410,6 +410,19 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
+SkRect SkFont::getBounds() const {
+    SkMatrix m;
+    m.setScale(fSize * fScaleX, fSize);
+    m.postSkew(fSkewX, 0);
+
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(*this);
+
+    SkRect bounds;
+    m.mapRect(&bounds, typeface->getBounds());
+    return bounds;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkPaint.h"

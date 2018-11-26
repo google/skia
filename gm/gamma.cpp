@@ -13,6 +13,7 @@
 #include "SkGradientShader.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
+    SkFont font;
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
@@ -50,9 +51,8 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
     SkPaint textPaint;
-    textPaint.setAntiAlias(true);
     textPaint.setColor(SK_ColorWHITE);
-    sk_tool_utils::set_portable_typeface(&textPaint);
+    font.setTypeface(sk_tool_utils::create_portable_typeface());
 
     // Helpers:
     auto advance = [&]() {
@@ -62,17 +62,19 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
     auto nextRect = [&](const char* label, const char* label2) {
         canvas->drawRect(r, p);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        canvas->drawSimpleText(label, strlen(label), kUTF8_SkTextEncoding,
+                               0, sz + font.getSpacing(), font, textPaint);
         if (label2) {
-            canvas->drawString(label2, 0, sz + 2 * textPaint.getFontSpacing(),
-                             textPaint);
+            canvas->drawSimpleText(label2, strlen(label2), kUTF8_SkTextEncoding,
+                                   0, sz + 2 * font.getSpacing(), font, textPaint);
         }
         advance();
     };
 
     auto nextBitmap = [&](const SkBitmap& bmp, const char* label) {
         canvas->drawBitmap(bmp, 0, 0);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        canvas->drawSimpleText(label, strlen(label), kUTF8_SkTextEncoding,
+                               0, sz + font.getSpacing(), font, textPaint);
         advance();
     };
 
@@ -85,13 +87,13 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
         SkString dstText = SkStringPrintf("%08X", dstColor);
-        canvas->drawString(srcText, 0, sz + textPaint.getFontSpacing(),
-                         textPaint);
+        canvas->drawSimpleText(srcText.c_str(), srcText.size(), kUTF8_SkTextEncoding,
+                               0, sz + font.getSpacing(), font, textPaint);
         const char* modeName = SkBlendMode_Name(mode);
-        canvas->drawString(modeName, 0, sz + 2 * textPaint.getFontSpacing(),
-                         textPaint);
-        canvas->drawString(dstText, 0, sz + 3 * textPaint.getFontSpacing(),
-                         textPaint);
+        canvas->drawSimpleText(modeName, strlen(modeName), kUTF8_SkTextEncoding,
+                               0, sz + 2 * font.getSpacing(), font, textPaint);
+        canvas->drawSimpleText(dstText.c_str(), dstText.size(), kUTF8_SkTextEncoding,
+                               0, sz + 3 * font.getSpacing(), font, textPaint);
         advance();
     };
 

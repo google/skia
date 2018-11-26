@@ -36,7 +36,7 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    virtual void onDraw(SkCanvas* inputCanvas) override {
+    void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
@@ -57,9 +57,10 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-
-        sk_tool_utils::set_portable_typeface(&paint, "serif");
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+        font.setTypaface(sk_tool_utils::create_portable_typeface("serif"));
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
@@ -71,9 +72,9 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(x, y);
             canvas->scale(scales[i], scales[i]);
-            paint.setTextSize(textSizes[i]);
+            font.setSize(textSizes[i]);
             canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(nullptr)*scales[i];
+            y += font.getSpacing() * scales[i];
         }
 
         // check rotation
@@ -85,14 +86,14 @@ protected:
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
             canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
-                paint.setTextSize(SkIntToScalar(ps));
-                canvas->drawText(text, textLen, rotX, rotY, paint);
-                rotY += paint.getFontMetrics(nullptr);
+                font.setSize(SkIntToScalar(ps));
+                canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, rotX, rotY, font, paint);
+                rotY += font.getSpacing();
             }
         }
 
         // check scaling down
-        paint.setLCDRenderText(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         x = SkIntToScalar(680);
         y = SkIntToScalar(20);
         size_t arraySize = SK_ARRAY_COUNT(textSizes);
@@ -101,9 +102,9 @@ protected:
             canvas->translate(x, y);
             SkScalar scaleFactor = SkScalarInvert(scales[arraySize - i - 1]);
             canvas->scale(scaleFactor, scaleFactor);
-            paint.setTextSize(textSizes[i]);
-            canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(nullptr)*scaleFactor;
+            font.setSize(textSizes[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            y += font.getSpacing() * scaleFactor;
         }
 
         // check pos text
@@ -114,7 +115,7 @@ protected:
 
             SkAutoTArray<SkPoint>  pos(SkToInt(textLen));
             SkAutoTArray<SkScalar> widths(SkToInt(textLen));
-            paint.setTextSize(textSizes[0]);
+            font.setSize(textSizes[0]);
 
             paint.getTextWidths(text, textLen, &widths[0]);
 

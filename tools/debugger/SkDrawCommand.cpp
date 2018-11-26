@@ -193,6 +193,11 @@
 #define SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC  "transparentOccluder"
 #define SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY   "geometricOnly"
 
+static int legacy_count_text(const SkPaint& paint, const void* text, size_t length) {
+    return SkFont::LEGACY_ExtractFromPaint(paint).countText(text, length,
+                                                        (SkTextEncoding)paint.getTextEncoding());
+}
+
 static SkString* str_append(SkString* str, const SkRect& r) {
     str->appendf(" [%g %g %g %g]", r.left(), r.top(), r.right(), r.bottom());
     return str;
@@ -1820,7 +1825,7 @@ SkDrawPosTextCommand::SkDrawPosTextCommand(const void* text, size_t byteLength,
                                            const SkPoint pos[], const SkPaint& paint)
     : INHERITED(kDrawPosText_OpType)
     , fText(SkData::MakeWithCopy(text, byteLength))
-    , fPos(pos, paint.countText(text, byteLength))
+    , fPos(pos, legacy_count_text(paint, text, byteLength))
     , fPaint(paint) {}
 
 void SkDrawPosTextCommand::execute(SkCanvas* canvas) const {
@@ -1831,7 +1836,7 @@ Json::Value SkDrawPosTextCommand::toJSON(UrlDataManager& urlDataManager) const {
     Json::Value result = INHERITED::toJSON(urlDataManager);
     result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
     Json::Value coords(Json::arrayValue);
-    size_t numCoords = fPaint.textToGlyphs(fText->data(), fText->size(), nullptr);
+    size_t numCoords = legacy_count_text(fPaint, fText->data(), fText->size());
     for (size_t i = 0; i < numCoords; i++) {
         coords.append(MakeJsonPoint(fPos[i]));
     }
@@ -1845,7 +1850,7 @@ SkDrawPosTextHCommand::SkDrawPosTextHCommand(const void* text, size_t byteLength
                                              const SkPaint& paint)
     : INHERITED(kDrawPosTextH_OpType)
     , fText(SkData::MakeWithCopy(text, byteLength))
-    , fXpos(xpos, paint.countText(text, byteLength))
+    , fXpos(xpos, legacy_count_text(paint, text, byteLength))
     , fConstY(constY)
     , fPaint(paint) {}
 
@@ -1858,7 +1863,7 @@ Json::Value SkDrawPosTextHCommand::toJSON(UrlDataManager& urlDataManager) const 
     result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
     result[SKDEBUGCANVAS_ATTRIBUTE_Y] = Json::Value(fConstY);
     Json::Value xpos(Json::arrayValue);
-    size_t numXpos = fPaint.textToGlyphs(fText->data(), fText->size(), nullptr);
+    size_t numXpos = legacy_count_text(fPaint, fText->data(), fText->size());
     for (size_t i = 0; i < numXpos; i++) {
         xpos.append(Json::Value(fXpos[i]));
     }
@@ -2138,7 +2143,7 @@ SkDrawTextRSXformCommand::SkDrawTextRSXformCommand(const void* text, size_t byte
                                                    const SkPaint& paint)
     : INHERITED(kDrawTextRSXform_OpType)
     , fText(SkData::MakeWithCopy(text, byteLength))
-    , fXform(xform, paint.countText(text, byteLength))
+    , fXform(xform, legacy_count_text(paint, text, byteLength))
     , fCull(cull)
     , fPaint(paint) {}
 

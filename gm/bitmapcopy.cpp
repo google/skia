@@ -4,8 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkFont.h"
 
 namespace skiagm {
 
@@ -68,7 +70,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkPaint paint;
         SkScalar horizMargin = 10;
         SkScalar vertMargin = 10;
 
@@ -83,17 +84,20 @@ protected:
         }
 
         canvas->clear(0xFFDDDDDD);
+
+        SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+        SkFont font;
+        font.setTypeface(sk_tool_utils::create_portable_typeface());
 
         SkScalar width = SkIntToScalar(40);
         SkScalar height = SkIntToScalar(40);
-        if (paint.getFontSpacing() > height) {
-            height = paint.getFontSpacing();
+        if (font.getSpacing() > height) {
+            height = font.getSpacing();
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             const char* name = color_type_name(src.colorType());
-            SkScalar textWidth = paint.measureText(name, strlen(name));
+            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
             if (textWidth > width) {
                 width = textWidth;
             }
@@ -106,10 +110,10 @@ protected:
             canvas->save();
             // Draw destination config name
             const char* name = color_type_name(fDst[i].colorType());
-            SkScalar textWidth = paint.measureText(name, strlen(name));
+            SkScalar textWidth = font.measureText(name, strlen(name), kUTF8_SkTextEncoding);
             SkScalar x = (width - textWidth) / SkScalar(2);
-            SkScalar y = paint.getFontSpacing() / SkScalar(2);
-            canvas->drawString(name, x, y, paint);
+            SkScalar y = font.getSpacing() / SkScalar(2);
+            canvas->drawSimpleText(name, x, y, kUTF8_SkTextEncoding, font, paint);
 
             // Draw destination bitmap
             canvas->translate(0, vertOffset);
