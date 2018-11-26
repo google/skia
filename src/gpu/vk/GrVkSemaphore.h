@@ -71,7 +71,7 @@ public:
         }
 #endif
     private:
-        void freeGPUData(const GrVkGpu* gpu) const override;
+        void freeGPUData(GrVkGpu* gpu) const override;
 
         static SkMutex* GetMutex() {
             static SkMutex kMutex;
