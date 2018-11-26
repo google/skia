@@ -281,7 +281,7 @@ bool ApplyTrim(SkPath& path, SkScalar startT, SkScalar stopT, bool isComplement)
 }
 
 struct StrokeOpts {
-    // Default values are set in chaining.js which allows clients
+    // Default values are set in interface.js which allows clients
     // to set any number of them. Otherwise, the binding code complains if
     // any are omitted.
     SkScalar width;
@@ -456,7 +456,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("scale", &SkCanvas::scale)
-        .function("setMatrix", &SkCanvas::setMatrix)
+        .function("setMatrix", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
+            self.setMatrix(toSkMatrix(m));
+        }))
         .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate);
 
@@ -475,6 +477,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkPaint p(self);
             return p;
         }))
+        .function("getStrokeWidth", &SkPaint::getStrokeWidth)
+        .function("getStrokeMiter", &SkPaint::getStrokeMiter)
+        .function("getStrokeCap", &SkPaint::getStrokeCap)
+        .function("getStrokeJoin", &SkPaint::getStrokeJoin)
+        .function("getTextSize", &SkPaint::getTextSize)
         .function("measureText", optional_override([](SkPaint& self, std::string text) {
             // TODO(kjlubick): This does not work well for non-ascii
             // Need to maybe add a helper in interface.js that supports UTF-8
@@ -490,6 +497,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setPathEffect", &SkPaint::setPathEffect)
         .function("setShader", &SkPaint::setShader)
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
+        .function("setStrokeMiter", &SkPaint::setStrokeMiter)
+        .function("setStrokeCap", &SkPaint::setStrokeCap)
+        .function("setStrokeJoin", &SkPaint::setStrokeJoin)
         .function("setStyle", &SkPaint::setStyle)
         .function("setTextSize", &SkPaint::setTextSize);
 
@@ -507,7 +517,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_arcTo", &ApplyArcTo)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
+        .function("countPoints", &SkPath::countPoints)
         .function("_cubicTo", &ApplyCubicTo)
+        .function("getPoint", &SkPath::getPoint)
         .function("_lineTo", &ApplyLineTo)
         .function("_moveTo", &ApplyMoveTo)
         .function("_quadTo", &ApplyQuadTo)
@@ -530,7 +542,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
         .function("equals", &Equals)
-        .function("copy", &CopyPath);
+        .function("copy", &CopyPath)
+#ifdef SK_DEBUG
+        .function("dump", select_overload<void() const>(&SkPath::dump))
+        .function("dumpHex", select_overload<void() const>(&SkPath::dumpHex))
+#endif
+        ;
 
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>");
@@ -617,6 +634,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("ReverseDifference",  SkPathOp::kReverseDifference_SkPathOp);
 
+    enum_<SkPaint::Cap>("StrokeCap")
+        .value("Butt",   SkPaint::Cap::kButt_Cap)
+        .value("Round",  SkPaint::Cap::kRound_Cap)
+        .value("Square", SkPaint::Cap::kSquare_Cap);
+
+    enum_<SkPaint::Join>("StrokeJoin")
+        .value("Miter", SkPaint::Join::kMiter_Join)
+        .value("Round", SkPaint::Join::kRound_Join)
+        .value("Bevel", SkPaint::Join::kBevel_Join);
+
+    value_object<StrokeOpts>("StrokeOpts")
+        .field("width",       &StrokeOpts::width)
+        .field("miter_limit", &StrokeOpts::miter_limit)
+        .field("join",        &StrokeOpts::join)
+        .field("cap",         &StrokeOpts::cap);
+
     enum_<SkShader::TileMode>("TileMode")
         .value("Clamp",    SkShader::TileMode::kClamp_TileMode)
         .value("Repeat",   SkShader::TileMode::kRepeat_TileMode)
@@ -625,10 +658,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkVertices::VertexMode>("VertexMode")
         .value("Triangles",       SkVertices::VertexMode::kTriangles_VertexMode)
         .value("TrianglesStrip",  SkVertices::VertexMode::kTriangleStrip_VertexMode)
-        .value("TriangleFan",    SkVertices::VertexMode::kTriangleFan_VertexMode);
+        .value("TriangleFan",     SkVertices::VertexMode::kTriangleFan_VertexMode);
 
     enum_<SkEncodedImageFormat>("ImageFormat")
-        .value("PNG", SkEncodedImageFormat::kPNG)
+        .value("PNG",  SkEncodedImageFormat::kPNG)
         .value("JPEG", SkEncodedImageFormat::kJPEG);
 
 
