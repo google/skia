@@ -7,7 +7,7 @@
 set -e
 
 BASE_DIR='platform_tools/android/apps/skqp/src/main/assets'
-PATH_LIST='gmkb skqp'
+PATH_LIST='gmkb'
 BUCKET=skia-skqp-assets
 
 EXTANT="$(mktemp "${TMPDIR:-/tmp}/extant.XXXXXXXXXX")"

@@ -57,7 +57,6 @@ declare_args() {
   skia_generate_workarounds = false
   skia_lex = false
 
-  skia_skqp_enable_driver_correctness_workarounds = false
   skia_skqp_global_error_tolerance = 0
 
   skia_llvm_path = ""
@@ -1965,16 +1964,13 @@ if (skia_enable_tools) {
 
   if (!is_win) {
     test_lib("skqp_lib") {
-      public_include_dirs = [ "tools/skqp" ]
+      public_include_dirs = [ "tools/skqp/src" ]
       defines =
           [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
-      if (skia_skqp_enable_driver_correctness_workarounds) {
-        defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
-      }
       sources = [
         "dm/DMGpuTestProcs.cpp",
-        "tools/skqp/gm_knowledge.cpp",
-        "tools/skqp/gm_runner.cpp",
+        "tools/skqp/src/skqp.cpp",
+        "tools/skqp/src/skqp_model.cpp",
       ]
       deps = [
         ":gm",
@@ -1986,13 +1982,22 @@ if (skia_enable_tools) {
     }
     test_app("skqp") {
       sources = [
-        "tools/skqp/skqp.cpp",
+        "tools/skqp/src/skqp_main.cpp",
       ]
       deps = [
         ":skia",
         ":skqp_lib",
         ":tool_utils",
-        "//third_party/googletest",
+      ]
+    }
+    test_app("jitter_gms") {
+      sources = [
+        "tools/skqp/jitter_gms.cpp",
+      ]
+      deps = [
+        ":gm",
+        ":skia",
+        ":skqp_lib",
       ]
     }
   }
@@ -2000,7 +2005,7 @@ if (skia_enable_tools) {
     test_app("skqp_app") {
       is_shared_library = true
       sources = [
-        "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "tools/skqp/src/jni_skqp.cpp",
       ]
       deps = [
         ":skia",
