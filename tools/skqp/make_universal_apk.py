@@ -121,8 +121,6 @@ def make_apk(architectures,
 
     if os.path.exists(apps_dir + '/skqp/src/main/assets/files.checksum'):
         check_call([sys.executable, 'tools/skqp/download_model'])
-        if os.environ.get('SKQP_EXTRA_MODELS' ,''):
-            check_call([sys.executable, 'tools/skqp/remove_unneeded_assets'])
     else:
         sys.stderr.write(
                 '\n* * *\n\nNote: SkQP models are missing!!!!\n\n* * *\n\n')

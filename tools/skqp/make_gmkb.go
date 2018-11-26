@@ -53,9 +53,9 @@ func clampU8(v int) uint8 {
 	return uint8(v)
 }
 
-func processTest(testName string, imgUrls []string, output string) error {
+func processTest(testName string, imgUrls []string, output string) (bool, error) {
 	if strings.ContainsRune(testName, '/') {
-		return nil
+		return false, nil
 	}
 	output_directory := path.Join(output, testName)
 	var img_max image.NRGBA
@@ -63,12 +63,12 @@ func processTest(testName string, imgUrls []string, output string) error {
 	for _, url := range imgUrls {
 		resp, err := http.Get(url)
 		if err != nil {
-			return err
+			return false, err
 		}
 		img, err := png.Decode(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			return err
+			return false, err
 		}
 		if img_max.Rect.Max.X == 0 {
 			// N.B. img_max.Pix may alias img.Pix (if they're already NRGBA).
@@ -79,7 +79,7 @@ func processTest(testName string, imgUrls []string, output string) error {
 		w := img.Bounds().Max.X - img.Bounds().Min.X
 		h := img.Bounds().Max.Y - img.Bounds().Min.Y
 		if img_max.Rect.Max.X != w || img_max.Rect.Max.Y != h {
-			return errors.New("size mismatch")
+			return false, errors.New("size mismatch")
 		}
 		img_nrgba := toNrgba(img)
 		for i, value := range img_nrgba.Pix {
@@ -91,21 +91,32 @@ func processTest(testName string, imgUrls []string, output string) error {
 		}
 	}
 	if img_max.Rect.Max.X == 0 {
-		return nil
+		return false, nil
 	}
 
 	if err := os.Mkdir(output_directory, os.ModePerm); err != nil && !os.IsExist(err) {
-		return err
+		return false, err
 	}
 	if err := writePngToFile(path.Join(output_directory, min_png), &img_min); err != nil {
-		return err
+		return false, err
 	}
 	if err := writePngToFile(path.Join(output_directory, max_png), &img_max); err != nil {
-		return err
+		return false, err
 	}
-	return nil
-
+	return true, nil
 }
+
+type LockedStringList struct {
+	List []string
+	mux sync.Mutex
+}
+
+func (l *LockedStringList) add(v string) {
+	l.mux.Lock()
+	defer l.mux.Unlock()
+	l.List = append(l.List, v)
+}
+
 
 func readMetaJsonFile(filename string) ([]search.ExportTestRecord, error) {
 	file, err := os.Open(filename)
@@ -165,6 +176,7 @@ func main() {
 	}
 	sort.Sort(ExportTestRecordArray(records))
 
+	var results LockedStringList
 	var wg sync.WaitGroup
 	for _, record := range records {
 		var goodUrls []string
@@ -176,14 +188,26 @@ func main() {
 			}
 		}
 		wg.Add(1)
-		go func(testName string, imgUrls []string, output string) {
+		go func(testName string, imgUrls []string, output string, results* LockedStringList) {
 			defer wg.Done()
-			if err := processTest(testName, imgUrls, output); err != nil {
+			success, err := processTest(testName, imgUrls, output)
+			if err != nil {
 				log.Fatal(err)
 			}
+			if success {
+				results.add(testName)
+			}
 			fmt.Printf("\r%-60s", testName)
-		}(record.TestName, goodUrls, output)
+		}(record.TestName, goodUrls, output, &results)
 	}
 	wg.Wait()
 	fmt.Printf("\r%60s\n", "")
+	sort.Strings(results.List)
+	modelFile, err := os.Create(path.Join(output, "models.txt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, v := range results.List {
+		fmt.Fprintln(modelFile, v)
+	}
 }

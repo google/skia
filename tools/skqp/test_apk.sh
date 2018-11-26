@@ -24,7 +24,7 @@ if ! [ -f "$APK" ]; then
 fi
 
 ARGS=''
-if [ "$#" -gt 1 ]; then
+if [ "$#" -gt 0 ]; then
     ARGS="-e class org.skia.skqp.SkQPRunner#${1}"
     shift
     for arg; do
@@ -34,26 +34,16 @@ fi
 
 TDIR="$(mktemp -d "${TMPDIR:-/tmp}/skqp_report.XXXXXXXXXX")"
 
-filter() {
-    local re='^.*org\.skia\.skqp: output written to "\([^"]*\)".*$'
-    while IFS='' read -r line ; do
-        if printf '%s\n' "$line" | grep -q "$re"; then
-            D="$(printf '%s\n' "$line" | sed -n "s/${re}/\1/p")"
-            echo "$D" > "${TDIR}/loc"
-        fi
-        printf '%s\n' "$line" | sed 's/^[0-9-]\+ [0-9.:]\+ [0-9]\+ [0-9]\+//'
-    done
-}
-
 adb install -r "$APK" || exit 2
 adb logcat -c
 
-adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" | filter &
+adb logcat TestRunner org.skia.skqp skia DEBUG "*:S" | tee "${TDIR}/logcat.txt" &
 LOGCAT_PID=$!
 
 ADBSHELL_PID=''
 trap 'kill $LOGCAT_PID; kill $ADBSHELL_PID' INT
 
+printf '\n%s\n\n' "adb shell am instrument $ARGS -w org.skia.skqp"
 adb shell am instrument $ARGS -w org.skia.skqp \
     >  "${TDIR}/stdout.txt" \
     2> "${TDIR}/stderr.txt" &
@@ -65,26 +55,31 @@ kill $LOGCAT_PID
 
 printf '\nTEST OUTPUT IS IN: "%s"\n\n' "$TDIR"
 
-if ! [ -f "${TDIR}/loc" ]; then exit 2; fi
-
-ODIR="$(cat "${TDIR}/loc")/skqp_report"
+SED_CMD='s/^.* org.skia.skqp: output written to "\([^"]*\)".*$/\1/p'
+ODIR="$(sed -n "$SED_CMD" "${TDIR}/logcat.txt" | head -1)"
 
 if ! adb shell "test -d '$ODIR'" ; then
     echo 'missing output :('
     exit 3
 fi
 
-adb pull "${ODIR}/out.csv" "${ODIR}/report.html" "${ODIR}/images" "${TDIR}/"
-REPORT="$TDIR/report.html"
-grep 'f(.*;' "$REPORT"
-echo "$REPORT"
-case "$(uname)" in
-    Linux)
-        [ "$DISPLAY" ] && xdg-open "$REPORT" &
-        sleep 1
-        ;;
-    Darwin)
-        open "$REPORT" &
-        ;;
-esac
+odir_basename="$(basename "$ODIR")"
 
+adb pull "${ODIR}" "${TDIR}/${odir_basename}"
+
+REPORT="${TDIR}/${odir_basename}/report.html"
+
+open_file() {
+    case "$(uname)" in
+        Linux) [ "$DISPLAY" ] && xdg-open "$@" > /dev/null 2>&1 & ;;
+        Darwin) open "$@" & ;;
+    esac
+}
+
+if [ -f "$REPORT" ]; then
+    grep 'f(.*;' "$REPORT"
+    echo "$REPORT"
+    open_file "$REPORT"
+else
+    echo "$TDIR"
+fi
