@@ -212,6 +212,19 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(cons
     return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
 }
 
+SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(const SkFont& font,
+                                                                const SkPaint* paint,
+                                                                const SkMatrix* mx) {
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font,
+                              paint ? *paint : SkPaint(),
+                              SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+                              kFakeGammaAndBoostContrast, mx ? *mx : SkMatrix::I(), &ad, &effects);
+    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
+}
+
 void SkStrikeCache::PurgeAll() {
     GlobalStrikeCache()->purgeAll();
 }
