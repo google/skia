@@ -1262,7 +1262,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     auto currEdge = head;
     unsigned int offsetVertexCount = numEdges;
     unsigned long long iterations = 0;
-    unsigned long long maxIterations = (unsigned long long)(numEdges*numEdges);
+    unsigned long long maxIterations = (unsigned long long)(numEdges) * numEdges;
     while (head && prevEdge != currEdge && offsetVertexCount > 0) {
         ++iterations;
         // we should check each edge against each other edge at most once
