@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f905bef6_80256032",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-26T18:49:59Z",
+      "side": 1,
+      "message": "Definitely need, for the transition, to grab the ... width, nullptr variant and squash it.",
+      "parentUuid": "566743e8_27d57fc1",
+      "range": {
+        "startLine": 357,
+        "startChar": 38,
+        "endLine": 357,
+        "endChar": 48
+      },
+      "revId": "a90dffb9866d6f2cb40549f1e36639261343a4c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a200ba8_af4908cc",
         "filename": "src/core/SkStrikeCache.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-26T18:16:34Z",
       "side": 1,
       "message": "This is more like FindOrCreateStrikeWithNoDeviceExclusive (it guesses) because the surface properties can affect the bounds (vertical LCD will have different bounds from horizontal LCD). In other words, I\u0027m not sure if just adding the matrix is enough of the device. Maybe we need a public \u0027SkBaseDevice\u0027 which includes a matrix, surface properties, and... maybe that\u0027s it.",
+      "range": {
+        "startLine": 215,
+        "startChar": 36,
+        "endLine": 215,
+        "endChar": 63
+      },
+      "revId": "a90dffb9866d6f2cb40549f1e36639261343a4c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6a3454c_0746a431",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-11-26T18:49:59Z",
+      "side": 1,
+      "message": "Back to nodevice naming (see latest patch)",
+      "parentUuid": "6a200ba8_af4908cc",
       "range": {
         "startLine": 215,
         "startChar": 36,
