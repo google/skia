@@ -13,7 +13,7 @@
 #include "SkPoint.h"
 #include "SkTypeface.h"
 
-class SkPaint;
+class SkFont;
 class SkTextBlobBuilder;
 
 /**
@@ -29,12 +29,12 @@ public:
 
     bool good() const;
     SkPoint shape(SkTextBlobBuilder* dest,
-                   const SkPaint& srcPaint,
-                   const char* utf8text,
-                   size_t textBytes,
-                   bool leftToRight,
-                   SkPoint point,
-                   SkScalar width) const;
+                  const SkFont& srcPaint,
+                  const char* utf8text,
+                  size_t textBytes,
+                  bool leftToRight,
+                  SkPoint point,
+                  SkScalar width) const;
 
 private:
     SkShaper(const SkShaper&) = delete;
