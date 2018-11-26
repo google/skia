@@ -44,6 +44,9 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> srcImg = GetResourceAsImage("images/rainbow-gradient.png");
+        if (!srcImg) {
+            return;
+        }
         fStorage.reset(srcImg->width() * srcImg->height() *
                 SkColorTypeBytesPerPixel(kRGBA_F16_SkColorType));
 

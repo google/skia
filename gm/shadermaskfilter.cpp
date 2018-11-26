@@ -60,6 +60,9 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 560, 370) {
 
     auto image = GetResourceAsImage("images/mandrill_128.png");
     auto mask = GetResourceAsImage("images/color_wheel.png");
+    if (!image || !mask) {
+        return;
+    }
     auto blurmf = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5);
     auto gradmf = SkShaderMaskFilter::Make(make_shader(SkRect::MakeIWH(mask->width(),
                                                                        mask->height())));
