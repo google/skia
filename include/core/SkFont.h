@@ -66,7 +66,14 @@ public:
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX);
 
-    bool operator==(const SkFont&);
+
+    /** Compares SkFont and font, and returns true if they are equivalent.
+        May return false if SkTypeface has identical contents but different pointers.
+
+        @param font  SkPaint to compare
+        @return      true if SkFont pair are equivalent
+    */
+    bool operator==(const SkFont& font) const;
 
     /** If true, instructs the font manager to always hint glyphs.
         Returned value is only meaningful if platform uses FreeType as the font manager.
@@ -175,7 +182,7 @@ public:
 #endif
 
     /** Returns a font with the same attributes of this font, but with the specified size.
-        If size is less than zero or non-finite, nullptr will be returned.
+        Returns nullptr if size is less than zero, infinite, or NaN.
 
         @param size  typographic height of text
         @return      initialized SkFont
@@ -254,7 +261,7 @@ public:
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
-        If encoding is kUTF8_TextEncoding and text contains an invalid UTF-8 sequence,
+        If encoding is kUTF8_SkTextEncoding and text contains an invalid UTF-8 sequence,
         zero is returned.
 
         If maxGlyphCount is not sufficient to store all the glyphs, no glyphs are copied.
@@ -353,7 +360,7 @@ public:
 
         @param glyphs   array of glyph indices to be positioned
         @param count    number of glyphs
-        @param pos      returns glyphs x-positions
+        @param xpos     returns glyphs x-positions
         @param origin   x-position of the first glyph. Defaults to 0.
      */
     void getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
@@ -385,7 +392,7 @@ public:
         descent, ascent, and leading.
         If metrics is not nullptr, SkFontMetrics is copied to metrics.
         Results are scaled by text size but does not take into account
-        dimensions required by text scale x, text skew x, fake bold,
+        dimensions required by text scale, text skew, fake bold,
         style stroke, and SkPathEffect.
 
         @param metrics  storage for SkFontMetrics; may be nullptr

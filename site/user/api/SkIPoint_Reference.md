@@ -95,7 +95,7 @@ pt1 == pt2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIPoint_x'>x()</a> const
+int32_t <a href='#SkIPoint_x'>x()</a>const
 </pre>
 
 Returns x-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
@@ -125,7 +125,7 @@ pt1.fX == pt1.x()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int32_t <a href='#SkIPoint_y'>y()</a> const
+int32_t <a href='#SkIPoint_y'>y()</a>const
 </pre>
 
 Returns y-axis value of <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>.
@@ -155,7 +155,7 @@ pt1.fY == pt1.y()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkIPoint_isZero'>isZero</a>() const
+bool <a href='#SkIPoint_isZero'>isZero</a>()const
 </pre>
 
 Returns true if <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a> are both zero.
@@ -223,7 +223,7 @@ pt1 == pt2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> operator-() const
+<a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> operator-()const
 </pre>
 
 Returns <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> changing the signs of <a href='#SkIPoint_fX'>fX</a> and <a href='#SkIPoint_fY'>fY</a>.
@@ -249,7 +249,7 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 
 ### See Also
 
-<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> operator-(const SkIPoint& a, const SkIPoint& b)<a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::operator-()_const
+<a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a> operator-(const SkIPoint& a, const SkIPoint& b)<a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a> <a href='SkPoint_Reference#SkPoint'>SkPoint</a>::operator-() const
 
 <a name='SkIPoint_addto_operator'></a>
 
@@ -306,7 +306,7 @@ Subtracts <a href='#IPoint_IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool equals(int32_t x, int32_t y) const
+bool equals(int32_t x, int32_t y)const
 </pre>
 
 Returns true if <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> is equivalent to <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> constructed from (<a href='#SkIPoint_equals_x'>x</a>, <a href='#SkIPoint_equals_y'>y</a>).

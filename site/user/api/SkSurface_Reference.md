@@ -941,7 +941,7 @@ surf->makeImageSnapshot() == nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkSurface_width'>width()</a> const
+int <a href='#SkSurface_width'>width()</a>const
 </pre>
 
 Returns <a href='undocumented#Pixel'>pixel</a> count in each row; may be zero or greater.
@@ -971,7 +971,7 @@ surface width=37  canvas width=37
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkSurface_height'>height()</a> const
+int <a href='#SkSurface_height'>height()</a>const
 </pre>
 
 Returns <a href='undocumented#Pixel'>pixel</a> row count; may be zero or greater.
@@ -1673,7 +1673,7 @@ converting to <a href='SkSurface_Reference#Surface'>Surface</a> <a href='SkImage
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& <a href='#SkSurface_props'>props()</a> const
+const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>& <a href='#SkSurface_props'>props()</a>const
 </pre>
 
 Returns <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a> for <a href='SkSurface_Reference#Surface'>surface</a>.
@@ -1805,7 +1805,7 @@ true if GPU is waiting on semaphores
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkSurface_characterize'>characterize</a>(<a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>* characterization) const
+bool <a href='#SkSurface_characterize'>characterize</a>(<a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>* characterization)const
 </pre>
 
 Initializes <a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a> that can be used to perform GPU back-end

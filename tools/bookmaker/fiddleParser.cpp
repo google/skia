@@ -55,6 +55,9 @@ bool FiddleBase::parseFiddles() {
                 if (!iter->isString()) {
                     return report_error(blockName, "expected string 2");
                 }
+                if ("SkFont_Edging" == string(blockName)) {
+                    SkDebugf("");
+                }
                 example = this->findExample(blockName);
                 if (!example) {
                     return report_error(blockName, "missing example");
