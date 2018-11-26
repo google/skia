@@ -51,7 +51,7 @@ GrVkSemaphore::GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitS
 
 void GrVkSemaphore::onRelease() {
     if (fResource) {
-        fResource->unref(static_cast<const GrVkGpu*>(this->getGpu()));
+        fResource->unref(static_cast<GrVkGpu*>(this->getGpu()));
         fResource = nullptr;
     }
     INHERITED::onRelease();
@@ -65,7 +65,7 @@ void GrVkSemaphore::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void GrVkSemaphore::Resource::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkSemaphore::Resource::freeGPUData(GrVkGpu* gpu) const {
     if (fIsOwned) {
         GR_VK_CALL(gpu->vkInterface(),
                    DestroySemaphore(gpu->device(), fSemaphore, nullptr));

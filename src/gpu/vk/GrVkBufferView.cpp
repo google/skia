@@ -33,6 +33,6 @@ const GrVkBufferView* GrVkBufferView::Create(const GrVkGpu* gpu, VkBuffer buffer
     return new GrVkBufferView(bufferView);
 }
 
-void GrVkBufferView::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkBufferView::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyBufferView(gpu->device(), fBufferView, nullptr));
 }
