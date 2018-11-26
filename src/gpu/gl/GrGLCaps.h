@@ -385,12 +385,6 @@ public:
         return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
-    // Intel Skylake instanced draws get corrupted if we mix them with normal ones. Adding a flush
-    // in between seems to resolve this.
-    bool requiresFlushBetweenNonAndInstancedDraws() const {
-        return fRequiresFlushBetweenNonAndInstancedDraws;
-    }
-
     // Some Adreno drivers refuse to ReadPixels from an MSAA buffer that has stencil attached.
     bool detachStencilFromMSAABuffersBeforeReadPixels() const {
         return fDetachStencilFromMSAABuffersBeforeReadPixels;
@@ -531,7 +525,6 @@ private:
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
-    bool fRequiresFlushBetweenNonAndInstancedDraws : 1;
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     int fMaxInstancesPerDrawWithoutCrashing;
 

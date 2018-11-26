@@ -15,6 +15,14 @@ DEPS = [
   'recipe_engine/step',
 ]
 
+CF_X86_PHONE_ENG_LUNCH_TARGET = 'cf_x86_phone-eng'
+SDK_LUNCH_TARGET = 'sdk'
+
+LUNCH_TARGET_TO_MMMA_TARGETS = {
+  CF_X86_PHONE_ENG_LUNCH_TARGET: 'frameworks/base/core/jni,external/skia',
+  SDK_LUNCH_TARGET: 'external/skia',
+}
+
 
 def RunSteps(api):
   buildername = api.properties['buildername']
@@ -27,6 +35,15 @@ def RunSteps(api):
     # not currently have a way to do the same for non-trybot runs.
     raise Exception('%s can only be run as a trybot.' % buildername)
 
+  if CF_X86_PHONE_ENG_LUNCH_TARGET in buildername:
+    lunch_target = CF_X86_PHONE_ENG_LUNCH_TARGET
+    mmma_targets = LUNCH_TARGET_TO_MMMA_TARGETS[lunch_target]
+  elif SDK_LUNCH_TARGET in buildername:
+    lunch_target = SDK_LUNCH_TARGET
+    mmma_targets = LUNCH_TARGET_TO_MMMA_TARGETS[SDK_LUNCH_TARGET]
+  else:
+    raise Exception('Lunch target in %s is not recognized.' % buildername)
+
   infrabots_dir = api.path['start_dir'].join('skia', 'infra', 'bots')
   trigger_wait_ac_script = infrabots_dir.join('android_compile',
                                               'trigger_wait_ac_task.py')
@@ -34,6 +51,8 @@ def RunSteps(api):
   # Trigger a compile task on the android compile server and wait for it to
   # complete.
   cmd = ['python', trigger_wait_ac_script,
+         '--lunch_target', lunch_target,
+         '--mmma_targets', mmma_targets,
          '--issue', issue,
          '--patchset', patchset,
         ]
@@ -66,6 +85,31 @@ def GenTests(api):
         patch_issue=1234,
         patch_set=1,
     )
+  )
+
+  yield(
+    api.test('android_compile_sdk_trybot') +
+    api.properties(
+        buildername='Build-Debian9-Clang-host-sdk-Android_Framework',
+        path_config='kitchen',
+        swarm_out_dir='[SWARM_OUT_DIR]',
+        repository='https://skia.googlesource.com/skia.git',
+        patch_issue=1234,
+        patch_set=1,
+    )
+  )
+
+  yield(
+    api.test('android_compile_unrecognized_target') +
+    api.properties(
+        buildername='Build-Debian9-Clang-unrecognized-Android_Framework',
+        path_config='kitchen',
+        swarm_out_dir='[SWARM_OUT_DIR]',
+        repository='https://skia.googlesource.com/skia.git',
+        patch_issue=1234,
+        patch_set=1,
+    ) +
+    api.expect_exception('Exception')
   )
 
   yield(
