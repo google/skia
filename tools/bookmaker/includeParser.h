@@ -162,7 +162,7 @@ public:
     void dumpDefine(const Definition& );
     void dumpEnum(const Definition& , string name);
     bool dumpGlobals(string* globalFileName, long int* globalTell);
-    void dumpMethod(const Definition& , string className);
+    bool dumpMethod(const Definition& , string className);
     void dumpMember(const Definition& );
     bool dumpTokens();
     bool dumpTokens(string skClassName, string globalFileName, long int* globalTell);
@@ -227,9 +227,6 @@ public:
     }
 
     void pushBracket(Bracket bracket) {
-        if ("#else" == string(fChar, 5)) {
-            SkDebugf("");
-        }
         this->setBracketShortCuts(bracket);
         fParent->fTokens.emplace_back(bracket, fChar, fLineCount, fParent, '\0');
         Definition* container = &fParent->fTokens.back();
@@ -462,7 +459,8 @@ protected:
     bool fInFunction;
     bool fInString;
     bool fFailed;
-
+    bool fUndocumentable; // incomplete
+    bool fPriorUndocumentable; // incomplete
     typedef ParserCommon INHERITED;
 };
 
