@@ -22,6 +22,30 @@
       "revId": "dd1e93a73daae646fada8862fce010f7eed55f05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0346fda4_7d165ead",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-11-26T15:34:29Z",
+      "side": 1,
+      "message": "Done.  The others are dashes though?",
+      "parentUuid": "93e4d226_b7e3306d",
+      "range": {
+        "startLine": 31,
+        "startChar": 9,
+        "endLine": 31,
+        "endChar": 35
+      },
+      "revId": "dd1e93a73daae646fada8862fce010f7eed55f05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
