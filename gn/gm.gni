@@ -152,7 +152,6 @@ gm_sources = [
   "$_gm/fwidth_squircle.cpp",
   "$_gm/gamma.cpp",
   "$_gm/gammatext.cpp",
-  "$_gm/gamut.cpp",
   "$_gm/getpostextpath.cpp",
   "$_gm/giantbitmap.cpp",
   "$_gm/glyph_pos.cpp",
