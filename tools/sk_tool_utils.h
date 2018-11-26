@@ -237,6 +237,12 @@ namespace sk_tool_utils {
 
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
+
+    SkRect measure_bounds(const SkPaint& paint, const void* text, size_t length);
+    SkRect measure_bounds(const SkPaint& paint, const SkString& str) {
+        return measure_bounds(paint, str.c_str(), str.size());
+    }
+
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

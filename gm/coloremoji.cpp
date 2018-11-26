@@ -139,8 +139,7 @@ protected:
         paint.setTextSize(40);
 
         // compute the bounds of the text
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
 
         const SkScalar boundsHalfWidth = bounds.width() * SK_ScalarHalf;
         const SkScalar boundsHalfHeight = bounds.height() * SK_ScalarHalf;

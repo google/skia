@@ -62,9 +62,8 @@ static void draw_center_letter(char c,
                                SkScalar x,
                                SkScalar y,
                                SkCanvas* canvas) {
-    SkRect bounds;
+    SkRect bounds = sk_tool_utils::measure_bounds(*p, &c, 1);
     p->setColor(color);
-    p->measureText(&c, 1, &bounds);
     canvas->drawText(&c, 1, x - bounds.centerX(), y - bounds.centerY(), *p);
 }
 

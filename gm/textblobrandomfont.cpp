@@ -47,8 +47,7 @@ protected:
         paint.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 
         SkScalar y = 0;
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         y -= bounds.fTop;
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, y);
         y += bounds.fBottom;
@@ -59,12 +58,12 @@ protected:
         paint.setTextSize(160);
         paint.setSubpixelText(false);
         paint.setLCDRenderText(false);
-        paint.measureText(bigtext1, strlen(bigtext1), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, bigtext1, strlen(bigtext1));
         y -= bounds.fTop;
         sk_tool_utils::add_to_text_blob(&builder, bigtext1, paint, 0, y);
         y += bounds.fBottom;
 
-        paint.measureText(bigtext2, strlen(bigtext2), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, bigtext2, strlen(bigtext2));
         y -= bounds.fTop;
         sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, y);
         y += bounds.fBottom;
@@ -73,7 +72,7 @@ protected:
         if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
             paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             const char* emojiText = sk_tool_utils::emoji_sample_text();
-            paint.measureText(emojiText, strlen(emojiText), &bounds);
+            bounds = sk_tool_utils::measure_bounds(paint, emojiText, strlen(emojiText));
             y -= bounds.fTop;
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, y);
             y += bounds.fBottom;

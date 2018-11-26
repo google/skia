@@ -78,12 +78,11 @@ protected:
 
             fTypefaceIndices[i] = random.nextULessThan(SK_ARRAY_COUNT(fTypefaces));
 
-            SkRect r;
             fPaint.setColor(fColors[i]);
             fPaint.setTypeface(fTypefaces[fTypefaceIndices[i]]);
             fPaint.setTextSize(fPtSizes[i]);
 
-            fPaint.measureText(fStrings[i].c_str(), fStrings[i].size(), &r);
+            SkRect r = sk_tool_utils::measure_bounds(fPaint, fStrings[i]);
             // safeRect is set of x,y positions where we can draw the string without hitting
             // the GM's border.
             SkRect safeRect = SkRect::MakeLTRB(-r.fLeft, -r.fTop, w - r.fRight, h - r.fBottom);

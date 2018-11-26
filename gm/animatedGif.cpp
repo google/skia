@@ -25,8 +25,7 @@ namespace {
         constexpr SkScalar kOffset = 5.0f;
         canvas->drawColor(SK_ColorRED);
         SkPaint paint;
-        SkRect bounds;
-        paint.measureText(errorText.c_str(), errorText.size(), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, errorText.c_str(), errorText.size());
         canvas->drawString(errorText, kOffset, bounds.height() + kOffset,
                          paint);
     }

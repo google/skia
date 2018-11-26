@@ -257,8 +257,8 @@ public:
             glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
-                SkRect cur;
-                glyphPaint.measureText(&glyphId, sizeof(glyphId), &cur);
+                SkRect cur = sk_tool_utils::measure_bounds(glyphPaint, &glyphId, sizeof(glyphId));
+                glyphPaint.measureText(&glyphId, sizeof(glyphId));
                 if (cur.fLeft   < min.fLeft  ) { min.fLeft   = cur.fLeft;   left   = i; }
                 if (cur.fTop    < min.fTop   ) { min.fTop    = cur.fTop ;   top    = i; }
                 if (min.fRight  < cur.fRight ) { min.fRight  = cur.fRight;  right  = i; }

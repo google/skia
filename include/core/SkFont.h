@@ -309,6 +309,11 @@ public:
      */
     bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
 
+#ifdef SK_SUPPORT_LEGACY_MEASURETEXT_BOUNDS
+public:
+#else
+private:
+#endif
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Returns the bounding box of text if bounds is not nullptr.
@@ -321,7 +326,18 @@ public:
         @return            number of glyphs represented by text of length byteLength
     */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         SkRect* bounds = nullptr) const;
+                         SkRect* bounds) const;
+public:
+    // Experimental
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         std::nullptr_t) const {
+        SkRect* bounds = nullptr;
+        return this->measureText(text, byteLength, encoding, bounds);
+    }
+    // Experimental
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
+        return this->measureText(text, byteLength, encoding, nullptr);
+    }
 
     /** Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.

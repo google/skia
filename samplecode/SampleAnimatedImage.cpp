@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "sk_tool_utils.h"
 #include "SkAndroidCodec.h"
 #include "SkAnimatedImage.h"
 #include "SkAnimTimer.h"
@@ -38,8 +39,7 @@ protected:
         SkString str = SkStringPrintf("Press '%c' to start/pause; '%c' to reset.",
                 kPauseKey, kResetKey);
         const char* text = str.c_str();
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         fYOffset = bounds.height();
 
         canvas->drawText(text, strlen(text), 5, fYOffset, paint);

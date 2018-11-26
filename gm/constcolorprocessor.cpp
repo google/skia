@@ -127,19 +127,18 @@ protected:
                     SkString procLabel;
                     procLabel.printf("Proc: [0x%08x, %s]", kColors[procColor], kModeStrs[m]);
 
-                    SkRect inputLabelBounds;
+                    SkRect inputLabelBounds = sk_tool_utils::measure_bounds(labelPaint, inputLabel.c_str(), inputLabel.size());
+
                     // get the bounds of the text in order to position it
-                    labelPaint.measureText(inputLabel.c_str(), inputLabel.size(),
-                                           &inputLabelBounds);
+                    labelPaint.measureText(inputLabel.c_str(), inputLabel.size());
                     canvas->drawString(inputLabel,
                                      renderRect.fRight + kPad,
                                      -inputLabelBounds.fTop, labelPaint);
                     // update the bounds to reflect the offset we used to draw it.
                     inputLabelBounds.offset(renderRect.fRight + kPad, -inputLabelBounds.fTop);
 
-                    SkRect procLabelBounds;
-                    labelPaint.measureText(procLabel.c_str(), procLabel.size(),
-                                           &procLabelBounds);
+                    SkRect procLabelBounds = sk_tool_utils::measure_bounds(labelPaint, procLabel.c_str(), procLabel.size());
+                    labelPaint.measureText(procLabel.c_str(), procLabel.size());
                     canvas->drawString(procLabel,
                                      renderRect.fRight + kPad,
                                      inputLabelBounds.fBottom + 2.f - procLabelBounds.fTop,

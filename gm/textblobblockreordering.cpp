@@ -29,8 +29,7 @@ protected:
         const char* text = "AB";
         sk_tool_utils::set_portable_typeface(&paint);
 
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
 
         SkScalar yOffset = bounds.height();
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 30);

@@ -35,8 +35,8 @@ protected:
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(1500);
 
-        SkRect r;
-        (void)paint.measureText("/", 1, &r);
+        SkRect r = sk_tool_utils::measure_bounds(paint, "/", 1);
+        (void)paint.measureText("/", 1);
         SkPoint pos = {
             this->width()/2 - r.centerX(),
             this->height()/2 - r.centerY()

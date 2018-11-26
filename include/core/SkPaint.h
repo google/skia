@@ -1061,6 +1061,11 @@ public:
     */
     int countText(const void* text, size_t byteLength) const;
 
+#ifdef SK_SUPPORT_LEGACY_MEASURETEXT_BOUNDS
+public:
+#else
+private:
+#endif
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
@@ -1075,6 +1080,7 @@ public:
         @return        advance width or height
     */
     SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
+public:
 
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "sk_tool_utils.h"
 #include "SkAnnotation.h"
 #include "SkData.h"
 #include "gm.h"
@@ -13,8 +14,7 @@ static void draw_url_annotated_text_with_box(
         SkCanvas* canvas, const void* text,
         SkScalar x, SkScalar y, const SkPaint& paint, const char* url) {
     size_t byteLength = strlen(static_cast<const char*>(text));
-    SkRect bounds;
-    (void)paint.measureText(text, byteLength, &bounds);
+    SkRect bounds = sk_tool_utils::measure_bounds(paint, text, byteLength);
     bounds.offset(x, y);
     sk_sp<SkData> urlData(SkData::MakeWithCString(url));
     SkAnnotateRectWithURL(canvas, bounds, urlData.get());

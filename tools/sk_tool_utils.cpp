@@ -389,4 +389,26 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
         }
         return surf;
     }
+
+    SkRect measure_bounds(const SkPaint& paint, const void* text, size_t length) {
+        if (length == 0) {
+            return SkRect::MakeEmpty();
+        }
+
+        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        SkAutoToGlyphs gly(font, text, length, (SkTextEncoding)paint.getTextEncoding());
+
+        SkAutoSTArray<32, SkScalar> widths(gly.count());
+        SkAutoSTArray<32, SkRect> bounds(gly.count());
+        font.getWidths(gly.glyphs(), gly.count(), widths, bounds);
+
+        SkRect outer = bounds[0];
+        SkScalar x = widths[0];
+        for (int i = 1; i < gly.count(); ++i) {
+            outer.join(bounds[i].makeOffset(x, 0));
+            x += widths[i];
+        }
+        return outer;
+    }
+
 }  // namespace sk_tool_utils

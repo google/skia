@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright 2018 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -53,8 +53,7 @@ protected:
         canvas->concat(ctm);
 
         // d3 by default anchors text around the middle
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         canvas->drawString(text, -bounds.centerX(), -bounds.centerY(), paint);
     }
 

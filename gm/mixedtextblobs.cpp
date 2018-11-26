@@ -53,8 +53,7 @@ protected:
         const char* text = "O";
         sk_tool_utils::set_portable_typeface(&paint);
 
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
 
         SkScalar yOffset = bounds.height();
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, yOffset);
@@ -73,7 +72,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
         paint.setLCDRenderText(true);
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.25f,
                                         yOffset - bounds.height() * 0.5f);
         yOffset += bounds.height();
@@ -85,7 +84,7 @@ protected:
             paint.setLCDRenderText(false);
             paint.setTypeface(fEmojiTypeface);
             text = fEmojiText;
-            paint.measureText(text, strlen(text), &bounds);
+            bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
             sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f,
                                             yOffset);
         }

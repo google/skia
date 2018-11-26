@@ -31,8 +31,7 @@ protected:
         const char* text = "A";
         sk_tool_utils::set_portable_typeface(&paint);
 
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
 
         // Medium
@@ -41,7 +40,7 @@ protected:
         text = "B";
         sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, 0);
 
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         SkScalar yOffset = bounds.height();
 
         // Small

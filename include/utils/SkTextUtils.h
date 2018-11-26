@@ -32,6 +32,8 @@ public:
                            const SkPaint& paint, Align align = kLeft_Align) {
         DrawText(canvas, str.c_str(), str.size(), x, y, paint, align);
     }
+
+    static SkRect MeasureBounds(const SkPaint& paint, const void* text, size_t length);
 };
 
 #endif

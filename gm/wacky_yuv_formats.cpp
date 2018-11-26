@@ -626,18 +626,17 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
     textPaint.setTextSize(16);
 
-    SkRect textRect;
     SkString colLabel;
 
     colLabel.printf("%s", kYUVColorSpaceNames[yuvColorSpace]);
-    textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
+    SkRect textRect = sk_tool_utils::measure_bounds(textPaint, colLabel);
     int y = textRect.height();
 
     SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
 
     colLabel.printf("%s", opaque ? "Opaque" : "Transparent");
 
-    textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
+    textRect = sk_tool_utils::measure_bounds(textPaint, colLabel);
     y += textRect.height();
 
     SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
@@ -655,7 +654,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     SkString rowLabel;
 
     rowLabel.printf("%s", kYUVFormatNames[yuvFormat]);
-    textPaint.measureText(rowLabel.c_str(), rowLabel.size(), &textRect);
+    textRect = sk_tool_utils::measure_bounds(textPaint, rowLabel);
     y += kTileWidthHeight/2 + textRect.height()/2;
 
     canvas->drawText(rowLabel.c_str(), rowLabel.size(), 0, y, textPaint);

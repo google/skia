@@ -45,36 +45,35 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
 
         // large
-        SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         SkScalar yOffset = bounds.height();
         paint.setTextSize(162);
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
         // Medium
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         yOffset += bounds.height();
         paint.setTextSize(72);
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
         // Small
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         yOffset += bounds.height();
         paint.setTextSize(32);
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
         // micro (will fall out of distance field text even if distance field text is enabled)
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         yOffset += bounds.height();
         paint.setTextSize(14);
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset);
 
         // Zero size.
-        paint.measureText(text, strlen(text), &bounds);
+        bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
         yOffset += bounds.height();
         paint.setTextSize(0);
 

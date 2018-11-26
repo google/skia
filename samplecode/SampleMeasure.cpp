@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "sk_tool_utils.h"
 #include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -36,14 +38,14 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
     SkScalar*   widths = autoWidths.get();
     SkAutoTMalloc<SkRect> autoRects(len);
     SkRect*     rects = autoRects.get();
-    SkRect      bounds;
 
     SkPaint p(paint);
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSettings); i++) {
         p.setLinearText(gSettings[i].fLinearText);
 
         int n = p.getTextWidths(text, len, widths, rects);
-        SkScalar w = p.measureText(text, len, &bounds);
+        SkRect bounds = sk_tool_utils::measure_bounds(p, text, len);
+        SkScalar w = p.measureText(text, len);
 
         p.setStyle(SkPaint::kFill_Style);
         p.setColor(0x8888FF88);

@@ -64,8 +64,8 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
     paint.setTextSize(32);
     paint.setColor(color);
 
-    SkRect bounds;
-    paint.measureText(text, strlen(text), &bounds);
+    SkRect bounds = sk_tool_utils::measure_bounds(paint, text, strlen(text));
+    paint.measureText(text, strlen(text));
     const SkMatrix mat = SkMatrix::MakeRectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize),
                                                   SkMatrix::kFill_ScaleToFit);
 
