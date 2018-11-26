@@ -11,16 +11,11 @@ none = [
   "$_src/opts/SkBitmapProcState_opts_none.cpp",
 ]
 
-armv7 = [
-  "$_src/opts/SkBitmapProcState_opts_none.cpp",
-]
+armv7 = [ "$_src/opts/SkBitmapProcState_opts_none.cpp" ]
 
-neon = [
-]
+neon = []
 
-arm64 = [
-  "$_src/opts/SkBitmapProcState_opts_none.cpp",
-]
+arm64 = [ "$_src/opts/SkBitmapProcState_opts_none.cpp" ]
 
 crc32 = [ "$_src/opts/SkOpts_crc32.cpp" ]
 
@@ -32,8 +27,8 @@ sse2 = [
   "$_src/opts/opts_check_x86.cpp",
 ]
 
-ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp", ]
+ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp" ]
 sse41 = [ "$_src/opts/SkOpts_sse41.cpp" ]
 sse42 = [ "$_src/opts/SkOpts_sse42.cpp" ]
-avx   = [ "$_src/opts/SkOpts_avx.cpp" ]
-hsw   = [ "$_src/opts/SkOpts_hsw.cpp" ]
+avx = [ "$_src/opts/SkOpts_avx.cpp" ]
+hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]
