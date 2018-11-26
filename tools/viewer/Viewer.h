@@ -159,6 +159,10 @@ private:
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
 
+    bool                   fTiled;
+    bool                   fDrawTileBoundaries;
+    SkSize                 fTileScale;
+
     enum PerspectiveMode {
         kPerspective_Off,
         kPerspective_Real,

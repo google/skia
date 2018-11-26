@@ -190,6 +190,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fRotation(0.0f)
     , fOffset{0.5f, 0.5f}
     , fGestureDevice(GestureDevice::kNone)
+    , fTiled(false)
+    , fDrawTileBoundaries(false)
+    , fTileScale{0.25f, 0.25f}
     , fPerspectiveMode(kPerspective_Off)
 {
     SkGraphics::Init();
@@ -1097,6 +1100,19 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         fSaveToSKP = false;
     }
 
+    // Grab some things we'll need to make surfaces (for tiling or general offscreen rendering)
+    SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode) ? kRGBA_F16_SkColorType
+                                                                        : kN32_SkColorType;
+    SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    canvas->getProps(&props);
+
+    auto make_surface = [=](int w, int h) {
+        SkImageInfo info = SkImageInfo::Make(w, h, colorType, kPremul_SkAlphaType, colorSpace);
+        return Window::kRaster_BackendType == this->fBackendType
+                ? SkSurface::MakeRaster(info, &props)
+                : canvas->makeSurface(info, &props);
+    };
+
     // We need to render offscreen if we're...
     // ... in fake perspective or zooming (so we have a snapped copy of the results)
     // ... in any raster mode, because the window surface is actually GL
@@ -1107,28 +1123,51 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         Window::kRaster_BackendType == fBackendType ||
         colorSpace != nullptr) {
 
-        SkColorType colorType = (ColorMode::kColorManagedF16 == fColorMode)
-            ? kRGBA_F16_SkColorType : kN32_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
-                                             kPremul_SkAlphaType, colorSpace);
-        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-        canvas->getProps(&props);
-        offscreenSurface = Window::kRaster_BackendType == fBackendType
-                         ? SkSurface::MakeRaster(info, &props)
-                         : canvas->makeSurface(info);
+        offscreenSurface = make_surface(fWindow->width(), fWindow->height());
         slideCanvas = offscreenSurface->getCanvas();
     }
 
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
-    slideCanvas->concat(computeMatrix());
-    if (kPerspective_Real == fPerspectiveMode) {
-        slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
-    }
     // Time the painting logic of the slide
     fStatsLayer.beginTiming(fPaintTimer);
-    OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
-    fSlides[fCurrentSlide]->draw(&filterCanvas);
+    if (fTiled) {
+        int tileW = SkScalarCeilToInt(fWindow->width() * fTileScale.width());
+        int tileH = SkScalarCeilToInt(fWindow->height() * fTileScale.height());
+        sk_sp<SkSurface> tileSurface = make_surface(tileW, tileH);
+        SkCanvas* tileCanvas = tileSurface->getCanvas();
+        SkMatrix m = this->computeMatrix();
+        for (int y = 0; y < fWindow->height(); y += tileH) {
+            for (int x = 0; x < fWindow->width(); x += tileW) {
+                SkAutoCanvasRestore acr(tileCanvas, true);
+                tileCanvas->translate(-x, -y);
+                tileCanvas->clear(SK_ColorTRANSPARENT);
+                tileCanvas->concat(m);
+                OveridePaintFilterCanvas filterCanvas(tileCanvas, &fPaint, &fPaintOverrides);
+                fSlides[fCurrentSlide]->draw(&filterCanvas);
+                tileSurface->draw(slideCanvas, x, y, nullptr);
+            }
+        }
+
+        // Draw borders between tiles
+        if (fDrawTileBoundaries) {
+            SkPaint border;
+            border.setColor(0x60FF00FF);
+            border.setStyle(SkPaint::kStroke_Style);
+            for (int y = 0; y < fWindow->height(); y += tileH) {
+                for (int x = 0; x < fWindow->width(); x += tileW) {
+                    slideCanvas->drawRect(SkRect::MakeXYWH(x, y, tileW, tileH), border);
+                }
+            }
+        }
+    } else {
+        slideCanvas->concat(this->computeMatrix());
+        if (kPerspective_Real == fPerspectiveMode) {
+            slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
+        }
+        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
+        fSlides[fCurrentSlide]->draw(&filterCanvas);
+    }
     fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
 
@@ -1548,6 +1587,12 @@ void Viewer::drawImGui() {
                     this->preTouchMatrixChanged();
                     paramsChanged = true;
                     fOffset = {0.5f, 0.5f};
+                }
+                if (ImGui::CollapsingHeader("Tiling")) {
+                    ImGui::Checkbox("Enable", &fTiled);
+                    ImGui::Checkbox("Draw Boundaries", &fDrawTileBoundaries);
+                    ImGui::SliderFloat("Horizontal", &fTileScale.fWidth, 0.1f, 1.0f);
+                    ImGui::SliderFloat("Vertical", &fTileScale.fHeight, 0.1f, 1.0f);
                 }
                 int perspectiveMode = static_cast<int>(fPerspectiveMode);
                 if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
