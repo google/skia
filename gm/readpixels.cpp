@@ -21,6 +21,9 @@ static const int kHeight = 64;
 static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/google_chrome.ico"));
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    if (!codec) {
+        return nullptr;
+    }
 
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
@@ -143,6 +146,9 @@ protected:
             for (SkColorType srcColorType : colorTypes) {
                 canvas->save();
                 sk_sp<SkImage> image = make_raster_image(srcColorType);
+                if (!image) {
+                    continue;
+                }
                 if (GrContext* context = canvas->getGrContext()) {
                     image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
                 }

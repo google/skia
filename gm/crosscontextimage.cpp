@@ -19,6 +19,9 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
     }
 
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
+    if (!encodedData) {
+        return;
+    }
 
     sk_sp<SkImage> encodedImage = SkImage::MakeFromEncoded(encodedData);
     canvas->drawImage(encodedImage, 10, 10);

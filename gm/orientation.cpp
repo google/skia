@@ -22,6 +22,9 @@ DEF_SIMPLE_GM(orientation, canvas, 400, 320) {
     for (char i = '1'; i <= '8'; i++) {
         SkString path = SkStringPrintf("images/orientation/%c.jpg", i);
         auto image = GetResourceAsImage(path.c_str());
+        if (!image) {
+            continue;
+        }
         canvas->drawImage(image, 0, 0);
         if ('4' == i) {
             canvas->restore();
