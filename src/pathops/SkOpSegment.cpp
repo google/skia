@@ -1273,7 +1273,11 @@ bool SkOpSegment::moveMultiples() {
         }
         SkOpPtT* startPtT = test->ptT();
         SkOpPtT* testPtT = startPtT;
+        int safetyHatch = 1000000;
         do {  // iterate through all spans associated with start
+            if (!--safetyHatch) {
+                return false;
+            }
             SkOpSpanBase* oppSpan = testPtT->span();
             if (oppSpan->spanAddsCount() == addCount) {
                 continue;
