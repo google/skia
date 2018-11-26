@@ -477,6 +477,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkPaint p(self);
             return p;
         }))
+        .function("getColor", optional_override([](SkPaint& self)->JSColor {
+            // JS side gives us a signed int instead of an unsigned int for color
+            // Add a optional_override to change it out.
+            return JSColor(self.getColor());
+        }))
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
@@ -717,6 +722,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("BLUE",        (JSColor) SK_ColorBLUE);
     constant("YELLOW",      (JSColor) SK_ColorYELLOW);
     constant("CYAN",        (JSColor) SK_ColorCYAN);
+    constant("BLACK",       (JSColor) SK_ColorBLACK);
     // TODO(?)
 
 #if SK_INCLUDE_SKOTTIE

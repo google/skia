@@ -110,6 +110,7 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		/** @return {CanvasKit.SkPaint} */
 		copy: function() {},
+		getColor: function() {},
 		getStrokeCap: function() {},
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
@@ -312,6 +313,7 @@ CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
+CanvasRenderingContext2D.prototype.fill = function() {};
 CanvasRenderingContext2D.prototype.fillText = function() {};
 CanvasRenderingContext2D.prototype.lineTo = function() {};
 CanvasRenderingContext2D.prototype.measureText = function() {};

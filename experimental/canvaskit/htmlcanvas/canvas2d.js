@@ -80,6 +80,9 @@
     this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
     this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
 
+    this._strokeColor = CanvasKit.BLACK;
+    this._fillColor   = CanvasKit.BLACK;
+
     this._currentPath = new CanvasKit.SkPath();
     this._currentSubpath = null;
     this._currentTransform = CanvasKit.SkMatrix.identity();
@@ -92,8 +95,22 @@
       // by the surface of which it is based.
     }
 
+    Object.defineProperty(this, 'fillStyle', {
+      enumerable: true,
+      get: function() {
+        return colorToString(this._fillColor);
+      },
+      set: function(newStyle) {
+        this._fillColor = parseColor(newStyle);
+      }
+    });
+
     Object.defineProperty(this, 'font', {
       enumerable: true,
+      get: function(newStyle) {
+        // TODO generate this
+        return '10px sans-serif';
+      },
       set: function(newStyle) {
         var size = parseFontSize(newStyle);
         // TODO styles
@@ -101,8 +118,65 @@
       }
     });
 
+    Object.defineProperty(this, 'lineCap', {
+      enumerable: true,
+      get: function() {
+        switch (this._paint.getStrokeCap()) {
+          case CanvasKit.StrokeCap.Butt:
+            return 'butt';
+          case CanvasKit.StrokeCap.Round:
+            return 'round';
+          case CanvasKit.StrokeCap.Square:
+            return 'square';
+        }
+      },
+      set: function(newCap) {
+        switch (newCap) {
+          case 'butt':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
+            return;
+          case 'round':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Round);
+            return;
+          case 'square':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Square);
+            return;
+        }
+      }
+    });
+
+    Object.defineProperty(this, 'lineJoin', {
+      enumerable: true,
+      get: function() {
+        switch (this._paint.getStrokeJoin()) {
+          case CanvasKit.StrokeJoin.Miter:
+            return 'miter';
+          case CanvasKit.StrokeJoin.Round:
+            return 'round';
+          case CanvasKit.StrokeJoin.Bevel:
+            return 'bevel';
+        }
+      },
+      set: function(newJoin) {
+        switch (newJoin) {
+          case 'miter':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
+            return;
+          case 'round':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Round);
+            return;
+          case 'bevel':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Bevel);
+            return;
+        }
+      }
+    });
+
     Object.defineProperty(this, 'lineWidth', {
       enumerable: true,
+      get: function() {
+        return this._paint.getStrokeWidth();
+      },
       set: function(newWidth) {
         if (newWidth <= 0 || !newWidth) {
           // Spec says to ignore NaN/Inf/0/negative values
@@ -112,10 +186,27 @@
       }
     });
 
+    Object.defineProperty(this, 'miterLimit', {
+      enumerable: true,
+      get: function() {
+        return this._paint.getStrokeMiter();
+      },
+      set: function(newLimit) {
+        if (newLimit <= 0 || !newLimit) {
+          // Spec says to ignore NaN/Inf/0/negative values
+          return;
+        }
+        this._paint.setStrokeMiter(newLimit);
+      }
+    });
+
     Object.defineProperty(this, 'strokeStyle', {
       enumerable: true,
+      get: function() {
+        return colorToString(this._strokeColor);
+      },
       set: function(newStyle) {
-        this._paint.setColor(parseColor(newStyle));
+        this._strokeColor = parseColor(newStyle);
       }
     });
 
@@ -215,8 +306,24 @@
       temp.delete();
     }
 
+    this.fill = function() {
+      this._commitSubpath();
+      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
+      this._paint.setColor(this._fillColor);
+      var orig = this._paint.getStrokeWidth();
+      // This is not in the spec, but it appears Chrome scales up
+      // the line width by some amount when stroking (and filling?).
+      var scaledWidth = orig * this._scalefactor();
+      this._paint.setStrokeWidth(scaledWidth);
+      this._canvas.drawPath(this._currentPath, this._paint);
+      // set stroke width back to original size:
+      this._paint.setStrokeWidth(orig);
+    }
+
     this.fillText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
+      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
+      this._paint.setColor(this._fillColor);
       this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
@@ -296,10 +403,18 @@
       this._currentTransform = CanvasKit.SkMatrix.identity();
     }
 
+    this.restore = function() {
+      // TODO
+    }
+
     this.rotate = function(radians, px, py) {
       this._currentTransform = CanvasKit.SkMatrix.multiply(
                                   this._currentTransform,
                                   CanvasKit.SkMatrix.rotated(radians, px, py));
+    }
+
+    this.save = function() {
+      // TODO
     }
 
     this.scale = function(sx, sy) {
@@ -324,23 +439,23 @@
     }
 
     this.stroke = function() {
-      if (this._currentSubpath) {
-        this._commitSubpath();
-        this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-        var orig = this._paint.getStrokeWidth();
-        // This is not in the spec, but it appears Chrome scales up
-        // the line width by some amount when stroking (and filling?).
-        var scaledWidth = orig * this._scalefactor();
-        this._paint.setStrokeWidth(scaledWidth);
-        this._canvas.drawPath(this._currentPath, this._paint);
-        // set stroke width back to original size:
-        this._paint.setStrokeWidth(orig);
-      }
+      this._commitSubpath();
+      this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      this._paint.setColor(this._strokeColor);
+      var orig = this._paint.getStrokeWidth();
+      // This is not in the spec, but it appears Chrome scales up
+      // the line width by some amount when stroking (and filling?).
+      var scaledWidth = orig * this._scalefactor();
+      this._paint.setStrokeWidth(scaledWidth);
+      this._canvas.drawPath(this._currentPath, this._paint);
+      // set stroke width back to original size:
+      this._paint.setStrokeWidth(orig);
     }
 
     this.strokeText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
       this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      this._paint.setColor(this._strokeColor);
       this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
@@ -421,6 +536,27 @@
     }
   }
 
+  function colorToString(skcolor) {
+    // https://html.spec.whatwg.org/multipage/canvas.html#serialisation-of-a-color
+    var components = getColorComponents(skcolor);
+    var r = components[0];
+    var g = components[1];
+    var b = components[2];
+    var a = components[3];
+    if (a === 1.0) {
+      // hex
+      r = r.toString(16).toLowerCase();
+      g = g.toString(16).toLowerCase();
+      b = b.toString(16).toLowerCase();
+      r = (r.length === 1 ? '0'+r: r);
+      g = (g.length === 1 ? '0'+g: g);
+      b = (b.length === 1 ? '0'+b: b);
+      return '#'+r+g+b;
+    } else {
+      return 'rgba('+r+', '+g+', '+b+', '+a.toFixed(8)+')';
+    }
+  }
+
   function valueOrPercent(aStr) {
     var a = parseFloat(aStr) || 1;
     if (aStr && aStr.indexOf('%') !== -1) {
@@ -484,6 +620,7 @@
   }
 
   CanvasKit._testing['parseColor'] = parseColor;
+  CanvasKit._testing['colorToString'] = colorToString;
 
   // Create the following with
   // node ./htmlcanvas/_namedcolors.js --expose-wasm
