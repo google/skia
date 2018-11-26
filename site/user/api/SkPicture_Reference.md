@@ -306,7 +306,7 @@ bounds may be drawn, and are drawn in this example.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const
+uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>()const
 </pre>
 
 Returns a non-zero value unique among <a href='SkPicture_Reference#SkPicture'>SkPicture</a> in Skia process.
@@ -337,7 +337,7 @@ placeholder id = 2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr)const
 </pre>
 
 Returns storage containing <a href='undocumented#SkData'>SkData</a> describing <a href='SkPicture_Reference#SkPicture'>SkPicture</a>, using optional custom
@@ -372,7 +372,7 @@ storage containing serialized <a href='SkPicture_Reference#SkPicture'>SkPicture<
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
+void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr)const
 </pre>
 
 Writes <a href='SkPicture_Reference#Picture'>picture</a> to <a href='#SkPicture_serialize_2_stream'>stream</a>, using optional custom encoders.

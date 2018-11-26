@@ -314,7 +314,7 @@ void MdOut::DefinedState::setLink() {
         parser.skipToEndBracket('(');
         const char* parenStart = parser.fChar;
         parser.skipToBalancedEndBracket('(', ')');
-        parser.skipExact("_const");
+        parser.skipExact(" const");
         // consume whether we find it or not
         fWord = fPriorWord + fSeparator + string(parenStart + 1, parser.fChar - parenStart - 1);
         fEnd = parser.fChar;
