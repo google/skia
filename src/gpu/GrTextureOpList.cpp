@@ -219,7 +219,6 @@ void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
         op->bounds().fLeft, op->bounds().fRight,
         op->bounds().fTop, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
-    GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op.get());
 
     fRecordedOps.emplace_back(std::move(op));
 }
