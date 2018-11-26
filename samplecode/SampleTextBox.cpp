@@ -83,7 +83,8 @@ protected:
         for (int i = 9; i < 24; i += 2) {
             SkTextBlobBuilder builder;
             paint.setTextSize(SkIntToScalar(i));
-            SkPoint end = shaper.shape(&builder, paint, gText, strlen(gText), true,
+            SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+            SkPoint end = shaper.shape(&builder, font, gText, strlen(gText), true,
                                        { margin, margin }, w - margin);
             canvas->drawTextBlob(builder.make(), 0, 0, paint);
 

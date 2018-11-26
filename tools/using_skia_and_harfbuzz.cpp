@@ -134,12 +134,13 @@ public:
         glyph_paint.setColor(SK_ColorBLACK);
         glyph_paint.setFlags(SkPaint::kAntiAlias_Flag |
                              SkPaint::kSubpixelText_Flag);
-        glyph_paint.setTextSize(SkDoubleToScalar(config->font_size.value));
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSize(SkDoubleToScalar(config->font_size.value));
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
         SkTextBlobBuilder textBlobBuilder;
-        SkPoint endPoint = shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true,
+        SkPoint endPoint = shaper.shape(&textBlobBuilder, font, text, textBytes, true,
                                         SkPoint{0, 0},
                                         config->page_width.value - 2*config->left_margin.value);
         sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
@@ -171,6 +172,7 @@ private:
     SkCanvas *pageCanvas;
     SkPaint white_paint;
     SkPaint glyph_paint;
+    SkFont font;
     double current_x;
     double current_y;
 };

@@ -33,7 +33,7 @@ unsigned utf8_lead_byte_to_count(const char* ptr) {
 }
 
 SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
-                        const SkPaint& srcPaint,
+                        const SkFont& srcPaint,
                         const char* utf8text,
                         size_t textBytes,
                         bool leftToRight,
@@ -41,21 +41,21 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
                         SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
 
-    SkPaint paint(srcPaint);
+    SkFont paint(srcPaint);
     paint.setTypeface(fImpl->fTypeface);
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-    int glyphCount = paint.countText(utf8text, textBytes);
+    int glyphCount = paint.countText(utf8text, textBytes, SkTextEncoding::kUTF8);
     if (glyphCount <= 0) {
         return point;
     }
     SkRect bounds;
     SkFontMetrics metrics;
-    paint.getFontMetrics(&metrics);
+    paint.getMetrics(&metrics);
     point.fY -= metrics.fAscent;
-    (void)paint.measureText(utf8text, textBytes, &bounds);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    (void)paint.measureText(utf8text, textBytes, SkTextEncoding::kUTF8, &bounds);
+    SkPaint tmpPaint;
+    paint.LEGACY_applyToPaint(&tmpPaint);
     const SkTextBlobBuilder::RunBuffer& runBuffer =
-        builder->allocRunTextPosH(paint, glyphCount, point.y(), textBytes, SkString(), &bounds);
+        builder->allocRunTextPosH(tmpPaint, glyphCount, point.y(), textBytes, SkString(), &bounds);
     memcpy(runBuffer.utf8text, utf8text, textBytes);
     const char* txtPtr = utf8text;
     for (int i = 0; i < glyphCount; ++i) {
@@ -64,9 +64,10 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         txtPtr += utf8_lead_byte_to_count(txtPtr);
         SkASSERT(txtPtr <= utf8text + textBytes);
     }
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-    (void)paint.textToGlyphs(utf8text, textBytes, runBuffer.glyphs);
-    (void)paint.getTextWidths(utf8text, textBytes, runBuffer.pos);
+    (void)paint.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8,
+                             runBuffer.glyphs, glyphCount);
+    // replace with getPos()?
+    (void)paint.getWidths(runBuffer.glyphs, glyphCount, runBuffer.pos);
     SkScalar x = point.x();
     for (int i = 0; i < glyphCount; ++i) {
         SkScalar w = runBuffer.pos[i];

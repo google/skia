@@ -10,7 +10,7 @@
 #include "SkLoadICU.h"
 #include "SkMalloc.h"
 #include "SkOnce.h"
-#include "SkPaint.h"
+#include "SkFont.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -396,7 +396,7 @@ struct ShapedGlyph {
     bool fHasVisual;
 };
 struct ShapedRun {
-    ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkPaint& paint,
+    ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkFont& paint,
               UBiDiLevel level, std::unique_ptr<ShapedGlyph[]> glyphs)
         : fUtf8Start(utf8Start), fUtf8End(utf8End), fNumGlyphs(numGlyphs), fPaint(paint)
         , fLevel(level), fGlyphs(std::move(glyphs))
@@ -405,7 +405,7 @@ struct ShapedRun {
     const char* fUtf8Start;
     const char* fUtf8End;
     int fNumGlyphs;
-    SkPaint fPaint;
+    SkFont fPaint;
     UBiDiLevel fLevel;
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
 };
@@ -416,7 +416,9 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 
 static void append(SkTextBlobBuilder* b, const ShapedRun& run, int start, int end, SkPoint* p) {
     unsigned len = end - start;
-    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, run.fPaint, len,
+    SkPaint tmpPaint;
+    run.fPaint.LEGACY_applyToPaint(&tmpPaint);
+    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, tmpPaint, len,
             run.fUtf8End - run.fUtf8Start, SkString());
     memcpy(runBuffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
 
@@ -517,7 +519,7 @@ bool SkShaper::good() const {
 }
 
 SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
-                        const SkPaint& srcPaint,
+                        const SkFont& srcPaint,
                         const char* utf8,
                         size_t utf8Bytes,
                         bool leftToRight,
@@ -633,15 +635,14 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             return point;
         }
 
-        SkPaint paint(srcPaint);
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        SkFont paint(srcPaint);
         paint.setTypeface(sk_ref_sp(font->currentTypeface()));
         ShapedRun& run = runs.emplace_back(utf8Start, utf8End, len, paint, bidi->currentLevel(),
                                            std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]));
         int scaleX, scaleY;
         hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
-        double textSizeY = run.fPaint.getTextSize() / scaleY;
-        double textSizeX = run.fPaint.getTextSize() / scaleX * run.fPaint.getTextScaleX();
+        double textSizeY = run.fPaint.getSize() / scaleY;
+        double textSizeX = run.fPaint.getSize() / scaleX * run.fPaint.getScaleX();
         for (unsigned i = 0; i < len; i++) {
             ShapedGlyph& glyph = run.fGlyphs[i];
             glyph.fID = info[i].codepoint;
@@ -731,7 +732,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
 
         if (previousRunIndex != runIndex) {
             SkFontMetrics metrics;
-            runs[runIndex].fPaint.getFontMetrics(&metrics);
+            runs[runIndex].fPaint.getMetrics(&metrics);
             maxAscent = SkTMin(maxAscent, metrics.fAscent);
             maxDescent = SkTMax(maxDescent, metrics.fDescent);
             maxLeading = SkTMax(maxLeading, metrics.fLeading);
