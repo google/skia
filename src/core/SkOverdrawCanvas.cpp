@@ -272,8 +272,8 @@ void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
     }
 }
 
-void SkOverdrawCanvas::onDrawImageSet(const ImageSetEntry set[], int count, float alpha,
-                                      SkFilterQuality, SkBlendMode) {
+void SkOverdrawCanvas::onDrawImageSet(const ImageSetEntry set[], int count, SkFilterQuality,
+                                      SkBlendMode) {
     for (int i = 0; i < count; ++i) {
         fList[0]->onDrawRect(set[i].fDstRect, fPaint);
     }

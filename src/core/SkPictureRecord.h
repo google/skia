@@ -193,7 +193,7 @@ protected:
                          const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const SkCanvas::Lattice& lattice, const SkRect& dst,
                             const SkPaint*) override;
-    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                         SkBlendMode) override;
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
     void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone bones[], int boneCount,

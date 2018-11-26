@@ -1454,12 +1454,12 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
-void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                SkFilterQuality filterQuality, SkBlendMode mode) {
     SkASSERT(count > 0);
     if (mode != SkBlendMode::kSrcOver ||
         !fContext->contextPriv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
-        INHERITED::drawImageSet(set, count, alpha, filterQuality, mode);
+        INHERITED::drawImageSet(set, count, filterQuality, mode);
         return;
     }
     GrSamplerState sampler;
@@ -1475,7 +1475,7 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, f
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
-                                                 sampler.filter(), alpha, this->ctm(),
+                                                 sampler.filter(), this->ctm(),
                                                  std::move(textureXform));
         }
     };

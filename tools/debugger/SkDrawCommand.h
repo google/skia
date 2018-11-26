@@ -366,14 +366,12 @@ private:
 
 class SkDrawImageSetCommand : public SkDrawCommand {
 public:
-    SkDrawImageSetCommand(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
-                          SkBlendMode);
+    SkDrawImageSetCommand(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality, SkBlendMode);
     void execute(SkCanvas* canvas) const override;
 
 private:
     SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
     int fCount;
-    float fAlpha;
     SkFilterQuality fFilterQuality;
     SkBlendMode fMode;
 

@@ -269,7 +269,6 @@ RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
 RECORD(DrawImageSet, kDraw_Tag|kHasImage_Tag,
        SkAutoTArray<SkCanvas::ImageSetEntry> set;
        int count;
-       float alpha;
        SkFilterQuality quality;
        SkBlendMode mode);
 RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,

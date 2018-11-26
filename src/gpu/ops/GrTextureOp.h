@@ -43,7 +43,6 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                const GrRenderTargetContext::TextureSetEntry[],
                                int cnt,
                                GrSamplerState::Filter,
-                               float alpha,
                                GrAAType,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform);

@@ -542,14 +542,13 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                      SkFilterQuality filterQuality, SkBlendMode mode) {
     // op + count + alpha + fq + mode + (image index, src rect, dst rect, alpha, aa flags) * cnt
-    size_t size = 4 * kUInt32Size + sizeof(SkScalar) +
-                  (2 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
+    size_t size =
+            4 * kUInt32Size + (2 * kUInt32Size + 2 * sizeof(SkRect) + sizeof(SkScalar)) * count;
     size_t initialOffset = this->addDraw(DRAW_IMAGE_SET, &size);
     this->addInt(count);
-    this->addScalar(SkFloatToScalar(alpha));
     this->addInt((int)filterQuality);
     this->addInt((int)mode);
     for (int i = 0; i < count; ++i) {

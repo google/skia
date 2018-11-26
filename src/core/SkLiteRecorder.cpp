@@ -159,9 +159,9 @@ void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
     fDL->drawImageLattice(sk_ref_sp(img), lattice, dst, paint);
 }
 
-void SkLiteRecorder::onDrawImageSet(const ImageSetEntry set[], int count, float alpha,
+void SkLiteRecorder::onDrawImageSet(const ImageSetEntry set[], int count,
                                     SkFilterQuality filterQuality, SkBlendMode mode) {
-    fDL->drawImageSet(set, count, alpha, filterQuality, mode);
+    fDL->drawImageSet(set, count, filterQuality, mode);
 }
 
 void SkLiteRecorder::onDrawPatch(const SkPoint cubics[12],

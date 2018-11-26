@@ -328,18 +328,17 @@ namespace {
     };
     struct DrawImageSet final : Op {
         static const auto kType = Type::DrawImageSet;
-        DrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
-                     SkFilterQuality quality, SkBlendMode xfermode)
-                : count(count), alpha(alpha), quality(quality), xfermode(xfermode), set(count) {
+        DrawImageSet(const SkCanvas::ImageSetEntry set[], int count, SkFilterQuality quality,
+                     SkBlendMode xfermode)
+                : count(count), quality(quality), xfermode(xfermode), set(count) {
             std::copy_n(set, count, this->set.get());
         }
         int                                   count;
-        float                                 alpha;
         SkFilterQuality                       quality;
         SkBlendMode                           xfermode;
         SkAutoTArray<SkCanvas::ImageSetEntry> set;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->experimental_DrawImageSetV0(set.get(), count, alpha, quality, xfermode);
+            c->experimental_DrawImageSetV1(set.get(), count, quality, xfermode);
         }
     };
     struct DrawText final : Op {
@@ -620,9 +619,9 @@ void SkLiteDL::drawImageLattice(sk_sp<const SkImage> image, const SkCanvas::Latt
                 lattice.fRectTypes, fs);
 }
 
-void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                             SkFilterQuality filterQuality, SkBlendMode mode) {
-    this->push<DrawImageSet>(0, set, count, alpha, filterQuality, mode);
+    this->push<DrawImageSet>(0, set, count, filterQuality, mode);
 }
 
 void SkLiteDL::drawText(const void* text, size_t bytes,

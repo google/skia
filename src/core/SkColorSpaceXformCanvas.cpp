@@ -171,7 +171,7 @@ public:
                                       dst, MaybePaint(paint, fXformer.get()));
         }
     }
-    void onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+    void onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                         SkFilterQuality filterQuality, SkBlendMode mode) override {
         SkAutoTArray<ImageSetEntry> xformedSet(count);
         for (int i = 0; i < count; ++i) {
@@ -181,7 +181,7 @@ public:
             xformedSet[i].fAlpha = set[i].fAlpha;
             xformedSet[i].fAAFlags = set[i].fAAFlags;
         }
-        fTarget->experimental_DrawImageSetV0(xformedSet.get(), count, alpha, filterQuality, mode);
+        fTarget->experimental_DrawImageSetV1(xformedSet.get(), count, filterQuality, mode);
     }
 
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,

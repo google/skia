@@ -105,7 +105,7 @@ public:
                           const SkRect& dst, const SkPaint&) override;
     void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&,
                            const SkRect& dst, const SkPaint&) override;
-    void drawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+    void drawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                       SkBlendMode) override;
 
     void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas* canvas) override;

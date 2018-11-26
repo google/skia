@@ -1841,10 +1841,6 @@ public:
         unsigned fAAFlags;  // QuadAAFlags
     };
 
-    /** Experimental. This version will be removed. Alpha is now a property of ImageSetEntry. */
-    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float alpha,
-                                     SkFilterQuality quality, SkBlendMode mode);
-
     /**
      * This is an experimental API for the SkiaRenderer Chromium project. The signature will
      * surely evolve if this is not removed. It currently offers no performance advantage over
@@ -2486,8 +2482,8 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    virtual void onDrawImageSet(const ImageSetEntry imageSet[], int count, float alpha,
-                                SkFilterQuality, SkBlendMode);
+    virtual void onDrawImageSet(const ImageSetEntry imageSet[], int count, SkFilterQuality,
+                                SkBlendMode);
 
     virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
                               const SkPaint* paint);
