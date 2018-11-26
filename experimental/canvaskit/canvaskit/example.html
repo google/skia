@@ -17,6 +17,14 @@
 
 </style>
 
+<h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
+<img id=api1 width=300 height=300>
+<canvas id=api1_c width=300 height=300></canvas>
+<img id=api2 width=300 height=300>
+<canvas id=api2_c width=300 height=300></canvas>
+<img id=api3 width=300 height=300>
+<canvas id=api3_c width=300 height=300></canvas>
+
 <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
 <canvas id=vertex2 width=300 height=300></canvas>
@@ -38,11 +46,7 @@
 
 <canvas id=nima_example width=300 height=300></canvas>
 
-<h2>Drop in replacement for HTML Canvas (e.g. node.js)</h2>
-<img id=api1 width=300 height=300>
-<canvas id=api1_c width=300 height=300></canvas>
-<img id=api2 width=300 height=300>
-<canvas id=api2_c width=300 height=300></canvas>
+
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -86,6 +90,7 @@
 
       CanvasAPI1(CanvasKit);
       CanvasAPI2(CanvasKit);
+      CanvasAPI3(CanvasKit);
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImage);
@@ -453,13 +458,14 @@
   }
 
   function CanvasAPI2(CanvasKit) {
-    let skcanvas = CanvasKit.MakeCanvas(200, 200);
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
     let realCanvas = document.getElementById('api2_c');
-    realCanvas.width = 200;
-    realCanvas.height = 200;
+    realCanvas.width = 300;
+    realCanvas.height = 300;
 
     for (let canvas of [skcanvas, realCanvas]) {
       let ctx = canvas.getContext('2d');
+      ctx.scale(1.5, 1.5);
       ctx.moveTo(20, 5);
       ctx.lineTo(30, 20);
       ctx.lineTo(40, 10);
@@ -488,10 +494,66 @@
       ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI);
 
       ctx.lineWidth = 4/3;
-
       ctx.stroke();
     }
     document.getElementById('api2').src = skcanvas.toDataURL();
+  }
+
+  function CanvasAPI3(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api3_c');
+    realCanvas.width = 300;
+    realCanvas.height = 300;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.rect(10, 10, 20, 20);
+
+      ctx.scale(2.0, 4.0);
+      ctx.rect(30, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.rotate(Math.PI / 3);
+      ctx.rect(50, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.translate(30, -2);
+      ctx.rect(70, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.translate(60, 0);
+      ctx.rotate(Math.PI / 6);
+      ctx.transform(1.5, 0, 0, 0.5, 0, 0, 0); // effectively scale
+      ctx.rect(90, 10, 20, 20);
+      ctx.resetTransform();
+
+      ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+      ctx.rect(110, 10, 20, 20);
+      ctx.lineTo(110, 0);
+      ctx.resetTransform();
+      ctx.lineTo(220, 120);
+
+      ctx.scale(3.0, 3.0);
+      ctx.font = '6pt Arial';
+      ctx.fillText('This text should be huge', 10, 80);
+      ctx.resetTransform();
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(250, 30);
+      ctx.lineTo(250, 80);
+      ctx.scale(3.0, 3.0);
+      ctx.lineTo(280/3, 90/3);
+      ctx.closePath();
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+    }
+    document.getElementById('api3').src = skcanvas.toDataURL();
   }
 
   function NimaExample(CanvasKit, nimaFile, nimaTexture) {
