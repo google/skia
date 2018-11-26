@@ -1,0 +1,3 @@
+drawbitmaprect
+drawbitmaprect-imagerect
+p3
