@@ -4,8 +4,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 if ! [ -f "$1" ]; then
     printf 'Usage:\n  %s META_JSON_FILE_PATH\n\n' "$0" >&2
+    echo https://goo.gl/jBw3Dd >&2
     exit 1
 fi
 
