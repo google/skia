@@ -302,7 +302,8 @@ static SkRect make_bounds(const SkGlyph& g, SkScalar scale) {
 }
 
 template <typename HANDLER>
-void VisitGlyphs(const SkFont& origFont, const uint16_t glyphs[], int count, HANDLER handler) {
+void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const uint16_t glyphs[], int count,
+                 HANDLER handler) {
     if (count <= 0) {
         return;
     }
@@ -314,12 +315,14 @@ void VisitGlyphs(const SkFont& origFont, const uint16_t glyphs[], int count, HAN
         scale = 1;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font,
+                                                                        paint ? *paint : SkPaint());
     handler(cache.get(), glyphs, count, scale);
 }
 
-void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
-    VisitGlyphs(*this, glyphs, count, [widths, bounds]
+void SkFont::getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
+                             const SkPaint* paint) const {
+    VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
                 (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         for (int i = 0; i < count; ++i) {
             const SkGlyph* g;
@@ -337,7 +340,7 @@ void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], Sk
 }
 
 void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin) const {
-    VisitGlyphs(*this, glyphs, count, [pos, origin]
+    VisitGlyphs(*this, nullptr, glyphs, count, [pos, origin]
                       (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         SkPoint loc = origin;
         for (int i = 0; i < count; ++i) {
@@ -348,7 +351,7 @@ void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint o
 }
 
 void SkFont::getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin) const {
-    VisitGlyphs(*this, glyphs, count, [xpos, origin]
+    VisitGlyphs(*this, nullptr, glyphs, count, [xpos, origin]
                       (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         SkScalar x = origin;
         for (int i = 0; i < count; ++i) {
