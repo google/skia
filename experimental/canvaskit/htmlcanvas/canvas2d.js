@@ -40,9 +40,9 @@
       return null;
     }
 
-    this.toDataURL = function(codec) {
-      // TODO(kjlubick): maybe support other codecs?
-      // For now, just to png
+    this.toDataURL = function(codec, quality) {
+      // TODO(kjlubick): maybe support other codecs (webp?)
+      // For now, just to png and jpeg
       this._surface.flush();
 
       var img = this._surface.makeImageSnapshot();
@@ -50,14 +50,19 @@
         SkDebug('no snapshot');
         return;
       }
-      var png = img.encodeToData();
-      if (!png) {
+      var codec = codec || 'image/png';
+      var format = CanvasKit.ImageFormat.PNG;
+      if (codec === 'image/jpeg') {
+        format = CanvasKit.ImageFormat.JPEG;
+      }
+      var quality = quality || 0.92;
+      var skimg = img.encodeToData(format, quality);
+      if (!skimg) {
         SkDebug('encoding failure');
         return
       }
-      // TODO(kjlubick): clean this up a bit - maybe better naming?
-      var pngBytes = CanvasKit.getSkDataBytes(png);
-      return 'data:image/png;base64,' + toBase64String(pngBytes);
+      var imgBytes = CanvasKit.getSkDataBytes(skimg);
+      return 'data:' + codec + ';base64,' + toBase64String(imgBytes);
     }
 
     this.dispose = function() {
@@ -70,15 +75,18 @@
     this._canvas = skcanvas;
     this._paint = new CanvasKit.SkPaint();
     this._paint.setAntiAlias(true);
-    this._paint.setStrokeWidth(2);
-    this._currentSubPath = null;
-    this._paths = [];
-    this._pathStarted = false;
+    this._paint.setStrokeWidth(1);
+    this._paint.setStrokeMiter(10);
+    this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
+    this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
+
+    this._currentPath = new CanvasKit.SkPath();
+    this._currentSubpath = null;
+    this._currentTransform = CanvasKit.SkMatrix.identity();
 
     this._dispose = function() {
-      this._paths.forEach(function(path) {
-        path.delete();
-      });
+      this._currentPath.delete();
+      this._currentSubpath && this._currentSubpath.delete();
       this._paint.delete();
       // Don't delete this._canvas as it will be disposed
       // by the surface of which it is based.
@@ -121,32 +129,61 @@
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(x1, y1);
       if (radius < 0) {
         throw 'radii cannot be negative';
       }
-      this._currentSubPath.arcTo(x1, y1, x2, y2, radius);
+      var pts = [x1, y1, x2, y2];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
+      x1 = pts[0];
+      y1 = pts[1];
+      x2 = pts[2];
+      y2 = pts[3];
+      if (!this._currentSubpath) {
+        this._newSubpath(x1, y1);
+      }
+      this._currentSubpath.arcTo(x1, y1, x2, y2, radius * this._scalefactor());
     }
 
+    // As per the spec this doesn't begin any paths, it only
+    // clears out any previous subpaths.
     this.beginPath = function() {
-      this._currentSubPath = new CanvasKit.SkPath();
-      this._paths.push(this._currentSubPath);
-      this._pathStarted = false;
+      this._currentPath.delete();
+      this._currentPath = new CanvasKit.SkPath();
+      this._currentSubpath && this._currentSubpath.delete();
+      this._currentSubpath = null;
     }
 
     this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(cp1x, cp1y);
-      this._currentSubPath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
+      var pts = [cp1x, cp1y, cp2x, cp2y, x, y];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
+      cp1x = pts[0];
+      cp1y = pts[1];
+      cp2x = pts[2];
+      cp2y = pts[3];
+      x    = pts[4];
+      y    = pts[5];
+      if (!this._currentSubpath) {
+        this._newSubpath(cp1x, cp1y);
+      }
+      this._currentSubpath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
     }
 
     this.closePath = function() {
-      if (this._currentSubPath) {
-        this._currentSubPath.close();
-        this._currentSubPath = null;
-        this._pathStarted = false;
+      if (this._currentSubpath) {
+        this._currentSubpath.close();
+        var lastPt = this._currentSubpath.getPoint(0);
+        this._newSubpath(lastPt[0], lastPt[1]);
+      }
+    }
+
+    this._commitSubpath = function () {
+      if (this._currentSubpath) {
+        this._currentPath.addPath(this._currentSubpath, false);
+        this._currentSubpath.delete();
+        this._currentSubpath = null;
       }
     }
 
@@ -158,49 +195,46 @@
       if (radiusX < 0 || radiusY < 0) {
         throw 'radii cannot be negative';
       }
-      this._pathStarted = true;
 
+      if (!this._currentSubpath) {
+        // Don't use newSubpath here because calculating the starting
+        // point in the arc is non-trivial. Just make a new, empty
+        // subpath to append to.
+        this._currentSubpath = new CanvasKit.SkPath();
+      }
       var bounds = CanvasKit.LTRBRect(x-radiusX, y-radiusY, x+radiusX, y+radiusY);
       var sweep = radiansToDegrees(endAngle - startAngle) - (360 * !!ccw);
       var temp = new CanvasKit.SkPath();
+      // Skia takes degrees. JS tends to be radians.
       temp.addArc(bounds, radiansToDegrees(startAngle), sweep);
-      var m = CanvasKit.SkMatrix.rotated(radiansToDegrees(rotation), x, y);
-      this._currentSubPath.addPath(temp, m, true);
-      temp.delete();
-    }
+      var m = CanvasKit.SkMatrix.multiply(
+                  this._currentTransform,
+                  CanvasKit.SkMatrix.rotated(rotation, x, y));
 
-    // ensureSubpath makes SkPath behave like the browser's path object
-    // in that the first lineTo really acts like a moveTo.
-    // ensureSubpath is the term used in the canvas spec:
-    // https://html.spec.whatwg.org/multipage/canvas.html#ensure-there-is-a-subpath
-    // ensureSubpath returns true if the drawing command can proceed,
-    // false otherwise (i.e. it was the first command and may be replaced
-    // with a moveTo).
-    this._ensureSubpath = function(x, y) {
-      if (!this._currentSubPath) {
-        this.beginPath();
-      }
-      if (!this._pathStarted) {
-        this._pathStarted = true;
-        this.moveTo(x, y);
-        return false;
-      }
-      return true;
+      this._currentSubpath.addPath(temp, m, true);
+      temp.delete();
     }
 
     this.fillText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
+      this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
     }
 
     this.lineTo = function(x, y) {
       if (!argsAreFinite(arguments)) {
         return;
       }
-      // lineTo is the odd-ball in the sense that a line-to without
-      // a previous subpath is the same as a moveTo.
-      if (this._ensureSubpath(x, y)) {
-        this._currentSubPath.lineTo(x, y);
+      var pts = [x, y];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
+      x = pts[0];
+      y = pts[1];
+      // A lineTo without a previous subpath is turned into a moveTo
+      if (!this._currentSubpath) {
+        this._newSubpath(x, y);
+      } else {
+        this._currentSubpath.lineTo(x, y);
       }
     }
 
@@ -215,77 +249,116 @@
       if (!argsAreFinite(arguments)) {
         return;
       }
-      if (this._ensureSubpath(x, y)) {
-        this._currentSubPath.moveTo(x, y);
-      }
+      var pts = [x, y];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
+      x = pts[0];
+      y = pts[1];
+      this._newSubpath(x, y);
+    }
+
+    this._newSubpath = function(x, y) {
+      this._commitSubpath();
+      this._currentSubpath = new CanvasKit.SkPath();
+      this._currentSubpath.moveTo(x, y);
     }
 
     this.quadraticCurveTo = function(cpx, cpy, x, y) {
       if (!argsAreFinite(arguments)) {
         return;
       }
-      this._ensureSubpath(cpx, cpy);
-      this._currentSubPath.quadTo(cpx, cpy, x, y);
+      var pts = [cpx, cpy, x, y];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
+      cpx = pts[0];
+      cpy = pts[1];
+      x   = pts[2];
+      y   = pts[3];
+      if (!this._currentSubpath) {
+        this._newSubpath(cpx, cpy);
+      }
+      this._currentSubpath.quadTo(cpx, cpy, x, y);
     }
 
     this.rect = function(x, y, width, height) {
       if (!argsAreFinite(arguments)) {
         return;
       }
+      var pts = [x, y];
+      CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
       // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
-      this.beginPath();
-      this._currentSubPath.addRect(x, y, x+width, y+height);
-      this.beginPath();
-      this._currentSubPath.moveTo(x, y);
+      this._newSubpath(x, y);
+      var scale = this._scalefactor();
+      this._currentSubpath.addRect(x, y, x+width, y+height);
+      this._currentSubpath.transform(this._currentTransform);
+      this._newSubpath(pts[0], pts[1]);
     }
 
     this.resetTransform = function() {
-      this.setTransform(1, 0, 0, 1, 0, 0);
+      this._currentTransform = CanvasKit.SkMatrix.identity();
     }
 
     this.rotate = function(radians, px, py) {
-      // bindings can't turn undefined into floats
-      this._canvas.rotate(radians * 180/Math.PI, px || 0, py || 0);
+      this._currentTransform = CanvasKit.SkMatrix.multiply(
+                                  this._currentTransform,
+                                  CanvasKit.SkMatrix.rotated(radians, px, py));
     }
 
     this.scale = function(sx, sy) {
-      this._canvas.scale(sx, sy);
+      this._currentTransform = CanvasKit.SkMatrix.multiply(
+                                  this._currentTransform,
+                                  CanvasKit.SkMatrix.scaled(sx, sy));
     }
 
-    this.scale = function(sx, sy) {
-      this._canvas.scale(sx, sy);
+    this._scalefactor = function() {
+      // This is an approximation of what Chrome does when scaling up
+      // line width.
+      var m = this._currentTransform;
+      var sx = m[0];
+      var sy = m[4];
+      return (Math.abs(sx) + Math.abs(sy))/2;
     }
 
     this.setTransform = function(a, b, c, d, e, f) {
-      this._canvas.setMatrix([a, c, e,
-                              b, d, f,
-                              0, 0, 1]);
-    }
-
-    this.skew = function(sx, sy) {
-      this._canvas.skew(sx, sy);
+      this._currentTransform = [a, c, e,
+                                b, d, f,
+                                0, 0, 1];
     }
 
     this.stroke = function() {
-      if (this._currentSubPath) {
+      if (this._currentSubpath) {
+        this._commitSubpath();
         this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-        this._paint.setLine
-        for (var i = 0; i < this._paths.length; i++) {
-          this._canvas.drawPath(this._paths[i], this._paint);
-        }
+        var orig = this._paint.getStrokeWidth();
+        // This is not in the spec, but it appears Chrome scales up
+        // the line width by some amount when stroking (and filling?).
+        var scaledWidth = orig * this._scalefactor();
+        this._paint.setStrokeWidth(scaledWidth);
+        this._canvas.drawPath(this._currentPath, this._paint);
+        // set stroke width back to original size:
+        this._paint.setStrokeWidth(orig);
       }
     }
 
     this.strokeText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
       this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
     }
 
     this.translate = function(dx, dy) {
-      this._canvas.translate(dx, dy);
+      this._currentTransform = CanvasKit.SkMatrix.multiply(
+                                  this._currentTransform,
+                                  CanvasKit.SkMatrix.translated(dx, dy));
     }
 
+    this.transform = function(a, b, c, d, e, f) {
+      this._currentTransform = CanvasKit.SkMatrix.multiply(
+                                  this._currentTransform,
+                                  [a, c, e,
+                                   b, d, f,
+                                   0, 0, 1]);
+    }
 
     // Not supported operations (e.g. for Web only)
     this.addHitRegion = function() {};
@@ -323,7 +396,7 @@
       SkDebug('Could not parse font size' + fontStr);
       return 16;
     }
-    var size = fontSize[1];
+    var size = parseFloat(fontSize[1]);
     var unit = fontSize[2];
     switch (unit) {
       case 'pt':

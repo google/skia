@@ -19,23 +19,90 @@
       return a * b + c * d + e * f;
     }
 
-    // Return a matrix representing a rotation by n degrees.
+    CanvasKit.SkMatrix.identity = function() {
+      return [
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1,
+      ];
+    };
+
+    // Maps the given points according to the passed in matrix.
+    // Results are done in place.
+    // See SkMatrix.h::mapPoints for the docs on the math.
+    CanvasKit.SkMatrix.mapPoints = function(matrix, ptArr) {
+      if (ptArr.length % 2) {
+        throw 'mapPoints requires an even length arr';
+      }
+      for (var i = 0; i < ptArr.length; i+=2) {
+        var x = ptArr[i], y = ptArr[i+1];
+        // Gx+Hy+I
+        var denom  = matrix[6]*x + matrix[7]*y + matrix[8];
+        // Ax+By+C
+        var xTrans = matrix[0]*x + matrix[1]*y + matrix[2];
+        // Dx+Ey+F
+        var yTrans = matrix[3]*x + matrix[4]*y + matrix[5];
+        ptArr[i]   = xTrans/denom;
+        ptArr[i+1] = yTrans/denom;
+      }
+      return ptArr;
+    };
+
+    CanvasKit.SkMatrix.multiply = function(m1, m2) {
+      var result = [0,0,0, 0,0,0, 0,0,0];
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          // m1 and m2 are 1D arrays pretending to be 2D arrays
+          result[3*r + c] = sdot(m1[3*r + 0], m2[3*0 + c],
+                                 m1[3*r + 1], m2[3*1 + c],
+                                 m1[3*r + 2], m2[3*2 + c]);
+        }
+      }
+      return result;
+    }
+
+    // Return a matrix representing a rotation by n radians.
     // px, py optionally say which point the rotation should be around
     // with the default being (0, 0);
-    CanvasKit.SkMatrix.rotated = function(degrees, px, py) {
+    CanvasKit.SkMatrix.rotated = function(radians, px, py) {
       px = px || 0;
       py = py || 0;
-      var rad = degreesToRadians(degrees);
-      var sinV = Math.sin(rad);
-      var cosV = Math.cos(rad);
+      var sinV = Math.sin(radians);
+      var cosV = Math.cos(radians);
       return [
         cosV, -sinV, sdot( sinV, py, 1 - cosV, px),
         sinV,  cosV, sdot(-sinV, px, 1 - cosV, py),
         0,        0,                             1,
       ];
     };
-    // TODO(kjlubick): translated, scaled
 
+    CanvasKit.SkMatrix.scaled = function(sx, sy, px, py) {
+      px = px || 0;
+      py = py || 0;
+      return [
+        sx, 0, px - sx * px,
+        0, sy, py - sy * py,
+        0,  0,            1,
+      ];
+    };
+
+    CanvasKit.SkMatrix.skewed = function(kx, ky, px, py) {
+      px = px || 0;
+      py = py || 0;
+      return [
+        1, kx, -kx * px,
+        ky, 1, -ky * py,
+        0,  0,        1,
+      ];
+    };
+
+    CanvasKit.SkMatrix.translated = function(dx, dy) {
+      return [
+        1, 0, dx,
+        0, 1, dy,
+        0, 0,  1,
+      ];
+    };
 
     CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
       // see arc() for the HTMLCanvas version
@@ -183,8 +250,8 @@
       opts = opts || {};
       opts.width = opts.width || 1;
       opts.miter_limit = opts.miter_limit || 4;
-      opts.cap = opts.cap || CanvasKit.StrokeCap.BUTT;
-      opts.join = opts.join || CanvasKit.StrokeJoin.MITER;
+      opts.cap = opts.cap || CanvasKit.StrokeCap.Butt;
+      opts.join = opts.join || CanvasKit.StrokeJoin.Miter;
       if (this._stroke(opts)) {
         return this;
       }

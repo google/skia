@@ -97,11 +97,52 @@ var CanvasKit = {
 	},
 
 	SkMatrix: {
+		identity: function() {},
+		mapPoints: function() {},
+		multiply: function() {},
 		rotated: function() {},
+		scaled: function() {},
+		skewed: function() {},
+		translated: function() {},
+	},
+
+	SkPaint: {
+		// public API (from C++ bindings)
+		/** @return {CanvasKit.SkPaint} */
+		copy: function() {},
+		getStrokeCap: function() {},
+		getStrokeJoin: function() {},
+		getStrokeMiter: function() {},
+		getStrokeWidth: function() {},
+		getTextSize: function() {},
+		measureText: function() {},
+		setAntiAlias: function() {},
+		setColor: function() {},
+		setPathEffect: function() {},
+		setShader: function() {},
+		setStrokeCap: function() {},
+		setStrokeJoin: function() {},
+		setStrokeMiter: function() {},
+		setStrokeWidth: function() {},
+		setStyle: function() {},
+		setTextSize: function() {},
+
+		//private API
+		delete: function() {},
 	},
 
 	SkPath: {
 		// public API (from C++ bindings)
+		computeTightBounds: function() {},
+		/** @return {CanvasKit.SkPath} */
+		copy: function() {},
+		countPoints: function() {},
+		equals: function() {},
+		getBounds: function() {},
+		getFillType: function() {},
+		getPoint: function() {},
+		setFillType: function() {},
+		toSVGString: function() {},
 
 		// private API
 		_addArc: function() {},
@@ -123,23 +164,8 @@ var CanvasKit = {
 		_transform: function() {},
 		_trim: function() {},
 		delete: function() {},
-	},
-
-	SkPaint: {
-		// public API (from C++ bindings)
-		/** @return {CanvasKit.SkPaint} */
-		copy: function() {},
-		measureText: function() {},
-		setAntiAlias: function() {},
-		setColor: function() {},
-		setPathEffect: function() {},
-		setShader: function() {},
-		setStrokeWidth: function() {},
-		setStyle: function() {},
-		setTextSize: function() {},
-
-		//private API
-		delete: function() {},
+		dump: function() {},
+		dumpHex: function() {},
 	},
 
 	SkRect: {
@@ -176,11 +202,6 @@ var CanvasKit = {
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
-	PaintStyle: {
-		Fill: {},
-		Stroke: {},
-		StrokeAndFill: {},
-	},
 
 	FillType: {
 		Winding: {},
@@ -192,6 +213,24 @@ var CanvasKit = {
 	ImageFormat: {
 		PNG: {},
 		JPEG: {},
+	},
+
+	PaintStyle: {
+		Fill: {},
+		Stroke: {},
+		StrokeAndFill: {},
+	},
+
+	StrokeCap: {
+		Butt: {},
+		Round: {},
+		Square: {},
+	},
+
+	StrokeJoin: {
+		Miter: {},
+		Round: {},
+		Bevel: {},
 	},
 
 	// Things Enscriptem adds for us
@@ -257,6 +296,39 @@ StrokeOpts.prototype.width;
 StrokeOpts.prototype.miter_limit;
 StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
+
+var HTMLCanvas = {};
+HTMLCanvas.prototype.getContext = function() {};
+HTMLCanvas.prototype.toDataURL = function() {};
+HTMLCanvas.prototype.dispose = function() {};
+
+var CanvasRenderingContext2D = {};
+CanvasRenderingContext2D.prototype.addHitRegion = function() {};
+CanvasRenderingContext2D.prototype.arc = function() {};
+CanvasRenderingContext2D.prototype.arcTo = function() {};
+CanvasRenderingContext2D.prototype.beginPath = function() {};
+CanvasRenderingContext2D.prototype.bezierCurveTo = function() {};
+CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
+CanvasRenderingContext2D.prototype.closePath = function() {};
+CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
+CanvasRenderingContext2D.prototype.ellipse = function() {};
+CanvasRenderingContext2D.prototype.fillText = function() {};
+CanvasRenderingContext2D.prototype.lineTo = function() {};
+CanvasRenderingContext2D.prototype.measureText = function() {};
+CanvasRenderingContext2D.prototype.moveTo = function() {};
+CanvasRenderingContext2D.prototype.quadraticCurveTo = function() {};
+CanvasRenderingContext2D.prototype.rect = function() {};
+CanvasRenderingContext2D.prototype.removeHitRegion = function() {};
+CanvasRenderingContext2D.prototype.resetTransform = function() {};
+CanvasRenderingContext2D.prototype.rotate = function() {};
+CanvasRenderingContext2D.prototype.scale = function() {};
+CanvasRenderingContext2D.prototype.scrollPathIntoView = function() {};
+CanvasRenderingContext2D.prototype.setTransform = function() {};
+CanvasRenderingContext2D.prototype.stroke = function() {};
+CanvasRenderingContext2D.prototype.strokeText = function() {};
+CanvasRenderingContext2D.prototype.transform = function() {};
+CanvasRenderingContext2D.prototype.translate = function() {};
+
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {};

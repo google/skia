@@ -94,7 +94,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             test(canvas);
             // canvas has .toDataURL (even though skcanvas is not a real Canvas)
             // so this will work.
-            promises.push(reportCanvas(canvas, 'all_path_operations', canvas._config));
+            promises.push(reportCanvas(canvas, testname, canvas._config));
         }
         Promise.all(promises).then(() => {
             skcanvas.dispose();
@@ -107,8 +107,6 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             LoadCanvasKit.then(catchException(done, () => {
                 multipleCanvasTest('all_line_drawing_operations', done, (canvas) => {
                     let ctx = canvas.getContext('2d');
-                    // TODO(kjlubick): scale doesn't work quite right yet, but putting
-                    // it before all draws makes it consistent for now.
                     ctx.scale(3.0, 3.0);
                     ctx.moveTo(20, 5);
                     ctx.lineTo(30, 20);
@@ -138,6 +136,58 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI)
 
                     ctx.lineWidth = 2;
+                    ctx.stroke();
+                });
+            }));
+        });
+
+        it('handles all the transforms as specified', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('all_matrix_operations', done, (canvas) => {
+                    let ctx = canvas.getContext('2d');
+                    ctx.rect(10, 10, 20, 20);
+
+                    ctx.scale(2.0, 4.0);
+                    ctx.rect(30, 10, 20, 20);
+                    ctx.resetTransform();
+
+                    ctx.rotate(Math.PI / 3);
+                    ctx.rect(50, 10, 20, 20);
+                    ctx.resetTransform();
+
+                    ctx.translate(30, -2);
+                    ctx.rect(70, 10, 20, 20);
+                    ctx.resetTransform();
+
+                    ctx.translate(60, 0);
+                    ctx.rotate(Math.PI / 6);
+                    ctx.transform(1.5, 0, 0, 0.5, 0, 0, 0); // effectively scale
+                    ctx.rect(90, 10, 20, 20);
+                    ctx.resetTransform();
+
+                    ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+                    ctx.rect(110, 10, 20, 20);
+                    ctx.lineTo(110, 0);
+                    ctx.resetTransform();
+                    ctx.lineTo(220, 120);
+
+                    ctx.scale(3.0, 3.0);
+                    ctx.font = '6pt Arial';
+                    ctx.fillText('This text should be huge', 10, 80);
+                    ctx.resetTransform();
+
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 30);
+                    ctx.lineTo(250, 80);
+                    ctx.scale(3.0, 3.0);
+                    ctx.lineTo(280/3, 90/3);
+                    ctx.closePath();
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 5;
                     ctx.stroke();
                 });
             }));
