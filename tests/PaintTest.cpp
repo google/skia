@@ -374,8 +374,6 @@ DEF_TEST(Paint_getwidths, r) {
 
     SkAutoTArray<SkScalar> widthStorage(count * 2);
     SkScalar* widths = widthStorage.get();
-    SkAutoTArray<SkRect> rectStorage(count * 2);
-    SkRect* bounds = rectStorage.get();
 
     for (bool subpix : { false, true }) {
         paint.setSubpixelText(subpix);
@@ -383,14 +381,13 @@ DEF_TEST(Paint_getwidths, r) {
             paint.setHinting(hint);
             for (auto size : { 1.0f, 12.0f, 100.0f }) {
                 paint.setTextSize(size);
-                paint.getTextWidths(glyphs, count * 2, widths, bounds);
+                paint.getTextWidths(glyphs, count * 2, widths);
 
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-                font.getWidths(glyphs, count, widths + count, bounds + count);
+                font.getWidths(glyphs, count, widths + count);
 
                 for (int i = 0; i < count; ++i) {
                     REPORTER_ASSERT(r, widths[i] == widths[i + count]);
-                    REPORTER_ASSERT(r, bounds[i] == bounds[i + count]);
                 }
             }
         }

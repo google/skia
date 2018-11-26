@@ -466,29 +466,6 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AutoToGlyphs {
-public:
-    AutoToGlyphs(const SkFont& font, const void* text, size_t length, SkTextEncoding encoding) {
-        if (encoding == kGlyphID_SkTextEncoding || length == 0) {
-            fGlyphs = reinterpret_cast<const uint16_t*>(text);
-            fCount = length >> 1;
-        } else {
-            fCount = font.countText(text, length, encoding);
-            fStorage.reset(fCount);
-            font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
-            fGlyphs = fStorage.get();
-        }
-    }
-
-    int count() const { return fCount; }
-    const uint16_t* glyphs() const { return fGlyphs; }
-
-private:
-    SkAutoSTArray<32, uint16_t> fStorage;
-    const uint16_t* fGlyphs;
-    int             fCount;
-};
-
 #include "SkDraw.h"
 
 struct PathPosRec {
@@ -508,7 +485,7 @@ static void PathPosProc(const SkPath* src, const SkMatrix& mx, void* ctx) {
 void SkPaint::getTextPath(const void* text, size_t length,
                           SkScalar x, SkScalar y, SkPath* path) const {
     SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
-    AutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
+    SkAutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
     SkAutoSTArray<32, SkPoint> fPos(gly.count());
     font.getPos(gly.glyphs(), gly.count(), fPos.get(), {x, y});
 
@@ -520,7 +497,7 @@ void SkPaint::getTextPath(const void* text, size_t length,
 void SkPaint::getPosTextPath(const void* text, size_t length,
                              const SkPoint pos[], SkPath* path) const {
     SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
-    AutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
+    SkAutoToGlyphs gly(font, text, length, (SkTextEncoding)this->getTextEncoding());
 
     path->reset();
     PathPosRec rec = { path, pos };

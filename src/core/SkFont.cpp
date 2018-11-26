@@ -231,76 +231,6 @@ bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncodin
     return true;
 }
 
-static void set_bounds(const SkGlyph& g, SkRect* bounds) {
-    bounds->set(SkIntToScalar(g.fLeft),
-                SkIntToScalar(g.fTop),
-                SkIntToScalar(g.fLeft + g.fWidth),
-                SkIntToScalar(g.fTop + g.fHeight));
-}
-
-static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
-    bounds->join(SkIntToScalar(g.fLeft) + dx,
-                 SkIntToScalar(g.fTop),
-                 SkIntToScalar(g.fLeft + g.fWidth) + dx,
-                 SkIntToScalar(g.fTop + g.fHeight));
-}
-
-SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding encoding,
-                             SkRect* bounds) const {
-    if (length == 0) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return 0;
-    }
-
-    SkCanonicalizeFont canon(*this);
-    const SkFont& font = canon.getFont();
-    SkScalar scale = canon.getScale();
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
-
-    const char* text = static_cast<const char*>(textD);
-    const char* stop = text + length;
-    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(encoding, nullptr != bounds);
-    const SkGlyph* g = &glyphCacheProc(cache.get(), &text, stop);
-    SkScalar width = g->fAdvanceX;
-
-    if (nullptr == bounds) {
-        while (text < stop) {
-            width += glyphCacheProc(cache.get(), &text, stop).fAdvanceX;
-        }
-    } else {
-        set_bounds(*g, bounds);
-        while (text < stop) {
-            g = &glyphCacheProc(cache.get(), &text, stop);
-            join_bounds_x(*g, bounds, width);
-            width += g->fAdvanceX;
-        }
-    }
-    SkASSERT(text == stop);
-
-    if (scale) {
-        width *= scale;
-        if (bounds) {
-            bounds->fLeft *= scale;
-            bounds->fTop *= scale;
-            bounds->fRight *= scale;
-            bounds->fBottom *= scale;
-        }
-    }
-    return width;
-}
-
-static SkRect make_bounds(const SkGlyph& g, SkScalar scale) {
-    return {
-        g.fLeft * scale,
-        g.fTop * scale,
-        (g.fLeft + g.fWidth) * scale,
-        (g.fTop + g.fHeight) * scale
-    };
-}
-
 template <typename HANDLER>
 void VisitGlyphs(const SkFont& origFont, const uint16_t glyphs[], int count, HANDLER handler) {
     if (count <= 0) {
@@ -318,20 +248,29 @@ void VisitGlyphs(const SkFont& origFont, const uint16_t glyphs[], int count, HAN
     handler(cache.get(), glyphs, count, scale);
 }
 
-void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[]) const {
-    VisitGlyphs(*this, glyphs, count, [widths, bounds]
+SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding) const {
+    SkAutoToGlyphs tog(*this, text, length, encoding);
+    return this->measureGlyphs(tog.glyphs(), tog.count());
+}
+
+SkScalar SkFont::measureGlyphs(const uint16_t glyphs[], int count) const {
+    SkScalar width = 0;
+    VisitGlyphs(*this, glyphs, count, [&width]
+                (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+        SkScalar w = 0;
+        for (int i = 0; i < count; ++i) {
+            w += cache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
+        }
+        width = w * scale;
+    });
+    return width;
+}
+
+void SkFont::getWidths(const uint16_t glyphs[], int count, SkScalar widths[]) const {
+    VisitGlyphs(*this, glyphs, count, [widths]
                 (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         for (int i = 0; i < count; ++i) {
-            const SkGlyph* g;
-            if (bounds) {
-                g = &cache->getGlyphIDMetrics(glyphs[i]);
-                bounds[i] = make_bounds(*g, scale);
-            } else {
-                g = &cache->getGlyphIDAdvance(glyphs[i]);
-            }
-            if (widths) {
-                widths[i] = g->fAdvanceX * scale;
-            }
+            widths[i] = cache->getGlyphIDAdvance(glyphs[i]).fAdvanceX * scale;
         }
     });
 }

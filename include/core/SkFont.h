@@ -317,11 +317,25 @@ public:
         @param byteLength  length of character storage in bytes
         @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
                            kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
-        @param bounds      returns bounding box relative to (0, 0) if not nullptr
-        @return            number of glyphs represented by text of length byteLength
+        @return            Sum of all of the advance widths
     */
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
+    // Deprecated
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         SkRect* bounds = nullptr) const;
+                         std::nullptr_t) const {
+        return this->measureText(text, byteLength, encoding);
+    }
+
+    /** Experimental
+        Returns the advance width of an array of glyphs.
+        The advance is the normal distance to move before drawing additional text.
+        Returns the bounding box of text if bounds is not nullptr.
+
+        @param glyphs       array of glyph ids
+        @param count        number of entries in glyphs[] array to measure
+        @return             Sum of all of the advance widths
+     */
+    SkScalar measureGlyphs(const uint16_t glyphs[], int count) const;
 
     /** Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.
@@ -331,10 +345,8 @@ public:
         @param glyphs      array of glyph indices to be measured
         @param count       number of glyphs
         @param widths      returns text advances for each glyph; may be nullptr
-        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
     */
-    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
-                   SkRect bounds[] = nullptr) const;
+    void getWidths(const uint16_t glyphs[], int count, SkScalar widths[]) const;
 
     /** Experimental
         Retrieves the positions for each glyph, beginning at the specified origin. The caller
