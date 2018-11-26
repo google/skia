@@ -49,9 +49,14 @@ class AndroidCompileException(Exception):
 def _create_task_dict(options):
   """Creates a dict representation of the requested task."""
   params = {}
+  params['lunch_target'] = options.lunch_target
+  params['mmma_targets'] = options.mmma_targets
   params['issue'] = options.issue
   params['patchset'] = options.patchset
   params['hash'] = options.hash
+  ### DEBUGGING
+  print 'This is what params looks like:'
+  print params
   return params
 
 
@@ -68,6 +73,10 @@ def _write_to_storage(task):
       json.dump(task, f)
     subprocess.check_call(['gsutil', 'cp', json_file, '%s/' % _get_gs_bucket()])
     print 'Created %s/%s' % (_get_gs_bucket(), os.path.basename(json_file))
+  ### DEBUGGING
+  print 'What did I write to storage?'
+  gs_file = '%s/%s' % (_get_gs_bucket(), _get_task_file_name(task))
+  print subprocess.check_output(['gsutil', 'cat', gs_file])
 
 
 def _get_task_file_name(task):
@@ -191,6 +200,13 @@ def pretty_task_str(task):
 
 def main():
   option_parser = optparse.OptionParser()
+  option_parser.add_option(
+      '', '--lunch_target', type=str, default='',
+      help='The lunch target the android compile bot should build with.')
+  option_parser.add_option(
+      '', '--mmma_targets', type=str, default='',
+      help='The comma-separated mmma targets the android compile bot should '
+           'build.')
   option_parser.add_option(
       '', '--issue', type=int, default=0,
       help='The Gerrit change number to get the patch from.')
