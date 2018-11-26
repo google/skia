@@ -97,11 +97,46 @@ var CanvasKit = {
 	},
 
 	SkMatrix: {
+		identity: function() {},
+		mapPoints: function() {},
+		multiply: function() {},
 		rotated: function() {},
+		scaled: function() {},
+		skewed: function() {},
+		translated: function() {},
+	},
+
+	SkPaint: {
+		// public API (from C++ bindings)
+		/** @return {CanvasKit.SkPaint} */
+		copy: function() {},
+		getStrokeWidth: function() {},
+		getTextSize: function() {},
+		measureText: function() {},
+		setAntiAlias: function() {},
+		setColor: function() {},
+		setPathEffect: function() {},
+		setShader: function() {},
+		setStrokeWidth: function() {},
+		setStyle: function() {},
+		setTextSize: function() {},
+
+		//private API
+		delete: function() {},
 	},
 
 	SkPath: {
 		// public API (from C++ bindings)
+		computeTightBounds: function() {},
+		/** @return {CanvasKit.SkPath} */
+		copy: function() {},
+		countPoints: function() {},
+		equals: function() {},
+		getBounds: function() {},
+		getFillType: function() {},
+		getPoint: function() {},
+		setFillType: function() {},
+		toSVGString: function() {},
 
 		// private API
 		_addArc: function() {},
@@ -123,23 +158,8 @@ var CanvasKit = {
 		_transform: function() {},
 		_trim: function() {},
 		delete: function() {},
-	},
-
-	SkPaint: {
-		// public API (from C++ bindings)
-		/** @return {CanvasKit.SkPaint} */
-		copy: function() {},
-		measureText: function() {},
-		setAntiAlias: function() {},
-		setColor: function() {},
-		setPathEffect: function() {},
-		setShader: function() {},
-		setStrokeWidth: function() {},
-		setStyle: function() {},
-		setTextSize: function() {},
-
-		//private API
-		delete: function() {},
+		dump: function() {},
+		dumpHex: function() {},
 	},
 
 	SkRect: {
