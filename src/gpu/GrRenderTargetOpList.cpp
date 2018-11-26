@@ -180,9 +180,9 @@ GrRenderTargetOpList::OpChain::List GrRenderTargetOpList::OpChain::DoConcat(
                 GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n", i,
                           chainB.head()->name(), chainB.head()->uniqueID(), a->name(),
                           a->uniqueID());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, chainB.head(), a);
             }
             if (merged) {
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, a, chainB.head());
                 if (canBackwardMerge) {
                     pool->release(chainB.popHead());
                 } else {
@@ -662,7 +662,6 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     } else {
         GrOP_INFO("\t\tBackward: FirstOp\n");
     }
-    GR_AUDIT_TRAIL_OP_RESULT_NEW(fAuditTrail, op);
     if (clip) {
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
