@@ -150,9 +150,6 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
         const SkPoint& offset = it.offset();
         it.applyFontToPaint(&runPaint);
         switch (it.positioning()) {
-            case SkTextBlobRunIterator::kDefault_Positioning:
-                this->onDrawText(it.glyphs(), textLen, x + offset.x(), y + offset.y(), runPaint);
-                break;
             case SkTextBlobRunIterator::kHorizontal_Positioning:
                 this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 1,
                                         SkPoint::Make(x, y + offset.y()), runPaint);

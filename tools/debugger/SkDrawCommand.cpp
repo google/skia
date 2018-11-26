@@ -1912,12 +1912,17 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
                 case SkTextBlobRunIterator::kHorizontal_Positioning:
                     jsonPositions.append(Json::Value(iterPositions[i]));
                     break;
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_ALLOCRUN
                 case SkTextBlobRunIterator::kDefault_Positioning:
                     break;
+#endif
             }
             jsonGlyphs.append(Json::Value(iterGlyphs[i]));
         }
-        if (iter.positioning() != SkTextBlobRunIterator::kDefault_Positioning) {
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_ALLOCRUN
+        if (iter.positioning() != SkTextBlobRunIterator::kDefault_Positioning)
+#endif
+        {
             run[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS] = jsonPositions;
         }
         run[SKDEBUGCANVAS_ATTRIBUTE_GLYPHS] = jsonGlyphs;

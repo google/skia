@@ -27,7 +27,6 @@
 namespace  {
 
 enum Pos {
-    kDefault_Pos = 0,
     kScalar_Pos  = 1,
     kPoint_Pos   = 2,
 };
@@ -36,40 +35,40 @@ const struct BlobCfg {
     unsigned count;
     Pos      pos;
     SkScalar scale;
-} blobConfigs[][3][3] = {
+} blobConfigs[][3][2] = {
     {
-        { { 1024, kDefault_Pos, 1 }, { 0, kDefault_Pos, 0 }, { 0, kDefault_Pos, 0 } },
-        { { 1024,  kScalar_Pos, 1 }, { 0,  kScalar_Pos, 0 }, { 0,  kScalar_Pos, 0 } },
-        { { 1024,   kPoint_Pos, 1 }, { 0,   kPoint_Pos, 0 }, { 0,   kPoint_Pos, 0 } },
+        { { 1024,  kScalar_Pos, 1 },    {    0, kScalar_Pos, 0 } },
+        { {    0,  kScalar_Pos, 0 },    { 1024,  kPoint_Pos, 1 } },
+        { {    0,   kPoint_Pos, 0 },    {    0,  kPoint_Pos, 0 } },
     },
     {
-        { { 4, kDefault_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4, kDefault_Pos, 1 } },
-        { { 4,  kScalar_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
-        { { 4,   kPoint_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
-    },
-
-    {
-        { { 4, kDefault_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
-        { { 4,  kScalar_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
-        { { 4,   kPoint_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },       { 4,  kScalar_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
     },
 
     {
-        { { 4, kDefault_Pos, 1 },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1 } },
-        { { 4,  kScalar_Pos, 1 },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1 } },
-        { { 4,   kPoint_Pos, 1 },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },       { 4,  kScalar_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
     },
 
     {
-        { { 4, kDefault_Pos, .75f },     { 4, kDefault_Pos, 1 },  { 4,  kScalar_Pos, 1.25f } },
-        { { 4,  kScalar_Pos, .75f },     { 4,  kScalar_Pos, 1 },  { 4,   kPoint_Pos, 1.25f } },
-        { { 4,   kPoint_Pos, .75f },     { 4,   kPoint_Pos, 1 },  { 4, kDefault_Pos, 1.25f } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, 1 } },
+        { { 4,   kPoint_Pos, 1 },       { 4,  kScalar_Pos, 1 } },
     },
 
     {
-        { { 4, kDefault_Pos, 1 },     { 4,  kScalar_Pos, .75f },  { 4,   kPoint_Pos, 1.25f } },
-        { { 4,  kScalar_Pos, 1 },     { 4,   kPoint_Pos, .75f },  { 4, kDefault_Pos, 1.25f } },
-        { { 4,   kPoint_Pos, 1 },     { 4, kDefault_Pos, .75f },  { 4,  kScalar_Pos, 1.25f } },
+        { { 4,  kScalar_Pos, 1.25f },   { 4,  kScalar_Pos, .75f } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, 1.25f } },
+        { { 4,   kPoint_Pos, .75f },    { 4,   kPoint_Pos, 1 } },
+    },
+
+    {
+        { { 4,  kScalar_Pos, .75f },    { 4,   kPoint_Pos, 1.25f } },
+        { { 4,  kScalar_Pos, 1 },       { 4,   kPoint_Pos, .75f } },
+        { { 4,   kPoint_Pos, 1 },       { 4,  kScalar_Pos, 1.25f } },
     },
 };
 
@@ -153,12 +152,6 @@ private:
                 SkPoint offset = SkPoint::Make(currentGlyph * advanceX + c * advanceX,
                                                advanceY * l);
                 switch (cfg->pos) {
-                case kDefault_Pos: {
-                    const SkTextBlobBuilder::RunBuffer& buf = builder.allocRun(font, count,
-                                                                               offset.x(),
-                                                                               offset.y());
-                    memcpy(buf.glyphs, fGlyphs.begin() + currentGlyph, count * sizeof(uint16_t));
-                } break;
                 case kScalar_Pos: {
                     const SkTextBlobBuilder::RunBuffer& buf = builder.allocRunPosH(font, count,
                                                                                    offset.y());

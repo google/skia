@@ -261,11 +261,6 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
         auto glyphIDs = SkSpan<const SkGlyphID>{it.glyphs(), runSize};
 
         switch (it.positioning()) {
-            case SkTextBlobRunIterator::kDefault_Positioning: {
-                this->simplifyDrawText(
-                        paint, it.runFont(), glyphIDs, offset, positions, text, clusters);
-            }
-                break;
             case SkTextBlobRunIterator::kHorizontal_Positioning: {
                 auto constY = offset.y();
                 this->simplifyDrawPosTextH(

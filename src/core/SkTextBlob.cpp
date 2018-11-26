@@ -202,7 +202,6 @@ static_assert(sizeof(PositioningAndExtended) == sizeof(int32_t), "");
 } // namespace
 
 enum SkTextBlob::GlyphPositioning : uint8_t {
-        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
 };
@@ -242,8 +241,6 @@ void SkTextBlobRunIterator::next() {
 
 SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() const {
     SkASSERT(!this->done());
-    static_assert(static_cast<GlyphPositioning>(SkTextBlob::kDefault_Positioning) ==
-                  kDefault_Positioning, "");
     static_assert(static_cast<GlyphPositioning>(SkTextBlob::kHorizontal_Positioning) ==
                   kHorizontal_Positioning, "");
     static_assert(static_cast<GlyphPositioning>(SkTextBlob::kFull_Positioning) ==
@@ -283,11 +280,6 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     SkRect bounds;
     SkPaint paint;
     run.font().applyToPaint(&paint);
-
-    if (SkTextBlob::kDefault_Positioning == run.positioning()) {
-        paint.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
-        return bounds.makeOffset(run.offset().x(), run.offset().y());
-    }
 
     SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
     paint.getTextWidths(run.glyphBuffer(),
@@ -382,9 +374,7 @@ void SkTextBlobBuilder::updateDeferredBounds() {
     SkTextBlob::RunRecord* run = reinterpret_cast<SkTextBlob::RunRecord*>(fStorage.get() +
                                                                           fLastRun);
 
-    // FIXME: we should also use conservative bounds for kDefault_Positioning.
-    SkRect runBounds = SkTextBlob::kDefault_Positioning == run->positioning() ?
-                       TightRunBounds(*run) : ConservativeRunBounds(*run);
+    SkRect runBounds = ConservativeRunBounds(*run);
     fBounds.join(runBounds);
     fDeferredBounds = false;
 }
@@ -525,16 +515,6 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
 
 // SkFont versions
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRun(const SkFont& font, int count,
-                                                                SkScalar x, SkScalar y,
-                                                                const SkRect* bounds) {
-    SkPaint legacyPaint;
-    font.LEGACY_applyToPaint(&legacyPaint);
-    legacyPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
-    return this->allocRunText(legacyPaint, count, x, y, 0, SkString(), bounds);
-}
-
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPosH(const SkFont& font, int count,
                                                                     SkScalar y,
                                                                     const SkRect* bounds) {
@@ -555,15 +535,6 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkFont&
 }
 
 // SkPaint versions
-
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& font, int count,
-                                                                    SkScalar x, SkScalar y,
-                                                                    int textByteCount,
-                                                                    SkString lang,
-                                                                    const SkRect* bounds) {
-    this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
-    return fCurrentRunBuffer;
-}
 
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkPaint& font, int count,
                                                                         SkScalar y,
@@ -718,10 +689,6 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         const SkTextBlobBuilder::RunBuffer* buf = nullptr;
         switch (pos) {
-            case SkTextBlob::kDefault_Positioning:
-                buf = &blobBuilder.allocRunText(font, glyphCount, offset.x(), offset.y(),
-                                                textSize, SkString(), &bounds);
-                break;
             case SkTextBlob::kHorizontal_Positioning:
                 buf = &blobBuilder.allocRunTextPosH(font, glyphCount, offset.y(),
                                                     textSize, SkString(), &bounds);

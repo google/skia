@@ -990,25 +990,19 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
         SkTDArray<uint8_t> text = make_fuzz_text(fuzz, font, encoding);
         int glyphCount = font.countText(text.begin(), SkToSizeT(text.count()), encoding);
         SkASSERT(glyphCount <= kMaxGlyphCount);
-        SkScalar x, y;
         const SkTextBlobBuilder::RunBuffer* buffer;
         uint8_t runType;
-        fuzz->nextRange(&runType, (uint8_t)0, (uint8_t)2);
+        SkScalar y;
+        fuzz->nextRange(&runType, (uint8_t)0, (uint8_t)1);
         switch (runType) {
             case 0:
-                fuzz->next(&x, &y);
-                // TODO: Test other variations of this.
-                buffer = &textBlobBuilder.allocRun(font, glyphCount, x, y);
-                memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));
-                break;
-            case 1:
                 fuzz->next(&y);
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPosH(font, glyphCount, y);
                 memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));
                 fuzz->nextN(buffer->pos, glyphCount);
                 break;
-            case 2:
+            case 1:
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPos(font, glyphCount);
                 memcpy(buffer->glyphs, text.begin(), SkToSizeT(text.count()));

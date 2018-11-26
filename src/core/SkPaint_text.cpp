@@ -569,10 +569,6 @@ int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds
         SkScalar* runIntervals = intervals ? intervals + count : nullptr;
 
         switch (it.positioning()) {
-        case SkTextBlobRunIterator::kDefault_Positioning:
-            count += runPaint.getTextIntercepts(it.glyphs(), runByteCount, it.offset().x(),
-                                                it.offset().y(), bounds, runIntervals);
-            break;
         case SkTextBlobRunIterator::kHorizontal_Positioning:
             count += runPaint.getPosTextHIntercepts(it.glyphs(), runByteCount, it.pos(),
                                                     it.offset().y(), bounds, runIntervals);

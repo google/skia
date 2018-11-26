@@ -41,11 +41,13 @@ public:
 
 class SkTextBlobBuilderPriv {
 public:
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_ALLOCRUN
     static const SkTextBlobBuilder::RunBuffer& AllocRunText(SkTextBlobBuilder* builder,
             const SkPaint& font, int count, SkScalar x, SkScalar y, int textByteCount,
             SkString lang, const SkRect* bounds = nullptr) {
         return builder->allocRunText(font, count, x, y, textByteCount, lang, bounds);
     }
+#endif
     static const SkTextBlobBuilder::RunBuffer& AllocRunTextPosH(SkTextBlobBuilder* builder,
             const SkPaint& font, int count, SkScalar y, int textByteCount, SkString lang,
             const SkRect* bounds = nullptr) {
@@ -252,7 +254,9 @@ public:
     SkTextBlobRunIterator(const SkTextBlob* blob);
 
     enum GlyphPositioning : uint8_t {
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_ALLOCRUN
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
+#endif
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };

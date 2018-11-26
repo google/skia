@@ -213,30 +213,6 @@ public:
         uint32_t*  clusters; //!< reserved for future use
     };
 
-    /** Returns run with storage for glyphs. Caller must write count glyphs to
-        RunBuffer::glyphs before next call to SkTextBlobBuilder.
-
-        RunBuffer::utf8text, and RunBuffer::clusters should be ignored.
-
-        Glyphs share metrics in font.
-
-        Glyphs are positioned on a baseline at (x, y), using font metrics to
-        determine their relative placement.
-
-        bounds defines an optional bounding box, used to suppress drawing when SkTextBlob
-        bounds does not intersect SkSurface bounds. If bounds is nullptr, SkTextBlob bounds
-        is computed from (x, y) and RunBuffer::glyphs metrics.
-
-        @param font    SkFont used for this run
-        @param count   number of glyphs
-        @param x       horizontal offset within the blob
-        @param y       vertical offset within the blob
-        @param bounds  optional run bounding box
-        @return        writable glyph buffer
-    */
-    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr);
-
     /** Returns run with storage for glyphs and positions along baseline. Caller must
         write count glyphs to RunBuffer::glyphs, and count scalars to RunBuffer::pos;
         before next call to SkTextBlobBuilder.
@@ -287,13 +263,6 @@ public:
 #ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
     /** Deprecated.
      */
-    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr) {
-        return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
-    }
-
-    /** Deprecated.
-     */
     const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr) {
         return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
@@ -308,13 +277,6 @@ public:
 #endif
 
 private:
-    const RunBuffer& allocRunText(const SkPaint& font,
-                                  int count,
-                                  SkScalar x,
-                                  SkScalar y,
-                                  int textByteCount,
-                                  SkString lang,
-                                  const SkRect* bounds = nullptr);
     const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
                                       int textByteCount, SkString lang,
                                       const SkRect* bounds = nullptr);
