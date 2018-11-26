@@ -138,10 +138,9 @@ DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
         return new GrSoftwarePathRenderer(ctx->contextPriv().proxyProvider(), true);
     };
 
-    // Software path renderer creates a mask texture, but also renders with a non-AA rect, which
-    // refs the quad index buffer.
-    const int kExpectedResources = 2;
-
+    // Software path renderer creates a mask texture, while it also renders with a non-AA rect, in
+    // these tests only a single quad is used, so the rect op skips the quad index buffer
+    const int kExpectedResources = 1;
     test_path(reporter, create_concave_path, createPR, kExpectedResources, GrAAType::kCoverage);
 
     // Test with a style that alters the path geometry. This needs to attach the invalidation logic
