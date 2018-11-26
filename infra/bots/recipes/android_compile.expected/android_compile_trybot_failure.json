@@ -3,6 +3,10 @@
     "cmd": [
       "python",
       "[START_DIR]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
+      "--lunch_target",
+      "cf_x86_phone-eng",
+      "--mmma_targets",
+      "frameworks/base/core/jni,external/skia",
       "--issue",
       "1234",
       "--patchset",
