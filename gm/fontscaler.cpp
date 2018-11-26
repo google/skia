@@ -6,6 +6,7 @@
  */
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkFont.h"
 #include "SkTypeface.h"
 
 namespace skiagm {
@@ -30,12 +31,11 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
-        paint.setHinting(kSlight_SkFontHinting);
+        font.setHinting(kSlight_SkFontHinting);
 
         const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);
@@ -61,13 +61,13 @@ protected:
                 }
 
                 for (int ps = 6; ps <= 22; ps++) {
-                    paint.setTextSize(SkIntToScalar(ps));
-                    canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(nullptr);
+                    font.setSize(SkIntToScalar(ps));
+                    canvas->drawSimpleText(text, textLen, x, y, kUTF8_SkTextEncoding, font, paint);
+                    y += paint.getSpacing();
                 }
             }
             canvas->translate(0, SkIntToScalar(360));
-            paint.setSubpixelText(true);
+            font.setSubpixel(true);
         }
     }
 

@@ -54,10 +54,6 @@ class SkTextBlob;
 class SkTextBlobRunIterator;
 class SkTypeface;
 
-#ifndef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
-#define SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
-#endif
-
 /** \class SkPaint
     SkPaint controls options applied when drawing and measuring. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -958,6 +954,10 @@ public:
     }
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+public:
+#else
+private:
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
     /**
@@ -1038,6 +1038,18 @@ public:
     */
     bool containsText(const void* text, size_t byteLength) const;
 
+    /** Returns the number of glyphs in text.
+        Uses SkPaint::TextEncoding to count the glyphs.
+        Returns the same result as textToGlyphs().
+
+        @param text        character storage encoded with SkPaint::TextEncoding
+        @param byteLength  length of character storage in bytes
+        @return            number of glyphs represented by text of length byteLength
+     */
+    int countText(const void* text, size_t byteLength) const;
+
+public:
+
     /** Converts glyphs into text if possible.
         Glyph values without direct Unicode equivalents are mapped to zero.
         Uses the SkTypeface, but is unaffected
@@ -1050,16 +1062,6 @@ public:
         @param text    storage for character codes, one per glyph
     */
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
-
-    /** Returns the number of glyphs in text.
-        Uses SkPaint::TextEncoding to count the glyphs.
-        Returns the same result as textToGlyphs().
-
-        @param text        character storage encoded with SkPaint::TextEncoding
-        @param byteLength  length of character storage in bytes
-        @return            number of glyphs represented by text of length byteLength
-    */
-    int countText(const void* text, size_t byteLength) const;
 
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
@@ -1089,7 +1091,6 @@ public:
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, nullptr);
     }
-#endif
 
     /** Returns the bytes of text that fit within maxWidth.
         The text fragment fits if its advance width is less than or equal to maxWidth.
@@ -1108,7 +1109,6 @@ public:
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = nullptr) const;
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Retrieves the advance and bounds for each glyph in text, and returns
         the glyph count in text.
         Both widths and bounds may be nullptr.
@@ -1128,6 +1128,11 @@ public:
     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = nullptr) const;
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
+public:
+#else
+private:
+#endif
     /** Returns the geometry as SkPath equivalent to the drawn text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
@@ -1157,6 +1162,7 @@ public:
     */
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
+public:
 
 #ifdef SK_SUPPORT_LEGACY_TEXTINTERCEPTS
 public:
@@ -1265,7 +1271,6 @@ public:
         @return  union of bounds of all glyphs
     */
     SkRect getFontBounds() const;
-#endif
 
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.

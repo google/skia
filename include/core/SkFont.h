@@ -336,6 +336,13 @@ public:
     void getWidths(const uint16_t glyphs[], int count, SkScalar widths[],
                    SkRect bounds[] = nullptr) const;
 
+    // Experimental
+    SkScalar getWidth(uint16_t glyphID) const {
+        SkScalar width;
+        this->getWidths(&glyphID, 1, &width);
+        return width;
+    }
+
     /** Experimental
         Retrieves the positions for each glyph, beginning at the specified origin. The caller
         must allocated at least count number of elements in the pos[] array.

@@ -9,6 +9,11 @@
 #include "SkImage.h"
 #include "SkPatchUtils.h"
 
+static int legacy_count_text(const SkPaint& paint, const void* text, size_t length) {
+    return SkFont::LEGACY_ExtractFromPaint(paint).countText(text, length,
+                                                        (SkTextEncoding)paint.getTextEncoding());
+}
+
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
                   SkPicture const* const drawablePicts[],
@@ -437,7 +442,7 @@ private:
     }
 
     Bounds bounds(const DrawPosText& op) const {
-        const int N = op.paint.countText(op.text, op.byteLength);
+        const int N = legacy_count_text(op.paint, op.text, op.byteLength);
         if (N == 0) {
             return Bounds::MakeEmpty();
         }
@@ -448,7 +453,7 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawPosTextH& op) const {
-        const int N = op.paint.countText(op.text, op.byteLength);
+        const int N = legacy_count_text(op.paint, op.text, op.byteLength);
         if (N == 0) {
             return Bounds::MakeEmpty();
         }
