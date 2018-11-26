@@ -1530,19 +1530,17 @@ Json::Value SkDrawImageRectCommand::toJSON(UrlDataManager& urlDataManager) const
 }
 
 SkDrawImageSetCommand::SkDrawImageSetCommand(const SkCanvas::ImageSetEntry set[], int count,
-                                             float alpha, SkFilterQuality filterQuality,
-                                             SkBlendMode mode)
+                                             SkFilterQuality filterQuality, SkBlendMode mode)
         : INHERITED(kDrawImageSet_OpType)
         , fSet(count)
         , fCount(count)
-        , fAlpha(alpha)
         , fFilterQuality(filterQuality)
         , fMode(mode) {
     std::copy_n(set, count, fSet.get());
 }
 
 void SkDrawImageSetCommand::execute(SkCanvas* canvas) const {
-    canvas->experimental_DrawImageSetV0(fSet.get(), fCount, fAlpha, fFilterQuality, fMode);
+    canvas->experimental_DrawImageSetV1(fSet.get(), fCount, fFilterQuality, fMode);
 }
 
 SkDrawImageNineCommand::SkDrawImageNineCommand(const SkImage* image, const SkIRect& center,

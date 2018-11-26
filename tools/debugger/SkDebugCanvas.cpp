@@ -357,9 +357,9 @@ void SkDebugCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
     this->addDrawCommand(new SkDrawImageNineCommand(image, center, dst, paint));
 }
 
-void SkDebugCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+void SkDebugCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                    SkFilterQuality filterQuality, SkBlendMode mode) {
-    this->addDrawCommand(new SkDrawImageSetCommand(set, count, alpha, filterQuality, mode));
+    this->addDrawCommand(new SkDrawImageSetCommand(set, count, filterQuality, mode));
 }
 
 void SkDebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {

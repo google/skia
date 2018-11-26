@@ -67,8 +67,7 @@ public:
                        SkCanvas::SrcRectConstraint);
     void drawImageLattice(sk_sp<const SkImage>, const SkCanvas::Lattice&,
                           const SkRect&, const SkPaint*);
-    void drawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
-                      SkBlendMode);
+    void drawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality, SkBlendMode);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
                    SkBlendMode, const SkPaint&);

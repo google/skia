@@ -61,10 +61,10 @@ protected:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     // This is under active development for Chrome and not used in Android. Hold off on adding
     // implementations in Android's SkCanvas subclasses until this stabilizes.
-    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                         SkBlendMode) override {};
 #else
-    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, float alpha, SkFilterQuality,
+    void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                         SkBlendMode) override = 0;
 #endif
 

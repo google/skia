@@ -203,7 +203,7 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int count, float alpha,
+void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int count,
                                 SkFilterQuality filterQuality, SkBlendMode mode) {
     SkPaint paint;
     paint.setFilterQuality(SkTPin(filterQuality, kNone_SkFilterQuality, kLow_SkFilterQuality));
@@ -213,8 +213,7 @@ void SkBaseDevice::drawImageSet(const SkCanvas::ImageSetEntry images[], int coun
         // which turns off antialiasing unless all four edges should be antialiased. This avoids
         // seaming in tiled composited layers.
         paint.setAntiAlias(images[i].fAAFlags == SkCanvas::kAll_QuadAAFlags);
-        paint.setAlpha(
-                SkToUInt(SkTClamp(SkScalarRoundToInt(images[i].fAlpha * alpha * 255), 0, 255)));
+        paint.setAlpha(SkToUInt(SkTClamp(SkScalarRoundToInt(images[i].fAlpha * 255), 0, 255)));
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect, paint,
                             SkCanvas::kFast_SrcRectConstraint);
     }

@@ -354,7 +354,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (!reader->validate(cnt >= 0)) {
                 break;
             }
-            float alpha = SkScalarToFloat(reader->readScalar());
             SkFilterQuality filterQuality = (SkFilterQuality)reader->readUInt();
             SkBlendMode mode = (SkBlendMode)reader->readUInt();
             SkAutoTArray<SkCanvas::ImageSetEntry> set(cnt);
@@ -367,7 +366,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->experimental_DrawImageSetV0(set.get(), cnt, alpha, filterQuality, mode);
+            canvas->experimental_DrawImageSetV1(set.get(), cnt, filterQuality, mode);
         } break;
         case DRAW_OVAL: {
             const SkPaint* paint = fPictureData->getPaint(reader);

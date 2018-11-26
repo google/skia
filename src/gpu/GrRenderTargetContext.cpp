@@ -830,7 +830,7 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
 }
 
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
-                                           GrSamplerState::Filter filter, float alpha,
+                                           GrSamplerState::Filter filter,
                                            const SkMatrix& viewMatrix,
                                            sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
@@ -838,8 +838,8 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureSet", fContext);
     GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
-    auto op = GrTextureOp::Make(fContext, set, cnt, filter, alpha, aaType, viewMatrix,
-                                std::move(texXform));
+    auto op =
+            GrTextureOp::Make(fContext, set, cnt, filter, aaType, viewMatrix, std::move(texXform));
     this->addDrawOp(clip, std::move(op));
 }
 

@@ -257,11 +257,11 @@ void SkNWayCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     }
 }
 
-void SkNWayCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count, float alpha,
+void SkNWayCanvas::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                   SkFilterQuality filterQuality, SkBlendMode mode) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->experimental_DrawImageSetV0(set, count, alpha, filterQuality, mode);
+        iter->experimental_DrawImageSetV1(set, count, filterQuality, mode);
     }
 }
 
