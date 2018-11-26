@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77289794_580b8683",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-26T22:26:46Z",
+      "side": 1,
+      "message": "I\u0027m somewhat hesitant to do anything like this since we just removed setting the symbolic traits due to iOS 12 and macOS 14 having issues when it is set (see Skia commit 9f9c2ea4282f0c332a0d55472931c39761420f54). I would much rather have something like the code which was removed than this, and even this would need extensive testing to ensure newer versions aren\u0027t negatively impacted.",
+      "range": {
+        "startLine": 815,
+        "startChar": 16,
+        "endLine": 815,
+        "endChar": 50
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9382597e_8b5760e6",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-26T22:26:46Z",
+      "side": 1,
+      "message": "This typo should be fixed by itself I think, see https://skia-review.googlesource.com/c/skia/+/172961 .",
+      "range": {
+        "startLine": 849,
+        "startChar": 43,
+        "endLine": 849,
+        "endChar": 57
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
