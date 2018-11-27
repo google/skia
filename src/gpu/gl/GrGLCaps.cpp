@@ -2985,6 +2985,9 @@ static bool get_yuva_config(GrGLenum format, GrPixelConfig* config) {
     case GR_GL_R8:
         *config = kAlpha_8_as_Red_GrPixelConfig;
         break;
+    case GR_GL_RG8:
+        *config = kRG_88_GrPixelConfig;
+        break;
     case GR_GL_RGBA8:
         *config = kRGBA_8888_GrPixelConfig;
         break;
