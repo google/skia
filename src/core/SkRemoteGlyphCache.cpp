@@ -532,6 +532,14 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
     return this->findGlyph(packedGlyphID);
 }
 
+bool SkStrikeServer::SkGlyphCacheState::hasImage(const SkGlyph& glyph) {
+    return !glyph.isEmpty();
+}
+
+bool SkStrikeServer::SkGlyphCacheState::hasPath(const SkGlyph& glyph) {
+    return const_cast<SkGlyph&>(glyph).addPath(fContext.get(), &fAlloc) != nullptr;
+}
+
 void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
                                                        Serializer* serializer) const {
     SkPath path;

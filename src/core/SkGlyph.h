@@ -17,6 +17,7 @@
 class SkArenaAlloc;
 class SkPath;
 class SkGlyphCache;
+class SkScalerContext;
 
 // needs to be != to any valid SkMask::Format
 #define MASK_FORMAT_UNKNOWN         (0xFF)
@@ -160,6 +161,8 @@ public:
     void zeroMetrics();
 
     void toMask(SkMask* mask) const;
+
+    SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
 
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);

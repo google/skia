@@ -220,24 +220,17 @@ void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGly
 }
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
-    if (glyph.fWidth) {
-        if (glyph.fPathData == nullptr) {
-            SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
-            const_cast<SkGlyph&>(glyph).fPathData = pathData;
-            pathData->fIntercept = nullptr;
-            SkPath* path = new SkPath;
-            if (fScalerContext->getPath(glyph.getPackedID(), path)) {
-                path->updateBoundsCache();
-                path->getGenerationID();
-                pathData->fPath = path;
-                fMemoryUsed += compute_path_size(*path);
-            } else {
-                pathData->fPath = nullptr;
-                delete path;
-            }
-        }
+    if (!glyph.isEmpty() && glyph.fPathData != nullptr) {
+        return glyph.fPathData->fPath;
     }
-    return glyph.fPathData ? glyph.fPathData->fPath : nullptr;
+
+    SkPath* path = const_cast<SkGlyph&>(glyph).addPath(fScalerContext.get(), &fAlloc);
+
+    if (path != nullptr) {
+        fMemoryUsed += compute_path_size(*path);
+    }
+
+    return path;
 }
 
 bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
@@ -501,6 +494,14 @@ void SkGlyphCache::validate() const {
 #ifdef SK_DEBUG_GLYPH_CACHE
     forceValidate();
 #endif
+}
+
+bool SkGlyphCache::hasImage(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findImage(glyph) != nullptr;
+}
+
+bool SkGlyphCache::hasPath(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
 }
 
 #endif
