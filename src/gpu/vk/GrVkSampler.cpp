@@ -23,8 +23,7 @@ static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
     return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& samplerState,
-                                 uint32_t maxMipLevel) {
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& samplerState) {
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
         VK_FILTER_LINEAR,
@@ -58,8 +57,8 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& sampl
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter() && maxMipLevel > 0;
-    createInfo.maxLod = !useMipMaps ? 0.0f : (float)(maxMipLevel);
+    bool useMipMaps = GrSamplerState::Filter::kMipMap == samplerState.filter();
+    createInfo.maxLod = !useMipMaps ? 0.0f : 10000.0f;
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -69,7 +68,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& sampl
                                                           nullptr,
                                                           &sampler));
 
-    return new GrVkSampler(sampler, GenerateKey(samplerState, maxMipLevel));
+    return new GrVkSampler(sampler, GenerateKey(samplerState));
 }
 
 void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
@@ -77,22 +76,18 @@ void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
 
-uint16_t GrVkSampler::GenerateKey(const GrSamplerState& samplerState, uint32_t maxMipLevel) {
+uint8_t GrVkSampler::GenerateKey(const GrSamplerState& samplerState) {
     const int kTileModeXShift = 2;
     const int kTileModeYShift = 4;
-    const int kMipLevelShift = 6;
 
     SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
-    uint16_t key = static_cast<uint16_t>(samplerState.filter());
+    uint8_t key = static_cast<uint8_t>(samplerState.filter());
 
-    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 4);
-    key |= (static_cast<uint16_t>(samplerState.wrapModeX()) << kTileModeXShift);
+    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 3);
+    key |= (static_cast<uint8_t>(samplerState.wrapModeX()) << kTileModeXShift);
 
-    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 4);
-    key |= (static_cast<uint16_t>(samplerState.wrapModeY()) << kTileModeYShift);
-
-    SkASSERT(maxMipLevel < 1024);
-    key |= (maxMipLevel << kMipLevelShift);
+    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 3);
+    key |= (static_cast<uint8_t>(samplerState.wrapModeY()) << kTileModeYShift);
 
     return key;
 }
