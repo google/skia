@@ -196,21 +196,18 @@ auto SkStrikeCache::findOrCreateStrike(
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkPaint& paint) {
-    return FindOrCreateStrikeWithNoDeviceExclusive(SkFont::LEGACY_ExtractFromPaint(paint),
-                                                   SkPaint());
+    return FindOrCreateStrikeExclusive(
+            paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+            kFakeGammaAndBoostContrast, SkMatrix::I());
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font) {
-    return FindOrCreateStrikeWithNoDeviceExclusive(font, SkPaint());
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font,
-                                                                            const SkPaint& paint) {
     SkAutoDescriptor ad;
     SkScalerContextEffects effects;
-    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font, paint,
-                              SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
-                              kFakeGammaAndBoostContrast, SkMatrix::I(), &ad, &effects);
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font,
+                                      SkPaint(),
+                                      SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+                                      kFakeGammaAndBoostContrast, SkMatrix::I(), &ad, &effects);
     auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
     return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
 }

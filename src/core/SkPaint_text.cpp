@@ -405,11 +405,63 @@ SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int SkPaint::getTextWidths(const void* text, size_t len, SkScalar widths[], SkRect bounds[]) const {
-    const SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
-    SkAutoToGlyphs gly(font, text, len, (SkTextEncoding)this->getTextEncoding());
-    font.getWidthsBounds(gly.glyphs(), gly.count(), widths, bounds, this);
-    return gly.count();
+static void set_bounds(const SkGlyph& g, SkRect* bounds, SkScalar scale) {
+    bounds->set(g.fLeft * scale,
+                g.fTop * scale,
+                (g.fLeft + g.fWidth) * scale,
+                (g.fTop + g.fHeight) * scale);
+}
+
+int SkPaint::getTextWidths(const void* textData, size_t byteLength,
+                           SkScalar widths[], SkRect bounds[]) const {
+    if (0 == byteLength) {
+        return 0;
+    }
+
+    SkASSERT(textData);
+
+    if (nullptr == widths && nullptr == bounds) {
+        return this->countText(textData, byteLength);
+    }
+
+    SkCanonicalizePaint canon(*this);
+    const SkPaint& paint = canon.getPaint();
+    SkScalar scale = canon.getScale();
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
+                      static_cast<SkTextEncoding>(paint.getTextEncoding()), nullptr != bounds);
+
+    const char* text = (const char*)textData;
+    const char* stop = text + byteLength;
+    int         count = 0;
+
+    if (scale) {
+        while (text < stop) {
+            const SkGlyph& g = glyphCacheProc(cache.get(), &text, stop);
+            if (widths) {
+                *widths++ = advance(g) * scale;
+            }
+            if (bounds) {
+                set_bounds(g, bounds++, scale);
+            }
+            ++count;
+        }
+    } else {
+        while (text < stop) {
+            const SkGlyph& g = glyphCacheProc(cache.get(), &text, stop);
+            if (widths) {
+                *widths++ = advance(g);
+            }
+            if (bounds) {
+                set_bounds(g, bounds++);
+            }
+            ++count;
+        }
+    }
+
+    SkASSERT(text == stop);
+    return count;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
