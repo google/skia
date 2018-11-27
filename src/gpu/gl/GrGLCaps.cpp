@@ -1464,6 +1464,18 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGB_888_GrPixelConfig].fFlags = 0;
     }
 
+    //*** need to determine if this is available
+    fConfigTable[kRG_88_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RG;
+    fConfigTable[kRG_88_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RG8;
+    fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RG;
+    fConfigTable[kRG_88_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    fConfigTable[kRG_88_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
+    fConfigTable[kRG_88_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
+    if (texStorageSupported) {
+        fConfigTable[kRG_88_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+    fConfigTable[kRG_88_GrPixelConfig].fSwizzle = GrSwizzle::RGBA(); // ?
+
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] =
         GR_GL_BGRA;
     fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fExternalType  = GR_GL_UNSIGNED_BYTE;
@@ -2984,6 +2996,9 @@ static bool get_yuva_config(GrGLenum format, GrPixelConfig* config) {
         break;
     case GR_GL_R8:
         *config = kAlpha_8_as_Red_GrPixelConfig;
+        break;
+    case GR_GL_RG8:
+        *config = kRG_88_GrPixelConfig;
         break;
     case GR_GL_RGBA8:
         *config = kRGBA_8888_GrPixelConfig;
