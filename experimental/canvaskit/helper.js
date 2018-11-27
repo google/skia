@@ -17,4 +17,15 @@
     }
     return (clamp(a*255) << 24) | (clamp(r) << 16) | (clamp(g) << 8) | (clamp(b) << 0);
   }
+
+  // returns [r, g, b, a] from a color
+  // where a is scaled between 0 and 1.0
+  CanvasKit.getColorComponents = function(color) {
+    return [
+       (color >> 16) & 0xFF,
+       (color >>  8) & 0xFF,
+       (color >>  0) & 0xFF,
+      ((color >> 24) & 0xFF) / 255,
+    ]
+  }
 }(Module)); // When this file is loaded in, the high level object is "Module";
