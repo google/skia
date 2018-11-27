@@ -24,6 +24,8 @@ public:
     virtual ~SkGlyphCacheInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+    virtual bool hasImage(const SkGlyph& glyph) = 0;
+    virtual bool hasPath(const SkGlyph& glyph) = 0;
 };
 
 class SkGlyphCacheCommon {
@@ -70,11 +72,11 @@ public:
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             const BitmapDevicePainter* bitmapDevice);
 
-    template <typename PerGlyphT, typename PerPathT>
+    template <typename PerEmptyT, typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
-            PerGlyphT&& perGlyph, PerPathT&& perPath);
+            PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
 
