@@ -1841,6 +1841,13 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fIsVolatile = fIsVolatile;
         }
 
+        if (!matrix.isScaleTranslate()) {
+            // If we're rotated/skewed/etc. we can't trust that our convexity stays put.
+            // ... just because convexity is fragle with segments are *nearly* colinear...
+            // See Path_crbug_899689 test, which asserts w/o this check.
+            dst->fConvexity = kUnknown_Convexity;
+        }
+
         if (SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
             dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
         } else {
