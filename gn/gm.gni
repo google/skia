@@ -123,6 +123,7 @@ gm_sources = [
   "$_gm/drawlooper.cpp",
   "$_gm/drawimageset.cpp",
   "$_gm/drawminibitmaprect.cpp",
+  "$_gm/drawquadset.cpp",
   "$_gm/drawregion.cpp",
   "$_gm/drawregionmodes.cpp",
   "$_gm/dropshadowimagefilter.cpp",
