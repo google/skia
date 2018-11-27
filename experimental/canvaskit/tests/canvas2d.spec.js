@@ -33,14 +33,14 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         container.innerHTML = '';
     });
 
-    describe('color string parsing', function() {
+    describe('color strings', function() {
         function hex(s) {
             return parseInt(s, 16);
         }
 
         it('parses hex color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
-                let parseColor = CanvasKit._testing.parseColor;
+                const parseColor = CanvasKit._testing.parseColor;
                 expect(parseColor('#FED')).toEqual(
                     CanvasKit.Color(hex('FF'), hex('EE'), hex('DD'), 1));
                 expect(parseColor('#FEDC')).toEqual(
@@ -54,7 +54,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
         it('parses rgba color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
-                let parseColor = CanvasKit._testing.parseColor;
+                const parseColor = CanvasKit._testing.parseColor;
                 expect(parseColor('rgba(117, 33, 64, 0.75)')).toEqual(
                     CanvasKit.Color(117, 33, 64, 0.75));
                 expect(parseColor('rgb(117, 33, 64, 0.75)')).toEqual(
@@ -68,13 +68,26 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
         it('parses named color strings', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
-                let parseColor = CanvasKit._testing.parseColor;
+                const parseColor = CanvasKit._testing.parseColor;
                 expect(parseColor('grey')).toEqual(
                     CanvasKit.Color(128, 128, 128, 1.0));
                 expect(parseColor('blanchedalmond')).toEqual(
                     CanvasKit.Color(255, 235, 205, 1.0));
                 expect(parseColor('transparent')).toEqual(
                     CanvasKit.Color(0, 0, 0, 0));
+                done();
+            }));
+        });
+
+        it('properly produces color strings', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const colorToString = CanvasKit._testing.colorToString;
+
+                expect(colorToString(CanvasKit.Color(102, 51, 153, 1.0))).toEqual('#663399');
+
+                expect(colorToString(CanvasKit.Color(255, 235, 205, 0.5))).toEqual(
+                                               'rgba(255, 235, 205, 0.50196078)');
+
                 done();
             }));
         });
@@ -190,6 +203,76 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.lineWidth = 5;
                     ctx.stroke();
                 });
+            }));
+        });
+
+        it('properly saves and restores states, even when drawing shadows', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('shadows_and_save_restore', done, (canvas) => {
+                  let ctx = canvas.getContext('2d');
+                  ctx.strokeStyle = '#000';
+                  ctx.fillStyle = '#CCC';
+                  ctx.shadowColor = 'rebeccapurple';
+                  ctx.shadowBlur = 1;
+                  ctx.shadowOffsetX = 3;
+                  ctx.shadowOffsetY = -8;
+                  ctx.rect(10, 10, 30, 30);
+
+                  ctx.save();
+                  ctx.strokeStyle = '#C00';
+                  ctx.fillStyle = '#00C';
+                  ctx.shadowBlur = 0;
+                  ctx.shadowColor = 'transparent';
+
+                  ctx.stroke();
+
+                  ctx.restore();
+                  ctx.fill();
+
+                  ctx.beginPath();
+                  ctx.moveTo(36, 148);
+                  ctx.quadraticCurveTo(66, 188, 120, 136);
+                  ctx.closePath();
+                  ctx.stroke();
+
+                  ctx.beginPath();
+                  ctx.shadowColor = '#993366AA';
+                  ctx.shadowOffsetX = 8;
+                  ctx.shadowBlur = 5;
+                  ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+                  ctx.rect(110, 10, 20, 20);
+                  ctx.lineTo(110, 0);
+                  ctx.resetTransform();
+                  ctx.lineTo(220, 120);
+                  ctx.stroke();
+
+                  ctx.fillStyle = 'green';
+                  ctx.font = '16pt Arial';
+                  ctx.fillText('This should be shadowed', 20, 80);
+                });
+            }));
+        });
+
+        it('can read default properties', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+                const realCanvas = document.getElementById('test');
+                realCanvas.width = CANVAS_WIDTH;
+                realCanvas.height = CANVAS_HEIGHT;
+
+                const skcontext = skcanvas.getContext('2d');
+                const realContext = realCanvas.getContext('2d');
+
+                const toTest = ['font', 'lineWidth', 'strokeStyle', 'lineCap',
+                                'lineJoin', 'miterLimit', 'shadowOffsetY',
+                                'shadowBlur', 'shadowColor', 'shadowOffsetX'];
+
+                for( let attr of toTest) {
+                    expect(skcontext[attr]).toBe(realContext[attr], attr);
+                }
+
+                skcanvas.dispose();
+                done();
             }));
         });
     }); // end describe('Path drawing API')

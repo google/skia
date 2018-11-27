@@ -80,9 +80,18 @@
     this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
     this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
 
+    this._strokeColor   = CanvasKit.BLACK;
+    this._fillColor     = CanvasKit.BLACK;
+    this._shadowBlur    = 0;
+    this._shadowColor   = CanvasKit.TRANSPARENT;
+    this._shadowOffsetX = 0;
+    this._shadowOffsetY = 0;
+
     this._currentPath = new CanvasKit.SkPath();
     this._currentSubpath = null;
     this._currentTransform = CanvasKit.SkMatrix.identity();
+
+    this._canvasStateStack = [];
 
     this._dispose = function() {
       this._currentPath.delete();
@@ -92,17 +101,88 @@
       // by the surface of which it is based.
     }
 
+    Object.defineProperty(this, 'fillStyle', {
+      enumerable: true,
+      get: function() {
+        return colorToString(this._fillColor);
+      },
+      set: function(newStyle) {
+        this._fillColor = parseColor(newStyle);
+      }
+    });
+
     Object.defineProperty(this, 'font', {
       enumerable: true,
+      get: function(newStyle) {
+        // TODO generate this
+        return '10px sans-serif';
+      },
       set: function(newStyle) {
         var size = parseFontSize(newStyle);
-        // TODO styles
+        // TODO(kjlubick) styles, font name
         this._paint.setTextSize(size);
+      }
+    });
+
+    Object.defineProperty(this, 'lineCap', {
+      enumerable: true,
+      get: function() {
+        switch (this._paint.getStrokeCap()) {
+          case CanvasKit.StrokeCap.Butt:
+            return 'butt';
+          case CanvasKit.StrokeCap.Round:
+            return 'round';
+          case CanvasKit.StrokeCap.Square:
+            return 'square';
+        }
+      },
+      set: function(newCap) {
+        switch (newCap) {
+          case 'butt':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
+            return;
+          case 'round':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Round);
+            return;
+          case 'square':
+            this._paint.setStrokeCap(CanvasKit.StrokeCap.Square);
+            return;
+        }
+      }
+    });
+
+    Object.defineProperty(this, 'lineJoin', {
+      enumerable: true,
+      get: function() {
+        switch (this._paint.getStrokeJoin()) {
+          case CanvasKit.StrokeJoin.Miter:
+            return 'miter';
+          case CanvasKit.StrokeJoin.Round:
+            return 'round';
+          case CanvasKit.StrokeJoin.Bevel:
+            return 'bevel';
+        }
+      },
+      set: function(newJoin) {
+        switch (newJoin) {
+          case 'miter':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
+            return;
+          case 'round':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Round);
+            return;
+          case 'bevel':
+            this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Bevel);
+            return;
+        }
       }
     });
 
     Object.defineProperty(this, 'lineWidth', {
       enumerable: true,
+      get: function() {
+        return this._paint.getStrokeWidth();
+      },
       set: function(newWidth) {
         if (newWidth <= 0 || !newWidth) {
           // Spec says to ignore NaN/Inf/0/negative values
@@ -112,10 +192,77 @@
       }
     });
 
+    Object.defineProperty(this, 'miterLimit', {
+      enumerable: true,
+      get: function() {
+        return this._paint.getStrokeMiter();
+      },
+      set: function(newLimit) {
+        if (newLimit <= 0 || !newLimit) {
+          // Spec says to ignore NaN/Inf/0/negative values
+          return;
+        }
+        this._paint.setStrokeMiter(newLimit);
+      }
+    });
+
+    Object.defineProperty(this, 'shadowBlur', {
+      enumerable: true,
+      get: function() {
+        return this._shadowBlur;
+      },
+      set: function(newBlur) {
+        // ignore negative, inf and NAN (but not 0) as per the spec.
+        if (newBlur < 0 || !isFinite(newBlur)) {
+          return;
+        }
+        this._shadowBlur = newBlur;
+      }
+    });
+
+    Object.defineProperty(this, 'shadowColor', {
+      enumerable: true,
+      get: function() {
+        return colorToString(this._shadowColor);
+      },
+      set: function(newColor) {
+        this._shadowColor = parseColor(newColor);
+      }
+    });
+
+    Object.defineProperty(this, 'shadowOffsetX', {
+      enumerable: true,
+      get: function() {
+        return this._shadowOffsetX;
+      },
+      set: function(newOffset) {
+        if (!isFinite(newOffset)) {
+          return;
+        }
+        this._shadowOffsetX = newOffset;
+      }
+    });
+
+    Object.defineProperty(this, 'shadowOffsetY', {
+      enumerable: true,
+      get: function() {
+        return this._shadowOffsetY;
+      },
+      set: function(newOffset) {
+        if (!isFinite(newOffset)) {
+          return;
+        }
+        this._shadowOffsetY = newOffset;
+      }
+    });
+
     Object.defineProperty(this, 'strokeStyle', {
       enumerable: true,
+      get: function() {
+        return colorToString(this._strokeColor);
+      },
       set: function(newStyle) {
-        this._paint.setColor(parseColor(newStyle));
+        this._strokeColor = parseColor(newStyle);
       }
     });
 
@@ -215,8 +362,48 @@
       temp.delete();
     }
 
+    this.fill = function() {
+      this._commitSubpath();
+      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
+      this._paint.setColor(this._fillColor);
+      var orig = this._paint.getStrokeWidth();
+      // This is not in the spec, but it appears Chrome scales up
+      // the line width by some amount when stroking (and filling?).
+      var scaledWidth = orig * this._scalefactor();
+      this._paint.setStrokeWidth(scaledWidth);
+
+      var shadowPaint = this._shadowPaint();
+      if (shadowPaint) {
+        var offsetMatrix = CanvasKit.SkMatrix.multiply(
+          this._currentTransform,
+          CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
+        );
+        this._canvas.setMatrix(offsetMatrix);
+        this._canvas.drawPath(this._currentPath, shadowPaint);
+        this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+        shadowPaint.dispose();
+      }
+
+      this._canvas.drawPath(this._currentPath, this._paint);
+      // set stroke width back to original size:
+      this._paint.setStrokeWidth(orig);
+    }
+
     this.fillText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
+      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
+      this._paint.setColor(this._fillColor);
+      var shadowPaint = this._shadowPaint();
+      if (shadowPaint) {
+        var offsetMatrix = CanvasKit.SkMatrix.multiply(
+          this._currentTransform,
+          CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
+        );
+        this._canvas.setMatrix(offsetMatrix);
+        this._canvas.drawText(text, x, y, shadowPaint);
+        shadowPaint.dispose();
+        // Don't need to setMatrix back, it will be handled by the next few lines.
+      }
       this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
@@ -296,10 +483,50 @@
       this._currentTransform = CanvasKit.SkMatrix.identity();
     }
 
+    this.restore = function() {
+      var newState = this._canvasStateStack.pop();
+      if (!newState) {
+        return;
+      }
+      this._currentTransform = newState.ctm;
+      // TODO(kjlubick): clipping region
+      // TODO(kjlubick): dash list
+      this._paint.setStrokeWidth(newState.sw);
+      this._strokeColor = newState.sc;
+      this._fillColor = newState.fc;
+      this._paint.setStrokeCap(newState.cap);
+      this._paint.setStrokeJoin(newState.jn);
+      this._paint.setStrokeMiter(newState.mtr);
+      this._shadowOffsetX = newState.sox;
+      this._shadowOffsetY = newState.soy;
+      this._shadowBlur = newState.sb;
+      this._shadowColor = newState.shc;
+      //TODO: globalAlpha, lineDashOffset, filter, globalCompositeOperation, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+    }
+
     this.rotate = function(radians, px, py) {
       this._currentTransform = CanvasKit.SkMatrix.multiply(
                                   this._currentTransform,
                                   CanvasKit.SkMatrix.rotated(radians, px, py));
+    }
+
+    this.save = function() {
+      this._canvasStateStack.push({
+        ctm:  this._currentTransform.slice(),
+        // TODO(kjlubick): clipping region
+        // TODO(kjlubick): dash list
+        sw:  this._paint.getStrokeWidth(),
+        sc:  this._strokeColor,
+        fc:  this._fillColor,
+        cap: this._paint.getStrokeCap(),
+        jn:  this._paint.getStrokeJoin(),
+        mtr: this._paint.getStrokeMiter(),
+        sox: this._shadowOffsetX,
+        soy: this._shadowOffsetY,
+        sb:  this._shadowBlur,
+        shc: this._shadowColor,
+        //TODO: globalAlpha, lineDashOffset, filter, globalCompositeOperation, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+      });
     }
 
     this.scale = function(sx, sy) {
@@ -323,24 +550,78 @@
                                 0, 0, 1];
     }
 
-    this.stroke = function() {
-      if (this._currentSubpath) {
-        this._commitSubpath();
-        this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-        var orig = this._paint.getStrokeWidth();
-        // This is not in the spec, but it appears Chrome scales up
-        // the line width by some amount when stroking (and filling?).
-        var scaledWidth = orig * this._scalefactor();
-        this._paint.setStrokeWidth(scaledWidth);
-        this._canvas.drawPath(this._currentPath, this._paint);
-        // set stroke width back to original size:
-        this._paint.setStrokeWidth(orig);
+    // Returns the shadow paint for the current settings or null if there
+    // should be no shadow. This ends up being a copy of the current
+    // paint with a blur maskfilter and the correct color.
+    this._shadowPaint = function() {
+      // if alpha is zero, no shadows
+      if (!CanvasKit.getColorComponents(this._shadowColor)[3]) {
+        return null;
       }
+      // one of these must also be non-zero (otherwise the shadow is
+      // completely hidden.  And the spec says so).
+      if (!(this._shadowBlur || this._shadowOffsetY || this._shadowOffsetX)) {
+        return null;
+      }
+      var shadowPaint = this._paint.copy();
+      shadowPaint.setColor(this._shadowColor);
+      var blurEffect = CanvasKit.MakeBlurMaskFilter(CanvasKit.BlurStyle.Normal,
+        Math.max(1, this._shadowBlur/2), // very little blur when < 1
+        false);
+      shadowPaint.setMaskFilter(blurEffect);
+
+      // hack up a "destructor" which also cleans up the blurEffect. Otherwise,
+      // we leak the blurEffect (since smart pointers don't help us in JS land).
+      shadowPaint.dispose = function() {
+        blurEffect.delete();
+        this.delete();
+      };
+      return shadowPaint;
+    }
+
+    this.stroke = function() {
+      this._commitSubpath();
+      this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+      this._paint.setColor(this._strokeColor);
+      var orig = this._paint.getStrokeWidth();
+      // This is not in the spec, but it appears Chrome scales up
+      // the line width by some amount when stroking (and filling?).
+      var scaledWidth = orig * this._scalefactor();
+      this._paint.setStrokeWidth(scaledWidth);
+
+      var shadowPaint = this._shadowPaint();
+      if (shadowPaint) {
+        var offsetMatrix = CanvasKit.SkMatrix.multiply(
+          this._currentTransform,
+          CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
+        );
+        this._canvas.setMatrix(offsetMatrix);
+        this._canvas.drawPath(this._currentPath, shadowPaint);
+        this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+        shadowPaint.dispose();
+      }
+
+      this._canvas.drawPath(this._currentPath, this._paint);
+      // set stroke width back to original size:
+      this._paint.setStrokeWidth(orig);
     }
 
     this.strokeText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
       this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      this._paint.setColor(this._strokeColor);
+      var shadowPaint = this._shadowPaint();
+      if (shadowPaint) {
+        var offsetMatrix = CanvasKit.SkMatrix.multiply(
+          this._currentTransform,
+          CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
+        );
+        this._canvas.setMatrix(offsetMatrix);
+        this._canvas.drawText(text, x, y, shadowPaint);
+        shadowPaint.dispose();
+        // Don't need to setMatrix back, it will be handled by the next few lines.
+      }
       this._canvas.setMatrix(this._currentTransform);
       this._canvas.drawText(text, x, y, this._paint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
@@ -421,6 +702,28 @@
     }
   }
 
+  function colorToString(skcolor) {
+    // https://html.spec.whatwg.org/multipage/canvas.html#serialisation-of-a-color
+    var components = CanvasKit.getColorComponents(skcolor);
+    var r = components[0];
+    var g = components[1];
+    var b = components[2];
+    var a = components[3];
+    if (a === 1.0) {
+      // hex
+      r = r.toString(16).toLowerCase();
+      g = g.toString(16).toLowerCase();
+      b = b.toString(16).toLowerCase();
+      r = (r.length === 1 ? '0'+r: r);
+      g = (g.length === 1 ? '0'+g: g);
+      b = (b.length === 1 ? '0'+b: b);
+      return '#'+r+g+b;
+    } else {
+      a = (a === 0 || a === 1) ? a : a.toFixed(8);
+      return 'rgba('+r+', '+g+', '+b+', '+a+')';
+    }
+  }
+
   function valueOrPercent(aStr) {
     var a = parseFloat(aStr) || 1;
     if (aStr && aStr.indexOf('%') !== -1) {
@@ -484,6 +787,7 @@
   }
 
   CanvasKit._testing['parseColor'] = parseColor;
+  CanvasKit._testing['colorToString'] = colorToString;
 
   // Create the following with
   // node ./htmlcanvas/_namedcolors.js --expose-wasm
