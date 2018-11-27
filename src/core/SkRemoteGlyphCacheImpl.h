@@ -44,6 +44,10 @@ public:
 
     const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
+    bool hasImage(const SkGlyph& glyph) override;
+
+    bool hasPath(const SkGlyph& glyph) override;
+
 private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
@@ -83,6 +87,8 @@ private:
     // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
     // we cache them here.
     SkTHashMap<SkPackedGlyphID, SkGlyph> fGlyphMap;
+
+    SkArenaAlloc fAlloc{256};
 };
 
 class SkTextBlobCacheDiffCanvas::TrackLayerDevice : public SkNoPixelsDevice {
