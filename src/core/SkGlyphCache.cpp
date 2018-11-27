@@ -220,24 +220,21 @@ void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGly
 }
 
 const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
-    if (glyph.fWidth) {
-        if (glyph.fPathData == nullptr) {
-            SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
-            const_cast<SkGlyph&>(glyph).fPathData = pathData;
-            pathData->fIntercept = nullptr;
-            SkPath* path = new SkPath;
-            if (fScalerContext->getPath(glyph.getPackedID(), path)) {
-                path->updateBoundsCache();
-                path->getGenerationID();
-                pathData->fPath = path;
-                fMemoryUsed += compute_path_size(*path);
-            } else {
-                pathData->fPath = nullptr;
-                delete path;
-            }
+
+    if (!glyph.isEmpty()) {
+        // If the path already exists, return it.
+        if (glyph.fPathData != nullptr) {
+            return glyph.fPathData->fPath;
+        }
+
+        // Add new path to the glyph, and add it's size to the glyph cache size.
+        if (SkPath* path = const_cast<SkGlyph&>(glyph).addPath(fScalerContext.get(), &fAlloc)) {
+            fMemoryUsed += compute_path_size(*path);
+            return path;
         }
     }
-    return glyph.fPathData ? glyph.fPathData->fPath : nullptr;
+
+    return nullptr;
 }
 
 bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {

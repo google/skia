@@ -17,6 +17,7 @@
 class SkArenaAlloc;
 class SkPath;
 class SkGlyphCache;
+class SkScalerContext;
 
 // needs to be != to any valid SkMask::Format
 #define MASK_FORMAT_UNKNOWN         (0xFF)
@@ -161,6 +162,8 @@ public:
 
     void toMask(SkMask* mask) const;
 
+    SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
+
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
@@ -175,6 +178,10 @@ public:
     };
 
     void*     fImage    = nullptr;
+
+    // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
+    // else if fPathData is not null, then a path has been requested. The fPath field of fPathData
+    // may still be null after the request meaning that there is no path for this glyph.
     PathData* fPathData = nullptr;
 
     // The advance for this glyph.
