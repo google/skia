@@ -352,11 +352,11 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
     }
 }
 
-template <typename PerGlyphT, typename PerPathT>
+template <typename PerEmptyT, typename PerGlyphT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
-        PerGlyphT&& perGlyph, PerPathT&& perPath) {
+        PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath) {
 
     SkMatrix mapping = deviceMatrix;
     mapping.preTranslate(origin.x(), origin.y());
@@ -371,10 +371,20 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         auto mappedPt = *mappedPtCursor++;
         if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
             const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
-            if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
-                perPath(glyph, mappedPt);
+            if (glyph.isEmpty()) {
+                perEmpty(glyph, mappedPt);
+            } else if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+                if (cache->hasImage(glyph)) {
+                    perGlyph(glyph, mappedPt);
+                } else {
+                    perEmpty(glyph, mappedPt);
+                }
             } else {
-                perGlyph(glyph, mappedPt);
+                if (cache->hasPath(glyph)) {
+                    perPath(glyph, mappedPt);
+                } else {
+                    perEmpty(glyph, mappedPt);
+                }
             }
         }
     }
@@ -767,35 +777,30 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
             sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
+            auto perEmpty = [](const SkGlyph&, SkPoint) {};
+
             auto perGlyph =
                 [this, run, &currStrike, filteredColor, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint mappedPt) {
-                    if (!glyph.isEmpty()) {
-                        const void* glyphImage = cache->findImage(glyph);
-                        if (glyphImage != nullptr) {
-                            SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
-                                       SkScalarFloorToScalar(mappedPt.fY)};
-                            run->appendGlyph(this, currStrike,
-                                             glyph, GrGlyph::kCoverage_MaskStyle, pt,
-                                             filteredColor, cache, SK_Scalar1, false);
-                        }
-                    }
+                    SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
+                               SkScalarFloorToScalar(mappedPt.fY)};
+                    run->appendGlyph(this, currStrike,
+                                     glyph, GrGlyph::kCoverage_MaskStyle, pt,
+                                     filteredColor, cache, SK_Scalar1, false);
                 };
 
             auto perPath =
                 [run, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint position) {
                     const SkPath* glyphPath = cache->findPath(glyph);
-                    if (glyphPath != nullptr) {
-                        SkPoint pt{SkScalarFloorToScalar(position.fX),
-                                   SkScalarFloorToScalar(position.fY)};
-                        run->appendPathGlyph(*glyphPath, pt, SK_Scalar1, true);
-                    }
+                    SkPoint pt{SkScalarFloorToScalar(position.fX),
+                               SkScalarFloorToScalar(position.fY)};
+                    run->appendPathGlyph(*glyphPath, pt, SK_Scalar1, true);
                 };
 
             glyphPainter->drawGlyphRunAsBMPWithPathFallback(
                     cache.get(), glyphRun, origin, viewMatrix,
-                    std::move(perGlyph), std::move(perPath));
+                    std::move(perEmpty), std::move(perGlyph), std::move(perPath));
         }
     }
 }
@@ -878,6 +883,10 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
     SkASSERT(glyphCacheState);
 
+    auto perEmpty = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
+        glyphCacheState->addGlyph(glyph.getPackedID(), false);
+    };
+
     auto perGlyph = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
         glyphCacheState->addGlyph(glyph.getPackedID(), false);
     };
@@ -891,7 +900,8 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
     };
 
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
+            glyphCacheState, glyphRun, origin, runMatrix,
+            std::move(perEmpty), std::move(perGlyph), std::move(perPath));
 }
 
 struct ARGBHelper {
