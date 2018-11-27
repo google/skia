@@ -67,7 +67,7 @@ downscale downward draw drawing drawn draws due duplicate duplicates duplicating
 
 each early easier edge edges edited editing effect effectively effects efficient
 efficiently eight either element elements eliminate ellipse ellipses elliptical else embedded
-empty enabled enables encapsulating enclose enclosed enclosing encode encoded encoder
+empty emulates enabled enables encapsulating enclose enclosed enclosing encode encoded encoder
 encoders encodes encoding encompasses end ending ends engine engines enlarge enough
 ensure ensuring entire entries entry enumeration environment equal equaling equality equally equals
 equivalent equivalents erases erroneously error evaluated even even-numbered even-odd
@@ -176,7 +176,7 @@ provides providing pt public pulled punches purposes put
 quadratic quality quantity quarter quick quickly 
 
 race radii radius range ranges ranging rarely raster rather ratio raw read read-only
-readable reader reading reads really reassign receive receiver receives receiving
+readable reader reading reads reallocation really reassign receive receiver receives receiving
 reciprocal recognized recommended recompute recomputed reconstruct reconstruction
 reconstructs recorded recording records recreates rectangle rectangles rectangular red reduce 
 reduced reducing reference referenced references referred referring refers reflect

@@ -777,6 +777,11 @@ string BmhParser::className(MarkType markType) {
             }
             this->skipLine();
             return fParent->fName;
+        } else if (' ' ==  mc[1] && MarkType::kConst == markType && fParent
+                && (MarkType::kEnum == fParent->fMarkType
+                || MarkType::kEnumClass == fParent->fMarkType)) {
+            this->skipToEndBracket('\n');
+            return builder + "::" + string(wordStart, wordEnd - wordStart);
         }
         fChar = mc;
         this->next();
@@ -1779,14 +1784,14 @@ string BmhParser::methodName() {
         paren = this->strnchr(')', end) + 1;
         TextParserSave saveState(this);
         this->skipTo(paren);
-        if (this->skipExact("_const")) {
+        if (this->skipExact(" const")) {
             addConst = true;
         }
         saveState.restore();
     }
     builder.append(nameStart, paren - nameStart);
     if (addConst) {
-        builder.append("_const");
+        builder.append(" const");
     }
     if (!expectOperator && allLower) {
         builder.append("()");

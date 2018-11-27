@@ -38,7 +38,7 @@ enum class <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> {
     kLastMode = kLuminosity,
 };
 
-const char* <a href='SkBlendMode_Reference#SkBlendMode_Name'>SkBlendMode_Name</a>(<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> blendMode);
+const char* <a href='SkBlendMode_Reference#SkBlendMode_Name'>SkBlendMode_Name</a>(<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> blendMode)
 </pre>
 
 <a name='SkBlendMode'></a>
