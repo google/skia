@@ -385,9 +385,10 @@ public:
 
     /** If this is invertible, return that in inverse and return true. If it is
         not invertible, return false and leave the inverse parameter in an
-        unspecified state.
+        unspecified state. If useType is true, utilize the matrix type to
+        potentially speed up the calculation.
      */
-    bool invert(SkMatrix44* inverse) const;
+    bool invert(SkMatrix44* inverse, bool useType = true) const;
 
     /** Transpose this matrix in place. */
     void transpose();
@@ -443,6 +444,8 @@ public:
     void dump() const;
 
     double determinant() const;
+
+    bool isInvertible() const;
 
 private:
     /* This is indexed by [col][row]. */

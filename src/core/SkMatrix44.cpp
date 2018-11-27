@@ -471,25 +471,33 @@ double SkMatrix44::determinant() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool is_matrix_finite(const SkMatrix44& matrix) {
-    SkMScalar accumulator = 0;
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            accumulator *= matrix.get(row, col);
-        }
-    }
-    return accumulator == 0;
+static bool isDeterminantNonZero(double determinant, double& invdet) {
+    invdet = sk_ieee_double_divide(1.0, determinant);
+    // If det is zero, we want to return false. However, we also want to return
+    // false if 1/det overflows to infinity (i.e. det is denormalized). Both of
+    // these are handled by checking that 1/det is finite.
+    return sk_float_isfinite(sk_double_to_float(invdet));
+}
+static bool isDeterminantNonZero(double determinant) {
+    double invdet;
+    return isDeterminantNonZero(determinant, invdet);
 }
 
-bool SkMatrix44::invert(SkMatrix44* storage) const {
-    if (this->isIdentity()) {
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkMatrix44::isInvertible() const { return isDeterminantNonZero(determinant()); }
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkMatrix44::invert(SkMatrix44* storage, bool useType) const {
+    if (this->isIdentity() && useType) {
         if (storage) {
             storage->setIdentity();
         }
         return true;
     }
 
-    if (this->isTranslate()) {
+    if (this->isTranslate() && useType) {
         if (storage) {
             storage->setTranslate(-fMat[3][0], -fMat[3][1], -fMat[3][2]);
         }
@@ -499,10 +507,9 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     SkMatrix44 tmp;
     // Use storage if it's available and distinct from this matrix.
     SkMatrix44* inverse = (storage && storage != this) ? storage : &tmp;
-    if (this->isScaleTranslate()) {
-        if (0 == fMat[0][0] * fMat[1][1] * fMat[2][2]) {
-            return false;
-        }
+    if (this->isScaleTranslate() && useType) {
+        double det = fMat[0][0] * fMat[1][1] * fMat[2][2];
+        if (!isDeterminantNonZero(det)) return false;
 
         double invXScale = 1 / fMat[0][0];
         double invYScale = 1 / fMat[1][1];
@@ -529,10 +536,6 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
-
-        if (!is_matrix_finite(*inverse)) {
-            return false;
-        }
         if (storage && inverse != storage) {
             *storage = *inverse;
         }
@@ -556,7 +559,7 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     double a32 = fMat[3][2];
     double a33 = fMat[3][3];
 
-    if (!(this->getType() & kPerspective_Mask)) {
+    if (!(this->getType() & kPerspective_Mask) && useType) {
         // If we know the matrix has no perspective, then the perspective
         // component is (0, 0, 0, 1). We can use this information to save a lot
         // of arithmetic that would otherwise be spent to compute the inverse
@@ -579,14 +582,8 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
 
         // Calculate the determinant
         double det = b00 * b11 - b01 * b10 + b03 * b08;
-
-        double invdet = sk_ieee_double_divide(1.0, det);
-        // If det is zero, we want to return false. However, we also want to return false
-        // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-        // handled by checking that 1/det is finite.
-        if (!sk_float_isfinite(sk_double_to_float(invdet))) {
-            return false;
-        }
+        double invdet;
+        if (!isDeterminantNonZero(det, invdet)) return false;
 
         b00 *= invdet;
         b01 *= invdet;
@@ -616,9 +613,6 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
-        if (!is_matrix_finite(*inverse)) {
-            return false;
-        }
         if (storage && inverse != storage) {
             *storage = *inverse;
         }
@@ -640,14 +634,8 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
 
     // Calculate the determinant
     double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-    double invdet = sk_ieee_double_divide(1.0, det);
-    // If det is zero, we want to return false. However, we also want to return false
-    // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-    // handled by checking that 1/det is finite.
-    if (!sk_float_isfinite(sk_double_to_float(invdet))) {
-        return false;
-    }
+    double invdet;
+    if (!isDeterminantNonZero(det, invdet)) return false;
 
     b00 *= invdet;
     b01 *= invdet;
@@ -681,9 +669,6 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     inverse->dirtyTypeMask();
 
     inverse->setTypeMask(this->getType());
-    if (!is_matrix_finite(*inverse)) {
-        return false;
-    }
     if (storage && inverse != storage) {
         *storage = *inverse;
     }

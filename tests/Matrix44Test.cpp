@@ -306,6 +306,7 @@ static void test_concat(skiatest::Reporter* reporter) {
 static void test_determinant(skiatest::Reporter* reporter) {
     SkMatrix44 a(SkMatrix44::kIdentity_Constructor);
     REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
+    REPORTER_ASSERT(reporter, a.isInvertible());
     a.set(1, 1, 2);
     REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
     SkMatrix44 b;
@@ -326,6 +327,7 @@ static void test_determinant(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nearly_equal_double(32, e.determinant()));
     e.set(0, 0, 0);
     REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
+    REPORTER_ASSERT(reporter, !e.isInvertible());
 }
 
 static void test_invert(skiatest::Reporter* reporter) {
@@ -426,16 +428,26 @@ static void test_invert(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, tinyScale.getType() == SkMatrix44::kScale_Mask);
     REPORTER_ASSERT(reporter, !tinyScale.invert(nullptr));
     REPORTER_ASSERT(reporter, !tinyScale.invert(&inverse));
+    REPORTER_ASSERT(reporter, !tinyScale.isInvertible());
 
     SkMatrix44 tinyScaleTranslate(SkMatrix44::kIdentity_Constructor);
     tinyScaleTranslate.setDouble(0, 0, 1e-38);
     REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(nullptr));
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.isInvertible());
     tinyScaleTranslate.setDouble(0, 3, 10);
     REPORTER_ASSERT(
         reporter, tinyScaleTranslate.getType() ==
                       (SkMatrix44::kScale_Mask | SkMatrix44::kTranslate_Mask));
-    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(nullptr));
-    REPORTER_ASSERT(reporter, !tinyScaleTranslate.invert(&inverse));
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(nullptr));
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.invert(&inverse));
+    REPORTER_ASSERT(reporter, tinyScaleTranslate.isInvertible());
+
+    SkMatrix44 tinyScaleTwoDim(SkMatrix44::kIdentity_Constructor);
+    tinyScaleTwoDim.setDouble(0, 0, 1e-38);
+    tinyScaleTwoDim.setDouble(1, 1, 0.1);
+    REPORTER_ASSERT(reporter, !tinyScaleTwoDim.invert(nullptr));
+    REPORTER_ASSERT(reporter, !tinyScaleTwoDim.invert(&inverse));
+    REPORTER_ASSERT(reporter, !tinyScaleTwoDim.isInvertible());
 
     SkMatrix44 tinyScalePerspective(SkMatrix44::kIdentity_Constructor);
     tinyScalePerspective.setDouble(0, 0, 1e-39);
@@ -445,6 +457,7 @@ static void test_invert(skiatest::Reporter* reporter) {
                                   SkMatrix44::kPerspective_Mask);
     REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(nullptr));
     REPORTER_ASSERT(reporter, !tinyScalePerspective.invert(&inverse));
+    REPORTER_ASSERT(reporter, !tinyScalePerspective.isInvertible());
 }
 
 static void test_transpose(skiatest::Reporter* reporter) {
