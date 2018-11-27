@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "d445c94d_64bec0d4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-27T20:00:18Z",
+      "side": 1,
+      "message": "Haha, good point. At one point, I considered using an SkCanvas to draw from wuffs into the destination pixels, since wuffs has already decoded the full frame internally. (I thought I had a comment somewhere, but haven\u0027t found it, if so.) But the problem with that approach is that wuffs\u0027 output is a paletted image (though maybe there\u0027s an option to change that?).\n\nMaybe the sensible thing to do here is to use skcms to convert into temporary memory, then draw that into the destination if we need to blend or sample. I want to go ahead and land this so Flutter can go ahead and make the switch (https://github.com/flutter/flutter/issues/23838), but I\u0027ll investigate that approach as I add skcms conversions.",
+      "parentUuid": "77df5dbf_0cb6b3b4",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ee09487_bd2dd367",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -193,6 +211,24 @@
       "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1733e062_e452a8a1",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-27T20:00:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be663b38_9c80f593",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
