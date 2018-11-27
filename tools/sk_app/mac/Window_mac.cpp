@@ -78,6 +78,10 @@ bool Window_mac::initWindow() {
         return false;
     }
 
+    // Workaround for a bug in SDL that causes a black screen until you move the window on 10.14.
+    SDL_PumpEvents();
+    SDL_SetWindowSize(fWindow, initialWidth,initialHeight);
+
     return true;
 }
 
