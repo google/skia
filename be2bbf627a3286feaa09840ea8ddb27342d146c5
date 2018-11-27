@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d479e65_fdd4584d",
+        "filename": "src/gpu/ops/GrAAFillRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-11-27T14:56:34Z",
+      "side": 1,
+      "message": "Will the compiler automatically turn this into a multiply?",
+      "range": {
+        "startLine": 357,
+        "startChar": 61,
+        "endLine": 357,
+        "endChar": 64
+      },
+      "revId": "be2bbf627a3286feaa09840ea8ddb27342d146c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
