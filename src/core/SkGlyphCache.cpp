@@ -500,6 +500,14 @@ void SkGlyphCache::validate() const {
 #endif
 }
 
+bool SkGlyphCache::hasImage(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findImage(glyph) != nullptr;
+}
+
+bool SkGlyphCache::hasPath(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
+}
+
 #endif
 
 
