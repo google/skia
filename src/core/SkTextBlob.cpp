@@ -57,7 +57,8 @@ struct RunFontStorageEquivalent {
     SkScalar fSkewX;
     uint32_t fFlags;
 };
-static_assert(sizeof(SkRunFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
+    static_assert(sizeof(SkRunFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
+    static_assert(sizeof(SkFont) == sizeof(RunFontStorageEquivalent), "font_should_stay_packed");
 }
 
 size_t SkTextBlob::RunRecord::StorageSize(uint32_t glyphCount, uint32_t textSize,
@@ -94,7 +95,7 @@ const SkTextBlob::RunRecord* SkTextBlob::RunRecord::Next(const RunRecord* run) {
 
 namespace {
 struct RunRecordStorageEquivalent {
-    SkRunFont  fFont;
+    SkFont   fFont;
     SkPoint  fOffset;
     uint32_t fCount;
     uint32_t fFlags;
