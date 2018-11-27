@@ -18,14 +18,14 @@ class GrVkGpu;
 
 class GrVkSampler : public GrVkResource {
 public:
-    static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerState&, uint32_t maxMipLevel);
+    static GrVkSampler* Create(const GrVkGpu* gpu, const GrSamplerState&);
 
     VkSampler sampler() const { return fSampler; }
 
     // Helpers for hashing GrVkSampler
-    static uint16_t GenerateKey(const GrSamplerState&, uint32_t maxMipLevel);
+    static uint8_t GenerateKey(const GrSamplerState&);
 
-    static const uint16_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
+    static const uint8_t& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
     static uint32_t Hash(const uint16_t& key) { return key; }
 
 #ifdef SK_TRACE_VK_RESOURCES
@@ -39,8 +39,8 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
 
-    VkSampler  fSampler;
-    uint16_t   fKey;
+    VkSampler fSampler;
+    uint8_t   fKey;
 
     typedef GrVkResource INHERITED;
 };

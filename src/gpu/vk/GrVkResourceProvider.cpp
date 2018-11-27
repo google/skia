@@ -166,11 +166,10 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
-GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params,
-                                                                 uint32_t maxMipLevel) {
-    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, maxMipLevel));
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
+    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params));
     if (!sampler) {
-        sampler = GrVkSampler::Create(fGpu, params, maxMipLevel);
+        sampler = GrVkSampler::Create(fGpu, params);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);
@@ -350,7 +349,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unref(fGpu);
     }
@@ -409,7 +408,7 @@ void GrVkResourceProvider::abandonResources() {
     fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, uint16_t>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unrefAndAbandon();
     }

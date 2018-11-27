@@ -243,8 +243,7 @@ void GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
             GrVkTexture* texture = samplerBindings[i].fTexture;
 
             const GrVkImageView* textureView = texture->textureView();
-            GrVkSampler* sampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
-                    state, texture->texturePriv().maxMipMapLevel());
+            GrVkSampler* sampler = gpu->resourceProvider().findOrCreateCompatibleSampler(state);
 
             VkDescriptorImageInfo imageInfo;
             memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
