@@ -606,7 +606,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkIPoint test[] = { {0, -0}, {-1, -2},\n                       { SK_MaxS32, SK_MinS32 },\n                       { SK_NaN32, SK_NaN32 } };\n    for (const SkIPoint& pt : test) {\n        SkIPoint negPt = -pt;\n        SkDebugf(\"pt: %d, %d  negate: %d, %d\\n\", pt.fX, pt.fY, negPt.fX, negPt.fY);\n    }\n}",
     "hash": "b30d4780475d113a7fed3637af7f0db1",
     "file": "SkIPoint_Reference",
-    "name": "SkIPoint::operator-()_const",
+    "name": "SkIPoint::operator-() const",
         "stdout": "pt: 0, 0  negate: 0, 0\\npt: -1, -2  negate: 1, 2\\npt: 2147483647, -2147483647  negate: -2147483647, 2147483647\\npt: -2147483648, -2147483648  negate: -2147483648, -2147483648\\n"
     },
         "SkIPoint_notequal_operator": {
@@ -1033,7 +1033,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);\n    SkImageInfo info2 = SkImageInfo::Make(20, 10, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeWH(10, 20);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeColorType(kGray_8_SkColorType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n    info2 = info2.makeAlphaType(kPremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 == info2 ? '=' : '!');\n}",
     "hash": "53c212c4f2449df0b0eedbc6227b6ab7",
     "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::operator==(const SkImageInfo& other)_const",
+    "name": "SkImageInfo::operator==(const SkImageInfo& other) const",
         "stdout": "info1 != info2\\ninfo1 != info2\\ninfo1 != info2\\ninfo1 == info2\\n"
     },
         "SkImageInfo_isEmpty": {
@@ -1068,7 +1068,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info1 = SkImageInfo::Make(10, 20, kGray_8_SkColorType, kPremul_SkAlphaType);\n    SkImageInfo info2 = SkImageInfo::Make(20, 10, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeWH(10, 20);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeColorType(kGray_8_SkColorType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n    info2 = info2.makeAlphaType(kPremul_SkAlphaType);\n    SkDebugf(\"info1 %c= info2\\n\", info1 != info2 ? '!' : '=');\n}",
     "hash": "8c039fde0a476ac1aa62bf9de5d61c77",
     "file": "SkImageInfo_Reference",
-    "name": "SkImageInfo::operator!=(const SkImageInfo& other)_const",
+    "name": "SkImageInfo::operator!=(const SkImageInfo& other) const",
         "stdout": "info1 != info2\\ninfo1 != info2\\ninfo1 != info2\\ninfo1 == info2\\n"
     },
         "SkImageInfo_refColorSpace": {
@@ -1180,7 +1180,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setScale(42, 24);\n    SkDebugf(\"matrix[SkMatrix::kMScaleX] %c= 42\\n\", matrix[SkMatrix::kMScaleX] == 42 ? '=' : '!');\n    SkDebugf(\"matrix[SkMatrix::kMScaleY] %c= 24\\n\", matrix[SkMatrix::kMScaleY] == 24 ? '=' : '!');\n}",
     "hash": "e8740493abdf0c6341762db9cee56b89",
     "file": "SkMatrix_Reference",
-    "name": "SkMatrix::operator[](int index)_const",
+    "name": "SkMatrix::operator[](int index) const",
         "stdout": "matrix[SkMatrix::kMScaleX] == 42\\nmatrix[SkMatrix::kMScaleY] == 24\\n"
     },
         "SkMatrix_asAffine": {
@@ -2608,7 +2608,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0.f, -0.f}, {-1, -2},\n                       { SK_ScalarInfinity, SK_ScalarNegativeInfinity },\n                       { SK_ScalarNaN, -SK_ScalarNaN } };\n    for (const SkPoint& pt : test) {\n        SkPoint negPt = -pt;\n        SkDebugf(\"pt: %g, %g  negate: %g, %g\\n\", pt.fX, pt.fY, negPt.fX, negPt.fY);\n    }\n}",
     "hash": "9baf247cfcd8272c0ddf6ce93f676b37",
     "file": "SkPoint_Reference",
-    "name": "SkPoint::operator-()_const",
+    "name": "SkPoint::operator-() const",
         "stdout": "pt: 0, -0  negate: -0, 0\\npt: -1, -2  negate: 1, 2\\npt: inf, -inf  negate: -inf, inf\\npt: nan, -nan  negate: -nan, nan\\n"
     },
         "SkPoint_negate": {
@@ -2664,14 +2664,14 @@
     "code": "void draw(SkCanvas* canvas) {\n    SkColor4f colorRed = { 1, 0, 0, 1 };\n    SkColor4f colorNamedRed = SkColor4f::FromColor(SK_ColorRED);\n    SkDebugf(\"colorRed %c= colorNamedRed\", colorRed == colorNamedRed ? '=' : '!');\n}",
     "hash": "e5b34bcb7f80f2ed890cdacaa059db0d",
     "file": "SkColor4f_Reference",
-    "name": "SkRGBA4f::operator==(const SkRGBA4f& other)_const",
+    "name": "SkRGBA4f::operator==(const SkRGBA4f& other) const",
         "stdout": "colorRed == colorNamedRed"
     },
         "SkRGBA4f_notequal1_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkColor4f colorGray = { .5, .5, .5, 1 };\n    SkColor4f colorNamedGray = SkColor4f::FromColor(SK_ColorGRAY);\n    SkDebugf(\"colorGray %c= colorNamedGray \", colorGray != colorNamedGray ? '!' : '=');\n}",
     "hash": "82f1a9b4c2b27aa547061786d1f33dab",
     "file": "SkColor4f_Reference",
-    "name": "SkRGBA4f::operator!=(const SkRGBA4f& other)_const",
+    "name": "SkRGBA4f::operator!=(const SkRGBA4f& other) const",
         "stdout": "colorGray != colorNamedGray"
     },
         "SkRGBA4f_toSkColor": {
@@ -3378,7 +3378,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a == b ? '=' : '!');\n    };\n    SkRegion one;\n    SkRegion two;\n    debugster(\"empty\", one, two);\n    one.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", one, two);\n    one.setEmpty();\n    debugster(\"set empty\", one, two);\n}",
     "hash": "d7f4fdc8bc63ca8410ed166ecef0aef3",
     "file": "SkRegion_Reference",
-    "name": "SkRegion::operator==(const SkRegion& other)_const",
+    "name": "SkRegion::operator==(const SkRegion& other) const",
         "stdout": "empty one == two\\nset rect one != two\\nset empty one == two\\n"
     },
         "SkRegion_getBounds": {
@@ -3413,7 +3413,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a != b ? '!' : '=');\n    };\n    SkRegion one;\n    SkRegion two;\n    debugster(\"empty\", one, two);\n    one.setRect({1, 2, 3, 4});\n    two.setRect({1, 2, 3, 3});\n    debugster(\"set rect\", one, two);\n    two.op({1, 3, 3, 4}, SkRegion::kUnion_Op);\n    debugster(\"union rect\", one, two);\n}",
     "hash": "3357caa9d8d810f200cbccb668182496",
     "file": "SkRegion_Reference",
-    "name": "SkRegion::operator!=(const SkRegion& other)_const",
+    "name": "SkRegion::operator!=(const SkRegion& other) const",
         "stdout": "empty one == two\\nset rect one != two\\nunion rect one == two\\n"
     },
         "SkRegion_quickContains": {
@@ -3571,8 +3571,8 @@
         "stdout": "blob equals nullptr"
     },
         "SkTextBlobBuilder_make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(paint, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
-    "hash": "595f6ae785a623ac26059f0573fda995",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "hash": "a6b09a31f2877ba813c6a4e9e3fef1fa",
     "file": "SkTextBlobBuilder_Reference",
     "name": "SkTextBlobBuilder::make()",
         "stdout": "blob equals nullptr\\nblob does not equal nullptr\\nblob equals nullptr\\n"
@@ -5244,18 +5244,18 @@
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "5f823814ec9df1f912a2ea943bedfca1",
+    "hash": "a207bbd7317bfbdadbda8af884631e46",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob"
 },
     "SkCanvas_drawTextBlob_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkFont font;\n    font.setSize(50);\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "af4c69fbbd165c8b0eb0c9bd49ccbd8d",
+    "hash": "1cae21e7b63b24de3eca0bbd9be1936b",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
 },
@@ -5786,6 +5786,318 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFILEWStream_Reference",
     "name": "SkFILEWStream::write()"
+},
+    "SkFont_Edging": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::Edging"
+},
+    "SkFont_Hinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::Hinting"
+},
+    "SkFont_SkTypeface_SkScalar": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size)"
+},
+    "SkFont_SkTypeface_SkScalar_SkScalar_SkScalar": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)"
+},
+    "SkFont_containsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::containsText"
+},
+    "SkFont_countText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::countText"
+},
+    "SkFont_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::SkFont()"
+},
+    "SkFont_equal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::operator==(const SkFont& font) const"
+},
+    "SkFont_getEdging": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getEdging"
+},
+    "SkFont_getHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getHinting"
+},
+    "SkFont_getMetrics": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getMetrics"
+},
+    "SkFont_getPath": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getPath"
+},
+    "SkFont_getPaths": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getPaths"
+},
+    "SkFont_getScaleX": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getScaleX"
+},
+    "SkFont_getSize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getSize"
+},
+    "SkFont_getSkewX": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getSkewX"
+},
+    "SkFont_getSpacing": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getSpacing"
+},
+    "SkFont_getTypeface": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getTypeface"
+},
+    "SkFont_isEmbeddedBitmaps": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::isEmbeddedBitmaps"
+},
+    "SkFont_isEmbolden": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::isEmbolden"
+},
+    "SkFont_isForceAutoHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::isForceAutoHinting"
+},
+    "SkFont_isLinearMetrics": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::isLinearMetrics"
+},
+    "SkFont_isSubpixel": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::isSubpixel"
+},
+    "SkFont_makeWithSize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::makeWithSize"
+},
+    "SkFont_measureText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::measureText"
+},
+    "SkFont_refTypeface": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::refTypeface"
+},
+    "SkFont_setEdging": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setEdging"
+},
+    "SkFont_setEmbeddedBitmaps": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setEmbeddedBitmaps"
+},
+    "SkFont_setEmbolden": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setEmbolden"
+},
+    "SkFont_setForceAutoHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setForceAutoHinting"
+},
+    "SkFont_setHinting": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setHinting"
+},
+    "SkFont_setLinearMetrics": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setLinearMetrics"
+},
+    "SkFont_setScaleX": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setScaleX"
+},
+    "SkFont_setSize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setSize"
+},
+    "SkFont_setSkewX": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setSkewX"
+},
+    "SkFont_setSubpixel": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setSubpixel"
+},
+    "SkFont_setTypeface": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::setTypeface"
+},
+    "SkFont_textToGlyphs": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::textToGlyphs"
+},
+    "SkFont_unicharToGlyph": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::unicharToGlyph"
 },
     "SkHSVToColor": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkColor color = source.getColor(x, y);\n         SkScalar hsv[3];\n         SkColorToHSV(color, hsv);\n         hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(x + y, hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
@@ -7116,10 +7428,10 @@
     "name": "SkPaint::getPosTextPath"
 },
     "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
     "width": 256,
     "height": 143,
-    "hash": "f2229dd5c8e76f9e12fafe59b61353c8",
+    "hash": "728ea9089f233a71a1062e364b8c73fa",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextBlobIntercepts"
 },
@@ -8073,7 +8385,7 @@
     "height": 128,
     "hash": "35b3bc675779de043706ae4817ee950c",
     "file": "SkPoint_Reference",
-    "name": "SkPoint::operator*(SkScalar scale)_const"
+    "name": "SkPoint::operator*(SkScalar scale) const"
 },
     "SkPoint_multiplyby_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(15, 10);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    for (auto& point : points) {\n        point *= 2;\n    }\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
@@ -9036,10 +9348,10 @@
     "name": "SkTextBlob::MakeFromText"
 },
     "SkTextBlob_bounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
     "width": 256,
     "height": 70,
-    "hash": "52ba6c8a9483df8c373fdb49b32a5e19",
+    "hash": "a22a490fd43bcc1cd3e26430debfb99e",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::bounds()"
 },
@@ -9060,10 +9372,10 @@
     "name": "SkTextBlob::serialize_2"
 },
     "SkTextBlob_uniqueID": {
-    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n        paint.setTextScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n        paint.setTextScaleX(0.5);\n        SkFont font;\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "5a29bcc0076950339c955149c34e1d46",
+    "hash": "fdd9c8c4470cc4f725af779e9d6db6e4",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::uniqueID"
 },

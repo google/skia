@@ -136,6 +136,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kEnumClass:
         case MarkType::kMember:
         case MarkType::kMethod:
+        case MarkType::kTemplate:
         case MarkType::kTypedef: {
             if (!typeNameBuilder.size()) {
                 return this->reportError<bool>("unnamed markup");
@@ -777,6 +778,11 @@ string BmhParser::className(MarkType markType) {
             }
             this->skipLine();
             return fParent->fName;
+        } else if (' ' ==  mc[1] && MarkType::kConst == markType && fParent
+                && (MarkType::kEnum == fParent->fMarkType
+                || MarkType::kEnumClass == fParent->fMarkType)) {
+            this->skipToEndBracket('\n');
+            return builder + "::" + string(wordStart, wordEnd - wordStart);
         }
         fChar = mc;
         this->next();
@@ -1779,14 +1785,14 @@ string BmhParser::methodName() {
         paren = this->strnchr(')', end) + 1;
         TextParserSave saveState(this);
         this->skipTo(paren);
-        if (this->skipExact("_const")) {
+        if (this->skipExact(" const")) {
             addConst = true;
         }
         saveState.restore();
     }
     builder.append(nameStart, paren - nameStart);
     if (addConst) {
-        builder.append("_const");
+        builder.append(" const");
     }
     if (!expectOperator && allLower) {
         builder.append("()");
@@ -2089,6 +2095,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kEnumClass:
         case MarkType::kClass:
         case MarkType::kStruct:
+        case MarkType::kTemplate:
             // expect name
             builder = this->className(markType);
             break;

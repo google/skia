@@ -47,7 +47,7 @@ Single precision float for Alpha ranges from no Alpha (0.0) to full Alpha (1.0).
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator==(const SkRGBA4f& other)_const
+#Method bool operator==(const SkRGBA4f& other) const
 #Line # compares SkRGBA4f for equality ##
 
 Compares SkRGBA4f with other, and returns true if all components are equivalent.
@@ -65,13 +65,13 @@ colorRed == colorNamedRed
 ##
 ##
 
-#SeeAlso operator!=(const SkRGBA4f& other)_const
+#SeeAlso operator!=(const SkRGBA4f& other) const
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator!=(const SkRGBA4f& other)_const
+#Method bool operator!=(const SkRGBA4f& other) const
 #Line # compares SkRGBA4f for inequality ##
 
 Compares SkRGBA4f with other, and returns true if all components are not
@@ -90,11 +90,11 @@ colorGray != colorNamedGray
 ##
 ##
 
-#SeeAlso operator==(const SkRGBA4f& other)_const
+#SeeAlso operator==(const SkRGBA4f& other) const
 
 #Method ##
 
-#Method SkRGBA4f operator*(float scale)_const
+#Method SkRGBA4f operator*(float scale) const
 #Line # multiplies components by scale ##
 
 Multiplies each component by scale. Does not pin the result.
@@ -110,7 +110,7 @@ Multiplies each component by scale. Does not pin the result.
 
 #Method ##
 
-#Method SkRGBA4f operator*(const SkRGBA4f& scale)_const
+#Method SkRGBA4f operator*(const SkRGBA4f& scale) const
 
 Multiplies each component by scale component. Does not pin the result.
 
@@ -180,7 +180,7 @@ red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
 
 #Method ##
 
-#Method float operator[](int index)_const
+#Method float operator[](int index) const
 #Line # returns component by index ##
 
 Returns SkRGBA4f component by index, zero through three. index out of range
@@ -237,15 +237,10 @@ if Alpha not valid.
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRGBA4f FromColor(SkColor)
+#Method static SkRGBA4f FromColor(SkColor color)
 #In Utility_Functions
 #Line # sets components from Color ##
-
-Converts to closest SkRGBA4f.
-
-#Param SkColor  Color with Alpha, red, blue, and green components ##
-
-#Return SkRGBA4f equivalent ##
+#Populate
 
 #Example
     uint8_t red = 77, green = 101, blue = 153, alpha = 43;
