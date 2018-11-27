@@ -74,7 +74,8 @@ def _write_to_storage(task):
 
 def _get_task_file_name(task):
   """Returns the file name of the compile task. Eg: ${issue}-${patchset}.json"""
-  return '%s-%s.json' % (task['issue'], task['patchset'])
+  return '%s-%s-%s.json' % (task['lunch_target'], task['issue'],
+                            task['patchset'])
 
 
 # Checks to see if task already exists in Google storage.
