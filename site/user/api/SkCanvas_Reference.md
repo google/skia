@@ -218,8 +218,6 @@ public:
         unsigned fAAFlags;
     };
 
-    void experimental_DrawImageSetV0(const ImageSetEntry imageSet[], int cnt, float <a href='SkColor_Reference#Alpha'>alpha</a>,
-                                     <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> quality, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode);
     void <a href='#SkCanvas_drawText'>drawText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
