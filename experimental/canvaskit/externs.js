@@ -27,17 +27,18 @@ var CanvasKit = {
 	Color: function() {},
 	/** @return {CanvasKit.SkRect} */
 	LTRBRect: function() {},
+	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
-	MakeSWCanvasSurface: function() {},
-	MakeWebGLCanvasSurface: function() {},
 	MakeImageShader: function() {},
 	MakeLinearGradientShader: function() {},
-	MakeRadialGradientShader: function() {},
 	MakeNimaActor: function() {},
+	MakeRadialGradientShader: function() {},
+	MakeSWCanvasSurface: function() {},
 	MakeSkDashPathEffect: function() {},
 	MakeSkVertices: function() {},
 	MakeSurface: function() {},
+	MakeWebGLCanvasSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
 	initFonts: function() {},
@@ -78,6 +79,7 @@ var CanvasKit = {
 		drawPaint: function() {},
 		drawPath: function() {},
 		drawText: function() {},
+		drawShadow: function() {},
 		flush: function() {},
 		rotate: function() {},
 		save: function() {},
@@ -110,6 +112,7 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		/** @return {CanvasKit.SkPaint} */
 		copy: function() {},
+		getColor: function() {},
 		getStrokeCap: function() {},
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
@@ -312,6 +315,7 @@ CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
+CanvasRenderingContext2D.prototype.fill = function() {};
 CanvasRenderingContext2D.prototype.fillText = function() {};
 CanvasRenderingContext2D.prototype.lineTo = function() {};
 CanvasRenderingContext2D.prototype.measureText = function() {};
