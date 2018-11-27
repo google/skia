@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "6f7b3a65_693d945c",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-27T20:29:13Z",
+      "side": 1,
+      "message": "I see, so you believe that CTFontCreateWithFontDescriptor was buggy or not fully documented already in macOS 10.11 with regard to kCTFontSymbolicTrait, but CTFontCreateCopyWithSymbolicTraits seems to work ok. I could believe that the code is written such that it\u0027s basically impossible or non obvious to create a correct CTFontSymbolicTraits value without starting with an existing CTFontSymbolicTraits value from an existing CTFont.",
+      "parentUuid": "332c22cb_b8feeb19",
+      "range": {
+        "startLine": 815,
+        "startChar": 16,
+        "endLine": 815,
+        "endChar": 50
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9382597e_8b5760e6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
