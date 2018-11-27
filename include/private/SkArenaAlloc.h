@@ -65,7 +65,7 @@ class SkArenaAlloc {
 public:
     SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation);
 
-    SkArenaAlloc(size_t firstHeapAllocation)
+    explicit SkArenaAlloc(size_t firstHeapAllocation)
         : SkArenaAlloc(nullptr, 0, firstHeapAllocation)
     {}
 
