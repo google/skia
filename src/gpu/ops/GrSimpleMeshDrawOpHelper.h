@@ -53,8 +53,10 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
+    // noneAACompatibleWithCoverage should be set to true if the op can properly render a non-AA
+    // primitive merged into a coverage-based op.
     bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps&, const SkRect& thisBounds,
-                      const SkRect& thatBounds) const;
+                      const SkRect& thatBounds, bool noneAACompatibleWithCoverage = false) const;
 
     /**
      * Finalizes the processor set and determines whether the destination must be provided
@@ -101,6 +103,10 @@ public:
         GrProcessorSet* fProcessorSet;
 
         friend class GrSimpleMeshDrawOpHelper;
+        // Without this, Windows builds fail to resolve access to the MakeArgs
+        // private ctor (even though it succeeds on other platforms).
+        template <typename Op, typename... OpArgs>
+        friend std::unique_ptr<GrDrawOp> FactoryHelper(GrContext*, GrPaint&&, OpArgs...);
     };
 
     void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
@@ -113,6 +119,10 @@ public:
     SkString dumpInfo() const;
 #endif
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
+
+    void setAAType(GrAAType aaType) {
+      fAAType = static_cast<unsigned>(aaType);
+    }
 
 protected:
     uint32_t pipelineFlags() const { return fPipelineFlags; }
@@ -165,7 +175,8 @@ public:
     using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
-                      const SkRect& thisBounds, const SkRect& thatBounds) const;
+                      const SkRect& thisBounds, const SkRect& thatBounds,
+                      bool noneAACompatibleWithCoverage = false) const;
 
     PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*,
                                               int numPrimitiveProcessorTextures = 0);
@@ -174,6 +185,7 @@ public:
     SkString dumpInfo() const;
 #endif
     GrAAType aaType() const { return INHERITED::aaType(); }
+    void setAAType(GrAAType aaType) { INHERITED::setAAType(aaType); }
 
 private:
     const GrUserStencilSettings* fStencilSettings;
