@@ -2902,6 +2902,9 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
     GrGLTexture::NonSamplerParams newNonSamplerParams;
     newNonSamplerParams.fBaseMipMapLevel = 0;
     newNonSamplerParams.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
+    if (this->glCaps().clampMaxTextureLevelToOne()) {
+        newNonSamplerParams.fMaxMipMapLevel = SkTMax(newNonSamplerParams.fMaxMipMapLevel, 1);
+    }
 
     const GrGLTexture::NonSamplerParams& oldNonSamplerParams = texture->getCachedNonSamplerParams();
     if (this->glCaps().textureSwizzleSupport()) {

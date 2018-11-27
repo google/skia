@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
+    fClampMaxTextureLevelToOne = false;
     fProgramBinarySupport = false;
     fSamplerObjectSupport = false;
 
@@ -2740,16 +2741,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    // There are reports of both Mali and Adreno 3xx Flutter users having issues drawing
-    // videos and other embedded content on older Android versions (6 and earlier) after sampler
-    // objects were enabled. We suspect this may relate to using sampler objects on ES3 with the ES2
-    // shading language. (We may limit the shading language because of issues around
-    // GL_OES_EGL_image_external_essl3 on older Android versions). We suspect this may be an
-    // under tested combination (sampler object + EXTERNAL_OES texture + ES2 shading language).
-    if (kGLES_GrGLStandard == ctxInfo.standard() && ctxInfo.version() >= GR_GL_VER(3, 0) &&
-        ctxInfo.glslGeneration() <= k110_GrGLSLGeneration) {
-        fSamplerObjectSupport = false;
-    }
+#ifdef SK_BUILD_FOR_ANDROID
+    // Older versions of Android have problems with setting GL_TEXTURE_MAX_LEVEL to 0 for
+    // EGL images (or possibly just GL_TEXTURE_EXTERNAL_OES).
+    // If the texture is not MIP mapped (only has level 0) then it should be harmless to use a
+    // GL_TEXTURE_MAX_LEVEL of 1. Such textures are never used with GL_*_MIPMAP_* set for
+    // GL_TEXTURE_MIN_FILTER.
+    fClampMaxTextureLevelToOne = true;
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

@@ -390,6 +390,10 @@ public:
         return fDetachStencilFromMSAABuffersBeforeReadPixels;
     }
 
+    // Older Android versions seem to have an issue with setting GL_TEXTURE_MAX_LEVEL to 0
+    // on EGLImage/GL_TEXTURE_EXTERNAL_OES textures.
+    bool clampMaxTextureLevelToOne() const { return fClampMaxTextureLevelToOne; }
+
     // Returns the observed maximum number of instances the driver can handle in a single draw call
     // without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
     // NOTE: the return value may be larger than pendingInstanceCount.
@@ -526,6 +530,7 @@ private:
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
+    bool fClampMaxTextureLevelToOne : 1;
     int fMaxInstancesPerDrawWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;
