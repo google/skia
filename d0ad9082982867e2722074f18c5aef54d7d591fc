@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "5298aadf_5010db3a",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-27T21:20:35Z",
+      "side": 1,
+      "message": "I wonder if just doing the old code which was removed but using CTFontDescriptorCreateCopyWithSymbolicTraits to add the symbolic traits to the descriptor would be good enough (or if we need to create a CTFont, copy the traits, then call CTFontDescriptorCreateCopyWithSymbolicTraits; this is essentially what CTFontCreateCopyWithSymbolicTraits does). CTFontDescriptorCreateCopyWithSymbolicTraits does a surprising amount of non-obvious work.",
+      "parentUuid": "6f7b3a65_693d945c",
+      "range": {
+        "startLine": 815,
+        "startChar": 16,
+        "endLine": 815,
+        "endChar": 50
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9382597e_8b5760e6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
