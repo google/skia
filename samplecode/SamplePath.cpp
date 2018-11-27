@@ -208,10 +208,15 @@ DEF_SAMPLE( return new PathView; )
 
 #include "SkCornerPathEffect.h"
 #include "SkRandom.h"
+#include "Resources.h"
+#include "SkImage.h"
+#include "SkSurface.h"
 
 class ArcToView : public Sample {
     bool fDoFrame, fDoCorner, fDoConic;
     SkPaint fPtsPaint, fSkeletonPaint, fCornerPaint;
+    bool fShowGrid = true;
+    bool fFilter = false;
 public:
     enum {
         N = 4
@@ -260,6 +265,13 @@ protected:
                 case '1': this->toggle(fDoFrame); return true;
                 case '2': this->toggle(fDoCorner); return true;
                 case '3': this->toggle(fDoConic); return true;
+                case 'g':
+                case 't':
+                    fShowGrid = !fShowGrid; //this->inval(nullptr);
+                    return true;
+                case 'f':
+                    fFilter = !fFilter;
+                    return true;
                 default: break;
             }
         }
@@ -276,8 +288,67 @@ protected:
         }
     }
 
+    static sk_sp<SkImage> make_grid() {
+        auto surf = SkSurface::MakeRasterN32Premul(256, 256, nullptr);
+        SkPaint p;
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(3);
+        for (SkScalar i = 0; i <= 256; i += 32) {
+            surf->getCanvas()->drawLine({0, i}, {256, i}, p);
+            surf->getCanvas()->drawLine({i, 0}, {i, 256}, p);
+        }
+        surf->getCanvas()->drawLine({0, 0}, {256, 256}, p);
+        surf->getCanvas()->drawLine({256, 0}, {0, 256}, p);
+
+        return surf->makeImageSnapshot();
+    }
+
+    static void draw_patch_from_quad(SkCanvas* canvas, sk_sp<SkImage> img,
+                                     const SkPoint tex[4], const SkPoint dst[4],
+                                     SkFilterQuality quality) {
+        SkScalar a = 2.0f/3, b = 1.0f/3;
+
+        SkPoint cubics[12] = {
+            dst[0], dst[0]*a + dst[1]*b, dst[0]*b + dst[1]*a, dst[1],
+                    dst[1]*a + dst[2]*b, dst[1]*b + dst[2]*a, dst[2],
+                    dst[2]*a + dst[3]*b, dst[2]*b + dst[3]*a, dst[3],
+                    dst[3]*a + dst[0]*b, dst[3]*b + dst[0]*a,
+        };
+
+        SkPaint paint;
+        paint.setShader(img->makeShader());
+        paint.setFilterQuality(quality);
+        canvas->save();
+        canvas->translate(700, 0);
+        canvas->drawPatch(cubics, nullptr, tex, SkBlendMode::kSrcOver, paint);
+        canvas->restore();
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+
+        if (true) {
+            SkPaint paint;
+            paint.setFilterQuality(fFilter ? kHigh_SkFilterQuality : kNone_SkFilterQuality);
+
+            auto img = GetResourceAsImage("images/mandrill_128.png");
+            if (fShowGrid) {
+                img = make_grid();
+            }
+            SkScalar w = img->width();
+            SkScalar h = img->height();
+            SkPoint src[4] = {
+                { w, 0 }, { w, h }, { 0, h }, { 0, 0 },
+            };
+            SkMatrix mx;
+            mx.setPolyToPoly(src, fPts, 4);
+            canvas->save();
+            canvas->concat(mx);
+            canvas->drawImage(img, 0, 0, &paint);
+            canvas->restore();
+            draw_patch_from_quad(canvas, img, src, fPts, paint.getFilterQuality());
+            return;
+        }
 
         SkPath path;
         this->makePath(&path);
@@ -300,7 +371,7 @@ protected:
     }
 
     Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        const SkScalar tol = 4;
+        const SkScalar tol = 8;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
             if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
