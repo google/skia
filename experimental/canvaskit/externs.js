@@ -27,19 +27,21 @@ var CanvasKit = {
 	Color: function() {},
 	/** @return {CanvasKit.SkRect} */
 	LTRBRect: function() {},
+	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
-	MakeSWCanvasSurface: function() {},
-	MakeWebGLCanvasSurface: function() {},
 	MakeImageShader: function() {},
 	MakeLinearGradientShader: function() {},
-	MakeRadialGradientShader: function() {},
 	MakeNimaActor: function() {},
+	MakeRadialGradientShader: function() {},
+	MakeSWCanvasSurface: function() {},
 	MakeSkDashPathEffect: function() {},
 	MakeSkVertices: function() {},
 	MakeSurface: function() {},
+	MakeWebGLCanvasSurface: function() {},
 	currentContext: function() {},
 	getSkDataBytes: function() {},
+	getColorComponents: function() {},
 	initFonts: function() {},
 	setCurrentContext: function() {},
 
@@ -78,6 +80,7 @@ var CanvasKit = {
 		drawPaint: function() {},
 		drawPath: function() {},
 		drawText: function() {},
+		drawShadow: function() {},
 		flush: function() {},
 		rotate: function() {},
 		save: function() {},
@@ -110,6 +113,7 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		/** @return {CanvasKit.SkPaint} */
 		copy: function() {},
+		getColor: function() {},
 		getStrokeCap: function() {},
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
@@ -118,6 +122,7 @@ var CanvasKit = {
 		measureText: function() {},
 		setAntiAlias: function() {},
 		setColor: function() {},
+		setMaskFilter: function() {},
 		setPathEffect: function() {},
 		setShader: function() {},
 		setStrokeCap: function() {},
@@ -202,6 +207,52 @@ var CanvasKit = {
 	// Constants and Enums
 	gpu: {},
 	skottie: {},
+
+	TRANSPARENT: {},
+	RED: {},
+	BLUE: {},
+	YELLOW: {},
+	CYAN: {},
+	BLACK: {},
+
+	BlendMode: {
+		Clear: {},
+		Src: {},
+		Dst: {},
+		SrcOver: {},
+		DstOver: {},
+		SrcIn: {},
+		DstIn: {},
+		SrcOut: {},
+		DstOut: {},
+		SrcATop: {},
+		DstATop: {},
+		Xor: {},
+		Plus: {},
+		Modulate: {},
+		Screen: {},
+		Overlay: {},
+		Darken: {},
+		Lighten: {},
+		ColorDodge: {},
+		ColorBurn: {},
+		HardLight: {},
+		SoftLight: {},
+		Difference: {},
+		Exclusion: {},
+		Multiply: {},
+		Hue: {},
+		Saturation: {},
+		Color: {},
+		Luminosity: {},
+	},
+
+	BlurStyle: {
+		Normal: {},
+		Solid: {},
+		Outer: {},
+		Inner: {},
+	},
 
 	FillType: {
 		Winding: {},
@@ -312,6 +363,7 @@ CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
+CanvasRenderingContext2D.prototype.fill = function() {};
 CanvasRenderingContext2D.prototype.fillText = function() {};
 CanvasRenderingContext2D.prototype.lineTo = function() {};
 CanvasRenderingContext2D.prototype.measureText = function() {};
@@ -320,7 +372,9 @@ CanvasRenderingContext2D.prototype.quadraticCurveTo = function() {};
 CanvasRenderingContext2D.prototype.rect = function() {};
 CanvasRenderingContext2D.prototype.removeHitRegion = function() {};
 CanvasRenderingContext2D.prototype.resetTransform = function() {};
+CanvasRenderingContext2D.prototype.restore = function() {};
 CanvasRenderingContext2D.prototype.rotate = function() {};
+CanvasRenderingContext2D.prototype.save = function() {};
 CanvasRenderingContext2D.prototype.scale = function() {};
 CanvasRenderingContext2D.prototype.scrollPathIntoView = function() {};
 CanvasRenderingContext2D.prototype.setTransform = function() {};

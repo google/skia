@@ -22,9 +22,11 @@
 #include "SkDiscretePathEffect.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFontMgr.h"
+#include "SkBlurTypes.h"
 #include "SkFontMgrPriv.h"
 #include "SkGradientShader.h"
 #include "SkImageShader.h"
+#include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
@@ -32,6 +34,7 @@
 #include "SkPathOps.h"
 #include "SkScalar.h"
 #include "SkShader.h"
+#include "SkShadowUtils.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
@@ -349,6 +352,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("getSkDataBytes", &getSkDataBytes, allow_raw_pointers());
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
+    function("MakeBlurMaskFilter", optional_override([](SkBlurStyle style, SkScalar sigma, bool respectCTM)->sk_sp<SkMaskFilter> {
+        // Adds a little helper because emscripten doesn't expose default params.
+        return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
+    }), allow_raw_pointers());
     function("MakePathFromOp", &MakePathFromOp);
 
     // These won't be called directly, there's a JS helper to deal with typed arrays.
@@ -445,7 +452,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawPaint", &SkCanvas::drawPaint)
         .function("drawPath", &SkCanvas::drawPath)
         .function("drawRect", &SkCanvas::drawRect)
-        .function("drawText", optional_override([](SkCanvas& self, std::string text, SkScalar x, SkScalar y, const SkPaint& p) {
+        .function("drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
+                                                     const SkPoint3& zPlaneParams,
+                                                     const SkPoint3& lightPos, SkScalar lightRadius,
+                                                     JSColor ambientColor, JSColor spotColor,
+                                                     uint32_t flags) {
+            SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
+                                      SkColor(ambientColor), SkColor(spotColor), flags);
+        }))
+        .function("drawText", optional_override([](SkCanvas& self, std::string text, SkScalar x,
+                                                   SkScalar y, const SkPaint& p) {
             // TODO(kjlubick): This does not work well for non-ascii
             // Need to maybe add a helper in interface.js that supports UTF-8
             // Otherwise, go with std::wstring and set UTF-32 encoding.
@@ -471,11 +487,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
         .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData));
 
+    class_<SkMaskFilter>("SkMaskFilter")
+        .smart_ptr<sk_sp<SkMaskFilter>>("sk_sp<SkMaskFilter>");
+
     class_<SkPaint>("SkPaint")
         .constructor<>()
         .function("copy", optional_override([](const SkPaint& self)->SkPaint {
             SkPaint p(self);
             return p;
+        }))
+        .function("getColor", optional_override([](SkPaint& self)->JSColor {
+            // JS side gives us a signed int instead of an unsigned int for color
+            // Add a optional_override to change it out.
+            return JSColor(self.getColor());
         }))
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
@@ -494,6 +518,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // Add a optional_override to change it out.
             self.setColor(SkColor(color));
         }))
+        .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
         .function("setShader", &SkPaint::setShader)
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
@@ -616,16 +641,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Color",      SkBlendMode::kColor)
         .value("Luminosity", SkBlendMode::kLuminosity);
 
-    enum_<SkPaint::Style>("PaintStyle")
-        .value("Fill",            SkPaint::Style::kFill_Style)
-        .value("Stroke",          SkPaint::Style::kStroke_Style)
-        .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
+    enum_<SkBlurStyle>("BlurStyle")
+        .value("Normal", SkBlurStyle::kNormal_SkBlurStyle)
+        .value("Solid",  SkBlurStyle::kSolid_SkBlurStyle)
+        .value("Outer",  SkBlurStyle::kOuter_SkBlurStyle)
+        .value("Inner",  SkBlurStyle::kInner_SkBlurStyle);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)
         .value("EvenOdd",           SkPath::FillType::kEvenOdd_FillType)
         .value("InverseWinding",    SkPath::FillType::kInverseWinding_FillType)
         .value("InverseEvenOdd",    SkPath::FillType::kInverseEvenOdd_FillType);
+
+    enum_<SkEncodedImageFormat>("ImageFormat")
+        .value("PNG",  SkEncodedImageFormat::kPNG)
+        .value("JPEG", SkEncodedImageFormat::kJPEG);
+
+    enum_<SkPaint::Style>("PaintStyle")
+        .value("Fill",            SkPaint::Style::kFill_Style)
+        .value("Stroke",          SkPaint::Style::kStroke_Style)
+        .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
 
     enum_<SkPathOp>("PathOp")
         .value("Difference",         SkPathOp::kDifference_SkPathOp)
@@ -660,10 +695,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("TrianglesStrip",  SkVertices::VertexMode::kTriangleStrip_VertexMode)
         .value("TriangleFan",     SkVertices::VertexMode::kTriangleFan_VertexMode);
 
-    enum_<SkEncodedImageFormat>("ImageFormat")
-        .value("PNG",  SkEncodedImageFormat::kPNG)
-        .value("JPEG", SkEncodedImageFormat::kJPEG);
-
 
     // A value object is much simpler than a class - it is returned as a JS
     // object and does not require delete().
@@ -684,6 +715,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
     value_array<SkPoint>("SkPoint")
         .element(&SkPoint::fX)
         .element(&SkPoint::fY);
+
+    // SkPoint3s can be represented by [x, y, z]
+    value_array<SkPoint3>("SkPoint3")
+        .element(&SkPoint3::fX)
+        .element(&SkPoint3::fY)
+        .element(&SkPoint3::fZ);
 
     // {"w": Number, "h", Number}
     value_object<SkSize>("SkSize")
@@ -717,6 +754,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("BLUE",        (JSColor) SK_ColorBLUE);
     constant("YELLOW",      (JSColor) SK_ColorYELLOW);
     constant("CYAN",        (JSColor) SK_ColorCYAN);
+    constant("BLACK",       (JSColor) SK_ColorBLACK);
     // TODO(?)
 
 #if SK_INCLUDE_SKOTTIE
