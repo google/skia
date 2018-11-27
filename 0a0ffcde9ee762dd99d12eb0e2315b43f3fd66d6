@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19aa2aeb_2d2ad9c1",
+        "filename": "site/dev/tools/codesearch.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-11-27T18:48:34Z",
+      "side": 1,
+      "message": "This doesn\u0027t work as intended. We probably need to add a class to select by.",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 38
+      },
+      "revId": "0a0ffcde9ee762dd99d12eb0e2315b43f3fd66d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15721a27_625dd279",
+        "filename": "site/dev/tools/codesearch.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-11-27T18:48:34Z",
+      "side": 1,
+      "message": "nit: no corresponding \u003cdiv\u003e",
+      "revId": "0a0ffcde9ee762dd99d12eb0e2315b43f3fd66d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
