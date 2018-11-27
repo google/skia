@@ -47,3 +47,39 @@ There is an [internal tool for
 Googlers](https://goto.google.com/skia-client-search) to make it easier to
 search the repos of Skia clients, e.g. Chromium, Android, and Mozilla. If you
 use it and have suggestions, please let dogben know.
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("search-term").oninput = event => updateLinks(event.target.value);
+    document.getElementById("open-all").onclick = event => {
+        updateLinks(document.getElementById("search-term").value);
+        document.querySelectorAll("a").forEach(a => window.open(a.href, a.id));
+        document.getElementById("open-all").value = "Update all";
+    };
+}, false);
+function updateLinks(rawSearchTerm) {
+    var term = encodeURIComponent(rawSearchTerm);
+    document.getElementById("chromium-link").href =
+        "https://cs.chromium.org/search/?q=" + term +
+        "+-file:src/third_party/skia&sq=package:chromium&type=cs";
+    document.getElementById("mozilla-link").href =
+         "https://dxr.mozilla.org/mozilla-central/search?q=" +
+         term + "+-path%3Agfx%2Fskia";
+    document.getElementById("flutter-link").href =
+         "https://github.com/flutter/engine/search?q=" + term;
+}
+</script>
+
+Note: Due to different querying capabilities, you may need to adjust your
+query after opening the links below.
+
+<label for="search-term">Search term: </label>
+<input type="text" name="search-term" id="search-term">
+<input type="submit" value="Open all" id="open-all">
+<p>Links to Skia clients code search:</p>
+<ul>
+  <li><a id="chromium-link">Chromium</a></li>
+  <li><a id="mozilla-link">Mozilla</a></li>
+  <li><a id="flutter-link">Flutter</a></li>
+</ul>
+</div>
