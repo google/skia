@@ -479,6 +479,14 @@ void SkGlyphCache::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
+bool SkGlyphCache::hasImage(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findImage(glyph) != nullptr;
+}
+
+bool SkGlyphCache::hasPath(const SkGlyph& glyph) {
+    return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
+}
+
 #ifdef SK_DEBUG
 void SkGlyphCache::forceValidate() const {
     size_t memoryUsed = sizeof(*this);
@@ -499,7 +507,6 @@ void SkGlyphCache::validate() const {
     forceValidate();
 #endif
 }
-
 #endif
 
 
