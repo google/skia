@@ -303,6 +303,14 @@ static void nofilter_scale(const SkBitmapProcState& s,
     #include "SkBitmapProcState_matrix_neon.h"
 
 #else
+    static void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
+        while (count --> 0) {
+            SkASSERT((fx >> (16 + 14)) == 0);
+            *dst++ = (fx >> 12 << 14) | ((fx >> 16) + 1);
+            fx += dx;
+        }
+    }
+
     static unsigned clamp(SkFixed fx, int max) {
         return SkClampMax(fx >> 16, max);
     }
