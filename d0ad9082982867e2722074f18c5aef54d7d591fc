@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "332c22cb_b8feeb19",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2018-11-27T00:05:14Z",
+      "side": 1,
+      "message": "I noticed that change. However, even restoring that change won\u0027t help on this case because I believe that on Mac10.11 CTFontCreateWithFontDescriptor() is buggy for fonts with symbolic traits. This fix in this CL is essentially calling a different API (CTFontCreateWithFontDescriptor()) to create the font.\n\nIf in chromium src, I would prefer to enclose line 809-817 with \"if IsOS10_11()\" to make sure the change has a limited scope. I am not sure whether we can do sth similar here? Even without that, the added if condition on line 810 should limit the change to only those fonts created with wrong italic traits -- which means the buggy ones. Of course, if you could help adding some tests or instructing me on how to add some, that would be appreciated!",
+      "parentUuid": "77289794_580b8683",
+      "range": {
+        "startLine": 815,
+        "startChar": 16,
+        "endLine": 815,
+        "endChar": 50
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9382597e_8b5760e6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-11-26T22:26:46Z",
       "side": 1,
       "message": "This typo should be fixed by itself I think, see https://skia-review.googlesource.com/c/skia/+/172961 .",
+      "range": {
+        "startLine": 849,
+        "startChar": 43,
+        "endLine": 849,
+        "endChar": 57
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "501c7fda_da140ca8",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2018-11-27T00:05:14Z",
+      "side": 1,
+      "message": "Thanks for the fix. Rebased.",
+      "parentUuid": "9382597e_8b5760e6",
       "range": {
         "startLine": 849,
         "startChar": 43,
