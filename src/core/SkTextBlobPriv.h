@@ -124,7 +124,7 @@ SkDEBUGCODE(static const unsigned kRunRecordMagic = 0xb10bcafe;)
 
 class SkTextBlob::RunRecord {
 public:
-    RunRecord(uint32_t count, uint32_t textSize,  const SkPoint& offset, const SkPaint& font, GlyphPositioning pos)
+    RunRecord(uint32_t count, uint32_t textSize,  const SkPoint& offset, const SkFont& font, GlyphPositioning pos)
             : fFont(font)
             , fCount(count)
             , fOffset(offset)
@@ -146,7 +146,7 @@ public:
         return fOffset;
     }
 
-    const SkRunFont& font() const {
+    const SkFont& font() const {
         return fFont;
     }
 
@@ -212,7 +212,7 @@ private:
         return fFlags & kExtended_Flag;
     }
 
-    SkRunFont        fFont;
+    SkFont           fFont;
     uint32_t         fCount;
     SkPoint          fOffset;
     uint32_t         fFlags;
@@ -278,7 +278,7 @@ public:
         SkASSERT(!this->done());
         return fCurrentRun->offset();
     }
-    const SkRunFont& runFont() const {
+    const SkFont& runFont() const {
         SkASSERT(!this->done());
         return fCurrentRun->font();
     }
