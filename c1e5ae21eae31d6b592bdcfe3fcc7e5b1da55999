@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5b9ae32_493a783c",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-27T19:13:51Z",
+      "side": 1,
+      "message": "isEmpty?",
+      "range": {
+        "startLine": 117,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 14
+      },
+      "revId": "c1e5ae21eae31d6b592bdcfe3fcc7e5b1da55999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b38918d_d3094892",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-11-27T19:13:51Z",
+      "side": 1,
+      "message": "So if the glyph is empty you\u0027ll keep adding paths?",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 24
+      },
+      "revId": "c1e5ae21eae31d6b592bdcfe3fcc7e5b1da55999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
