@@ -556,7 +556,7 @@ private:
         if (fProxyCnt > 1 || that->fProxyCnt > 1 ||
             thisProxy->uniqueID() != thatProxy->uniqueID()) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
-            if (thisProxy->config() == thatProxy->config() &&
+            if (GrTextureProxy::ProxiesAreCompatibleAsDynamicTextures(thisProxy, thatProxy) &&
                 thisProxy->textureType() == thatProxy->textureType() &&
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
                 return CombineResult::kMayChain;

@@ -135,6 +135,38 @@ GrBackendFormat GrBackendFormat::makeTexture2D() const {
     return copy;
 }
 
+bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
+    // Invalid GrBackendFormats are never equal to anything.
+    if (!fValid || !that.fValid) {
+        return false;
+    }
+
+    if (fBackend != that.fBackend) {
+        return false;
+    }
+
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+            return fGLFormat == that.fGLFormat;
+        case GrBackendApi::kVulkan:
+#ifdef SK_VULKAN
+            return fVk.fFormat == that.fVk.fFormat &&
+                   fVk.fYcbcrConversionInfo == that.fVk.fYcbcrConversionInfo;
+#endif
+            break;
+#ifdef SK_METAL
+        case GrBackendApi::kMetal:
+            return fMtlFormat == that.fMtlFormat;
+#endif
+            break;
+        case GrBackendApi::kMock:
+            return fMockFormat == that.fMockFormat;
+        default:
+            SK_ABORT("Unknown GrBackend");
+    }
+    return false;
+}
+
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
