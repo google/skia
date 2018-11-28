@@ -10,7 +10,7 @@
   }
 
   #patheffect,#paths,#sk_drinks,#sk_party, #sk_legos, #sk_onboarding,
-  #api1_c, #api2_c {
+  img, canvas {
     width: 300px;
     height: 300px;
   }
@@ -26,6 +26,8 @@
 <canvas id=api3_c width=300 height=300></canvas>
 <img id=api4 width=300 height=300>
 <canvas id=api4_c width=300 height=300></canvas>
+<img id=api5 width=300 height=300>
+<canvas id=api5_c width=300 height=300></canvas>
 
 <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
@@ -47,8 +49,6 @@
 <h2> Nima </h2>
 
 <canvas id=nima_example width=300 height=300></canvas>
-
-
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -94,6 +94,7 @@
       CanvasAPI2(CanvasKit);
       CanvasAPI3(CanvasKit);
       CanvasAPI4(CanvasKit);
+      CanvasAPI5(CanvasKit);
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImage);
@@ -607,9 +608,64 @@
       ctx.fillStyle = 'green';
       ctx.font = '16pt Arial';
       ctx.fillText('This should be shadowed', 20, 80);
-
     }
     document.getElementById('api4').src = skcanvas.toDataURL();
+  }
+
+  function CanvasAPI5(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(600, 600);
+    let realCanvas = document.getElementById('api5_c');
+    realCanvas.width = 600;
+    realCanvas.height = 600;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.scale(1.1, 1.1);
+      ctx.translate(10, 10);
+      // Shouldn't impact the fillRect calls
+      ctx.setLineDash([5, 3]);
+
+      ctx.fillStyle = 'rgba(200, 0, 100, 0.81)';
+      ctx.fillRect(20, 30, 100, 100);
+
+      ctx.globalAlpha = 0.81;
+      ctx.fillStyle = 'rgba(200, 0, 100, 1.0)';
+      ctx.fillRect(120, 30, 100, 100);
+      // This shouldn't do anything
+      ctx.globalAlpha = 0.1;
+
+      ctx.fillStyle = 'rgba(200, 0, 100, 0.9)';
+      ctx.globalAlpha = 0.9;
+      // Intentional no-op to check ordering
+      ctx.clearRect(220, 30, 100, 100);
+      ctx.fillRect(220, 30, 100, 100);
+
+      ctx.fillRect(320, 30, 100, 100);
+      ctx.clearRect(330, 40, 80, 80);
+
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 3]);
+      ctx.strokeRect(20, 150, 100, 100);
+      ctx.setLineDash([50, 30]);
+      ctx.strokeRect(125, 150, 100, 100);
+      ctx.lineDashOffset = 25;
+      ctx.strokeRect(230, 150, 100, 100);
+      ctx.setLineDash([2, 5, 9]);
+      ctx.strokeRect(335, 150, 100, 100);
+
+      ctx.setLineDash([5, 2]);
+      ctx.moveTo(336, 400);
+      ctx.quadraticCurveTo(366, 488, 120, 450);
+      ctx.lineTo(300, 400);
+      ctx.stroke();
+
+      ctx.font = '36pt Arial';
+      ctx.strokeText('Dashed', 20, 350);
+      ctx.fillText('Not Dashed', 20, 400);
+
+    }
+    document.getElementById('api5').src = skcanvas.toDataURL();
   }
 
   function NimaExample(CanvasKit, nimaFile, nimaTexture) {

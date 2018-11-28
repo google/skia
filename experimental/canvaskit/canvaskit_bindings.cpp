@@ -17,7 +17,6 @@
 #include "SkColor.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
-#include "SkDashPathEffect.h"
 #include "SkData.h"
 #include "SkDiscretePathEffect.h"
 #include "SkEncodedImageFormat.h"
@@ -496,6 +495,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkPaint p(self);
             return p;
         }))
+        .function("getBlendMode", &SkPaint::getBlendMode)
         .function("getColor", optional_override([](SkPaint& self)->JSColor {
             // JS side gives us a signed int instead of an unsigned int for color
             // Add a optional_override to change it out.
@@ -513,6 +513,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.measureText(text.c_str(), text.length());
         }))
         .function("setAntiAlias", &SkPaint::setAntiAlias)
+        .function("setBlendMode", &SkPaint::setBlendMode)
         .function("setColor", optional_override([](SkPaint& self, JSColor color)->void {
             // JS side gives us a signed int instead of an unsigned int for color
             // Add a optional_override to change it out.
@@ -601,12 +602,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("bounds", &SkVertices::bounds)
         .function("mode", &SkVertices::mode)
         .function("uniqueID", &SkVertices::uniqueID)
+#ifdef SK_DEBUG
         .function("dumpPositions", optional_override([](SkVertices& self)->void {
             auto pos = self.positions();
             for(int i = 0; i< self.vertexCount(); i++) {
                 SkDebugf("position[%d] = (%f, %f)\n", i, pos[i].x(), pos[i].y());
             }
         }))
+#endif
         .function("vertexCount", &SkVertices::vertexCount);
 
 
