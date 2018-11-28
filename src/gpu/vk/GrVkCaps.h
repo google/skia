@@ -130,6 +130,9 @@ public:
     // Returns true if the device supports importing Android hardware buffers into Vulkan memory.
     bool supportsAndroidHWBExternalMemory() const { return fSupportsAndroidHWBExternalMemory; }
 
+    // Returns true if it supports ycbcr conversion for samplers
+    bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -169,6 +172,9 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
+    uint8_t getYcbcrKeyFromBackendTexture(const GrBackendTexture&) override;
+    uint8_t getYcbcrKeyFromBackendFormat(const GrBackendFormat&) override;
+
 private:
     enum VkVendor {
         kAMD_VkVendor = 4098,
@@ -193,6 +199,8 @@ private:
 
     void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
+
+    uint8_t getYcbcrKeyFromYcbcrInfo(const GrVkYcbcrConversionInfo& info);
 
     void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
@@ -221,6 +229,8 @@ private:
 
     StencilFormat fPreferredStencilFormat;
 
+    SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
+
     bool fMustDoCopiesFromOrigin = false;
     bool fMustSubmitCommandsBeforeCopyOp = false;
     bool fMustSleepOnTearDown = false;
@@ -237,6 +247,8 @@ private:
     bool fSupportsDedicatedAllocation = false;
     bool fSupportsExternalMemory = false;
     bool fSupportsAndroidHWBExternalMemory = false;
+
+    bool fSupportsYcbcrConversion = false;
 
     typedef GrCaps INHERITED;
 };

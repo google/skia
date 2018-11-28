@@ -16,6 +16,8 @@
 #include "GrVkPipelineStateBuilder.h"
 #include "GrVkRenderPass.h"
 #include "GrVkResource.h"
+#include "GrVkSampler.h"
+#include "GrVkSamplerYcbcrConversion.h"
 #include "GrVkUtil.h"
 #include "SkLRUCache.h"
 #include "SkTArray.h"
@@ -31,7 +33,6 @@ class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkPrimaryCommandBuffer;
 class GrVkRenderTarget;
-class GrVkSampler;
 class GrVkSecondaryCommandBuffer;
 class GrVkUniformHandler;
 
@@ -97,9 +98,15 @@ public:
     //       of our cache of GrVkDescriptorPools.
     GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(VkDescriptorType type, uint32_t count);
 
-    // Finds or creates a compatible GrVkSampler based on the GrSamplerState.
-    // The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&);
+    // Finds or creates a compatible GrVkSampler based on the GrSamplerState and
+    // GrVkYcbcrConversionInfo. The refcount is incremented and a pointer returned.
+    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&,
+                                               const GrVkYcbcrConversionInfo& ycbcrInfo);
+
+    // Finds or creates a compatible GrVkSamplerYcbcrConversion based on the GrSamplerState and
+    // GrVkYcbcrConversionInfo. The refcount is incremented and a pointer returned.
+    GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
+            const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                            const GrPrimitiveProcessor&,
@@ -252,7 +259,10 @@ private:
 
     // Stores GrVkSampler objects that we've already created so we can reuse them across multiple
     // GrVkPipelineStates
-    SkTDynamicHash<GrVkSampler, uint8_t> fSamplers;
+    SkTDynamicHash<GrVkSampler, GrVkSampler::Key> fSamplers;
+
+    // Stores GrVkSamplerYcbcrConversion objects that we've already created so we can reuse them.
+    SkTDynamicHash<GrVkSamplerYcbcrConversion, GrVkSamplerYcbcrConversion::Key> fYcbcrConversions;
 
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;

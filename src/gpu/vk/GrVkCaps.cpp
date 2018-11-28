@@ -194,6 +194,27 @@ bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
                                srcConfig, SkToBool(src->asTextureProxy()));
 }
 
+template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatures2& features,
+                                                     VkStructureType type) {
+    // All Vulkan structs that could be part of the features chain will start with the
+    // structure type followed by the pNext pointer. We cast to the CommonVulkanHeader
+    // so we can get access to the pNext for the next struct.
+    struct CommonVulkanHeader {
+        VkStructureType sType;
+        void*           pNext;
+    };
+
+    void* pNext = features.pNext;
+    while (pNext) {
+        CommonVulkanHeader* header = static_cast<CommonVulkanHeader*>(pNext);
+        if (header->sType == type) {
+            return static_cast<T*>(pNext);
+        }
+        pNext = header->pNext;
+    }
+    return nullptr;
+}
+
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                     const GrVkExtensions& extensions) {
@@ -262,6 +283,24 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fSupportsAHardwareBufferImages = true;
     }
 #endif
+
+    auto ycbcrFeatures =
+            get_extension_feature_struct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
+                    features,
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
+    if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion &&
+        fSupportsAndroidHWBExternalMemory &&
+        (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+         (extensions.hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1) &&
+          this->supportsMaintenance1() &&
+          this->supportsBindMemory2() &&
+          this->supportsMemoryRequirements2() &&
+          this->supportsPhysicalDeviceProperties2()))) {
+        fSupportsYcbcrConversion = true;
+    }
+    // We always push back the default GrVkYcbcrConversionInfo so that the case of no conversion
+    // will return a key of 0.
+    fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
@@ -374,27 +413,6 @@ int get_max_sample_count(VkSampleCountFlags flags) {
         return 32;
     }
     return 64;
-}
-
-template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatures2& features,
-                                                     VkStructureType type) {
-    // All Vulkan structs that could be part of the features chain will start with the
-    // structure type followed by the pNext pointer. We cast to the CommonVulkanHeader
-    // so we can get access to the pNext for the next struct.
-    struct CommonVulkanHeader {
-        VkStructureType sType;
-        void*           pNext;
-    };
-
-    void* pNext = features.pNext;
-    while (pNext) {
-        CommonVulkanHeader* header = static_cast<CommonVulkanHeader*>(pNext);
-        if (header->sType == type) {
-            return static_cast<T*>(pNext);
-        }
-        pNext = header->pNext;
-    }
-    return nullptr;
 }
 
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
@@ -828,6 +846,10 @@ GrBackendFormat GrVkCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {
     GrVkImageInfo vkInfo;
     SkAssertResult(backendTex.getVkImageInfo(&vkInfo));
+    if (vkInfo.fYcbcrConversionInfo.isValid()) {
+        SkASSERT(vkInfo.fFormat == VK_FORMAT_UNDEFINED);
+        return GrBackendFormat::MakeVk(vkInfo.fYcbcrConversionInfo);
+    }
     return GrBackendFormat::MakeVk(vkInfo.fFormat);
 }
 
@@ -842,5 +864,42 @@ GrBackendFormat GrVkCaps::getBackendFormatFromGrColorType(GrColorType ct,
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeVk(format);
+}
+
+uint8_t GrVkCaps::getYcbcrKeyFromBackendTexture(const GrBackendTexture& tex) {
+    GrVkImageInfo info;
+    SkAssertResult(tex.getVkImageInfo(&info));
+    return this->getYcbcrKeyFromYcbcrInfo(info.fYcbcrConversionInfo);
+}
+
+uint8_t GrVkCaps::getYcbcrKeyFromBackendFormat(const GrBackendFormat& format) {
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+    return this->getYcbcrKeyFromYcbcrInfo(*ycbcrInfo);
+}
+
+uint8_t GrVkCaps::getYcbcrKeyFromYcbcrInfo(const GrVkYcbcrConversionInfo& info) {
+    int idx = 0;
+    for (; idx < fYcbcrInfos.count(); ++idx) {
+        // The number of different conversions should be low in general so we just search linearly
+        // to find one.
+        if (fYcbcrInfos[idx] == info) {
+            break;
+        }
+    }
+    if (idx == fYcbcrInfos.count()) {
+        if (idx < 256) {
+            fYcbcrInfos.push_back(info);
+        } else {
+            // We should never be having more than 256 different external formats and ways to
+            // convert them. If we ever hit this assert we can go back and increase the size of the
+            // key. If we are getting anywhere near this size we also should have a better way of
+            // seraching for a key instead of linearly.
+            SkASSERT(idx != 256);
+            return 0;
+        }
+    }
+    SkASSERT(idx < 256);
+    return idx;
 }
 

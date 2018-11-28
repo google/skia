@@ -64,14 +64,89 @@ private:
     friend class GrVkHeap; // For access to usesSystemHeap
     bool fUsesSystemHeap;
 };
+
+// Vulkan requires that the min/max filters on a VkSampler match that of the chromaFilter of a
+// GrYcbcrConversion. In general the chromaFilter must be VK_FILTER_NEAREST, however if the image
+// has the VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT then it can be
+// VK_FILTER_LINEAR. Additionally, if the image also has the format features
+// VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT then the
+// samplers filters can differ from the chroma filter.
+//
+// This enum tells what sampler filters are allowed to be used when a given VkYcbcrConversion is
+// also used. The client will set these based on the chromaFilter and format features of the
+// associated imgae.
+enum class GrYcbcrConversionFilters {
+    kNearestOnly,
+    kLinearOnly,
+    kNearestOrLinear,
+};
+
+// This struct is used to pass in the necessary information to create a VkSamplerYcbcrConversion
+// object for an VkExternalFormatANDROID.
+struct GrVkYcbcrConversionInfo {
+    GrVkYcbcrConversionInfo()
+            : fYcbcrModel(VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY)
+            , fYcbcrRange(VK_SAMPLER_YCBCR_RANGE_ITU_FULL)
+            , fXChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
+            , fYChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
+            , fChromaFilter(VK_FILTER_NEAREST)
+            , fForceExplicitReconstruction(false)
+            , fExternalFormat(0)
+            , fExternalFormatFeatures(0) {}
+
+    GrVkYcbcrConversionInfo(VkSamplerYcbcrModelConversion ycbcrModel,
+                            VkSamplerYcbcrRange ycbcrRange,
+                            VkChromaLocation xChromaOffset,
+                            VkChromaLocation yChromaOffset,
+                            VkFilter chromaFilter,
+                            VkBool32 forceExplicitReconstruction,
+                            uint64_t externalFormat,
+                            VkFormatFeatureFlags externalFormatFeatures)
+            : fYcbcrModel(ycbcrModel)
+            , fYcbcrRange(ycbcrRange)
+            , fXChromaOffset(xChromaOffset)
+            , fYChromaOffset(yChromaOffset)
+            , fChromaFilter(chromaFilter)
+            , fForceExplicitReconstruction(forceExplicitReconstruction)
+            , fExternalFormat(externalFormat)
+            , fExternalFormatFeatures(externalFormatFeatures) {}
+
+    bool operator==(const GrVkYcbcrConversionInfo& that) const {
+        return this->fYcbcrModel == that.fYcbcrModel &&
+               this->fYcbcrRange == that.fYcbcrRange &&
+               this->fXChromaOffset == that.fXChromaOffset &&
+               this->fYChromaOffset == that.fYChromaOffset &&
+               this->fChromaFilter == that.fChromaFilter &&
+               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction &&
+               this->fExternalFormat == that.fExternalFormat;
+        // We don't check fExternalFormatFeatures here since all matching external formats must have
+        // the same format features at least in terms of how they effect ycbcr sampler conversion.
+    }
+
+    bool isValid() const { return fExternalFormat != 0; }
+
+    VkSamplerYcbcrModelConversion    fYcbcrModel;
+    VkSamplerYcbcrRange              fYcbcrRange;
+    VkChromaLocation                 fXChromaOffset;
+    VkChromaLocation                 fYChromaOffset;
+    VkFilter                         fChromaFilter;
+    VkBool32                         fForceExplicitReconstruction;
+    // The external format should be compatible to be used in a VkExternalFormatANDROID struct
+    uint64_t                         fExternalFormat;
+    // The format features here should be those returned by a call to
+    // vkAndroidHardwareBufferFormatPropertiesANDROID
+    VkFormatFeatureFlags             fExternalFormatFeatures;
+};
+
 struct GrVkImageInfo {
-    VkImage        fImage;
-    GrVkAlloc      fAlloc;
-    VkImageTiling  fImageTiling;
-    VkImageLayout  fImageLayout;
-    VkFormat       fFormat;
-    uint32_t       fLevelCount;
-    uint32_t       fCurrentQueueFamily;
+    VkImage                  fImage;
+    GrVkAlloc                fAlloc;
+    VkImageTiling            fImageTiling;
+    VkImageLayout            fImageLayout;
+    VkFormat                 fFormat;
+    uint32_t                 fLevelCount;
+    uint32_t                 fCurrentQueueFamily;
+    GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
 
     GrVkImageInfo()
             : fImage(VK_NULL_HANDLE)
@@ -80,18 +155,21 @@ struct GrVkImageInfo {
             , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
             , fFormat(VK_FORMAT_UNDEFINED)
             , fLevelCount(0)
-            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED) {}
+            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
+            , fYcbcrConversionInfo() {}
 
     GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
                   VkFormat format, uint32_t levelCount,
-                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED)
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo())
             : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(imageTiling)
             , fImageLayout(layout)
             , fFormat(format)
             , fLevelCount(levelCount)
-            , fCurrentQueueFamily(currentQueueFamily) {}
+            , fCurrentQueueFamily(currentQueueFamily)
+            , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
@@ -100,7 +178,8 @@ struct GrVkImageInfo {
             , fImageLayout(layout)
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
-            , fCurrentQueueFamily(info.fCurrentQueueFamily) {}
+            , fCurrentQueueFamily(info.fCurrentQueueFamily)
+            , fYcbcrConversionInfo(info.fYcbcrConversionInfo) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
@@ -110,7 +189,9 @@ struct GrVkImageInfo {
     bool operator==(const GrVkImageInfo& that) const {
         return fImage == that.fImage && fAlloc == that.fAlloc &&
                fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
-               fFormat == that.fFormat && fLevelCount == that.fLevelCount;
+               fFormat == that.fFormat && fLevelCount == that.fLevelCount &&
+               fCurrentQueueFamily == that.fCurrentQueueFamily &&
+               fYcbcrConversionInfo == that.fYcbcrConversionInfo;
     }
 };
 
