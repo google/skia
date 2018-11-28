@@ -284,29 +284,6 @@ public:
     const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOBBUILD_WITH_PAINT
-    /** Deprecated.
-     */
-    const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr) {
-        return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
-    }
-
-    /** Deprecated.
-     */
-    const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
-                                  const SkRect* bounds = nullptr) {
-        return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
-    }
-
-    /** Deprecated.
-     */
-    const RunBuffer& allocRunPos(const SkPaint& font, int count,
-                                 const SkRect* bounds = nullptr) {
-        return this->allocRunTextPos(font, count, 0, SkString(), bounds);
-    }
-#endif
-
 private:
     const RunBuffer& allocRunText(const SkPaint& font,
                                   int count,
