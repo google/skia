@@ -61,6 +61,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
+    fRequiresFlushBetweenNonAndInstancedDraws = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fProgramBinarySupport = false;
     fSamplerObjectSupport = false;
@@ -2467,13 +2468,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
     }
 
-    // Intel Skylake instanced draws get corrupted if we mix them with normal ones. Adding a flush
-    // in between seems to resolve this, but it also tends to cause perf regressions. So we just
-    // disable instancing altogether on Skylake.
     if (kIntelSkylake_GrGLRenderer == ctxInfo.renderer() ||
         (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
          GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer())) {
-        fInstanceAttribSupport = false;
+        fRequiresFlushBetweenNonAndInstancedDraws = true;
     }
 
     // This was reproduced on a Pixel 1, but the unit test + config + options that exercise it are
@@ -2763,6 +2761,7 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
+        SkASSERT(!fRequiresFlushBetweenNonAndInstancedDraws);
         SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
     }
     if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfGLClear) {
