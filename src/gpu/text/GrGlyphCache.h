@@ -31,8 +31,8 @@ public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
     ~GrTextStrike();
 
-    inline GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                             SkGlyphCache* cache) {
+    GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
+                      SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
             glyph = this->generateGlyph(skGlyph, packed, cache);
@@ -44,9 +44,9 @@ public:
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
     // draw a clear square.
     // skbug:4143 crbug:510931
-    inline GrGlyph* getGlyph(GrGlyph::PackedID packed,
-                             GrMaskFormat expectedMaskFormat,
-                             SkGlyphCache* cache) {
+    GrGlyph* getGlyph(GrGlyph::PackedID packed,
+                      GrMaskFormat expectedMaskFormat,
+                      SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
@@ -118,7 +118,7 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    inline sk_sp<GrTextStrike> getStrike(const SkGlyphCache* cache) {
+    sk_sp<GrTextStrike> getStrike(const SkGlyphCache* cache) {
         sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
         if (!strike) {
             strike = this->generateStrike(cache);
