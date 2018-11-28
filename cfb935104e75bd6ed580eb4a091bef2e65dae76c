@@ -124,6 +124,24 @@
       "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b87f1bc_a7213b4a",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-28T20:26:12Z",
+      "side": 1,
+      "message": "I agree that this code/API are harebrained, but the const_cast has been there for over a decade in one form or another. This notion of secretly mutable is a terrible idea. But, in the meantime, I need to stop the GPU code from being so chatty with the SkGlyphCache.",
+      "parentUuid": "b52b21a9_a12f0bc4",
+      "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
