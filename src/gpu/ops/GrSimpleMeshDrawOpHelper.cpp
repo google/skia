@@ -40,9 +40,14 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelper::fixedFunctionFlags() cons
                                           : GrDrawOp::FixedFunctionFlags::kNone;
 }
 
+static bool none_as_coverage_aa_compatible(GrAAType aa1, GrAAType aa2) {
+    return (aa1 == GrAAType::kNone && aa2 == GrAAType::kCoverage) ||
+           (aa1 == GrAAType::kCoverage && aa2 == GrAAType::kNone);
+}
+
 bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
                                             const GrCaps& caps, const SkRect& thisBounds,
-                                            const SkRect& thatBounds) const {
+                                            const SkRect& thatBounds, bool noneAsCoverageAA) const {
     if (SkToBool(fProcessors) != SkToBool(that.fProcessors)) {
         return false;
     }
@@ -57,7 +62,8 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
             }
         }
     }
-    bool result = fPipelineFlags == that.fPipelineFlags && fAAType == that.fAAType;
+    bool result = fPipelineFlags == that.fPipelineFlags && (fAAType == that.fAAType ||
+            (noneAsCoverageAA && none_as_coverage_aa_compatible(this->aaType(), that.aaType())));
     SkASSERT(!result || fCompatibleWithAlphaAsCoveage == that.fCompatibleWithAlphaAsCoveage);
     SkASSERT(!result || fUsesLocalCoords == that.fUsesLocalCoords);
     return result;
@@ -178,8 +184,8 @@ GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionF
 
 bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
         const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
-        const SkRect& thisBounds, const SkRect& thatBounds) const {
-    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds) &&
+        const SkRect& thisBounds, const SkRect& thatBounds, bool noneAsCoverageAA) const {
+    return INHERITED::isCompatible(that, caps, thisBounds, thatBounds, noneAsCoverageAA) &&
            fStencilSettings == that.fStencilSettings;
 }
 
