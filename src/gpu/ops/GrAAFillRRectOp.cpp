@@ -325,10 +325,8 @@ public:
         v->codeAppend("float2 aa_bloatradius = axiswidths * pixellength * .5;");
 
         // Identify our radii.
-        v->codeAppend("float4 radii_and_neighbors = radii_selector"
-                              "* float4x4(radii_x, radii_y, radii_x.yxwz, radii_y.wzyx);");
-        v->codeAppend("float2 radii = radii_and_neighbors.xy;");
-        v->codeAppend("float2 neighbor_radii = radii_and_neighbors.zw;");
+        v->codeAppend("float2 radii = float2(dot(radii_selector, radii_x), "
+                                            "dot(radii_selector, radii_y));");
 
         v->codeAppend("if (any(greaterThan(aa_bloatradius, float2(1)))) {");
                           // The rrect is more narrow than an AA coverage ramp. We can't draw as-is
@@ -349,14 +347,11 @@ public:
         v->codeAppend(    "radius_outset = floor(abs(radius_outset)) * radius_outset;");
         v->codeAppend(    "is_linear_coverage = 1;");
         v->codeAppend("} else {");
-                          // Don't let radii get smaller than a pixel.
+                          // Don't let actual arc radii get smaller than a pixel.
         v->codeAppend(    "radii = clamp(radii, pixellength, 2 - pixellength);");
-        v->codeAppend(    "neighbor_radii = clamp(neighbor_radii, pixellength, 2 - pixellength);");
-                          // Don't let neighboring radii get closer together than 1/16 pixel.
-        v->codeAppend(    "float2 spacing = 2 - radii - neighbor_radii;");
-        v->codeAppend(    "float2 extra_pad = max(pixellength * .0625 - spacing, float2(0));");
-        v->codeAppend(    "radii -= extra_pad * .5;");
         v->codeAppend("}");
+        // Bias radii slightly inward to avoid accidental overlap of geometries from fp rounding.
+        v->codeAppend("radii -= aa_bloatradius * 1e-3;");
 
         // Find our vertex position, adjusted for radii and bloated for AA. Our rect is drawn in
         // normalized [-1,-1,+1,+1] space.
