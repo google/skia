@@ -60,4 +60,109 @@ sk_sp<skottie::ImageAsset> FileResourceProvider::loadImageAsset(const char resou
     return MultiFrameImageAsset::Make(this->load(resource_path, resource_name));
 }
 
+CustomPropertyManagerBuilder::CustomPropertyManagerBuilder() = default;
+CustomPropertyManagerBuilder::~CustomPropertyManagerBuilder() = default;
+
+std::unique_ptr<CustomPropertyManager> CustomPropertyManagerBuilder::build() {
+    return std::unique_ptr<CustomPropertyManager>(
+                new CustomPropertyManager(std::move(fColorMap),
+                                          std::move(fOpacityMap),
+                                          std::move(fTransformMap)));
+}
+
+void CustomPropertyManagerBuilder::onColorProperty(
+        const char node_name[],
+        const LazyHandle<skottie::ColorPropertyHandle>& c) {
+    const auto key = this->acceptProperty(node_name);
+    if (!key.empty()) {
+        fColorMap[key].push_back(c());
+    }
+}
+
+void CustomPropertyManagerBuilder::onOpacityProperty(
+        const char node_name[],
+        const LazyHandle<skottie::OpacityPropertyHandle>& o) {
+    const auto key = this->acceptProperty(node_name);
+    if (!key.empty()) {
+        fOpacityMap[key].push_back(o());
+    }
+}
+
+void CustomPropertyManagerBuilder::onTransformProperty(
+        const char node_name[],
+        const LazyHandle<skottie::TransformPropertyHandle>& t) {
+    const auto key = this->acceptProperty(node_name);
+    if (!key.empty()) {
+        fTransformMap[key].push_back(t());
+    }
+}
+
+CustomPropertyManager::CustomPropertyManager(PropMap<skottie::ColorPropertyHandle> cmap,
+                                             PropMap<skottie::OpacityPropertyHandle> omap,
+                                             PropMap<skottie::TransformPropertyHandle> tmap)
+    : fColorMap(std::move(cmap))
+    , fOpacityMap(std::move(omap))
+    , fTransformMap(std::move(tmap)) {}
+
+CustomPropertyManager::~CustomPropertyManager() = default;
+
+template <typename V, typename T>
+std::vector<CustomPropertyManager::PropInfo<V>>
+CustomPropertyManager::getAllProps(const PropMap<T>& container) const {
+    std::vector<PropInfo<V>> props;
+
+    for (const auto& prop_list : container) {
+        SkASSERT(!prop_list.second.empty());
+        props.push_back({
+                            prop_list.first,
+                            prop_list.second.front()->get()
+                        });
+    }
+
+    return props;
+}
+
+template <typename V, typename T>
+bool CustomPropertyManager::setProp(const PropKey& key, const V& val, const PropMap<T>& container) {
+    auto prop_list = container.find(key);
+
+    if (prop_list == container.end()) {
+        return false;
+    }
+
+    for (auto& handle : prop_list->second) {
+        handle->set(val);
+    }
+
+    return true;
+}
+
+std::vector<CustomPropertyManager::PropInfo<SkColor>>
+CustomPropertyManager::getAllColorProps() const {
+    return this->getAllProps<SkColor>(fColorMap);
+}
+
+bool CustomPropertyManager::setColorProp(const PropKey& key, SkColor c) {
+    return this->setProp(key, c, fColorMap);
+}
+
+std::vector<CustomPropertyManager::PropInfo<float>>
+CustomPropertyManager::getAllOpacityProps() const {
+    return this->getAllProps<float>(fOpacityMap);
+}
+
+bool CustomPropertyManager::setOpacityProp(const PropKey& key, float o) {
+    return this->setProp(key, o, fOpacityMap);
+}
+
+std::vector<CustomPropertyManager::PropInfo<skottie::TransformPropertyValue>>
+CustomPropertyManager::getAllTransformProps() const {
+    return this->getAllProps<skottie::TransformPropertyValue>(fTransformMap);
+}
+
+bool CustomPropertyManager::setTransformProp(const PropKey& key,
+                                             const skottie::TransformPropertyValue& t) {
+    return this->setProp(key, t, fTransformMap);
+}
+
 } // namespace skottie_utils
