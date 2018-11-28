@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb535080_e375c884",
+        "filename": "src/gpu/text/GrGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-28T20:07:49Z",
+      "side": 0,
+      "message": "Oh that\u0027s ridiculous!  This used to be that other thing where 9 \u003d\u003d 2^9.",
+      "range": {
+        "startLine": 194,
+        "startChar": 12,
+        "endLine": 194,
+        "endChar": 47
+      },
+      "revId": "85e22fc3618cae0e8597a9cd6a55dafaa55fb60f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
