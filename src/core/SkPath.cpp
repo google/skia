@@ -1841,6 +1841,12 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fIsVolatile = fIsVolatile;
         }
 
+        // Due to finite/fragile float numerics, we can't assume that a convex path remains
+        // convex after a transformation, so mark it as unknown here.
+        if (!matrix.isIdentity()) {
+            dst->fConvexity = kUnknown_Convexity;
+        }
+
         if (SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
             dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
         } else {
@@ -1853,7 +1859,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             } else if (det2x2 > 0) {
                 dst->fFirstDirection = fFirstDirection.load();
             } else {
-                dst->fConvexity = kUnknown_Convexity;
                 dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
             }
         }
