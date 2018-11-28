@@ -106,6 +106,24 @@
       "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b52b21a9_a12f0bc4",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-28T20:09:01Z",
+      "side": 1,
+      "message": "But.... how can we say that with a straight face if we\u0027re const_casting SkGlyphs?",
+      "parentUuid": "d6339526_c27eda96",
+      "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
