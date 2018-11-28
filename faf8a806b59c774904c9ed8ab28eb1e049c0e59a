@@ -22,6 +22,29 @@
       "revId": "faf8a806b59c774904c9ed8ab28eb1e049c0e59a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d744828_cc7f0b87",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T18:02:19Z",
+      "side": 1,
+      "message": "Not for this change, but I wonder if Combine should have a way of indicating that there is no reason to keep going (color is neither known nor opaque).",
+      "range": {
+        "startLine": 233,
+        "startChar": 51,
+        "endLine": 233,
+        "endChar": 58
+      },
+      "revId": "faf8a806b59c774904c9ed8ab28eb1e049c0e59a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

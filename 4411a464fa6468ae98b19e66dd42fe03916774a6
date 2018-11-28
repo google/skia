@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "203685b4_7be656b8",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T18:02:19Z",
+      "side": 1,
+      "message": "The only user is Chrome. The way I\u0027d do it is rename the enum and have values with both names. Then update Chrome to use the new name. And finally remove the old names. We can straighten out all the naming in other changes.",
+      "parentUuid": "9011dd81_dc615dc0",
+      "range": {
+        "startLine": 130,
+        "startChar": 18,
+        "endLine": 130,
+        "endChar": 29
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f49bb7f0_f5d4620d",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 20
