@@ -43,7 +43,6 @@ public:
     void setColor(const SkPMColor4f& color) { fColor = color; }
 
     SkString dumpInfo(int index) const {
-        GrQuadAAFlags edges = static_cast<GrQuadAAFlags>(fAAFlags);
         SkString str;
         str.appendf("%d: Color: [%.2f, %.2f, %.2f, %.2f], Edge AA: l%u_t%u_r%u_b%u, \n"
                     "  device quad: [(%.2f, %2.f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), "
@@ -51,8 +50,10 @@ public:
                     "  local quad: [(%.2f, %2.f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), "
                     "(%.2f, %.2f, %.2f)]\n",
                     index, fColor.fR, fColor.fG, fColor.fB, fColor.fA,
-                    edges & GrQuadAAFlags::kLeft,  edges & GrQuadAAFlags::kTop,
-                    edges & GrQuadAAFlags::kRight, edges & GrQuadAAFlags::kBottom,
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kLeft),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kTop),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kRight),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kBottom),
                     fDeviceQuad.x(0), fDeviceQuad.y(0), fDeviceQuad.w(0),
                     fDeviceQuad.x(1), fDeviceQuad.y(1), fDeviceQuad.w(1),
                     fDeviceQuad.x(2), fDeviceQuad.y(2), fDeviceQuad.w(2),
@@ -212,8 +213,7 @@ public:
         str.appendf("# draws: %d\n", fQuads.count());
         str.appendf("Clear compatible: %u\n", static_cast<bool>(fClearCompatible));
         str.appendf("Device quad type: %u, local quad type: %u\n",
-                    static_cast<GrQuadType>(fDeviceQuadType),
-                    static_cast<GrQuadType>(fLocalQuadType));
+                    fDeviceQuadType, fLocalQuadType);
         str += fHelper.dumpInfo();
         for (int i = 0; i < fQuads.count(); i++) {
             str += fQuads[i].dumpInfo(i);
@@ -357,9 +357,18 @@ private:
     void addQuad(TransformedQuad&& quad, GrQuadType localQuadType, GrAAType aaType) {
         SkASSERT(quad.deviceQuad().quadType() <= this->deviceQuadType());
 
-        // The new quad's aa type should be the same, or converted to none, which means this op's
-        // helper's aatype never has to be updated
-        SkASSERT(aaType == fHelper.aaType() || aaType == GrAAType::kNone);
+        // The new quad's aa type should be the same as the first quad's or none, except when the
+        // first quad's aa type was already downgraded to none, in which case the stored type must
+        // be lifted to back to the requested type.
+        if (aaType != fHelper.aaType()) {
+            if (aaType != GrAAType::kNone) {
+                // Original quad was downgraded to non-aa, lift back up to this quad's required type
+                SkASSERT(fHelper.aaType() == GrAAType::kNone);
+                fHelper.setAAType(aaType);
+            }
+            // else the new quad could have been downgraded but the other quads can't be, so don't
+            // reset the op's accumulated aa type.
+        }
 
         // The new quad's local coordinates could differ
         if (localQuadType > this->localQuadType()) {
