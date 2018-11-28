@@ -127,6 +127,17 @@ public:
                                  const SkRect& rect,
                                  const SkMatrix& localMatrix);
 
+    /** Used with drawQuadSet */
+    struct QuadSetEntry {
+        SkRect fRect;
+        SkPMColor4f fColor; // Overrides any color on the GrPaint
+        SkMatrix fLocalMatrix;
+        GrQuadAAFlags fAAFlags;
+    };
+
+    void drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
+                     const QuadSetEntry[], int cnt);
+
     /**
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
      * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect'
