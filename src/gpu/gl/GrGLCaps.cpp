@@ -2472,7 +2472,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kIntelSkylake_GrGLRenderer == ctxInfo.renderer() ||
         (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
          GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer())) {
-        fRequiresFlushBetweenNonAndInstancedDraws = true;
+        // fRequiresFlushBetweenNonAndInstancedDraws = true;
     }
 
     // This was reproduced on a Pixel 1, but the unit test + config + options that exercise it are
