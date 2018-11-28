@@ -1383,9 +1383,24 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-        if (auto op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval,
-                                                  style, shaderCaps)) {
+        std::unique_ptr<GrDrawOp> op;
+        // GrAAFillRRectOp has special geometry and a fragment-shader branch to conditionally
+        // evaluate the arc equation. This same special geometry and fragment branch also turn out
+        // to be a substantial optimization for drawing ovals (namely, by not evaluating the arc
+        // equation inside the oval's inner diamond). Given these optimizations, it's a clear win to
+        // draw ovals the exact same way we do round rects.
+        //
+        // However, we still don't draw true circles as round rects, because it can cause perf
+        // regressions on some platforms as compared to the dedicated circle Op.
+        if (style.isSimpleFill() && oval.height() != oval.width()) {
+            op = GrAAFillRRectOp::Make(fContext, viewMatrix, SkRRect::MakeOval(oval), *this->caps(),
+                                       std::move(paint));
+        }
+        if (!op) {
+            op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
+                                             this->caps()->shaderCaps());
+        }
+        if (op) {
             this->addDrawOp(clip, std::move(op));
             return;
         }
