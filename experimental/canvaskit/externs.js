@@ -42,6 +42,7 @@ var CanvasKit = {
 	currentContext: function() {},
 	getSkDataBytes: function() {},
 	getColorComponents: function() {},
+	multiplyByAlpha: function() {},
 	initFonts: function() {},
 	setCurrentContext: function() {},
 
