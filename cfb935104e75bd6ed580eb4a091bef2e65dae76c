@@ -88,6 +88,24 @@
       "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6339526_c27eda96",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-28T20:04:08Z",
+      "side": 1,
+      "message": "I don\u0027t think we want any synchronization on the glyphs. In the bulk regime, the synchronization will be on the SkGlyphCache.",
+      "parentUuid": "cea63f97_75d0a67b",
+      "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
