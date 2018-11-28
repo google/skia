@@ -91,6 +91,43 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 done();
             }));
         });
+
+        it('can multiply colors by alpha', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const multiplyByAlpha = CanvasKit.multiplyByAlpha;
+
+                const testCases = [
+                    {
+                        inColor:  CanvasKit.Color(102, 51, 153, 1.0),
+                        inAlpha:  1.0,
+                        outColor: CanvasKit.Color(102, 51, 153, 1.0),
+                    },
+                    {
+                        inColor:  CanvasKit.Color(102, 51, 153, 1.0),
+                        inAlpha:  0.8,
+                        outColor: CanvasKit.Color(102, 51, 153, 0.8),
+                    },
+                    {
+                        inColor:  CanvasKit.Color(102, 51, 153, 0.8),
+                        inAlpha:  0.7,
+                        outColor: CanvasKit.Color(102, 51, 153, 0.56),
+                    },
+                    {
+                        inColor:  CanvasKit.Color(102, 51, 153, 0.8),
+                        inAlpha:  1000,
+                        outColor: CanvasKit.Color(102, 51, 153, 1.0),
+                    },
+                ];
+
+                for (let tc of testCases) {
+                    // Print out the test case if the two don't match.
+                    expect(multiplyByAlpha(tc.inColor, tc.inAlpha))
+                          .toBe(tc.outColor, JSON.stringify(tc));
+                }
+
+                done();
+            }));
+        });
     }); // end describe('color string parsing')
 
     function multipleCanvasTest(testname, done, test) {
@@ -253,6 +290,57 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             }));
         });
 
+        it('fills/strokes rects and supports some global settings', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('global_dashed_rects', done, (canvas) => {
+                    let ctx = canvas.getContext('2d');
+                    ctx.scale(1.1, 1.1);
+                    ctx.translate(10, 10);
+                    // Shouldn't impact the fillRect calls
+                    ctx.setLineDash([5, 3]);
+
+                    ctx.fillStyle = 'rgba(200, 0, 100, 0.81)';
+                    ctx.fillRect(20, 30, 100, 100);
+
+                    ctx.globalAlpha = 0.81;
+                    ctx.fillStyle = 'rgba(200, 0, 100, 1.0)';
+                    ctx.fillRect(120, 30, 100, 100);
+                    // This shouldn't do anything
+                    ctx.globalAlpha = 0.1;
+
+                    ctx.fillStyle = 'rgba(200, 0, 100, 0.9)';
+                    ctx.globalAlpha = 0.9;
+                    // Intentional no-op to check ordering
+                    ctx.clearRect(220, 30, 100, 100);
+                    ctx.fillRect(220, 30, 100, 100);
+
+                    ctx.fillRect(320, 30, 100, 100);
+                    ctx.clearRect(330, 40, 80, 80);
+
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 3]);
+                    ctx.strokeRect(20, 150, 100, 100);
+                    ctx.setLineDash([50, 30]);
+                    ctx.strokeRect(125, 150, 100, 100);
+                    ctx.lineDashOffset = 25;
+                    ctx.strokeRect(230, 150, 100, 100);
+                    ctx.setLineDash([2, 5, 9]);
+                    ctx.strokeRect(335, 150, 100, 100);
+
+                    ctx.setLineDash([5, 2]);
+                    ctx.moveTo(336, 400);
+                    ctx.quadraticCurveTo(366, 488, 120, 450);
+                    ctx.lineTo(300, 400);
+                    ctx.stroke();
+
+                    ctx.font = '36pt Arial';
+                    ctx.strokeText('Dashed', 20, 350);
+                    ctx.fillText('Not Dashed', 20, 400);
+                });
+            }));
+        });
+
         it('can read default properties', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -265,8 +353,12 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
 
                 const toTest = ['font', 'lineWidth', 'strokeStyle', 'lineCap',
                                 'lineJoin', 'miterLimit', 'shadowOffsetY',
-                                'shadowBlur', 'shadowColor', 'shadowOffsetX'];
+                                'shadowBlur', 'shadowColor', 'shadowOffsetX',
+                                'globalAlpha', 'globalCompositeOperation',
+                                'lineDashOffset'];
 
+                // Compare all the default values of the properties of skcanvas
+                // to the default values on the properties of a real canvas.
                 for( let attr of toTest) {
                     expect(skcontext[attr]).toBe(realContext[attr], attr);
                 }
