@@ -795,6 +795,30 @@ static sk_sp<SkTypeface> create_from_desc(CTFontDescriptorRef desc) {
     return create_from_CTFontRef(std::move(ctFont), nullptr, false);
 }
 
+// Same as the above function except that the inputs include style so we can
+// compare whether the created font conforms to the italic style. If not, we need
+// to recreate the font with symbolic traits. This is needed due to MacOS 10.11
+// font creation problem https://bugs.chromium.org/p/skia/issues/detail?id=8447.
+static sk_sp<SkTypeface> create_from_desc_and_style(CTFontDescriptorRef desc,
+                                                    const SkFontStyle& style) {
+    SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
+    if (!ctFont) {
+        return nullptr;
+    }
+
+    CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(ctFont.get());
+    if ((style.slant() != SkFontStyle::kUpright_Slant) && !(traits & kCTFontItalicTrait)) {
+        traits |= kCTFontTraitItalic;
+        SkUniqueCFRef<CTFontRef> ctNewFont(
+                CTFontCreateCopyWithSymbolicTraits(ctFont.get(), 0, nullptr, traits, traits));
+        if (ctNewFont) {
+            ctFont = std::move(ctNewFont);
+        }
+    }
+
+    return create_from_CTFontRef(std::move(ctFont), nullptr, false);
+}
+
 static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
                                                             const SkFontStyle& style) {
     SkUniqueCFRef<CFMutableDictionaryRef> cfAttributes(
@@ -856,7 +880,7 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], const SkFontS
     if (!desc) {
         return nullptr;
     }
-    return create_from_desc(desc.get());
+    return create_from_desc_and_style(desc.get(), style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
