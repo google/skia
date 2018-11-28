@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "b6aa519d_09f8547a",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-28T16:32:33Z",
+      "side": 1,
+      "message": "Could we save some time by doing:\n\n  dotValue \u003d dot(e1, e2);\n  if (isnan(dotValue)) {\n    dotValue \u003d dot(sign(e1), sign(e2));\n  }\n\n?",
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42f4f0e0_73cc1dd3",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 20
@@ -48,6 +65,23 @@
     },
     {
       "key": {
+        "uuid": "1f5300fa_67761158",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-28T16:32:33Z",
+      "side": 1,
+      "message": "This should be automatic as long as you don\u0027t use a geometry shader and your position variable is 2D. See: https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/glsl/GrGLSLGeometryProcessor.cpp?type\u003dcs\u0026g\u003d0\u0026l\u003d28",
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "edb981b7_2ec5e04a",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 20
@@ -87,6 +121,29 @@
         "startChar": 0,
         "endLine": 236,
         "endChar": 40
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a55f1c9a_ed2a9c4b",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-28T16:32:33Z",
+      "side": 1,
+      "message": "You could assert that fQuads.count() \u003d\u003d 1",
+      "range": {
+        "startLine": 237,
+        "startChar": 28,
+        "endLine": 237,
+        "endChar": 37
       },
       "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
