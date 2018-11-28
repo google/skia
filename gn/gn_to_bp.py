@@ -114,6 +114,20 @@ cc_library_static {
           "include/config/linux",
         ],
       },
+      darwin: {
+        cflags: [
+          "-mssse3",
+        ],
+        srcs: [
+          $mac_srcs
+        ],
+        local_include_dirs: [
+          "include/config/mac",
+        ],
+        export_include_dirs: [
+          "include/config/mac",
+        ],
+      },
     },
 
     defaults: ["skia_deps",
@@ -177,6 +191,11 @@ cc_defaults {
             "libheif",
             "libvulkan",
             "libnativewindow",
+        ],
+      },
+      darwin: {
+        host_ldlibs: [
+            "-framework AppKit",
         ],
       },
     },
@@ -268,6 +287,21 @@ gn_args_linux = {
   'skia_use_fixed_gamma_text':          'true',
 }
 
+gn_args_mac = {
+  'is_official_build':                  'true',
+  'skia_enable_tools':                  'true',
+  'skia_enable_gpu'  :                  'false',
+  'skia_use_libheif':                   'false',
+  'skia_use_vulkan':                    'false',
+  'target_cpu':                         '"none"',
+  'target_os':                          '"mac"',
+  'skia_use_fixed_gamma_text':          'true',
+  'skia_enable_fontmgr_custom_empty':   'true',
+  'skia_use_fonthost_mac':              'false',
+  'skia_use_freetype':                  'true',
+  'skia_enable_fontmgr_android':        'false',
+}
+
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
 
 def strip_slashes(lst):
@@ -307,9 +341,16 @@ gn_to_bp_utils.GrabDependentValues(js_linux, '//:skia', 'sources', linux_srcs,
                                    None)
 linux_srcs      = strip_headers(linux_srcs)
 
-srcs = android_srcs.intersection(linux_srcs)
+js_mac          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_mac)
+mac_srcs        = strip_slashes(js_mac['targets']['//:skia']['sources'])
+gn_to_bp_utils.GrabDependentValues(js_mac, '//:skia', 'sources', mac_srcs,
+                                   None)
+mac_srcs        = strip_headers(mac_srcs)
+
+srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 android_srcs    = android_srcs.difference(srcs)
 linux_srcs      =   linux_srcs.difference(srcs)
+mac_srcs        =   mac_srcs.difference(srcs)
 dm_srcs         = strip_headers(dm_srcs)
 nanobench_srcs  = strip_headers(nanobench_srcs)
 
@@ -323,12 +364,14 @@ def get_defines(json):
   return {str(d) for d in json['targets']['//:skia']['defines']}
 android_defines = get_defines(js)
 linux_defines   = get_defines(js_linux)
+mac_defines     = get_defines(js_mac)
 
 def mkdir_if_not_exists(path):
   if not os.path.exists(path):
     os.mkdir(path)
 mkdir_if_not_exists('include/config/android/')
 mkdir_if_not_exists('include/config/linux/')
+mkdir_if_not_exists('include/config/mac/')
 
 platforms = { 'IOS', 'MAC', 'WIN', 'ANDROID', 'UNIX' }
 
@@ -358,18 +401,21 @@ append_to_file(android_config, '''
 #endif''')
 disallow_platforms(android_config, 'ANDROID')
 
-linux_config = 'include/config/linux/SkUserConfig.h'
-gn_to_bp_utils.WriteUserConfig(linux_config, linux_defines)
-append_to_file(linux_config, '''
+def write_config(config_path, defines, platform):
+  gn_to_bp_utils.WriteUserConfig(config_path, defines)
+  append_to_file(config_path, '''
 // Correct SK_BUILD_FOR flags that may have been set by
 // SkPreConfig.h/Android.bp
-#ifndef SK_BUILD_FOR_UNIX
-    #define SK_BUILD_FOR_UNIX
+#ifndef SK_BUILD_FOR_%s
+    #define SK_BUILD_FOR_%s
 #endif
 #ifdef SK_BUILD_FOR_ANDROID
     #undef SK_BUILD_FOR_ANDROID
-#endif''')
-disallow_platforms(linux_config, 'UNIX')
+#endif''' % (platform, platform))
+  disallow_platforms(config_path, platform)
+
+write_config('include/config/linux/SkUserConfig.h', linux_defines, 'UNIX')
+write_config('include/config/mac/SkUserConfig.h',   mac_defines, 'MAC')
 
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):
@@ -406,4 +452,5 @@ with open('Android.bp', 'w') as Android_bp:
 
     'android_srcs':  bpfmt(10, android_srcs),
     'linux_srcs':    bpfmt(10, linux_srcs),
+    'mac_srcs':      bpfmt(10, mac_srcs),
   })
