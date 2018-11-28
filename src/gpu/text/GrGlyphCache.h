@@ -89,8 +89,8 @@ private:
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fPool{512};
 
-    int fAtlasedGlyphs;
-    bool fIsAbandoned;
+    int fAtlasedGlyphs{0};
+    bool fIsAbandoned{false};
 
     static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, GrGlyph::PackedID id) {
         return cache->getGlyphIDMetrics(GrGlyph::UnpackID(id),
