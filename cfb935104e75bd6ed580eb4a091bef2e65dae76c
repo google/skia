@@ -70,6 +70,24 @@
       "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cea63f97_75d0a67b",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-28T19:47:22Z",
+      "side": 1,
+      "message": "\u003e This cache is on the renderer side, so it will only be single threaded. Or are you suggesting to put this on the SkGlyph?\n\nYeah, I think on SkGlyph?  Seems like the direction we\u0027re going to have to go sooner or later, right?",
+      "parentUuid": "8205ef43_3a450929",
+      "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
