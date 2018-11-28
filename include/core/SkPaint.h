@@ -189,6 +189,7 @@ public:
     */
     void reset();
 
+#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
     /** \enum SkPaint::Hinting
         Deprecated.
         Hinting adjusts the glyph outlines so that the shape provides a uniform
@@ -204,6 +205,7 @@ public:
         kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
         kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
     };
+#endif
 
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
@@ -213,29 +215,12 @@ public:
     */
     void setHinting(SkFontHinting hintingLevel);
 
-#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
-    /** Deprecated. Returns level of glyph outline adjustment.
-
-        @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
-     */
-    Hinting getHinting() const { return (Hinting)fBitfields.fHinting; }
-
-    /** Deprecated. Sets level of glyph outline adjustment.
-        Does not check for valid values of h.
-
-        @param h  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
-    */
-    void setHinting(Hinting h) {
-        this->setHinting((SkFontHinting)h);
-    }
-#else
     /** Returns level of glyph outline adjustment.
 
         @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
                          SkFontHinting::kFull
      */
     SkFontHinting getHinting() const { return (SkFontHinting)fBitfields.fHinting; }
-#endif
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.

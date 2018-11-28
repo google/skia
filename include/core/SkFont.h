@@ -30,6 +30,7 @@ public:
         kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
+#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
     /** Amount of font hinting applied to glyph outlines.
     */
     enum Hinting : uint8_t {
@@ -38,6 +39,7 @@ public:
         kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
         kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
     };
+#endif
 
     /** Constructs SkFont with default values.
 
@@ -162,24 +164,12 @@ public:
     */
     void setHinting(SkFontHinting hintingLevel);
 
-#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
-    /** Deprecated.
-    */
-    Hinting getHinting() const { return (Hinting)fHinting; }
-
-    /** Deprecated.
-    */
-    void setHinting(Hinting hinting) {
-        this->setHinting((SkFontHinting)hinting);
-    }
-#else
     /** Returns level of glyph outline adjustment.
 
         @return  one of: SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal,
                          SkFontHinting::kFull
      */
     SkFontHinting getHinting() const { return (SkFontHinting)fHinting; }
-#endif
 
     /** Returns a font with the same attributes of this font, but with the specified size.
         Returns nullptr if size is less than zero, infinite, or NaN.
