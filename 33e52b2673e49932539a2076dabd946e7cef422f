@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94cb4226_0f292de6",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-28T21:15:40Z",
+      "side": 1,
+      "message": "Naturally, the first only needs to be set on \u0027\"mac\"\u0027. (Less obviously, the same is true for the latter.) I lean towards just setting them everywhere, since it\u0027s (slightly) less code, but we could also say:\n\n  if target_os \u003d\u003d \u0027\"mac\"\u0027:\n    d[\u0027skia_use_fonthost_mac\u0027] \u003d \u0027false\n    d[\u0027skia_use_freetype\u0027] \u003d true\n\nThis would match how we only set skia_enable_tools for \u0027\"android\"\u0027.",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 49
+      },
+      "revId": "33e52b2673e49932539a2076dabd946e7cef422f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d096b45_022c8e3e",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-28T21:15:40Z",
+      "side": 1,
+      "message": "Similarly, this only needs to be set on linux.",
+      "range": {
+        "startLine": 278,
+        "startChar": 5,
+        "endLine": 278,
+        "endChar": 24
+      },
+      "revId": "33e52b2673e49932539a2076dabd946e7cef422f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52d43cee_1c7d0e23",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-28T21:15:40Z",
+      "side": 1,
+      "message": "This is already true on \u0027\"android\"\u0027.",
+      "range": {
+        "startLine": 279,
+        "startChar": 5,
+        "endLine": 279,
+        "endChar": 30
+      },
+      "revId": "33e52b2673e49932539a2076dabd946e7cef422f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
