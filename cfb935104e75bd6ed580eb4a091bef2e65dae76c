@@ -16,6 +16,24 @@
       "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53c61078_146f444b",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-28T18:11:26Z",
+      "side": 1,
+      "message": "The const_cast has basically been there because of the findPath API.\n\nThis is basically the implementation for findPath without calculating memory usage. The findPath\nimpl follows.\n\nconst SkPath* SkGlyphCache::findPath(const SkGlyph\u0026 glyph) {\n\n    if (!glyph.isEmpty()) {\n        // If the path already exists, return it.\n        if (glyph.fPathData !\u003d nullptr) {\n            return glyph.fPathData-\u003efPath;\n        }\n\n        // Add new path to the glyph, and add it\u0027s size to the glyph cache size.\n        if (SkPath* path \u003d const_cast\u003cSkGlyph\u0026\u003e(glyph).addPath(fScalerContext.get(), \u0026fAlloc)) {\n            fMemoryUsed +\u003d compute_path_size(*path);\n            return path;\n        }\n    }\n\n    return nullptr",
+      "parentUuid": "c8782431_31037541",
+      "revId": "cfb935104e75bd6ed580eb4a091bef2e65dae76c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
