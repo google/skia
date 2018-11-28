@@ -4,14 +4,9 @@
 // SkCanvas).
 (function(CanvasKit) {
 
-  // See https://stackoverflow.com/a/31090240
-  // This contraption keeps closure from minifying away the check
-  // if btoa is defined *and* prevents runtime "btoa" or "window" is not defined.
-  var isNode = !(new Function("try {return this===window;}catch(e){ return false;}")());
-
-  function argsAreFinite(args) {
+  function allAreFinite(args) {
     for (var i = 0; i < args.length; i++) {
-      if (!Number.isFinite(args[0])) {
+      if (!Number.isFinite(args[i])) {
         return false;
       }
     }
@@ -75,17 +70,26 @@
     this._canvas = skcanvas;
     this._paint = new CanvasKit.SkPaint();
     this._paint.setAntiAlias(true);
-    this._paint.setStrokeWidth(1);
+
     this._paint.setStrokeMiter(10);
     this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
     this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
 
-    this._strokeColor   = CanvasKit.BLACK;
-    this._fillColor     = CanvasKit.BLACK;
-    this._shadowBlur    = 0;
-    this._shadowColor   = CanvasKit.TRANSPARENT;
-    this._shadowOffsetX = 0;
-    this._shadowOffsetY = 0;
+    this._strokeColor    = CanvasKit.BLACK;
+    this._fillColor      = CanvasKit.BLACK;
+    this._shadowBlur     = 0;
+    this._shadowColor    = CanvasKit.TRANSPARENT;
+    this._shadowOffsetX  = 0;
+    this._shadowOffsetY  = 0;
+    this._globalAlpha    = 1;
+    this._strokeWidth    = 1;
+    this._lineDashOffset = 0;
+    this._lineDashList   = [];
+    // aka SkBlendMode
+    this._globalCompositeOperation = CanvasKit.BlendMode.SrcOver;
+
+    this._paint.setStrokeWidth(this._strokeWidth);
+    this._paint.setBlendMode(this._globalCompositeOperation);
 
     this._currentPath = new CanvasKit.SkPath();
     this._currentSubpath = null;
@@ -100,6 +104,44 @@
       // Don't delete this._canvas as it will be disposed
       // by the surface of which it is based.
     }
+
+    // This always accepts DOMMatrix/SVGMatrix or any other
+    // object that has properties a,b,c,d,e,f defined.
+    // It will return DOMMatrix if the constructor is defined
+    // (e.g. we are in a browser), otherwise it will return a
+    // flattened 9-element matrix. That 9 element matrix
+    // can also be accepted on all platforms (somewhat
+    //  contrary to the specification, but at least keeps it usable
+    // on Node)
+    Object.defineProperty(this, 'currentTransform', {
+      enumerable: true,
+      get: function() {
+        if (isNode) {
+          return this._currentTransform.slice();
+        } else {
+          // a-f aren't in the order as we have them. a-f are in "SVG order".
+          var m = new DOMMatrix();
+          m.a = this._currentTransform[0];
+          m.c = this._currentTransform[1];
+          m.e = this._currentTransform[2];
+          m.b = this._currentTransform[3];
+          m.d = this._currentTransform[4];
+          m.f = this._currentTransform[5];
+          return m;
+        }
+      },
+      set: function(matrix) {
+        if (matrix.a) {
+          // if we see a property named 'a', guess that b-f will
+          // also be there.
+          this._currentTransform = [matrix.a, matrix.c, matrix.e,
+                                    matrix.b, matrix.d, matrix.f,
+                                           0,        0,        1];
+        } else if (matrix.length === 9) {
+          this._currentTransform = matrix;
+        }
+      }
+    });
 
     Object.defineProperty(this, 'fillStyle', {
       enumerable: true,
@@ -121,6 +163,185 @@
         var size = parseFontSize(newStyle);
         // TODO(kjlubick) styles, font name
         this._paint.setTextSize(size);
+      }
+    });
+
+    Object.defineProperty(this, 'globalAlpha', {
+      enumerable: true,
+      get: function() {
+        return this._globalAlpha;
+      },
+      set: function(newAlpha) {
+        // ignore invalid values, as per the spec
+        if (!isFinite(newAlpha) || newAlpha < 0 || newAlpha > 1) {
+          return;
+        }
+        this._globalAlpha = newAlpha;
+      }
+    });
+
+    Object.defineProperty(this, 'globalCompositeOperation', {
+      enumerable: true,
+      get: function() {
+        switch (this._globalCompositeOperation) {
+          // composite-mode
+          case CanvasKit.BlendMode.SrcOver:
+            return 'source-over';
+          case CanvasKit.BlendMode.DstOver:
+            return 'destination-over';
+          case CanvasKit.BlendMode.Src:
+            return 'copy';
+          case CanvasKit.BlendMode.Dst:
+            return 'destination';
+          case CanvasKit.BlendMode.Clear:
+            return 'clear';
+          case CanvasKit.BlendMode.SrcIn:
+            return 'source-in';
+          case CanvasKit.BlendMode.DstIn:
+            return 'destination-in';
+          case CanvasKit.BlendMode.SrcOut:
+            return 'source-out';
+          case CanvasKit.BlendMode.DstOut:
+            return 'destination-out';
+          case CanvasKit.BlendMode.SrcATop:
+            return 'source-atop';
+          case CanvasKit.BlendMode.DstATop:
+            return 'destination-atop';
+          case CanvasKit.BlendMode.Xor:
+            return 'xor';
+          case CanvasKit.BlendMode.Plus:
+            return 'lighter';
+
+          case CanvasKit.BlendMode.Multiply:
+            return 'multiply';
+          case CanvasKit.BlendMode.Screen:
+            return 'screen';
+          case CanvasKit.BlendMode.Overlay:
+            return 'overlay';
+          case CanvasKit.BlendMode.Darken:
+            return 'darken';
+          case CanvasKit.BlendMode.Lighten:
+            return 'lighten';
+          case CanvasKit.BlendMode.ColorDodge:
+            return 'color-dodge';
+          case CanvasKit.BlendMode.ColorBurn:
+            return 'color-burn';
+          case CanvasKit.BlendMode.HardLight:
+            return 'hard-light';
+          case CanvasKit.BlendMode.SoftLight:
+            return 'soft-light';
+          case CanvasKit.BlendMode.Difference:
+            return 'difference';
+          case CanvasKit.BlendMode.Exclusion:
+            return 'exclusion';
+          case CanvasKit.BlendMode.Hue:
+            return 'hue';
+          case CanvasKit.BlendMode.Saturation:
+            return 'saturation';
+          case CanvasKit.BlendMode.Color:
+            return 'color';
+          case CanvasKit.BlendMode.Luminosity:
+            return 'luminosity';
+        }
+      },
+      set: function(newMode) {
+        switch (newMode) {
+          // composite-mode
+          case 'source-over':
+            this._globalCompositeOperation = CanvasKit.BlendMode.SrcOver;
+            break;
+          case 'destination-over':
+            this._globalCompositeOperation = CanvasKit.BlendMode.DstOver;
+            break;
+          case 'copy':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Src;
+            break;
+          case 'destination':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Dst;
+            break;
+          case 'clear':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Clear;
+            break;
+          case 'source-in':
+            this._globalCompositeOperation = CanvasKit.BlendMode.SrcIn;
+            break;
+          case 'destination-in':
+            this._globalCompositeOperation = CanvasKit.BlendMode.DstIn;
+            break;
+          case 'source-out':
+            this._globalCompositeOperation = CanvasKit.BlendMode.SrcOut;
+            break;
+          case 'destination-out':
+            this._globalCompositeOperation = CanvasKit.BlendMode.DstOut;
+            break;
+          case 'source-atop':
+            this._globalCompositeOperation = CanvasKit.BlendMode.SrcATop;
+            break;
+          case 'destination-atop':
+            this._globalCompositeOperation = CanvasKit.BlendMode.DstATop;
+            break;
+          case 'xor':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Xor;
+            break;
+          case 'lighter':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Plus;
+            break;
+          case 'plus-lighter':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Plus;
+            break;
+          case 'plus-darker':
+            throw 'plus-darker is not supported';
+
+          // blend-mode
+          case 'multiply':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Multiply;
+            break;
+          case 'screen':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Screen;
+            break;
+          case 'overlay':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Overlay;
+            break;
+          case 'darken':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Darken;
+            break;
+          case 'lighten':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Lighten;
+            break;
+          case 'color-dodge':
+            this._globalCompositeOperation = CanvasKit.BlendMode.ColorDodge;
+            break;
+          case 'color-burn':
+            this._globalCompositeOperation = CanvasKit.BlendMode.ColorBurn;
+            break;
+          case 'hard-light':
+            this._globalCompositeOperation = CanvasKit.BlendMode.HardLight;
+            break;
+          case 'soft-light':
+            this._globalCompositeOperation = CanvasKit.BlendMode.SoftLight;
+            break;
+          case 'difference':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Difference;
+            break;
+          case 'exclusion':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Exclusion;
+            break;
+          case 'hue':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Hue;
+            break;
+          case 'saturation':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Saturation;
+            break;
+          case 'color':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Color;
+            break;
+          case 'luminosity':
+            this._globalCompositeOperation = CanvasKit.BlendMode.Luminosity;
+            break;
+          default:
+            return;
+        }
+        this._paint.setBlendMode(this._globalCompositeOperation);
       }
     });
 
@@ -148,6 +369,19 @@
             this._paint.setStrokeCap(CanvasKit.StrokeCap.Square);
             return;
         }
+      }
+    });
+
+    Object.defineProperty(this, 'lineDashOffset', {
+      enumerable: true,
+      get: function() {
+        return this._lineDashOffset;
+      },
+      set: function(newOffset) {
+        if (!isFinite(newOffset)) {
+          return;
+        }
+        this._lineDashOffset = newOffset;
       }
     });
 
@@ -188,6 +422,7 @@
           // Spec says to ignore NaN/Inf/0/negative values
           return;
         }
+        this._strokeWidth = newWidth;
         this._paint.setStrokeWidth(newWidth);
       }
     });
@@ -273,7 +508,7 @@
     }
 
     this.arcTo = function(x1, y1, x2, y2, radius) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       if (radius < 0) {
@@ -301,7 +536,7 @@
     }
 
     this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       var pts = [cp1x, cp1y, cp2x, cp2y, x, y];
@@ -316,6 +551,15 @@
         this._newSubpath(cp1x, cp1y);
       }
       this._currentSubpath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
+    }
+
+    this.clearRect = function(x, y, width, height) {
+      this._canvas.setMatrix(this._currentTransform);
+      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
+      this._paint.setBlendMode(CanvasKit.BlendMode.Clear);
+      this._canvas.drawRect(CanvasKit.LTRBRect(x, y, x+width, y+height), this._paint);
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      this._paint.setBlendMode(this._globalCompositeOperation);
     }
 
     this.closePath = function() {
@@ -336,7 +580,7 @@
 
     this.ellipse = function(x, y, radiusX, radiusY, rotation,
                             startAngle, endAngle, ccw) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       if (radiusX < 0 || radiusY < 0) {
@@ -362,17 +606,29 @@
       temp.delete();
     }
 
+    // A helper to copy the current paint, ready for filling
+    // This applies the global alpha.
+    // Call dispose() after to clean up.
+    this._fillPaint = function() {
+      var paint = this._paint.copy();
+      paint.setStyle(CanvasKit.PaintStyle.Fill);
+      var alphaColor = CanvasKit.multiplyByAlpha(this._fillColor, this._globalAlpha);
+      paint.setColor(alphaColor);
+
+      paint.dispose = function() {
+        // If there are some helper effects in the future, clean them up
+        // here. In any case, we have .dispose() to make _fillPaint behave
+        // like _strokePaint and _shadowPaint.
+        this.delete();
+      }
+      return paint;
+    }
+
     this.fill = function() {
       this._commitSubpath();
-      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
-      this._paint.setColor(this._fillColor);
-      var orig = this._paint.getStrokeWidth();
-      // This is not in the spec, but it appears Chrome scales up
-      // the line width by some amount when stroking (and filling?).
-      var scaledWidth = orig * this._scalefactor();
-      this._paint.setStrokeWidth(scaledWidth);
+      var fillPaint = this._fillPaint();
 
-      var shadowPaint = this._shadowPaint();
+      var shadowPaint = this._shadowPaint(fillPaint);
       if (shadowPaint) {
         var offsetMatrix = CanvasKit.SkMatrix.multiply(
           this._currentTransform,
@@ -384,16 +640,22 @@
         shadowPaint.dispose();
       }
 
-      this._canvas.drawPath(this._currentPath, this._paint);
-      // set stroke width back to original size:
-      this._paint.setStrokeWidth(orig);
+      this._canvas.drawPath(this._currentPath, fillPaint);
+      fillPaint.dispose();
+    }
+
+    this.fillRect = function(x, y, width, height) {
+      var fillPaint = this._fillPaint();
+      this._canvas.setMatrix(this._currentTransform);
+      this._canvas.drawRect(CanvasKit.LTRBRect(x, y, x+width, y+height), fillPaint);
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      fillPaint.dispose();
     }
 
     this.fillText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
-      this._paint.setStyle(CanvasKit.PaintStyle.Fill);
-      this._paint.setColor(this._fillColor);
-      var shadowPaint = this._shadowPaint();
+      var fillPaint = this._fillPaint()
+      var shadowPaint = this._shadowPaint(fillPaint);
       if (shadowPaint) {
         var offsetMatrix = CanvasKit.SkMatrix.multiply(
           this._currentTransform,
@@ -405,12 +667,17 @@
         // Don't need to setMatrix back, it will be handled by the next few lines.
       }
       this._canvas.setMatrix(this._currentTransform);
-      this._canvas.drawText(text, x, y, this._paint);
+      this._canvas.drawText(text, x, y, fillPaint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      fillPaint.dispose();
+    }
+
+    this.getLineDash = function() {
+      return this._lineDashList.slice();
     }
 
     this.lineTo = function(x, y) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       var pts = [x, y];
@@ -433,7 +700,7 @@
     }
 
     this.moveTo = function(x, y) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       var pts = [x, y];
@@ -450,7 +717,7 @@
     }
 
     this.quadraticCurveTo = function(cpx, cpy, x, y) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       var pts = [cpx, cpy, x, y];
@@ -466,7 +733,7 @@
     }
 
     this.rect = function(x, y, width, height) {
-      if (!argsAreFinite(arguments)) {
+      if (!allAreFinite(arguments)) {
         return;
       }
       var pts = [x, y];
@@ -490,8 +757,9 @@
       }
       this._currentTransform = newState.ctm;
       // TODO(kjlubick): clipping region
-      // TODO(kjlubick): dash list
-      this._paint.setStrokeWidth(newState.sw);
+      this._lineDashList = newState.ldl;
+      this._strokeWidth = newState.sw;
+      this._paint.setStrokeWidth(this._strokeWidth);
       this._strokeColor = newState.sc;
       this._fillColor = newState.fc;
       this._paint.setStrokeCap(newState.cap);
@@ -501,7 +769,11 @@
       this._shadowOffsetY = newState.soy;
       this._shadowBlur = newState.sb;
       this._shadowColor = newState.shc;
-      //TODO: globalAlpha, lineDashOffset, filter, globalCompositeOperation, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+      this._globalAlpha = newState.ga;
+      this._globalCompositeOperation = newState.gco;
+      this._paint.setBlendMode(this._globalCompositeOperation);
+      this._lineDashOffset = newState.ldo;
+      //TODO: filter, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
     }
 
     this.rotate = function(radians, px, py) {
@@ -514,8 +786,8 @@
       this._canvasStateStack.push({
         ctm:  this._currentTransform.slice(),
         // TODO(kjlubick): clipping region
-        // TODO(kjlubick): dash list
-        sw:  this._paint.getStrokeWidth(),
+        ldl: this._lineDashList.slice(),
+        sw:  this._strokeWidth,
         sc:  this._strokeColor,
         fc:  this._fillColor,
         cap: this._paint.getStrokeCap(),
@@ -525,7 +797,10 @@
         soy: this._shadowOffsetY,
         sb:  this._shadowBlur,
         shc: this._shadowColor,
-        //TODO: globalAlpha, lineDashOffset, filter, globalCompositeOperation, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+        ga:  this._globalAlpha,
+        ldo: this._lineDashOffset,
+        gco: this._globalCompositeOperation,
+        //TODO: filter, font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
       });
     }
 
@@ -544,6 +819,21 @@
       return (Math.abs(sx) + Math.abs(sy))/2;
     }
 
+    this.setLineDash = function(dashes) {
+      for (var i = 0; i < dashes.length; i++) {
+        if (!Number.isFinite(dashes[i]) || dashes[i] < 0) {
+          SkDebug('dash list must have positive, finite values');
+          return;
+        }
+      }
+      if (dashes.length % 2 === 1) {
+        // as per the spec, concatenate 2 copies of dashes
+        // to give it an even number of elements.
+        Array.prototype.push.apply(dashes, dashes);
+      }
+      this._lineDashList = dashes;
+    }
+
     this.setTransform = function(a, b, c, d, e, f) {
       this._currentTransform = [a, c, e,
                                 b, d, f,
@@ -551,11 +841,13 @@
     }
 
     // Returns the shadow paint for the current settings or null if there
-    // should be no shadow. This ends up being a copy of the current
+    // should be no shadow. This ends up being a copy of the given
     // paint with a blur maskfilter and the correct color.
-    this._shadowPaint = function() {
+    this._shadowPaint = function(basePaint) {
+      // multiply first to see if the alpha channel goes to 0 after multiplication.
+      var alphaColor = CanvasKit.multiplyByAlpha(this._shadowColor, this._globalAlpha);
       // if alpha is zero, no shadows
-      if (!CanvasKit.getColorComponents(this._shadowColor)[3]) {
+      if (!CanvasKit.getColorComponents(alphaColor)[3]) {
         return null;
       }
       // one of these must also be non-zero (otherwise the shadow is
@@ -563,8 +855,8 @@
       if (!(this._shadowBlur || this._shadowOffsetY || this._shadowOffsetX)) {
         return null;
       }
-      var shadowPaint = this._paint.copy();
-      shadowPaint.setColor(this._shadowColor);
+      var shadowPaint = basePaint.copy();
+      shadowPaint.setColor(alphaColor);
       var blurEffect = CanvasKit.MakeBlurMaskFilter(CanvasKit.BlurStyle.Normal,
         Math.max(1, this._shadowBlur/2), // very little blur when < 1
         false);
@@ -579,18 +871,36 @@
       return shadowPaint;
     }
 
-    this.stroke = function() {
-      this._commitSubpath();
-      this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-
-      this._paint.setColor(this._strokeColor);
-      var orig = this._paint.getStrokeWidth();
+    // A helper to get a copy of the current paint, ready for stroking.
+    // This applies the global alpha and the dashedness.
+    // Call dispose() after to clean up.
+    this._strokePaint = function() {
+      var paint = this._paint.copy();
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      var alphaColor = CanvasKit.multiplyByAlpha(this._strokeColor, this._globalAlpha);
+      paint.setColor(alphaColor);
       // This is not in the spec, but it appears Chrome scales up
       // the line width by some amount when stroking (and filling?).
-      var scaledWidth = orig * this._scalefactor();
-      this._paint.setStrokeWidth(scaledWidth);
+      var scaledWidth = this._strokeWidth * this._scalefactor();
+      paint.setStrokeWidth(scaledWidth);
 
-      var shadowPaint = this._shadowPaint();
+      if (this._lineDashList.length) {
+        var dashedEffect = CanvasKit.MakeSkDashPathEffect(this._lineDashList, this._lineDashOffset);
+        paint.setPathEffect(dashedEffect);
+      }
+
+      paint.dispose = function() {
+        dashedEffect && dashedEffect.delete();
+        this.delete();
+      }
+      return paint;
+    }
+
+    this.stroke = function() {
+      this._commitSubpath();
+      var strokePaint = this._strokePaint();
+
+      var shadowPaint = this._shadowPaint(strokePaint);
       if (shadowPaint) {
         var offsetMatrix = CanvasKit.SkMatrix.multiply(
           this._currentTransform,
@@ -602,16 +912,23 @@
         shadowPaint.dispose();
       }
 
-      this._canvas.drawPath(this._currentPath, this._paint);
-      // set stroke width back to original size:
-      this._paint.setStrokeWidth(orig);
+      this._canvas.drawPath(this._currentPath, strokePaint);
+      strokePaint.dispose();
+    }
+
+    this.strokeRect = function(x, y, width, height) {
+      var strokePaint = this._strokePaint();
+      this._canvas.setMatrix(this._currentTransform);
+      this._canvas.drawRect(CanvasKit.LTRBRect(x, y, x+width, y+height), strokePaint);
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      strokePaint.dispose();
     }
 
     this.strokeText = function(text, x, y, maxWidth) {
       // TODO do something with maxWidth, probably involving measure
-      this._paint.setStyle(CanvasKit.PaintStyle.Stroke);
-      this._paint.setColor(this._strokeColor);
-      var shadowPaint = this._shadowPaint();
+      var strokePaint = this._strokePaint();
+
+      var shadowPaint = this._shadowPaint(strokePaint);
       if (shadowPaint) {
         var offsetMatrix = CanvasKit.SkMatrix.multiply(
           this._currentTransform,
@@ -623,8 +940,9 @@
         // Don't need to setMatrix back, it will be handled by the next few lines.
       }
       this._canvas.setMatrix(this._currentTransform);
-      this._canvas.drawText(text, x, y, this._paint);
+      this._canvas.drawText(text, x, y, strokePaint);
       this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      strokePaint.dispose();
     }
 
     this.translate = function(dx, dy) {
