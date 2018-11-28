@@ -57,23 +57,6 @@
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
-                                       const SkRect& dstRect, unsigned aaFlags)
-        : fImage(std::move(image))
-        , fSrcRect(srcRect)
-        , fDstRect(dstRect)
-        , fAlpha(1.f)
-        , fAAFlags(aaFlags) {}
-
-SkCanvas::ImageSetEntry::ImageSetEntry(sk_sp<const SkImage> image, const SkRect& srcRect,
-                                       const SkRect& dstRect, float alpha, unsigned aaFlags)
-        : fImage(std::move(image))
-        , fSrcRect(srcRect)
-        , fDstRect(dstRect)
-        , fAlpha(alpha)
-        , fAAFlags(aaFlags) {}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
