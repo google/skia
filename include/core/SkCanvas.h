@@ -1825,15 +1825,7 @@ public:
     };
 
     /** This is used by the experimental API below. */
-    struct SK_API ImageSetEntry {
-        // Temporary constructor for SkiaRenderer which currently does not use alpha.
-        ImageSetEntry(sk_sp<const SkImage>, const SkRect& srcRect, const SkRect& dstRect,
-                      unsigned aaFlags);
-        // Temporary constructor for SkiaRenderer to transition to per-quad alpha.
-        ImageSetEntry(sk_sp<const SkImage>, const SkRect& srcRect, const SkRect& dstRect,
-                      float alpha, unsigned aaFlags);
-        // Required so long as above constructors are necessary.
-        ImageSetEntry() = default;
+    struct ImageSetEntry {
         sk_sp<const SkImage> fImage;
         SkRect fSrcRect;
         SkRect fDstRect;
