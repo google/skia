@@ -155,6 +155,7 @@ public:
         kPorterDuffXferProcessor_ClassID,
         kPremulFragmentProcessor_ClassID,
         kQuadEdgeEffect_ClassID,
+        kQuadPerEdgeAAGeometryProcessor_ClassID,
         kReplaceInputFragmentProcessor_ClassID,
         kRRectsGaussianEdgeFP_ClassID,
         kSeriesFragmentProcessor_ClassID,

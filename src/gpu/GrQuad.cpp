@@ -19,7 +19,21 @@
 // Allow some tolerance from floating point matrix transformations, but SkScalarNearlyEqual doesn't
 // support comparing infinity, and coords_form_rect should return true for infinite edges
 #define NEARLY_EQUAL(f1, f2) (f1 == f2 || SkScalarNearlyEqual(f1, f2, 1e-5f))
-#define NEARLY_ZERO(f1) NEARLY_EQUAL(f1, 0.f)
+// Similarly, support infinite rectangles by looking at the sign of infinities
+static bool dot_nearly_zero(const SkVector& e1, const SkVector& e2) {
+    static constexpr auto dot = SkPoint::DotProduct;
+    static constexpr auto sign = SkScalarSignAsScalar;
+
+    SkScalar dotValue = dot(e1, e2);
+    if (SkScalarIsNaN(dotValue)) {
+        // Form vectors from the signs of infinities, and check their dot product
+        dotValue = dot({sign(e1.fX), sign(e1.fY)}, {sign(e2.fX), sign(e2.fY)});
+    }
+
+    // Unfortunately must have a pretty healthy tolerance here or transformed rects that are
+    // effectively rectilinear will have edge dot products of around .005
+    return SkScalarNearlyZero(dotValue, 1e-2f);
+}
 
 // This is not the most performance critical function; code using GrQuad should rely on the faster
 // quad type from matrix path, so this will only be called as part of SkASSERT.
@@ -31,18 +45,13 @@ static bool coords_form_rect(const float xs[4], const float ys[4]) {
 }
 
 static bool coords_rectilinear(const float xs[4], const float ys[4]) {
-    // Edge from 0 to 1 should have the same length as edge from 3 to 2
-    // and edge from 1 to 3 should have the same length as edge from 2 to 0
-    // noo that makes it a parallelogram, need dot product between edge 0 to 1 and edge 1 to 3 = 0
-    // and 0-2 and 2-3 is 0.
-    static constexpr auto dot = SkPoint::DotProduct;
     SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // Connects to e1 and e2(repeat)
     SkVector e1{xs[3] - xs[1], ys[3] - ys[1]}; // connects to e0(repeat) and e3
     SkVector e2{xs[0] - xs[2], ys[0] - ys[2]}; // connects to e0 and e3(repeat)
     SkVector e3{xs[2] - xs[3], ys[2] - ys[3]}; // connects to e1(repeat) and e2
 
-    return NEARLY_ZERO(dot(e0, e1)) && NEARLY_ZERO(dot(e1, e3)) &&
-           NEARLY_ZERO(dot(e2, e0)) && NEARLY_ZERO(dot(e3, e2));
+    return dot_nearly_zero(e0, e1) && dot_nearly_zero(e1, e3) &&
+           dot_nearly_zero(e2, e0) && dot_nearly_zero(e3, e2);
 }
 
 GrQuadType GrQuad::quadType() const {
