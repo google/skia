@@ -45,7 +45,9 @@ if [[ $@ == *cpu* ]]; then
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
-WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
+WASM_SKOTTIE="\
+  -DSK_INCLUDE_SKOTTIE=1 \
+  -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
   modules/skottie/src/Skottie.cpp \
   modules/skottie/src/SkottieAdapter.cpp \
   modules/skottie/src/SkottieAnimator.cpp \
@@ -57,6 +59,7 @@ WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
   modules/skottie/src/SkottieShapeLayer.cpp \
   modules/skottie/src/SkottieTextLayer.cpp \
   modules/skottie/src/SkottieValue.cpp \
+  modules/skottie/utils/SkottieUtils.cpp \
   modules/sksg/src/*.cpp \
   src/core/SkCubicMap.cpp \
   src/core/SkTime.cpp \
@@ -66,6 +69,14 @@ WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
 if [[ $@ == *no_skottie* ]]; then
   echo "Omitting Skottie"
   WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
+fi
+
+WASM_MANAGED_SKOTTIE="\
+  -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
+  modules/skottie/utils/SkottieUtils.cpp"
+if [[ $@ == *no_managed_skottie* ]]; then
+  echo "Omitting managed Skottie"
+  WASM_MANAGED_SKOTTIE="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
 GN_NIMA="skia_enable_nima=true"
@@ -161,6 +172,7 @@ ${EMCXX} \
     -Iinclude/private \
     -Iinclude/utils/ \
     -Imodules/skottie/include \
+    -Imodules/skottie/utils \
     -Imodules/sksg/include \
     -Isrc/core/ \
     -Isrc/gpu/ \
@@ -185,6 +197,7 @@ ${EMCXX} \
     tools/fonts/SkTestTypeface.cpp \
     $WASM_NIMA \
     $WASM_SKOTTIE \
+    $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \

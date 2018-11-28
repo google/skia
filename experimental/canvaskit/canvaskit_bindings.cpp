@@ -45,9 +45,13 @@
 
 #if SK_INCLUDE_SKOTTIE
 #include "Skottie.h"
-#endif
+#if SK_INCLUDE_MANAGED_SKOTTIE
+#include "SkottieProperty.h"
+#include "SkottieUtils.h"
+#endif // SK_INCLUDE_MANAGED_SKOTTIE
+#endif // SK_INCLUDE_SKOTTIE
 #if SK_INCLUDE_NIMA
-#include "nima/NimaActor.h"
+  #include "nima/NimaActor.h"
 #endif
 
 #include <iostream>
@@ -143,6 +147,86 @@ SkMatrix toSkMatrix(const SimpleMatrix& sm) {
                              sm.skewY , sm.scaleY, sm.transY,
                              sm.pers0 , sm.pers1 , sm.pers2);
 }
+
+#if SK_INCLUDE_SKOTTIE && SK_INCLUDE_MANAGED_SKOTTIE
+namespace {
+
+class ManagedAnimation final : public SkRefCnt {
+public:
+    static sk_sp<ManagedAnimation> Make(const char* json, size_t size) {
+        auto mgrBuilder = sk_make_sp<skottie_utils::CustomPropertyManagerBuilder>();
+        auto animation = skottie::Animation::Builder()
+                            .setPropertyObserver(mgrBuilder)
+                            .make(json, size);
+
+        return animation
+            ? sk_sp<ManagedAnimation>(
+                  new ManagedAnimation(std::move(animation), mgrBuilder->build()))
+            : nullptr;
+    }
+
+    // skottie::Animation API
+    void render(SkCanvas* canvas, const SkRect* dst) const { fAnimation->render(canvas, dst); }
+    void seek(SkScalar t) { fAnimation->seek(t); }
+    SkScalar duration() const { return fAnimation->duration(); }
+    const SkString& version() const { return fAnimation->version(); }
+    const SkSize&      size() const { return fAnimation->size(); }
+
+    // CustomPropertyManager API
+    template <typename V>
+    struct Property {
+        skottie_utils::CustomPropertyManager::PropKey fKey;
+        V                                             fValue;
+    };
+
+    JSArray getColorProps() const {
+        auto props = emscripten::val::array();
+
+        for (const auto& cp : fPropMgr->getColorProps()) {
+            auto prop = emscripten::val::object();
+            prop.set("key", cp);
+            prop.set("value", fPropMgr->getColor(cp));
+            props.call<void>("push", prop);
+        }
+
+        return props;
+    }
+
+    JSArray getOpacityProps() const {
+        auto props = emscripten::val::array();
+
+        for (const auto& op : fPropMgr->getOpacityProps()) {
+            auto prop = emscripten::val::object();
+            prop.set("key", op);
+            prop.set("value", fPropMgr->getOpacity(op));
+            props.call<void>("push", prop);
+        }
+
+        return props;
+    }
+
+    bool setColor(const skottie_utils::CustomPropertyManager::PropKey& key,
+                  const skottie::ColorPropertyValue& c) {
+        return fPropMgr->setColor(key, c);
+    }
+
+    bool setOpacity(const skottie_utils::CustomPropertyManager::PropKey& key,
+                    const skottie::OpacityPropertyValue& o) {
+        return fPropMgr->setOpacity(key, o);
+    }
+
+private:
+    ManagedAnimation(sk_sp<skottie::Animation> animation,
+                     std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr)
+        : fAnimation(std::move(animation))
+        , fPropMgr(std::move(propMgr)) {}
+
+    sk_sp<skottie::Animation>                             fAnimation;
+    std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+};
+
+} // anonymous ns
+#endif // SK_INCLUDE_SKOTTIE
 
 //========================================================================================
 // Path things
@@ -770,7 +854,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas)->void {
             self.render(canvas, nullptr);
         }), allow_raw_pointers())
-        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas, const SkRect r)->void {
+        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas,
+                                                 const SkRect r)->void {
             self.render(canvas, &r);
         }), allow_raw_pointers());
 
@@ -778,7 +863,39 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return skottie::Animation::Make(json.c_str(), json.length());
     }));
     constant("skottie", true);
-#endif
+
+#if SK_INCLUDE_MANAGED_SKOTTIE
+    value_object<ManagedAnimation::Property<skottie::ColorPropertyValue>>("ColorAnimationProperty")
+        .field("key",   &ManagedAnimation::Property<skottie::ColorPropertyValue>::fKey)
+        .field("value", &ManagedAnimation::Property<skottie::ColorPropertyValue>::fValue);
+
+    class_<ManagedAnimation>("ManagedAnimation")
+        .smart_ptr<sk_sp<ManagedAnimation>>("sk_sp<ManagedAnimation>")
+        .function("version", optional_override([](ManagedAnimation& self)->std::string {
+            return std::string(self.version().c_str());
+        }))
+        .function("size", &ManagedAnimation::size)
+        .function("duration", &ManagedAnimation::duration)
+        .function("seek", &ManagedAnimation::seek)
+        .function("render", optional_override([](ManagedAnimation& self, SkCanvas* canvas)->void {
+            self.render(canvas, nullptr);
+        }), allow_raw_pointers())
+        .function("render", optional_override([](ManagedAnimation& self, SkCanvas* canvas,
+                                                 const SkRect r)->void {
+            self.render(canvas, &r);
+        }), allow_raw_pointers())
+        .function("getColorProps", &ManagedAnimation::getColorProps)
+        .function("getOpacityProps", &ManagedAnimation::getOpacityProps)
+        .function("setColor", &ManagedAnimation::setColor)
+        .function("setOpacity", &ManagedAnimation::setOpacity);
+
+    function("MakeManagedAnimation",
+             optional_override([](std::string json)->sk_sp<ManagedAnimation> {
+        return ManagedAnimation::Make(json.c_str(), json.length());
+    }));
+    constant("managed_skottie", true);
+#endif // SK_INCLUDE_MANAGED_SKOTTIE
+#endif // SK_INCLUDE_SKOTTIE
 
 #if SK_INCLUDE_NIMA
     class_<NimaActor>("NimaActor")
