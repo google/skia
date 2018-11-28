@@ -19,6 +19,7 @@
 
 class GrVkGpu;
 class GrVkImage;
+class GrVkPrimaryCommandBuffer;
 class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSecondaryCommandBuffer;

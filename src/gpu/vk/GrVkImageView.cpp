@@ -40,6 +40,6 @@ const GrVkImageView* GrVkImageView::Create(const GrVkGpu* gpu, VkImage image, Vk
     return new GrVkImageView(imageView);
 }
 
-void GrVkImageView::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkImageView::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyImageView(gpu->device(), fImageView, nullptr));
 }

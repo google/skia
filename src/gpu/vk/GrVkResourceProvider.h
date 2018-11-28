@@ -22,9 +22,11 @@
 #include "SkTDynamicHash.h"
 #include "SkTInternalLList.h"
 
-class GrPipeline;
-class GrPrimitiveProcessor;
-class GrSamplerState;
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
+class GrVkCommandPool;
 class GrVkCopyPipeline;
 class GrVkGpu;
 class GrVkPipeline;
@@ -83,11 +85,9 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
-    GrVkPrimaryCommandBuffer* findOrCreatePrimaryCommandBuffer();
-    void checkCommandBuffers();
+    GrVkCommandPool* findOrCreateCommandPool();
 
-    GrVkSecondaryCommandBuffer* findOrCreateSecondaryCommandBuffer();
-    void recycleSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* cb);
+    void checkCommandBuffers();
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.
@@ -159,7 +159,32 @@ public:
     // resource usages.
     void abandonResources();
 
+    class BackgroundTask {
+    public:
+        enum {
+            kResetCommandPool,
+            kResetCommandBuffer,
+            kTerminate
+        } fKind;
+
+        void* fTarget;
+    };
+
+    void backgroundReset(GrVkCommandPool* pool);
+
+    void backgroundReset(GrVkPrimaryCommandBuffer* buffer);
+
+    void reset(GrVkCommandPool* pool);
+
+    void reset(GrVkPrimaryCommandBuffer* buffer);
+
+    void waitForBackgroundTasks();
+
+    void finish();
+
 private:
+    void pushBackgroundTask(BackgroundTask task);
+
 #ifdef SK_DEBUG
 #define GR_PIPELINE_STATE_CACHE_STATS
 #endif
@@ -221,7 +246,7 @@ private:
                                       const GrVkRenderPass::LoadStoreOps& colorOps,
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 
-        void releaseResources(const GrVkGpu* gpu);
+        void releaseResources(GrVkGpu* gpu);
         void abandonResources();
 
     private:
@@ -239,13 +264,11 @@ private:
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
-    // Array of PrimaryCommandBuffers that are currently in flight
-    SkSTArray<4, GrVkPrimaryCommandBuffer*, true> fActiveCommandBuffers;
-    // Array of available primary command buffers that are not in flight
-    SkSTArray<4, GrVkPrimaryCommandBuffer*, true> fAvailableCommandBuffers;
+    // Array of command pools that we are waiting on
+    SkSTArray<4, GrVkCommandPool*, true> fActiveCommandPools;
 
-    // Array of available secondary command buffers
-    SkSTArray<16, GrVkSecondaryCommandBuffer*, true> fAvailableSecondaryCommandBuffers;
+    // Array of available command pools that are not in flight
+    SkSTArray<4, GrVkCommandPool*, true> fAvailableCommandPools;
 
     // Array of available uniform buffer resources
     SkSTArray<16, const GrVkResource*, true> fAvailableUniformBufferResources;
@@ -260,6 +283,18 @@ private:
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+
+    SkSTArray<4, BackgroundTask, true> fBackgroundTasks;
+
+    std::recursive_mutex fBackgroundMutex;
+
+    std::condition_variable_any fBackgroundCV;
+
+    std::thread fBackgroundThread;
+
+#ifdef SK_DEBUG
+    bool fFinished = false;
+#endif
 };
 
 #endif
