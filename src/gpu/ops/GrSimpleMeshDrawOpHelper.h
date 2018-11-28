@@ -53,10 +53,8 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
-    // noneAACompatibleWithCoverage should be set to true if the op can properly render a non-AA
-    // primitive merged into a coverage-based op.
     bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps&, const SkRect& thisBounds,
-                      const SkRect& thatBounds, bool noneAACompatibleWithCoverage = false) const;
+                      const SkRect& thatBounds) const;
 
     /**
      * Finalizes the processor set and determines whether the destination must be provided
@@ -116,10 +114,6 @@ public:
 #endif
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
-    void setAAType(GrAAType aaType) {
-      fAAType = static_cast<unsigned>(aaType);
-    }
-
 protected:
     uint32_t pipelineFlags() const { return fPipelineFlags; }
 
@@ -171,8 +165,7 @@ public:
     using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
-                      const SkRect& thisBounds, const SkRect& thatBounds,
-                      bool noneAACompatibleWithCoverage = false) const;
+                      const SkRect& thisBounds, const SkRect& thatBounds) const;
 
     PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*,
                                               int numPrimitiveProcessorTextures = 0);
@@ -181,7 +174,6 @@ public:
     SkString dumpInfo() const;
 #endif
     GrAAType aaType() const { return INHERITED::aaType(); }
-    void setAAType(GrAAType aaType) { INHERITED::setAAType(aaType); }
 
 private:
     const GrUserStencilSettings* fStencilSettings;
