@@ -115,25 +115,27 @@ public:
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
+            const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
     SkGlyphCacheInterface* findOrCreateGlyphCache(
+            const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
     Node* findOrCreateStrike(
+            const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
-    static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkPaint& paint);
-
+    // cons up a default paint, which is only needed for patheffects/maskfilter
     static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont&);
 
     static ExclusiveStrikePtr FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font,

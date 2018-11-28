@@ -85,9 +85,10 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
     SkASSERT(glyphs != nullptr);
     SkASSERT(textData != nullptr);
 
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            *this, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
+            font, *this, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
 
     for (int index = 0; index < count; index++) {
         textData[index] = cache->glyphToUnichar(glyphs[index]);
@@ -319,7 +320,8 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     const SkPaint& paint = canon.getPaint();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, paint);
 
     SkScalar width = 0;
 
@@ -372,7 +374,8 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         maxWidth /= scale;
     }
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(paint);
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, paint);
 
     SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
                                   static_cast<SkTextEncoding>(paint.getTextEncoding()), false);
@@ -618,7 +621,8 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
 
     // SRGBTODO: Is this correct?
-    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fPaint);
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(fPaint);
+    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, fPaint);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;

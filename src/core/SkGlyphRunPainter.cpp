@@ -180,7 +180,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkScalar textScale = pathPaint.setupForAsPaths();
 
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, props, fScalerContextFlags, SkMatrix::I());
+                                SkFont::LEGACY_ExtractFromPaint(pathPaint), pathPaint, props,
+                                fScalerContextFlags, SkMatrix::I());
 
             SkTDArray<PathAndPos> pathsAndPositions;
             pathsAndPositions.setReserve(runSize);
@@ -204,7 +205,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     paint);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    paint, props, fScalerContextFlags, deviceMatrix);
+                                        SkFont::LEGACY_ExtractFromPaint(paint), paint, props,
+                                        fScalerContextFlags, deviceMatrix);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
@@ -740,7 +742,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
             SkScalar textScale = pathPaint.setupForAsPaths();
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, props, scalerContextFlags, SkMatrix::I());
+                                SkFont::LEGACY_ExtractFromPaint(pathPaint), pathPaint, props,
+                                scalerContextFlags, SkMatrix::I());
 
             // Given a glyph that is not ARGB, draw it.
             auto perPath = [textScale, run, &pathCache]
