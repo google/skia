@@ -83,23 +83,23 @@ DEF_TEST(Skottie_Properties, reporter) {
         };
 
         struct TransformInfo {
-            SkString node_name;
-            SkMatrix matrix;
+            SkString                        node_name;
+            skottie::TransformPropertyValue transform;
         };
 
         void onColorProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<ColorPropertyHandle>& lh) override {
-            fColors.push_back({SkString(node_name), lh()->getColor()});
+            fColors.push_back({SkString(node_name), lh()->get()});
         }
 
         void onOpacityProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<OpacityPropertyHandle>& lh) override {
-            fOpacities.push_back({SkString(node_name), lh()->getOpacity()});
+            fOpacities.push_back({SkString(node_name), lh()->get()});
         }
 
         void onTransformProperty(const char node_name[],
                 const PropertyObserver::LazyHandle<TransformPropertyHandle>& lh) override {
-            fTransforms.push_back({SkString(node_name), lh()->getTotalMatrix()});
+            fTransforms.push_back({SkString(node_name), lh()->get()});
         }
 
         const std::vector<ColorInfo>& colors() const { return fColors; }
@@ -136,9 +136,23 @@ DEF_TEST(Skottie_Properties, reporter) {
     const auto& transforms = observer->transforms();
     REPORTER_ASSERT(reporter, transforms.size() == 2);
     REPORTER_ASSERT(reporter, transforms[0].node_name.equals("shape_transform_0"));
-    REPORTER_ASSERT(reporter, transforms[0].matrix == SkMatrix::MakeScale(0.5, 0.5));
+    REPORTER_ASSERT(reporter, transforms[0].transform == skottie::TransformPropertyValue({
+        SkPoint::Make(0, 0),
+        SkPoint::Make(0, 0),
+        SkVector::Make(50, 50),
+        0,
+        0,
+        0
+    }));
     REPORTER_ASSERT(reporter, transforms[1].node_name.equals("layer_0"));
-    REPORTER_ASSERT(reporter, transforms[1].matrix == SkMatrix::I());
+    REPORTER_ASSERT(reporter, transforms[1].transform == skottie::TransformPropertyValue({
+        SkPoint::Make(0, 0),
+        SkPoint::Make(0, 0),
+        SkVector::Make(100, 100),
+        0,
+        0,
+        0
+    }));
 }
 
 DEF_TEST(Skottie_Annotations, reporter) {
