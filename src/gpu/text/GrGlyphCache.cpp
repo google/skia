@@ -190,10 +190,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
  */
 
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
-    : fFontScalerKey(key)
-    , fPool(9/*start allocations at 512 bytes*/)
-    , fAtlasedGlyphs(0)
-    , fIsAbandoned(false) {}
+    : fFontScalerKey(key) {}
 
 GrTextStrike::~GrTextStrike() {
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
