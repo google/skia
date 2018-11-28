@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42f4f0e0_73cc1dd3",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T15:05:05Z",
+      "side": 1,
+      "message": "If the inputs are rects, maybe this is really a \"rect set\" and not a \"quad set\"? One could argue that also means I should have named GrQuadAAFlags GrRectAAFlags, and perhaps I should have.",
+      "range": {
+        "startLine": 130,
+        "startChar": 18,
+        "endLine": 130,
+        "endChar": 29
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f49bb7f0_f5d4620d",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T15:05:05Z",
+      "side": 1,
+      "message": "If there is nothing else packed with this you might as well just use GrQuadAAFlags.",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 25
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edb981b7_2ec5e04a",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T15:05:05Z",
+      "side": 1,
+      "message": "Usually we don\u0027t have a space here, just {}. But also, no need to override this if you don\u0027t actually do anything here.",
+      "range": {
+        "startLine": 208,
+        "startChar": 27,
+        "endLine": 208,
+        "endChar": 30
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee3d5378_1a2b354c",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-28T15:05:05Z",
+      "side": 1,
+      "message": "It is called before. But goes this work for the MakeSet case?",
+      "range": {
+        "startLine": 235,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 40
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
