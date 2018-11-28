@@ -1108,7 +1108,7 @@ BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
 BLEND_MODE(modulate) { return s*d; }
 BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
+BLEND_MODE(plus_)    { return s + d; }
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 #undef BLEND_MODE
@@ -2683,9 +2683,12 @@ STAGE_PP(move_dst_src, Ctx::None) {
     BLEND_MODE(dstover)  { return d + div255( s*inv(da) ); }
     BLEND_MODE(modulate) { return div255( s*d ); }
     BLEND_MODE(multiply) { return div255( s*inv(da) + d*inv(sa) + s*d ); }
-    BLEND_MODE(plus_)    { return min(s+d, 255); }
     BLEND_MODE(screen)   { return s + d - div255( s*d ); }
     BLEND_MODE(xor_)     { return div255( s*inv(da) + d*inv(sa) ); }
+
+    // Logically we don't clamp the plus blend mode,
+    // but we need to clamp here to keep each channel in our valid [0,255] range.
+    BLEND_MODE(plus_)    { return min(s+d, 255); }
 #undef BLEND_MODE
 
 // The same logic applied to color, and srcover for alpha.
