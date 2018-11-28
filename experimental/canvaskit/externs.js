@@ -40,9 +40,10 @@ var CanvasKit = {
 	MakeSurface: function() {},
 	MakeWebGLCanvasSurface: function() {},
 	currentContext: function() {},
-	getSkDataBytes: function() {},
 	getColorComponents: function() {},
+	getSkDataBytes: function() {},
 	initFonts: function() {},
+	multiplyByAlpha: function() {},
 	setCurrentContext: function() {},
 
 	// private API (i.e. things declared in the bindings that we use
@@ -79,8 +80,10 @@ var CanvasKit = {
 		clear: function() {},
 		drawPaint: function() {},
 		drawPath: function() {},
-		drawText: function() {},
+		drawRect: function() {},
 		drawShadow: function() {},
+		drawText: function() {},
+		drawVertices: function() {},
 		flush: function() {},
 		rotate: function() {},
 		save: function() {},
@@ -113,6 +116,7 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		/** @return {CanvasKit.SkPaint} */
 		copy: function() {},
+		getBlendMode: function() {},
 		getColor: function() {},
 		getStrokeCap: function() {},
 		getStrokeJoin: function() {},
@@ -121,6 +125,7 @@ var CanvasKit = {
 		getTextSize: function() {},
 		measureText: function() {},
 		setAntiAlias: function() {},
+		setBlendMode: function() {},
 		setColor: function() {},
 		setMaskFilter: function() {},
 		setPathEffect: function() {},
@@ -196,8 +201,10 @@ var CanvasKit = {
 
 	SkVertices: {
 		// public API (from C++ bindings)
-		/** @return {CanvasKit.SkVertices} */
-		applyBones: function() {},
+		bounds: function() {},
+		mode: function() {},
+		uniqueID: function() {},
+		vertexCount: function() {},
 
 		// private API
 		/** @return {CanvasKit.SkVertices} */
@@ -337,6 +344,7 @@ CanvasKit.SkPath.prototype.trim = function() {};
 CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.dispose = function() {};
 
+/** @return {CanvasKit.SkVertices} */
 CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
@@ -360,11 +368,14 @@ CanvasRenderingContext2D.prototype.arcTo = function() {};
 CanvasRenderingContext2D.prototype.beginPath = function() {};
 CanvasRenderingContext2D.prototype.bezierCurveTo = function() {};
 CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
+CanvasRenderingContext2D.prototype.clearRect = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
 CanvasRenderingContext2D.prototype.fill = function() {};
+CanvasRenderingContext2D.prototype.fillRect = function() {};
 CanvasRenderingContext2D.prototype.fillText = function() {};
+CanvasRenderingContext2D.prototype.getLineDash = function() {};
 CanvasRenderingContext2D.prototype.lineTo = function() {};
 CanvasRenderingContext2D.prototype.measureText = function() {};
 CanvasRenderingContext2D.prototype.moveTo = function() {};
@@ -377,12 +388,15 @@ CanvasRenderingContext2D.prototype.rotate = function() {};
 CanvasRenderingContext2D.prototype.save = function() {};
 CanvasRenderingContext2D.prototype.scale = function() {};
 CanvasRenderingContext2D.prototype.scrollPathIntoView = function() {};
+CanvasRenderingContext2D.prototype.setLineDash = function() {};
 CanvasRenderingContext2D.prototype.setTransform = function() {};
 CanvasRenderingContext2D.prototype.stroke = function() {};
+CanvasRenderingContext2D.prototype.strokeRect = function() {};
 CanvasRenderingContext2D.prototype.strokeText = function() {};
 CanvasRenderingContext2D.prototype.transform = function() {};
 CanvasRenderingContext2D.prototype.translate = function() {};
 
-
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {};
+
+var DOMMatrix = {};

@@ -28,4 +28,23 @@
       ((color >> 24) & 0xFF) / 255,
     ]
   }
+
+  CanvasKit.multiplyByAlpha = function(color, alpha) {
+    if (alpha === 1) {
+      return color;
+    }
+    // extract as int from 0 to 255
+    var a = (color >> 24) & 0xFF;
+    a *= alpha;
+    // mask off the old alpha
+    color &= 0xFFFFFF;
+    return clamp(a) << 24 | color;
+
+  }
 }(Module)); // When this file is loaded in, the high level object is "Module";
+
+// See https://stackoverflow.com/a/31090240
+// This contraption keeps closure from minifying away the check
+// if btoa is defined *and* prevents runtime "btoa" or "window" is not defined.
+// Defined outside any scopes to make it available in all files.
+var isNode = !(new Function("try {return this===window;}catch(e){ return false;}")());
