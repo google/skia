@@ -117,7 +117,7 @@
                             "lc": 2,
                             "lj": 2,
                             "mn": "ADBE Vector Graphic - Stroke",
-                            "nm": "Stroke 1",
+                            "nm": "$Stroke 1",
                             "o": {
                                 "a": 0,
                                 "ix": 4,
@@ -143,7 +143,7 @@
                             },
                             "hd": false,
                             "mn": "ADBE Vector Graphic - Fill",
-                            "nm": "Fill 1",
+                            "nm": "$Fill 1",
                             "o": {
                                 "a": 0,
                                 "ix": 5,
@@ -249,7 +249,7 @@
                             "lc": 1,
                             "lj": 2,
                             "mn": "ADBE Vector Graphic - Stroke",
-                            "nm": "Stroke 1",
+                            "nm": "$Stroke 1",
                             "o": {
                                 "a": 0,
                                 "ix": 4,

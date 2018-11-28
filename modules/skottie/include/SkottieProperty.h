@@ -25,9 +25,48 @@ class OpacityEffect;
 
 namespace skottie {
 
-class ColorPropertyHandle;
-class OpacityPropertyHandle;
-class TransformPropertyHandle;
+using ColorPropertyValue   = SkColor;
+using OpacityPropertyValue = float;
+
+struct TransformPropertyValue {
+    SkPoint  fAnchorPoint,
+             fPosition;
+    SkVector fScale;
+    SkScalar fRotation,
+             fSkew,
+             fSkewAxis;
+
+    bool operator==(const TransformPropertyValue& other) const;
+    bool operator!=(const TransformPropertyValue& other) const;
+};
+
+namespace internal { class AnimationBuilder; }
+
+/**
+ * Property handles are adapters between user-facing AE model/values
+ * and the internal scene-graph representation.
+ */
+template <typename ValueT, typename NodeT>
+class SK_API PropertyHandle final {
+public:
+    ~PropertyHandle();
+
+    ValueT get() const;
+    void set(const ValueT&);
+
+private:
+    explicit PropertyHandle(sk_sp<NodeT> node) : fNode(std::move(node)) {}
+
+    friend class skottie::internal::AnimationBuilder;
+
+    const sk_sp<NodeT> fNode;
+};
+
+class TransformAdapter;
+
+using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue    , sksg::Color         >;
+using OpacityPropertyHandle   = PropertyHandle<OpacityPropertyValue  , sksg::OpacityEffect >;
+using TransformPropertyHandle = PropertyHandle<TransformPropertyValue, TransformAdapter    >;
 
 /**
  * A PropertyObserver can be used to track and manipulate certain properties of "interesting"
@@ -37,7 +76,7 @@ class TransformPropertyHandle;
  * various properties of layer and shape nodes.  The |node_name| argument corresponds to the
  * name ("nm") node property.
  */
-class PropertyObserver : public SkRefCnt {
+class SK_API PropertyObserver : public SkRefCnt {
 public:
     template <typename T>
     using LazyHandle = std::function<std::unique_ptr<T>()>;
@@ -48,72 +87,6 @@ public:
                                      const LazyHandle<OpacityPropertyHandle>&);
     virtual void onTransformProperty(const char node_name[],
                                      const LazyHandle<TransformPropertyHandle>&);
-};
-
-namespace internal { class AnimationBuilder; }
-
-class ColorPropertyHandle final {
-public:
-    ~ColorPropertyHandle();
-
-    SkColor getColor() const;
-    void setColor(SkColor);
-
-private:
-    explicit ColorPropertyHandle(sk_sp<sksg::Color>);
-
-    friend class skottie::internal::AnimationBuilder;
-
-    const sk_sp<sksg::Color> fColor;
-};
-
-class OpacityPropertyHandle final {
-public:
-    ~OpacityPropertyHandle();
-
-    float getOpacity() const;
-    void setOpacity(float);
-
-private:
-    explicit OpacityPropertyHandle(sk_sp<sksg::OpacityEffect>);
-
-    friend class skottie::internal::AnimationBuilder;
-
-    const sk_sp<sksg::OpacityEffect> fOpacity;
-};
-
-class TransformAdapter;
-
-class TransformPropertyHandle final {
-public:
-    ~TransformPropertyHandle();
-
-    SkPoint getAnchorPoint() const;
-    void setAnchorPoint(const SkPoint&);
-
-    SkPoint getPosition() const;
-    void setPosition(const SkPoint&);
-
-    SkVector getScale() const;
-    void setScale(const SkVector&);
-
-    SkScalar getRotation() const;
-    void setRotation(SkScalar);
-
-    SkScalar getSkew() const;
-    void setSkew(SkScalar);
-
-    SkScalar getSkewAxis() const;
-    void setSkewAxis(SkScalar);
-
-    SkMatrix getTotalMatrix() const;
-
-private:
-    explicit TransformPropertyHandle(sk_sp<TransformAdapter>);
-
-    friend class skottie::internal::AnimationBuilder;
-
-    const sk_sp<TransformAdapter> fTransform;
 };
 
 } // namespace skottie
