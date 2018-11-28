@@ -320,6 +320,16 @@ DEF_TEST(Typeface_serialize, reporter) {
     check_serialize_behaviors(SkTypeface::MakeFromStream(
                                          GetResourceAsStream("fonts/Distortable.ttf")),
                               true, reporter);
-
 }
 
+#ifdef SK_BUILD_FOR_MAC
+// This test makes sure the legacy typeface creation does not lose its italic
+// style. See https://bugs.chromium.org/p/skia/issues/detail?id=8447 for more
+// context.
+DEF_TEST(LegacyMakeTypeface, reporter) {
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkTypeface> typeface = fm->legacyMakeTypeface("Arial", SkFontStyle::Italic());
+
+    REPORTER_ASSERT(reporter, typeface->isItalic());
+}
+#endif
