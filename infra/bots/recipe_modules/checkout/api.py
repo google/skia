@@ -94,7 +94,7 @@ class CheckoutApi(recipe_api.RecipeApi):
     if checkout_flutter:
       # Skia is a DEP of Flutter; the 'revision' property is a Skia revision,
       # and any patch should be applied to Skia, not Flutter.
-      main.revision = 'origin/master'
+      main.revision = 'origin/skia-master'
       main.managed = True
       m[main_name] = 'got_flutter_revision'
       if flutter_android:
