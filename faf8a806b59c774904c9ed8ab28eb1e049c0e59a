@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f23f16ad_1852c095",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-11-28T17:53:14Z",
+      "side": 1,
+      "message": "Oops, I thought this should have been \"SkASSERT(1 \u003d\u003d fQuads.count())\", because batching should not have occurred yet. I didn\u0027t think about how there could be \u003e1 quad due to MakeSet. I feel like I asked for an overkill assert now -- feel free to take it back out if you want.",
+      "range": {
+        "startLine": 229,
+        "startChar": 32,
+        "endLine": 229,
+        "endChar": 33
+      },
+      "revId": "faf8a806b59c774904c9ed8ab28eb1e049c0e59a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
