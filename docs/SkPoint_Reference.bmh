@@ -471,7 +471,7 @@ pt: nan, -nan  abs: nan, nan
     }
 ##
 
-#SeeAlso operator*(SkScalar scale)_const operator*=(SkScalar scale) setLength
+#SeeAlso operator*(SkScalar scale) const operator*=(SkScalar scale) setLength
 
 #Method ##
 
@@ -493,7 +493,7 @@ pt: nan, -nan  abs: nan, nan
     }
 ##
 
-#SeeAlso operator*(SkScalar scale)_const operator*=(SkScalar scale) setLength
+#SeeAlso operator*(SkScalar scale) const operator*=(SkScalar scale) setLength
 
 #Method ##
 
@@ -521,13 +521,13 @@ pt: nan, -nan  negate: -nan, nan
 ##
 ##
 
-#SeeAlso operator-()_const setAbs
+#SeeAlso operator-() const setAbs
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method SkPoint operator-()_const
+#Method SkPoint operator-() const
 
 #Line # reverses sign of Point ##
 #Populate
@@ -548,7 +548,7 @@ pt: nan, -nan  negate: -nan, nan
 ##
 ##
 
-#SeeAlso negate operator-(const SkPoint& a, const SkPoint& b) operator-=(const SkVector& v) SkIPoint::operator-()_const
+#SeeAlso negate operator-(const SkPoint& a, const SkPoint& b) operator-=(const SkVector& v) SkIPoint::operator-() const
 
 #Method ##
 
@@ -614,7 +614,7 @@ Subtracts Vector v from Point. Sets Point to: #Formula # (fX - v.fX, fY - v.fY) 
 
 # ------------------------------------------------------------------------------
 
-#Method SkPoint operator*(SkScalar scale)_const
+#Method SkPoint operator*(SkScalar scale) const
 
 #Line # returns Point multiplied by scale ##
 #Populate
@@ -670,7 +670,7 @@ Multiplies Point by scale. Sets Point to: #Formula # (fX * scale, fY * scale) ##
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
 ##
 
-#SeeAlso operator*(SkScalar scale)_const scale() setLength setNormalize
+#SeeAlso operator*(SkScalar scale) const scale() setLength setNormalize
 
 #Method ##
 
