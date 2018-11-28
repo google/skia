@@ -160,6 +160,7 @@ auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
+        const SkFont& font,
         const SkPaint& paint,
         const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
@@ -167,18 +168,20 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
 {
     return SkExclusiveStrikePtr(
             GlobalStrikeCache()->findOrCreateStrike(
-                    paint, surfaceProps, scalerContextFlags,deviceMatrix));
+                    font, paint, surfaceProps, scalerContextFlags,deviceMatrix));
 }
 
 SkGlyphCacheInterface* SkStrikeCache::findOrCreateGlyphCache(
+        const SkFont& font,
         const SkPaint& paint,
         const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
         const SkMatrix& deviceMatrix) {
-    return findOrCreateStrike(paint, surfaceProps, scalerContextFlags, deviceMatrix);
+    return findOrCreateStrike(font, paint, surfaceProps, scalerContextFlags, deviceMatrix);
 }
 
 auto SkStrikeCache::findOrCreateStrike(
+        const SkFont& font,
         const SkPaint& paint,
         const SkSurfaceProps& surfaceProps,
         SkScalerContextFlags scalerContextFlags,
@@ -188,15 +191,11 @@ auto SkStrikeCache::findOrCreateStrike(
     SkScalerContextEffects effects;
 
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-            paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+            font, paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
 
-    auto tf = SkPaintPriv::GetTypefaceOrDefault(paint);
+    auto tf = SkFontPriv::GetTypefaceOrDefault(font);
 
     return this->findOrCreateStrike(*desc, effects, *tf);
-}
-
-SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkPaint& paint) {
-    return FindOrCreateStrikeWithNoDeviceExclusive(SkFont::LEGACY_ExtractFromPaint(paint), paint);
 }
 
 SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(const SkFont& font) {
