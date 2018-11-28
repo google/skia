@@ -44,7 +44,6 @@
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
-#include "ops/GrFillRectOp.h"
 #include "ops/GrAAFillRRectOp.h"
 #include "ops/GrLatticeOp.h"
 #include "ops/GrOp.h"
@@ -637,14 +636,6 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
     }
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(rect, *style));
-}
-
-void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa,
-                                        const SkMatrix& viewMatrix, const QuadSetEntry quads[],
-                                        int cnt) {
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    this->addDrawOp(clip, GrFillRectOp::MakeSet(fContext, std::move(paint), aaType, viewMatrix,
-                                                quads, cnt));
 }
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {

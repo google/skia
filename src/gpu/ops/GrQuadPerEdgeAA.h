@@ -134,6 +134,7 @@ namespace GrQuadPerEdgeAA {
         Attribute fAAEdgeDistances; // named "aaEdgeDist" in SkSL
     };
 
+
     // Fill vertices with the vertex data needed to represent the given quad. The device position,
     // local coords, vertex color, domain, and edge coefficients will be written and/or computed
     // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
