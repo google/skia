@@ -404,7 +404,7 @@
     if (!CanvasKit || !jsonStr) {
       return;
     }
-    const animation = CanvasKit.MakeAnimation(jsonStr);
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr);
     const duration = animation.duration() * 1000;
     const size = animation.size();
     let c = document.getElementById(id);
