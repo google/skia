@@ -2725,13 +2725,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fBlacklistCoverageCounting = true;
     }
 
-#ifdef SK_BUILD_FOR_MAC
-    // Expirment to see if this resolves crbug.com/906453.
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        fDynamicStateArrayGeometryProcessorTextureSupport = false;
-    }
-#endif
-
 #ifdef SK_BUILD_FOR_ANDROID
     // Older versions of Android have problems with setting GL_TEXTURE_MAX_LEVEL to 0 for
     // EGL images (or possibly just GL_TEXTURE_EXTERNAL_OES).
