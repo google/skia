@@ -8,6 +8,7 @@
 #include "SkPDFFont.h"
 
 #include "SkData.h"
+#include "SkFont.h"
 #include "SkGlyphCache.h"
 #include "SkImagePriv.h"
 #include "SkMacros.h"
@@ -31,9 +32,9 @@
 #include "SkUTF.h"
 
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
-    SkPaint tmpPaint;
-    tmpPaint.setHinting(kNo_SkFontHinting);
-    tmpPaint.setTypeface(sk_ref_sp(face));
+    SkFont font;
+    font.setHinting(kNo_SkFontHinting);
+    font.setTypeface(sk_ref_sp(face));
     int unitsPerEm = face->getUnitsPerEm();
     if (unitsPerEm <= 0) {
         unitsPerEm = 1024;
@@ -41,10 +42,10 @@ SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     if (size) {
         *size = unitsPerEm;
     }
-    tmpPaint.setTextSize((SkScalar)unitsPerEm);
+    font.setSize((SkScalar)unitsPerEm);
     const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     return SkStrikeCache::FindOrCreateStrikeExclusive(
-            tmpPaint, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
+        font, SkPaint(), props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
 }
 
 namespace {

@@ -32,8 +32,8 @@ public:
     }
 
     void onOnceBeforeDraw() final {
-        SkPaint defaultPaint;
-        auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(defaultPaint);
+        SkFont defaultFont;
+        auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(defaultFont);
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
