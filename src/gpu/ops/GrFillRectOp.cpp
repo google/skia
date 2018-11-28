@@ -43,7 +43,6 @@ public:
     void setColor(const SkPMColor4f& color) { fColor = color; }
 
     SkString dumpInfo(int index) const {
-        GrQuadAAFlags edges = static_cast<GrQuadAAFlags>(fAAFlags);
         SkString str;
         str.appendf("%d: Color: [%.2f, %.2f, %.2f, %.2f], Edge AA: l%u_t%u_r%u_b%u, \n"
                     "  device quad: [(%.2f, %2.f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), "
@@ -51,8 +50,10 @@ public:
                     "  local quad: [(%.2f, %2.f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), "
                     "(%.2f, %.2f, %.2f)]\n",
                     index, fColor.fR, fColor.fG, fColor.fB, fColor.fA,
-                    edges & GrQuadAAFlags::kLeft,  edges & GrQuadAAFlags::kTop,
-                    edges & GrQuadAAFlags::kRight, edges & GrQuadAAFlags::kBottom,
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kLeft),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kTop),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kRight),
+                    (uint32_t) (fAAFlags & GrQuadAAFlags::kBottom),
                     fDeviceQuad.x(0), fDeviceQuad.y(0), fDeviceQuad.w(0),
                     fDeviceQuad.x(1), fDeviceQuad.y(1), fDeviceQuad.w(1),
                     fDeviceQuad.x(2), fDeviceQuad.y(2), fDeviceQuad.w(2),
@@ -212,8 +213,7 @@ public:
         str.appendf("# draws: %d\n", fQuads.count());
         str.appendf("Clear compatible: %u\n", static_cast<bool>(fClearCompatible));
         str.appendf("Device quad type: %u, local quad type: %u\n",
-                    static_cast<GrQuadType>(fDeviceQuadType),
-                    static_cast<GrQuadType>(fLocalQuadType));
+                    fDeviceQuadType, fLocalQuadType);
         str += fHelper.dumpInfo();
         for (int i = 0; i < fQuads.count(); i++) {
             str += fQuads[i].dumpInfo(i);
