@@ -6,7 +6,7 @@
 
   function allAreFinite(args) {
     for (var i = 0; i < args.length; i++) {
-      if (!Number.isFinite(args[i])) {
+      if (args[i] !== undefined && !Number.isFinite(args[i])) {
         return false;
       }
     }
