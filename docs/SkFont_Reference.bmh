@@ -1,0 +1,695 @@
+#Topic Font
+#Alias Font_Reference ##
+
+#Subtopic Advance
+# incomplete, should probably be in overview, not reference
+##
+#Subtopic Engine
+# incomplete, should probably be in overview, not reference
+##
+
+#Code
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Class SkFont
+
+SkFont controls options applied when drawing and measuring text.
+
+#Code
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#EnumClass Edging
+
+#Code
+#Populate
+##
+
+Whether edge pixels draw opaque or with partial transparency.
+
+#Const kAlias  0 # incomplete; replace '0' with member value
+#Line # no transparent pixels on glyph edges ##
+# incomplete; add description or delete
+##
+#Const kAntiAlias  0 # incomplete; replace '0' with member value
+#Line # may have transparent pixels on glyph edges ##
+# incomplete; add description or delete
+##
+#Const kSubpixelAntiAlias  0 # incomplete; replace '0' with member value
+#Line # glyph positioned in pixel using transparency ##
+# incomplete; add description or delete
+##
+
+# incomplete; add description or delete
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#EnumClass ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Hinting
+
+#Code
+#Populate
+##
+
+Amount of font hinting applied to glyph outlines.
+
+#Const kNo_Hinting  0 # incomplete; replace '0' with member value
+#Line # glyph outlines unchanged ##
+# incomplete; add description or delete
+##
+#Const kSlight_Hinting  0 # incomplete; replace '0' with member value
+#Line # minimal modification to improve constrast ##
+# incomplete; add description or delete
+##
+#Const kNormal_Hinting  0 # incomplete; replace '0' with member value
+#Line # glyph outlines modified to improve constrast ##
+# incomplete; add description or delete
+##
+#Const kFull_Hinting  0 # incomplete; replace '0' with member value
+#Line # modifies glyph outlines for maximum constrast ##
+# incomplete; add description or delete
+##
+
+# incomplete; add description or delete
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFont()
+#In Constructor
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFont(sk_sp<SkTypeface> typeface, SkScalar size)
+#In Constructor
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)
+#In Constructor
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator==(const SkFont& font) const
+#In Operator
+#Line # compares fonts for equality ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isForceAutoHinting() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmbeddedBitmaps() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isSubpixel() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isLinearMetrics() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmbolden() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setForceAutoHinting(bool forceAutoHinting)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setEmbeddedBitmaps(bool embeddedBitmaps)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSubpixel(bool subpixel)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLinearMetrics(bool linearMetrics)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setEmbolden(bool embolden)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method Edging getEdging() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setEdging(Edging edging)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setHinting(SkFontHinting hintingLevel)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFontHinting getHinting() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFont makeWithSize(SkScalar size) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkTypeface* getTypeface() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    getSize() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    getScaleX() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    getSkewX() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkTypeface> refTypeface() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setTypeface(sk_sp<SkTypeface> tf)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSize(SkScalar textSize)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScaleX(SkScalar scaleX)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSkewX(SkScalar skewX)
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
+                     SkGlyphID glyphs[], int maxGlyphCount) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint16_t unicharToGlyph(SkUnichar uni) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkRect* bounds = nullptr) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getPath(uint16_t glyphID, SkPath* path) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void getPaths(const uint16_t glyphIDs[], int count,
+                  void (*glyphPathProc)(const SkPath* pathOrNull, const SkMatrix& mx, void* ctx),
+                  void* ctx) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getMetrics(SkFontMetrics* metrics) const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getSpacing() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Class SkFont ##
+
+#Topic Font ##

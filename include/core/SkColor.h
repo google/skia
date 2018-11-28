@@ -324,9 +324,10 @@ struct SkRGBA4f {
 
     /** Returns closest SkRGBA4f to SkColor. Only allowed if SkRGBA4f is unpremultiplied.
 
-        @return       SkColor as SkRGBA4f
+        @param color   Color with Alpha, red, blue, and green components
+        @return        SkColor as SkRGBA4f
     */
-    static SkRGBA4f FromColor(SkColor);  // impl. depends on kAT
+    static SkRGBA4f FromColor(SkColor color);  // impl. depends on kAT
 
     /** Returns closest SkColor to SkRGBA4f. Only allowed if SkRGBA4f is unpremultiplied.
 

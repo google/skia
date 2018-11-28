@@ -309,21 +309,26 @@ void MdOut::DefinedState::setLink() {
     fLink = "";
     fPriorDef = nullptr;
     // TODO: operators have complicated parsing possibilities; handle the easiest for now
-    if (fMethod && "operator" == fPriorWord && '(' == fSeparator.back()) {
-        TextParser parser(fMethod->fFileName, fSeparatorStart, fRefEnd, fMethod->fLineCount);
+    if ("operator" == fPriorWord) {
+        SkDebugf("");
+    }
+    if ("operator" == fPriorWord && '(' == fSeparator.back()) {
+        SkASSERT(fSubtopic);
+        TextParser parser(fSubtopic->fFileName, fSeparatorStart, fRefEnd, fSubtopic->fLineCount);
         parser.skipToEndBracket('(');
         const char* parenStart = parser.fChar;
         parser.skipToBalancedEndBracket('(', ')');
-        parser.skipExact("_const");
+        parser.skipExact(" const");
         // consume whether we find it or not
         fWord = fPriorWord + fSeparator + string(parenStart + 1, parser.fChar - parenStart - 1);
-        fEnd = parser.fChar;
+        fEnd = parenStart;
         this->backup();
     }
     // TODO: constructors also have complicated parsing possibilities; handle the easiest
-    else if (fMethod && fRoot && fRoot->isStructOrClass() && fRoot->fName == fPriorWord
+    else if (fRoot && fRoot->isStructOrClass() && fRoot->fName == fPriorWord
             && '(' == fSeparator.back()) {
-        TextParser parser(fMethod->fFileName, fSeparatorStart, fRefEnd, fMethod->fLineCount);
+        SkASSERT(fSubtopic);
+        TextParser parser(fSubtopic->fFileName, fSeparatorStart, fRefEnd, fSubtopic->fLineCount);
         parser.skipToEndBracket('(');
         const char* parenStart = parser.fChar;
         parser.skipToBalancedEndBracket('(', ')');
@@ -334,7 +339,7 @@ void MdOut::DefinedState::setLink() {
             // consume only if we find it
             fWord = testWord;
             fLink = testLink;
-            fEnd = parser.fChar;
+            fEnd = parenStart;
             this->backup();
             return;
         }
@@ -565,11 +570,13 @@ void MdOut::DefinedState::setLink() {
             && "</" == fSeparator.substr(fSeparator.size() - 2)))) {
         return;
     }
+    bool paramName = islower(fWord[0]) && (Resolvable::kCode == fResolvable
+            || Resolvable::kClone == fResolvable);
     // TODO: can probably resolve formulae, but need a way for formula to define new reference
     // for example: Given: #Formula # Sa ## as source Alpha,
     // for example: where #Formula # m = Da > 0 ? Dc / Da : 0 ##;
     if (!fInProgress && Resolvable::kSimple != fResolvable
-            && Resolvable::kCode != fResolvable && Resolvable::kFormula != fResolvable) {
+            && !paramName && Resolvable::kFormula != fResolvable) {
         // example: Coons as in "Coons patch"
         bool withSpace = fEnd + 1 < fRefEnd && ' ' == fEnd[0]
                 && fGlobals->fRefMap.end() != fGlobals->fRefMap.find(fWord + ' ');
@@ -1185,14 +1192,13 @@ void MdOut::addCodeBlock(const Definition* def, string& result) const {
                     member->fLineCount);
             this->stringAppend(result,
                     fIncludeParser.writeCodeBlock(function, MarkType::kFunction, 0));
-            this->stringAppend(result, '\n');
+            this->stringAppend(result, ";\n");
             wroteFunction = true;
             continue;
         }
         if (KeyWord::kTypedef == member->fKeyWord) {
             this->stringAppend(result, member);
-            this->stringAppend(result, ';');
-            this->stringAppend(result, '\n');
+            this->stringAppend(result, ";\n");
             continue;
         }
         if (KeyWord::kDefine == member->fKeyWord) {

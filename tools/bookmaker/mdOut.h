@@ -27,6 +27,7 @@ public:
         this->reset();
         this->addPopulators();
         fBmhParser.setUpGlobalSubstitutes();
+        fNames = &fBmhParser.fGlobalNames;
     }
 
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
@@ -233,6 +234,7 @@ private:
 
     void reset() override {
         INHERITED::resetCommon();
+        fNames = nullptr;
         fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;

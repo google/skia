@@ -2383,26 +2383,28 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    // don't call
+    // Private; don't call.
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    // Private; don't call.
     SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
-    // TEMP helpers until we switch virtual over to const& for src-rect
+    // deprecated; temporary helper until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint,
                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+    // deprecated; temporary helper until we switch virtual over to const& for src-rect
     void legacy_drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint,
                                SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
-    /**
+    /** Private
      *  Returns the global clip as a region. If the clip contains AA, then only the bounds
      *  of the clip may be returned.
      */
     void temporary_internal_getRgnClip(SkRegion* region);
 
+    // Private
     void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
-
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
@@ -2782,6 +2784,8 @@ private:
     SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
     SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 };
+
+// Private
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
 
 #endif
