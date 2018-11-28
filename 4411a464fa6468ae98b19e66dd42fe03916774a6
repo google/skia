@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "95a90fe1_5e7cfa17",
+        "filename": "src/gpu/GrQuad.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Sure, I like that better.",
+      "parentUuid": "b6aa519d_09f8547a",
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42f4f0e0_73cc1dd3",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 20
@@ -30,6 +48,30 @@
       "writtenOn": "2018-11-28T15:05:05Z",
       "side": 1,
       "message": "If the inputs are rects, maybe this is really a \"rect set\" and not a \"quad set\"? One could argue that also means I should have named GrQuadAAFlags GrRectAAFlags, and perhaps I should have.",
+      "range": {
+        "startLine": 130,
+        "startChar": 18,
+        "endLine": 130,
+        "endChar": 29
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9011dd81_dc615dc0",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "It is definitely a rect set but I originally did not like drawRectSet in combination with the rest of the quad nomenclature. I\u0027d be okay going through and renaming the GrQuadAAFlags and GrQuadPerEdgeAA to GrRectX, but the SkCanvas quad flags are in the public API. Can we still change those?",
+      "parentUuid": "42f4f0e0_73cc1dd3",
       "range": {
         "startLine": 130,
         "startChar": 18,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "d743ad57_b8f589be",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f49bb7f0_f5d4620d",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 25
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f5300fa_67761158",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 20
@@ -79,6 +145,24 @@
       "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4937810a_edc6a6a5",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Removed; I\u0027ll do a small follow-up CL to remove needsPerspectiveInterpolation() from the GPAttributes class and remove the check in GrTextureOp, since it won\u0027t need it either.",
+      "parentUuid": "1f5300fa_67761158",
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "4bc25c15_15e87c19",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Done, removed the whole thing.",
+      "parentUuid": "edb981b7_2ec5e04a",
+      "range": {
+        "startLine": 208,
+        "startChar": 27,
+        "endLine": 208,
+        "endChar": 30
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee3d5378_1a2b354c",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 20
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "acea86c0_3328bf2b",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Good catch, it doesn\u0027t work with MakeSet this way. I\u0027ve updated it to aggregate all of the quads\u0027 colors into a GrProcessorAnalysisColor and then only reset their colors if it remains constant after analysis.",
+      "parentUuid": "ee3d5378_1a2b354c",
+      "range": {
+        "startLine": 235,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 40
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a55f1c9a_ed2a9c4b",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 20
@@ -148,6 +280,30 @@
       "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f685eb74_ca274e22",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-11-28T17:05:31Z",
+      "side": 1,
+      "message": "Done, asserted there\u0027s at least one quad.",
+      "parentUuid": "a55f1c9a_ed2a9c4b",
+      "range": {
+        "startLine": 237,
+        "startChar": 28,
+        "endLine": 237,
+        "endChar": 37
+      },
+      "revId": "4411a464fa6468ae98b19e66dd42fe03916774a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
