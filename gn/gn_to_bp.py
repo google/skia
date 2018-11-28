@@ -260,47 +260,41 @@ cc_test {
 }''')
 
 # We'll run GN to get the main source lists and include directories for Skia.
-gn_args = {
-  'is_official_build':                  'true',
-  'skia_enable_tools':                  'true',
-  'skia_use_libheif':                   'true',
-  'skia_use_vulkan':                    'true',
-  'target_cpu':                         '"none"',
-  'target_os':                          '"android"',
-  'skia_enable_fontmgr_custom':         'false',
-  'skia_enable_fontmgr_custom_empty':   'true',
-  'skia_enable_fontmgr_android':        'false',
-}
+def generate_args(target_os, enable_gpu):
+  d = {
+    'is_official_build':                  'true',
 
-gn_args_linux = {
-  'is_official_build':                  'true',
-  'skia_enable_tools':                  'true',
-  'skia_enable_gpu'  :                  'false',
-  'skia_use_libheif':                   'false',
-  'skia_use_vulkan':                    'false',
-  'target_cpu':                         '"none"',
-  'target_os':                          '"linux"',
-  'skia_enable_fontmgr_custom':         'false',
-  'skia_enable_fontmgr_custom_empty':   'true',
-  'skia_enable_fontmgr_android':        'false',
-  'skia_use_fontconfig':                'false',
-  'skia_use_fixed_gamma_text':          'true',
-}
+    # gn_to_bp_utils' GetArchSources will take care of architecture-specific
+    # files.
+    'target_cpu':                         '"none"',
 
-gn_args_mac = {
-  'is_official_build':                  'true',
-  'skia_enable_tools':                  'true',
-  'skia_enable_gpu'  :                  'false',
-  'skia_use_libheif':                   'false',
-  'skia_use_vulkan':                    'false',
-  'target_cpu':                         '"none"',
-  'target_os':                          '"mac"',
-  'skia_use_fixed_gamma_text':          'true',
-  'skia_enable_fontmgr_custom_empty':   'true',
-  'skia_use_fonthost_mac':              'false',
-  'skia_use_freetype':                  'true',
-  'skia_enable_fontmgr_android':        'false',
-}
+    # Use the custom FontMgr, as the framework will handle fonts.
+    'skia_enable_fontmgr_custom':         'false',
+    'skia_enable_fontmgr_custom_empty':   'true',
+    'skia_enable_fontmgr_android':        'false',
+    'skia_use_fonthost_mac':              'false',
+
+    'skia_use_freetype':                  'true',
+    'skia_use_fontconfig':                'false',
+    'skia_use_fixed_gamma_text':          'true',
+  }
+  d['target_os'] = target_os
+  if target_os == '"android"':
+    d['skia_enable_tools'] = 'true'
+    d['skia_use_libheif']  = 'true'
+  else:
+    d['skia_use_libheif']  = 'false'
+
+  if enable_gpu:
+    d['skia_use_vulkan']   = 'true'
+  else:
+    d['skia_use_vulkan']   = 'false'
+    d['skia_enable_gpu']   = 'false'
+  return d
+
+gn_args       = generate_args('"android"', True)
+gn_args_linux = generate_args('"linux"',   False)
+gn_args_mac   = generate_args('"mac"',     False)
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
 
