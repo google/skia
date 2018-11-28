@@ -630,7 +630,6 @@ private:
 
     float fHWMinSampleShading;
     GrPrimitiveType fLastPrimitiveType;
-    bool fRequiresFlushBeforeNextInstancedDraw = false;
 
     class SamplerObjectCache;
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
