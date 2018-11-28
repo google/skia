@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "198244df_654ea2c8",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2018-11-28T19:09:30Z",
+      "side": 1,
+      "message": "Thanks for the replies! I am a bit hesitant to go with the first approach since I don\u0027t quite know about what caused the problem addressed by the comments on https://cs.chromium.org/chromium/src/third_party/skia/src/ports/SkFontHost_mac.cpp?type\u003dcs\u0026q\u003dMacOS+file:%5Esrc/third_party/skia/+package:%5Echromium$\u0026g\u003d0\u0026l\u003d815 \n\nI am taking the second approach which presumably more safer since we follow the exact same path as before except for the buggy cases.\n\nFYI, I added a test to demonstrate the problem. Through quite some experiments from last night and this morning, I discovered that for other MacOS (such as 10.14), legacyMakeTypeface without name will return the default font regardless the style. This CL actually fix that as well.",
+      "parentUuid": "5298aadf_5010db3a",
+      "range": {
+        "startLine": 815,
+        "startChar": 16,
+        "endLine": 815,
+        "endChar": 50
+      },
+      "revId": "d0ad9082982867e2722074f18c5aef54d7d591fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9382597e_8b5760e6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
