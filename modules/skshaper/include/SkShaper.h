@@ -11,10 +11,25 @@
 #include <memory>
 
 #include "SkPoint.h"
-#include "SkTypeface.h"
+#include "SkFontTypes.h"
+#include "SkTextUtils.h"
 
 class SkFont;
 class SkTextBlobBuilder;
+
+struct SkText {
+    const void* fText = nullptr;
+    size_t fTextBytes = 0;
+    SkTextEncoding fTextEncoding = kUTF8_SkTextEncoding;
+};
+
+SkPoint SkShape(SkTextBlobBuilder* dest,
+                const SkFont& font,
+                SkText text,
+                bool leftToRight,
+                SkTextUtils::Align align,
+                SkPoint point,
+                SkScalar width);
 
 /**
    Shapes text using HarfBuzz and places the shaped text into a
