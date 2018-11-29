@@ -48,8 +48,13 @@ public:
     }
 
     static GrBackendFormat MakeVk(VkFormat format) {
-        return GrBackendFormat(format);
+        return GrBackendFormat(format, GrVkYcbcrConversionInfo());
     }
+
+    // This is used for external textures and the VkFormat is assumed to be VK_FORMAT_UNDEFINED.
+    // This call is only supported on Android since the GrVkYcbcrConvesionInfo contains an android
+    // external format.
+    static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo);
 
 #ifdef SK_METAL
     static GrBackendFormat MakeMtl(GrMTLPixelFormat format) {
@@ -73,6 +78,8 @@ public:
     // it returns nullptr
     const VkFormat* getVkFormat() const;
 
+    const GrVkYcbcrConversionInfo* getVkYcbcrConversionInfo() const;
+
 #ifdef SK_METAL
     // If the backend API is Metal, this returns a pointer to a GrMTLPixelFormat. Otherwise
     // it returns nullptr
@@ -92,7 +99,7 @@ public:
 private:
     GrBackendFormat(GrGLenum format, GrGLenum target);
 
-    GrBackendFormat(const VkFormat vkFormat);
+    GrBackendFormat(const VkFormat vkFormat, const GrVkYcbcrConversionInfo&);
 
 #ifdef SK_METAL
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
@@ -105,7 +112,10 @@ private:
 
     union {
         GrGLenum         fGLFormat; // the sized, internal format of the GL resource
-        VkFormat         fVkFormat;
+        struct {
+            VkFormat                 fFormat;
+            GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
+        } fVk;
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
