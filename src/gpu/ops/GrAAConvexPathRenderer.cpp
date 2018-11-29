@@ -6,13 +6,10 @@
  */
 
 #include "GrAAConvexPathRenderer.h"
-#include "GrAAConvexTessellator.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
-#include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
 #include "GrRenderTargetContext.h"
@@ -23,7 +20,6 @@
 #include "SkPathPriv.h"
 #include "SkPointPriv.h"
 #include "SkString.h"
-#include "SkTraceEvent.h"
 #include "SkTypes.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -689,51 +685,6 @@ GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     return CanDrawPath::kNo;
 }
 
-// extract the result vertices and indices from the GrAAConvexTessellator
-static void extract_lines_only_verts(const GrAAConvexTessellator& tess,
-                                     void* vertData,
-                                     GrColor color,
-                                     uint16_t* idxs,
-                                     bool tweakAlphaForCoverage) {
-    GrVertexWriter verts{vertData};
-    for (int i = 0; i < tess.numPts(); ++i) {
-        verts.write(tess.point(i));
-        if (tweakAlphaForCoverage) {
-            SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
-            unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
-            GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-            verts.write(scaledColor);
-        } else {
-            verts.write(color, tess.coverage(i));
-        }
-    }
-
-    for (int i = 0; i < tess.numIndices(); ++i) {
-        idxs[i] = tess.index(i);
-    }
-}
-
-static sk_sp<GrGeometryProcessor> make_lines_only_gp(const GrShaderCaps* shaderCaps,
-                                                     bool tweakAlphaForCoverage,
-                                                     const SkMatrix& viewMatrix,
-                                                     bool usesLocalCoords) {
-    using namespace GrDefaultGeoProcFactory;
-
-    Coverage::Type coverageType;
-    if (tweakAlphaForCoverage) {
-        coverageType = Coverage::kSolid_Type;
-    } else {
-        coverageType = Coverage::kAttribute_Type;
-    }
-    LocalCoords::Type localCoordsType =
-            usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(shaderCaps,
-                              Color::kPremulGrColorAttribute_Type,
-                              coverageType,
-                              localCoordsType,
-                              viewMatrix);
-}
-
 namespace {
 
 class AAConvexPathOp final : public GrMeshDrawOp {
@@ -758,7 +709,6 @@ public:
             : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(PathData{viewMatrix, path, color});
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-        fLinesOnly = SkPath::kLine_SegmentMask == path.getSegmentMasks();
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
@@ -785,69 +735,7 @@ public:
     }
 
 private:
-    void prepareLinesOnlyDraws(Target* target) {
-        // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(make_lines_only_gp(target->caps().shaderCaps(),
-                                                         fHelper.compatibleWithAlphaAsCoverage(),
-                                                         fPaths.back().fViewMatrix,
-                                                         fHelper.usesLocalCoords()));
-        if (!gp) {
-            SkDebugf("Could not create GrGeometryProcessor\n");
-            return;
-        }
-
-        size_t vertexStride = gp->vertexStride();
-        GrAAConvexTessellator tess;
-
-        int instanceCount = fPaths.count();
-        auto pipe = fHelper.makePipeline(target);
-        for (int i = 0; i < instanceCount; i++) {
-            tess.rewind();
-
-            const PathData& args = fPaths[i];
-
-            if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
-                continue;
-            }
-
-            const GrBuffer* vertexBuffer;
-            int firstVertex;
-
-            void* verts = target->makeVertexSpace(vertexStride, tess.numPts(), &vertexBuffer,
-                                                  &firstVertex);
-            if (!verts) {
-                SkDebugf("Could not allocate vertices\n");
-                return;
-            }
-
-            const GrBuffer* indexBuffer;
-            int firstIndex;
-
-            uint16_t* idxs = target->makeIndexSpace(tess.numIndices(), &indexBuffer, &firstIndex);
-            if (!idxs) {
-                SkDebugf("Could not allocate indices\n");
-                return;
-            }
-
-            // TODO4F: Preserve float colors
-            extract_lines_only_verts(tess, verts, args.fColor.toBytes_RGBA(), idxs,
-                                     fHelper.compatibleWithAlphaAsCoverage());
-
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            mesh->setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
-                             GrPrimitiveRestart::kNo);
-            mesh->setVertexData(vertexBuffer, firstVertex);
-            target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
-        }
-    }
-
     void onPrepareDraws(Target* target) override {
-#ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
-        if (fLinesOnly) {
-            this->prepareLinesOnlyDraws(target);
-            return;
-        }
-#endif
         auto pipe = fHelper.makePipeline(target);
         int instanceCount = fPaths.count();
 
@@ -944,10 +832,6 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        if (fLinesOnly != that->fLinesOnly) {
-            return CombineResult::kCannotCombine;
-        }
-
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         return CombineResult::kMerged;
     }
@@ -960,7 +844,6 @@ private:
 
     Helper fHelper;
     SkSTArray<1, PathData, true> fPaths;
-    bool fLinesOnly;
 
     typedef GrMeshDrawOp INHERITED;
 };
