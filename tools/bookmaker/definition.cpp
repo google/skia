@@ -275,7 +275,7 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
             continue;
         }
         iParser.next();
-        bool constMethod = iParser.skipExact("_const");
+        bool constMethod = iParser.skipExact(" const");
         if (parser.fConstMethod != ANY && (parser.fConstMethod == CONST) != constMethod) {
             continue;
         }
@@ -287,40 +287,6 @@ bool Definition::parseOperator(size_t doubleColons, string& result) {
     }
     SkASSERT(0); // incomplete
     return false;
-#if 0
-    if ('!' == fName[opPos]) {
-        SkASSERT('=' == fName[opPos + 1]);
-        result += "not_equal_operator";
-    } else if ('=' == fName[opPos]) {
-        if ('(' == fName[opPos + 1]) {
-            result += isMove ? "move_" : "copy_";
-            result += "assignment_operator";
-        } else {
-            SkASSERT('=' == fName[opPos + 1]);
-            result += "equal_operator";
-        }
-    } else if ('[' == fName[opPos]) {
-        result += "subscript_operator";
-        const char* end = fContentStart;
-        while (end > fStart && ' ' >= end[-1]) {
-            --end;
-        }
-        string constCheck(fStart, end - fStart);
-        size_t constPos = constCheck.rfind("const");
-        if (constCheck.length() == constPos + 5) {
-            result += "_const";
-        }
-    } else if ('*' == fName[opPos]) {
-        result += "multiply_operator";
-    } else if ('-' == fName[opPos]) {
-        result += "subtract_operator";
-    } else if ('+' == fName[opPos]) {
-        result += "add_operator";
-    } else {
-        SkASSERT(0);  // todo: incomplete
-    }
-#endif
-    return true;
 }
 
 #undef CONST
@@ -813,7 +779,7 @@ string Definition::formatFunction(Format format) const {
                 space_pad(&methodStr);
             }
             string addon(lastStart, (size_t) (lastEnd - lastStart));
-            if ("_const" == addon) {
+            if (" const" == addon) {
                 addon = "const";
             }
             methodStr += addon;
@@ -1011,14 +977,14 @@ bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndP
             return methodParser->reportError<bool>("#Method function missing close paren");
         }
         char ch = methodParser->peek();
-        if ('(' == ch) {
+        if ('(' == ch || '{' == ch) {
             ++parenCount;
         }
         if (parenCount == 0 && (')' == ch || ',' == ch)) {
             *nextEndPtr = methodParser->fChar;
             break;
         }
-        if (')' == ch) {
+        if (')' == ch || '}' == ch) {
             if (0 > --parenCount) {
                 return this->reportError<bool>("mismatched parentheses");
             }
