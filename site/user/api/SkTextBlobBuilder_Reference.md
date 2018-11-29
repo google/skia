@@ -8,31 +8,18 @@ SkTextBlobBuilder Reference
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a> {
-public:
+
     <a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a>;
-    ~<a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a>;
+    <a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder()</a>;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlobBuilder_make'>make()</a>;
-
-    struct <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a> {
-        <a href='undocumented#SkGlyphID'>SkGlyphID</a>* <a href='undocumented#Glyph'>glyphs</a>;
-        <a href='undocumented#SkScalar'>SkScalar</a>* pos;
-        char* utf8text;
-        uint32_t* clusters;
-    };
-
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                               const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
                                   const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count,
-                                 const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                              const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
-    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='undocumented#Font'>font</a>, int count,
+    const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count,
                                  const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr);
 };
+
 </pre>
 
 Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
@@ -134,7 +121,7 @@ blob equals nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-~<a href='#SkTextBlobBuilder_empty_constructor'>SkTextBlobBuilder()</a>
+<a href='#SkTextBlobBuilder_destructor'>~SkTextBlobBuilder()</a>
 </pre>
 
 Deletes <a href='undocumented#Data'>data</a> allocated internally by <a href='SkTextBlobBuilder_Reference#SkTextBlobBuilder'>SkTextBlobBuilder</a>.
@@ -185,7 +172,7 @@ blob equals nullptr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRun'>allocRun</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
                           const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
 </pre>
 
@@ -206,7 +193,7 @@ is computed from (<a href='#SkTextBlobBuilder_allocRun_x'>x</a>, <a href='#SkTex
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlobBuilder_allocRun_font'><code><strong>font</strong></code></a></td>
-    <td><a href='undocumented#SkFont'>SkFont</a> used for this run</td>
+    <td><a href='SkFont_Reference#SkFont'>SkFont</a> used for this run</td>
   </tr>
   <tr>    <td><a name='SkTextBlobBuilder_allocRun_count'><code><strong>count</strong></code></a></td>
     <td>number of <a href='undocumented#Glyph'>glyphs</a></td>
@@ -239,7 +226,7 @@ writable <a href='undocumented#Glyph'>glyph</a> buffer
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPosH'>allocRunPosH</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count, <a href='undocumented#SkScalar'>SkScalar</a> y,
                               const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
 </pre>
 
@@ -261,7 +248,7 @@ is computed from <a href='#SkTextBlobBuilder_allocRunPosH_y'>y</a>, <a href='#Sk
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_font'><code><strong>font</strong></code></a></td>
-    <td><a href='undocumented#SkFont'>SkFont</a> used for this run</td>
+    <td><a href='SkFont_Reference#SkFont'>SkFont</a> used for this run</td>
   </tr>
   <tr>    <td><a name='SkTextBlobBuilder_allocRunPosH_count'><code><strong>count</strong></code></a></td>
     <td>number of <a href='undocumented#Glyph'>glyphs</a></td>
@@ -291,7 +278,7 @@ writable <a href='undocumented#Glyph'>glyph</a> buffer and x-axis position buffe
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='undocumented#SkFont'>SkFont</a>& <a href='undocumented#Font'>font</a>, int count, const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
+const <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>& <a href='#SkTextBlobBuilder_allocRunPos'>allocRunPos</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>, int count, const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr)
 </pre>
 
 Returns run with storage for <a href='undocumented#Glyph'>glyphs</a> and <a href='SkPoint_Reference#SkPoint'>SkPoint</a> positions. Caller must
@@ -312,7 +299,7 @@ is computed from <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a>::<a href='
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlobBuilder_allocRunPos_font'><code><strong>font</strong></code></a></td>
-    <td><a href='undocumented#SkFont'>SkFont</a> used for this run</td>
+    <td><a href='SkFont_Reference#SkFont'>SkFont</a> used for this run</td>
   </tr>
   <tr>    <td><a name='SkTextBlobBuilder_allocRunPos_count'><code><strong>count</strong></code></a></td>
     <td>number of <a href='undocumented#Glyph'>glyphs</a></td>

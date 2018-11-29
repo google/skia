@@ -328,11 +328,7 @@ FT_Load_Glyph
 ##
 #Topic ##
 
-#Topic Font
-#Subtopic Advance
-#Subtopic ##
-#Subtopic Engine
-##
+#Topic Font_Types
 #Enum SkTextEncoding
 #Const kUTF8_SkTextEncoding 0
 ##
@@ -343,8 +339,7 @@ FT_Load_Glyph
 #Const kGlyphID_SkTextEncoding 3
 ##
 ##
-#Class SkFont
-##
+
 #EnumClass SkFontHinting
 #Const kNone 0
 #Line # glyph outlines unchanged ##
@@ -378,6 +373,7 @@ FT_Load_Glyph
     variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
 ##
 ##
+
 #Struct SkFontMetrics
 #Line # values computed by Font_Manager using Typeface ##
 
@@ -850,6 +846,9 @@ FT_Load_Glyph
 #Topic Reference_Count
 #Class SkRefCnt
 #Class ##
+
+#Template SkNVRefCnt
+##
 ##
 
 #Topic Smart_Pointer

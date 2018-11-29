@@ -129,7 +129,7 @@ pt1 == pt2
 
 # ------------------------------------------------------------------------------
 
-#Method SkIPoint operator-()_const
+#Method SkIPoint operator-() const
 
 #Line # reverses sign of IPoint ##
 #Populate
@@ -150,7 +150,7 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 ##
 ##
 
-#SeeAlso operator-(const SkIPoint& a, const SkIPoint& b) operator-=(const SkIVector& v) SkPoint::operator-()_const
+#SeeAlso operator-(const SkIPoint& a, const SkIPoint& b) operator-=(const SkIVector& v) SkPoint::operator-() const
 
 #Method ##
 
