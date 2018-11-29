@@ -1999,7 +1999,14 @@ STAGE(xy_to_unit_angle, Ctx::None) {
     phi = if_then_else(X < 0.0f   , 1.0f/2.0f - phi, phi);
     phi = if_then_else(Y < 0.0f   , 1.0f - phi     , phi);
     phi = if_then_else(phi != phi , 0              , phi);  // Check for NaN.
+#if 0
+    F X2 = r * r,
+      Y2 = g * g;
+    phi += sqrt_(X2 + Y2) * 0.01;
+    phi = fmod(phi, 2*3.1415926f);
+#endif
     r = phi;
+
 }
 
 STAGE(xy_to_radius, Ctx::None) {
