@@ -1909,7 +1909,7 @@ RGBA_F16 width -2147483648 (0x80000000) too large
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator==(const SkImageInfo& other)_const
+#Method bool operator==(const SkImageInfo& other) const
 #Line # compares Image_Info for equality ##
 #Populate
 
@@ -1931,13 +1931,13 @@ info1 == info2
 ##
 ##
 
-#SeeAlso operator!=(const SkImageInfo& other)_const SkColorSpace::Equals
+#SeeAlso operator!=(const SkImageInfo& other) const SkColorSpace::Equals
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator!=(const SkImageInfo& other)_const
+#Method bool operator!=(const SkImageInfo& other) const
 #Line # compares Image_Info for inequality ##
 #Populate
 
@@ -1959,7 +1959,7 @@ info1 == info2
 ##
 ##
 
-#SeeAlso operator==(const SkImageInfo& other)_const SkColorSpace::Equals
+#SeeAlso operator==(const SkImageInfo& other) const SkColorSpace::Equals
 
 #Method ##
 

@@ -136,6 +136,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kEnumClass:
         case MarkType::kMember:
         case MarkType::kMethod:
+        case MarkType::kTemplate:
         case MarkType::kTypedef: {
             if (!typeNameBuilder.size()) {
                 return this->reportError<bool>("unnamed markup");
@@ -777,6 +778,11 @@ string BmhParser::className(MarkType markType) {
             }
             this->skipLine();
             return fParent->fName;
+        } else if (' ' ==  mc[1] && MarkType::kConst == markType && fParent
+                && (MarkType::kEnum == fParent->fMarkType
+                || MarkType::kEnumClass == fParent->fMarkType)) {
+            this->skipToEndBracket('\n');
+            return builder + "::" + string(wordStart, wordEnd - wordStart);
         }
         fChar = mc;
         this->next();
@@ -1182,13 +1188,13 @@ void BmhParser::setUpGlobalSubstitutes() {
     for (auto bMap : { &fClassMap, &fConstMap, &fDefineMap, &fEnumMap, &fMethodMap,
             &fTypedefMap } ) {
         for (auto& entry : *bMap) {
-            Definition* parent = (Definition*) &entry.second;
+            Definition* parent = &entry.second;
             string name = parent->fName;
             SkASSERT(fGlobalNames.fLinkMap.end() == fGlobalNames.fLinkMap.find(name));
             string ref = ParserCommon::HtmlFileName(parent->fFileName) + '#' + parent->fFiddle;
             fGlobalNames.fLinkMap[name] = ref;
             SkASSERT(fGlobalNames.fRefMap.end() == fGlobalNames.fRefMap.find(name));
-            fGlobalNames.fRefMap[name] = const_cast<Definition*>(parent);
+            fGlobalNames.fRefMap[name] = parent;
             NameMap* names = MarkType::kClass == parent->fMarkType
                     || MarkType::kStruct == parent->fMarkType
                     || MarkType::kEnumClass == parent->fMarkType ? &parent->asRoot()->fNames :
@@ -1197,6 +1203,33 @@ void BmhParser::setUpGlobalSubstitutes() {
             if (names != &fGlobalNames) {
                 names->copyToParent(&fGlobalNames);
             }
+        }
+    }
+    for (auto& tEntry : fTypedefMap) {
+        Definition* typeDef = &tEntry.second;
+        string defName = typeDef->fName;
+        TextParser parser(typeDef->fFileName, typeDef->fStart, typeDef->fContentStart,
+                typeDef->fLineCount);
+        parser.skipExact("#Typedef");
+        parser.skipWhiteSpace();
+        const char* refStart = parser.fChar;
+        parser.skipToWhiteSpace();
+        string refName(refStart, parser.fChar - refStart);
+        auto structIter = fClassMap.find(refName);
+        if (fClassMap.end() == structIter) {
+            continue;
+        }
+        for (auto& sEntry : structIter->second.fLeaves) {
+            Definition* def = &sEntry.second;
+            string name = def->fName;
+            size_t colonPos = name.find("::");
+            SkASSERT(string::npos != colonPos);
+            string typedName = defName + "::" + name.substr(colonPos + 2);
+            string ref = ParserCommon::HtmlFileName(def->fFileName) + '#' + def->fFiddle;
+            SkASSERT(fGlobalNames.fLinkMap.end() == fGlobalNames.fLinkMap.find(typedName));
+            fGlobalNames.fLinkMap[typedName] = ref;
+            SkASSERT(fGlobalNames.fRefMap.end() == fGlobalNames.fRefMap.find(typedName));
+            fGlobalNames.fRefMap[typedName] = def;
         }
     }
     for (auto& topic : fTopicMap) {
@@ -1779,14 +1812,14 @@ string BmhParser::methodName() {
         paren = this->strnchr(')', end) + 1;
         TextParserSave saveState(this);
         this->skipTo(paren);
-        if (this->skipExact("_const")) {
+        if (this->skipExact(" const")) {
             addConst = true;
         }
         saveState.restore();
     }
     builder.append(nameStart, paren - nameStart);
     if (addConst) {
-        builder.append("_const");
+        builder.append(" const");
     }
     if (!expectOperator && allLower) {
         builder.append("()");
@@ -2089,6 +2122,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kEnumClass:
         case MarkType::kClass:
         case MarkType::kStruct:
+        case MarkType::kTemplate:
             // expect name
             builder = this->className(markType);
             break;

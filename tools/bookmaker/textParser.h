@@ -459,7 +459,7 @@ public:
         return true;
     }
 
-    void skipWhiteSpace(int* indent, bool* skippedReturn) {
+    bool skipWhiteSpace(int* indent, bool* skippedReturn) {
         while (' ' >= this->peek()) {
             *indent = *skippedReturn ? *indent + 1 : 1;
             if ('\n' == this->peek()) {
@@ -467,8 +467,11 @@ public:
                 *indent = 0;
             }
             (void) this->next();
-            SkASSERT(fChar < fEnd);
+            if (fChar >= fEnd) {
+                return false;
+            }
         }
+        return true;
     }
 
     bool startsWith(const char* str) const {

@@ -8,21 +8,13 @@ SkPicture Reference
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='SkPicture_Reference#SkPicture'>SkPicture</a> : public <a href='undocumented#SkRefCnt'>SkRefCnt</a> {
-public:
+
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkPicture_Reference#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='SkStream_Reference#SkStream'>SkStream</a>* <a href='SkStream_Reference#Stream'>stream</a>,
-                                    const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
+                                           const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkPicture_Reference#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* <a href='undocumented#Data'>data</a>,
                                          const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkPicture_Reference#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const void* <a href='undocumented#Data'>data</a>, size_t <a href='undocumented#Size'>size</a>,
                                          const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
-
-    class <a href='#SkPicture_AbortCallback'>AbortCallback</a> {
-    public:
-        <a href='#SkPicture_AbortCallback'>AbortCallback</a>();
-        virtual ~<a href='#SkPicture_AbortCallback'>AbortCallback</a>();
-        virtual bool abort() = 0;
-    };
-
     virtual void playback(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0;
     virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0;
     uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const;
@@ -32,6 +24,7 @@ public:
     virtual int <a href='#SkPicture_approximateOpCount'>approximateOpCount</a>() const = 0;
     virtual size_t <a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a>() const = 0;
 };
+
 </pre>
 
 <a href='SkPicture_Reference#Picture'>Picture</a> records drawing commands made to <a href='SkCanvas_Reference#Canvas'>Canvas</a>. The command <a href='SkStream_Reference#Stream'>stream</a> may be
@@ -53,7 +46,7 @@ recording or drawing <a href='SkPicture_Reference#Picture'>Picture</a>.
     class <a href='#SkPicture_AbortCallback'>AbortCallback</a> {
     public:
         <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a> {}
-        virtual ~<a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a> {}
+        virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a> {}
         virtual bool <a href='#SkPicture_AbortCallback_abort'>abort()</a> = 0;
     };
 </pre>
@@ -87,7 +80,7 @@ abstract class cannot be instantiated
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-virtual ~<a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a>
+virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a>
 </pre>
 
 Has no effect.
@@ -306,7 +299,7 @@ bounds may be drawn, and are drawn in this example.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const
+uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>()const
 </pre>
 
 Returns a non-zero value unique among <a href='SkPicture_Reference#SkPicture'>SkPicture</a> in Skia process.
@@ -337,7 +330,7 @@ placeholder id = 2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr)const
 </pre>
 
 Returns storage containing <a href='undocumented#SkData'>SkData</a> describing <a href='SkPicture_Reference#SkPicture'>SkPicture</a>, using optional custom
@@ -372,7 +365,7 @@ storage containing serialized <a href='SkPicture_Reference#SkPicture'>SkPicture<
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const
+void <a href='#SkPicture_serialize'>serialize</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr)const
 </pre>
 
 Writes <a href='SkPicture_Reference#Picture'>picture</a> to <a href='#SkPicture_serialize_2_stream'>stream</a>, using optional custom encoders.

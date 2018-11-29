@@ -572,7 +572,7 @@ region2 bounds: {1,2,3,4}
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator==(const SkRegion& other)_const
+#Method bool operator==(const SkRegion& other) const
 #In Operators
 #Line # compares Regions for equality ##
 #Populate
@@ -595,13 +595,13 @@ set empty one == two
 ##
 ##
 
-#SeeAlso operator!=(const SkRegion& other)_const operator=(const SkRegion& region)
+#SeeAlso operator!=(const SkRegion& other) const operator=(const SkRegion& region)
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool operator!=(const SkRegion& other)_const
+#Method bool operator!=(const SkRegion& other) const
 #In Operators
 #Line # compares Regions for inequality ##
 #Populate
@@ -625,7 +625,7 @@ union rect one == two
 ##
 ##
 
-#SeeAlso operator==(const SkRegion& other)_const operator=(const SkRegion& region)
+#SeeAlso operator==(const SkRegion& other) const operator=(const SkRegion& region)
 
 #Method ##
 
@@ -707,7 +707,7 @@ region2 bounds: {1,2,3,4}
 ##
 ##
 
-#SeeAlso isRect isComplex operator==(const SkRegion& other)_const
+#SeeAlso isRect isComplex operator==(const SkRegion& other) const
 
 #Method ##
 

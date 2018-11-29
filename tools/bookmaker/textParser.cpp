@@ -170,8 +170,7 @@ void MethodParser::skipToMethodEnd(Resolvable resolvable) {
         if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
             this->skipToEndBracket(')');
             SkAssertResult(')' == this->next());
-            this->skipExact("_const") || (Resolvable::kCode == resolvable
-                    && this->skipExact(" const"));
+            Resolvable::kCode == resolvable && this->skipExact(" const");
             return;
         }
     }
@@ -184,7 +183,7 @@ void MethodParser::skipToMethodEnd(Resolvable resolvable) {
             if (ptr && '(' ==  *ptr) {
                 this->skipToEndBracket(')');
                 SkAssertResult(')' == this->next());
-                this->skipExact("_const");
+                this->skipExact(" const");
             }
         }
     }

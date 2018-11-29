@@ -64,9 +64,6 @@ public:
     }
 
     void addDefinition(Definition* def) {
-        if (KeyWord::kElse == def->fKeyWord) {
-            SkDebugf("");
-        }
         fParent->fChildren.push_back(def);
         fParent = def;
     }
@@ -164,9 +161,6 @@ public:
    }
 
     void setAsParent(Definition* definition) {
-        if (KeyWord::kElse == definition->fKeyWord) {
-            SkDebugf("");
-        }
         if (fParent) {
             fParent->fChildren.push_back(definition);
             definition->fParent = fParent;

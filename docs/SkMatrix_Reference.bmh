@@ -532,7 +532,7 @@ PDF and XPS.
 
 # ------------------------------------------------------------------------------
 
-#Method SkScalar operator[](int index)_const
+#Method SkScalar operator[](int index) const
 
 #Line # returns Matrix value ##
 #Populate

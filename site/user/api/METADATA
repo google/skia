@@ -6,6 +6,7 @@
     "SkCanvas_Reference",
     "SkColor_Reference",
     "SkColor4f_Reference",
+    "SkFont_Reference",
     "SkImage_Reference",
     "SkImageInfo_Reference",
     "SkIPoint_Reference",
@@ -23,9 +24,10 @@
     "SkTextBlob_Reference",
     "SkTextBlobBuilder_Reference",
     "usingBookmaker",
-    "undocumented",
     "skcanvas_overview",
     "skcanvas_creation",
+    "SkBlendMode_Overview",
+    "SkPath_Overview",
     "skpaint_overview"
   ]
 }

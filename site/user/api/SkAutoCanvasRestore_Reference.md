@@ -8,11 +8,12 @@ SkAutoCanvasRestore Reference
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> {
-public:
-    <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave);
-    ~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>();
+
+    <a href='#SkAutoCanvasRestore_SkCanvas_star'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave);
+    <a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore()</a>;
     void <a href='#SkAutoCanvasRestore_restore'>restore()</a>;
 };
+
 </pre>
 
 Stack helper class calls <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_restoreToCount'>restoreToCount</a> when <a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>
@@ -24,7 +25,7 @@ state.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave)
+<a href='#SkAutoCanvasRestore_SkCanvas_star'>SkAutoCanvasRestore</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, bool doSave)
 </pre>
 
 Preserves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_save'>save()</a> count. Optionally saves <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> clip and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> <a href='SkMatrix_Reference#Matrix'>matrix</a>.
@@ -56,7 +57,7 @@ utility to restore <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> state on d
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a>()
+<a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore()</a>
 </pre>
 
 Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state. Destructor is called when container goes out of
@@ -75,7 +76,7 @@ void <a href='#SkAutoCanvasRestore_restore'>restore()</a>
 </pre>
 
 Restores <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a> to saved state immediately. Subsequent calls and
-~<a href='SkAutoCanvasRestore_Reference#SkAutoCanvasRestore'>SkAutoCanvasRestore</a> have no effect.
+<a href='#SkAutoCanvasRestore_destructor'>~SkAutoCanvasRestore()</a> have no effect.
 
 ### Example
 

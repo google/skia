@@ -11,10 +11,10 @@ Full references with examples are available for:
 *   [SkCanvas](/user/api/SkCanvas_Reference) - drawing context
 *   [SkColor](/user/api/SkColor_Reference) - color encoding using integer numbers
 *   [SkColor4f](/user/api/SkColor4f_Reference) - color encoding using floating point numbers
+*   [SkFont](/user/api/SkFont_Reference) - text style and typeface
 *   [SkImage](/user/api/SkImage_Reference) - two dimensional array of pixels to draw
 *   [SkImageInfo](/user/api/SkImageInfo_Reference) - pixel dimensions and characteristics
 *   [SkIPoint](/user/api/SkIPoint_Reference) - two integer coordinates
-*   [SkIPoint16](/user/api/SkIPoint16_Reference) - two 16-bit integer coordinates
 *   [SkIRect](/user/api/SkIRect_Reference) - integer rectangle
 *   [SkMatrix](/user/api/SkMatrix_Reference) - 3x3 transformation matrix
 *   [SkPaint](/user/api/SkPaint_Reference) - color, stroke, font, effects

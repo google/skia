@@ -8,25 +8,17 @@ SkPaint Reference
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
-public:
+
     <a href='#SkPaint_empty_constructor'>SkPaint()</a>;
-    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
-    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>);
-    ~<a href='#SkPaint_empty_constructor'>SkPaint()</a>;
-    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& operator=(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
-    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& operator=(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>);
-    friend bool operator==(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b);
-    friend bool operator!=(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b);
+    <a href='#SkPaint_copy_const_SkPaint'>SkPaint</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
+    <a href='#SkPaint_move_SkPaint'>SkPaint</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>);
+    <a href='#SkPaint_destructor'>~SkPaint()</a>;
+    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_copy_operator'>operator=</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>);
+    <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_move_operator'>operator=</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>);
+    friend bool <a href='#SkPaint_equal_operator'>operator==</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b);
+    friend bool <a href='#SkPaint_notequal_operator'>operator!=</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b);
     uint32_t <a href='#SkPaint_getHash'>getHash</a>() const;
     void <a href='#SkPaint_reset'>reset()</a>;
-
-    enum Hinting : uint8_t {
-        kNo_Hinting = 0,
-        kSlight_Hinting = 1,
-        kNormal_Hinting = 2,
-        kFull_Hinting = 3,
-    };
-
     void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
     <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
 
@@ -40,11 +32,6 @@ public:
         <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> = 0x400,
         <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> = 0x800,
         <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0xFFFF,
-    };
-
-    enum ReserveFlags {
-        kUnderlineText_ReserveFlag = 0x08,
-        kStrikeThruText_ReserveFlag = 0x10,
     };
 
     uint32_t <a href='#SkPaint_getFlags'>getFlags</a>() const;
@@ -74,8 +61,7 @@ public:
         <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a>,
     };
 
-    static constexpr int <a href='#SkPaint_kStyleCount'>kStyleCount</a> = <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a> + 1;
-
+    static constexpr int <a href='#SkPaint_kStyleCount'>kStyleCount</a> = <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a> + 1
     <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_getStyle'>getStyle</a>() const;
     void <a href='#SkPaint_setStyle'>setStyle</a>(<a href='#SkPaint_Style'>Style</a> style);
     <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_getColor'>getColor</a>() const;
@@ -98,8 +84,7 @@ public:
         <a href='#SkPaint_kDefault_Cap'>kDefault_Cap</a> = <a href='#SkPaint_kButt_Cap'>kButt_Cap</a>,
     };
 
-    static constexpr int <a href='#SkPaint_kCapCount'>kCapCount</a> = <a href='#SkPaint_kLast_Cap'>kLast_Cap</a> + 1;
-
+    static constexpr int <a href='#SkPaint_kCapCount'>kCapCount</a> = <a href='#SkPaint_kLast_Cap'>kLast_Cap</a> + 1
     enum <a href='#SkPaint_Join'>Join</a> : uint8_t {
         <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>,
         <a href='#SkPaint_kRound_Join'>kRound_Join</a>,
@@ -108,8 +93,7 @@ public:
         <a href='#SkPaint_kDefault_Join'>kDefault_Join</a> = <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>,
     };
 
-    static constexpr int <a href='#SkPaint_kJoinCount'>kJoinCount</a> = <a href='#SkPaint_kLast_Join'>kLast_Join</a> + 1;
-
+    static constexpr int <a href='#SkPaint_kJoinCount'>kJoinCount</a> = <a href='#SkPaint_kLast_Join'>kLast_Join</a> + 1
     <a href='#SkPaint_Cap'>Cap</a> <a href='#SkPaint_getStrokeCap'>getStrokeCap</a>() const;
     void <a href='#SkPaint_setStrokeCap'>setStrokeCap</a>(<a href='#SkPaint_Cap'>Cap</a> cap);
     <a href='#SkPaint_Join'>Join</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a>() const;
@@ -140,9 +124,7 @@ public:
     void <a href='#SkPaint_setImageFilter'>setImageFilter</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkImageFilter'>SkImageFilter</a>> imageFilter);
     <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getDrawLooper'>getDrawLooper</a>() const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> <a href='#SkPaint_refDrawLooper'>refDrawLooper</a>() const;
-    <a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* getLooper() const;
     void <a href='#SkPaint_setDrawLooper'>setDrawLooper</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> drawLooper);
-    void setLooper(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>> drawLooper);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>() const;
     void <a href='#SkPaint_setTextSize'>setTextSize</a>(<a href='undocumented#SkScalar'>SkScalar</a> textSize);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>() const;
@@ -159,7 +141,6 @@ public:
 
     <a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
     void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding);
-    void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding);
 
     typedef <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> <a href='#SkPaint_FontMetrics'>FontMetrics</a>;
 
@@ -180,18 +161,18 @@ public:
                      <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length,
                         const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
-public:
+    int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
+                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
+    int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
+                             const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
+    int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[],
+                              <a href='undocumented#SkScalar'>SkScalar</a> constY, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
                               <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const;
     bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const;
-    bool canComputeFastBounds() const;
-    const <a href='SkRect_Reference#SkRect'>SkRect</a>& computeFastBounds(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const;
-    const <a href='SkRect_Reference#SkRect'>SkRect</a>& computeFastStrokeBounds(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig,
-                                          <a href='SkRect_Reference#SkRect'>SkRect</a>* storage) const;
-    const <a href='SkRect_Reference#SkRect'>SkRect</a>& doComputeFastBounds(const <a href='SkRect_Reference#SkRect'>SkRect</a>& orig, <a href='SkRect_Reference#SkRect'>SkRect</a>* storage,
-                                      <a href='#SkPaint_Style'>Style</a> style) const;
 };
+
 </pre>
 
 <a href='SkPaint_Reference#Paint'>Paint</a> controls options applied when drawing and measuring. <a href='SkPaint_Reference#Paint'>Paint</a> collects all
@@ -216,7 +197,7 @@ to affect it. The implementation is free to defer computations associated with t
 <a href='SkPath_Reference#Path'>Path</a> geometries with <a href='#Paint_Anti_Alias'>Anti_Aliasing</a>, regardless of how <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias_Flag</a>
 is set in <a href='SkPaint_Reference#Paint'>Paint</a>.
 
-<a href='SkPaint_Reference#Paint'>Paint</a> describes a single <a href='SkColor_Reference#Color'>color</a>, a single <a href='undocumented#Font'>font</a>, a single <a href='SkImage_Reference#Image'>image</a> quality, and so on.
+<a href='SkPaint_Reference#Paint'>Paint</a> describes a single <a href='SkColor_Reference#Color'>color</a>, a single <a href='SkFont_Reference#Font'>font</a>, a single <a href='SkImage_Reference#Image'>image</a> quality, and so on.
 Multiple colors are drawn either by using multiple paints or with objects like
 <a href='undocumented#Shader'>Shader</a> attached to <a href='SkPaint_Reference#Paint'>Paint</a>.
 
@@ -280,7 +261,7 @@ default initialized <a href='SkPaint_Reference#Paint'>Paint</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>)
+<a href='#SkPaint_copy_const_SkPaint'>SkPaint</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>)
 </pre>
 
 Makes a shallow copy of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>. <a href='undocumented#SkTypeface'>SkTypeface</a>, <a href='undocumented#SkPathEffect'>SkPathEffect</a>, <a href='undocumented#SkShader'>SkShader</a>,
@@ -321,7 +302,7 @@ SK_ColorBLUE == paint2.getColor()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>)
+<a href='#SkPaint_move_SkPaint'>SkPaint</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>)
 </pre>
 
 Implements a move constructor to avoid increasing the reference counts
@@ -380,7 +361,7 @@ paint1 == paint2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-~<a href='#SkPaint_empty_constructor'>SkPaint()</a>
+<a href='#SkPaint_destructor'>~SkPaint()</a>
 </pre>
 
 Decreases <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='undocumented#SkRefCnt'>SkRefCnt</a> of owned objects: <a href='undocumented#SkTypeface'>SkTypeface</a>, <a href='undocumented#SkPathEffect'>SkPathEffect</a>, <a href='undocumented#SkShader'>SkShader</a>,
@@ -394,7 +375,7 @@ objects containing <a href='undocumented#SkRefCnt'>SkRefCnt</a> go to zero, they
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>& operator=(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>)
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_copy_operator'>operator=</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='SkPaint_Reference#Paint'>paint</a>)
 </pre>
 
 Makes a shallow copy of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>. <a href='undocumented#SkTypeface'>SkTypeface</a>, <a href='undocumented#SkPathEffect'>SkPathEffect</a>, <a href='undocumented#SkShader'>SkShader</a>,
@@ -433,7 +414,7 @@ SK_ColorRED == paint2.getColor()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>& operator=(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>)
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_move_operator'>operator=</a>(<a href='SkPaint_Reference#SkPaint'>SkPaint</a>&& <a href='SkPaint_Reference#Paint'>paint</a>)
 </pre>
 
 Moves the <a href='#SkPaint_move_operator_paint'>paint</a> to avoid increasing the reference counts
@@ -471,7 +452,7 @@ SK_ColorRED == paint2.getColor()
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator==(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b)
+bool <a href='#SkPaint_equal_operator'>operator==</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b)
 </pre>
 
 Compares <a href='#SkPaint_equal_operator_a'>a</a> and <a href='#SkPaint_equal_operator_b'>b</a>, and returns true if <a href='#SkPaint_equal_operator_a'>a</a> and <a href='#SkPaint_equal_operator_b'>b</a> are equivalent. May return false
@@ -507,14 +488,14 @@ paint1 != paint2
 
 ### See Also
 
-<a href='#SkPaint_notequal_operator'>operator!=(const SkPaint& a, const SkPaint& b)</a>
+<a href='#SkPaint_notequal_operator'>operator!=</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_equal_operator_a'>a</a>, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_equal_operator_b'>b</a>)
 
 <a name='SkPaint_notequal_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator!=(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b)
+bool <a href='#SkPaint_notequal_operator'>operator!=</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b)
 </pre>
 
 Compares <a href='#SkPaint_notequal_operator_a'>a</a> and <a href='#SkPaint_notequal_operator_b'>b</a>, and returns true if <a href='#SkPaint_notequal_operator_a'>a</a> and <a href='#SkPaint_notequal_operator_b'>b</a> are not equivalent. May return true
@@ -550,14 +531,14 @@ paint1 == paint2
 
 ### See Also
 
-<a href='#SkPaint_equal_operator'>operator==(const SkPaint& a, const SkPaint& b)</a>
+<a href='#SkPaint_equal_operator'>operator==</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_notequal_operator_a'>a</a>, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& <a href='#SkPaint_notequal_operator_b'>b</a>)
 
 <a name='SkPaint_getHash'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPaint_getHash'>getHash</a>() const
+uint32_t <a href='#SkPaint_getHash'>getHash</a>()const
 </pre>
 
 Returns a hash generated from <a href='SkPaint_Reference#SkPaint'>SkPaint</a> values and pointers.
@@ -565,7 +546,7 @@ Identical hashes guarantee that the paints are
 equivalent, but differing hashes do not guarantee that the paints have differing
 contents.
 
-If If<a href='#SkPaint_equal_operator'>operator==(const SkPaint& a, const SkPaint& b)</a> returns true for two paints,
+If <a href='#SkPaint_equal_operator'>operator==</a>(const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& a, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& b) returns true for two paints,
 their hashes are also equal.
 
 The hash returned is platform and implementation specific.
@@ -626,7 +607,7 @@ paint1 == paint2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const
+<a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>()const
 </pre>
 
 Returns level of <a href='undocumented#Glyph'>glyph</a> outline adjustment.
@@ -667,6 +648,7 @@ SkFontHinting::kNormal == paint.getHinting()
         <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> = 0x800,
         <a href='#SkPaint_kAllFlags'>kAllFlags</a> = 0xFFFF,
     };
+
 </pre>
 
 The bit values stored in <a href='#SkPaint_Flags'>Flags</a>.
@@ -744,7 +726,7 @@ mask of all <a href='#SkPaint_Flags'>Flags</a>, including private flags and flag
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPaint_getFlags'>getFlags</a>() const
+uint32_t <a href='#SkPaint_getFlags'>getFlags</a>()const
 </pre>
 
 Returns <a href='SkPaint_Reference#Paint'>paint</a> settings described by <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_Flags'>Flags</a>. Each setting uses one
@@ -834,7 +816,7 @@ The <a href='undocumented#Line'>lines</a> are drawn into <a href='SkBitmap_Refer
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isAntiAlias'>isAntiAlias</a>() const
+bool <a href='#SkPaint_isAntiAlias'>isAntiAlias</a>()const
 </pre>
 
 Returns true if pixels on the active edges of <a href='SkPath_Reference#SkPath'>SkPath</a> may be drawn with partial transparency.
@@ -934,7 +916,7 @@ Gradient <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorTy
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isDither'>isDither</a>() const
+bool <a href='#SkPaint_isDither'>isDither</a>()const
 </pre>
 
 Returns true if <a href='SkColor_Reference#Color'>color</a> error may be distributed to smooth <a href='SkColor_Reference#Color'>color</a> transition.
@@ -1033,7 +1015,7 @@ If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear, it is the 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isLinearText'>isLinearText</a>() const
+bool <a href='#SkPaint_isLinearText'>isLinearText</a>()const
 </pre>
 
 Returns true if <a href='undocumented#Text'>text</a> is converted to <a href='SkPath_Reference#SkPath'>SkPath</a> before drawing and measuring.
@@ -1093,7 +1075,7 @@ of the <a href='SkColor_Reference#Color'>color</a> increases, the edge of the <a
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isSubpixelText'>isSubpixelText</a>() const
+bool <a href='#SkPaint_isSubpixelText'>isSubpixelText</a>()const
 </pre>
 
 Returns true if <a href='undocumented#Glyph'>glyphs</a> at different sub-pixel positions may differ on <a href='undocumented#Pixel'>pixel</a> edge coverage.
@@ -1162,7 +1144,7 @@ the <a href='SkColor_Reference#Color'>color</a> components as RGB or BGR.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isLCDRenderText'>isLCDRenderText</a>() const
+bool <a href='#SkPaint_isLCDRenderText'>isLCDRenderText</a>()const
 </pre>
 
 Returns true if <a href='undocumented#Glyph'>glyphs</a> may use LCD striping to improve <a href='undocumented#Glyph'>glyph</a> edges.
@@ -1224,7 +1206,7 @@ paint1 == paint2
 
 <a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> allows selecting custom sized <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> when set chooses an embedded <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> over an outline contained
-in a <a href='undocumented#Font'>font</a> if the platform supports this option.
+in a <a href='SkFont_Reference#Font'>font</a> if the platform supports this option.
 
 FreeType selects the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> if available when <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> is set, and selects
 the outline <a href='undocumented#Glyph'>glyph</a> if <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> is clear.
@@ -1265,10 +1247,10 @@ Windows may select the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='u
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>() const
+bool <a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>()const
 </pre>
 
-Returns true if <a href='undocumented#Font'>font</a> engine may return <a href='undocumented#Glyph'>glyphs</a> from <a href='undocumented#Font'>font</a> <a href='SkBitmap_Reference#Bitmap'>bitmaps</a> instead of from outlines.
+Returns true if <a href='SkFont_Reference#Font'>font</a> engine may return <a href='undocumented#Glyph'>glyphs</a> from <a href='SkFont_Reference#Font'>font</a> <a href='SkBitmap_Reference#Bitmap'>bitmaps</a> instead of from outlines.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a>.
 
@@ -1335,12 +1317,12 @@ instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='u
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const
+bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>()const
 </pre>
 
 Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or
-<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='undocumented#Font'>font</a> manager.
-If true, instructs the <a href='undocumented#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
+<a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, and if platform uses FreeType as the <a href='SkFont_Reference#Font'>font</a> manager.
+If true, instructs the <a href='SkFont_Reference#Font'>font</a> manager to always hint <a href='undocumented#Glyph'>glyphs</a>.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a>.
 
@@ -1403,15 +1385,15 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> if <a href='#S
 
 ---
 
-<a href='#Paint_Fake_Bold'>Fake_Bold</a> approximates the bold <a href='undocumented#Font'>font</a> style accompanying a normal <a href='undocumented#Font'>font</a> when a bold <a href='undocumented#Font'>font</a> face
-is not available. Skia does not provide <a href='undocumented#Font'>font</a> substitution; it is up to the client to find the
-bold <a href='undocumented#Font'>font</a> face using the platform <a href='#Font_Manager'>Font_Manager</a>.
+<a href='#Paint_Fake_Bold'>Fake_Bold</a> approximates the bold <a href='SkFont_Reference#Font'>font</a> style accompanying a normal <a href='SkFont_Reference#Font'>font</a> when a bold <a href='SkFont_Reference#Font'>font</a> face
+is not available. Skia does not provide <a href='SkFont_Reference#Font'>font</a> substitution; it is up to the client to find the
+bold <a href='SkFont_Reference#Font'>font</a> face using the platform <a href='#Font_Manager'>Font_Manager</a>.
 
-Use <a href='#Paint_Text_Skew_X'>Text_Skew_X</a> to approximate an italic <a href='undocumented#Font'>font</a> style when the italic <a href='undocumented#Font'>font</a> face
+Use <a href='#Paint_Text_Skew_X'>Text_Skew_X</a> to approximate an italic <a href='SkFont_Reference#Font'>font</a> style when the italic <a href='SkFont_Reference#Font'>font</a> face
 is not available.
 
 A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to direct
-the  <a href='undocumented#Font_Engine'>font engine</a> to create the bold <a href='undocumented#Glyph'>Glyphs</a>. Otherwise, the extra bold is computed
+the  <a href='SkFont_Reference#Font_Engine'>font engine</a> to create the bold <a href='undocumented#Glyph'>Glyphs</a>. Otherwise, the extra bold is computed
 by increasing the  <a href='#Stroke_Width'>stroke width</a> and setting the <a href='#SkPaint_Style'>Style</a> to <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a> as needed.
 
 <a href='#Paint_Fake_Bold'>Fake_Bold</a> is disabled by default.
@@ -1425,7 +1407,7 @@ by increasing the  <a href='#Stroke_Width'>stroke width</a> and setting the <a h
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const
+bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>()const
 </pre>
 
 Returns true if approximate bold by increasing the stroke width when creating <a href='undocumented#Glyph'>glyph</a> <a href='SkBitmap_Reference#Bitmap'>bitmaps</a>
@@ -1490,7 +1472,7 @@ spacing by the difference of the hinted and unhinted <a href='#Left_Side_Bearing
 FreeType as their <a href='#Font_Engine'>Font_Engine</a>.
 
 <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> is not related to <a href='undocumented#Text'>text</a> kerning, where the space between
-a specific pair of characters is adjusted using <a href='undocumented#Data'>data</a> in the <a href='undocumented#Font'>font</a> kerning tables.
+a specific pair of characters is adjusted using <a href='undocumented#Data'>data</a> in the <a href='SkFont_Reference#Font'>font</a> kerning tables.
 
 <a name='Filter_Quality_Methods'></a>
 
@@ -1528,7 +1510,7 @@ and when <a href='SkPaint_Reference#Paint'>Paint</a> has a <a href='undocumented
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>() const
+<a href='undocumented#SkFilterQuality'>SkFilterQuality</a> <a href='#SkPaint_getFilterQuality'>getFilterQuality</a>()const
 </pre>
 
 Returns <a href='undocumented#SkFilterQuality'>SkFilterQuality</a>, the <a href='SkImage_Reference#Image'>image</a> filtering level. A lower setting
@@ -1623,7 +1605,7 @@ a different arrangement.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_getColor'>getColor</a>() const
+<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_getColor'>getColor</a>()const
 </pre>
 
 Retrieves <a href='SkColor_Reference#Alpha'>alpha</a> and RGB, <a href='undocumented#Unpremultiply'>unpremultiplied</a>, packed into 32 bits.
@@ -1655,7 +1637,7 @@ Yellow is 100% red, 100% green, and 0% blue.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='#SkPaint_getColor4f'>getColor4f</a>() const
+<a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='#SkPaint_getColor4f'>getColor4f</a>()const
 </pre>
 
 Retrieves <a href='SkColor_Reference#Alpha'>alpha</a> and RGB, <a href='undocumented#Unpremultiply'>unpremultiplied</a>, as four floating <a href='SkPoint_Reference#Point'>point</a> values. RGB are
@@ -1763,7 +1745,7 @@ green1 == green2
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint8_t <a href='#SkPaint_getAlpha'>getAlpha</a>() const
+uint8_t <a href='#SkPaint_getAlpha'>getAlpha</a>()const
 </pre>
 
 Retrieves <a href='SkColor_Reference#Alpha'>alpha</a> from the <a href='SkColor_Reference#Color'>color</a> used when stroking and filling.
@@ -1914,6 +1896,7 @@ while stroking.
         <a href='#SkPaint_kStroke_Style'>kStroke_Style</a>,
         <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a>,
     };
+
 </pre>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -1978,7 +1961,7 @@ May be used to verify that <a href='#SkPaint_Style'>Style</a> is a legal value.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_getStyle'>getStyle</a>() const
+<a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_getStyle'>getStyle</a>()const
 </pre>
 
 Returns whether the geometry is filled, stroked, or filled and stroked.
@@ -2057,7 +2040,7 @@ The default width for the <a href='SkPaint_Reference#Paint'>paint</a> is zero.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeWidth'>getStrokeWidth</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeWidth'>getStrokeWidth</a>()const
 </pre>
 
 Returns the thickness of the pen used by <a href='SkPaint_Reference#SkPaint'>SkPaint</a> to
@@ -2158,7 +2141,7 @@ by a bevel join.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a>()const
 </pre>
 
 Returns the limit at which a sharp corner is drawn beveled.
@@ -2232,6 +2215,7 @@ default miter limit == 8
         <a href='#SkPaint_kLast_Cap'>kLast_Cap</a> = <a href='#SkPaint_kSquare_Cap'>kSquare_Cap</a>,
         <a href='#SkPaint_kDefault_Cap'>kDefault_Cap</a> = <a href='#SkPaint_kButt_Cap'>kButt_Cap</a>,
     };
+
 </pre>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -2318,7 +2302,7 @@ at the <a href='SkPath_Overview#Contour'>contour</a> <a href='SkPoint_Reference#
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_Cap'>Cap</a> <a href='#SkPaint_getStrokeCap'>getStrokeCap</a>() const
+<a href='#SkPaint_Cap'>Cap</a> <a href='#SkPaint_getStrokeCap'>getStrokeCap</a>()const
 </pre>
 
 Returns the geometry drawn at the beginning and end of strokes.
@@ -2405,6 +2389,7 @@ the following <a href='undocumented#Curve'>curve</a>, the pair of <a href='undoc
         <a href='#SkPaint_kLast_Join'>kLast_Join</a> = <a href='#SkPaint_kBevel_Join'>kBevel_Join</a>,
         <a href='#SkPaint_kDefault_Join'>kDefault_Join</a> = <a href='#SkPaint_kMiter_Join'>kMiter_Join</a>,
     };
+
 </pre>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -2486,7 +2471,7 @@ May be used to verify that <a href='#Paint_Stroke_Join'>Stroke_Join</a> is a leg
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_Join'>Join</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a>() const
+<a href='#SkPaint_Join'>Join</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a>()const
 </pre>
 
 Returns the geometry drawn at the corners of strokes.
@@ -2581,7 +2566,7 @@ returns false since Hairline has no filled equivalent.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst, const <a href='SkRect_Reference#SkRect'>SkRect</a>* cullRect, <a href='undocumented#SkScalar'>SkScalar</a> resScale = 1) const
+bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst, const <a href='SkRect_Reference#SkRect'>SkRect</a>* cullRect, <a href='undocumented#SkScalar'>SkScalar</a> resScale = 1)const
 </pre>
 
 Returns the filled equivalent of the stroked <a href='SkPath_Reference#Path'>path</a>.
@@ -2620,7 +2605,7 @@ At the highest precision, the filled <a href='SkPath_Reference#Path'>path</a> ha
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const
+bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst)const
 </pre>
 
 Returns the filled equivalent of the stroked <a href='SkPath_Reference#Path'>path</a>.
@@ -2675,7 +2660,7 @@ If <a href='undocumented#Shader'>Shader</a> generates only <a href='#Color_Alpha
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkShader'>SkShader</a>* <a href='#SkPaint_getShader'>getShader</a>() const
+<a href='undocumented#SkShader'>SkShader</a>* <a href='#SkPaint_getShader'>getShader</a>()const
 </pre>
 
 Returns optional colors used when filling a <a href='SkPath_Reference#Path'>path</a>, such as a gradient.
@@ -2704,7 +2689,7 @@ nullptr != shader
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; <a href='#SkPaint_refShader'>refShader</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; <a href='#SkPaint_refShader'>refShader</a>()const
 </pre>
 
 Returns optional colors used when filling a <a href='SkPath_Reference#Path'>path</a>, such as a gradient.
@@ -2771,7 +2756,7 @@ The drawn transparency can be modified without altering <a href='#Color_Filter'>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkColorFilter'>SkColorFilter</a>* <a href='#SkPaint_getColorFilter'>getColorFilter</a>() const
+<a href='undocumented#SkColorFilter'>SkColorFilter</a>* <a href='#SkPaint_getColorFilter'>getColorFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkColorFilter'>SkColorFilter</a> if set, or nullptr.
@@ -2799,7 +2784,7 @@ nullptr != color filter
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorFilter'>SkColorFilter</a>&gt; <a href='#SkPaint_refColorFilter'>refColorFilter</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkColorFilter'>SkColorFilter</a>&gt; <a href='#SkPaint_refColorFilter'>refColorFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkColorFilter'>SkColorFilter</a> if set, or nullptr.
@@ -2867,7 +2852,7 @@ over the destination <a href='SkColor_Reference#Color'>color</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> <a href='#SkPaint_getBlendMode'>getBlendMode</a>() const
+<a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> <a href='#SkPaint_getBlendMode'>getBlendMode</a>()const
 </pre>
 
 Returns <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>.
@@ -2895,7 +2880,7 @@ kSrcOver != getBlendMode
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_isSrcOver'>isSrcOver</a>() const
+bool <a href='#SkPaint_isSrcOver'>isSrcOver</a>()const
 </pre>
 
 Returns true if <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> is <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kSrcOver'>kSrcOver</a>, the default.
@@ -2969,7 +2954,7 @@ If <a href='SkPaint_Reference#Paint'>Paint</a> has no <a href='#Path_Effect'>Pat
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkPathEffect'>SkPathEffect</a>* <a href='#SkPaint_getPathEffect'>getPathEffect</a>() const
+<a href='undocumented#SkPathEffect'>SkPathEffect</a>* <a href='#SkPaint_getPathEffect'>getPathEffect</a>()const
 </pre>
 
 Returns <a href='undocumented#SkPathEffect'>SkPathEffect</a> if set, or nullptr.
@@ -2997,7 +2982,7 @@ nullptr != path effect
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkPathEffect'>SkPathEffect</a>&gt; <a href='#SkPaint_refPathEffect'>refPathEffect</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkPathEffect'>SkPathEffect</a>&gt; <a href='#SkPaint_refPathEffect'>refPathEffect</a>()const
 </pre>
 
 Returns <a href='undocumented#SkPathEffect'>SkPathEffect</a> if set, or nullptr.
@@ -3064,7 +3049,7 @@ modifying the draw.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>* <a href='#SkPaint_getMaskFilter'>getMaskFilter</a>() const
+<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>* <a href='#SkPaint_getMaskFilter'>getMaskFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> if set, or nullptr.
@@ -3092,7 +3077,7 @@ nullptr != mask filter
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>&gt; <a href='#SkPaint_refMaskFilter'>refMaskFilter</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkMaskFilter'>SkMaskFilter</a>&gt; <a href='#SkPaint_refMaskFilter'>refMaskFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> if set, or nullptr.
@@ -3145,9 +3130,9 @@ Increments <a href='#SkPaint_setMaskFilter_maskFilter'>maskFilter</a> <a href='u
 
 ---
 
-<a href='undocumented#Typeface'>Typeface</a> identifies the <a href='undocumented#Font'>font</a> used when drawing and measuring <a href='undocumented#Text'>text</a>.
+<a href='undocumented#Typeface'>Typeface</a> identifies the <a href='SkFont_Reference#Font'>font</a> used when drawing and measuring <a href='undocumented#Text'>text</a>.
 <a href='undocumented#Typeface'>Typeface</a> may be specified by name, from a file, or from a <a href='undocumented#Data'>data</a> <a href='SkStream_Reference#Stream'>stream</a>.
-The default <a href='undocumented#Typeface'>Typeface</a> defers to the platform-specific default <a href='undocumented#Font'>font</a>
+The default <a href='undocumented#Typeface'>Typeface</a> defers to the platform-specific default <a href='SkFont_Reference#Font'>font</a>
 implementation.
 
 ### Example
@@ -3159,7 +3144,7 @@ implementation.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkTypeface'>SkTypeface</a>* <a href='#SkPaint_getTypeface'>getTypeface</a>() const
+<a href='undocumented#SkTypeface'>SkTypeface</a>* <a href='#SkPaint_getTypeface'>getTypeface</a>()const
 </pre>
 
 Returns <a href='undocumented#SkTypeface'>SkTypeface</a> if set, or nullptr.
@@ -3187,7 +3172,7 @@ nullptr != typeface
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkTypeface'>SkTypeface</a>&gt; <a href='#SkPaint_refTypeface'>refTypeface</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkTypeface'>SkTypeface</a>&gt; <a href='#SkPaint_refTypeface'>refTypeface</a>()const
 </pre>
 
 Increases <a href='undocumented#SkTypeface'>SkTypeface</a> <a href='undocumented#SkRefCnt'>SkRefCnt</a> by one.
@@ -3224,7 +3209,7 @@ Pass nullptr to clear <a href='undocumented#SkTypeface'>SkTypeface</a> and use t
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setTypeface_typeface'><code><strong>typeface</strong></code></a></td>
-    <td><a href='undocumented#Font'>font</a> and style used to draw <a href='undocumented#Text'>text</a></td>
+    <td><a href='SkFont_Reference#Font'>font</a> and style used to draw <a href='undocumented#Text'>text</a></td>
   </tr>
 </table>
 
@@ -3254,7 +3239,7 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkImageFilter'>SkImageFilter</a>* <a href='#SkPaint_getImageFilter'>getImageFilter</a>() const
+<a href='undocumented#SkImageFilter'>SkImageFilter</a>* <a href='#SkPaint_getImageFilter'>getImageFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkImageFilter'>SkImageFilter</a> if set, or nullptr.
@@ -3282,7 +3267,7 @@ nullptr != image filter
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkImageFilter'>SkImageFilter</a>&gt; <a href='#SkPaint_refImageFilter'>refImageFilter</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkImageFilter'>SkImageFilter</a>&gt; <a href='#SkPaint_refImageFilter'>refImageFilter</a>()const
 </pre>
 
 Returns <a href='undocumented#SkImageFilter'>SkImageFilter</a> if set, or nullptr.
@@ -3350,7 +3335,7 @@ Set <a href='#Draw_Looper'>Draw_Looper</a> to nullptr to prevent <a href='#Draw_
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getDrawLooper'>getDrawLooper</a>() const
+<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>* <a href='#SkPaint_getDrawLooper'>getDrawLooper</a>()const
 </pre>
 
 Returns <a href='undocumented#SkDrawLooper'>SkDrawLooper</a> if set, or nullptr.
@@ -3378,7 +3363,7 @@ nullptr != draw looper
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&gt; <a href='#SkPaint_refDrawLooper'>refDrawLooper</a>() const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkDrawLooper'>SkDrawLooper</a>&gt; <a href='#SkPaint_refDrawLooper'>refDrawLooper</a>()const
 </pre>
 
 Returns <a href='undocumented#SkDrawLooper'>SkDrawLooper</a> if set, or nullptr.
@@ -3444,7 +3429,7 @@ Set <a href='undocumented#SkPaintDefaults_TextSize'>SkPaintDefaults_TextSize</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSize'>getTextSize</a>()const
 </pre>
 
 Returns <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> in <a href='SkPoint_Reference#Point'>points</a>.
@@ -3498,7 +3483,7 @@ is not available.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextScaleX'>getTextScaleX</a>()const
 </pre>
 
 Returns <a href='undocumented#Text'>text</a> scale on x-axis.
@@ -3553,7 +3538,7 @@ is not available.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSkewX'>getTextSkewX</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSkewX'>getTextSkewX</a>()const
 </pre>
 
 Returns <a href='undocumented#Text'>text</a> skew on x-axis.
@@ -3604,6 +3589,7 @@ Default value is zero.
         <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>,
         <a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>,
     };
+
 </pre>
 
 <a href='#SkPaint_TextEncoding'>TextEncoding</a> determines whether <a href='undocumented#Text'>text</a> specifies character codes and their encoded
@@ -3620,7 +3606,7 @@ in the total storage required.
 
 <a href='https://www.unicode.org/versions/Unicode5.0.0/ch03.pdf'>UTF-32</a></a> encodes each character as one 32-bit word.
 
-<a href='#Font_Manager'>Font_Manager</a> uses <a href='undocumented#Font'>font</a> <a href='undocumented#Data'>data</a> to convert character code <a href='SkPoint_Reference#Point'>points</a> into <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='#Font_Manager'>Font_Manager</a> uses <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a> to convert character code <a href='SkPoint_Reference#Point'>points</a> into <a href='undocumented#Glyph'>glyph</a> indices.
 A <a href='undocumented#Glyph'>glyph</a> index is a 16-bit word.
 
 <a href='#SkPaint_TextEncoding'>TextEncoding</a> is set to <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a> by default.
@@ -3670,11 +3656,11 @@ Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Gly
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const
+<a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>()const
 </pre>
 
 Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='undocumented#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
 
 ### Return Value
 
@@ -3704,7 +3690,7 @@ void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_Te
 </pre>
 
 Sets <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to <a href='#SkPaint_setTextEncoding_encoding'>encoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='undocumented#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
+<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
 Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are ignored.
 
 ### Parameters
@@ -3739,7 +3725,7 @@ Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics)const
 </pre>
 
 Returns <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
@@ -3774,7 +3760,7 @@ recommended spacing between <a href='undocumented#Line'>lines</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>()const
 </pre>
 
 Returns the recommended spacing between <a href='undocumented#Line'>lines</a>: the sum of metrics
@@ -3807,7 +3793,7 @@ textSize: 32 fontSpacing: 37.25
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[]) const
+int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[])const
 </pre>
 
 Converts <a href='#SkPaint_textToGlyphs_text'>text</a> into <a href='undocumented#Glyph'>glyph</a> indices.
@@ -3849,7 +3835,7 @@ number of <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> represented by <a hr
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const
+int <a href='#SkPaint_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength)const
 </pre>
 
 Returns the number of <a href='undocumented#Glyph'>glyphs</a> in <a href='#SkPaint_countText_text'>text</a>.
@@ -3887,7 +3873,7 @@ count = 5
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const
+bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength)const
 </pre>
 
 Returns true if all <a href='#SkPaint_containsText_text'>text</a> corresponds to a non-zero <a href='undocumented#Glyph'>glyph</a> index.
@@ -3950,7 +3936,7 @@ that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a>(const <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkUnichar'>SkUnichar</a> <a href='undocumented#Text'>text</a>[]) const
+void <a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a>(const <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkUnichar'>SkUnichar</a> <a href='undocumented#Text'>text</a>[])const
 </pre>
 
 Converts <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> into <a href='#SkPaint_glyphsToUnichars_text'>text</a> if possible.
@@ -3958,12 +3944,12 @@ Converts <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> into <a href='#Sk
 Uses the <a href='undocumented#SkTypeface'>SkTypeface</a>, but is unaffected
 by <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; the <a href='#SkPaint_glyphsToUnichars_text'>text</a> values returned are equivalent to <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>.
 
-Only supported on platforms that use FreeType as the  <a href='undocumented#Font_Engine'>font engine</a>.
+Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#Font_Engine'>font engine</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_glyphsToUnichars_glyphs'><code><strong>glyphs</strong></code></a></td>
-    <td>array of indices into <a href='undocumented#Font'>font</a></td>
+    <td>array of indices into <a href='SkFont_Reference#Font'>font</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_glyphsToUnichars_count'><code><strong>count</strong></code></a></td>
     <td>length of <a href='undocumented#Glyph'>glyph</a> array</td>
@@ -3985,7 +3971,7 @@ Only supported on platforms that use FreeType as the  <a href='undocumented#Font
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds)const
 </pre>
 
 Returns the advance width of <a href='#SkPaint_measureText_text'>text</a>.
@@ -4022,7 +4008,7 @@ advance width or height
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length) const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length)const
 </pre>
 
 Returns the advance width of <a href='#SkPaint_measureText_2_text'>text</a>.
@@ -4064,7 +4050,7 @@ double width = 10
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 size_t <a href='#SkPaint_breakText'>breakText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
-                 <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const
+                 <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr)const
 </pre>
 
 Returns the bytes of <a href='#SkPaint_breakText_text'>text</a> that fit within <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
@@ -4106,7 +4092,7 @@ bytes of <a href='#SkPaint_breakText_text'>text</a> that fit, always less than o
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextWidths'>getTextWidths</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[] = nullptr) const
+int <a href='#SkPaint_getTextWidths'>getTextWidths</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[] = nullptr)const
 </pre>
 
 Retrieves the advance and <a href='#SkPaint_getTextWidths_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkPaint_getTextWidths_text'>text</a>, and returns
@@ -4154,7 +4140,7 @@ The underlines show the <a href='#SkPaint_getTextWidths_text'>text</a> advance, 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const
+void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>)const
 </pre>
 
 Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getTextPath_text'>text</a>.
@@ -4193,7 +4179,7 @@ the offset location. The result is rendered with one draw call.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const
+void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>)const
 </pre>
 
 Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getPosTextPath_text'>text</a>.
@@ -4236,7 +4222,7 @@ underline that skips Descenders.
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                      const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+                      const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
 </pre>
 
 Returns the number of <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getTextIntercepts_bounds'>bounds</a>.
@@ -4286,7 +4272,7 @@ number of intersections; may be zero
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
-                         const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+                         const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
 </pre>
 
 Returns the number of <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getPosTextIntercepts_bounds'>bounds</a>.
@@ -4333,7 +4319,7 @@ number of intersections; may be zero
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> constY,
-                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
 </pre>
 
 Returns the number of <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getPosTextHIntercepts_bounds'>bounds</a>.
@@ -4382,7 +4368,7 @@ number of intersections; may be zero
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
 </pre>
 
 Returns the number of <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getTextBlobIntercepts_bounds'>bounds</a>.
@@ -4425,12 +4411,12 @@ number of intersections; may be zero
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const
+<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>()const
 </pre>
 
 Returns the union of bounds of all <a href='undocumented#Glyph'>glyphs</a>.
-Returned dimensions are computed by <a href='undocumented#Font'>font</a> manager from <a href='undocumented#Font'>font</a> <a href='undocumented#Data'>data</a>,
-ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='undocumented#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
+Returned dimensions are computed by <a href='SkFont_Reference#Font'>font</a> manager from <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a>,
+ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='SkFont_Reference#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 
 If <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> is large, <a href='undocumented#Text'>text</a> scale is one, and <a href='undocumented#Text'>text</a> skew is zero,
 returns the bounds as:
@@ -4458,7 +4444,7 @@ font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const
+bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>()const
 </pre>
 
 Returns true if <a href='SkPaint_Reference#SkPaint'>SkPaint</a> prevents all drawing;

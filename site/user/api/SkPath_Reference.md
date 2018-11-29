@@ -8,18 +8,18 @@ SkPath Reference
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 class <a href='SkPath_Reference#SkPath'>SkPath</a> {
-public:
+
     enum <a href='#SkPath_Direction'>Direction</a> : int {
         <a href='#SkPath_kCW_Direction'>kCW_Direction</a>,
         <a href='#SkPath_kCCW_Direction'>kCCW_Direction</a>,
     };
 
     <a href='#SkPath_empty_constructor'>SkPath()</a>;
-    <a href='SkPath_Reference#SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
-    ~<a href='#SkPath_empty_constructor'>SkPath()</a>;
-    <a href='SkPath_Reference#SkPath'>SkPath</a>& operator=(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
-    friend bool operator==(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
-    friend bool operator!=(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
+    <a href='#SkPath_copy_const_SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
+    <a href='#SkPath_destructor'>~SkPath()</a>;
+    <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
+    friend bool <a href='#SkPath_equal_operator'>operator==</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
+    friend bool <a href='#SkPath_notequal_operator'>operator!=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
     bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& compare) const;
     bool interpolate(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out) const;
 
@@ -169,27 +169,6 @@ public:
         <a href='#SkPath_kDone_Verb'>kDone_Verb</a>,
     };
 
-    class <a href='#SkPath_Iter'>Iter</a> {
-    public:
-        <a href='#SkPath_Iter'>Iter</a>();
-        <a href='#SkPath_Iter'>Iter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
-        void setPath(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
-        <a href='#SkPath_Verb'>Verb</a> next(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false);
-        <a href='undocumented#SkScalar'>SkScalar</a> conicWeight() const;
-        bool isCloseLine() const;
-        bool isClosedContour() const;
-    };
-
-    class <a href='#SkPath_RawIter'>RawIter</a> {
-    public:
-        <a href='#SkPath_RawIter'>RawIter</a>();
-        <a href='#SkPath_RawIter'>RawIter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
-        void setPath(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
-        <a href='#SkPath_Verb'>Verb</a> next(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4]);
-        <a href='#SkPath_Verb'>Verb</a> peek() const;
-        <a href='undocumented#SkScalar'>SkScalar</a> conicWeight() const;
-    };
-
     bool contains(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
     void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, bool forceClose, bool dumpAsHex) const;
     void <a href='#SkPath_dump'>dump()</a> const;
@@ -199,9 +178,8 @@ public:
     size_t <a href='#SkPath_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length);
     uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>() const;
     bool <a href='#SkPath_isValid'>isValid</a>() const;
-    bool <a href='#SkPath_isValid'>isValid</a>() const;
-    bool pathRefIsValid() const;
 };
+
 </pre>
 
 <a href='SkPath_Reference#Path'>Paths</a> contain geometry. <a href='SkPath_Reference#Path'>Paths</a> may be empty, or contain one or more <a href='SkPath_Reference#Verb'>Verbs</a> that
@@ -432,7 +410,7 @@ path is empty
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPath_Reference#SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
+<a href='#SkPath_copy_const_SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
 </pre>
 
 Constructs a copy of an existing <a href='#SkPath_copy_const_SkPath_path'>path</a>.
@@ -475,14 +453,14 @@ path2 verbs: 3
 
 ### See Also
 
-<a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+<a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_copy_const_SkPath_path'>path</a>)
 
 <a name='SkPath_destructor'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-~<a href='#SkPath_empty_constructor'>SkPath()</a>
+<a href='#SkPath_destructor'>~SkPath()</a>
 </pre>
 
 Releases ownership of any shared <a href='undocumented#Data'>data</a> and deletes <a href='undocumented#Data'>data</a> if <a href='SkPath_Reference#SkPath'>SkPath</a> is sole owner.
@@ -494,14 +472,14 @@ Releases ownership of any shared <a href='undocumented#Data'>data</a> and delete
 
 ### See Also
 
-<a href='#SkPath_empty_constructor'>SkPath()</a> SkPath()<a href='#SkPath_copy_const_SkPath'>SkPath(const SkPath& path)</a> SkPath(const SkPath& path)<a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+<a href='#SkPath_empty_constructor'>SkPath()</a> <a href='#SkPath_copy_const_SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>) <a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
 
 <a name='SkPath_copy_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPath_Reference#SkPath'>SkPath</a>& operator=(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
+<a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
 </pre>
 
 Constructs a copy of an existing <a href='#SkPath_copy_operator_path'>path</a>.
@@ -539,14 +517,14 @@ path2 bounds = 10, 20, 30, 40
 
 ### See Also
 
-<a href='#SkPath_swap'>swap</a> swap<a href='#SkPath_copy_const_SkPath'>SkPath(const SkPath& path)</a>
+<a href='#SkPath_swap'>swap</a> <a href='#SkPath_copy_const_SkPath'>SkPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_copy_operator_path'>path</a>)
 
 <a name='SkPath_equal_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator==(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b)
+bool <a href='#SkPath_equal_operator'>operator==</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b)
 </pre>
 
 Compares <a href='#SkPath_equal_operator_a'>a</a> and <a href='#SkPath_equal_operator_b'>b</a>; returns true if <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_FillType'>FillType</a>,  <a href='#Verb_Array'>verb array</a>,  <a href='SkPath_Reference#Point_Array'>SkPoint array</a>, and <a href='SkPath_Reference#Conic_Weight'>weights</a>
@@ -585,14 +563,14 @@ reset one == two
 
 ### See Also
 
-<a href='#SkPath_notequal_operator'>operator!=(const SkPath& a, const SkPath& b)</a> operator!=(const SkPath& a, const SkPath& b)<a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+<a href='#SkPath_notequal_operator'>operator!=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_equal_operator_a'>a</a>, const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_equal_operator_b'>b</a>) <a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
 
 <a name='SkPath_notequal_operator'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool operator!=(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b)
+bool <a href='#SkPath_notequal_operator'>operator!=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b)
 </pre>
 
 Compares <a href='#SkPath_notequal_operator_a'>a</a> and <a href='#SkPath_notequal_operator_b'>b</a>; returns true if <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_FillType'>FillType</a>,  <a href='#Verb_Array'>verb array</a>,  <a href='SkPath_Reference#Point_Array'>SkPoint array</a>, and <a href='SkPath_Reference#Conic_Weight'>weights</a>
@@ -635,7 +613,7 @@ convexity !=
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& compare) const
+bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& compare)const
 </pre>
 
 Returns true if <a href='SkPath_Reference#SkPath'>SkPath</a> contain equal <a href='SkPath_Reference#Verb'>verbs</a> and equal <a href='SkPath_Reference#Conic_Weight'>weights</a>.
@@ -679,7 +657,7 @@ paths are interpolatable
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool interpolate(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out) const
+bool interpolate(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out)const
 </pre>
 
 Interpolates between <a href='SkPath_Reference#Path'>Paths</a> with <a href='#Path_Point_Array'>Point_Array</a> of equal <a href='undocumented#Size'>size</a>.
@@ -798,7 +776,7 @@ is enclosed by an even number of Contours</td>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_getFillType'>getFillType</a>() const
+<a href='#SkPath_FillType'>FillType</a> <a href='#SkPath_getFillType'>getFillType</a>()const
 </pre>
 
 Returns <a href='#SkPath_FillType'>FillType</a>, the rule used to fill <a href='SkPath_Reference#SkPath'>SkPath</a>. <a href='#SkPath_FillType'>FillType</a> of a new <a href='SkPath_Reference#SkPath'>SkPath</a> is
@@ -860,7 +838,7 @@ that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isInverseFillType'>isInverseFillType</a>() const
+bool <a href='#SkPath_isInverseFillType'>isInverseFillType</a>()const
 </pre>
 
 Returns if <a href='#SkPath_FillType'>FillType</a> describes area outside <a href='SkPath_Reference#SkPath'>SkPath</a> geometry. The inverse fill area
@@ -977,7 +955,7 @@ more than one Contour, or a geometry with indentations</td>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexity'>getConvexity</a>() const
+<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexity'>getConvexity</a>()const
 </pre>
 
 Computes <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_Convexity'>Convexity</a> if required, and returns stored value.
@@ -1001,7 +979,7 @@ computed or stored <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPat
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>() const
+<a href='#SkPath_Convexity'>Convexity</a> <a href='#SkPath_getConvexityOrUnknown'>getConvexityOrUnknown</a>()const
 </pre>
 
 Returns last computed <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_Convexity'>Convexity</a>, or <a href='#SkPath_kUnknown_Convexity'>kUnknown_Convexity</a> if
@@ -1060,7 +1038,7 @@ altered.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isConvex'>isConvex</a>() const
+bool <a href='#SkPath_isConvex'>isConvex</a>()const
 </pre>
 
 Computes <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_Convexity'>Convexity</a> if required, and returns true if value is <a href='#SkPath_kConvex_Convexity'>kConvex_Convexity</a>.
@@ -1086,7 +1064,7 @@ true if <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_Convexity
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isOval'>isOval</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const
+bool <a href='#SkPath_isOval'>isOval</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* bounds)const
 </pre>
 
 Returns true if this <a href='SkPath_Reference#Path'>path</a> is recognized as an <a href='undocumented#Oval'>oval</a> or <a href='undocumented#Circle'>circle</a>.
@@ -1119,7 +1097,7 @@ true if <a href='SkPath_Reference#SkPath'>SkPath</a> is recognized as an <a href
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isRRect'>isRRect</a>(<a href='SkRRect_Reference#SkRRect'>SkRRect</a>* rrect) const
+bool <a href='#SkPath_isRRect'>isRRect</a>(<a href='SkRRect_Reference#SkRRect'>SkRRect</a>* rrect)const
 </pre>
 
 Returns true if <a href='SkPath_Reference#Path'>path</a> is representable as <a href='SkRRect_Reference#SkRRect'>SkRRect</a>.
@@ -1207,7 +1185,7 @@ a newly initialized <a href='SkPath_Reference#Path'>path</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isEmpty'>isEmpty</a>() const
+bool <a href='#SkPath_isEmpty'>isEmpty</a>()const
 </pre>
 
 Returns if <a href='SkPath_Reference#SkPath'>SkPath</a> is empty.
@@ -1243,7 +1221,7 @@ after reset path is empty
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a>() const
+bool <a href='#SkPath_isLastContourClosed'>isLastContourClosed</a>()const
 </pre>
 
 Returns if <a href='SkPath_Overview#Contour'>contour</a> is closed.
@@ -1280,7 +1258,7 @@ after close last contour is closed
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isFinite'>isFinite</a>() const
+bool <a href='#SkPath_isFinite'>isFinite</a>()const
 </pre>
 
 Returns true for finite <a href='SkPoint_Reference#SkPoint'>SkPoint</a> array values between negative <a href='undocumented#SK_ScalarMax'>SK_ScalarMax</a> and
@@ -1314,7 +1292,7 @@ after scale path is not finite
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isVolatile'>isVolatile</a>() const
+bool <a href='#SkPath_isVolatile'>isVolatile</a>()const
 </pre>
 
 Returns true if the <a href='SkPath_Reference#Path'>path</a> is volatile; it will not be altered or discarded
@@ -1546,7 +1524,7 @@ true if <a href='SkPath_Reference#Cubic'>cubic</a> is degenerate; its length is 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isLine'>isLine</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='undocumented#Line'>line</a>[2]) const
+bool <a href='#SkPath_isLine'>isLine</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='undocumented#Line'>line</a>[2])const
 </pre>
 
 Returns true if <a href='SkPath_Reference#SkPath'>SkPath</a> contains only one <a href='#SkPath_isLine_line'>line</a>;
@@ -1596,7 +1574,7 @@ one <a href='SkPoint_Reference#Point'>Point</a> for move, one <a href='SkPoint_R
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_getPoints'>getPoints</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPoint_Reference#Point'>points</a>[], int max) const
+int <a href='#SkPath_getPoints'>getPoints</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPoint_Reference#Point'>points</a>[], int max)const
 </pre>
 
 Returns number of <a href='#SkPath_getPoints_points'>points</a> in <a href='SkPath_Reference#SkPath'>SkPath</a>. Up to <a href='#SkPath_getPoints_max'>max</a> <a href='#SkPath_getPoints_points'>points</a> are copied.
@@ -1641,7 +1619,7 @@ just right point count: 3  (0,0) (20,20) (-10,-10)
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_countPoints'>countPoints</a>() const
+int <a href='#SkPath_countPoints'>countPoints</a>()const
 </pre>
 
 Returns the number of <a href='SkPoint_Reference#Point'>points</a> in <a href='SkPath_Reference#SkPath'>SkPath</a>.
@@ -1675,7 +1653,7 @@ second move point count: 3
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPath_getPoint'>getPoint</a>(int index) const
+<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPath_getPoint'>getPoint</a>(int index)const
 </pre>
 
 Returns <a href='SkPoint_Reference#SkPoint'>SkPoint</a> at <a href='#SkPath_getPoint_index'>index</a> in  <a href='SkPath_Reference#Point_Array'>SkPoint array</a>. Valid range for <a href='#SkPath_getPoint_index'>index</a> is
@@ -1726,7 +1704,7 @@ or with <a href='#SkPath_RawIter'>RawIter</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_countVerbs'>countVerbs</a>() const
+int <a href='#SkPath_countVerbs'>countVerbs</a>()const
 </pre>
 
 Returns the number of <a href='SkPath_Reference#Verb'>verbs</a>: <a href='#SkPath_kMove_Verb'>kMove_Verb</a>, <a href='#SkPath_kLine_Verb'>kLine_Verb</a>, <a href='#SkPath_kQuad_Verb'>kQuad_Verb</a>, <a href='#SkPath_kConic_Verb'>kConic_Verb</a>,
@@ -1758,7 +1736,7 @@ round rect verb count: 10
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPath_getVerbs'>getVerbs</a>(uint8_t <a href='SkPath_Reference#Verb'>verbs</a>[], int max) const
+int <a href='#SkPath_getVerbs'>getVerbs</a>(uint8_t <a href='SkPath_Reference#Verb'>verbs</a>[], int max)const
 </pre>
 
 Returns the number of <a href='#SkPath_getVerbs_verbs'>verbs</a> in the <a href='SkPath_Reference#Path'>path</a>. Up to <a href='#SkPath_getVerbs_max'>max</a> <a href='#SkPath_getVerbs_verbs'>verbs</a> are copied. The
@@ -1809,7 +1787,7 @@ Exchanges the  <a href='#Verb_Array'>verb array</a>,  <a href='SkPath_Reference#
 Cached state is also exchanged. <a href='#SkPath_swap'>swap()</a> internally exchanges pointers, so
 it is lightweight and does not allocate memory.
 
-<a href='#SkPath_swap'>swap()</a> usage has largely been replaced by by<a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>.
+<a href='#SkPath_swap'>swap()</a> usage has largely been replaced by <a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>).
 <a href='SkPath_Reference#SkPath'>SkPath</a> do not copy their content on assignment until they are written to,
 making assignment as efficient as <a href='#SkPath_swap'>swap()</a>.
 
@@ -1835,14 +1813,14 @@ path2 bounds = 10, 20, 30, 40
 
 ### See Also
 
-<a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+<a href='#SkPath_copy_operator'>operator=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>)
 
 <a name='SkPath_getBounds'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPath_getBounds'>getBounds</a>() const
+const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkPath_getBounds'>getBounds</a>()const
 </pre>
 
 Returns minimum and maximum axes values of <a href='SkPoint_Reference#SkPoint'>SkPoint</a> array.
@@ -1883,7 +1861,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>() const
+void <a href='#SkPath_updateBoundsCache'>updateBoundsCache</a>()const
 </pre>
 
 Updates internal bounds so that subsequent calls to <a href='#SkPath_getBounds'>getBounds</a>() are instantaneous.
@@ -1917,7 +1895,7 @@ cached avg: 0.182784 ms
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>() const
+<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPath_computeTightBounds'>computeTightBounds</a>()const
 </pre>
 
 Returns minimum and maximum axes values of the <a href='undocumented#Line'>lines</a> and <a href='undocumented#Curve'>curves</a> in <a href='SkPath_Reference#SkPath'>SkPath</a>.
@@ -1960,7 +1938,7 @@ rotated circle bounds = 25, 20, 75, 70
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const
+bool <a href='#SkPath_conservativelyContainsRect'>conservativelyContainsRect</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>)const
 </pre>
 
 Returns true if <a href='#SkPath_conservativelyContainsRect_rect'>rect</a> is contained by <a href='SkPath_Reference#SkPath'>SkPath</a>.
@@ -3449,7 +3427,7 @@ be drawn exactly with a single <a href='SkPath_Reference#Quad'>Quad</a>.
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isRect'>isRect</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#Rect'>rect</a>, bool* isClosed = nullptr, <a href='#SkPath_Direction'>Direction</a>* direction = nullptr) const
+bool <a href='#SkPath_isRect'>isRect</a>(<a href='SkRect_Reference#SkRect'>SkRect</a>* <a href='SkRect_Reference#Rect'>rect</a>, bool* isClosed = nullptr, <a href='#SkPath_Direction'>Direction</a>* direction = nullptr)const
 </pre>
 
 Returns true if <a href='SkPath_Reference#SkPath'>SkPath</a> is equivalent to <a href='SkRect_Reference#SkRect'>SkRect</a> when filled.
@@ -3504,7 +3482,7 @@ addPoly is rect (0, 0, 80, 80); is not closed; direction CCW
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isNestedFillRects'>isNestedFillRects</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='SkRect_Reference#Rect'>rect</a>[2], <a href='#SkPath_Direction'>Direction</a> dirs[2] = nullptr) const
+bool <a href='#SkPath_isNestedFillRects'>isNestedFillRects</a>(<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='SkRect_Reference#Rect'>rect</a>[2], <a href='#SkPath_Direction'>Direction</a> dirs[2] = nullptr)const
 </pre>
 
 Returns true if <a href='SkPath_Reference#SkPath'>SkPath</a> is equivalent to nested <a href='SkRect_Reference#SkRect'>SkRect</a> pair when filled.
@@ -4323,7 +4301,7 @@ reference to <a href='SkPath_Reference#SkPath'>SkPath</a>
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const
+void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst)const
 </pre>
 
 Offsets  <a href='SkPath_Reference#Point_Array'>SkPoint array</a> by (<a href='#SkPath_offset_dx'>dx</a>, <a href='#SkPath_offset_dy'>dy</a>). Offset <a href='SkPath_Reference#SkPath'>SkPath</a> replaces <a href='#SkPath_offset_dst'>dst</a>.
@@ -4385,7 +4363,7 @@ Offsets  <a href='SkPath_Reference#Point_Array'>SkPoint array</a> by (<a href='#
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void transform(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const
+void transform(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst)const
 </pre>
 
 Transforms  <a href='#Verb_Array'>verb array</a>,  <a href='SkPath_Reference#Point_Array'>SkPoint array</a>, and weight by <a href='#SkPath_transform_matrix'>matrix</a>.
@@ -4449,7 +4427,7 @@ transform may change <a href='SkPath_Reference#Verb'>verbs</a> and increase thei
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>* lastPt) const
+bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>* lastPt)const
 </pre>
 
 Returns  <a href='#Last_Point'>last point</a> on <a href='SkPath_Reference#SkPath'>SkPath</a> in <a href='#SkPath_getLastPt_lastPt'>lastPt</a>. Returns false if  <a href='SkPath_Reference#Point_Array'>SkPoint array</a> is empty,
@@ -4612,7 +4590,7 @@ Path kQuad_SegmentMask is set
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPath_getSegmentMasks'>getSegmentMasks</a>() const
+uint32_t <a href='#SkPath_getSegmentMasks'>getSegmentMasks</a>()const
 </pre>
 
 Returns a mask, where each set bit corresponds to a <a href='#SkPath_SegmentMask'>SegmentMask</a> constant
@@ -4646,7 +4624,7 @@ mask quad set
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool contains(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const
+bool contains(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y)const
 </pre>
 
 Returns true if the <a href='SkPoint_Reference#Point'>point</a> (<a href='#SkPath_contains_x'>x</a>, <a href='#SkPath_contains_y'>y</a>) is contained by <a href='SkPath_Reference#Path'>Path</a>, taking into
@@ -4686,7 +4664,7 @@ true if <a href='SkPoint_Reference#Point'>Point</a> is in <a href='SkPath_Refere
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, bool forceClose, bool dumpAsHex) const
+void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, bool forceClose, bool dumpAsHex)const
 </pre>
 
 Writes <a href='undocumented#Text'>text</a> representation of <a href='SkPath_Reference#SkPath'>SkPath</a> to <a href='#SkPath_dump_stream'>stream</a>. If <a href='#SkPath_dump_stream'>stream</a> is nullptr, writes to
@@ -4743,7 +4721,7 @@ path.close();
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dump'>dump()</a> const
+void <a href='#SkPath_dump'>dump()</a>const
 </pre>
 
 Writes <a href='undocumented#Text'>text</a> representation of <a href='SkPath_Reference#SkPath'>SkPath</a> to standard output. The representation may be
@@ -4775,7 +4753,7 @@ path is not equal to copy
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dumpHex'>dumpHex</a>() const
+void <a href='#SkPath_dumpHex'>dumpHex</a>()const
 </pre>
 
 Writes <a href='undocumented#Text'>text</a> representation of <a href='SkPath_Reference#Path'>Path</a> to standard output. The representation may be
@@ -4810,7 +4788,7 @@ path is equal to copy
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPath_writeToMemory'>writeToMemory</a>(void* buffer) const
+size_t <a href='#SkPath_writeToMemory'>writeToMemory</a>(void* buffer)const
 </pre>
 
 Writes <a href='SkPath_Reference#SkPath'>SkPath</a> to <a href='#SkPath_writeToMemory_buffer'>buffer</a>, returning the number of bytes written.
@@ -4854,7 +4832,7 @@ path is equal to copy
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPath_serialize'>serialize()</a> const
+<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; <a href='#SkPath_serialize'>serialize()</a>const
 </pre>
 
 Writes <a href='SkPath_Reference#SkPath'>SkPath</a> to buffer, returning the buffer written to, wrapped in <a href='undocumented#SkData'>SkData</a>.
@@ -4946,7 +4924,7 @@ Empty <a href='SkPath_Reference#Path'>Paths</a> have a <a href='#Path_Generation
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>() const
+uint32_t <a href='#SkPath_getGenerationID'>getGenerationID</a>()const
 </pre>
 
 (See Skia bug 1762.)
@@ -4979,14 +4957,14 @@ empty genID = 1
 
 ### See Also
 
-<a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a>
+<a href='#SkPath_equal_operator'>operator==</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b)
 
 <a name='SkPath_isValid'></a>
 
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_isValid'>isValid</a>() const
+bool <a href='#SkPath_isValid'>isValid</a>()const
 </pre>
 
 Returns if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'>data</a> is consistent. Corrupt <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'>data</a> is detected if
@@ -5003,7 +4981,7 @@ true if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPath_Iter'>Iter</a> {
-    public:
+
         <a href='#SkPath_Iter_Iter'>Iter()</a>;
         <a href='#SkPath_Iter'>Iter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
         void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
@@ -5012,6 +4990,7 @@ true if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'
         bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>() const;
         bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const;
     };
+
 </pre>
 
 Iterates through <a href='#Path_Verb_Array'>Verb_Array</a>, and associated <a href='#Path_Point_Array'>Point_Array</a> and <a href='#Path_Conic_Weight'>Conic_Weight</a>.
@@ -5243,7 +5222,7 @@ kDone_Verb
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>()const
 </pre>
 
 Returns <a href='SkPath_Reference#Conic'>conic</a> weight if <a href='#SkPath_Iter_next'>next()</a> returned <a href='#SkPath_kConic_Verb'>kConic_Verb</a>.
@@ -5279,7 +5258,7 @@ conic weight: 0.5
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>() const
+bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>()const
 </pre>
 
 Returns true if last <a href='#SkPath_kLine_Verb'>kLine_Verb</a> returned by <a href='#SkPath_Iter_next'>next()</a> was generated
@@ -5320,7 +5299,7 @@ line generated by close
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const
+bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>()const
 </pre>
 
 Returns true if subsequent calls to <a href='#SkPath_Iter_next'>next()</a> return <a href='#SkPath_kClose_Verb'>kClose_Verb</a> before returning
@@ -5356,7 +5335,7 @@ with close(),    forceClose is true : isClosedContour returns true
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPath_RawIter'>RawIter</a> {
-    public:
+
         <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
         <a href='#SkPath_RawIter'>RawIter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
         void <a href='#SkPath_RawIter_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
@@ -5364,6 +5343,7 @@ with close(),    forceClose is true : isClosedContour returns true
         <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek()</a> const;
         <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>() const;
     };
+
 </pre>
 
 Iterates through <a href='#Path_Verb_Array'>Verb_Array</a>, and associated <a href='#Path_Point_Array'>Point_Array</a> and <a href='#Path_Conic_Weight'>Conic_Weight</a>.
@@ -5474,7 +5454,7 @@ kDone_Verb
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek()</a> const
+<a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek()</a>const
 </pre>
 
 Returns next <a href='SkPath_Reference#SkPath'>SkPath</a>::<a href='#SkPath_Verb'>Verb</a>, but does not advance <a href='#SkPath_RawIter'>RawIter</a>.
@@ -5510,7 +5490,7 @@ peek Done == verb Done
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>() const
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>()const
 </pre>
 
 Returns <a href='SkPath_Reference#Conic'>conic</a> weight if <a href='#SkPath_RawIter_next'>next()</a> returned <a href='#SkPath_kConic_Verb'>kConic_Verb</a>.

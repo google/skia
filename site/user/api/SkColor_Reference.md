@@ -45,8 +45,8 @@ template <<a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> kAT>
 struct <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> {
     // <i><a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> interface</i>
 };
-template <> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>::FromColor(<a href='SkColor_Reference#SkColor'>SkColor</a>);
-template <> <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>::toSkColor() const;
+template <> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>::<a href='SkColor4f_Reference#SkRGBA4f_FromColor'>FromColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a>);
+template <> <a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>::<a href='SkColor4f_Reference#SkRGBA4f_toSkColor'>toSkColor</a>() const;
 </pre>
 
 <a href='SkColor_Reference#Color'>Color</a> constants can be helpful to write code, documenting the meaning of values
@@ -140,7 +140,8 @@ than the largest of <a href='#SkColorSetARGB_r'>r</a>, <a href='#SkColorSetARGB_
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#define <a href='SkColor_Reference#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b) <a href='SkColor_Reference#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b);
+#define <a href='SkColor_Reference#SkColorSetRGB'>SkColorSetRGB</a>(r, g, b) <a href='SkColor_Reference#SkColorSetARGB'>SkColorSetARGB</a>(0xFF, r, g, b)
+r g b
 </pre>
 
 Returns <a href='SkColor_Reference#Color'>Color</a> value from 8-bit component values, with <a href='SkColor_Reference#Alpha'>Alpha</a> set
@@ -176,7 +177,8 @@ fully opaque to 255.
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#define <a href='SkColor_Reference#SkColorGetA'>SkColorGetA</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 24) & 0xFF);
+#define <a href='SkColor_Reference#SkColorGetA'>SkColorGetA</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 24) & 0xFF)
+<a href='SkColor_Reference#Color'>color</a>
 </pre>
 
 Returns <a href='SkColor_Reference#Alpha'>Alpha</a> byte from <a href='SkColor_Reference#Color'>Color</a> value.
@@ -201,7 +203,8 @@ Returns <a href='SkColor_Reference#Alpha'>Alpha</a> byte from <a href='SkColor_R
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#define <a href='SkColor_Reference#SkColorGetR'>SkColorGetR</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 16) & 0xFF);
+#define <a href='SkColor_Reference#SkColorGetR'>SkColorGetR</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 16) & 0xFF)
+<a href='SkColor_Reference#Color'>color</a>
 </pre>
 
 Returns red component of <a href='SkColor_Reference#Color'>Color</a>, from zero to 255.
@@ -230,7 +233,8 @@ red byte
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#define <a href='SkColor_Reference#SkColorGetG'>SkColorGetG</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 8) & 0xFF);
+#define <a href='SkColor_Reference#SkColorGetG'>SkColorGetG</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 8) & 0xFF)
+<a href='SkColor_Reference#Color'>color</a>
 </pre>
 
 Returns green component of <a href='SkColor_Reference#Color'>Color</a>, from zero to 255.
@@ -259,7 +263,8 @@ green byte
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-#define <a href='SkColor_Reference#SkColorGetB'>SkColorGetB</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 0) & 0xFF);
+#define <a href='SkColor_Reference#SkColorGetB'>SkColorGetB</a>(<a href='SkColor_Reference#Color'>color</a>) (((<a href='SkColor_Reference#Color'>color</a>) >> 0) & 0xFF)
+<a href='SkColor_Reference#Color'>color</a>
 </pre>
 
 Returns blue component of <a href='SkColor_Reference#Color'>Color</a>, from zero to 255.
