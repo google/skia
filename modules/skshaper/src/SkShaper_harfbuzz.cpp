@@ -778,3 +778,86 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
 
     return currentPoint;
 }
+
+// TODO: give this begin() and end() methods.
+template <typename T, SkUnichar (*FN)(const T**, const T*)>
+struct SkUnicodeIterator {
+    const T* const fStart;
+    const T* fPtr;
+    const T* const fStop;
+    SkUnicodeIterator(const T* begin, const T* end) : fStart(begin), fPtr(begin), fStop(end) {}
+    SkUnichar next() { return FN(&fPtr, fStop); }
+    bool done() const { return fPtr >= fStop; }
+    void reset() { fPtr = fStart; }
+};
+
+// T is char, uint16_t, or int32_t
+// UNICODE_ITER = SkUnicodeIterator<T, FN>
+// ALLOC_FN     = [](size_t s) -> T*
+// TO_FN        = [](SkUnichar, T*) -> size_t
+template <typename UNICODE_ITER, typename ALLOC_FN, typename TO_FN>
+static inline size_t SkConvertUnicode(UNICODE_ITER iter, ALLOC_FN f, TO_FN toFn) {
+    size_t count = 0;
+    while (!iter.done()) {
+        count += toFn(iter.next(), nullptr);
+    }
+    auto* dst = f(count);
+    iter.reset();
+    while (!iter.done()) {
+        dst += toFn(iter.next(), dst);
+    }
+    return count;
+}
+
+static SkText to_utf8(SkText text, SkAutoTMalloc<char>& tmp) {
+    if (text.fTextEncoding == kUTF8_SkTextEncoding) {
+        return text;
+    }
+    const void* start = text.fText;
+    const void* stop = (const char*)text.fText + text.fTextBytes;
+    using Iterator16 = SkUnicodeIterator<uint16_t, SkUTF::NextUTF16>;
+    using Iterator32 = SkUnicodeIterator<int32_t, SkUTF::NextUTF32>;
+    switch (text.fTextEncoding) {
+        case kUTF16_SkTextEncoding:
+            text.fTextBytes =
+                SkConvertUnicode(Iterator16((const uint16_t*)start, (const uint16_t*)stop),
+                                 [&tmp](size_t s) { return tmp.reset(s); },
+                                 SkUTF::ToUTF8);
+            text.fText = tmp.get();
+            text.fTextEncoding = kUTF8_SkTextEncoding;
+            return text;
+        case kUTF32_SkTextEncoding:
+            text.fTextBytes =
+                SkConvertUnicode(Iterator32((const int32_t*)start, (const int32_t*)stop),
+                                 [&tmp](size_t s) { return tmp.reset(s); },
+                                 SkUTF::ToUTF8);
+            text.fText = tmp.get();
+            text.fTextEncoding = kUTF8_SkTextEncoding;
+            return text;
+        default:
+            SkASSERT(false);
+            return SkText();
+    }
+}
+
+SkPoint SkShape(SkTextBlobBuilder* dst,
+                const SkFont& font,
+                SkText text,
+                bool leftToRight,
+                SkTextUtils::Align align,
+                SkPoint point,
+                SkScalar width) {
+    if (!dst || !text.fText || 0 == text.fTextBytes) {
+        return point;
+    }
+    SkASSERT_RELEASE(align != SkTextUtils::kLeft_Align);  // UNSUPPORTED NOW
+    SkASSERT_RELEASE(width > 0);
+    SkShaper shaper(font.refTypeface());
+    if (!shaper.good()) {
+        return point;
+    }
+    SkAutoTMalloc<char> tmp;
+    text = to_utf8(SkText text, tmp);
+    return shaper.shape(dst, font, (const char*)text.fText,
+                        text.fTextBytes, leftToRight, point, width);
+}
