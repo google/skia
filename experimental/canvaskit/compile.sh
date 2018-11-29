@@ -68,6 +68,14 @@ if [[ $@ == *no_skottie* ]]; then
   WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
 fi
 
+WASM_MANAGED_SKOTTIE="\
+  -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
+  modules/skottie/utils/SkottieUtils.cpp"
+if [[ $@ == *no_managed_skottie* ]]; then
+  echo "Omitting managed Skottie"
+  WASM_MANAGED_SKOTTIE="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
+fi
+
 GN_NIMA="skia_enable_nima=true"
 WASM_NIMA="-DSK_INCLUDE_NIMA=1 \
   experimental/nima/NimaActor.cpp"
@@ -161,6 +169,7 @@ ${EMCXX} \
     -Iinclude/private \
     -Iinclude/utils/ \
     -Imodules/skottie/include \
+    -Imodules/skottie/utils \
     -Imodules/sksg/include \
     -Isrc/core/ \
     -Isrc/gpu/ \
@@ -185,6 +194,7 @@ ${EMCXX} \
     tools/fonts/SkTestTypeface.cpp \
     $WASM_NIMA \
     $WASM_SKOTTIE \
+    $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
