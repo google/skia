@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2a1c832e_44872cf1",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done, but this will also require updating one of the assets in order to tag some property for visibility (the current CustomPropertyManager filters props prefixed with \u0027$\u0027).\n\nI can send you the JSON out-of-band.",
+      "parentUuid": "7ae78d87_0f05364a",
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2406ca65_5f130b64",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
@@ -39,6 +57,30 @@
       "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a009ed1_d34c5e03",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2406ca65_5f130b64",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 2
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "b62c2190_4a6955cb",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45ea4bf8_730e0240",
+      "range": {
+        "startLine": 190,
+        "startChar": 8,
+        "endLine": 190,
+        "endChar": 12
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b89be4af_0bf5f3a1",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
@@ -85,6 +151,30 @@
       "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09a97699_30ef8ebe",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done (switched to explicit types).",
+      "parentUuid": "b89be4af_0bf5f3a1",
+      "range": {
+        "startLine": 202,
+        "startChar": 24,
+        "endLine": 202,
+        "endChar": 70
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "527ed587_becbf44d",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done.\n\n(\n\nIt\u0027s slightly annoying that we cannot use hex literals the same way we do in Skia -- 0xffff00ff etc. instead of Color(r,g,b,a).\n\nI don\u0027t recall why we ended up with signed int32 - isn\u0027t everything a Number in JS anyway?\n\n).",
+      "parentUuid": "8b79edcb_ebf275d4",
+      "range": {
+        "startLine": 203,
+        "startChar": 24,
+        "endLine": 203,
+        "endChar": 52
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c44cb56_4cd14155",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
@@ -131,6 +245,30 @@
       "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7f8e33_c3e6e07a",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c44cb56_4cd14155",
+      "range": {
+        "startLine": 865,
+        "startChar": 12,
+        "endLine": 865,
+        "endChar": 54
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "1b371f12_00840e93",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Good point, done.",
+      "parentUuid": "3c915b2b_3bd691ee",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 876,
+        "endChar": 33
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eaf1cec9_c237ede3",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
@@ -177,6 +339,30 @@
       "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02994258_24868932",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-29T14:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eaf1cec9_c237ede3",
+      "range": {
+        "startLine": 883,
+        "startChar": 13,
+        "endLine": 883,
+        "endChar": 78
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
