@@ -57,6 +57,7 @@ public:
         , { &fClassMap,    MarkType::kEnumClass }
         , { &fMethodMap,   MarkType::kMethod }
         , { &fClassMap,    MarkType::kStruct }
+        , { &fClassMap,    MarkType::kTemplate }
         , { &fTypedefMap,  MarkType::kTypedef }
         }
         , fSkip(skip) {
