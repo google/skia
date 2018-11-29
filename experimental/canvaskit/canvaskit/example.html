@@ -405,11 +405,16 @@
     if (!CanvasKit || !jsonStr) {
       return;
     }
-    const animation = CanvasKit.MakeAnimation(jsonStr);
+    const animation = CanvasKit.MakeManagedAnimation(jsonStr);
     const duration = animation.duration() * 1000;
     const size = animation.size();
     let c = document.getElementById(id);
     bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
+
+    // Basic managed animation test.
+    if (id === 'sk_drinks') {
+      animation.setColor('BACKGROUND_FILL', CanvasKit.Color(0, 163, 199, 1.0));
+    }
 
     const surface = CanvasKit.MakeCanvasSurface(id);
     if (!surface) {
