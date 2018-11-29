@@ -255,8 +255,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 //   scale factor is used to increase the size of the destination rectangles. The destination
 //   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
 void SkGlyphRunListPainter::processARGBFallback(
-        SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
-        const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback) {
+        SkScalar maxGlyphDimension, const SkPaint& runPaint, const SkMatrix& viewMatrix,
+        SkScalar textScale, ARGBFallback argbFallback) {
     SkASSERT(!fARGBGlyphsIDs.empty());
 
     SkScalar maxScale = viewMatrix.getMaxScale();
@@ -332,23 +332,21 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
     const SkPoint* positionCursor = glyphRun.positions().data();
     for (auto glyphID : glyphRun.glyphsIDs()) {
-        SkPoint position = *positionCursor++;
-        if (SkScalarsAreFinite(position.x(), position.y())) {
-            const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
-            if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
-                perPath(glyph, origin + position);
-            } else {
-                SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
-                maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
-                fARGBGlyphsIDs.push_back(glyphID);
-                fARGBPositions.push_back(position);
-            }
+        SkPoint glyphPos = origin + *positionCursor++;
+        const SkGlyph& glyph = pathCache->getGlyphMetrics(glyphID, {0, 0});
+        if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+            perPath(glyph, glyphPos);
+        } else {
+            SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
+            maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
+            fARGBGlyphsIDs.push_back(glyphID);
+            fARGBPositions.push_back(glyphPos);
         }
     }
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-                maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
+                maxFallbackDimension, glyphRun.paint(), viewMatrix, textScale,
                 std::move(argbFallback));
 
     }
@@ -422,7 +420,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-                maxFallbackDimension, glyphRun.paint(), origin, viewMatrix, textScale,
+                maxFallbackDimension, glyphRun.paint(), viewMatrix, textScale,
                 std::move(argbFallback));
     }
 }
