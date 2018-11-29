@@ -43,18 +43,13 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
 #ifdef CHECK_FOR_DECAL
     // TODO: can_truncate_to_fixed_for_decal() is kind of misnamed now that
     // we're not really stepping in SkFixed (16.16) anymore.
-    SkFixed fixedFx = SkFractionalIntToFixed(fx);
-    const SkFixed fixedDx = SkFractionalIntToFixed(dx);
-    if (can_truncate_to_fixed_for_decal(fixedFx, fixedDx, count, maxX)) {
+    if (can_truncate_to_fixed_for_decal(SkFractionalIntToFixed(fx),
+                                        SkFractionalIntToFixed(dx), count, maxX)) {
         while (count --> 0) {
+            SkFixed fixedFx = SkFractionalIntToFixed(fx);
             SkASSERT((fixedFx >> (16 + 14)) == 0);
             *xy++ = (fixedFx >> 12 << 14) | ((fixedFx >> 16) + 1);
-        #if defined(SK_WALK_DECAL_IN_1616)
-            fixedFx += fixedDx;
-        #else
             fx += dx;
-            fixedFx = SkFractionalIntToFixed(fx);
-        #endif
         }
         return;
     }
