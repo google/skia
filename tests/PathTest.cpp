@@ -3514,6 +3514,9 @@ static void test_rrect_is_convex(skiatest::Reporter* reporter, SkPath* path,
     REPORTER_ASSERT(reporter, path->isConvex());
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(*path, SkPathPriv::AsFirstDirection(dir)));
     path->setConvexity(SkPath::kUnknown_Convexity);
+    if (!path->isConvex()) {
+        SkDebugf("");
+    }
     REPORTER_ASSERT(reporter, path->isConvex());
     path->reset();
 }

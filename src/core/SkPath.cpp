@@ -2310,9 +2310,6 @@ struct Convexicator {
         fCurrPt.set(0, 0);
         fLastVec.set(0, 0);
         fFirstVec.set(0, 0);
-
-        fDx = fDy = 0;
-        fSx = fSy = kValueNeverReturnedBySign;
     }
 
     SkPath::Convexity getConvexity() const { return fConvexity; }
@@ -2342,17 +2339,6 @@ struct Convexicator {
                 } else {
                     SkASSERT(fPtCount > 2);
                     this->addVec(vec);
-                }
-
-                int sx = sign(vec.fX);
-                int sy = sign(vec.fY);
-                fDx += (sx != fSx);
-                fDy += (sy != fSy);
-                fSx = sx;
-                fSy = sy;
-
-                if (fDx > 3 || fDy > 3) {
-                    fConvexity = SkPath::kConcave_Convexity;
                 }
             }
         }
@@ -2459,7 +2445,6 @@ private:
     DirChange           fExpectedDir;
     SkPath::Convexity   fConvexity;
     SkPathPriv::FirstDirection   fFirstDirection;
-    int                 fDx, fDy, fSx, fSy;
     bool                fIsFinite;
     bool                fIsCurve;
     bool                fBackwards;
@@ -2469,6 +2454,36 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     // Sometimes we think we need to calculate convexity but another thread already did.
     for (auto c = (Convexity)fConvexity; c != kUnknown_Convexity; ) {
         return c;
+    }
+    // Check to see if path changes direction more than three times as quick concave test
+    int pointCount = fPathRef->countPoints();
+    if (pointCount > 4) {
+        const SkPoint* points = fPathRef->points();
+        const SkPoint* last = &points[pointCount];
+        SkPoint currPt = *points++;
+        int dxes = 0;
+        int dyes = 0;
+        int lastSx = kValueNeverReturnedBySign;
+        int lastSy = kValueNeverReturnedBySign;
+        for (bool firstTime : { true, false } ) {
+            do {
+                SkVector vec = *points - currPt;
+                if (vec.isZero()) {
+                    continue;
+                }
+                int sx = sign(vec.fX);
+                int sy = sign(vec.fY);
+                dxes += (sx != lastSx);
+                dyes += (sy != lastSy);
+                if (dxes > 3 || dyes > 3) {
+                    return fConvexity = SkPath::kConcave_Convexity;
+                }
+                lastSx = sx;
+                lastSy = sy;
+                currPt = *points;
+            } while (firstTime && ++points < last);
+            points = fPathRef->points();
+        }
     }
 
     SkPoint         pts[4];
