@@ -57,6 +57,12 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
                GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType()));
     SkASSERT(!(canArgs.fAAType == GrAAType::kMixedSamples &&
                GrFSAAType::kMixedSamples != args.fRenderTargetContext->fsaaType()));
+    if (CanDrawPath::kNo == this->canDrawPath(canArgs)) {
+        SkPath path;
+        canArgs.fShape->asPath(&path);
+        path.dumpHex();
+        SkDebugf("");
+    }
     SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
     if (!args.fUserStencilSettings->isUnused()) {
         SkPath path;
