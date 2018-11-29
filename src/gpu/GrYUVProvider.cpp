@@ -101,6 +101,21 @@ void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
     cachedData->unref();
 }
 
+static SkMatrix orientation_matrix(SkEncodedOrigin origin, int w, int h) {
+    switch (origin) {
+        case     kTopLeft_SkEncodedOrigin: return SkMatrix::I();
+        case    kTopRight_SkEncodedOrigin: return SkMatrix::MakeAll(-1,  0, w,  0,  1, 0, 0, 0, 1);
+        case kBottomRight_SkEncodedOrigin: return SkMatrix::MakeAll(-1,  0, w,  0, -1, h, 0, 0, 1);
+        case  kBottomLeft_SkEncodedOrigin: return SkMatrix::MakeAll( 1,  0, 0,  0, -1, h, 0, 0, 1);
+        case     kLeftTop_SkEncodedOrigin: return SkMatrix::MakeAll( 0,  1, 0,  1,  0, 0, 0, 0, 1);
+        case    kRightTop_SkEncodedOrigin: return SkMatrix::MakeAll( 0, -1, h,  1,  0, 0, 0, 0, 1);
+        case kRightBottom_SkEncodedOrigin: return SkMatrix::MakeAll( 0, -1, h, -1,  0, w, 0, 0, 1);
+        case  kLeftBottom_SkEncodedOrigin: return SkMatrix::MakeAll( 0,  1, 0, -1,  0, w, 0, 0, 1);
+    }
+    SK_ABORT("Unexpected origin");
+    return SkMatrix::I();
+}
+
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
                                                        const GrBackendFormat& format,
                                                        const GrSurfaceDesc& desc,
@@ -182,7 +197,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,
                                      yuvSizeInfo.fSizes[0].fHeight);
 
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
+    SkMatrix m = orientation_matrix(yuvSizeInfo.fOrigin, r.width(), r.height());
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, r);
 
     return renderTargetContext->asTextureProxyRef();
 }
