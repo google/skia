@@ -434,7 +434,6 @@
   }
 
   CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
-    // TODO: matrix and flags
     var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
     var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
     flags = flags || 0;
@@ -449,6 +448,31 @@
     } else {
       var rgs = CanvasKit._MakeRadialGradientShader(center, radius, colorPtr, posPtr,
                                                     colors.length, mode, flags);
+    }
+
+    CanvasKit._free(colorPtr);
+    CanvasKit._free(posPtr);
+    return rgs;
+  }
+
+  CanvasKit.MakeTwoPointConicalGradientShader = function(start, startRadius, end, endRadius,
+                                                         colors, pos, mode, localMatrix, flags) {
+    var colorPtr = copy1dArray(colors, CanvasKit.HEAP32);
+    var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
+    flags = flags || 0;
+
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+                          start, startRadius, end, endRadius,
+                          colorPtr, posPtr, colors.length, mode, flags, localMatrix);
+    } else {
+      var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+                          start, startRadius, end, endRadius,
+                          colorPtr, posPtr, colors.length, mode, flags);
     }
 
     CanvasKit._free(colorPtr);
