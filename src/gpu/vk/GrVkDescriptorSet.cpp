@@ -20,7 +20,7 @@ GrVkDescriptorSet::GrVkDescriptorSet(VkDescriptorSet descSet,
     fPool->ref();
 }
 
-void GrVkDescriptorSet::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkDescriptorSet::freeGPUData(GrVkGpu* gpu) const {
     fPool->unref(gpu);
 }
 
