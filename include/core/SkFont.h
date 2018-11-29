@@ -380,7 +380,8 @@ public:
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
         @param paint       optional, specifies stroking, patheffect and maskfilter
      */
-    void getBounds(const uint16_t glyphs[], int count, SkRect bounds[], const SkPaint* paint) const {
+    void getBounds(const uint16_t glyphs[], int count, SkRect bounds[],
+                   const SkPaint* paint) const {
         this->getWidthsBounds(glyphs, count, nullptr, bounds, paint);
     }
 

@@ -163,7 +163,7 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** Deprecated.
+    /** Private. For internal use only.
     */
     explicit SkCanvas(sk_sp<SkBaseDevice> device);
 
@@ -2756,7 +2756,7 @@ public:
     }
 
     /** Restores SkCanvas to saved state immediately. Subsequent calls and
-        ~SkAutoCanvasRestore have no effect.
+        ~SkAutoCanvasRestore() have no effect.
     */
     void restore() {
         if (fCanvas) {
@@ -2774,6 +2774,8 @@ private:
     SkAutoCanvasRestore& operator=(SkAutoCanvasRestore&&) = delete;
     SkAutoCanvasRestore& operator=(const SkAutoCanvasRestore&) = delete;
 };
+
+// Private
 #define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
 
 #endif
