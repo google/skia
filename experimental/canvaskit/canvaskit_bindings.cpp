@@ -377,6 +377,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImageShader::Make(img, tx, ty, nullptr);
     }), allow_raw_pointers());
+    // Allow localMatrix to be optional, so we have 2 declarations of these gradients
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -424,6 +425,35 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkGradientShader::MakeRadial(center, radius, colors, positions, count,
                                             mode, flags, &localMatrix);
     }), allow_raw_pointers());
+    function("_MakeTwoPointConicalGradientShader", optional_override([](
+                SkPoint start, SkScalar startRadius,
+                SkPoint end, SkScalar endRadius,
+                uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
+        // See comment above for uintptr_t explanation
+        const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
+        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+
+        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                     colors, positions, count, mode,
+                                                     flags, nullptr);
+    }), allow_raw_pointers());
+    function("_MakeTwoPointConicalGradientShader", optional_override([](
+                SkPoint start, SkScalar startRadius,
+                SkPoint end, SkScalar endRadius,
+                uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                int count, SkShader::TileMode mode, uint32_t flags,
+                const SimpleMatrix& lm)->sk_sp<SkShader> {
+        // See comment above for uintptr_t explanation
+        const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
+        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+
+        SkMatrix localMatrix = toSkMatrix(lm);
+        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                     colors, positions, count, mode,
+                                                     flags, &localMatrix);
+    }), allow_raw_pointers());
+
     function("_MakeSkVertices", optional_override([](SkVertices::VertexMode mode, int vertexCount,
                                 uintptr_t /* SkPoint*     */ pPtr,  uintptr_t /* SkPoint*     */ tPtr,
                                 uintptr_t /* SkColor*     */ cPtr,

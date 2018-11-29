@@ -356,6 +356,7 @@ StrokeOpts.prototype.miter_limit;
 StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
 
+// Define everything created in the canvas2d spec here
 var HTMLCanvas = {};
 HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
@@ -370,6 +371,8 @@ CanvasRenderingContext2D.prototype.bezierCurveTo = function() {};
 CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.clearRect = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
+CanvasRenderingContext2D.prototype.createLinearGradient = function() {};
+CanvasRenderingContext2D.prototype.createRadialGradient = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
 CanvasRenderingContext2D.prototype.fill = function() {};
@@ -395,6 +398,9 @@ CanvasRenderingContext2D.prototype.strokeRect = function() {};
 CanvasRenderingContext2D.prototype.strokeText = function() {};
 CanvasRenderingContext2D.prototype.transform = function() {};
 CanvasRenderingContext2D.prototype.translate = function() {};
+
+var CanvasGradient = {};
+CanvasGradient.prototype.addColorStop = function() {};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {};
