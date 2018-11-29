@@ -61,13 +61,16 @@ int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize) {
 }
 
 // Compute difference vector to offset p0-p1 'offset' units in direction specified by 'side'
-void compute_offset_vector(const SkPoint& p0, const SkPoint& p1, SkScalar offset, int side,
+bool compute_offset_vector(const SkPoint& p0, const SkPoint& p1, SkScalar offset, int side,
                            SkPoint* vector) {
     SkASSERT(side == -1 || side == 1);
     // if distances are equal, can just outset by the perpendicular
     SkVector perp = SkVector::Make(p0.fY - p1.fY, p1.fX - p0.fX);
-    perp.setLength(offset*side);
+    if (!perp.setLength(offset*side)) {
+        return false;
+    }
     *vector = perp;
+    return true;
 }
 
 // check interval to see if intersection is in segment
@@ -1160,8 +1163,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             return false;
         }
         int nextIndex = (currIndex + 1) % inputPolygonSize;
-        compute_offset_vector(inputPolygonVerts[currIndex], inputPolygonVerts[nextIndex],
-                              offset, winding, &normals[currIndex]);
+        if (!compute_offset_vector(inputPolygonVerts[currIndex], inputPolygonVerts[nextIndex],
+                                   offset, winding, &normals[currIndex])) {
+            return false;
+        }
         if (currIndex > 0) {
             // if reflex point, we need to add extra edges
             if (is_reflex_vertex(inputPolygonVerts, winding, offset,
