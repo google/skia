@@ -62,7 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
-    fClampMaxTextureLevelToOne = false;
+    fDontSetBaseOrMaxLevelForExternalTextures = false;
     fProgramBinarySupport = false;
     fSamplerObjectSupport = false;
 
@@ -2726,12 +2726,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
 #ifdef SK_BUILD_FOR_ANDROID
-    // Older versions of Android have problems with setting GL_TEXTURE_MAX_LEVEL to 0 for
-    // EGL images (or possibly just GL_TEXTURE_EXTERNAL_OES).
-    // If the texture is not MIP mapped (only has level 0) then it should be harmless to use a
-    // GL_TEXTURE_MAX_LEVEL of 1. Such textures are never used with GL_*_MIPMAP_* set for
-    // GL_TEXTURE_MIN_FILTER.
-    fClampMaxTextureLevelToOne = true;
+    // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or
+    // GL_TEXTURE_MAX_LEVEL on GL_TEXTURE_EXTERTNAL_OES textures. We just leave them as is and hope
+    // the client never changes them either.
+    fDontSetBaseOrMaxLevelForExternalTextures = true;
 #endif
 }
 
