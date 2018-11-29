@@ -176,13 +176,13 @@ static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags,
 
         // Update opposite corner distances by 1 (when enabled by the mask). The distance
         // calculations used in compute_quad_edges_... calculates the edge equations from original
-        // positions and then shifts the coefficient by 0.5, and the final distance is calculated
-        // from the outset positions, which adds a further 0.5. Thus, in this optimization we add a
-        // net 1.f
-        edgeDistances[0] += Sk4f(0.f, 1.f, 0.f, 1.f) * mask;
-        edgeDistances[1] += Sk4f(0.f, 0.f, 1.f, 1.f) * mask;
-        edgeDistances[2] += Sk4f(1.f, 1.f, 0.f, 0.f) * mask;
-        edgeDistances[3] += Sk4f(1.f, 0.f, 1.f, 0.f) * mask;
+        // positions and then shifts the coefficient by 0.5. If the opposite edges are also outset
+        // then must add an additional 0.5 to account for its shift away from that edge.
+        Sk4f maskWithOpposites = mask + SkNx_shuffle<3, 2, 1, 0>(mask);
+        edgeDistances[0] += Sk4f(0.f, 0.5f, 0.f, 0.5f) * maskWithOpposites;
+        edgeDistances[1] += Sk4f(0.f, 0.f, 0.5f, 0.5f) * maskWithOpposites;
+        edgeDistances[2] += Sk4f(0.5f, 0.5f, 0.f, 0.f) * maskWithOpposites;
+        edgeDistances[3] += Sk4f(0.5f, 0.f, 0.5f, 0.f) * maskWithOpposites;
 
         // Outset edge equations for masked out edges another pixel so that they always evaluate
         // So add 1-mask to each point's edge distances vector so that coverage >= 1 on non-aa
@@ -308,6 +308,37 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
     compute_edge_distances(a, b, c, *x, *y, *w, edgeDistances);
 }
 
+// Calculate safe edge distances for non-aa quads that have been batched with aa quads. Since the
+// fragment shader multiples by 1/w, so the edge distance cannot just be set to 1. It cannot just
+// be set to w either due to interpolation across the triangle. If iA, iB, and iC are the
+// barycentric weights of the triangle, and we set the edge distance to w, the fragment shader
+// actually sees d = (iA*wA + iB*wB + iC*wC) * (iA/wA + iB/wB + iC/wC). Without perspective this
+// simplifies to 1 as necessary, but we must choose something other than w when there is perspective
+// to ensure that d >= 1 and the edge shows as non-aa.
+static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
+    // Let n = min(w1,w2,w3,w4) and m = max(w1,w2,w3,w4) and rewrite
+    //   d = (iA*wA + iB*wB + iC*wC) * (iA*wB*wC + iB*wA*wC + iC*wA*wB) / (wA*wB*wC)
+    //       |   e=attr from VS    |   |         fragCoord.w = 1/w                 |
+    // Since the weights are the interior of the primitive then we have:
+    //   n <= (iA*wA + iB*wB + iC*wC) <= m and
+    //   n^2 <= (iA*wB*wC + iB*wA*wC + iC*wA*wB) <= m^2 and
+    //   n^3 <= wA*wB*wC <= m^3 regardless of the choice of A, B, and C verts in the quad
+    // Thus if we set e = m^3/n^3, it guarantees d >= 1 for any perspective.
+    float e;
+    if (hasPersp) {
+        float m = w.max();
+        float n = w.min();
+        e = (m * m * m) / (n * n * n);
+    } else {
+        e = 1.f;
+    }
+
+    // All edge distances set to the same
+    for (int i = 0; i < 4; ++i) {
+        edgeDistances[i] = e;
+    }
+}
+
 } // anonymous namespace
 
 namespace GrQuadPerEdgeAA {
@@ -343,11 +374,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
         // Must calculate edges and possibly outside the positions
         if (aaFlags == GrQuadAAFlags::kNone) {
             // A non-AA quad that got batched into an AA group, so it should have full coverage
-            // everywhere, so set the edge distances to w for each vertex (so that after perspective
-            // division, it is equal to 1).
-            for (int i = 0; i < 4; ++i) {
-                edgeDistances[i] = w[i];
-            }
+            compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
         } else if (deviceHasPerspective) {
             // For simplicity, pointers to u, v, and r are always provided, but the local dim param
             // ensures that only loaded Sk4fs are modified in the compute functions.
