@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21fa1140_735edd4b",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T15:10:45Z",
+      "side": 1,
+      "message": "instead of static_cast, there\u0027s a select_overload to use which is a touch cleaner.",
+      "range": {
+        "startLine": 868,
+        "startChar": 32,
+        "endLine": 868,
+        "endChar": 43
+      },
+      "revId": "d87977905f9c6e04003ce83f77987aaccb219752",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

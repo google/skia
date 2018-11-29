@@ -225,6 +225,30 @@
     },
     {
       "key": {
+        "uuid": "c02d9f92_38f2da04",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T15:10:45Z",
+      "side": 1,
+      "message": "*shrug* JS decided that https://github.com/google/skia/blob/master/experimental/canvaskit/helper.js#L18\nshould produce a signed int, so that\u0027s what I went with.  (that code was directly ported from the C++ version)",
+      "parentUuid": "527ed587_becbf44d",
+      "range": {
+        "startLine": 203,
+        "startChar": 24,
+        "endLine": 203,
+        "endChar": 52
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c44cb56_4cd14155",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 4
