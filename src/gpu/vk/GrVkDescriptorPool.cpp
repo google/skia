@@ -44,7 +44,7 @@ void GrVkDescriptorPool::reset(const GrVkGpu* gpu) {
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), ResetDescriptorPool(gpu->device(), fDescPool, 0));
 }
 
-void GrVkDescriptorPool::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkDescriptorPool::freeGPUData(GrVkGpu* gpu) const {
     // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
     // allocated from the pool.
     GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorPool(gpu->device(), fDescPool, nullptr));
