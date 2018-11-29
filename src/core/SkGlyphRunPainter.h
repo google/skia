@@ -94,25 +94,25 @@ public:
     // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
     // and the position in fallback vectors. After all the glyphs are processed, pass the
     // fallback glyphIDs and positions to fallbackARGB.
-    template <typename PerPath>
+    template <typename PerEmptyT, typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
-            PerPath&& perPath, ARGBFallback&& fallbackARGB);
+            PerEmptyT&& perEmpty, PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
-    template <typename PerSDFT, typename PerPathT>
+    template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textRatio,
-            PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
+            PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
-            SkScalar maxGlyphDimension, const SkPaint& runPaint, const SkMatrix& viewMatrix,
-            SkScalar textScale, ARGBFallback argbFallback);
+            SkScalar maxGlyphDimension, const SkPaint& runPaint,
+            const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
