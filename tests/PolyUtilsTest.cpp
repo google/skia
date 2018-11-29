@@ -255,3 +255,25 @@ DEF_TEST(PolyUtils, reporter) {
     REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
                                                           &triangleIndices));
 }
+
+struct PtSet {
+    const SkPoint*  fPts;
+    int             fN;
+};
+
+DEF_TEST(AltConvex, r) {
+    #define PTSET(array)    {array, SK_ARRAY_COUNT(array)}
+
+    const SkPoint g0[] = { {0, 0}, {10, 0}, {10, 10}, {0, 10} };
+    const PtSet convex[] = { PTSET(g0) };
+    for (auto& set : convex) {
+        REPORTER_ASSERT(r, SkAltIsPolyConvex(set.fPts, set.fN));
+    }
+
+    const SkPoint b0[] = { {0, 0}, {10, 0}, {0, 10}, {10, 10} };
+    const PtSet concave[] = { PTSET(b0) };
+    for (auto& set : concave) {
+        REPORTER_ASSERT(r, !SkAltIsPolyConvex(set.fPts, set.fN));
+    }
+}
+

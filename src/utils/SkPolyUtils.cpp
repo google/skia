@@ -165,7 +165,7 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
     return true;
 }
 
-bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
+static bool SkIsConvexPolygon_Impl(const SkPoint* polygonVerts, int polygonSize) {
     if (polygonSize < 3) {
         return false;
     }
@@ -216,6 +216,16 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
 
     return true;
 }
+
+bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
+    bool conv = SkIsConvexPolygon_Impl(polygonVerts, polygonSize);
+    if (polygonSize > 3) {
+        bool alt = SkAltIsPolyConvex(polygonVerts, polygonSize);
+        SkASSERT(conv == alt);
+    }
+    return conv;
+}
+
 
 struct OffsetEdge {
     OffsetEdge*   fPrev;
@@ -1686,3 +1696,109 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
 
     return true;
 }
+
+///////////
+
+static SkScalar dot(SkVector a, SkVector b) {
+    return a.fX * b.fX + a.fY * b.fY;
+}
+
+static SkScalar crs(SkVector a, SkVector b) {
+    return a.fX * b.fY - a.fY * b.fX;
+}
+
+static int sign(SkScalar v) {
+    return v < 0 ? -1 : (v > 0);
+}
+
+struct SignTracker {
+    int fSign;
+    int fSignChanges;
+
+    void reset() {
+        fSign = 0;
+        fSignChanges = 0;
+    }
+
+    void init(int s) {
+        SkASSERT(fSignChanges == 0);
+        SkASSERT(s == 1 || s == -1);
+        fSign = s;
+        fSignChanges = 1;
+    }
+
+    void update(SkScalar v) {
+        int s = sign(v);
+        if (s) {
+            if (fSign != s) {
+                fSignChanges += 1;
+                fSign = s;
+            }
+        }
+    }
+};
+
+struct ConvexTracker {
+    SkVector    fDVec, fCVec;
+    SignTracker fDSign, fCSign;
+    bool        fIsConcave;
+
+    ConvexTracker() { this->reset(); }
+
+    void reset() {
+        fDVec = {0, 0};
+        fCVec = {0, 0};
+        fDSign.reset();
+        fCSign.reset();
+        fIsConcave = false;
+    }
+
+    void addVec(SkVector v) {
+        SkScalar m2 = dot(v, v);
+        if (!SkScalarIsFinite(m2)) {
+            fIsConcave = true;
+            return;
+        }
+        if (m2 == 0) {
+            return;
+        }
+
+        if (fDSign.fSignChanges == 0) {    // first time
+            SkASSERT(fCSign.fSignChanges == 0);
+            int s = sign(m2);
+            fDSign.init(s);
+            fDVec = v;
+            fCSign.init(s);
+            fCVec = v;
+            return;
+        }
+
+        SkScalar d = dot(fDVec, v);
+        SkScalar c = crs(fCVec, v);
+        fCVec = v;
+        SkASSERT(SkScalarsAreFinite(d, c));
+        fDSign.update(d);
+        fCSign.update(c);
+        if (fDSign.fSignChanges > 3 || fCSign.fSignChanges > 1) {
+            fIsConcave = true;
+        }
+    }
+};
+
+bool SkAltIsPolyConvex(const SkPoint pts[], int count) {
+    if (count <= 3) {
+        return true;
+    }
+
+    ConvexTracker tracker;
+
+    for (int i = 0; i < count - 1; ++i) {
+        tracker.addVec(pts[i + 1] - pts[i]);
+        if (tracker.fIsConcave) {
+            return false;
+        }
+    }
+    tracker.addVec(pts[0] - pts[count - 1]);
+    return !tracker.fIsConcave;
+}
+
