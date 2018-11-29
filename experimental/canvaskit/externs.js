@@ -31,6 +31,7 @@ var CanvasKit = {
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
 	MakeImageShader: function() {},
+	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
 	MakeNimaActor: function() {},
 	MakeRadialGradientShader: function() {},
@@ -38,6 +39,8 @@ var CanvasKit = {
 	MakeSkDashPathEffect: function() {},
 	MakeSkVertices: function() {},
 	MakeSurface: function() {},
+	/** @return {RadialCanvasGradient} */
+	MakeTwoPointConicalGradientShader: function() {},
 	MakeWebGLCanvasSurface: function() {},
 	currentContext: function() {},
 	getColorComponents: function() {},
@@ -54,6 +57,7 @@ var CanvasKit = {
 	_MakeRadialGradientShader: function() {},
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
+	_MakeTwoPointConicalGradientShader: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -78,6 +82,7 @@ var CanvasKit = {
 	SkCanvas: {
 		// public API (from C++ bindings)
 		clear: function() {},
+		clipPath: function() {},
 		drawPaint: function() {},
 		drawPath: function() {},
 		drawRect: function() {},
@@ -85,6 +90,7 @@ var CanvasKit = {
 		drawText: function() {},
 		drawVertices: function() {},
 		flush: function() {},
+		restore: function() {},
 		rotate: function() {},
 		save: function() {},
 		scale: function() {},
@@ -261,6 +267,11 @@ var CanvasKit = {
 		Inner: {},
 	},
 
+	ClipOp: {
+		Difference: {},
+		Intersect: {},
+	},
+
 	FillType: {
 		Winding: {},
 		EvenOdd: {},
@@ -279,6 +290,14 @@ var CanvasKit = {
 		StrokeAndFill: {},
 	},
 
+	PathOp: {
+		Difference: {},
+		Intersect: {},
+		Union: {},
+		XOR: {},
+		ReverseDifference: {},
+	},
+
 	StrokeCap: {
 		Butt: {},
 		Round: {},
@@ -289,6 +308,18 @@ var CanvasKit = {
 		Miter: {},
 		Round: {},
 		Bevel: {},
+	},
+
+	TileMode: {
+		Clamp: {},
+		Repeat: {},
+		Mirror: {},
+	},
+
+	VertexMode: {
+		Triangles: {},
+		TrianglesStrip: {},
+		TriangleFan: {},
 	},
 
 	// Things Enscriptem adds for us
@@ -356,6 +387,7 @@ StrokeOpts.prototype.miter_limit;
 StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
 
+// Define everything created in the canvas2d spec here
 var HTMLCanvas = {};
 HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
@@ -369,7 +401,10 @@ CanvasRenderingContext2D.prototype.beginPath = function() {};
 CanvasRenderingContext2D.prototype.bezierCurveTo = function() {};
 CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.clearRect = function() {};
+CanvasRenderingContext2D.prototype.clip = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
+CanvasRenderingContext2D.prototype.createLinearGradient = function() {};
+CanvasRenderingContext2D.prototype.createRadialGradient = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
 CanvasRenderingContext2D.prototype.fill = function() {};
@@ -395,6 +430,11 @@ CanvasRenderingContext2D.prototype.strokeRect = function() {};
 CanvasRenderingContext2D.prototype.strokeText = function() {};
 CanvasRenderingContext2D.prototype.transform = function() {};
 CanvasRenderingContext2D.prototype.translate = function() {};
+
+var LinearCanvasGradient = {};
+LinearCanvasGradient.prototype.addColorStop = function() {};
+var RadialCanvasGradient = {};
+RadialCanvasGradient.prototype.addColorStop = function() {};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {};

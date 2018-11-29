@@ -455,6 +455,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImageShader::Make(img, tx, ty, nullptr);
     }), allow_raw_pointers());
+    // Allow localMatrix to be optional, so we have 2 declarations of these gradients
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -502,6 +503,35 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkGradientShader::MakeRadial(center, radius, colors, positions, count,
                                             mode, flags, &localMatrix);
     }), allow_raw_pointers());
+    function("_MakeTwoPointConicalGradientShader", optional_override([](
+                SkPoint start, SkScalar startRadius,
+                SkPoint end, SkScalar endRadius,
+                uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
+        // See comment above for uintptr_t explanation
+        const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
+        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+
+        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                     colors, positions, count, mode,
+                                                     flags, nullptr);
+    }), allow_raw_pointers());
+    function("_MakeTwoPointConicalGradientShader", optional_override([](
+                SkPoint start, SkScalar startRadius,
+                SkPoint end, SkScalar endRadius,
+                uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
+                int count, SkShader::TileMode mode, uint32_t flags,
+                const SimpleMatrix& lm)->sk_sp<SkShader> {
+        // See comment above for uintptr_t explanation
+        const SkColor*  colors    = reinterpret_cast<const SkColor*> (cPtr);
+        const SkScalar* positions = reinterpret_cast<const SkScalar*>(pPtr);
+
+        SkMatrix localMatrix = toSkMatrix(lm);
+        return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius,
+                                                     colors, positions, count, mode,
+                                                     flags, &localMatrix);
+    }), allow_raw_pointers());
+
     function("_MakeSkVertices", optional_override([](SkVertices::VertexMode mode, int vertexCount,
                                 uintptr_t /* SkPoint*     */ pPtr,  uintptr_t /* SkPoint*     */ tPtr,
                                 uintptr_t /* SkColor*     */ cPtr,
@@ -526,6 +556,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // Add a optional_override to change it out.
             self.clear(SkColor(color));
         }))
+        .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
         .function("drawPaint", &SkCanvas::drawPaint)
         .function("drawPath", &SkCanvas::drawPath)
         .function("drawRect", &SkCanvas::drawRect)
@@ -546,6 +577,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
+        .function("restore", &SkCanvas::restore)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("scale", &SkCanvas::scale)
@@ -727,6 +759,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Solid",  SkBlurStyle::kSolid_SkBlurStyle)
         .value("Outer",  SkBlurStyle::kOuter_SkBlurStyle)
         .value("Inner",  SkBlurStyle::kInner_SkBlurStyle);
+
+    enum_<SkClipOp>("ClipOp")
+        .value("Difference", SkClipOp::kDifference)
+        .value("Intersect",  SkClipOp::kIntersect);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)

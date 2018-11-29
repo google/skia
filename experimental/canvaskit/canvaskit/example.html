@@ -28,6 +28,8 @@
 <canvas id=api4_c width=300 height=300></canvas>
 <img id=api5 width=300 height=300>
 <canvas id=api5_c width=300 height=300></canvas>
+<img id=api6 width=300 height=300>
+<canvas id=api6_c width=300 height=300></canvas>
 
 <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
@@ -95,6 +97,7 @@
       CanvasAPI3(CanvasKit);
       CanvasAPI4(CanvasKit);
       CanvasAPI5(CanvasKit);
+      CanvasAPI6(CanvasKit);
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImage);
@@ -671,6 +674,54 @@
 
     }
     document.getElementById('api5').src = skcanvas.toDataURL();
+  }
+
+  function CanvasAPI6(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(600, 600);
+    let realCanvas = document.getElementById('api6_c');
+    realCanvas.width = 600;
+    realCanvas.height = 600;
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+
+      var rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
+
+      // Add three color stops
+      rgradient.addColorStop(0, 'red');
+      rgradient.addColorStop(0.7, 'white');
+      rgradient.addColorStop(1, 'blue');
+
+      ctx.fillStyle = rgradient;
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(0, 0, 600, 600);
+      ctx.globalAlpha = 0.95;
+
+      ctx.beginPath();
+      ctx.arc(300, 100, 90, 0, Math.PI*1.66);
+      ctx.closePath();
+      ctx.strokeStyle = 'yellow';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.save();
+      ctx.clip();
+
+      var lgradient = ctx.createLinearGradient(200, 20, 420, 40);
+
+      // Add three color stops
+      lgradient.addColorStop(0, 'green');
+      lgradient.addColorStop(0.5, 'cyan');
+      lgradient.addColorStop(1, 'orange');
+
+      ctx.fillStyle = lgradient;
+
+      ctx.fillRect(200, 30, 200, 300);
+
+      ctx.restore();
+      ctx.fillRect(550, 550, 40, 40);
+
+    }
+    document.getElementById('api6').src = skcanvas.toDataURL();
   }
 
   function NimaExample(CanvasKit, nimaFile, nimaTexture) {
