@@ -96,6 +96,10 @@ struct GrVkYcbcrConversionInfo {
             , fExternalFormatFeatures(externalFormatFeatures) {}
 
     bool operator==(const GrVkYcbcrConversionInfo& that) const {
+        // Invalid objects are not required to have all other fields intialized or matching.
+        if (!this->isValid() && !that.isValid()) {
+            return true;
+        }
         return this->fYcbcrModel == that.fYcbcrModel &&
                this->fYcbcrRange == that.fYcbcrRange &&
                this->fXChromaOffset == that.fXChromaOffset &&
