@@ -71,7 +71,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerState& sampl
     return new GrVkSampler(sampler, GenerateKey(samplerState));
 }
 
-void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkSampler::freeGPUData(GrVkGpu* gpu) const {
     SkASSERT(fSampler);
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
