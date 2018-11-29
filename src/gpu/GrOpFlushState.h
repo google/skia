@@ -40,7 +40,7 @@ public:
     void doUpload(GrDeferredTextureUploadFn&);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
-    void executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds);
+    void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& opBounds);
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
     // Helper function used by Ops that are only called via RenderTargetOpLists
@@ -131,8 +131,8 @@ private:
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
         const GrMesh* fMeshes = nullptr;
+        const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
-        uint32_t fOpID = SK_InvalidUniqueID;
     };
 
     // Storage for ops' pipelines, draws, and inline uploads.
