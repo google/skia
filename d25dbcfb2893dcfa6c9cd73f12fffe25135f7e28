@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ae78d87_0f05364a",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Just to prove it works, consider adding a \"if id \u003d\u003d foo, then re-color one thing\"  and if id\u003d\u003dbar: change the opacity of one thing\".\n\nCanvasKit.Color(r,g,b,a) returns a JSColor using CSS syntax (so a is 0.0 - 1.0)",
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2406ca65_5f130b64",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "nit: intentional?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 2
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45ea4bf8_730e0240",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Idea: use JSArray here and add a JSObject alias for line 193?",
+      "range": {
+        "startLine": 190,
+        "startChar": 8,
+        "endLine": 190,
+        "endChar": 12
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b89be4af_0bf5f3a1",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Add a reminder comment that these are type aliased to std::string and therefore don\u0027t need additional exposition to WASM.\n\nAlternatively, use the exact types here instead of the aliases.",
+      "range": {
+        "startLine": 202,
+        "startChar": 24,
+        "endLine": 202,
+        "endChar": 70
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b79edcb_ebf275d4",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "This should really be JSColor and then cast to SkColor\n\n\"JS side gives us a signed int instead of an unsigned int for color\"",
+      "range": {
+        "startLine": 203,
+        "startChar": 24,
+        "endLine": 203,
+        "endChar": 52
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c44cb56_4cd14155",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Remove this lambda and have version defined above return a std::string",
+      "range": {
+        "startLine": 865,
+        "startChar": 12,
+        "endLine": 865,
+        "endChar": 54
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c915b2b_3bd691ee",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Maybe just have two declarations of render above?  Basically, the \"policy\" I\u0027ve been going with is to only use lambdas if I\u0027m doing a tweak on an interface that exists outside this file.  If it exists inside the file, just re-write it to be what we want.\n\nIf that ends up in less readable code, I\u0027m totally willing to bend there.\n\n(The reason we need two declarations is that the WASM bindings only allow explicitly listed overrides)",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 876,
+        "endChar": 33
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaf1cec9_c237ede3",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-29T13:29:36Z",
+      "side": 1,
+      "message": "Same thing here - can we just have ManagedAnimation::Make take a std::string ?",
+      "range": {
+        "startLine": 883,
+        "startChar": 13,
+        "endLine": 883,
+        "endChar": 78
+      },
+      "revId": "d25dbcfb2893dcfa6c9cd73f12fffe25135f7e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
