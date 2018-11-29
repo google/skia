@@ -206,11 +206,6 @@ public:
     };
 
     struct ImageSetEntry {
-        ImageSetEntry(<a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>>, const <a href='SkRect_Reference#SkRect'>SkRect</a>& srcRect, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dstRect,
-               unsigned aaFlags);
-        ImageSetEntry(<a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>>, const <a href='SkRect_Reference#SkRect'>SkRect</a>& srcRect, const <a href='SkRect_Reference#SkRect'>SkRect</a>& dstRect,
-                      float <a href='SkColor_Reference#Alpha'>alpha</a>, unsigned aaFlags);
-        ImageSetEntry() = default;
         <a href='undocumented#sk_sp'>sk_sp</a><const <a href='SkImage_Reference#SkImage'>SkImage</a>> fImage;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fSrcRect;
         <a href='SkRect_Reference#SkRect'>SkRect</a> fDstRect;

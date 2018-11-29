@@ -28,8 +28,6 @@ public:
     };
 
     void <a href='#SkPaint_setHinting'>setHinting</a>(<a href='undocumented#SkFontHinting'>SkFontHinting</a> hintingLevel);
-    Hinting <a href='#SkPaint_getHinting'>getHinting</a>() const;
-    void <a href='#SkPaint_setHinting'>setHinting</a>(Hinting h);
     <a href='undocumented#SkFontHinting'>SkFontHinting</a> <a href='#SkPaint_getHinting'>getHinting</a>() const;
 
     enum <a href='#SkPaint_Flags'>Flags</a> {
