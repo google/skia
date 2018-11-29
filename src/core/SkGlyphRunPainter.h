@@ -111,8 +111,8 @@ private:
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
-            SkScalar maxGlyphDimension, const SkPaint& runPaint, SkPoint origin,
-            const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
+            SkScalar maxGlyphDimension, const SkPaint& runPaint, const SkMatrix& viewMatrix,
+            SkScalar textScale, ARGBFallback argbFallback);
 
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
