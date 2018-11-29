@@ -28,7 +28,7 @@ DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 // q is reserved for quiet
 DEFINE_string2(ref, r, "", "Resolve refs and write *.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
-DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -b -i)");
+DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 // v is reserved for verbose
 DEFINE_bool2(validate, V, false, "Validate that all anchor references have definitions. (Requires -r)");
@@ -181,7 +181,7 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_tokens) {
+    if (FLAGS_include.isEmpty() && FLAGS_tokens) {
         SkDebugf("-t requires -b -i\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
@@ -194,9 +194,6 @@ int main(int argc, char** const argv) {
     }
     bmhParser.reset();
     if (!FLAGS_bmh.isEmpty()) {
-        if (FLAGS_tokens)  {
-            IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
-        }
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh", ParserCommon::OneFile::kNo)) {
             return -1;
         }
@@ -245,9 +242,11 @@ int main(int argc, char** const argv) {
                 ParserCommon::OneFile::kYes)) {
             return -1;
         }
+        includeParser.fDebugWriteCodeBlock = FLAGS_stdout;
         includeParser.writeCodeBlock();
         MdOut mdOut(bmhParser, includeParser);
         mdOut.fDebugOut = FLAGS_stdout;
+        mdOut.fDebugWriteCodeBlock = FLAGS_stdout;
         mdOut.fValidate = FLAGS_validate;
         if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
@@ -277,6 +276,7 @@ int main(int argc, char** const argv) {
         bmhParser.fWroteOut = true;
     }
     if (FLAGS_tokens) {
+        IncludeParser::RemoveFile(nullptr, FLAGS_include[0]);
         IncludeParser includeParser;
         includeParser.validate();
         if (!includeParser.parseFile(FLAGS_include[0], ".h", ParserCommon::OneFile::kNo)) {

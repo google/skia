@@ -27,6 +27,7 @@ public:
         this->reset();
         this->addPopulators();
         fBmhParser.setUpGlobalSubstitutes();
+        fNames = &fBmhParser.fGlobalNames;
     }
 
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
@@ -72,6 +73,9 @@ private:
         }
 
         bool findEnd(const char* start) {
+            if (fEnd < fRefEnd && '~' == fEnd[0]) {
+                ++fEnd;
+            }
             do {
                 while (fEnd < fRefEnd && (isalnum(fEnd[0]) || '-' == fEnd[0] || '_' == fEnd[0])) {
                     ++fEnd;
@@ -151,7 +155,7 @@ private:
         const char* skipWhiteSpace() {
             const char* start = fSeparatorStart;
             bool whiteSpace = start < fRefEnd && ' ' >= start[0];
-            while (start < fRefEnd && !isalpha(start[0])) {
+            while (start < fRefEnd && !isalpha(start[0]) && '~' != start[0]) {
                 whiteSpace &= ' ' >= start[0];
                 ++start;
             }
@@ -233,6 +237,7 @@ private:
 
     void reset() override {
         INHERITED::resetCommon();
+        fNames = nullptr;
         fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;
