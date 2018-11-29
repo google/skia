@@ -406,6 +406,19 @@ public:
         }
     }
 
+    /**
+     * Returns a key that represents the sampler that will be created for the passed in parameters.
+     * Currently this key is only used when we are building a vulkan pipeline with immutable
+     * samplers so we need to add this key to our cache key.
+     *
+     * A return value of 0 indicates that the program/pipeline we are creating is not effected by
+     * the sampler.
+     */
+    virtual uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&,
+                                                  const GrBackendFormat&) {
+        return 0;
+    }
+
 protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
