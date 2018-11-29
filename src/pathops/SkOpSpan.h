@@ -183,7 +183,7 @@ public:
         kError,
     };
 
-    void addOpp(SkOpSpanBase* opp);
+    bool addOpp(SkOpSpanBase* opp);
 
     void bumpSpanAdds() {
         ++fSpanAdds;
@@ -293,7 +293,7 @@ public:
     }
 
     void merge(SkOpSpan* span);
-    void mergeMatches(SkOpSpanBase* opp);
+    bool mergeMatches(SkOpSpanBase* opp);
 
     const SkOpSpan* prev() const {
         return fPrev;
