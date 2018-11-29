@@ -163,7 +163,7 @@ public:
     */
     SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
-    /** Deprecated.
+    /** Internal.  Used internally by Skia.
     */
     explicit SkCanvas(sk_sp<SkBaseDevice> device);
 
