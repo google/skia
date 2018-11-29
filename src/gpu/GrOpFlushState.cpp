@@ -31,9 +31,9 @@ GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
     return fCommandBuffer->asRTCommandBuffer();
 }
 
-void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds) {
+void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& opBounds) {
     SkASSERT(this->rtCommandBuffer());
-    while (fCurrDraw != fDraws.end() && fCurrDraw->fOpID == opID) {
+    while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
@@ -124,7 +124,7 @@ void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline*
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;
     draw.fMeshCnt = meshCnt;
-    draw.fOpID = fOpArgs->fOp->uniqueID();
+    draw.fOp = fOpArgs->fOp;
     if (firstDraw) {
         fBaseDrawToken = token;
     }
