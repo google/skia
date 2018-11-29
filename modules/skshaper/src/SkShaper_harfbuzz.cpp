@@ -778,3 +778,101 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
 
     return currentPoint;
 }
+
+
+// FIXME: Test this implementation with some unit tests before landing this CL.
+template <typename T, SkUnichar (*FN)(const T**, const T*)>
+struct SkUnicodeIterator {
+    const T* const fStart;
+    const T* const fStop;
+    SkUnicodeIterator(const T* begin, const T* end) : fStart(begin), fStop(end) {}
+    struct Iter {
+        const T* fPtr;
+        const T* fStop;
+        SkUnichar fUnichar = -1;
+        SkUnichar operator*() const { return fUnichar; }
+        Iter& operator++() {
+            if (fPtr != fStop) {
+                fUnichar = FN(&fPtr, fStop);
+            } else {
+                fPtr = fStop = nullptr;
+                fUnichar = -1;
+            }
+            return *this;
+        }
+        bool operator!=(const Iter& other) const { return fPtr != other.fPtr; }
+    };
+    Iter begin() const { Iter i{fStart, fStop}; return ++i; }
+    Iter end() const { return Iter{nullptr, nullptr};}
+};
+using SkUTF8Iterator  = SkUnicodeIterator<char,     SkUTF::NextUTF8>;
+using SkUTF16Iterator = SkUnicodeIterator<uint16_t, SkUTF::NextUTF16>;
+using SkUTF32Iterator = SkUnicodeIterator<int32_t,  SkUTF::NextUTF32>;
+
+// T is char, uint16_t, or int32_t
+// UNICODE_ITER = SkUnicodeIterator<T, FN>
+// ALLOC_FN     = [](size_t s) -> T*
+// TO_FN        = [](SkUnichar, T*) -> size_t
+template <typename UNICODE_ITER, typename ALLOC_FN, typename TO_FN>
+static inline size_t SkConvertUnicode(UNICODE_ITER iter, ALLOC_FN f, TO_FN toFn) {
+    size_t count = 0;
+    for (SkUnichar u : iter) {
+        count += toFn(u, nullptr);
+    }
+    auto* dst = f(count);
+    for (SkUnichar u : iter) {
+        count += toFn(u, dst);
+    }
+    return count;
+}
+
+static SkText to_utf8(SkText text, SkAutoTMalloc<char>& tmp) {
+    if (text.fTextEncoding == kUTF8_SkTextEncoding) {
+        return text;
+    }
+    const void* start = text.fText;
+    const void* stop = (const char*)text.fText + text.fTextBytes;
+    switch (text.fTextEncoding) {
+        case kUTF16_SkTextEncoding:
+            text.fTextBytes =
+                SkConvertUnicode(SkUTF16Iterator((const uint16_t*)start, (const uint16_t*)stop),
+                                 [&tmp](size_t s) { return tmp.reset(s); },
+                                 SkUTF::ToUTF8);
+            text.fText = tmp.get();
+            text.fTextEncoding = kUTF8_SkTextEncoding;
+            return text;
+        case kUTF32_SkTextEncoding:
+            text.fTextBytes =
+                SkConvertUnicode(SkUTF32Iterator((const int32_t*)start, (const int32_t*)stop),
+                                 [&tmp](size_t s) { return tmp.reset(s); },
+                                 SkUTF::ToUTF8);
+            text.fText = tmp.get();
+            text.fTextEncoding = kUTF8_SkTextEncoding;
+            return text;
+        default:
+            SkASSERT(false);
+            return SkText();
+    }
+}
+
+SkPoint SkShape(SkTextBlobBuilder* dst,
+                const SkFont& font,
+                SkText text,
+                bool leftToRight,
+                SkTextUtils::Align align,
+                SkPoint point,
+                SkScalar width) {
+    if (!dst || !text.fText || 0 == text.fTextBytes) {
+        return point;
+    }
+    SkASSERT_RELEASE(align != SkTextUtils::kLeft_Align);  // UNSUPPORTED NOW
+    SkASSERT_RELEASE(width > 0);
+    SkShaper shaper(font.refTypeface());
+    if (!shaper.good()) {
+        return point;
+    }
+    SkAutoTMalloc<char> tmp;
+    text = to_utf8(text, tmp);
+    return shaper.shape(dst, font, (const char*)text.fText,
+                        text.fTextBytes, leftToRight, point, width);
+}
