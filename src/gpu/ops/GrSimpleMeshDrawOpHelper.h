@@ -103,6 +103,10 @@ public:
         GrProcessorSet* fProcessorSet;
 
         friend class GrSimpleMeshDrawOpHelper;
+        // Without this, Windows builds fail to resolve access to the MakeArgs
+        // private ctor (even though it succeeds on other platforms).
+        template <typename Op, typename... OpArgs>
+        friend std::unique_ptr<GrDrawOp> FactoryHelper(GrContext*, GrPaint&&, OpArgs...);
     };
 
     void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
