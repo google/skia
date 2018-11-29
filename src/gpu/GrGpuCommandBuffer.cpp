@@ -62,6 +62,24 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
                 return false;
             }
         }
+#ifdef SK_DEBUG
+        SkASSERT(meshCount >= 1);
+        const GrTextureProxy* const* primProcProxies =
+                dynamicStateArrays->fPrimitiveProcessorTextures;
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            const GrBackendFormat& format = primProcProxies[i]->backendFormat();
+            GrTextureType type = primProcProxies[i]->textureType();
+            GrPixelConfig config = primProcProxies[i]->config();
+            for (int j = 1; j < meshCount; ++j) {
+                const GrTextureProxy* testProxy =
+                        primProcProxies[j*primProc.numTextureSamplers() + i];
+                SkASSERT(testProxy->backendFormat() == format);
+                SkASSERT(testProxy->textureType() == type);
+                SkASSERT(testProxy->config() == config);
+            }
+        }
+#endif
+
     }
 
     if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
