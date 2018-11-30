@@ -303,7 +303,7 @@ $$$#  # restore original markup character
 
     #Example
         SkPaint paint1, paint2;
-        paint2.setHinting(kNormal_SkFontHinting);
+        paint2.setHinting(SkFontHinting::kNormal);
         SkDebugf("paint1 %c= paint2\n", paint1 == paint2 ? '=' : ':');
 
         #StdOut

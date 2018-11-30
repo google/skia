@@ -57,43 +57,6 @@ Whether edge pixels draw opaque or with partial transparency.
 
 # ------------------------------------------------------------------------------
 
-#Enum Hinting
-
-#Code
-#Populate
-##
-
-Amount of font hinting applied to glyph outlines.
-
-#Const kNo_Hinting  0 # incomplete; replace '0' with member value
-#Line # glyph outlines unchanged ##
-# incomplete; add description or delete
-##
-#Const kSlight_Hinting  0 # incomplete; replace '0' with member value
-#Line # minimal modification to improve constrast ##
-# incomplete; add description or delete
-##
-#Const kNormal_Hinting  0 # incomplete; replace '0' with member value
-#Line # glyph outlines modified to improve constrast ##
-# incomplete; add description or delete
-##
-#Const kFull_Hinting  0 # incomplete; replace '0' with member value
-#Line # modifies glyph outlines for maximum constrast ##
-# incomplete; add description or delete
-##
-
-# incomplete; add description or delete
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
-
-#Enum ##
-
-# ------------------------------------------------------------------------------
-
 #Method SkFont()
 #In Constructor
 #Line # incomplete ##
