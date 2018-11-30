@@ -1318,6 +1318,10 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
                             SkPath::Convexity expected) {
     SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
     SkPath::Convexity c = copy.getConvexity();
+    if (c != expected) {
+        copy.setConvexity(SkPath::Convexity::kUnknown_Convexity);
+        copy.getConvexity();
+    }
     REPORTER_ASSERT(reporter, c == expected);
 }
 
