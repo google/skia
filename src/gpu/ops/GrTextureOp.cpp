@@ -13,12 +13,14 @@
 #include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
+#include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrQuad.h"
 #include "GrQuadPerEdgeAA.h"
 #include "GrResourceProvider.h"
+#include "GrResourceProviderPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
@@ -26,6 +28,7 @@
 #include "SkGr.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
+#include "SkMipMap.h"
 #include "SkPoint.h"
 #include "SkPoint3.h"
 #include "SkRectPriv.h"
@@ -49,12 +52,13 @@ class TextureGeometryProcessor : public GrGeometryProcessor {
 public:
 
     static sk_sp<GrGeometryProcessor> Make(GrTextureType textureType, GrPixelConfig textureConfig,
-                                           const GrSamplerState::Filter filter,
+                                           const GrSamplerState& samplerState,
+                                           uint32_t extraSamplerKey,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            const VertexSpec& vertexSpec, const GrShaderCaps& caps) {
         return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
-                textureType, textureConfig, filter, std::move(textureColorSpaceXform), vertexSpec,
-                caps));
+                textureType, textureConfig, samplerState, extraSamplerKey,
+                std::move(textureColorSpaceXform), vertexSpec, caps));
     }
 
     const char* name() const override { return "TextureGeometryProcessor"; }
@@ -109,13 +113,13 @@ public:
 
 private:
     TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig,
-                             GrSamplerState::Filter filter,
+                             const GrSamplerState& samplerState, uint32_t extraSamplerKey,
                              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                              const VertexSpec& vertexSpec, const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
             , fAttrs(vertexSpec)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fSampler(textureType, textureConfig, filter) {
+            , fSampler(textureType, textureConfig, samplerState, extraSamplerKey) {
         SkASSERT(vertexSpec.hasVertexColors() && vertexSpec.localDimensionality() == 2);
         this->setTextureSamplerCnt(1);
         this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
@@ -444,9 +448,15 @@ private:
         VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
                               GrQuadType::kRect, /* hasLocal */ true, domain, aaType);
 
+        GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                     this->filter());
+        GrGpu* gpu = target->resourceProvider()->priv().gpu();
+        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
+                samplerState, fProxies[0].fProxy->backendFormat());
+
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                vertexSpec, *target->caps().shaderCaps());
+                textureType, config, samplerState, extraSamplerKey,
+                std::move(fTextureColorSpaceXform), vertexSpec, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();

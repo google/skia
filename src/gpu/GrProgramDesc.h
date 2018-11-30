@@ -36,14 +36,14 @@ public:
     *                        general draw information, as well as the specific color, geometry,
     *                        and coverage stages which will be used to generate the GL Program for
     *                        this optstate.
-    * @param GrShaderCaps   Capabilities of the shading language.
+    * @param GrGpu          Ptr to the GrGpu object the program will be used with.
     * @param GrProgramDesc  The built and finalized descriptor
     **/
     static bool Build(GrProgramDesc*,
                       const GrPrimitiveProcessor&,
                       bool hasPointSize,
                       const GrPipeline&,
-                      const GrShaderCaps&);
+                      GrGpu*);
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
