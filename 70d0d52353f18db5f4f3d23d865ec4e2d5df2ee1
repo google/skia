@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8003f34b_f6861e18",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-30T19:22:36Z",
+      "side": 1,
+      "message": "This is the workaround for unpremul rendering artifacts, right?\n\nIt may be interesting to find out what\u0027s going on there because I suspect there are other ways to hit that issue (mask layers are also cleared to transparent before drawing the mask).\n\nPlus this locks the animation background to solid white, and prevents styling in HTML.\n\nI\u0027m fine with landing as is for now.",
+      "range": {
+        "startLine": 436,
+        "startChar": 19,
+        "endLine": 436,
+        "endChar": 34
+      },
+      "revId": "70d0d52353f18db5f4f3d23d865ec4e2d5df2ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "654304ff_e7102441",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-11-30T19:22:36Z",
+      "side": 1,
+      "message": "This is just SkImageInfo without color space support, right?  Would it be possible to bind to SkImageInfo directly, but leave the CS field out?",
+      "range": {
+        "startLine": 868,
+        "startChar": 17,
+        "endLine": 868,
+        "endChar": 32
+      },
+      "revId": "70d0d52353f18db5f4f3d23d865ec4e2d5df2ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
