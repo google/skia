@@ -57,7 +57,7 @@ private:
 };
 
 void SkAlphaThresholdFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkAlphaThresholdFilterImpl)
+    SK_REGISTER_FLATTENABLE(SkAlphaThresholdFilterImpl);
 }
 
 static SkScalar pin_0_1(SkScalar x) {

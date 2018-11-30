@@ -924,9 +924,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
 
 #endif // SK_SUPPORT_GPU
 
-void sk_register_blur_maskfilter_createproc() {
-    SK_REGISTER_FLATTENABLE(SkBlurMaskFilterImpl)
-}
+void sk_register_blur_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SkBlurMaskFilterImpl); }
 
 sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma, bool respectCTM) {
     if (SkScalarIsFinite(sigma) && sigma > 0) {

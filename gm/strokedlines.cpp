@@ -150,7 +150,7 @@ protected:
 
             SkMatrix m;
             m.setRotate(12.0f);
-            m.preScale(3.0f, 3.0f);;
+            m.preScale(3.0f, 3.0f);
 
             SkPaint p;
             p.setShader(SkShader::MakeBitmapShader(bm,

@@ -374,7 +374,6 @@ int SkOpSpan::computeWindSum() {
     SkOpContour* contourHead = globals->contourHead();
     int windTry = 0;
     while (!this->sortableTop(contourHead) && ++windTry < SkOpGlobalState::kMaxWindingTries) {
-        ;
     }
     return this->windSum();
 }
