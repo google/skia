@@ -124,8 +124,10 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "install_dm (attempt 2)"
+      "exception": {
+        "traceback": [
+          "<omitted by recipe engine>"
+        ]
       },
       "humanReason": "Infra Failure: Step('install_dm (attempt 2)') returned 1"
     },
