@@ -22,6 +22,30 @@
       "revId": "feb9801d90ace371a014b44e2cf82450e91c0cf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b75e9b1_0b8de68a",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-30T16:22:40Z",
+      "side": 1,
+      "message": "Yup it will fill out anything in the pNext chain. That\u0027s the model for vulkan calls in general.",
+      "parentUuid": "201487cd_0a12ee83",
+      "range": {
+        "startLine": 504,
+        "startChar": 39,
+        "endLine": 504,
+        "endChar": 73
+      },
+      "revId": "feb9801d90ace371a014b44e2cf82450e91c0cf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
