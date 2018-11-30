@@ -24,6 +24,7 @@
 class GrPipeline;
 
 class GrVkBufferImpl;
+class GrVkCommandPool;
 class GrVkGpuRTCommandBuffer;
 class GrVkGpuTextureCommandBuffer;
 class GrVkMemoryAllocator;
@@ -56,7 +57,7 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    VkCommandPool cmdPool() const { return fCmdPool; }
+    GrVkCommandPool* cmdPool() const { return fCmdPool; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -249,7 +250,8 @@ private:
 
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
-    VkCommandPool                                         fCmdPool;
+
+    GrVkCommandPool*                                      fCmdPool;
 
     GrVkPrimaryCommandBuffer*                             fCurrentCmdBuffer;
 
@@ -270,9 +272,6 @@ private:
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
     bool                                                  fDisconnected;
-
-    std::unique_ptr<GrVkGpuRTCommandBuffer>               fCachedRTCommandBuffer;
-    std::unique_ptr<GrVkGpuTextureCommandBuffer>          fCachedTexCommandBuffer;
 
     typedef GrGpu INHERITED;
 };
