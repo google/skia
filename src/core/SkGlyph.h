@@ -164,6 +164,10 @@ public:
 
     SkPath* addPath(SkScalerContext*, SkArenaAlloc*);
 
+    SkPath* path() const {
+        return fPathData ? fPathData->fPath : nullptr;
+    }
+
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
