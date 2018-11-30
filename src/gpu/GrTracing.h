@@ -15,8 +15,8 @@ class GrContext;
 /**
  * Context level GrTracing macros, classname and op are const char*, context is GrContext
  */
-#define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)               \
-    GR_AUDIT_TRAIL_AUTO_FRAME(context->contextPriv().getAuditTrail(), classname "::" op);  \
-    TRACE_EVENT0("skia.gpu", classname "::" op);
+#define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)                            \
+    GR_AUDIT_TRAIL_AUTO_FRAME(context->contextPriv().getAuditTrail(), classname "::" op); \
+    TRACE_EVENT0("skia.gpu", classname "::" op)
 
 #endif

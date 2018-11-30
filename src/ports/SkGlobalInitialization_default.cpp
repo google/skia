@@ -76,48 +76,48 @@
      */
     void SkFlattenable::PrivateInitializer::InitEffects() {
         // Shaders.
-        SK_REGISTER_FLATTENABLE(SkColor4Shader)
-        SK_REGISTER_FLATTENABLE(SkColorFilterShader)
-        SK_REGISTER_FLATTENABLE(SkColorShader)
-        SK_REGISTER_FLATTENABLE(SkComposeShader)
-        SK_REGISTER_FLATTENABLE(SkEmptyShader)
-        SK_REGISTER_FLATTENABLE(SkLocalMatrixShader)
-        SK_REGISTER_FLATTENABLE(SkPictureShader)
+        SK_REGISTER_FLATTENABLE(SkColor4Shader);
+        SK_REGISTER_FLATTENABLE(SkColorFilterShader);
+        SK_REGISTER_FLATTENABLE(SkColorShader);
+        SK_REGISTER_FLATTENABLE(SkComposeShader);
+        SK_REGISTER_FLATTENABLE(SkEmptyShader);
+        SK_REGISTER_FLATTENABLE(SkLocalMatrixShader);
+        SK_REGISTER_FLATTENABLE(SkPictureShader);
         SkGradientShader::RegisterFlattenables();
         SkLightingShader::RegisterFlattenables();
         SkPerlinNoiseShader::RegisterFlattenables();
         SkShaderBase::RegisterFlattenables();
 
         // Color filters.
-        SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255)
-        SK_REGISTER_FLATTENABLE(SkLumaColorFilter)
-        SK_REGISTER_FLATTENABLE(SkToSRGBColorFilter)
+        SK_REGISTER_FLATTENABLE(SkColorMatrixFilterRowMajor255);
+        SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
+        SK_REGISTER_FLATTENABLE(SkToSRGBColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
         SkOverdrawColorFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
 
         // Mask filters.
-        SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter)
+        SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter);
         SkMaskFilter::RegisterFlattenables();
         SkShaderMaskFilter::RegisterFlattenables();
 
         // Path effects.
-        SK_REGISTER_FLATTENABLE(SkCornerPathEffect)
-        SK_REGISTER_FLATTENABLE(SkDashImpl)
-        SK_REGISTER_FLATTENABLE(SkDiscretePathEffect)
-        SK_REGISTER_FLATTENABLE(SkLine2DPathEffect)
-        SK_REGISTER_FLATTENABLE(SkMatrixPE)
-        SK_REGISTER_FLATTENABLE(SkOpPE)
-        SK_REGISTER_FLATTENABLE(SkPath1DPathEffect)
-        SK_REGISTER_FLATTENABLE(SkPath2DPathEffect)
-        SK_REGISTER_FLATTENABLE(SkStrokePE)
-        SK_REGISTER_FLATTENABLE(SkTrimPE)
+        SK_REGISTER_FLATTENABLE(SkCornerPathEffect);
+        SK_REGISTER_FLATTENABLE(SkDashImpl);
+        SK_REGISTER_FLATTENABLE(SkDiscretePathEffect);
+        SK_REGISTER_FLATTENABLE(SkLine2DPathEffect);
+        SK_REGISTER_FLATTENABLE(SkMatrixPE);
+        SK_REGISTER_FLATTENABLE(SkOpPE);
+        SK_REGISTER_FLATTENABLE(SkPath1DPathEffect);
+        SK_REGISTER_FLATTENABLE(SkPath2DPathEffect);
+        SK_REGISTER_FLATTENABLE(SkStrokePE);
+        SK_REGISTER_FLATTENABLE(SkTrimPE);
         SkPathEffect::RegisterFlattenables();
 
         // Misc.
-        SK_REGISTER_FLATTENABLE(SkLayerDrawLooper)
-        SK_REGISTER_FLATTENABLE(SkRecordedDrawable)
+        SK_REGISTER_FLATTENABLE(SkLayerDrawLooper);
+        SK_REGISTER_FLATTENABLE(SkRecordedDrawable);
         SkNormalSource::RegisterFlattenables();
     }
 
@@ -133,22 +133,22 @@
         SkImageFilter::RegisterFlattenables();
         SkArithmeticImageFilter::RegisterFlattenables();
         SkXfermodeImageFilter::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkDilateImageFilter)
-        SK_REGISTER_FLATTENABLE(SkDisplacementMapEffect)
-        SK_REGISTER_FLATTENABLE(SkDropShadowImageFilter)
-        SK_REGISTER_FLATTENABLE(SkErodeImageFilter)
-        SK_REGISTER_FLATTENABLE(SkImageSource)
-        SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter)
-        SK_REGISTER_FLATTENABLE(SkPaintImageFilter)
-        SK_REGISTER_FLATTENABLE(SkPictureImageFilter)
-        SK_REGISTER_FLATTENABLE(SkTileImageFilter)
-        SK_REGISTER_FLATTENABLE(SkMagnifierImageFilter)
-        SK_REGISTER_FLATTENABLE(SkMatrixConvolutionImageFilter)
-        SK_REGISTER_FLATTENABLE(SkMatrixImageFilter)
-        SK_REGISTER_FLATTENABLE(SkOffsetImageFilter)
-        SK_REGISTER_FLATTENABLE(SkComposeImageFilter)
-        SK_REGISTER_FLATTENABLE(SkMergeImageFilter)
-        SK_REGISTER_FLATTENABLE(SkColorFilterImageFilter)
+        SK_REGISTER_FLATTENABLE(SkDilateImageFilter);
+        SK_REGISTER_FLATTENABLE(SkDisplacementMapEffect);
+        SK_REGISTER_FLATTENABLE(SkDropShadowImageFilter);
+        SK_REGISTER_FLATTENABLE(SkErodeImageFilter);
+        SK_REGISTER_FLATTENABLE(SkImageSource);
+        SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
+        SK_REGISTER_FLATTENABLE(SkPaintImageFilter);
+        SK_REGISTER_FLATTENABLE(SkPictureImageFilter);
+        SK_REGISTER_FLATTENABLE(SkTileImageFilter);
+        SK_REGISTER_FLATTENABLE(SkMagnifierImageFilter);
+        SK_REGISTER_FLATTENABLE(SkMatrixConvolutionImageFilter);
+        SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
+        SK_REGISTER_FLATTENABLE(SkOffsetImageFilter);
+        SK_REGISTER_FLATTENABLE(SkComposeImageFilter);
+        SK_REGISTER_FLATTENABLE(SkMergeImageFilter);
+        SK_REGISTER_FLATTENABLE(SkColorFilterImageFilter);
         SkLightingImageFilter::RegisterFlattenables();
     }
 

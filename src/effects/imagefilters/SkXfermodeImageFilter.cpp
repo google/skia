@@ -350,5 +350,5 @@ std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilter_Base::makeFGFrag(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkXfermodeImageFilter::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkXfermodeImageFilter_Base)
+    SK_REGISTER_FLATTENABLE(SkXfermodeImageFilter_Base);
 }

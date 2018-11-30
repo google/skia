@@ -23,7 +23,7 @@ public:
     }
     ~ScopedFlag() {
         if (!fWasSet) {
-            fNode->fFlags &= ~fFlag;;
+            fNode->fFlags &= ~fFlag;
         }
     }
 

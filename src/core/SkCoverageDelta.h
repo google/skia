@@ -222,7 +222,7 @@ static SK_ALWAYS_INLINE T CoverageToAlpha(const T&  coverage, bool isEvenOdd, bo
         T mod16 = coverage & 0xffff;
         result = ((mod16 << 1) - mod17).abs() >> 8;
     } else {
-        result = coverage.abs() >> 8;;
+        result = coverage.abs() >> 8;
     }
     result = T::Min(result, t255);
     result = T::Max(result, t0);

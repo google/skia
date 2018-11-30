@@ -78,8 +78,8 @@ void SkRecorder::append(Args&&... args) {
     new (fRecord->append<T>()) T{std::forward<Args>(args)...};
 }
 
-#define TRY_MINIRECORDER(method, ...)                       \
-    if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) { return; }
+#define TRY_MINIRECORDER(method, ...) \
+    if (fMiniRecorder && fMiniRecorder->method(__VA_ARGS__)) return
 
 // For methods which must call back into SkNoDrawCanvas.
 #define INHERITED(method, ...) this->SkNoDrawCanvas::method(__VA_ARGS__)

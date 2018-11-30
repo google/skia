@@ -123,8 +123,8 @@ void IRGenerator::popSymbolTable() {
 
 static void fill_caps(const SKSL_CAPS_CLASS& caps,
                       std::unordered_map<String, Program::Settings::Value>* capsMap) {
-#define CAP(name) capsMap->insert(std::make_pair(String(#name), \
-                                  Program::Settings::Value(caps.name())));
+#define CAP(name) \
+    capsMap->insert(std::make_pair(String(#name), Program::Settings::Value(caps.name())))
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
     CAP(dropsTileOnZeroDivide);
@@ -1180,9 +1180,9 @@ static bool determine_binary_type(const Context& context,
                                           right.componentType(), outLeftType, outRightType,
                                           outResultType, false)) {
                     *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
-                                                                 left.rows());;
+                                                                 left.rows());
                     *outRightType = &(*outResultType)->toCompound(context, right.columns(),
-                                                                  right.rows());;
+                                                                  right.rows());
                     int leftColumns = left.columns();
                     int leftRows = left.rows();
                     int rightColumns;
@@ -1413,7 +1413,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 args.emplace_back(new FloatLiteral(fContext, -1, value));              \
             }                                                                          \
             return std::unique_ptr<Expression>(new Constructor(-1, left.fType,         \
-                                                               std::move(args)));
+                                                               std::move(args)))
         switch (op) {
             case Token::EQEQ:
                 return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
