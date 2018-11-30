@@ -164,20 +164,18 @@ private:
 };
 
 #define GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, invoke, ...) \
-    if (audit_trail->isEnabled()) {                           \
-        audit_trail->invoke(__VA_ARGS__);                     \
-    }
+        if (audit_trail->isEnabled()) audit_trail->invoke(__VA_ARGS__)
 
 #define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD((audit_trail), pushFrame, framename);
+    GR_AUDIT_TRAIL_INVOKE_GUARD((audit_trail), pushFrame, framename)
 
 #define GR_AUDIT_TRAIL_RESET(audit_trail) \
     //GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, fullReset);
 
 #define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op, proxy_id) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op, proxy_id);
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, addOp, op, proxy_id)
 
 #define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op) \
-    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op);
+    GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op)
 
 #endif

@@ -657,7 +657,7 @@ static Json::Value make_json_regionop(SkClipOp op) {
         default:
             SkASSERT(false);
             return Json::Value("<invalid region op>");
-    };
+    }
 }
 
 static Json::Value make_json_pointmode(SkCanvas::PointMode mode) {
@@ -671,7 +671,7 @@ static Json::Value make_json_pointmode(SkCanvas::PointMode mode) {
         default:
             SkASSERT(false);
             return Json::Value("<invalid point mode>");
-    };
+    }
 }
 
 static void store_scalar(Json::Value* target, const char* key, SkScalar value,
@@ -818,7 +818,7 @@ static void apply_paint_color(const SkPaint& paint, Json::Value* target) {
         colorValue.append(Json::Value(SkColorGetR(color)));
         colorValue.append(Json::Value(SkColorGetG(color)));
         colorValue.append(Json::Value(SkColorGetB(color)));
-        (*target)[SKDEBUGCANVAS_ATTRIBUTE_COLOR] = colorValue;;
+        (*target)[SKDEBUGCANVAS_ATTRIBUTE_COLOR] = colorValue;
     }
 }
 

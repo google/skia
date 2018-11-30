@@ -91,9 +91,7 @@ sk_sp<SkFlattenable> GrSDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return GrSDFMaskFilter::Make();
 }
 
-void gr_register_sdf_maskfilter_createproc() {
-    SK_REGISTER_FLATTENABLE(GrSDFMaskFilterImpl)
-}
+void gr_register_sdf_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(GrSDFMaskFilterImpl); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

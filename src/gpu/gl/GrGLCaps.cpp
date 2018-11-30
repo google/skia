@@ -1735,13 +1735,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // Leaving Gray8 as non-renderable, to keep things simple and match raster. However, we do
     // enable the FBOColorAttachment_Flag so that we can bind it to an FBO for copies.
-    grayRedInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
+    grayRedInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;
     if (kStandard_MSFBOType == this->msFBOType() && kGL_GrGLStandard == standard &&
         !disableGrayLumFBOForMesa) {
         // desktop ARB extension/3.0+ supports LUMINANCE8 as renderable.
         // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes LUMINANCE8 support, but we should have chosen R8 in that case.
-        grayLumInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;;
+        grayLumInfo.fFlags |= ConfigInfo::kFBOColorAttachment_Flag;
     }
     if (texStorageSupported && !isCommandBufferES2) {
         if (!disableR8TexStorageForANGLEGL) {

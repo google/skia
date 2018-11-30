@@ -31,7 +31,7 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
             uniform.fType = uniformInfo.fVariable.getType();
-        );
+        )
 
         if (!(kFragment_GrShaderFlag & uniformInfo.fVisibility)) {
             uniform.fBinding = GrVkUniformHandler::kGeometryBinding;

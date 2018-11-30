@@ -151,15 +151,17 @@
 #define INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, ...) \
     INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
     skia::tracing_internals::ScopedTracer INTERNAL_TRACE_EVENT_UID(tracer); \
-    if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-      SkEventTracer::Handle h = skia::tracing_internals::AddTraceEvent( \
-          TRACE_EVENT_PHASE_COMPLETE, \
-          INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
-          name, skia::tracing_internals::kNoEventId, \
-          TRACE_EVENT_FLAG_NONE, ##__VA_ARGS__); \
-      INTERNAL_TRACE_EVENT_UID(tracer).Initialize( \
-          INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, h); \
-    }
+    do { \
+        if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
+          SkEventTracer::Handle h = skia::tracing_internals::AddTraceEvent( \
+              TRACE_EVENT_PHASE_COMPLETE, \
+              INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
+              name, skia::tracing_internals::kNoEventId, \
+              TRACE_EVENT_FLAG_NONE, ##__VA_ARGS__); \
+          INTERNAL_TRACE_EVENT_UID(tracer).Initialize( \
+              INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, h); \
+        } \
+    } while (0)
 
 namespace skia {
 namespace tracing_internals {

@@ -183,7 +183,7 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCa
         *hasColorAttribute = true;
     } else {
         *hasColorAttribute = false;
-    };
+    }
 
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 

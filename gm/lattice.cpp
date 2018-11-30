@@ -219,7 +219,7 @@ public:
     sk_sp<SkImage> makeImage(SkCanvas* root, int padLeft, int padTop, int padRight, int padBottom) {
         const int kSize = 80;
         auto surface(make_surface(root, kSize, padLeft, padTop, padRight, padBottom));
-        SkCanvas* canvas = surface->getCanvas();;
+        SkCanvas* canvas = surface->getCanvas();
         SkPaint paint;
         paint.setAntiAlias(false);
         SkRect r;

@@ -42,7 +42,7 @@ static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
     switch (op) {
         default:
             SK_ABORT("Unexpected path fill.");
-            /* fallthrough */;
+            /* fallthrough */
         case GrStencilOp::kIncWrap:
             return GR_GL_COUNT_UP;
         case GrStencilOp::kInvert:
@@ -66,7 +66,7 @@ GrGLPathRendering::~GrGLPathRendering() {
 void GrGLPathRendering::disconnect(GrGpu::DisconnectType type) {
     if (GrGpu::DisconnectType::kCleanup == type) {
         this->deletePaths(fFirstPreallocatedPathID, fPreallocatedPathCount);
-    };
+    }
     fPreallocatedPathCount = 0;
 }
 

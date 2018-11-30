@@ -1951,7 +1951,7 @@ DEF_TEST(GrShape_lines, r) {
     } else {
         ERRORF(r, "Should return pts (a,b) or (b, a)");
         return;
-    };
+    }
 
     strokeAB.compare(r, canonicalizeAsAB ? dashAB : dashBA,
                      TestCase::kSameUpToPE_ComparisonExpecation);

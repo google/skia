@@ -190,6 +190,6 @@ sk_sp<SkPathEffect> SkPathEffect::MakeCompose(sk_sp<SkPathEffect> outer,
 }
 
 void SkPathEffect::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkComposePathEffect)
-    SK_REGISTER_FLATTENABLE(SkSumPathEffect)
+    SK_REGISTER_FLATTENABLE(SkComposePathEffect);
+    SK_REGISTER_FLATTENABLE(SkSumPathEffect);
 }

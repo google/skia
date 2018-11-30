@@ -897,8 +897,8 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
 }
 
 void SkGradientShader::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkLinearGradient)
-    SK_REGISTER_FLATTENABLE(SkRadialGradient)
-    SK_REGISTER_FLATTENABLE(SkSweepGradient)
-    SK_REGISTER_FLATTENABLE(SkTwoPointConicalGradient)
+    SK_REGISTER_FLATTENABLE(SkLinearGradient);
+    SK_REGISTER_FLATTENABLE(SkRadialGradient);
+    SK_REGISTER_FLATTENABLE(SkSweepGradient);
+    SK_REGISTER_FLATTENABLE(SkTwoPointConicalGradient);
 }

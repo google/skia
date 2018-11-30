@@ -2407,7 +2407,7 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 void SkCanvas::onDrawImageSet(const ImageSetEntry imageSet[], int count,
                               SkFilterQuality filterQuality, SkBlendMode mode) {
     SkPaint paint;
-    LOOPER_BEGIN(paint, nullptr);
+    LOOPER_BEGIN(paint, nullptr)
     while (iter.next()) {
         iter.fDevice->drawImageSet(imageSet, count, filterQuality, mode);
     }

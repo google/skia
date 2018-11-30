@@ -19,14 +19,14 @@
 class GrVkGpu;
 
 // makes a Vk call on the interface
-#define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X;
+#define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 // same as GR_VK_CALL but checks for success
 #ifdef SK_DEBUG
-#define GR_VK_CALL_ERRCHECK(IFACE, X) \
+#define GR_VK_CALL_ERRCHECK(IFACE, X)                          \
     VkResult SK_MACRO_APPEND_LINE(ret) = GR_VK_CALL(IFACE, X); \
-    SkASSERT(VK_SUCCESS == SK_MACRO_APPEND_LINE(ret));
+    SkASSERT(VK_SUCCESS == SK_MACRO_APPEND_LINE(ret))
 #else
-#define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X);
+#define GR_VK_CALL_ERRCHECK(IFACE, X)  (void) GR_VK_CALL(IFACE, X)
 #endif
 
 /**

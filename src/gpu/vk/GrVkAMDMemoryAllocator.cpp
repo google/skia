@@ -17,7 +17,7 @@ GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VkPhysicalDevice physicalDevice,
         : fAllocator(VK_NULL_HANDLE)
         , fInterface(std::move(interface))
         , fDevice(device) {
-#define GR_COPY_FUNCTION(NAME) functions.vk##NAME = fInterface->fFunctions.f##NAME;
+#define GR_COPY_FUNCTION(NAME) functions.vk##NAME = fInterface->fFunctions.f##NAME
 
     VmaVulkanFunctions functions;
     GR_COPY_FUNCTION(GetPhysicalDeviceProperties);

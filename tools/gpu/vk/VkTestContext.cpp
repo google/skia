@@ -17,7 +17,7 @@ namespace {
 
 #define ACQUIRE_VK_PROC(name, device)                                               \
     f##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, nullptr, device)); \
-    SkASSERT(f##name);
+    SkASSERT(f##name)
 
 /**
  * Implements sk_gpu_test::FenceSync for Vulkan. It creates a single command
@@ -205,13 +205,15 @@ public:
     }
 
 protected:
-#define ACQUIRE_VK_PROC_LOCAL(name, inst)                                          \
-    PFN_vk##name grVk##name =                                                      \
-        reinterpret_cast<PFN_vk##name>(fVk.fGetProc("vk" #name, inst, nullptr));   \
-    if (grVk##name == nullptr) {                                                   \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);          \
-        return;                                                                    \
-    }
+#define ACQUIRE_VK_PROC_LOCAL(name, inst)                                            \
+    PFN_vk##name grVk##name =                                                        \
+            reinterpret_cast<PFN_vk##name>(fVk.fGetProc("vk" #name, inst, nullptr)); \
+    do {                                                                             \
+        if (grVk##name == nullptr) {                                                 \
+            SkDebugf("Function ptr for vk%s could not be acquired\n", #name);        \
+            return;                                                                  \
+        }                                                                            \
+    } while (0)
 
     void teardown() override {
         INHERITED::teardown();

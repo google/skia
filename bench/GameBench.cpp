@@ -51,7 +51,7 @@ public:
         case kRotate_Type:
             fName.append("_rot");
             break;
-        };
+        }
 
         if (aligned) {
             fName.append("_aligned");

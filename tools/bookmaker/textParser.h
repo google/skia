@@ -70,7 +70,6 @@ public:
             const char* nextWord = nullptr;
             while (matchEnd < fEnd) {
                 if (isalpha(matchEnd[0])) {
-                    ;
                 } else if (' ' == matchEnd[0] && --count >= 0) {
                     if (!nextWord) {
                         nextWord = matchEnd;

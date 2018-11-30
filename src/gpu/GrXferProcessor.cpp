@@ -102,7 +102,7 @@ static const char* equation_string(GrBlendEquation eq) {
         case kIllegal_GrBlendEquation:
             SkASSERT(false);
             return "<illegal>";
-    };
+    }
     return "";
 }
 

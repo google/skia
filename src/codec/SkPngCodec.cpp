@@ -199,7 +199,7 @@ bool SkPngCodec::processData() {
         case kPngError:
             // There was an error. Stop processing data.
             // FIXME: Do we need to discard png_ptr?
-            return false;;
+            return false;
         case kStopDecoding:
             // We decoded all the lines we want.
             return true;

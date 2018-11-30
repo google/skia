@@ -496,6 +496,4 @@ sk_sp<SkShader> SkLightingShader::Make(sk_sp<SkShader> diffuseShader,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkLightingShader::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkLightingShaderImpl)
-}
+void SkLightingShader::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkLightingShaderImpl); }

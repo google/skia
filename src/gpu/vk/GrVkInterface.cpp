@@ -10,11 +10,12 @@
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkUtil.h"
 
-#define ACQUIRE_PROC(name, instance, device) fFunctions.f##name = \
-    reinterpret_cast<PFN_vk##name>(getProc("vk"#name, instance, device));
+#define ACQUIRE_PROC(name, instance, device) \
+    fFunctions.f##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device))
 
-#define ACQUIRE_PROC_SUFFIX(name, suffix, instance, device) fFunctions.f##name = \
-    reinterpret_cast<PFN_vk##name##suffix>(getProc("vk"#name#suffix, instance, device));
+#define ACQUIRE_PROC_SUFFIX(name, suffix, instance, device) \
+    fFunctions.f##name =                                    \
+            reinterpret_cast<PFN_vk##name##suffix>(getProc("vk" #name #suffix, instance, device))
 
 GrVkInterface::GrVkInterface(GrVkGetProc getProc,
                              VkInstance instance,

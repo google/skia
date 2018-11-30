@@ -327,7 +327,7 @@ static bool get_segments(const SkPath& path,
                 update_degenerate_test(&degenerateData, pts[3]);
                 add_cubic_segments(pts, dir, segments);
                 break;
-            };
+            }
             case SkPath::kDone_Verb:
                 if (degenerateData.isDegenerate()) {
                     return false;

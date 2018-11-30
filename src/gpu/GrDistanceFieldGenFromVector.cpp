@@ -475,7 +475,7 @@ void precomputation_for_row(
     }
 
     const DPoint& xFormPtLeft = segment.fXformMatrix.mapPoint(pointLeft);
-    const DPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);;
+    const DPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);
 
     rowData->fQuadXDirection = (int)sign_of(segment.fP2T.x() - segment.fP0T.x());
     rowData->fScanlineXDirection = (int)sign_of(xFormPtRight.x() - xFormPtLeft.x());
@@ -742,11 +742,14 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                                      int width, int height, size_t rowBytes) {
     SkASSERT(distanceField);
 
-    SkDEBUGCODE(SkPath xformPath;);
-    SkDEBUGCODE(path.transform(drawMatrix, &xformPath));
-    SkDEBUGCODE(SkIRect pathBounds = xformPath.getBounds().roundOut());
-    SkDEBUGCODE(SkIRect expectPathBounds = SkIRect::MakeWH(width - 2 * SK_DistanceFieldPad,
-                                                           height - 2 * SK_DistanceFieldPad));
+#ifdef SK_DEBUG
+    SkPath xformPath;
+    path.transform(drawMatrix, &xformPath);
+    SkIRect pathBounds = xformPath.getBounds().roundOut();
+    SkIRect expectPathBounds =
+            SkIRect::MakeWH(width - 2 * SK_DistanceFieldPad, height - 2 * SK_DistanceFieldPad);
+#endif
+
     SkASSERT(expectPathBounds.isEmpty() ||
              expectPathBounds.contains(pathBounds.x(), pathBounds.y()));
     SkASSERT(expectPathBounds.isEmpty() || pathBounds.isEmpty() ||
@@ -813,7 +816,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
             case SkPath::kCubic_Verb: {
                 add_cubic_segments(pts, &segments);
                 break;
-            };
+            }
             default:
                 break;
         }

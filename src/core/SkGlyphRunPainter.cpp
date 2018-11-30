@@ -149,7 +149,7 @@ static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* im
     mask.fBounds.set(left, top, right, bottom);
     SkASSERT(!mask.fBounds.isEmpty());
 
-    mask.fImage    = (uint8_t*)image;;
+    mask.fImage    = (uint8_t*)image;
     mask.fRowBytes = glyph.rowBytes();
     mask.fFormat   = static_cast<SkMask::Format>(glyph.fMaskFormat);
 

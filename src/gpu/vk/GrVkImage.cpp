@@ -42,7 +42,7 @@ VkAccessFlags GrVkImage::LayoutToSrcAccessMask(const VkImageLayout layout) {
     // and the image is linear.
     // TODO: Add check for linear here so we are not always adding host to general, and we should
     //       only be in preinitialized if we are linear
-    VkAccessFlags flags = 0;;
+    VkAccessFlags flags = 0;
     if (VK_IMAGE_LAYOUT_GENERAL == layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                 VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |

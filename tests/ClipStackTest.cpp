@@ -421,7 +421,6 @@ static int count(const SkClipStack& stack) {
     int count = 0;
 
     for (element = iter.prev(); element; element = iter.prev(), ++count) {
-        ;
     }
 
     return count;
