@@ -59,10 +59,10 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(GrSwizzle swizzle,
-                             GrTextureType type,
-                             GrSLPrecision precision,
-                             const char* name) override;
+    SamplerHandle addSampler(const GrTexture*,
+                             const GrSamplerState&,
+                             const char* name,
+                             const GrShaderCaps*) override;
 
     int numSamplers() const { return fSamplers.count(); }
     const GrShaderVar& samplerVariable(SamplerHandle handle) const override {

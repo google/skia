@@ -6,6 +6,8 @@
 */
 
 #include "GrMtlUniformHandler.h"
+#include "GrTexture.h"
+#include "GrTexturePriv.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 // TODO: this class is basically copy and pasted from GrVklUniformHandler so that we can have
@@ -249,14 +251,18 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(GrSwizzle swizzle,
-                                                                    GrTextureType type,
-                                                                    GrSLPrecision precision,
-                                                                    const char* name) {
+GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(const GrTexture* texture,
+                                                                    const GrSamplerState&,
+                                                                    const char* name,
+                                                                    const GrShaderCaps* caps) {
     SkASSERT(name && strlen(name));
     SkString mangleName;
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+
+    GrSLPrecision precision = GrSLSamplerPrecision(texture->config());
+    GrSwizzle swizzle = caps->configTextureSwizzle(texture->config());
+    GrTextureType type = texture->texturePriv().textureType();
 
     UniformInfo& info = fSamplers.push_back();
     info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));

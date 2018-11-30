@@ -309,8 +309,9 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(const GrGLGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
-                                bool hasPointSize);
+        GrGLProgram* refProgram(const GrGLGpu*, const GrPrimitiveProcessor&,
+                                const GrTextureProxy* const primProcProxies[],
+                                const GrPipeline&, bool hasPointSize);
 
     private:
         // We may actually have kMaxEntries+1 shaders in the GL context because we create a new

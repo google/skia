@@ -23,12 +23,15 @@ class GrMtlPipelineState;
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
     static GrMtlPipelineState* CreatePipelineState(const GrPrimitiveProcessor&,
+                                                   const GrTextureProxy* const primProcProxies[],
                                                    const GrPipeline&,
                                                    GrProgramDesc*,
                                                    GrMtlGpu*);
 
 private:
-    GrMtlPipelineStateBuilder(const GrPrimitiveProcessor&, const GrPipeline&,
+    GrMtlPipelineStateBuilder(const GrPrimitiveProcessor&,
+                              const GrTextureProxy* const primProcProxies[],
+                              const GrPipeline&,
                               GrProgramDesc*, GrMtlGpu*);
 
     const GrCaps* caps() const override;

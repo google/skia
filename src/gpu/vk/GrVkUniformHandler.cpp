@@ -6,6 +6,11 @@
 */
 
 #include "GrVkUniformHandler.h"
+
+#include "GrTexturePriv.h"
+#include "GrVkGpu.h"
+#include "GrVkPipelineStateBuilder.h"
+#include "GrVkTexture.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
@@ -254,14 +259,18 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(GrSwizzle swizzle,
-                                                                   GrTextureType type,
-                                                                   GrSLPrecision precision,
-                                                                   const char* name) {
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(const GrTexture* texture,
+                                                                   const GrSamplerState& state,
+                                                                   const char* name,
+                                                                   const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
     SkString mangleName;
     char prefix = 'u';
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+
+    GrSLPrecision precision = GrSLSamplerPrecision(texture->config());
+    GrSwizzle swizzle = shaderCaps->configTextureSwizzle(texture->config());
+    GrTextureType type = texture->texturePriv().textureType();
 
     UniformInfo& info = fSamplers.push_back();
     info.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));
@@ -273,6 +282,17 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(GrSwizzle swi
     info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
     info.fVisibility = kFragment_GrShaderFlag;
     info.fUBOffset = 0;
+
+    // Check if we are dealing with an external texture and store the needed information if so
+    const GrVkTexture* vkTexture = static_cast<const GrVkTexture*>(texture);
+    if (vkTexture->ycbcrConversionInfo().isValid()) {
+        SkASSERT(type == GrTextureType::kExternal);
+        GrVkGpu* gpu = static_cast<GrVkPipelineStateBuilder*>(fProgramBuilder)->gpu();
+        info.fImmutableSampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
+                state, vkTexture->ycbcrConversionInfo());
+        SkASSERT(info.fImmutableSampler);
+    }
+
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);

@@ -35,6 +35,7 @@ public:
     const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
+    const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
     const GrPipeline& pipeline() const { return fPipeline; }
     GrProgramDesc* desc() { return fDesc; }
     const GrProgramDesc::KeyHeader& header() const { return fDesc->header(); }
@@ -74,17 +75,19 @@ public:
     // number of each input/output type in a single allocation block, used by many builders
     static const int kVarsPerBlock;
 
-    GrGLSLVertexBuilder         fVS;
-    GrGLSLGeometryBuilder       fGS;
-    GrGLSLFragmentShaderBuilder fFS;
+    GrGLSLVertexBuilder          fVS;
+    GrGLSLGeometryBuilder        fGS;
+    GrGLSLFragmentShaderBuilder  fFS;
 
     int fStageIndex;
 
-    const GrPipeline&           fPipeline;
-    const GrPrimitiveProcessor& fPrimProc;
-    GrProgramDesc*              fDesc;
+    const GrPipeline&            fPipeline;
+    const GrPrimitiveProcessor&  fPrimProc;
+    const GrTextureProxy* const* fPrimProcProxies;
 
-    GrGLSLBuiltinUniformHandles fUniformHandles;
+    GrProgramDesc*               fDesc;
+
+    GrGLSLBuiltinUniformHandles  fUniformHandles;
 
     std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
@@ -92,7 +95,10 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(const GrPrimitiveProcessor&, const GrPipeline&, GrProgramDesc*);
+    explicit GrGLSLProgramBuilder(const GrPrimitiveProcessor&,
+                                  const GrTextureProxy* const primProcProxies[],
+                                  const GrPipeline&,
+                                  GrProgramDesc*);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 
@@ -128,9 +134,7 @@ private:
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
     void nameExpression(SkString*, const char* baseName);
 
-    void emitAndInstallPrimProc(const GrPrimitiveProcessor&,
-                                SkString* outputColor,
-                                SkString* outputCoverage);
+    void emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
     void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitAndInstallFragProc(const GrFragmentProcessor&,
                                     int index,
@@ -139,7 +143,7 @@ private:
                                     SkString output,
                                     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
-    SamplerHandle emitSampler(GrTextureType, GrPixelConfig, const char* name);
+    SamplerHandle emitSampler(const GrTexture*, const GrSamplerState&, const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
 

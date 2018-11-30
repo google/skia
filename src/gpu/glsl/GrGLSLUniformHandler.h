@@ -16,6 +16,8 @@
 #define GR_NO_MANGLE_PREFIX "sk_"
 
 class GrGLSLProgramBuilder;
+class GrSamplerState;
+class GrTexture;
 
 // Handles for program uniforms (other than per-effect uniforms)
 struct GrGLSLBuiltinUniformHandles {
@@ -97,7 +99,8 @@ private:
     virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
-    virtual SamplerHandle addSampler(GrSwizzle, GrTextureType, GrSLPrecision, const char* name) = 0;
+    virtual SamplerHandle addSampler(const GrTexture*, const GrSamplerState&, const char* name,
+                                     const GrShaderCaps*) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,
