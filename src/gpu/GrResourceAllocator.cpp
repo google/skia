@@ -93,7 +93,12 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     if (!fResourceProvider->explicitlyAllocateGPUResources()) {
         // FIXME: remove this once we can do the lazy instantiation from assign instead.
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
-            proxy->priv().doLazyInstantiation(fResourceProvider);
+            if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
+                if (proxy->priv().lazyInstantiationType() ==
+                    GrSurfaceProxy::LazyInstantiationType::kUninstantiate) {
+                    fUninstantiateTracker->addProxy(proxy);
+                }
+            }
         }
     }
 }
@@ -290,9 +295,7 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
-                                 GrUninstantiateProxyTracker* uninstantiateTracker,
-                                 AssignError* outError) {
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
     SkASSERT(outError);
     *outError = AssignError::kNoError;
 
@@ -361,7 +364,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
             } else {
                 if (GrSurfaceProxy::LazyInstantiationType::kUninstantiate ==
                     cur->proxy()->priv().lazyInstantiationType()) {
-                    uninstantiateTracker->addProxy(cur->proxy());
+                    fUninstantiateTracker->addProxy(cur->proxy());
                 }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
