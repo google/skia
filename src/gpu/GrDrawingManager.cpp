@@ -283,7 +283,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(fContext->contextPriv().resourceProvider());
+        GrResourceAllocator alloc(fContext->contextPriv().resourceProvider(),
+                                  flushState.uninstantiateProxyTracker());
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
                 fDAG.opList(i)->gatherProxyIntervals(&alloc);
@@ -292,8 +293,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
         }
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
-        while (alloc.assign(&startIndex, &stopIndex, flushState.uninstantiateProxyTracker(),
-                            &error)) {
+        while (alloc.assign(&startIndex, &stopIndex, &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
                     if (fDAG.opList(i) && !fDAG.opList(i)->isFullyInstantiated()) {
