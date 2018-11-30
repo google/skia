@@ -13,6 +13,7 @@
 #endif
 
 #include "SkBlendMode.h"
+#include "SkBlurTypes.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkCornerPathEffect.h"
@@ -21,9 +22,9 @@
 #include "SkDiscretePathEffect.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFontMgr.h"
-#include "SkBlurTypes.h"
 #include "SkFontMgrPriv.h"
 #include "SkGradientShader.h"
+#include "SkImageInfo.h"
 #include "SkImageShader.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
@@ -146,6 +147,18 @@ SkMatrix toSkMatrix(const SimpleMatrix& sm) {
     return SkMatrix::MakeAll(sm.scaleX, sm.skewX , sm.transX,
                              sm.skewY , sm.scaleY, sm.transY,
                              sm.pers0 , sm.pers1 , sm.pers2);
+}
+
+struct SimpleImageInfo {
+    int width;
+    int height;
+    SkColorType colorType;
+    SkAlphaType alphaType;
+    // TODO color spaces?
+};
+
+SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
+    return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
 }
 
 #if SK_INCLUDE_SKOTTIE && SK_INCLUDE_MANAGED_SKOTTIE
@@ -422,6 +435,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("setCurrentContext", &emscripten_webgl_make_context_current);
     constant("gpu", true);
 #endif
+    function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
+                                                             uintptr_t /* uint8_t*  */ pptr,
+                                                             size_t rowBytes)->sk_sp<SkSurface> {
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pptr);
+        SkImageInfo imageInfo = toSkImageInfo(ii);
+        return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
+    }), allow_raw_pointers());
     function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
         return SkSurface::MakeRasterN32Premul(width, height, nullptr);
     }), allow_raw_pointers());
@@ -722,6 +742,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         .function("vertexCount", &SkVertices::vertexCount);
 
+    enum_<SkAlphaType>("AlphaType")
+        .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)
+        .value("Premul",   SkAlphaType::kPremul_SkAlphaType)
+        .value("Unpremul", SkAlphaType::kUnpremul_SkAlphaType);
 
     enum_<SkBlendMode>("BlendMode")
         .value("Clear",      SkBlendMode::kClear)
@@ -763,6 +787,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkClipOp>("ClipOp")
         .value("Difference", SkClipOp::kDifference)
         .value("Intersect",  SkClipOp::kIntersect);
+
+    enum_<SkColorType>("ColorType")
+        .value("Alpha_8", SkColorType::kAlpha_8_SkColorType)
+        .value("RGB_565", SkColorType::kRGB_565_SkColorType)
+        .value("ARGB_4444", SkColorType::kARGB_4444_SkColorType)
+        .value("RGBA_8888", SkColorType::kRGBA_8888_SkColorType)
+        .value("RGB_888x", SkColorType::kRGB_888x_SkColorType)
+        .value("BGRA_8888", SkColorType::kBGRA_8888_SkColorType)
+        .value("RGBA_1010102", SkColorType::kRGBA_1010102_SkColorType)
+        .value("RGB_101010x", SkColorType::kRGB_101010x_SkColorType)
+        .value("Gray_8", SkColorType::kGray_8_SkColorType)
+        .value("RGBA_F16", SkColorType::kRGBA_F16_SkColorType)
+        .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType);
 
     enum_<SkPath::FillType>("FillType")
         .value("Winding",           SkPath::FillType::kWinding_FillType)
@@ -828,6 +865,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fRight",  &SkIRect::fRight)
         .field("fBottom", &SkIRect::fBottom);
 
+    value_object<SimpleImageInfo>("SkImageInfo")
+        .field("width",     &SimpleImageInfo::width)
+        .field("height",    &SimpleImageInfo::height)
+        .field("colorType", &SimpleImageInfo::colorType)
+        .field("alphaType", &SimpleImageInfo::alphaType);
+
     // SkPoints can be represented by [x, y]
     value_array<SkPoint>("SkPoint")
         .element(&SkPoint::fX)
@@ -872,6 +915,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("YELLOW",      (JSColor) SK_ColorYELLOW);
     constant("CYAN",        (JSColor) SK_ColorCYAN);
     constant("BLACK",       (JSColor) SK_ColorBLACK);
+    constant("WHITE",       (JSColor) SK_ColorWHITE);
     // TODO(?)
 
 #if SK_INCLUDE_SKOTTIE

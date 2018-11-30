@@ -10,14 +10,9 @@
       }
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = this._getRasterN32PremulSurface(canvas.width, canvas.height);
+      var surface = CanvasKit.MakeSurface(canvas.width, canvas.height);
       if (surface) {
         surface._canvas = canvas;
-        surface._width = canvas.width;
-        surface._height = canvas.height;
-        surface._pixelLen = surface._width * surface._height * 4; // it's 8888
-        // Allocate the buffer of pixels to be used to draw back and forth.
-        surface._pixelPtr = CanvasKit._malloc(surface._pixelLen);
       }
       return surface;
     };
@@ -28,14 +23,30 @@
     }
 
     CanvasKit.MakeSurface = function(width, height) {
-      var surface = this._getRasterN32PremulSurface(width, height);
+      /* @dict */
+      var imageInfo = {
+        'width':  width,
+        'height': height,
+        'colorType': CanvasKit.ColorType.RGBA_8888,
+        // Since we are sending these pixels directly into the HTML canvas,
+        // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
+        'alphaType': CanvasKit.AlphaType.Unpremul,
+      }
+      var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
+      // Allocate the buffer of pixels to be drawn into.
+      var pixelPtr = CanvasKit._malloc(pixelLen);
+
+      var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width*4);
       if (surface) {
         surface._canvas = null;
         surface._width = width;
         surface._height = height;
-        surface._pixelLen = width * height * 4; // it's 8888
-        // Allocate the buffer of pixels to be used to draw back and forth.
-        surface._pixelPtr = CanvasKit._malloc(surface._pixelLen);
+        surface._pixelLen = pixelLen;
+
+        surface._pixelPtr = pixelPtr;
+        // rasterDirectSurface does not initialize the pixels, so we clear them
+        // to transparent black.
+        surface.getCanvas().clear(CanvasKit.TRANSPARENT);
       }
       return surface;
     };
@@ -45,12 +56,6 @@
       // Do we have an HTML canvas to write the pixels to?
       // We will not if this a GPU build or a raster surface, for example.
       if (this._canvas) {
-        var success = this._readPixels(this._width, this._height, this._pixelPtr);
-        if (!success) {
-          SkDebug('could not read pixels');
-          return;
-        }
-
         var pixels = new Uint8ClampedArray(CanvasKit.buffer, this._pixelPtr, this._pixelLen);
         var imageData = new ImageData(pixels, this._width, this._height);
 
