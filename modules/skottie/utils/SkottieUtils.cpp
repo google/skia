@@ -60,51 +60,66 @@ sk_sp<skottie::ImageAsset> FileResourceProvider::loadImageAsset(const char resou
     return MultiFrameImageAsset::Make(this->load(resource_path, resource_name));
 }
 
-CustomPropertyManagerBuilder::CustomPropertyManagerBuilder() = default;
-CustomPropertyManagerBuilder::~CustomPropertyManagerBuilder() = default;
+class CustomPropertyManager::PropertyInterceptor final : public skottie::PropertyObserver {
+public:
+    explicit PropertyInterceptor(CustomPropertyManager* mgr) : fMgr(mgr) {}
 
-std::unique_ptr<CustomPropertyManager> CustomPropertyManagerBuilder::build() {
-    return std::unique_ptr<CustomPropertyManager>(
-                new CustomPropertyManager(std::move(fColorMap),
-                                          std::move(fOpacityMap),
-                                          std::move(fTransformMap)));
-}
-
-void CustomPropertyManagerBuilder::onColorProperty(
-        const char node_name[],
-        const LazyHandle<skottie::ColorPropertyHandle>& c) {
-    const auto key = this->acceptProperty(node_name);
-    if (!key.empty()) {
-        fColorMap[key].push_back(c());
+    void onColorProperty(const char node_name[],
+                         const LazyHandle<skottie::ColorPropertyHandle>& c) override {
+        const auto key = fMgr->acceptKey(node_name);
+        if (!key.empty()) {
+            fMgr->fColorMap[key].push_back(c());
+        }
     }
-}
 
-void CustomPropertyManagerBuilder::onOpacityProperty(
-        const char node_name[],
-        const LazyHandle<skottie::OpacityPropertyHandle>& o) {
-    const auto key = this->acceptProperty(node_name);
-    if (!key.empty()) {
-        fOpacityMap[key].push_back(o());
+    void onOpacityProperty(const char node_name[],
+                           const LazyHandle<skottie::OpacityPropertyHandle>& o) override {
+        const auto key = fMgr->acceptKey(node_name);
+        if (!key.empty()) {
+            fMgr->fOpacityMap[key].push_back(o());
+        }
     }
-}
 
-void CustomPropertyManagerBuilder::onTransformProperty(
-        const char node_name[],
-        const LazyHandle<skottie::TransformPropertyHandle>& t) {
-    const auto key = this->acceptProperty(node_name);
-    if (!key.empty()) {
-        fTransformMap[key].push_back(t());
+    void onTransformProperty(const char node_name[],
+                             const LazyHandle<skottie::TransformPropertyHandle>& t) override {
+        const auto key = fMgr->acceptKey(node_name);
+        if (!key.empty()) {
+            fMgr->fTransformMap[key].push_back(t());
+        }
     }
-}
 
-CustomPropertyManager::CustomPropertyManager(PropMap<skottie::ColorPropertyHandle> cmap,
-                                             PropMap<skottie::OpacityPropertyHandle> omap,
-                                             PropMap<skottie::TransformPropertyHandle> tmap)
-    : fColorMap(std::move(cmap))
-    , fOpacityMap(std::move(omap))
-    , fTransformMap(std::move(tmap)) {}
+private:
+    CustomPropertyManager* fMgr;
+};
+
+class CustomPropertyManager::MarkerInterceptor final : public skottie::MarkerObserver {
+public:
+    explicit MarkerInterceptor(CustomPropertyManager* mgr) : fMgr(mgr) {}
+
+    void onMarker(const char name[], float t0, float t1) override {
+        const auto key = fMgr->acceptKey(name);
+        if (!key.empty()) {
+            fMgr->fMarkers.push_back({ std::move(key), t0, t1 });
+        }
+    }
+
+private:
+    CustomPropertyManager* fMgr;
+};
+
+CustomPropertyManager::CustomPropertyManager()
+    : fPropertyInterceptor(sk_make_sp<PropertyInterceptor>(this))
+    , fMarkerInterceptor(sk_make_sp<MarkerInterceptor>(this)) {}
 
 CustomPropertyManager::~CustomPropertyManager() = default;
+
+sk_sp<skottie::PropertyObserver> CustomPropertyManager::getPropertyObserver() const {
+    return fPropertyInterceptor;
+}
+
+sk_sp<skottie::MarkerObserver> CustomPropertyManager::getMarkerObserver() const {
+    return fMarkerInterceptor;
+}
 
 template <typename T>
 std::vector<CustomPropertyManager::PropKey>

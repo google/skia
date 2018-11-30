@@ -155,20 +155,20 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
-                                   sk_sp<AnnotationObserver> aobserver,
+                                   sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
                                    float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
-    , fAnnotationObserver(std::move(aobserver))
+    , fMarkerObserver(std::move(mobserver))
     , fStats(stats)
     , fDuration(duration)
     , fFrameRate(framerate) {}
 
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
-    this->dispatchAnnotations(jroot["annotations"]);
+    this->dispatchMarkers(jroot["markers"]);
 
     this->parseAssets(jroot["assets"]);
     this->parseFonts(jroot["fonts"], jroot["chars"]);
@@ -193,16 +193,31 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
     }
 }
 
-void AnimationBuilder::dispatchAnnotations(const skjson::ObjectValue* jannotations) const {
-    if (!fAnnotationObserver || !jannotations) {
+void AnimationBuilder::dispatchMarkers(const skjson::ArrayValue* jmarkers) const {
+    if (!fMarkerObserver || !jmarkers) {
         return;
     }
 
-    for (const auto& a : *jannotations) {
-        if (const skjson::StringValue* value = a.fValue) {
-            fAnnotationObserver->onAnnotation(a.fKey.begin(), value->begin());
+    // For frame-number -> t conversions.
+    const auto frameRatio = 1 / (fFrameRate * fDuration);
+
+    for (const skjson::ObjectValue* m : *jmarkers) {
+        if (!m) continue;
+
+        const skjson::StringValue* name = (*m)["cm"];
+        const auto time = ParseDefault((*m)["tm"], -1.0f),
+               duration = ParseDefault((*m)["dr"], -1.0f);
+
+        if (name && time >= 0 && duration >= 0) {
+            fMarkerObserver->onMarker(
+                        name->begin(),
+                        // "tm" is in frames
+                        time * frameRatio,
+                        // ... as is "dr"
+                        (time + duration) * frameRatio
+            );
         } else {
-            this->log(Logger::Level::kWarning, &a.fValue, "Ignoring unexpected annotation value.");
+            this->log(Logger::Level::kWarning, m, "Ignoring unexpected marker.");
         }
     }
 }
@@ -296,8 +311,8 @@ Animation::Builder& Animation::Builder::setLogger(sk_sp<Logger> logger) {
     return *this;
 }
 
-Animation::Builder& Animation::Builder::setAnnotationObserver(sk_sp<AnnotationObserver> aobserver) {
-    fAnnotationObserver = std::move(aobserver);
+Animation::Builder& Animation::Builder::setMarkerObserver(sk_sp<MarkerObserver> mobserver) {
+    fMarkerObserver = std::move(mobserver);
     return *this;
 }
 
@@ -371,7 +386,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        std::move(fPropertyObserver),
                                        std::move(fLogger),
-                                       std::move(fAnnotationObserver),
+                                       std::move(fMarkerObserver),
                                        &fStats, duration, fps);
     auto scene = builder.parse(json);
 

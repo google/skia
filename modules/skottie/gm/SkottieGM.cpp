@@ -104,11 +104,10 @@ protected:
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream("skottie/skottie_sample_search.json")) {
-            auto propBuilder = sk_make_sp<CustomPropertyManagerBuilder>();
+            fPropManager = skstd::make_unique<CustomPropertyManager>();
             fAnimation   = Animation::Builder()
-                              .setPropertyObserver(propBuilder)
+                              .setPropertyObserver(fPropManager->getPropertyObserver())
                               .make(stream.get());
-            fPropManager = propBuilder->build();
             fColors      = fPropManager->getColorProps();
         }
     }

@@ -26,6 +26,7 @@
 #include "SkGradientShader.h"
 #include "SkImageInfo.h"
 #include "SkImageShader.h"
+#include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkParsePath.h"
@@ -167,14 +168,13 @@ namespace {
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json) {
-        auto mgrBuilder = sk_make_sp<skottie_utils::CustomPropertyManagerBuilder>();
+        auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
-                            .setPropertyObserver(mgrBuilder)
+                            .setPropertyObserver(mgr->getPropertyObserver())
                             .make(json.c_str(), json.size());
 
         return animation
-            ? sk_sp<ManagedAnimation>(
-                  new ManagedAnimation(std::move(animation), mgrBuilder->build()))
+            ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation), std::move(mgr)))
             : nullptr;
     }
 
