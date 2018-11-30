@@ -22,6 +22,30 @@
       "revId": "ee756ccdba6518bde5d67bee382942f085068f83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16070af8_5f102c2d",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-11-30T18:13:57Z",
+      "side": 1,
+      "message": "The alloc is a member of the glyph cache. This CL does not change lifetimes. It just makes management easier.",
+      "parentUuid": "6102df9b_610daa55",
+      "range": {
+        "startLine": 120,
+        "startChar": 13,
+        "endLine": 120,
+        "endChar": 75
+      },
+      "revId": "ee756ccdba6518bde5d67bee382942f085068f83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
