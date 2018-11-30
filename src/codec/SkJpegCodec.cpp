@@ -854,6 +854,8 @@ bool SkJpegCodec::onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSp
     // JPEG never has an alpha channel
     sizeInfo->fSizes[3].fHeight = sizeInfo->fSizes[3].fWidth = sizeInfo->fWidthBytes[3] = 0;
 
+    sizeInfo->fOrigin = this->getOrigin();
+
     if (colorSpace) {
         *colorSpace = kJPEG_SkYUVColorSpace;
     }

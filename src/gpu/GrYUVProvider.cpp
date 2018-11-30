@@ -182,7 +182,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvSizeInfo.fSizes[0].fWidth,
                                      yuvSizeInfo.fSizes[0].fHeight);
 
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), r);
+    SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, r.width(), r.height());
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, r);
 
     return renderTargetContext->asTextureProxyRef();
 }
