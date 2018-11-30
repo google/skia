@@ -89,13 +89,11 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        const SkPixmapPriv::OrientFlags flags = SkPixmapPriv::kSwapXY;
-
         SkPixmap src, dst;
         fSrc.peekPixels(&src);
         fDst.peekPixels(&dst);
         for (int i = 0; i < loops; ++i) {
-            SkPixmapPriv::Orient(dst, src, flags);
+            SkPixmapPriv::Orient(dst, src, kTopRight_SkEncodedOrigin);
         }
     }
 
