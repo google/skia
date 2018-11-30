@@ -195,13 +195,13 @@ def nanobench_flags(api, bot):
     match.append('~keymobi_techcrunch_com.skp_1.1')
     match.append('~keymobi_techcrunch.skp_1.1')
     match.append('~keymobi_techcrunch.skp_1.1_mpd')
+    match.append('~svgparse_NewYork-StateSeal.svg_1.1')
+    match.append('~svgparse_Vermont_state_seal.svg_1')
     match.append('~tabl_gamedeksiam.skp_1.1')
     match.append('~tabl_pravda.skp_1')
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
-    # skia:8408
-    match.append('~svgparse_Vermont_state_seal.svg_1')
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
