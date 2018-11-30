@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f5fa18d3_1c7de921",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-30T19:07:21Z",
+      "side": 1,
+      "message": "Removed.  I think this would only cause an issue if we were to return UNKNOWN somehow.",
+      "parentUuid": "d20d207b_13b4dd7b",
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b5023d84_ba0144f2",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 6
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "e5c5c10e_f2eea16d",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-30T19:07:21Z",
+      "side": 1,
+      "message": "Removed - this was leftover from when I was figuring out why my premul and unpremul looked different.",
+      "parentUuid": "b5023d84_ba0144f2",
+      "range": {
+        "startLine": 805,
+        "startChar": 7,
+        "endLine": 805,
+        "endChar": 61
+      },
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "367e524a_af79999a",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 6
@@ -53,6 +95,24 @@
       "writtenOn": "2018-11-30T18:15:23Z",
       "side": 1,
       "message": "Might want to land this change first?",
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a6cf9c2_cb69dcb6",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-30T19:07:21Z",
+      "side": 1,
+      "message": "Done in https://skia-review.googlesource.com/c/skia/+/173701",
+      "parentUuid": "367e524a_af79999a",
       "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
