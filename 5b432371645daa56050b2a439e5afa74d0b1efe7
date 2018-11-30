@@ -179,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "90dc8680_147f5435",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-11-30T05:02:45Z",
+      "side": 1,
+      "message": "\u003e But the problem with that approach is that wuffs\u0027 output is a paletted image (though maybe there\u0027s an option to change that?).\n\nWuffs today doesn\u0027t have that option, but I\u0027ve been meaning to add that option at some point. I could reprioritize to \u0027soon\u0027 if that\u0027ll help.",
+      "parentUuid": "d445c94d_64bec0d4",
+      "revId": "5b432371645daa56050b2a439e5afa74d0b1efe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ee09487_bd2dd367",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
