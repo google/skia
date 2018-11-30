@@ -84,7 +84,7 @@ public:
                     args.fVaryingHandler->setNoPerspective();
                 }
                 args.fVaryingHandler->emitAttributes(textureGP);
-                gpArgs->fPositionVar = textureGP.fAttrs.positions().asShaderVar();
+                gpArgs->fPositionVar = textureGP.fAttrs.emitPosition(args, "pos");
 
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
