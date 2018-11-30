@@ -22,6 +22,30 @@
       "revId": "6030cf940a4d34e924c2a1d03726c82bce6ae71e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20872288_fe59d76d",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-30T14:57:59Z",
+      "side": 1,
+      "message": "Aha! Yes. I was trying to find the CPU code that implemented orientation, and just missed that. I\u0027ll move this helper and use it in both spots.",
+      "parentUuid": "dfda0d35_a9904624",
+      "range": {
+        "startLine": 104,
+        "startChar": 16,
+        "endLine": 104,
+        "endChar": 34
+      },
+      "revId": "6030cf940a4d34e924c2a1d03726c82bce6ae71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
