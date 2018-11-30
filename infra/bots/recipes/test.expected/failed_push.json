@@ -143,8 +143,10 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+      "exception": {
+        "traceback": [
+          "<omitted by recipe engine>"
+        ]
       },
       "humanReason": "Infra Failure: Step('push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources') returned 1"
     },

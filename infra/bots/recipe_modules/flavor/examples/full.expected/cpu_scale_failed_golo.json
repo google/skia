@@ -909,8 +909,10 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "Scale CPU 4 to 0.600000 (attempt 3)"
+      "exception": {
+        "traceback": [
+          "<omitted by recipe engine>"
+        ]
       },
       "humanReason": "Infra Failure: Step('Scale CPU 4 to 0.600000 (attempt 3)') returned 1"
     },

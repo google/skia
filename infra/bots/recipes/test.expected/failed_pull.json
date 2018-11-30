@@ -1009,8 +1009,10 @@
   },
   {
     "failure": {
-      "failure": {
-        "step": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)"
+      "exception": {
+        "traceback": [
+          "<omitted by recipe engine>"
+        ]
       },
       "humanReason": "Infra Failure: Step('adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out (attempt 3)') returned 1"
     },
