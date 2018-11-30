@@ -30,6 +30,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primProc,
+                                               const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
@@ -40,7 +41,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, pipeline, primProc, desc);
+    GrGLProgramBuilder builder(gpu, pipeline, primProc, primProcProxies, desc);
 
     auto persistentCache = gpu->getContext()->contextPriv().getPersistentCache();
     if (persistentCache && gpu->glCaps().programBinarySupport()) {
@@ -61,8 +62,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
+                                       const GrTextureProxy* const primProcProxies[],
                                        GrProgramDesc* desc)
-        : INHERITED(primProc, pipeline, desc)
+        : INHERITED(primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)

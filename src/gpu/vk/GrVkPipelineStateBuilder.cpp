@@ -18,6 +18,7 @@
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         const GrPrimitiveProcessor& primProc,
+        const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
         const GrStencilSettings& stencil,
         GrPrimitiveType primitiveType,
@@ -25,7 +26,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         VkRenderPass compatibleRenderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, desc);
+    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, primProcProxies, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -37,8 +38,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
+                                                   const GrTextureProxy* const primProcProxies[],
                                                    GrProgramDesc* desc)
-        : INHERITED(primProc, pipeline, desc)
+        : INHERITED(primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
