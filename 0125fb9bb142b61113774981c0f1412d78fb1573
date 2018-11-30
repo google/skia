@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cc64d0a7_fffae741",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-30T18:32:36Z",
+      "side": 1,
+      "message": "It seemed orthogonal to the test, but the pre-existing struct ProxyParams already had this field so I thought should respect it. I modified the test to test both.",
+      "parentUuid": "5203482b_a55a2864",
+      "range": {
+        "startLine": 306,
+        "startChar": 12,
+        "endLine": 306,
+        "endChar": 40
+      },
+      "revId": "0125fb9bb142b61113774981c0f1412d78fb1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aca3a307_6c96fdc6",
         "filename": "tests/ResourceAllocatorTest.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "0125fb9bb142b61113774981c0f1412d78fb1573",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f748c5c5_dad71487",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-11-30T18:32:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aca3a307_6c96fdc6",
+      "range": {
+        "startLine": 329,
+        "startChar": 37,
+        "endLine": 329,
+        "endChar": 38
+      },
+      "revId": "0125fb9bb142b61113774981c0f1412d78fb1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
