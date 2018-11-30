@@ -392,10 +392,10 @@ bool SkStrikeCache::desperationSearchForPath(
         if (loose_compare(node->fCache.getDescriptor(), desc)) {
             if (node->fCache.isGlyphCached(glyphID, 0, 0)) {
                 SkGlyph* from = node->fCache.getRawGlyphByID(SkPackedGlyphID(glyphID));
-                if (from->fPathData != nullptr && from->fPathData->fPath != nullptr) {
+                if (from->fPathData != nullptr) {
                     // We can just copy the path out by value here, so no need to worry
                     // about the lifetime of this desperate-match node.
-                    *path = *from->fPathData->fPath;
+                    *path = from->fPathData->fPath;
                     return true;
                 }
             }
