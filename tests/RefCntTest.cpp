@@ -80,12 +80,11 @@ static int gUnrefCounter;
 static int gNewCounter;
 static int gDeleteCounter;
 
-#define check(reporter, ref, unref, make, kill)             \
-    REPORTER_ASSERT(reporter, gRefCounter == ref);          \
-    REPORTER_ASSERT(reporter, gUnrefCounter == unref);      \
-    REPORTER_ASSERT(reporter, gNewCounter == make);         \
-    REPORTER_ASSERT(reporter, gDeleteCounter == kill);
-
+#define check(reporter, ref, unref, make, kill)        \
+    REPORTER_ASSERT(reporter, gRefCounter == ref);     \
+    REPORTER_ASSERT(reporter, gUnrefCounter == unref); \
+    REPORTER_ASSERT(reporter, gNewCounter == make);    \
+    REPORTER_ASSERT(reporter, gDeleteCounter == kill)
 
 class Effect {
 public:

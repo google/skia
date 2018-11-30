@@ -2204,7 +2204,6 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
                     rootDef = aliasIter->second;
                 } else if (fInEnum && fEnumDef && this->findEnumSubtopic(undername, &rootDef)) {
-                    ;
                 } else if (!first) {
                     this->fChar = start;
                     this->fLine = start;

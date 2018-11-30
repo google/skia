@@ -294,29 +294,31 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
     return true;
 }
 
-#define ACQUIRE_VK_PROC_NOCHECK(name, instance, device)                        \
-    PFN_vk##name grVk##name =                                                  \
-        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device));
+#define ACQUIRE_VK_PROC_NOCHECK(name, instance, device) \
+    PFN_vk##name grVk##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device))
 
+#define ACQUIRE_VK_PROC(name, instance, device)                                    \
+    PFN_vk##name grVk##name =                                                      \
+            reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
+    do {                                                                           \
+        if (grVk##name == nullptr) {                                               \
+            SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+            if (device != VK_NULL_HANDLE) {                                        \
+                destroy_instance(getProc, inst, debugCallback, hasDebugExtension); \
+            }                                                                      \
+            return false;                                                          \
+        }                                                                          \
+    } while (0)
 
-#define ACQUIRE_VK_PROC(name, instance, device)                                \
-    PFN_vk##name grVk##name =                                                  \
-        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
-    if (grVk##name == nullptr) {                                               \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
-        if (device != VK_NULL_HANDLE) {                                        \
-            destroy_instance(getProc, inst, debugCallback, hasDebugExtension); \
-        }                                                                      \
-        return false;                                                          \
-    }
-
-#define ACQUIRE_VK_PROC_LOCAL(name, instance, device)                          \
-    PFN_vk##name grVk##name =                                                  \
-        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
-    if (grVk##name == nullptr) {                                               \
-        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
-        return;                                                                \
-    }
+#define ACQUIRE_VK_PROC_LOCAL(name, instance, device)                              \
+    PFN_vk##name grVk##name =                                                      \
+            reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
+    do {                                                                           \
+        if (grVk##name == nullptr) {                                               \
+            SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+            return;                                                                \
+        }                                                                          \
+    } while (0)
 
 static void destroy_instance(GrVkGetProc getProc, VkInstance inst,
                              VkDebugReportCallbackEXT* debugCallback,

@@ -86,7 +86,7 @@ private:
     SkString fBufferedText;
 };
 
-#define HANDLER_CONTEXT(arg, name) ParsingContext* name = static_cast<ParsingContext*>(arg);
+#define HANDLER_CONTEXT(arg, name) ParsingContext* name = static_cast<ParsingContext*>(arg)
 
 void XMLCALL start_element_handler(void *data, const char* tag, const char** attributes) {
     HANDLER_CONTEXT(data, ctx);
