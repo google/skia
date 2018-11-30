@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d20d207b_13b4dd7b",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-30T18:15:23Z",
+      "side": 1,
+      "message": "Is it possible to avoid exposing the Unknown SkAlphaType / SkColorTypes?  They\u0027re kind of warts and it might be easier to reason about things in the future if they just never come up.  We certainly don\u0027t want people requesting surfaces with either.",
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5023d84_ba0144f2",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-30T18:15:23Z",
+      "side": 1,
+      "message": "Let\u0027s not expose this one?  It\u0027s set platform-by-platform to either RGBA_8888 or BGRA_8888.\n\nIn this case for \u003ccanvas\u003e you actually want RGBA_8888, right?",
+      "range": {
+        "startLine": 805,
+        "startChar": 7,
+        "endLine": 805,
+        "endChar": 61
+      },
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "367e524a_af79999a",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-30T18:15:23Z",
+      "side": 1,
+      "message": "Might want to land this change first?",
+      "revId": "c67e50fb564b7fdab4038d46479f3e9ecbfa9d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
