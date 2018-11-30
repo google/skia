@@ -128,6 +128,6 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
             }
         }
     }
-    return fPathData ? fPathData->fPath.get() : nullptr;
+    return this->path();
 }
 
