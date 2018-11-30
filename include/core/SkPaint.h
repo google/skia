@@ -189,24 +189,6 @@ public:
     */
     void reset();
 
-#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
-    /** \enum SkPaint::Hinting
-        Deprecated.
-        Hinting adjusts the glyph outlines so that the shape provides a uniform
-        look at a given point size on font engines that support it. Hinting may have a
-        muted effect or no effect at all depending on the platform.
-
-        The four levels roughly control corresponding features on platforms that use FreeType
-        as the font engine.
-    */
-    enum Hinting : uint8_t {
-        kNo_Hinting     = 0, //!< glyph outlines unchanged
-        kSlight_Hinting = 1, //!< minimal modification to improve constrast
-        kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
-        kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
-    };
-#endif
-
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
