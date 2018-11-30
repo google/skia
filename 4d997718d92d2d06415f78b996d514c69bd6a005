@@ -284,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "7d2229df_b9570e47",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "Ah, in the latest patch set, you\u0027ve added a return to jassert, so you can return early. But sometimes the calling method still ends up calling other JNI methods. I\u0027ve added comments there.",
+      "parentUuid": "ccd8aade_e9b3484a",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 11
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d539f83c_537620e7",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -751,6 +775,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74daac2c_f8c7283c",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "I don\u0027t think you took the right lesson from that text. Yes, if you wanted to use the object somewhere else in JNI (e.g. if another native method called this one), you\u0027d want to call NewGlobalRef. But you\u0027d still need someone to call DeleteGlobalRef. And I don\u0027t see any caller doing that, unless I missed something?\n\nhttps://stackoverflow.com/questions/29891432/newglobalref-deleteglobalref-when-returning-object-created-in-jni",
+      "parentUuid": "7393a633_dadd06a0",
+      "range": {
+        "startLine": 169,
+        "startChar": 30,
+        "endLine": 169,
+        "endChar": 42
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
@@ -2302,6 +2350,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e441fbc_e6d43ac9",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "I typically think of a struct as something that doesn\u0027t have a constructor - it\u0027s just data. Should I update my thinking?",
+      "parentUuid": "6ac30b01_d0fb379e",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 6
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {

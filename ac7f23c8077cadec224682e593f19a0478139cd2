@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd404b9d_de71245a",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "I like the new version of jassert that returns in the case of an exception. To be robust here, you still need to check if there\u0027s a pending exception (via ExceptionCheck or ExceptionOccurred) before calling set_string_array_element on successive iterations in case a prior iteration threw an exception.",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 32
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7911dfd8_ed818061",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "There could be a pending exception after this, so the rest of this method risks calling a JNI method while an exception is pending.",
+      "range": {
+        "startLine": 110,
+        "startChar": 34,
+        "endLine": 110,
+        "endChar": 43
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "891b0c40_223dabb0",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "If this throws an Exception, we shouldn\u0027t call SetObjectField or continue to the below lines and call more JNI methods.",
+      "range": {
+        "startLine": 129,
+        "startChar": 24,
+        "endLine": 129,
+        "endChar": 44
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a0e4812_f99c0ba6",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "This could also leave an exception pending.",
+      "range": {
+        "startLine": 173,
+        "startChar": 8,
+        "endLine": 173,
+        "endChar": 32
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f84ae9c_5f956c2d",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "In a prior patch set [1], I suggested that this use to_java_string_array. Your response was \"Not necessary.\" I don\u0027t follow what you mean here. It isn\u0027t necessary, I suppose, but I generally think it\u0027s good to share code if two blocks of code do the same thing. Does this do something differently that I\u0027m overlooking? Both sections of code potentially call JNI methods while an exception is pending; it\u0027d be nice to fix it in only one place.\n\nEDIT: Wait, in [2] you said \"For some reason that did not work.\" What didn\u0027t work? Using to_java_string_array?\n\n[1] https://skia-review.googlesource.com/c/skia/+/110420/8/tools/skqp/src/jni_skqp.cpp#169\n[2] https://skia-review.googlesource.com/c/skia/+/110420/8/tools/skqp/src/jni_skqp.cpp#164",
+      "range": {
+        "startLine": 169,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 5
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af2d58e2_76030b8c",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T21:17:42Z",
+      "side": 1,
+      "message": "Who calls DeleteGlobalRef on this? As I suggested before, I don\u0027t think this NewGlobalRef is necessary. \n\nhttps://skia-review.googlesource.com/c/skia/+/110420/8/tools/skqp/src/jni_skqp.cpp#169",
+      "range": {
+        "startLine": 175,
+        "startChar": 30,
+        "endLine": 175,
+        "endChar": 42
+      },
+      "revId": "ac7f23c8077cadec224682e593f19a0478139cd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
