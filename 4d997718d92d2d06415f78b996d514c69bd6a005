@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fb9c967a_4d5ec9d0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04d8dae3_595a0319",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 15
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af441645_2e2d54af",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39ec22aa_09ca2283",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "It is pretty clear that Java_org_skia_skqp_SkQP_nInit \u003d\u003d org.skia.skqp.SkQP.nInit().",
+      "parentUuid": "af441645_2e2d54af",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 80
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d4115796_bd63dad0",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23bfb39e_53b600c6",
+      "range": {
+        "startLine": 40,
+        "startChar": 16,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db90aa1f_6f5e4082",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c1bc4bc_de520058",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db90aa1f_6f5e4082",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 56,
+        "endChar": 50
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "ec86a59e_ae75da7d",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1900de49_3010563d",
+      "range": {
+        "startLine": 76,
+        "startChar": 31,
+        "endLine": 76,
+        "endChar": 45
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e896cff0_0fd8ed09",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -137,6 +257,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccd8aade_e9b3484a",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "If it throws, I want the calling code to log the exception, then crash.",
+      "parentUuid": "e896cff0_0fd8ed09",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 11
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "077028f3_5315b2bd",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d539f83c_537620e7",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3a74d4e_19ab35f4",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -183,6 +351,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cabb303_f94af3a3",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3a74d4e_19ab35f4",
+      "range": {
+        "startLine": 105,
+        "startChar": 17,
+        "endLine": 105,
+        "endChar": 29
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "89def2dd_f57dba63",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Not sure how best to do this.  I\u0027ll add a TODO for now.",
+      "parentUuid": "242960ef_19bc8a67",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 45
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce809f25_8ed51f50",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -229,6 +445,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06e0f716_56330c74",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "ce809f25_8ed51f50",
+      "range": {
+        "startLine": 109,
+        "startChar": 40,
+        "endLine": 109,
+        "endChar": 61
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "e85b739c_3555eebb",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1689be2e_1f3bf262",
+      "range": {
+        "startLine": 120,
+        "startChar": 19,
+        "endLine": 120,
+        "endChar": 34
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a20c24c_ac608c36",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -275,6 +539,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31862d9e_b8dfc291",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a20c24c_ac608c36",
+      "range": {
+        "startLine": 142,
+        "startChar": 27,
+        "endLine": 142,
+        "endChar": 37
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "c9723e53_bb2f0639",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70091a9e_156dcee6",
+      "range": {
+        "startLine": 148,
+        "startChar": 11,
+        "endLine": 148,
+        "endChar": 18
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "034c85fc_954c7323",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -321,6 +633,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcc5d0d3_56ac8c4c",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "For some reason that did not work.  Refactoring to fix this.",
+      "parentUuid": "034c85fc_954c7323",
+      "range": {
+        "startLine": 163,
+        "startChar": 4,
+        "endLine": 164,
+        "endChar": 30
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "db9f400e_bf2b7b01",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Not necessary.",
+      "parentUuid": "702995ec_5ae4a381",
+      "range": {
+        "startLine": 165,
+        "startChar": 4,
+        "endLine": 168,
+        "endChar": 5
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "964962a3_cbbf555b",
         "filename": "tools/skqp/src/jni_skqp.cpp",
         "patchSetId": 8
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "7393a633_dadd06a0",
+        "filename": "tools/skqp/src/jni_skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "\u003e Every argument passed to a native method, and almost every object returned by a JNI function is a \"local reference\". This means that it\u0027s valid for the duration of the current native method in the current thread. Even if the object itself continues to live on after the native method returns, the reference is not valid.\n\n\u003e This applies to all sub-classes of jobject, including jclass, jstring, and jarray. (The runtime will warn you about most reference mis-uses when extended JNI checks are enabled.)\n\n\u003e The only way to get non-local references is via the functions NewGlobalRef and NewWeakGlobalRef.\n\n\u003e If you want to hold on to a reference for a longer period, you must use a \"global\" reference. The NewGlobalRef function takes the local reference as an argument and returns a global one. The global reference is guaranteed to be valid until you call DeleteGlobalRef.",
+      "parentUuid": "964962a3_cbbf555b",
+      "range": {
+        "startLine": 169,
+        "startChar": 30,
+        "endLine": 169,
+        "endChar": 42
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08887e33_59b63bbc",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -390,6 +774,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee26ef86_2cc49997",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08887e33_59b63bbc",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 1
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -440,6 +848,30 @@
     },
     {
       "key": {
+        "uuid": "68577168_92f9ea06",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "I added a comment.\n\n    /* If the file \"skqp/unittests.txt\" does not exist or is empty, run all gpu\n       unit tests.  Otherwise only run tests mentioned in that file.  */",
+      "parentUuid": "a286dd04_9028b069",
+      "range": {
+        "startLine": 79,
+        "startChar": 47,
+        "endLine": 79,
+        "endChar": 64
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75f4dfb3_1caed233",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -451,6 +883,30 @@
       "writtenOn": "2018-06-05T20:40:46Z",
       "side": 1,
       "message": "Maybe a candidate for auto?",
+      "range": {
+        "startLine": 81,
+        "startChar": 15,
+        "endLine": 81,
+        "endChar": 37
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ee00f38_70dba8db",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "I fixed this for all Registry\u003cT\u003e\n\n    for (const skiatest::Test\u0026 test : skiatest::TestRegistry::Range()) {}",
+      "parentUuid": "75f4dfb3_1caed233",
       "range": {
         "startLine": 81,
         "startChar": 15,
@@ -486,6 +942,30 @@
     },
     {
       "key": {
+        "uuid": "f420dc3c_6e1db67d",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6095d61d_16499759",
+      "range": {
+        "startLine": 83,
+        "startChar": 13,
+        "endLine": 83,
+        "endChar": 38
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "359aed6b_7eb6599c",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -506,6 +986,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e571561d_4d2a2d09",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "359aed6b_7eb6599c",
+      "range": {
+        "startLine": 99,
+        "startChar": 4,
+        "endLine": 99,
+        "endChar": 20
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -532,6 +1036,30 @@
     },
     {
       "key": {
+        "uuid": "06ebc21c_e543a7a6",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1d95c53_b95a194d",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 143,
+        "endChar": 57
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca6ffee7_2051b945",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -555,6 +1083,30 @@
     },
     {
       "key": {
+        "uuid": "edec5d54_c14053ef",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca6ffee7_2051b945",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 34
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3dc5fc57_a80c1480",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -575,6 +1127,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b938819f_be1c87c5",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "It\u0027s okay to fail.  The vulkan backend is not required for all API levels.",
+      "parentUuid": "3dc5fc57_a80c1480",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 168,
+        "endChar": 9
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -624,6 +1200,54 @@
     },
     {
       "key": {
+        "uuid": "c1908758_f8e1d842",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e77c063_50b0f753",
+      "range": {
+        "startLine": 182,
+        "startChar": 24,
+        "endLine": 182,
+        "endChar": 35
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24b28063_283fda9b",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "write_to_file",
+      "parentUuid": "6bc3614c_a181819c",
+      "range": {
+        "startLine": 182,
+        "startChar": 12,
+        "endLine": 182,
+        "endChar": 23
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d7732b2_80f12242",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -644,6 +1268,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6b9985b_3c7e81f0",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done\n\nThis was left over from when I thought we had a need for a CPU backend.",
+      "parentUuid": "0d7732b2_80f12242",
+      "range": {
+        "startLine": 195,
+        "startChar": 8,
+        "endLine": 195,
+        "endChar": 31
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -670,6 +1318,30 @@
     },
     {
       "key": {
+        "uuid": "cb160eec_6b22f392",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7815450e_cfb99001",
+      "range": {
+        "startLine": 238,
+        "startChar": 11,
+        "endLine": 238,
+        "endChar": 32
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "460ee072_989f47ad",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -690,6 +1362,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccb66aa8_fe60a438",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "460ee072_989f47ad",
+      "range": {
+        "startLine": 241,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 37
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -716,6 +1412,30 @@
     },
     {
       "key": {
+        "uuid": "00900921_3d94c76c",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "re-named.\n\nkRGBA_8888 is always supported by GL.\n\nadded to header for sharing.",
+      "parentUuid": "32dac2e7_b966c642",
+      "range": {
+        "startLine": 242,
+        "startChar": 31,
+        "endLine": 242,
+        "endChar": 53
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d608a7e_6034ef04",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -736,6 +1456,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9acd106_35766670",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d608a7e_6034ef04",
+      "range": {
+        "startLine": 248,
+        "startChar": 4,
+        "endLine": 252,
+        "endChar": 70
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -762,6 +1506,30 @@
     },
     {
       "key": {
+        "uuid": "79474917_940c4863",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "// Call readPixels because we need to compare pixels.\n\nAn Image doesn\u0027t let you look at the pixels.",
+      "parentUuid": "cc01e9f7_6b02dba3",
+      "range": {
+        "startLine": 267,
+        "startChar": 50,
+        "endLine": 267,
+        "endChar": 71
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9681691b_0cc5eb41",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -782,6 +1550,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf1dcf8a_25f9d40c",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9681691b_0cc5eb41",
+      "range": {
+        "startLine": 269,
+        "startChar": 4,
+        "endLine": 269,
+        "endChar": 12
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -808,6 +1600,30 @@
     },
     {
       "key": {
+        "uuid": "67a728af_ac89dd24",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d7698c6_20035411",
+      "range": {
+        "startLine": 273,
+        "startChar": 21,
+        "endLine": 273,
+        "endChar": 55
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc348313_b66881c2",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -828,6 +1644,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f76bb52_56c8bc7b",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "yes.",
+      "parentUuid": "fc348313_b66881c2",
+      "range": {
+        "startLine": 276,
+        "startChar": 4,
+        "endLine": 276,
+        "endChar": 10
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -854,6 +1694,30 @@
     },
     {
       "key": {
+        "uuid": "d1fc8d4f_e2b7961e",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "refactored.",
+      "parentUuid": "a76f424e_23a9c026",
+      "range": {
+        "startLine": 284,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 5
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a151893_f2074cf4",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -874,6 +1738,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b3d0434_bc698708",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a151893_f2074cf4",
+      "range": {
+        "startLine": 288,
+        "startChar": 4,
+        "endLine": 288,
+        "endChar": 12
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -900,6 +1788,30 @@
     },
     {
       "key": {
+        "uuid": "5ebeccf3_3ca23f62",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed2f346b_b625a844",
+      "range": {
+        "startLine": 309,
+        "startChar": 4,
+        "endLine": 309,
+        "endChar": 59
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0aed5a9e_08aae1a5",
         "filename": "tools/skqp/src/skqp.cpp",
         "patchSetId": 8
@@ -920,6 +1832,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d386bad9_0a178d17",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0aed5a9e_08aae1a5",
+      "range": {
+        "startLine": 390,
+        "startChar": 44,
+        "endLine": 390,
+        "endChar": 87
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -946,6 +1882,30 @@
     },
     {
       "key": {
+        "uuid": "cabf774a_c66101d6",
+        "filename": "tools/skqp/src/skqp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done.  Added a file for that too.",
+      "parentUuid": "857ddc04_41c5794c",
+      "range": {
+        "startLine": 402,
+        "startChar": 4,
+        "endLine": 402,
+        "endChar": 63
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e42a1146_105689f4",
         "filename": "tools/skqp/src/skqp.h",
         "patchSetId": 8
@@ -969,6 +1929,30 @@
     },
     {
       "key": {
+        "uuid": "fd44749c_de2dac34",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "e42a1146_105689f4",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 22
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a2961de_2864ab7c",
         "filename": "tools/skqp/src/skqp.h",
         "patchSetId": 8
@@ -989,6 +1973,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a536e1c_c72e57ba",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a2961de_2864ab7c",
+      "range": {
+        "startLine": 37,
+        "startChar": 6,
+        "endLine": 37,
+        "endChar": 10
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1038,6 +2046,54 @@
     },
     {
       "key": {
+        "uuid": "02899035_6a2c85b8",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87c14e0b_ed746c1a",
+      "range": {
+        "startLine": 72,
+        "startChar": 36,
+        "endLine": 72,
+        "endChar": 74
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66f8a124_241bc71a",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f64069d1_7b27d2ed",
+      "range": {
+        "startLine": 71,
+        "startChar": 16,
+        "endLine": 72,
+        "endChar": 32
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c98219e_63c8b314",
         "filename": "tools/skqp/src/skqp.h",
         "patchSetId": 8
@@ -1084,6 +2140,30 @@
     },
     {
       "key": {
+        "uuid": "c39f1079_12cb3a0a",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc063634_1d5c9435",
+      "range": {
+        "startLine": 84,
+        "startChar": 36,
+        "endLine": 84,
+        "endChar": 56
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fea7de27_432f8b8b",
         "filename": "tools/skqp/src/skqp.h",
         "patchSetId": 8
@@ -1104,6 +2184,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed62d288_a7bacd2c",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done\n\nI refactored all this away.",
+      "parentUuid": "fea7de27_432f8b8b",
+      "range": {
+        "startLine": 109,
+        "startChar": 36,
+        "endLine": 109,
+        "endChar": 70
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1130,6 +2234,30 @@
     },
     {
       "key": {
+        "uuid": "cfee5f13_7ecf7f4e",
+        "filename": "tools/skqp/src/skqp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "I refactored all this away.  Now it\u0027s in fGMThresholds.",
+      "parentUuid": "ea7ab0b1_21b21ee6",
+      "range": {
+        "startLine": 110,
+        "startChar": 36,
+        "endLine": 110,
+        "endChar": 67
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "208d015c_d744b932",
         "filename": "tools/skqp/src/skqp_main.cpp",
         "patchSetId": 8
@@ -1150,6 +2278,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ac30b01_d0fb379e",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "I disagree.  But I\u0027ll change it if you want.\n\ndone",
+      "parentUuid": "208d015c_d744b932",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 6
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1176,6 +2328,30 @@
     },
     {
       "key": {
+        "uuid": "47321754_03e070c5",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "646773a2_623c0852",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e6be80a_4f35d748",
         "filename": "tools/skqp/src/skqp_main.cpp",
         "patchSetId": 8
@@ -1196,6 +2372,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b289827_e84baa3f",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "TODO added",
+      "parentUuid": "9e6be80a_4f35d748",
+      "range": {
+        "startLine": 24,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1222,6 +2422,30 @@
     },
     {
       "key": {
+        "uuid": "eafbab12_b28e4a02",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1738da42_37ad8844",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 10
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd33d460_12392e99",
         "filename": "tools/skqp/src/skqp_main.cpp",
         "patchSetId": 8
@@ -1242,6 +2466,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84fd3459_a25e4077",
+        "filename": "tools/skqp/src/skqp_main.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd33d460_12392e99",
+      "range": {
+        "startLine": 53,
+        "startChar": 16,
+        "endLine": 53,
+        "endChar": 26
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1268,6 +2516,30 @@
     },
     {
       "key": {
+        "uuid": "583a2cac_a24a490e",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28f4a96a_fb58e3d6",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 57
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c79d23ee_09d885e2",
         "filename": "tools/skqp/src/skqp_model.cpp",
         "patchSetId": 8
@@ -1288,6 +2560,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7571f29_a7c32295",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c79d23ee_09d885e2",
+      "range": {
+        "startLine": 30,
+        "startChar": 13,
+        "endLine": 30,
+        "endChar": 14
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1314,6 +2610,30 @@
     },
     {
       "key": {
+        "uuid": "76ec1723_9fff793b",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "refactored away.",
+      "parentUuid": "be652d5f_356f75b5",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 24
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5295ddc5_f6386fef",
         "filename": "tools/skqp/src/skqp_model.cpp",
         "patchSetId": 8
@@ -1334,6 +2654,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48f7ca31_bb09d1d4",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "does not matter.  closest pixels first.",
+      "parentUuid": "5295ddc5_f6386fef",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 50
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1360,6 +2704,30 @@
     },
     {
       "key": {
+        "uuid": "25ac92d2_990c7051",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "refactored away.",
+      "parentUuid": "10d46a23_643a2249",
+      "range": {
+        "startLine": 64,
+        "startChar": 17,
+        "endLine": 64,
+        "endChar": 24
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5154faad_84b98a90",
         "filename": "tools/skqp/src/skqp_model.cpp",
         "patchSetId": 8
@@ -1380,6 +2748,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9502add5_3406f3f7",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5154faad_84b98a90",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 85,
+        "endChar": 12
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1406,6 +2798,30 @@
     },
     {
       "key": {
+        "uuid": "5055764b_a386103e",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "See README_ALGORITHM.md",
+      "parentUuid": "20d468a4_e09a467d",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 5
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc80f4f0_7df3994d",
         "filename": "tools/skqp/src/skqp_model.cpp",
         "patchSetId": 8
@@ -1426,6 +2842,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d8c1404_6abf9021",
+        "filename": "tools/skqp/src/skqp_model.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc80f4f0_7df3994d",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 15
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1452,6 +2892,30 @@
     },
     {
       "key": {
+        "uuid": "1bf4fee6_536112cb",
+        "filename": "tools/skqp/src/skqp_model.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46fb0bff_f777a412",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "297c9f6d_78a1312a",
         "filename": "tools/skqp/src/skqp_model.h",
         "patchSetId": 8
@@ -1472,6 +2936,30 @@
       "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be4f121b_db4d6a62",
+        "filename": "tools/skqp/src/skqp_model.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-11-30T17:57:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "297c9f6d_78a1312a",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 5
+      },
+      "revId": "4d997718d92d2d06415f78b996d514c69bd6a005",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
