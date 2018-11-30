@@ -30,17 +30,6 @@ public:
         kSubpixelAntiAlias,  //!< glyph positioned in pixel using transparency
     };
 
-#ifdef SK_SUPPORT_LEGACY_NESTED_HINTINGENUM
-    /** Amount of font hinting applied to glyph outlines.
-    */
-    enum Hinting : uint8_t {
-        kNo_Hinting     = 0, //!< glyph outlines unchanged
-        kSlight_Hinting = 1, //!< minimal modification to improve constrast
-        kNormal_Hinting = 2, //!< glyph outlines modified to improve constrast
-        kFull_Hinting   = 3, //!< modifies glyph outlines for maximum constrast
-    };
-#endif
-
     /** Constructs SkFont with default values.
 
         @return  default initialized SkFont
