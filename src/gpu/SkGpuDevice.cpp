@@ -1509,8 +1509,8 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
         textures[i].fAlpha = set[i].fAlpha;
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
         if (n > 0 &&
-            (textures[i].fProxy->textureType() != textures[base].fProxy->textureType() ||
-             textures[i].fProxy->config() != textures[base].fProxy->config() ||
+            (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(textures[i].fProxy.get(),
+                                                                 textures[base].fProxy.get()) ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
             draw();
