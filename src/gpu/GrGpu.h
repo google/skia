@@ -377,6 +377,12 @@ public:
     virtual void testingOnly_flushGpuAndSync() = 0;
 #endif
 
+    /**
+     * Flushes all work to the gpu and forces the GPU to wait until all the gpu work has completed.
+     * This is for testing purposes only.
+     */
+    virtual void testingOnly_flushGpuAndSync() = 0;
+
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
@@ -467,6 +473,14 @@ private:
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
                                const SkIRect& srcRect, const SkIPoint& dstPoint,
                                bool canDiscardOutsideDstRect) = 0;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+
+    // overridden by backend specific derived class to perform the multisample queries
+    virtual void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin rtOrigin,
+                                         const GrStencilSettings&,
+                                         int* effectiveSampleCnt, SamplePattern*) = 0;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 

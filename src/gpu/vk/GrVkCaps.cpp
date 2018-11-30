@@ -20,6 +20,15 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                    uint32_t instanceVersion, const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    fCanUseGLSLForShaderModule = false;
+    fMustDoCopiesFromOrigin = false;
+    fMustSubmitCommandsBeforeCopyOp = false;
+    fMustSleepOnTearDown  = false;
+    fNewCBOnPipelineChange = false;
+    fCanUseWholeSizeOnFlushMappedMemory = true;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     /**************************************************************************
      * GrCaps fields
@@ -35,7 +44,10 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     fHalfFloatVertexAttributeSupport = true;
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -204,6 +216,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     uint32_t physicalDeviceVersion = properties.apiVersion;
 
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
@@ -281,6 +294,18 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         // On NVIDIA and Intel, the discard load followed by clear is faster.
         // TODO: Evaluate on ARM, Imagination, and ATI.
         fPreferFullscreenClears = true;
+=======
+    this->initGrCaps(properties, memoryProperties, featureFlags);
+    this->initShaderCaps(properties, featureFlags);
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+#if defined(SK_CPU_X86)
+        // We need to do this before initing the config table since it uses fSRGBSupport
+        if (kImagination_VkVendor == properties.vendorID) {
+            fSRGBSupport = false;
+        }
+#endif
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     }
 
     this->initConfigTable(vkInterface, physDev, properties);
@@ -290,12 +315,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         this->applyDriverCorrectnessWorkarounds(properties);
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     // On nexus player we disable suballocating VkImage memory since we've seen large slow downs on
     // bot run times.
     if (kImagination_VkVendor == properties.vendorID) {
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
 }
@@ -325,6 +353,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fNewCBOnPipelineChange = true;
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (kARM_VkVendor == properties.vendorID) {
         fShouldAlwaysUseDedicatedImageMemory = true;
@@ -351,6 +380,40 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
+=======
+    ////////////////////////////////////////////////////////////////////////////
+    // GrCaps workarounds
+    ////////////////////////////////////////////////////////////////////////////
+
+    if (kARM_VkVendor == properties.vendorID) {
+        fInstanceAttribSupport = false;
+    }
+
+    // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
+    if (kAMD_VkVendor == properties.vendorID) {
+        fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
+    }
+
+    if (kIntel_VkVendor == properties.vendorID) {
+        fCanUseWholeSizeOnFlushMappedMemory = false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GrShaderCaps workarounds
+    ////////////////////////////////////////////////////////////////////////////
+
+    if (kAMD_VkVendor == properties.vendorID) {
+        // Currently DualSourceBlending is not working on AMD. vkCreateGraphicsPipeline fails when
+        // using a draw with dual source. Looking into whether it is driver bug or issue with our
+        // SPIR-V. Bug skia:6405
+        fShaderCaps->fDualSourceBlendingSupport = false;
+    }
+
+    if (kImagination_VkVendor == properties.vendorID) {
+        fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
+    }
+
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
@@ -433,9 +496,13 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     fOversizedStencilSupport = true;
     fSampleShadingSupport = features.features.sampleRateShading;
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
         this->supportsPhysicalDeviceProperties2()) {
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps;
         blendProps.sType =
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT;
@@ -463,6 +530,8 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
             }
         }
     }
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
@@ -511,7 +580,11 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     // shaderCaps->fGeometryShaderSupport =
     //         shaderCaps->fGSInvocationsSupport = features.features.geometryShader;
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
+=======
+    shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fVertexIDSupport = true;

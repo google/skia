@@ -215,6 +215,13 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
     this->handleDirtyContext();
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    // We don't allow conversion between integer configs and float/fixed configs.
+    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+        return false;
+    }
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
                                canDiscardOutsideDstRect);
 }

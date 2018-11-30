@@ -280,9 +280,17 @@ tests_sources = [
   "$_tests/UnicodeTest.cpp",
   "$_tests/UtilsTest.cpp",
   "$_tests/VerticesTest.cpp",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
   "$_tests/VkBackendSurfaceTest.cpp",
   "$_tests/VkDrawableTest.cpp",
   "$_tests/VkMakeCopyPipelineTest.cpp",
+=======
+  "$_tests/VkClearTests.cpp",
+  "$_tests/VkHardwareBufferTest.cpp",
+  "$_tests/VkHeapTests.cpp",
+  "$_tests/VkMakeCopyPipelineTest.cpp",
+  "$_tests/VkUploadPixelsTests.cpp",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
   "$_tests/VkWrapTests.cpp",
   "$_tests/VptrTest.cpp",
   "$_tests/WindowRectanglesTest.cpp",

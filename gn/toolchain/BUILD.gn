@@ -83,6 +83,11 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     description = "compile {{source}}"
   }
 
@@ -96,6 +101,11 @@ toolchain("msvc") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     description = "compile {{source}}"
   }
 

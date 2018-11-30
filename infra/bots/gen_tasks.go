@@ -44,7 +44,11 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 	DEFAULT_OS_MAC       = "Mac-10.13.6"
+=======
+	DEFAULT_OS_MAC       = "Mac-10.13.3"
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -448,7 +452,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 			"Win10":      "Windows-10-17134.407",
+=======
+			"Win10":      "Windows-10-16299.248",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -459,12 +467,18 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
 		if os == "Win10" && parts["model"] == "Golo" {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 			// ChOps-owned machines have Windows 10 v1709, but a slightly different version than Skolo.
 			d["os"] = "Windows-10-16299.309"
 		}
 		if d["os"] == DEFAULT_OS_WIN {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
 			d["image"] = "windows-server-2016-dc-v20180710"
+=======
+			// Golo/MTV lab bots have Windows 10 version 1703, whereas Skolo bots have Windows 10 version
+			// 1709.
+			d["os"] = "Windows-10-15063"
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
@@ -558,6 +572,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				return wasmGceDimensions()
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 					"GT610":         "10de:104a-23.21.13.9101",
 					"GTX660":        "10de:11c0-25.21.14.1634",
 					"GTX960":        "10de:1401-25.21.14.1634",
@@ -567,6 +582,20 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"RadeonHD7770":  "1002:683d-24.20.13001.1010",
 					"RadeonR9M470X": "1002:6646-24.20.13001.1010",
 					"QuadroP400":    "10de:1cb3-25.21.14.1678",
+=======
+					"GT610":         "10de:104a-22.21.13.8205",
+					"GTX1070":       "10de:1ba1-23.21.13.8813",
+					"GTX660":        "10de:11c0-23.21.13.8813",
+					"GTX960":        "10de:1401-23.21.13.8813",
+					"IntelHD530":    "8086:1912-21.20.16.4590",
+					"IntelHD4400":   "8086:0a16-20.19.15.4703",
+					"IntelHD4600":   "8086:0412-20.19.15.4703",
+					"IntelIris540":  "8086:1926-21.20.16.4839",
+					"IntelIris6100": "8086:162b-20.19.15.4703",
+					"RadeonHD7770":  "1002:683d-22.19.165.512",
+					"RadeonR9M470X": "1002:6646-22.19.165.512",
+					"QuadroP400":    "10de:1cb3-22.21.13.8205",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
@@ -725,6 +754,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "android_sdk_linux",
 		path:    "android_sdk_linux",
 	},
+	ISOLATE_SDK_LINUX_NAME: {
+		isolateFile: "isolate_android_sdk_linux.isolate",
+		cipdPkg:     "android_sdk_linux",
+	},
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
 		cipdPkg: "win_toolchain",
 		path:    "t",
@@ -813,9 +846,18 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else if strings.Contains(name, "Win") {
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
 			pkg.Path = "n"
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 			task.CipdPackages = append(task.CipdPackages, pkg)
 		} else if !strings.Contains(name, "SKQP") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+=======
+			pkgs = append(pkgs, pkg)
+		} else {
+			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+			if strings.Contains(name, "SKQP") {
+				deps = append(deps, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME))
+			}
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cast_toolchain"))

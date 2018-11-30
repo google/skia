@@ -155,6 +155,8 @@ public:
 
     void submit(GrGpuCommandBuffer* buffer) override;
 
+    void testingOnly_flushGpuAndSync() override;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -247,6 +249,12 @@ private:
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool canDiscardOutsideDstRect) override;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

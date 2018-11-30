@@ -711,6 +711,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
                 return false;
             }
         }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 
         auto tempProxy = this->proxyProvider()->createProxy(
                 format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
@@ -739,6 +740,31 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             if (dstColorType == GrColorType::kBGRA_8888) {
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                 dstColorType = GrColorType::kRGBA_8888;
+=======
+        // TODO: Need to decide the semantics of this function for color spaces. Do we support
+        // conversion to a passed-in color space? For now, specifying nullptr means that this
+        // path will do no conversion, so it will match the behavior of the non-draw path.
+        sk_sp<GrRenderTargetContext> tempRTC = fContext->makeDeferredRenderTargetContext(
+                                                           tempDrawInfo.fTempSurfaceFit,
+                                                           tempDrawInfo.fTempSurfaceDesc.fWidth,
+                                                           tempDrawInfo.fTempSurfaceDesc.fHeight,
+                                                           tempDrawInfo.fTempSurfaceDesc.fConfig,
+                                                           nullptr,
+                                                           tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
+                                                           GrMipMapped::kNo,
+                                                           tempDrawInfo.fTempSurfaceDesc.fOrigin);
+        if (tempRTC) {
+            // Adding discard to appease vulkan validation warning about loading uninitialized data
+            // on draw
+            tempRTC->discard();
+            SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
+            sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
+            auto fp = GrSimpleTextureEffect::Make(std::move(proxy), textureMatrix);
+            if (unpremulOnGpu) {
+                fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
+                // We no longer need to do this on CPU after the read back.
+                unpremul = false;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             }
             if (!fp) {
                 return false;
@@ -912,9 +938,13 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrBacken
         return nullptr;
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     sk_sp<GrSurfaceContext> sContext = this->makeWrappedSurfaceContext(std::move(proxy),
                                                                        std::move(colorSpace),
                                                                        props);
+=======
+    sk_sp<GrSurfaceContext> sContext = this->makeWrappedSurfaceContext(std::move(proxy));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     if (sContext && sContext->asRenderTargetContext()) {
         sContext->asRenderTargetContext()->discard();
     }

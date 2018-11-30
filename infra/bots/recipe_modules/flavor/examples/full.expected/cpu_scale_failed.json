@@ -23,6 +23,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -68,6 +72,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -85,6 +93,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -102,6 +114,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -179,6 +195,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -197,6 +217,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -214,6 +238,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -231,6 +259,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -280,6 +312,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -324,6 +360,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -342,6 +382,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -359,6 +403,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -376,6 +424,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -425,6 +477,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -469,6 +525,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -487,6 +547,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -504,6 +568,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -521,6 +589,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -570,6 +642,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -848,6 +924,119 @@
   },
   {
     "cmd": [
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/out/Debug/nanobench",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "push nanobench"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/nanobench.sh"
+    ],
+    "infra_step": true,
+    "name": "write nanobench.sh"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "push",
+      "[START_DIR]/tmp/nanobench.sh",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "push nanobench.sh"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "clear log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "nanobench.sh"
+    ],
+    "name": "nanobench",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "pull",
+      "/sdcard/revenge_of_the_skiabot/perf",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
+  },
+  {
+    "cmd": [
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
@@ -901,6 +1090,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Debug",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },

@@ -85,7 +85,11 @@ public:
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint,
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                        bool canDiscardOutsideDstRect) override;
+=======
+                       bool canDiscardOutsideDstRect) override { return false; }
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     GrGpuRTCommandBuffer* getCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin, const SkRect& bounds,
@@ -181,6 +185,8 @@ private:
                                          const void* srcData, size_t rowBytes,
                                          GrMtlTextureInfo* info);
 #endif
+
+    void testingOnly_flushGpuAndSync() override {}
 
     sk_sp<GrMtlCaps> fMtlCaps;
 

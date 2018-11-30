@@ -24,8 +24,28 @@ public:
 
     ~GrMockGpu() override {}
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     GrGpuRTCommandBuffer* getCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin, const SkRect&,
+=======
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                             int readWidth, int readHeight, size_t rowBytes,
+                             GrPixelConfig readConfig, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override { return true; }
+
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
+                              int width, int height,
+                              GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override { return true; }
+
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override {
+        *effectiveSampleCnt = rt->numStencilSamples();
+    }
+
+    GrGpuRTCommandBuffer* createCommandBuffer(
+                                    GrRenderTarget*, GrSurfaceOrigin,
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
                                     const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
@@ -99,6 +119,12 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override {
+        return true;
+    }
+
     void onFinishFlush(bool insertedSemaphores) override {}
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
@@ -118,6 +144,8 @@ private:
 #endif
 
     const GrMockOptions fMockOptions;
+
+    void testingOnly_flushGpuAndSync() override {}
 
     static int NextInternalTextureID();
     static int NextExternalTextureID();

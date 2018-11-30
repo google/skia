@@ -676,7 +676,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     this->writeLine(") {");
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
+=======
+    ASSERT(!fProgram.fSettings.fFragColorIsInOut);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     if ("main" == f.fDeclaration.fName) {
         if (fNeedsGlobalStructInit) {

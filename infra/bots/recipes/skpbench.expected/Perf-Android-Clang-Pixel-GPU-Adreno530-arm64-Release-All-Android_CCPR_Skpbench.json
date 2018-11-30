@@ -39,6 +39,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -83,6 +87,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -101,6 +109,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -118,6 +130,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -135,6 +151,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -184,6 +204,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -340,6 +364,10 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+      "BUILDTYPE": "Release",
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },

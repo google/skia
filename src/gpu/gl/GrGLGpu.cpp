@@ -4244,6 +4244,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     return beRT;
 }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 void GrGLGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     SkASSERT(GrBackendApi::kOpenGL == backendRT.backend());
     GrGLFramebufferInfo info;
@@ -4258,6 +4259,11 @@ void GrGLGpu::testingOnly_flushGpuAndSync() {
     GL_CALL(Finish());
 }
 #endif
+=======
+void GrGLGpu::testingOnly_flushGpuAndSync() {
+    GL_CALL(Finish());
+}
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
 ///////////////////////////////////////////////////////////////////////////////
 

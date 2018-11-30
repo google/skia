@@ -38,6 +38,7 @@ cc_library_shared {
         $cflags
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     ],
 
     cppflags:[
@@ -136,6 +137,114 @@ gn_args = {
   'skia_use_icu':              'false',
   'skia_use_lua':              'false',
   'skia_use_piex':             'false',
+=======
+        "-DSKQP_BUILD_HARDWAREBUFFER_TEST",
+    ],
+
+    cppflags:[
+        $cflags_cc
+    ],
+
+    local_include_dirs: [
+        $local_includes
+    ],
+
+    srcs: [
+        $srcs
+    ],
+
+    arch: {
+        arm: {
+            srcs: [
+                $arm_srcs
+            ],
+
+            neon: {
+                srcs: [
+                    $arm_neon_srcs
+                ],
+            },
+        },
+
+        arm64: {
+            srcs: [
+                $arm64_srcs
+            ],
+        },
+
+        mips: {
+            srcs: [
+                $none_srcs
+            ],
+        },
+
+        mips64: {
+            srcs: [
+                $none_srcs
+            ],
+        },
+
+        x86: {
+            srcs: [
+                $x86_srcs
+            ],
+            cflags: [
+                // Clang seems to think new/malloc will only be 4-byte aligned
+                // on x86 Android. We're pretty sure it's actually 8-byte
+                // alignment. tests/OverAlignedTest.cpp has more information,
+                // and should fail if we're wrong.
+                "-Wno-over-aligned"
+            ],
+        },
+
+        x86_64: {
+            srcs: [
+                $x86_srcs
+            ],
+        },
+    },
+
+    shared_libs: [
+          "libandroid",
+          "libEGL",
+          "libGLESv2",
+          "liblog",
+          "libvulkan",
+          "libz",
+    ],
+    static_libs: [
+          "libjpeg_static_ndk",
+          "libjsoncpp_ndk",
+          "libpng_ndk",
+          "libwebp-decode",
+          "libwebp-encode",
+    ]
+}''')
+
+# We'll run GN to get the main source lists and include directories for Skia.
+gn_args = {
+  'target_cpu': '"none"',
+  'target_os':  '"android"',
+
+  # setup skqp
+  'is_debug':   'false',
+  'ndk_api':    '26',
+  'skia_skqp_global_error_tolerance': '8',
+
+  # setup vulkan
+  'skia_use_vulkan':    'true',
+  'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
+
+  # enable/disable skia subsystems
+  'skia_enable_fontmgr_empty': 'true',
+  'skia_enable_pdf':           'false',
+  'skia_use_expat':            'false',
+  'skia_use_dng_sdk':          'false',
+  'skia_use_icu':              'false',
+  'skia_use_lua':              'false',
+  'skia_use_piex':             'false',
+  'skia_use_skcms':            'false',
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
   # specify that the Android.bp will supply the necessary components
   'skia_use_system_expat':         'true', # removed this when gn is fixed

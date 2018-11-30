@@ -2323,6 +2323,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrContextOptions& contextOptions,
                                                  GrShaderCaps* shaderCaps) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     bool isX86PowerVRRogue = false;
 #if defined(SK_CPU_X86)
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
@@ -2330,6 +2331,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     // A driver but on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are blacklisting this extension for now on Adreno4xx devices.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||

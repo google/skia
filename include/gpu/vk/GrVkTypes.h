@@ -33,6 +33,7 @@ struct GrVkAlloc {
             , fOffset(0)
             , fSize(0)
             , fFlags(0)
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
             , fBackendMemory(0)
             , fUsesSystemHeap(false) {}
 
@@ -49,17 +50,35 @@ struct GrVkAlloc {
     VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
     uint32_t          fFlags;
     GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
+=======
+            , fUsesSystemHeap(false) {}
+
+    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
+            : fMemory(memory)
+            , fOffset(offset)
+            , fSize(size)
+            , fFlags(flags)
+            , fUsesSystemHeap(false) {}
+
+    VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceSize   fOffset;
+    VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t       fFlags;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
         kMappable_Flag    = 0x2,   // memory is able to be mapped.
     };
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 
     bool operator==(const GrVkAlloc& that) const {
         return fMemory == that.fMemory && fOffset == that.fOffset && fSize == that.fSize &&
                fFlags == that.fFlags && fUsesSystemHeap == that.fUsesSystemHeap;
     }
 
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 private:
     friend class GrVkHeap; // For access to usesSystemHeap
     bool fUsesSystemHeap;
@@ -71,6 +90,7 @@ struct GrVkImageInfo {
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
     uint32_t       fLevelCount;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     uint32_t       fCurrentQueueFamily;
 
     GrVkImageInfo()
@@ -101,6 +121,10 @@ struct GrVkImageInfo {
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
             , fCurrentQueueFamily(info.fCurrentQueueFamily) {}
+=======
+    uint32_t       fInitialQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    uint32_t       fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle

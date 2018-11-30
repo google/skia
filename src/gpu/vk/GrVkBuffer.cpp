@@ -170,10 +170,35 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
     if (fDesc.fDynamic) {
         const GrVkAlloc& alloc = this->alloc();
         SkASSERT(alloc.fSize > 0);
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         SkASSERT(alloc.fSize >= size);
         SkASSERT(0 == fOffset);
 
         fMapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+=======
+
+        // For Noncoherent buffers we want to make sure the range that we map, both offset and size,
+        // are aligned to the nonCoherentAtomSize limit. The offset should have been correctly
+        // aligned by our memory allocator. For size we pad out to make the range also aligned.
+        if (SkToBool(alloc.fFlags & GrVkAlloc::kNoncoherent_Flag)) {
+            // Currently we always have the internal offset as 0.
+            SkASSERT(0 == fOffset);
+            VkDeviceSize alignment = gpu->physicalDeviceProperties().limits.nonCoherentAtomSize;
+            SkASSERT(0 == (alloc.fOffset & (alignment - 1)));
+
+            // Make size of the map aligned to nonCoherentAtomSize
+            size = (size + alignment - 1) & ~(alignment - 1);
+            fMappedSize = size;
+        }
+        SkASSERT(size + fOffset <= alloc.fSize);
+        VkResult err = VK_CALL(gpu, MapMemory(gpu->device(), alloc.fMemory,
+                                              alloc.fOffset + fOffset,
+                                              size, 0, &fMapPtr));
+        if (err) {
+            fMapPtr = nullptr;
+            fMappedSize = 0;
+        }
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     } else {
         if (!fMapPtr) {
             fMapPtr = new unsigned char[this->size()];
@@ -188,6 +213,7 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
     SkASSERT(this->vkIsMapped());
 
     if (fDesc.fDynamic) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         const GrVkAlloc& alloc = this->alloc();
         SkASSERT(alloc.fSize > 0);
         SkASSERT(alloc.fSize >= size);
@@ -196,7 +222,18 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
 
         GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, size);
         GrVkMemory::UnmapAlloc(gpu, alloc);
+=======
+        // We currently don't use fOffset
+        SkASSERT(0 == fOffset);
+        VkDeviceSize flushOffset = this->alloc().fOffset + fOffset;
+        VkDeviceSize flushSize = gpu->vkCaps().canUseWholeSizeOnFlushMappedMemory() ? VK_WHOLE_SIZE
+                                                                                    : fMappedSize;
+
+        GrVkMemory::FlushMappedAlloc(gpu, this->alloc(), flushOffset, flushSize);
+        VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         fMapPtr = nullptr;
+        fMappedSize = 0;
     } else {
         // vkCmdUpdateBuffer requires size < 64k and 4-byte alignment.
         // https://bugs.chromium.org/p/skia/issues/detail?id=7488

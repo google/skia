@@ -59,6 +59,40 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+  'Build-Debian9-Clang-arm-Release-Android_API26',
+  'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
+  'Build-Debian9-Clang-arm-Release-Android_ASAN',
+  'Build-Debian9-Clang-arm64-Release-Android_ASAN',
+  'Build-Debian9-Clang-universal-devrel-Android_SKQP',
+  'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
+  'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+  'Build-Debian9-Clang-x86_64-Release-Fast',
+  'Build-Debian9-Clang-x86_64-Release-Mini',
+  'Build-Debian9-Clang-x86_64-Release-Vulkan',
+  'Build-Debian9-EMCC-wasm-Release',
+  'Build-Debian9-GCC-x86_64-Debug-EmbededResouces',
+  'Build-Debian9-GCC-x86_64-Release-ANGLE',
+  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
+  'Build-Debian9-GCC-x86_64-Release-NoGPU',
+  'Build-Debian9-GCC-x86_64-Release-PDFium',
+  'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
+  'Build-Debian9-GCC-x86_64-Release-Shared',
+  'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
+  'Build-Mac-Clang-arm64-Debug-iOS',
+  'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
+  'Build-Mac-Clang-x86_64-Debug-Metal',
+  'Build-Win-Clang-arm64-Release-Android',
+  'Build-Win-Clang-x86_64-Debug-GDI',
+  'Build-Win-Clang-x86_64-Debug-GomaNoFallback',
+  'Build-Win-Clang-x86_64-Release',
+  'Build-Win-Clang-x86_64-Release-ANGLE_Goma',
+  'Build-Win-Clang-x86_64-Release-Goma',
+  'Build-Win-Clang-x86_64-Release-Vulkan',
+  'Build-Win-MSVC-x86-Debug-Exceptions',
+  'Housekeeper-PerCommit-CheckGeneratedFiles',
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
   'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
@@ -82,7 +116,11 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
 ]
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 # Default properties used for TEST_BUILDERS.
+=======
+# Default properties used for TEST_BUILDERS and skqp_builders.
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 defaultProps = lambda buildername: dict(
   buildername=buildername,
   repository='https://skia.googlesource.com/skia.git',

@@ -60,6 +60,15 @@ public:
         // Adding discard to appease vulkan validation warning about loading uninitialized data on
         // draw
         readRTC->discard();
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+
+        GrSurfaceDesc desc;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+        desc.fWidth = kSize;
+        desc.fHeight = kSize;
+        desc.fConfig = kConfig;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 

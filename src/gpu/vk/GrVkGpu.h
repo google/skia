@@ -55,7 +55,11 @@ public:
     VkPhysicalDevice physicalDevice() const { return fPhysicalDevice; }
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     uint32_t  queueIndex() const { return fQueueIndex; }
+=======
+    uint32_t  queueIndex() const { return fBackendContext->fGraphicsQueueIndex; }
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     VkCommandPool cmdPool() const { return fCmdPool; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
@@ -73,6 +77,22 @@ public:
         kSkip_SyncQueue
     };
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                             int readWidth, int readHeight, size_t rowBytes,
+                             GrPixelConfig readConfig, DrawPreference*,
+                             ReadPixelTempDrawInfo*) override;
+
+    bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
+                              int width, int height,
+                              GrPixelConfig srcConfig, DrawPreference*,
+                              WritePixelTempDrawInfo*) override;
+
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
+
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
 #if GR_TEST_UTILS
@@ -87,6 +107,8 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+
+    void testingOnly_flushGpuAndSync() override;
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -193,6 +215,10 @@ private:
                        GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                        const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
 
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                       const SkIPoint& dstPoint, bool canDiscardOutsideDstRect) override;
+
     void onFinishFlush(bool insertedSemaphores) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
@@ -256,7 +282,12 @@ private:
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     SkTArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
+=======
+    VkPhysicalDeviceProperties                   fPhysDevProps;
+    VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     VkPhysicalDeviceProperties                            fPhysDevProps;
     VkPhysicalDeviceMemoryProperties                      fPhysDevMemProps;

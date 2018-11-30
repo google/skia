@@ -213,7 +213,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             context->flush();
             gpu->testingOnly_flushGpuAndSync();
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
             gpu->deleteTestingOnlyBackendTexture(backendTex);
+=======
+            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         }
     }
 }

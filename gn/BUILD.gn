@@ -111,6 +111,7 @@ config("default") {
       "-mfpu=neon",
       "-mthumb",
     ]
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
   } else if (current_cpu == "loongson3a") {
     asmflags += [ "-march=loongson3a" ]
     cflags += [
@@ -123,6 +124,11 @@ config("default") {
     asmflags += [ "-march=mips64" ]
     cflags += [ "-march=mips64" ]
   } else if (current_cpu == "x86" && !is_win) {
+=======
+  } else if (current_cpu == "x86" && is_win) {
+    cflags += [ "/arch:SSE2" ]
+  } else if (current_cpu == "x86") {
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     asmflags += [ "-m32" ]
     cflags += [
       "-m32",

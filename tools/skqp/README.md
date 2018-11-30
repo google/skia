@@ -84,6 +84,7 @@ How to build and run the SkQP tests
 Running a single test
 ---------------------
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 To run a single test, for example `gles_aarectmodes`:
 
     adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles_aarectmodes' -w org.skia.skqp
@@ -91,11 +92,20 @@ To run a single test, for example `gles_aarectmodes`:
 Unit tests can be run with the `unitTest_` prefix:
 
     adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest_GrSurface -w org.skia.skqp
+=======
+To run a single test, for example `gles/aarectmodes`:
+
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#gles/aarectmodes' -w org.skia.skqp
+
+Unit tests can be run with the `unitTest/` prefix:
+
+    adb shell am instrument -e class 'org.skia.skqp.SkQPRunner#unitTest/GrSurface -w org.skia.skqp
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
 Run as a non-APK executable
 ---------------------------
 
-1.  Follow steps 1-3 as above.
+1.  Follow steps 1-4 as above.
 
 2.  Build the SkQP program, load files on the device, and run skqp:
 

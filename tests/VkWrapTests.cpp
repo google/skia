@@ -59,7 +59,11 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         GrVkImageInfo backendCopy = imageInfo;
+=======
+        GrVkImageInfo backendCopy = *imageInfo;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         backendCopy.fAlloc = GrVkAlloc();
         GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
         backendTex.setPixelConfig(kPixelConfig);
@@ -108,7 +112,11 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         GrVkImageInfo backendCopy = imageInfo;
+=======
+        GrVkImageInfo backendCopy = *imageInfo;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         backendCopy.fAlloc = GrVkAlloc();
         // can wrap null alloc
         GrBackendRenderTarget backendRT(kW, kH, 1, 0, backendCopy);
@@ -149,7 +157,11 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
 
     // alloc is null
     {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         GrVkImageInfo backendCopy = imageInfo;
+=======
+        GrVkImageInfo backendCopy = *imageInfo;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         backendCopy.fAlloc = GrVkAlloc();
         GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
         backendTex.setPixelConfig(kPixelConfig);

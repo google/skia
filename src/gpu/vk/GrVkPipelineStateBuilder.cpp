@@ -135,7 +135,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     SkASSERT(!this->fragColorIsInOut());
     SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                               fVS,

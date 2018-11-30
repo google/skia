@@ -272,6 +272,7 @@ gn_args = {
   'skia_enable_fontmgr_android':        'false',
 }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 gn_args_linux = {
   'is_official_build':                  'true',
   'skia_enable_tools':                  'true',
@@ -302,6 +303,8 @@ gn_args_mac = {
   'skia_enable_fontmgr_android':        'false',
 }
 
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
 
 def strip_slashes(lst):
@@ -312,6 +315,7 @@ cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
 cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
+defines      = [str(d) for d in js['targets']['//:skia']['defines']]
 
 dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
 dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
@@ -320,6 +324,7 @@ nanobench_target = js['targets']['//:nanobench']
 nanobench_srcs     = strip_slashes(nanobench_target['sources'])
 nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
 gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, 'skia')
@@ -327,11 +332,18 @@ gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
 # skcms is a little special, kind of a second-party library.
 local_includes.add("third_party/skcms")
 dm_includes   .add("third_party/skcms")
+=======
+gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', srcs, None)
+gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
+gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
+                                   nanobench_srcs, 'skia')
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
 # Android's build will choke if we list headers.
 def strip_headers(sources):
   return {s for s in sources if not s.endswith('.h')}
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, None)
 android_srcs    = strip_headers(android_srcs)
 
@@ -340,6 +352,10 @@ linux_srcs      = strip_slashes(js_linux['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_linux, '//:skia', 'sources', linux_srcs,
                                    None)
 linux_srcs      = strip_headers(linux_srcs)
+=======
+cflags = gn_to_bp_utils.CleanupCFlags(cflags)
+cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
 js_mac          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_mac)
 mac_srcs        = strip_slashes(js_mac['targets']['//:skia']['sources'])
@@ -347,6 +363,7 @@ gn_to_bp_utils.GrabDependentValues(js_mac, '//:skia', 'sources', mac_srcs,
                                    None)
 mac_srcs        = strip_headers(mac_srcs)
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 android_srcs    = android_srcs.difference(srcs)
 linux_srcs      =   linux_srcs.difference(srcs)
@@ -357,9 +374,12 @@ nanobench_srcs  = strip_headers(nanobench_srcs)
 cflags = gn_to_bp_utils.CleanupCFlags(cflags)
 cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
 
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 def get_defines(json):
   return {str(d) for d in json['targets']['//:skia']['defines']}
 android_defines = get_defines(js)
@@ -416,6 +436,9 @@ def write_config(config_path, defines, platform):
 
 write_config('include/config/linux/SkUserConfig.h', linux_defines, 'UNIX')
 write_config('include/config/mac/SkUserConfig.h',   mac_defines, 'MAC')
+=======
+gn_to_bp_utils.WriteUserConfig('include/config/SkUserConfig.h', defines)
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):
@@ -432,6 +455,7 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     'arm_srcs':      bpfmt(16, strip_headers(defs['armv7'])),
     'arm_neon_srcs': bpfmt(20, strip_headers(defs['neon'])),
     'arm64_srcs':    bpfmt(16, strip_headers(defs['arm64'] +
@@ -443,14 +467,29 @@ with open('Android.bp', 'w') as Android_bp:
                                              defs['sse42'] +
                                              defs['avx'  ] +
                                              defs['hsw'  ])),
+=======
+    'arm_srcs':      bpfmt(16, defs['armv7']),
+    'arm_neon_srcs': bpfmt(20, defs['neon']),
+    'arm64_srcs':    bpfmt(16, defs['arm64'] +
+                               defs['crc32']),
+    'none_srcs':     bpfmt(16, defs['none']),
+    'x86_srcs':      bpfmt(16, defs['sse2'] +
+                               defs['ssse3'] +
+                               defs['sse41'] +
+                               defs['sse42'] +
+                               defs['avx'  ]),
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     'dm_includes'       : bpfmt(8, dm_includes),
     'dm_srcs'           : bpfmt(8, dm_srcs),
 
     'nanobench_includes'    : bpfmt(8, nanobench_includes),
     'nanobench_srcs'        : bpfmt(8, nanobench_srcs),
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 
     'android_srcs':  bpfmt(10, android_srcs),
     'linux_srcs':    bpfmt(10, linux_srcs),
     'mac_srcs':      bpfmt(10, mac_srcs),
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
   })

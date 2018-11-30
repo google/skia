@@ -94,9 +94,24 @@ public:
         return fNewCBOnPipelineChange;
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
+=======
+    // On certain Intel devices/drivers (IntelHD405) there is a bug if we try to flush non-coherent
+    // memory and pass in VK_WHOLE_SIZE. This returns whether or not it is safe to use VK_WHOLE_SIZE
+    // or not.
+    bool canUseWholeSizeOnFlushMappedMemory() const {
+        return fCanUseWholeSizeOnFlushMappedMemory;
+    }
+
+    /**
+     * Returns both a supported and most prefered stencil format to use in draws.
+     */
+    const StencilFormat& preferedStencilFormat() const {
+        return fPreferedStencilFormat;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     }
 
     /**
@@ -234,9 +249,19 @@ private:
     bool fSupportsMaintenance2 = false;
     bool fSupportsMaintenance3 = false;
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     bool fSupportsDedicatedAllocation = false;
     bool fSupportsExternalMemory = false;
     bool fSupportsAndroidHWBExternalMemory = false;
+=======
+    bool fMustSubmitCommandsBeforeCopyOp;
+
+    bool fMustSleepOnTearDown;
+
+    bool fNewCBOnPipelineChange;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
+
+    bool fCanUseWholeSizeOnFlushMappedMemory;
 
     typedef GrCaps INHERITED;
 };

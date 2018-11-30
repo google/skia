@@ -66,6 +66,7 @@ public:
                         VkPipelineStageFlags dstStageMask,
                         bool byRegion,
                         bool releaseFamilyQueue = false);
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
@@ -73,6 +74,8 @@ public:
     void updateImageLayout(VkImageLayout newLayout) {
         fLayout->setImageLayout(newLayout);
     }
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
     struct ImageDesc {
         VkImageType         fImageType;

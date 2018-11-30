@@ -43,6 +43,13 @@ public:
                 break;
         }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+        if (nullptr == args.fInputColor) {
+            args.fInputColor = "half4(1)";
+        }
+
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         // Mali Bifrost uses fp16 for mediump. Making the intermediate color variable highp causes
         // calculations to be performed with sufficient precision.
         fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);

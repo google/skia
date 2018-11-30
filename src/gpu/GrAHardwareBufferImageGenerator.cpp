@@ -364,7 +364,11 @@ static GrBackendTexture make_gl_backend_texture(
         const GrBackendFormat& backendFormat) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
+=======
+    EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(fGraphicBuffer);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
                          isProtectedContent ? EGL_PROTECTED_CONTENT_EXT : EGL_NONE,
                          isProtectedContent ? EGL_TRUE : EGL_NONE,

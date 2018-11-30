@@ -17,6 +17,7 @@
 #include "SkScalar.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrShaderCaps.h"
 class GrRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,

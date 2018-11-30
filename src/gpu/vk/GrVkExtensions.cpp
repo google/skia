@@ -90,10 +90,106 @@ void GrVkExtensions::getSpecVersions(GrVkGetProc getProc, VkInstance instance,
         return;
     }
     for (uint32_t i = 0; i < extensionCount; ++i) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         int idx = find_info(fExtensions, extensions[i].extensionName);
         if (idx >= 0) {
             fExtensions[idx].fSpecVersion = extensions[i].specVersion;
         }
+=======
+        fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
+    }
+    delete [] extensions;
+    // sort so we can search
+    if (!fInstanceExtensionStrings->empty()) {
+        SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(), cmp);
+    }
+    // via explicitly enabled layers
+    layerCount = fInstanceLayerStrings->count();
+    for (uint32_t layerIndex = 0; layerIndex < layerCount; ++layerIndex) {
+        uint32_t extensionCount = 0;
+        res = EnumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(),
+                                                   &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = EnumerateInstanceExtensionProperties((*fInstanceLayerStrings)[layerIndex].c_str(),
+                                                   &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            delete[] extensions;
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            // if not already in the list, add it
+            if (nonPatchVersion >= remove_patch_version(extensions[i].specVersion) &&
+                find_string(*fInstanceExtensionStrings, extensions[i].extensionName) < 0) {
+                fInstanceExtensionStrings->push_back() = extensions[i].extensionName;
+                SkTQSort(&fInstanceExtensionStrings->front(), &fInstanceExtensionStrings->back(),
+                         cmp);
+            }
+        }
+        delete[] extensions;
+    }
+
+    return true;
+}
+
+bool GrVkExtensions::initDevice(uint32_t specVersion, VkInstance inst, VkPhysicalDevice physDev) {
+    if (fGetProc == nullptr) {
+        return false;
+    }
+
+    uint32_t nonPatchVersion = remove_patch_version(specVersion);
+
+    GET_PROC_LOCAL(EnumerateDeviceExtensionProperties, inst, VK_NULL_HANDLE);
+    GET_PROC_LOCAL(EnumerateDeviceLayerProperties, inst, VK_NULL_HANDLE);
+
+    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+
+    if (!EnumerateDeviceExtensionProperties ||
+        !EnumerateDeviceLayerProperties) {
+        return false;
+    }
+
+    // device layers
+    uint32_t layerCount = 0;
+    VkResult res = EnumerateDeviceLayerProperties(physDev, &layerCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkLayerProperties* layers = new VkLayerProperties[layerCount];
+    res = EnumerateDeviceLayerProperties(physDev, &layerCount, layers);
+    if (VK_SUCCESS != res) {
+        delete[] layers;
+        return false;
+    }
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (nonPatchVersion >= remove_patch_version(layers[i].specVersion)) {
+            fDeviceLayerStrings->push_back() = layers[i].layerName;
+        }
+    }
+    delete[] layers;
+    if (!fDeviceLayerStrings->empty()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTQSort(&fDeviceLayerStrings->front(), &fDeviceLayerStrings->back(), cmp);
+    }
+
+    // device extensions
+    // via Vulkan implementation and implicitly enabled layers
+    uint32_t extensionCount = 0;
+    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, nullptr);
+    if (VK_SUCCESS != res) {
+        return false;
+    }
+    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
+    if (VK_SUCCESS != res) {
+        delete[] extensions;
+        return false;
+    }
+    for (uint32_t i = 0; i < extensionCount; ++i) {
+        fDeviceExtensionStrings->push_back() = extensions[i].extensionName;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     }
     delete[] extensions;
 

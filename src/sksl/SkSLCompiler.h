@@ -31,7 +31,10 @@
 #define SK_WIDTH_BUILTIN               10011
 #define SK_HEIGHT_BUILTIN              10012
 #define SK_FRAGCOORD_BUILTIN              15
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 #define SK_CLOCKWISE_BUILTIN              17
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_CLIPDISTANCE_BUILTIN            3

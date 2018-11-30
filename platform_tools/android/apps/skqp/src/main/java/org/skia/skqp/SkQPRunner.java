@@ -14,8 +14,11 @@ import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 import java.text.SimpleDateFormat;
 import java.util.Date;
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
@@ -30,17 +33,32 @@ public class SkQPRunner extends Runner implements Filterable {
     private int mShouldRunTestCount;
     private Description[] mTests;
     private boolean[] mShouldSkipTest;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     private String mOutputDirectory;
     private SkQP mImpl;
+=======
+    private SkQP impl;
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     private static final String TAG = SkQP.LOG_PREFIX;
 
     private static void Fail(Description desc, RunNotifier notifier, String failure) {
         notifier.fireTestFailure(new Failure(desc, new SkQPFailure(failure)));
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+    private static File GetOutputDir() {
+        Context c = InstrumentationRegistry.getTargetContext();
+        // File f = c.getFilesDir();
+        File f = c.getExternalFilesDir(null);
+        return new File(f, "output");
+    }
+
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     ////////////////////////////////////////////////////////////////////////////
 
     public SkQPRunner(Class testClass) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         mImpl = new SkQP();
         Context context = InstrumentationRegistry.getTargetContext();
         String now = (new SimpleDateFormat("yyyy-MM-dd'T'HHmmss")).format(new Date());
@@ -48,6 +66,16 @@ public class SkQPRunner extends Runner implements Filterable {
         reportPath.mkdirs();
         mOutputDirectory = reportPath.getAbsolutePath();
         Log.i(TAG, String.format("output written to \"%s\"", mOutputDirectory));
+=======
+        impl = new SkQP();
+        File filesDir = SkQPRunner.GetOutputDir();
+        try {
+            SkQP.ensureEmtpyDirectory(filesDir);
+        } catch (IOException e) {
+            Log.w(TAG, "ensureEmtpyDirectory: " + e.getMessage());
+        }
+        Log.i(TAG, String.format("output written to \"%s\"", filesDir.getAbsolutePath()));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 
         AssetManager assetManager = context.getResources().getAssets();
         mImpl.nInit(assetManager, mOutputDirectory);
@@ -55,15 +83,28 @@ public class SkQPRunner extends Runner implements Filterable {
         mTests = new Description[this.testCount()];
         mShouldSkipTest = new boolean[mTests.length]; // = {false, false, ....};
         int index = 0;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
             for (int gm = 0; gm < mImpl.mGMs.length; gm++) {
                 mTests[index++] = Description.createTestDescription(SkQPRunner.class,
                     mImpl.mBackends[backend] + "_" + mImpl.mGMs[gm]);
+=======
+        for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            for (int gm = 0; gm < impl.mGMs.length; gm++) {
+                mTests[index++] = Description.createTestDescription(SkQPRunner.class,
+                    impl.mBackends[backend] + "/" + impl.mGMs[gm]);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             }
         }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++) {
             mTests[index++] = Description.createTestDescription(SkQPRunner.class,
                     "unitTest_" + mImpl.mUnitTests[unitTest]);
+=======
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
+            mTests[index++] = Description.createTestDescription(SkQPRunner.class,
+                    "unitTest/" + impl.mUnitTests[unitTest]);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
         }
         assert(index == mTests.length);
         mShouldRunTestCount = mTests.length;
@@ -100,6 +141,7 @@ public class SkQPRunner extends Runner implements Filterable {
 
     @Override
     public void run(RunNotifier notifier) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         int testNumber = 0;  // out of number of actually run tests.
         int testIndex = 0;  // out of potential tests.
         for (int backend = 0; backend < mImpl.mBackends.length; backend++) {
@@ -110,6 +152,19 @@ public class SkQPRunner extends Runner implements Filterable {
                     continue;
                 }
                 ++testNumber;
+=======
+        int testNumber = 1;  // out of number of actually run tests.
+        int testIndex = 0;  // out of potential tests.
+        for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            for (int gm = 0; gm < impl.mGMs.length; gm++, testIndex++) {
+                Description desc = mTests[testIndex];
+                String name = desc.getMethodName();
+                if (mShouldSkipTest[testIndex]) {
+                    continue;
+                }
+                Log.v(TAG, String.format("Rendering Test '%s' started (%d/%d).",
+                                         name, testNumber++, mShouldRunTestCount));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
                 notifier.fireTestStarted(desc);
                 long value = java.lang.Long.MAX_VALUE;
                 String error = null;
@@ -122,18 +177,29 @@ public class SkQPRunner extends Runner implements Filterable {
                 if (error != null) {
                     SkQPRunner.Fail(desc, notifier, String.format("Exception: %s", error));
                     Log.w(TAG, String.format("[ERROR] '%s': %s", name, error));
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                     result = "ERROR";
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
                 } else if (value != 0) {
                     SkQPRunner.Fail(desc, notifier, String.format(
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                                 "Image mismatch: max channel diff = %d", value));
                     Log.w(TAG, String.format("[FAIL] '%s': %d > 0", name, value));
                     result = "FAIL";
+=======
+                                "Image mismatch: max channel diff = %f", value));
+                    Log.w(TAG, String.format("[FAIL] '%s': %f > 0", name, value));
+                } else {
+                    Log.i(TAG, String.format("Rendering Test '%s' passed", name));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
                 }
                 notifier.fireTestFinished(desc);
                 Log.i(TAG, String.format("Rendering Test '%s' complete (%d/%d). [%s]",
                                          name, testNumber, mShouldRunTestCount, result));
             }
         }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
         for (int unitTest = 0; unitTest < mImpl.mUnitTests.length; unitTest++, testIndex++) {
             Description desc = mTests[testIndex];
             String name = desc.getMethodName();
@@ -141,6 +207,17 @@ public class SkQPRunner extends Runner implements Filterable {
                 continue;
             }
             ++testNumber;
+=======
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++, testIndex++) {
+            Description desc = mTests[testIndex];
+            String name = desc.getMethodName();
+            if (mShouldSkipTest[testIndex]) {
+                continue;
+            }
+
+            Log.v(TAG, String.format("Test '%s' started (%d/%d).",
+                                     name, testNumber++, mShouldRunTestCount));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             notifier.fireTestStarted(desc);
             String[] errors = mImpl.nExecuteUnitTest(unitTest);
             String result = "pass";
@@ -150,7 +227,12 @@ public class SkQPRunner extends Runner implements Filterable {
                     SkQPRunner.Fail(desc, notifier, error);
                     Log.w(TAG, String.format("[FAIL] '%s': %s", name, error));
                 }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                 result = "FAIL";
+=======
+            } else {
+                Log.i(TAG, String.format("Test '%s' passed.", name));
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             }
             notifier.fireTestFinished(desc);
             Log.i(TAG, String.format("Test '%s' complete (%d/%d). [%s]",

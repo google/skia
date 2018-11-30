@@ -318,7 +318,11 @@ static int gather_lines_and_quads(const SkPath& path,
                 if (convertConicsToQuads) {
                     SkScalar weight = iter.conicWeight();
                     SkAutoConicToQuads converter;
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                     const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.25f);
+=======
+                    const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.5f);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         addSrcChoppedQuad(quadPts + 2 * i, !verbsInContour && 0 == i);
                     }

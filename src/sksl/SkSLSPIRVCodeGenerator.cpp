@@ -69,7 +69,10 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("min")]           = SPECIAL(Min);
     fIntrinsicMap[String("max")]           = SPECIAL(Max);
     fIntrinsicMap[String("clamp")]         = SPECIAL(Clamp);
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     fIntrinsicMap[String("saturate")]      = SPECIAL(Saturate);
+=======
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     fIntrinsicMap[String("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("mix")]           = SPECIAL(Mix);
@@ -744,6 +747,7 @@ std::vector<SpvId> SPIRVCodeGenerator::vectorize(
     for (const auto& a : args) {
         if (a->fType.kind() == Type::kVector_Kind) {
             if (vectorSize) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
                 SkASSERT(a->fType.columns() == vectorSize);
             }
             else {
@@ -787,6 +791,51 @@ void SPIRVCodeGenerator::writeGLSLExtendedInstruction(const Type& type, SpvId id
         this->writeWord(unsignedInst, out);
     } else {
         SkASSERT(false);
+=======
+                ASSERT(a->fType.columns() == vectorSize);
+            }
+            else {
+                vectorSize = a->fType.columns();
+            }
+        }
+    }
+    std::vector<SpvId> result;
+    for (const auto& a : args) {
+        SpvId raw = this->writeExpression(*a, out);
+        if (vectorSize && a->fType.kind() == Type::kScalar_Kind) {
+            SpvId vector = this->nextId();
+            this->writeOpCode(SpvOpCompositeConstruct, 3 + vectorSize, out);
+            this->writeWord(this->getType(a->fType.toCompound(fContext, vectorSize, 1)), out);
+            this->writeWord(vector, out);
+            for (int i = 0; i < vectorSize; i++) {
+                this->writeWord(raw, out);
+            }
+            result.push_back(vector);
+        } else {
+            result.push_back(raw);
+        }
+    }
+    return result;
+}
+
+void SPIRVCodeGenerator::writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
+                                                      SpvId signedInst, SpvId unsignedInst,
+                                                      const std::vector<SpvId>& args,
+                                                      OutputStream& out) {
+    this->writeOpCode(SpvOpExtInst, 5 + args.size(), out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(id, out);
+    this->writeWord(fGLSLExtendedInstructions, out);
+
+    if (is_float(fContext, type)) {
+        this->writeWord(floatInst, out);
+    } else if (is_signed(fContext, type)) {
+        this->writeWord(signedInst, out);
+    } else if (is_unsigned(fContext, type)) {
+        this->writeWord(unsignedInst, out);
+    } else {
+        ASSERT(false);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     }
     for (SpvId a : args) {
         this->writeWord(a, out);
@@ -895,7 +944,11 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kMod_SpecialIntrinsic: {
             std::vector<SpvId> args = this->vectorize(c.fArguments, out);
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
             SkASSERT(args.size() == 2);
+=======
+            ASSERT(args.size() == 2);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             const Type& operandType = c.fArguments[0]->fType;
             SpvOp_ op;
             if (is_float(fContext, operandType)) {
@@ -917,6 +970,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kClamp_SpecialIntrinsic: {
             std::vector<SpvId> args = this->vectorize(c.fArguments, out);
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
             SkASSERT(args.size() == 3);
             this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, args, out);
@@ -952,6 +1006,32 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
             this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, spvArgs, out);
+=======
+            ASSERT(args.size() == 3);
+            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FClamp, GLSLstd450SClamp,
+                                               GLSLstd450UClamp, args, out);
+            break;
+        }
+        case kMax_SpecialIntrinsic: {
+            std::vector<SpvId> args = this->vectorize(c.fArguments, out);
+            ASSERT(args.size() == 2);
+            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMax, GLSLstd450SMax,
+                                               GLSLstd450UMax, args, out);
+            break;
+        }
+        case kMin_SpecialIntrinsic: {
+            std::vector<SpvId> args = this->vectorize(c.fArguments, out);
+            ASSERT(args.size() == 2);
+            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMin, GLSLstd450SMin,
+                                               GLSLstd450UMin, args, out);
+            break;
+        }
+        case kMix_SpecialIntrinsic: {
+            std::vector<SpvId> args = this->vectorize(c.fArguments, out);
+            ASSERT(args.size() == 3);
+            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
+                                               SpvOpUndef, args, out);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             break;
         }
     }
@@ -2624,6 +2704,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
         type = new Type(type->fOffset, type->name(), fields);
     }
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
     SpvId typeId;
     if (intf.fVariable.fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const auto& e : fProgram) {
@@ -2637,6 +2718,9 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     } else {
         typeId = this->getType(*type, memoryLayout);
     }
+=======
+    SpvId typeId = this->getType(*type, memoryLayout);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBufferBlock, fDecorationBuffer);
     } else {
@@ -2686,7 +2770,11 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         }
         if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
             kind != Program::kFragment_Kind) {
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
             SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
+=======
+            ASSERT(!fProgram.fSettings.fFragColorIsInOut);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
             continue;
         }
         if (!var->fReadCount && !var->fWriteCount &&

@@ -34,6 +34,48 @@ import (
 	"go.skia.org/infra/go/common"
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/go/util"
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+	"go.skia.org/infra/golden/go/tsuite"
+)
+
+// TODO(stephana): Convert the hard coded whitelist to a command line flag that
+// loads a file with the whitelisted devices and versions. Make sure to include
+// human readable names for the devices.
+
+var (
+	// WHITELIST_DEV_IDS contains a mapping from the device id to the list of
+	// Android API versions that we should run agains. Usually this will be the
+	// latest version. To see available devices and version run with
+	// --dryrun flag or run '$ gcloud firebase test android models list'
+
+	WHITELIST_DEV_IDS = map[string][]string{
+		"A0001": {"22"},
+		// "E5803":       {"22"},    deprecated
+		// "F5121":       {"23"},    deprecated
+		"G8142":      {"25"},
+		"HWMHA":      {"24"},
+		"SH-04H":     {"23"},
+		"athene":     {"23"},
+		"athene_f":   {"23"},
+		"hammerhead": {"23"},
+		"harpia":     {"23"},
+		"hero2lte":   {"23"},
+		"herolte":    {"24"},
+		"j1acevelte": {"22"},
+		"j5lte":      {"23"},
+		"j7xelte":    {"23"},
+		"lucye":      {"24"},
+		// "mako":        {"22"},   deprecated
+		"osprey_umts": {"22"},
+		// "p1":          {"22"},   deprecated
+		"sailfish": {"26"},
+		"shamu":    {"23"},
+		"trelte":   {"22"},
+		"zeroflte": {"22"},
+		"zerolte":  {"22"},
+	}
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 )
 
 const (
@@ -44,12 +86,17 @@ const (
 var (
 	devicesFile        = flag.String("devices", "", "JSON file that maps device ids to versions to run on. Same format as produced by the dump_devices flag.")
 	dryRun             = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 	dumpDevFile        = flag.String("dump_devices", "", "Creates a JSON file with all physical devices that are not deprecated.")
 	minAPIVersion      = flag.Int("min_api", 0, "Minimum API version required by device.")
 	maxAPIVersion      = flag.Int("max_api", 99, "Maximum API version required by device.")
 	properties         = flag.String("properties", "", "Custom meta data to be added to the uploaded APK. Comma separated list of key=value pairs, i.e. 'k1=v1,k2=v2,k3=v3.")
 	serviceAccountFile = flag.String("service_account_file", "", "Credentials file for service account.")
 	uploadGCSPath      = flag.String("upload_path", "", "GCS path (bucket/path) to where the APK should be uploaded to. It's assume to a full path (not a directory).")
+=======
+	minAPIVersion      = flag.Int("min_api", 22, "Minimum API version required by device.")
+	maxAPIVersion      = flag.Int("max_api", 23, "Maximum API version required by device.")
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 )
 
 const (
@@ -108,9 +155,19 @@ func main() {
 		sklog.Fatalf("Failed to authenticate service account: %s. Run 'get_service_account' to obtain a service account file.", err)
 	}
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 	// Filter the devices according the white list and other parameters.
 	devices, ignoredDevices := filterDevices(fbDevices, whiteList, *minAPIVersion, *maxAPIVersion)
 	sklog.Infof("---\nSelected devices:")
+=======
+	// Get list of all available devices.
+	devices, ignoredDevices, err := getAvailableDevices(WHITELIST_DEV_IDS, *minAPIVersion, *maxAPIVersion)
+	if err != nil {
+		sklog.Fatalf("Unable to retrieve available devices: %s", err)
+	}
+	sklog.Infof("---")
+	sklog.Infof("Selected devices:")
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 	logDevices(devices)
 
 	if len(devices) == 0 {
@@ -129,11 +186,18 @@ func main() {
 	}
 }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 // getAvailableDevices queries Firebase Testlab for all physical devices that
 // are not deprecated. It returns two lists with the same information.
 // The first contains all device information as returned by Firebase while
 // the second contains the information necessary to use in a whitelist.
 func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
+=======
+// getAvailableDevices is given a whitelist. It queries Firebase Testlab for all
+// available devices and then returns a list of devices to be tested and the list
+// of ignored devices.
+func getAvailableDevices(whiteList map[string][]string, minAPIVersion, maxAPIVersion int) ([]*tsuite.DeviceVersions, []*tsuite.DeviceVersions, error) {
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 	// Get the list of all devices in JSON format from Firebase testlab.
 	var buf bytes.Buffer
 	var errBuf bytes.Buffer
@@ -151,6 +215,7 @@ func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
 		return nil, nil, sklog.FmtErrorf("Unmarshal of device information failed: %s \nJSON Input: %s\n", err, string(bufBytes))
 	}
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
 	// Filter the devices and copy them to device list.
 	devList := DeviceList{}
 	ret := make([]*DeviceVersions, 0, len(foundDevices))
@@ -163,6 +228,29 @@ func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
 				Name:        foundDev.Name,
 				RunVersions: foundDev.VersionIDs,
 			})
+=======
+	// iterate over the available devices and partition them.
+	allDevices := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
+	ret := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
+	ignored := make([]*tsuite.DeviceVersions, 0, len(foundDevices))
+	for _, dev := range foundDevices {
+		// Filter out all the virtual devices.
+		if dev.Form == "PHYSICAL" {
+			// Only include devices that are on the whitelist and have versions defined.
+			if foundVersions, ok := whiteList[dev.ID]; ok && (len(foundVersions) > 0) {
+				versionSet := util.NewStringSet(dev.VersionIDs)
+				reqVersions := util.NewStringSet(filterVersions(foundVersions, minAPIVersion, maxAPIVersion))
+				whiteListVersions := versionSet.Intersect(reqVersions).Keys()
+				ignoredVersions := versionSet.Complement(reqVersions).Keys()
+				sort.Strings(whiteListVersions)
+				sort.Strings(ignoredVersions)
+				ret = append(ret, &tsuite.DeviceVersions{Device: dev, Versions: whiteListVersions})
+				ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: ignoredVersions})
+			} else {
+				ignored = append(ignored, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
+			}
+			allDevices = append(allDevices, &tsuite.DeviceVersions{Device: dev, Versions: dev.VersionIDs})
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
 		}
 	}
 	return foundDevices, devList, nil
@@ -201,6 +289,21 @@ func filterDevices(foundDevices []*DeviceVersions, whiteList DeviceList, minAPIV
 	logDevices(allDevices)
 
 	return ret, ignored
+}
+
+// filterVersions returns the elements in versionIDs where minVersion <= element <= maxVersion.
+func filterVersions(versionIDs []string, minVersion, maxVersion int) []string {
+	ret := make([]string, 0, len(versionIDs))
+	for _, versionID := range versionIDs {
+		id, err := strconv.Atoi(versionID)
+		if err != nil {
+			sklog.Fatalf("Error parsing version id '%s': %s", versionID, err)
+		}
+		if (id >= minVersion) && (id <= maxVersion) {
+			ret = append(ret, versionID)
+		}
+	}
+	return ret
 }
 
 // filterVersions returns the elements in versionIDs where minVersion <= element <= maxVersion.

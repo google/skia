@@ -1563,6 +1563,83 @@ bool GLSLCodeGenerator::generateCode() {
         }
     }
 
+<<<<<<< HEAD   (ac7f23 SkQP: refatctor C++ bits.)
+=======
+void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
+    switch (e.fKind) {
+        case ProgramElement::kExtension_Kind:
+            break;
+        case ProgramElement::kVar_Kind: {
+            VarDeclarations& decl = (VarDeclarations&) e;
+            if (decl.fVars.size() > 0) {
+                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
+                if (builtin == -1) {
+                    // normal var
+                    this->writeVarDeclarations(decl, true);
+                    this->writeLine();
+                } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
+                           fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
+                    if (fProgram.fSettings.fFragColorIsInOut) {
+                        this->write("inout ");
+                    } else {
+                        this->write("out ");
+                    }
+                    if (usesPrecisionModifiers()) {
+                        this->write("mediump ");
+                    }
+                    this->writeLine("vec4 sk_FragColor;");
+                }
+            }
+            break;
+        }
+        case ProgramElement::kInterfaceBlock_Kind:
+            this->writeInterfaceBlock((InterfaceBlock&) e);
+            break;
+        case ProgramElement::kFunction_Kind:
+            this->writeFunction((FunctionDefinition&) e);
+            break;
+        case ProgramElement::kModifiers_Kind: {
+            const Modifiers& modifiers = ((ModifiersDeclaration&) e).fModifiers;
+            if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
+                if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
+                    fHeader.writeText("#extension ");
+                    fHeader.writeText(fProgram.fSettings.fCaps->gsInvocationsExtensionString());
+                    fHeader.writeText(" : require\n");
+                }
+                fFoundGSInvocations = true;
+            }
+            this->writeModifiers(modifiers, true);
+            this->writeLine(";");
+            break;
+        }
+        case ProgramElement::kEnum_Kind:
+            break;
+        default:
+            printf("%s\n", e.description().c_str());
+            ABORT("unsupported program element");
+    }
+}
+
+bool GLSLCodeGenerator::generateCode() {
+    OutputStream* rawOut = fOut;
+    fOut = &fHeader;
+    fProgramKind = fProgram.fKind;
+    this->writeHeader();
+    if (Program::kGeometry_Kind == fProgramKind &&
+        fProgram.fSettings.fCaps->geometryShaderExtensionString()) {
+        fHeader.writeText("#extension ");
+        fHeader.writeText(fProgram.fSettings.fCaps->geometryShaderExtensionString());
+        fHeader.writeText(" : require\n");
+    }
+    StringStream body;
+    fOut = &body;
+    for (const auto& e : fProgram.fElements) {
+        this->writeProgramElement(*e);
+    }
+    fOut = rawOut;
+
+    write_stringstream(fHeader, *rawOut);
+>>>>>>> BRANCH (3e3428 SkQP: Remove tests that use too much RAM)
     if (this->usesPrecisionModifiers()) {
         this->writeLine("precision mediump float;");
     }
