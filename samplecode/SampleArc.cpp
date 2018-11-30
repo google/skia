@@ -84,19 +84,7 @@ public:
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
 
-    ArcsView() {
-        testparse();
-        fSweep = SkIntToScalar(100);
-        this->setBGColor(0xFFDDDDDD);
-
-        fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
-        fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
-
-        SkPictureRecorder recorder;
-        this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
-        fRootDrawable = recorder.finishRecordingAsDrawable();
-    }
+    ArcsView() { }
 
 protected:
     bool onQuery(Sample::Event* evt) override {
@@ -181,6 +169,20 @@ protected:
         canvas->drawDrawable(fAnimatingDrawable.get());
 
         DrawArcs(canvas);
+    }
+
+    void onOnceBeforeDraw() override {
+        testparse();
+        fSweep = SkIntToScalar(100);
+        this->setBGColor(0xFFDDDDDD);
+
+        fRect.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
+        fRect.offset(SkIntToScalar(20), SkIntToScalar(20));
+        fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
+
+        SkPictureRecorder recorder;
+        this->drawRoot(recorder.beginRecording(SkRect::MakeWH(800, 500)));
+        fRootDrawable = recorder.finishRecordingAsDrawable();
     }
 
     void onDrawContent(SkCanvas* canvas) override {
