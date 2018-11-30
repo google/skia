@@ -78,8 +78,7 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
 
 GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu)
         : fCurrentCmdInfo(-1)
-        , fGpu(gpu)
-        , fLastPipelineState(nullptr) {
+        , fGpu(gpu) {
 }
 
 void GrVkGpuRTCommandBuffer::init() {
@@ -239,7 +238,6 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
     SkASSERT(fCommandBufferInfos.empty());
     SkASSERT(-1 == fCurrentCmdInfo);
     SkASSERT(fGpu == rt->getContext()->contextPriv().getGpu());
-    SkASSERT(!fLastPipelineState);
 
     this->INHERITED::set(rt, origin);
 
@@ -266,7 +264,6 @@ void GrVkGpuRTCommandBuffer::reset() {
 
     fCurrentCmdInfo = -1;
 
-    fLastPipelineState = nullptr;
     fRenderTarget = nullptr;
 }
 
@@ -609,13 +606,6 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     if (!pipelineState) {
         return pipelineState;
     }
-
-    if (!cbInfo.fIsEmpty &&
-        fLastPipelineState && fLastPipelineState != pipelineState &&
-        fGpu->vkCaps().newCBOnPipelineChange()) {
-        this->addAdditionalCommandBuffer();
-    }
-    fLastPipelineState = pipelineState;
 
     pipelineState->bindPipeline(fGpu, cbInfo.currentCmdBuf());
 

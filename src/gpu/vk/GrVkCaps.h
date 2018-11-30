@@ -87,13 +87,6 @@ public:
         return fMustSleepOnTearDown;
     }
 
-    // Returns true if while adding commands to command buffers, we must make a new command buffer
-    // everytime we want to bind a new VkPipeline. This is true for both primary and secondary
-    // command buffers. This is to work around a driver bug specifically on AMD.
-    bool newCBOnPipelineChange() const {
-        return fNewCBOnPipelineChange;
-    }
-
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
@@ -224,7 +217,6 @@ private:
     bool fMustDoCopiesFromOrigin = false;
     bool fMustSubmitCommandsBeforeCopyOp = false;
     bool fMustSleepOnTearDown = false;
-    bool fNewCBOnPipelineChange = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
 
     bool fSupportsPhysicalDeviceProperties2 = false;
