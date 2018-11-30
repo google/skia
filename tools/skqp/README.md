@@ -42,31 +42,17 @@ How to build and run the SkQP tests
         cd skia
         git checkout origin/skqp/dev  # or whatever release tag you need
 
-3.  Download dependencies and the model:
+3.  Build the APK:
 
-        python tools/skqp/download_model
-        python tools/skqp/setup_resources
-        python tools/git-sync-deps
+        tools/skqp/make_universal_apk
 
-4.  Configure the build:
+4.  Build, install, and run.
 
-        python tools/skqp/generate_gn_args out/skqp-arm "$ANDROID_NDK" \
-               --arch arm \
-               --api_level 26
-        bin/gn gen out/skqp-arm
-
-    If you want to test another architecture, replace `arm` with `x86`, `x64`
-    or `arm64`. Run 'python tools/skqp/generate_gn_args -h' for
-    all options.
-
-5.  Build, install, and run.
-
-        platform_tools/android/bin/android_build_app -C out/skqp-arm skqp
-        adb install -r out/skqp-arm/skqp.apk
+        adb install -r out/skqp/skqp-universal-debug.apk
         adb logcat -c
         adb shell am instrument -w org.skia.skqp
 
-6.  Monitor the output with:
+5.  Monitor the output with:
 
         adb logcat TestRunner org.skia.skqp skia "*:S"
 
@@ -75,7 +61,7 @@ How to build and run the SkQP tests
         01-23 15:22:12.688 27158 27173 I org.skia.skqp:
         output written to "/storage/emulated/0/Android/data/org.skia.skqp/files/output"
 
-7.  Retrieve and view the report with:
+6.  Retrieve and view the report with:
 
         OUTPUT_LOCATION="/storage/emulated/0/Android/data/org.skia.skqp/files/output"
         adb pull $OUTPUT_LOCATION /tmp/
