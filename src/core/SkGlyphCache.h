@@ -35,7 +35,6 @@ public:
     SkGlyphCache(const SkDescriptor& desc,
                  std::unique_ptr<SkScalerContext> scaler,
                  const SkFontMetrics&);
-    ~SkGlyphCache() override;
 
     const SkDescriptor& getDescriptor() const;
 

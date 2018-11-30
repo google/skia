@@ -8,6 +8,7 @@
 #include "SkGlyphCache.h"
 
 #include "SkGraphics.h"
+#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkPath.h"
@@ -33,14 +34,6 @@ SkGlyphCache::SkGlyphCache(
 {
     SkASSERT(fScalerContext != nullptr);
     fMemoryUsed = sizeof(*this);
-}
-
-SkGlyphCache::~SkGlyphCache() {
-    fGlyphMap.foreach([](SkGlyph* g) {
-        if (g->fPathData) {
-            delete g->fPathData->fPath;
-        }
-    });
 }
 
 const SkDescriptor& SkGlyphCache::getDescriptor() const {
@@ -224,7 +217,7 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     if (!glyph.isEmpty()) {
         // If the path already exists, return it.
         if (glyph.fPathData != nullptr) {
-            return glyph.fPathData->fPath;
+            return glyph.fPathData->fPath.get();
         }
 
         // Add new path to the glyph, and add it's size to the glyph cache size.
@@ -246,13 +239,12 @@ bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, siz
         SkGlyph::PathData* pathData = fAlloc.make<SkGlyph::PathData>();
         glyph->fPathData = pathData;
         pathData->fIntercept = nullptr;
-        SkPath* path = new SkPath;
+        auto path = skstd::make_unique<SkPath>();
         if (!path->readFromMemory(const_cast<const void*>(data), size)) {
-            delete path;
             return false;
         }
-        pathData->fPath = path;
         fMemoryUsed += compute_path_size(*path);
+        pathData->fPath = std::move(path);
     }
 
     return true;
@@ -411,7 +403,7 @@ void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkSc
     intercept->fInterval[0] = SK_ScalarMax;
     intercept->fInterval[1] = SK_ScalarMin;
     glyph->fPathData->fIntercept = intercept;
-    const SkPath* path = glyph->fPathData->fPath;
+    const SkPath* path = glyph->fPathData->fPath.get();
     const SkRect& pathBounds = path->getBounds();
     if (*(&pathBounds.fBottom - yAxis) < bounds[0] || bounds[1] < *(&pathBounds.fTop - yAxis)) {
         return;

@@ -8,6 +8,7 @@
 #include "SkGlyph.h"
 
 #include "SkArenaAlloc.h"
+#include "SkMakeUnique.h"
 #include "SkScalerContext.h"
 
 void SkGlyph::initWithGlyphID(SkPackedGlyphID glyph_id) {
@@ -119,17 +120,14 @@ SkPath* SkGlyph::addPath(SkScalerContext* scalerContext, SkArenaAlloc* alloc) {
             SkGlyph::PathData* pathData = alloc->make<SkGlyph::PathData>();
             fPathData = pathData;
             pathData->fIntercept = nullptr;
-            SkPath* path = new SkPath;
-            if (scalerContext->getPath(this->getPackedID(), path)) {
+            auto path = skstd::make_unique<SkPath>();
+            if (scalerContext->getPath(this->getPackedID(), path.get())) {
                 path->updateBoundsCache();
                 path->getGenerationID();
-                pathData->fPath = path;
-            } else {
-                pathData->fPath = nullptr;
-                delete path;
+                pathData->fPath = std::move(path);
             }
         }
     }
-    return fPathData ? fPathData->fPath : nullptr;
+    return fPathData ? fPathData->fPath.get() : nullptr;
 }
 

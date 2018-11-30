@@ -8,6 +8,8 @@
 #ifndef SkGlyph_DEFINED
 #define SkGlyph_DEFINED
 
+#include <memory>
+
 #include "SkChecksum.h"
 #include "SkFixed.h"
 #include "SkMask.h"
@@ -217,8 +219,8 @@ private:
     };
 
     struct PathData {
-        Intercept* fIntercept;
-        SkPath*    fPath;
+        Intercept*              fIntercept;
+        std::unique_ptr<SkPath> fPath;
     };
 
     // TODO(herb) remove friend statement after SkGlyphCache cleanup.
