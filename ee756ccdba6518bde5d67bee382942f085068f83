@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6102df9b_610daa55",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-11-30T18:10:15Z",
+      "side": 1,
+      "message": "If PathData owns the path, and alloc owns the PathData, are we okay with the lifetime of all the paths being tied to the lifetime of the alloc?  \n\nOr is that alloc a member of SkGlyphCache today and this CL doesn\u0027t actually change the lifetime, just makes the management a bit more automatic?",
+      "range": {
+        "startLine": 120,
+        "startChar": 13,
+        "endLine": 120,
+        "endChar": 75
+      },
+      "revId": "ee756ccdba6518bde5d67bee382942f085068f83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
