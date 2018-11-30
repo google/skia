@@ -479,7 +479,9 @@ static void submit_to_queue(const GrVkInterface* interface,
     submitInfo.pCommandBuffers = commandBuffers;
     submitInfo.signalSemaphoreCount = signalCount;
     submitInfo.pSignalSemaphores = signalSemaphores;
-    GR_VK_CALL_ERRCHECK(interface, QueueSubmit(queue, 1, &submitInfo, fence));
+    VkResult res = GR_VK_CALL(interface, QueueSubmit(queue, 1, &submitInfo, fence));
+    SkDebugf("QueueSubmit result: %d\n", res);
+    SkASSERT(!res);
 }
 
 void GrVkPrimaryCommandBuffer::submitToQueue(
@@ -859,4 +861,3 @@ void GrVkSecondaryCommandBuffer::end(const GrVkGpu* gpu) {
     this->invalidateState();
     fIsActive = false;
 }
-
