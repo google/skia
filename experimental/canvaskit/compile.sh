@@ -144,7 +144,7 @@ echo "Compiling bitcode"
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
 
-${NINJA} -C ${BUILD_DIR} libskia.a
+#${NINJA} -C ${BUILD_DIR} libskia.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
