@@ -42,8 +42,8 @@ struct BaseOption {
 template <class T>
 struct Option : BaseOption {
     T value;
-    Option(std::string selector, std::string description, T defaultValue)
-        : BaseOption(selector, description), value(defaultValue) {}
+    Option(std::string _selector, std::string _description, T defaultValue)
+        : BaseOption(_selector, _description), value(defaultValue) {}
 };
 
 void BaseOption::Init(const std::vector<BaseOption*> &option_list,
@@ -83,19 +83,19 @@ struct DoubleOption : Option<double> {
         stm << value;
         return stm.str();
     }
-    DoubleOption(std::string selector,
-                 std::string description,
+    DoubleOption(std::string _selector,
+                 std::string _description,
                  double defaultValue)
-        : Option<double>(selector, description, defaultValue) {}
+        : Option<double>(_selector, _description, defaultValue) {}
 };
 
 struct StringOption : Option<std::string> {
     virtual void set(std::string _value) { value = _value; }
     virtual std::string valueToString() { return value; }
-    StringOption(std::string selector,
-                 std::string description,
+    StringOption(std::string _selector,
+                 std::string _description,
                  std::string defaultValue)
-        : Option<std::string>(selector, description, defaultValue) {}
+        : Option<std::string>(_selector, _description, defaultValue) {}
 };
 
 // Config //////////////////////////////////////////////////////////////////////
