@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5203482b_a55a2864",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-30T18:28:15Z",
+      "side": 1,
+      "message": "looks like we\u0027re always setting exact for this?",
+      "range": {
+        "startLine": 306,
+        "startChar": 12,
+        "endLine": 306,
+        "endChar": 40
+      },
+      "revId": "0125fb9bb142b61113774981c0f1412d78fb1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aca3a307_6c96fdc6",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-11-30T18:28:15Z",
+      "side": 1,
+      "message": "extra space?",
+      "range": {
+        "startLine": 329,
+        "startChar": 37,
+        "endLine": 329,
+        "endChar": 38
+      },
+      "revId": "0125fb9bb142b61113774981c0f1412d78fb1573",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
