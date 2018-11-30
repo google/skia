@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e895c577_296373ac",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-30T21:53:18Z",
+      "side": 1,
+      "message": "Hmm. Maybe this makes more sense as SkIntToScalar(bgSubset.left() - backgroundOffset.fx) ?",
+      "revId": "5d6e0014c236f3a827d93d2652989db39454340e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
