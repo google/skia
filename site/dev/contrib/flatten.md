@@ -57,9 +57,9 @@ Then in the cpp file you define all the members of the group together:
 <!--?prettify?-->
 ~~~~
 void SkGroupClass::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkMemberClass1)
+    SK_REGISTER_FLATTENABLE(SkMemberClass1);
 
-    SK_REGISTER_FLATTENABLE(SkMemberClass2)
+    SK_REGISTER_FLATTENABLE(SkMemberClass2);
 
     // etc
 }
@@ -74,7 +74,7 @@ For a single flattenable add
 
 <!--?prettify?-->
 ~~~~
-SK_REGISTER_FLATTENABLE(SkNewClass)
+SK_REGISTER_FLATTENABLE(SkNewClass);
 ~~~~
 
 For a group, add

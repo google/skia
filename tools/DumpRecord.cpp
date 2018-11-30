@@ -115,8 +115,8 @@ private:
     template <typename T>
     static const char* NameOf(const T&) {
     #define CASE(U) case SkRecords::U##_Type: return #U;
-        switch(T::kType) { SK_RECORD_TYPES(CASE); }
-    #undef CASE
+        switch (T::kType) { SK_RECORD_TYPES(CASE) }
+#undef CASE
         SkDEBUGFAIL("Unknown T");
         return "Unknown T";
     }

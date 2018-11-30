@@ -24,16 +24,16 @@ GrGLInterface::GrGLInterface() {
 
 #define RETURN_FALSE_INTERFACE                                                                   \
     if (kIsDebug) { SkDebugf("%s:%d GrGLInterface::validate() failed.\n", __FILE__, __LINE__); } \
-    return false;
+    return false
 
 bool GrGLInterface::validate() const {
 
     if (kNone_GrGLStandard == fStandard) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     if (!fExtensions.isInitialized()) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     // functions that are always required
@@ -139,12 +139,12 @@ bool GrGLInterface::validate() const {
         !fFunctions.fGenFramebuffers ||
         !fFunctions.fGenRenderbuffers ||
         !fFunctions.fRenderbufferStorage) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     GrGLVersion glVer = GrGLGetVersion(this);
     if (GR_GL_INVALID_VER == glVer) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     // Now check that baseline ES/Desktop fns not covered above are present
@@ -156,7 +156,7 @@ bool GrGLInterface::validate() const {
     // is present or GL version is high enough.
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,0) && !fFunctions.fBindFragDataLocation) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
 
         if (glVer >= GR_GL_VER(3,3) ||
@@ -164,12 +164,12 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_EXT_timer_query")) {
             if (!fFunctions.fGetQueryObjecti64v ||
                 !fFunctions.fGetQueryObjectui64v) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
         if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_timer_query")) {
             if (!fFunctions.fQueryCounter) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -178,26 +178,26 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard &&
         (!fFunctions.fDrawBuffer ||
          !fFunctions.fPolygonMode)) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     // ES 3.0 (or ES 2.0 extended) has glDrawBuffers but not glDrawBuffer
     if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
         if (!fFunctions.fDrawBuffers) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,0)) {
         if (!fFunctions.fReadBuffer) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     // glGetTexLevelParameteriv was added to ES in 3.1.
     if (kGL_GrGLStandard == fStandard || glVer >= GR_GL_VER(3,1)) {
         if (!fFunctions.fGetTexLevelParameteriv) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -208,12 +208,12 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_ARB_texture_storage") ||
             fExtensions.has("GL_EXT_texture_storage")) {
             if (!fFunctions.fTexStorage2D) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_texture_storage")) {
         if (!fFunctions.fTexStorage2D) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -223,25 +223,25 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_ARB_texture_barrier") ||
             fExtensions.has("GL_NV_texture_barrier")) {
             if (!fFunctions.fTextureBarrier) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else if (fExtensions.has("GL_NV_texture_barrier")) {
         if (!fFunctions.fTextureBarrier) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (fExtensions.has("GL_KHR_blend_equation_advanced") ||
         fExtensions.has("GL_NV_blend_equation_advanced")) {
         if (!fFunctions.fBlendBarrier) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (fExtensions.has("GL_EXT_discard_framebuffer")) {
         if (!fFunctions.fDiscardFramebuffer) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -255,13 +255,13 @@ bool GrGLInterface::validate() const {
             !fFunctions.fEndQuery ||
             !fFunctions.fGetQueryiv ||
             !fFunctions.fGetQueryObjectuiv) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
 #endif
     }
     // glGetQueryObjectiv doesn't exist in ES.
     if (kGL_GrGLStandard == fStandard && !fFunctions.fGetQueryObjectiv) {
-        RETURN_FALSE_INTERFACE
+        RETURN_FALSE_INTERFACE;
     }
 
     // FBO MSAA
@@ -270,45 +270,45 @@ bool GrGLInterface::validate() const {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_ARB_framebuffer_object")) {
             if (!fFunctions.fRenderbufferStorageMultisample ||
                 !fFunctions.fBlitFramebuffer) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         } else {
             if (fExtensions.has("GL_EXT_framebuffer_blit") &&
                 !fFunctions.fBlitFramebuffer) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
             if (fExtensions.has("GL_EXT_framebuffer_multisample") &&
                 !fFunctions.fRenderbufferStorageMultisample) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (!fFunctions.fRenderbufferStorageMultisample ||
                 !fFunctions.fBlitFramebuffer) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         } else {
             if (fExtensions.has("GL_ANGLE_framebuffer_multisample") &&
                 !fFunctions.fRenderbufferStorageMultisample) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
             if (fExtensions.has("GL_ANGLE_framebuffer_blit") &&
                 !fFunctions.fBlitFramebuffer) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
         if (fExtensions.has("GL_APPLE_framebuffer_multisample")) {
             if (!fFunctions.fRenderbufferStorageMultisampleES2APPLE ||
                 !fFunctions.fResolveMultisampleFramebuffer) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
         if (fExtensions.has("GL_IMG_multisampled_render_to_texture") ||
             fExtensions.has("GL_EXT_multisampled_render_to_texture")) {
             if (!fFunctions.fRenderbufferStorageMultisampleES2EXT ||
                 !fFunctions.fFramebufferTexture2DMultisample) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -319,7 +319,7 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard || fExtensions.has("GL_OES_mapbuffer")) {
         if (!fFunctions.fMapBuffer ||
             !fFunctions.fUnmapBuffer) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -327,14 +327,14 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended")) {
             if (!fFunctions.fBindFragDataLocationIndexed) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else {
         if (glVer >= GR_GL_VER(3,0) && fExtensions.has("GL_EXT_blend_func_extended")) {
             if (!fFunctions.fBindFragDataLocation ||
                 !fFunctions.fBindFragDataLocationIndexed) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -343,14 +343,14 @@ bool GrGLInterface::validate() const {
     // glGetStringi was added in version 3.0 of both desktop and ES.
     if (glVer >= GR_GL_VER(3, 0)) {
         if (!fFunctions.fGetStringi) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     // glVertexAttribIPointer was added in version 3.0 of both desktop and ES.
     if (glVer >= GR_GL_VER(3, 0)) {
         if (!fFunctions.fVertexAttribIPointer) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -380,7 +380,7 @@ bool GrGLInterface::validate() const {
             if (!fFunctions.fBindVertexArray ||
                 !fFunctions.fDeleteVertexArrays ||
                 !fFunctions.fGenVertexArrays) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else {
@@ -388,7 +388,7 @@ bool GrGLInterface::validate() const {
             if (!fFunctions.fBindVertexArray ||
                 !fFunctions.fDeleteVertexArrays ||
                 !fFunctions.fGenVertexArrays) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -397,7 +397,7 @@ bool GrGLInterface::validate() const {
         if (!fFunctions.fInsertEventMarker ||
             !fFunctions.fPushGroupMarker ||
             !fFunctions.fPopGroupMarker) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -442,7 +442,7 @@ bool GrGLInterface::validate() const {
          (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_texture_multisample"))) ||
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fGetMultisamplefv) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -450,14 +450,14 @@ bool GrGLInterface::validate() const {
          (glVer >= GR_GL_VER(4,3) || fExtensions.has("GL_ARB_program_interface_query"))) ||
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fGetProgramResourceLocation) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (kGLES_GrGLStandard == fStandard || glVer >= GR_GL_VER(4,1) ||
         fExtensions.has("GL_ARB_ES2_compatibility")) {
         if (!fFunctions.fGetShaderPrecisionFormat) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -491,25 +491,25 @@ bool GrGLInterface::validate() const {
             !fFunctions.fProgramPathFragmentInputGen
 #endif
             ) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
         if (fExtensions.has("GL_CHROMIUM_path_rendering")) {
             if (!fFunctions.fBindFragmentInputLocation) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
 
     if (fExtensions.has("GL_EXT_raster_multisample")) {
         if (!fFunctions.fRasterSamples) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (fExtensions.has("GL_NV_framebuffer_mixed_samples") ||
         fExtensions.has("GL_CHROMIUM_framebuffer_mixed_samples")) {
         if (!fFunctions.fCoverageModulation) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -518,14 +518,14 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_EXT_draw_instanced") || fExtensions.has("GL_ARB_draw_instanced")) {
             if (!fFunctions.fDrawArraysInstanced ||
                 !fFunctions.fDrawElementsInstanced) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_draw_instanced")) {
             if (!fFunctions.fDrawArraysInstanced ||
                 !fFunctions.fDrawElementsInstanced) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -533,13 +533,13 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,2) || fExtensions.has("GL_ARB_instanced_arrays")) {
             if (!fFunctions.fVertexAttribDivisor) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_instanced_arrays")) {
             if (!fFunctions.fVertexAttribDivisor) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -549,7 +549,7 @@ bool GrGLInterface::validate() const {
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1))) {
         if (!fFunctions.fDrawArraysIndirect ||
             !fFunctions.fDrawElementsIndirect) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -558,7 +558,7 @@ bool GrGLInterface::validate() const {
         (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_multi_draw_indirect"))) {
         if (!fFunctions.fMultiDrawArraysIndirect ||
             !fFunctions.fMultiDrawElementsIndirect) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -571,24 +571,24 @@ bool GrGLInterface::validate() const {
             !fFunctions.fPushDebugGroup ||
             !fFunctions.fPopDebugGroup ||
             !fFunctions.fObjectLabel) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if (fExtensions.has("GL_EXT_window_rectangles")) {
         if (!fFunctions.fWindowRectangles) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
     if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,0)) ||
         fExtensions.has("GL_ARB_sample_shading")) {
         if (!fFunctions.fMinSampleShading) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     } else if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_OES_sample_shading")) {
         if (!fFunctions.fMinSampleShading) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
@@ -599,7 +599,7 @@ bool GrGLInterface::validate() const {
                 !fFunctions.fClientWaitSync ||
                 !fFunctions.fWaitSync ||
                 !fFunctions.fDeleteSync) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
@@ -609,7 +609,7 @@ bool GrGLInterface::validate() const {
                 !fFunctions.fClientWaitSync ||
                 !fFunctions.fWaitSync ||
                 !fFunctions.fDeleteSync) {
-                RETURN_FALSE_INTERFACE
+                RETURN_FALSE_INTERFACE;
             }
         }
     }
@@ -617,7 +617,7 @@ bool GrGLInterface::validate() const {
     if (fExtensions.has("EGL_KHR_image") || fExtensions.has("EGL_KHR_image_base")) {
         if (!fFunctions.fEGLCreateImage ||
             !fFunctions.fEGLDestroyImage) {
-            RETURN_FALSE_INTERFACE
+            RETURN_FALSE_INTERFACE;
         }
     }
 
