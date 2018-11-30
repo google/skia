@@ -433,7 +433,7 @@
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
       CanvasKit.setCurrentContext(context);
       animation.seek(seek);
-      canvas.clear(CanvasKit.TRANSPARENT);
+      canvas.clear(CanvasKit.Color(255,255,255,1));
       animation.render(canvas, bounds);
       surface.flush();
       window.requestAnimationFrame(drawFrame);

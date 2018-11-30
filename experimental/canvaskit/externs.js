@@ -58,6 +58,7 @@ var CanvasKit = {
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
+	_getRasterDirectSurface: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
 
@@ -228,6 +229,13 @@ var CanvasKit = {
 	CYAN: {},
 	BLACK: {},
 
+	AlphaType: {
+		Unknown: {},
+		Opaque: {},
+		Premul: {},
+		Unpremul: {},
+	},
+
 	BlendMode: {
 		Clear: {},
 		Src: {},
@@ -270,6 +278,22 @@ var CanvasKit = {
 	ClipOp: {
 		Difference: {},
 		Intersect: {},
+	},
+
+	ColorType: {
+		Unknown: {},
+		Alpha_8: {},
+		RGB_565: {},
+		ARGB_4444: {},
+		RGBA_8888: {},
+		RGB_888x: {},
+		BGRA_8888: {},
+		RGBA_1010102: {},
+		RGB_101010x: {},
+		Gray_8: {},
+		RGBA_F16: {},
+		RGBA_F32: {},
+		N32: {},
 	},
 
 	FillType: {
