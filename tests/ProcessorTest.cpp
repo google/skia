@@ -19,8 +19,8 @@
 #include "GrResourceProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "ops/GrFillRectOp.h"
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrRectOpFactory.h"
 #include "TestUtils.h"
 
 #include <random>
@@ -259,9 +259,8 @@ void test_draw_op(GrContext* context,
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto op = GrRectOpFactory::MakeNonAAFill(context, std::move(paint), SkMatrix::I(),
-                                             SkRect::MakeWH(rtc->width(), rtc->height()),
-                                             GrAAType::kNone);
+    auto op = GrFillRectOp::Make(context, std::move(paint), GrAAType::kNone, SkMatrix::I(),
+                                 SkRect::MakeWH(rtc->width(), rtc->height()));
     rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 

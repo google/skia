@@ -30,8 +30,6 @@
 #include "SkPoint3.h"
 #include "SkRectPriv.h"
 #include "SkTo.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 
 namespace {
@@ -39,96 +37,6 @@ namespace {
 using Domain = GrQuadPerEdgeAA::Domain;
 using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 using ColorType = GrQuadPerEdgeAA::ColorType;
-
-/**
- * Geometry Processor that draws a texture modulated by a vertex color (though, this is meant to be
- * the same value across all vertices of a quad and uses flat interpolation when available). This is
- * used by TextureOp below.
- */
-class TextureGeometryProcessor : public GrGeometryProcessor {
-public:
-
-    static sk_sp<GrGeometryProcessor> Make(GrTextureType textureType, GrPixelConfig textureConfig,
-                                           const GrSamplerState::Filter filter,
-                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                           const VertexSpec& vertexSpec, const GrShaderCaps& caps) {
-        return sk_sp<TextureGeometryProcessor>(new TextureGeometryProcessor(
-                textureType, textureConfig, filter, std::move(textureColorSpaceXform), vertexSpec,
-                caps));
-    }
-
-    const char* name() const override { return "TextureGeometryProcessor"; }
-
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
-        b->add32(fAttrs.getKey());
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
-        class GLSLProcessor : public GrGLSLGeometryProcessor {
-        public:
-            void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                         FPCoordTransformIter&& transformIter) override {
-                const auto& textureGP = proc.cast<TextureGeometryProcessor>();
-                this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
-                fTextureColorSpaceXformHelper.setData(
-                        pdman, textureGP.fTextureColorSpaceXform.get());
-            }
-
-        private:
-            void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-                const auto& textureGP = args.fGP.cast<TextureGeometryProcessor>();
-                fTextureColorSpaceXformHelper.emitCode(
-                        args.fUniformHandler, textureGP.fTextureColorSpaceXform.get());
-                if (!textureGP.fAttrs.needsPerspectiveInterpolation()) {
-                    args.fVaryingHandler->setNoPerspective();
-                }
-                args.fVaryingHandler->emitAttributes(textureGP);
-                gpArgs->fPositionVar = textureGP.fAttrs.positions().asShaderVar();
-
-                this->emitTransforms(args.fVertBuilder,
-                                     args.fVaryingHandler,
-                                     args.fUniformHandler,
-                                     textureGP.fAttrs.localCoords().asShaderVar(),
-                                     args.fFPCoordTransformHandler);
-                textureGP.fAttrs.emitColor(args, "paintColor");
-                textureGP.fAttrs.emitExplicitLocalCoords(args, "texCoord", "domain");
-
-                args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
-                args.fFragBuilder->appendTextureLookupAndModulate(
-                        args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
-                        &fTextureColorSpaceXformHelper);
-                args.fFragBuilder->codeAppend(";");
-
-                textureGP.fAttrs.emitCoverage(args, "aaDist");
-            }
-            GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
-        };
-        return new GLSLProcessor;
-    }
-
-private:
-    TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig,
-                             GrSamplerState::Filter filter,
-                             sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                             const VertexSpec& vertexSpec, const GrShaderCaps& caps)
-            : INHERITED(kTextureGeometryProcessor_ClassID)
-            , fAttrs(vertexSpec)
-            , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
-            , fSampler(textureType, textureConfig, filter) {
-        SkASSERT(vertexSpec.hasVertexColors() && vertexSpec.localDimensionality() == 2);
-        this->setTextureSamplerCnt(1);
-        this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
-    }
-
-    const TextureSampler& onTextureSampler(int) const override { return fSampler; }
-
-    GrQuadPerEdgeAA::GPAttributes fAttrs;
-    sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
-    TextureSampler fSampler;
-
-    typedef GrGeometryProcessor INHERITED;
-};
 
 static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
     SkASSERT(quad.quadType() == GrQuadType::kRect);
@@ -444,9 +352,9 @@ private:
         VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
                               GrQuadType::kRect, /* hasLocal */ true, domain, aaType);
 
-        sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                textureType, config, this->filter(), std::move(fTextureColorSpaceXform),
-                vertexSpec, *target->caps().shaderCaps());
+        sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
+                vertexSpec, *target->caps().shaderCaps(),
+                textureType, config, this->filter(), std::move(fTextureColorSpaceXform));
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();

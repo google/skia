@@ -9,6 +9,7 @@
 #include "GrQuad.h"
 #include "GrVertexWriter.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVarying.h"
@@ -40,6 +41,17 @@ static AI Sk4f compute_edge_mask(GrQuadAAFlags aaFlags) {
                 (GrQuadAAFlags::kBottom & aaFlags) ? 1.f : 0.f,
                 (GrQuadAAFlags::kTop & aaFlags) ? 1.f : 0.f,
                 (GrQuadAAFlags::kRight & aaFlags) ? 1.f : 0.f);
+}
+
+// Outputs normalized edge vectors in xdiff and ydiff, as well as the reciprocal of the original
+// edge lengths in invLengths
+static AI void compute_edge_vectors(const Sk4f& x, const Sk4f& y, const Sk4f& xnext,
+                                    const Sk4f& ynext, Sk4f* xdiff, Sk4f* ydiff, Sk4f* invLengths) {
+    *xdiff = xnext - x;
+    *ydiff = ynext - y;
+    *invLengths = fma(*xdiff, *xdiff, *ydiff * *ydiff).rsqrt();
+    *xdiff *= *invLengths;
+    *ydiff *= *invLengths;
 }
 
 static AI void outset_masked_vertices(const Sk4f& xdiff, const Sk4f& ydiff, const Sk4f& invLengths,
@@ -88,6 +100,15 @@ static AI void compute_edge_distances(const Sk4f& a, const Sk4f& b, const Sk4f& 
     }
 }
 
+static AI float get_max_coverage(const Sk4f& lengths) {
+    float minWidth = SkMinScalar(lengths[0], lengths[3]);
+    float minHeight = SkMinScalar(lengths[1], lengths[2]);
+    // Calculate approximate area of the quad, pinning dimensions to 1 in case the quad is larger
+    // than a pixel. Sub-pixel quads that are rotated may in fact have a different true maximum
+    // coverage than this calculation, but this will be close and is stable.
+    return SkMinScalar(minWidth, 1.f) * SkMinScalar(minHeight, 1.f);
+}
+
 // This computes the four edge equations for a quad, then outsets them and optionally computes a new
 // quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
 // input and the outset points as output. In order to be used as a component of perspective edge
@@ -95,7 +116,9 @@ static AI void compute_edge_distances(const Sk4f& a, const Sk4f& b, const Sk4f& 
 // compute_edge_distances to turn these equations into the distances needed by the shader. The
 // values in x, y, u, v, and r are possibly updated if outsetting is needed. r is the local
 // position's w component if it exists.
-static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
+//
+// Returns maximum coverage allowed for any given pixel.
+static float compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
         Sk4f* a, Sk4f* b, Sk4f* c, Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount, bool outset) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -103,11 +126,8 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
     auto xnext = nextCCW(*x);
     auto ynext = nextCCW(*y);
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    auto invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
+    Sk4f xdiff, ydiff, invLengths;
+    compute_edge_vectors(*x, *y, xnext, ynext, &xdiff, &ydiff, &invLengths);
 
     // Use above vectors to compute edge equations (importantly before we outset positions).
     *c = fma(xnext, *y,  -ynext * *x) * invLengths;
@@ -139,25 +159,21 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
     } else if (outset) {
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
+
+    return get_max_coverage(invLengths.invert());
 }
 
 // A specialization of the above function that can compute edge distances very quickly when it knows
 // that the edges intersect at right angles, i.e. any transform other than skew and perspective
 // (GrQuadType::kRectilinear). Unlike the above function, this always outsets the corners since it
 // cannot be reused in the perspective case.
-static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static float compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y,  Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
-    auto xnext = nextCCW(*x);
-    auto ynext = nextCCW(*y);
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    // Need length and 1/length in this variant
-    auto lengths = fma(xdiff, xdiff, ydiff * ydiff).sqrt();
-    auto invLengths = lengths.invert();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
+    Sk4f xdiff, ydiff, invLengths;
+    compute_edge_vectors(*x, *y, nextCCW(*x), nextCCW(*y), &xdiff, &ydiff, &invLengths);
+    Sk4f lengths = invLengths.invert();
 
     // Since the quad is rectilinear, the edge distances are predictable and independent of the
     // actual orientation of the quad. The lengths vector stores |p1-p0|, |p3-p1|, |p0-p2|, |p2-p3|,
@@ -200,12 +216,14 @@ static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags,
 
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
+
+    return get_max_coverage(lengths);
 }
 
 // Generalizes compute_quad_edge_distances_and_outset_vertices to extrapolate local coords such that
 // after perspective division of the device coordinate, the original local coordinate value is at
 // the original un-outset device position. r is the local coordinate's w component.
-static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y, Sk4f* w, Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -216,8 +234,8 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
     // Don't compute outset corners in the normalized space, which means u, v, and r don't need
     // to be provided here (outset separately below). Since this is computing distances for a
     // projected quad, there is a very good chance it's not rectilinear so use the general 2D path.
-    compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c, nullptr, nullptr,
-                                           nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
+    float maxProjectedCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d,
+            &a, &b, &c, nullptr, nullptr, nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
 
     static const float kOutset = 0.5f;
     if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
@@ -306,6 +324,8 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
     // distance (technically multiplied by w, so that the fragment shader can do perspective
     // interpolation when it multiplies by 1/w later).
     compute_edge_distances(a, b, c, *x, *y, *w, edgeDistances);
+
+    return maxProjectedCoverage;
 }
 
 // Calculate safe edge distances for non-aa quads that have been batched with aa quads. Since the
@@ -315,7 +335,7 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
 // actually sees d = (iA*wA + iB*wB + iC*wC) * (iA/wA + iB/wB + iC/wC). Without perspective this
 // simplifies to 1 as necessary, but we must choose something other than w when there is perspective
 // to ensure that d >= 1 and the edge shows as non-aa.
-static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
+static float compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
     // Let n = min(w1,w2,w3,w4) and m = max(w1,w2,w3,w4) and rewrite
     //   d = (iA*wA + iB*wB + iC*wC) * (iA*wB*wC + iB*wA*wC + iC*wA*wB) / (wA*wB*wC)
     //       |   e=attr from VS    |   |         fragCoord.w = 1/w                 |
@@ -337,6 +357,9 @@ static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edge
     for (int i = 0; i < 4; ++i) {
         edgeDistances[i] = e;
     }
+
+    // Non-aa, so always use full coverage
+    return 1.f;
 }
 
 } // anonymous namespace
@@ -370,23 +393,24 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
     // Index into array refers to vertex. Index into particular Sk4f refers to edge.
     Sk4f edgeDistances[4];
+    float maxCoverage = 1.f;
     if (spec.usesCoverageAA()) {
         // Must calculate edges and possibly outside the positions
         if (aaFlags == GrQuadAAFlags::kNone) {
             // A non-AA quad that got batched into an AA group, so it should have full coverage
-            compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
+            maxCoverage = compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
         } else if (deviceHasPerspective) {
             // For simplicity, pointers to u, v, and r are always provided, but the local dim param
             // ensures that only loaded Sk4fs are modified in the compute functions.
-            compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w, edgeDistances,
-                                                         &u, &v, &r, spec.localDimensionality());
+            maxCoverage = compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w,
+                    edgeDistances, &u, &v, &r, spec.localDimensionality());
         } else if (spec.deviceQuadType() <= GrQuadType::kRectilinear) {
-            compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y, edgeDistances,
-                                                          &u, &v, &r, spec.localDimensionality());
+            maxCoverage = compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y,
+                    edgeDistances, &u, &v, &r, spec.localDimensionality());
         } else {
             Sk4f a, b, c;
-            compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v, &r,
-                                                   spec.localDimensionality(), /*outset*/ true);
+            maxCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c,
+                    &u, &v, &r, spec.localDimensionality(), /*outset*/ true);
             compute_edge_distances(a, b, c, x, y, w, edgeDistances); // w holds 1.f as desired
         }
     }
@@ -395,12 +419,9 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
     //  i.e. x1x2x3x4 y1y2y3y4 -> x1y1 x2y2 x3y3 x4y
     GrVertexWriter vb{vertices};
     for (int i = 0; i < 4; ++i) {
-        // save position and hold on to the homogeneous point for later
-        if (deviceHasPerspective) {
-            vb.write<SkPoint3>({x[i], y[i], w[i]});
-        } else {
-            vb.write<SkPoint>({x[i], y[i]});
-        }
+        // save position, always send a vec4 because we embed max coverage in the last component.
+        // For 2D quads, we know w holds the correct 1.f, so just write it out without branching
+        vb.write(x[i], y[i], w[i], maxCoverage);
 
         // save color
         if (spec.hasVertexColors()) {
@@ -440,121 +461,244 @@ int VertexSpec::localDimensionality() const {
     return fHasLocalCoords ? (this->localQuadType() == GrQuadType::kPerspective ? 3 : 2) : 0;
 }
 
-////////////////// GPAttributes Implementation
+////////////////// Geometry Processor Implementation
 
-GPAttributes::GPAttributes(const VertexSpec& spec) {
-    if (spec.deviceDimensionality() == 3) {
-        fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-    } else {
-        fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
+public:
+
+    static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
+        return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
     }
 
-    int localDim = spec.localDimensionality();
-    if (localDim == 3) {
-        fLocalCoords = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-    } else if (localDim == 2) {
-        fLocalCoords = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    } // else localDim == 0 and attribute remains uninitialized
-
-    if (ColorType::kByte == spec.colorType()) {
-        fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    } else if (ColorType::kHalf == spec.colorType()) {
-        fColors = {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+    static sk_sp<GrGeometryProcessor> Make(const VertexSpec& vertexSpec, const GrShaderCaps& caps,
+                                           GrTextureType textureType, GrPixelConfig textureConfig,
+                                           const GrSamplerState::Filter filter,
+                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+        return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
+                vertexSpec, caps, textureType, textureConfig, filter,
+                std::move(textureColorSpaceXform)));
     }
 
-    if (spec.hasDomain()) {
-        fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-    }
+    const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
 
-    if (spec.usesCoverageAA()) {
-        fAAEdgeDistances = {"aaEdgeDist", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-    }
-}
-
-bool GPAttributes::needsPerspectiveInterpolation() const {
-    // This only needs to check the position; local position having perspective does not change
-    // how the varyings are interpolated
-    return fPositions.cpuType() == kFloat3_GrVertexAttribType;
-}
-
-uint32_t GPAttributes::getKey() const {
-    // aa, domain are single bit flags
-    uint32_t x = this->usesCoverageAA() ? 0 : 1;
-    x |= this->hasDomain() ? 0 : 2;
-    // regular position has two options as well
-    x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 4;
-    // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
-    if (this->hasLocalCoords()) {
-        x |= kFloat3_GrVertexAttribType == fLocalCoords.cpuType() ? 8 : 16;
-    }
-    // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
-    if (this->hasVertexColors()) {
-        x |= kUByte4_norm_GrVertexAttribType == fColors.cpuType() ? 32 : 64;
-    }
-    return x;
-}
-
-void GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                             const char* colorVarName) const {
-    using Interpolation = GrGLSLVaryingHandler::Interpolation;
-    if (fColors.isInitialized()) {
-        args.fVaryingHandler->addPassThroughAttribute(fColors, args.fOutputColor,
-                                                      Interpolation::kCanBeFlat);
-    }
-}
-
-void GPAttributes::emitExplicitLocalCoords(
-        GrGLSLPrimitiveProcessor::EmitArgs& args, const char* localCoordName,
-        const char* domainName) const {
-    using Interpolation = GrGLSLVaryingHandler::Interpolation;
-    if (!this->hasLocalCoords()) {
-        return;
-    }
-
-    args.fFragBuilder->codeAppendf("float2 %s;", localCoordName);
-    bool localHasPerspective = fLocalCoords.cpuType() == kFloat3_GrVertexAttribType;
-    if (localHasPerspective) {
-        // Can't do a pass through since we need to perform perspective division
-        GrGLSLVarying v(fLocalCoords.gpuType());
-        args.fVaryingHandler->addVarying(fLocalCoords.name(), &v);
-        args.fVertBuilder->codeAppendf("%s = %s;", v.vsOut(), fLocalCoords.name());
-        args.fFragBuilder->codeAppendf("%s = %s.xy / %s.z;", localCoordName, v.fsIn(), v.fsIn());
-    } else {
-        args.fVaryingHandler->addPassThroughAttribute(fLocalCoords, localCoordName);
-    }
-
-    // Clamp the now 2D localCoordName variable by the domain if it is provided
-    if (this->hasDomain()) {
-        args.fFragBuilder->codeAppendf("float4 %s;", domainName);
-        args.fVaryingHandler->addPassThroughAttribute(fDomain, domainName,
-                                                      Interpolation::kCanBeFlat);
-        args.fFragBuilder->codeAppendf("%s = clamp(%s, %s.xy, %s.zw);",
-                                       localCoordName, localCoordName, domainName, domainName);
-    }
-}
-
-void GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                                const char* edgeDistName) const {
-    if (this->usesCoverageAA()) {
-        args.fFragBuilder->codeAppendf("float4 %s;", edgeDistName);
-        args.fVaryingHandler->addPassThroughAttribute(fAAEdgeDistances, edgeDistName);
-
-        args.fFragBuilder->codeAppendf(
-                "float min%s = min(min(%s.x, %s.y), min(%s.z, %s.w));",
-                edgeDistName, edgeDistName, edgeDistName, edgeDistName, edgeDistName);
-        if (fPositions.cpuType() == kFloat3_GrVertexAttribType) {
-            // The distance from edge equation e to homogeneous point p=sk_Position is e.x*p.x/p.w +
-            // e.y*p.y/p.w + e.z. However, we want screen space interpolation of this distance. We
-            // can do this by multiplying the vertex attribute by p.w and then multiplying by
-            // sk_FragCoord.w in the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
-            args.fFragBuilder->codeAppendf("min%s *= sk_FragCoord.w;", edgeDistName);
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        // aa, domain, texturing are single bit flags
+        uint32_t x = fAAEdgeDistances.isInitialized() ? 0 : 1;
+        x |= fDomain.isInitialized() ? 0 : 2;
+        x |= fSampler.isInitialized() ? 0 : 4;
+        // regular position has two options as well
+        x |= fNeedsPerspective ? 0 : 8;
+        // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
+        if (fLocalCoord.isInitialized()) {
+            x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 16 : 32;
         }
-        args.fFragBuilder->codeAppendf("%s = float4(saturate(min%s));",
-                                       args.fOutputCoverage, edgeDistName);
-    } else {
-        // Set coverage to 1
-        args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+        // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
+        if (this->fColor.isInitialized()) {
+            x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 64 : 128;
+        }
+
+        b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
+        b->add32(x);
     }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
+        class GLSLProcessor : public GrGLSLGeometryProcessor {
+        public:
+            void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
+                         FPCoordTransformIter&& transformIter) override {
+                const auto& gp = proc.cast<QuadPerEdgeAAGeometryProcessor>();
+                if (gp.fLocalCoord.isInitialized()) {
+                    this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+                }
+                fTextureColorSpaceXformHelper.setData(pdman, gp.fTextureColorSpaceXform.get());
+            }
+
+        private:
+            void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+                using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
+                const auto& gp = args.fGP.cast<QuadPerEdgeAAGeometryProcessor>();
+                fTextureColorSpaceXformHelper.emitCode(args.fUniformHandler,
+                                                       gp.fTextureColorSpaceXform.get());
+
+                args.fVaryingHandler->emitAttributes(gp);
+
+                // Extract effective position out of vec4 as a local variable in the vertex shader
+                if (gp.fNeedsPerspective) {
+                    args.fVertBuilder->codeAppendf("float3 position = %s.xyz;",
+                                                   gp.fPositionWithCoverage.name());
+                } else {
+                    args.fVertBuilder->codeAppendf("float2 position = %s.xy;",
+                                                   gp.fPositionWithCoverage.name());
+                }
+                gpArgs->fPositionVar = {"position",
+                                        gp.fNeedsPerspective ? kFloat3_GrSLType : kFloat2_GrSLType,
+                                        GrShaderVar::kNone_TypeModifier};
+
+                // Handle local coordinates if they exist
+                if (gp.fLocalCoord.isInitialized()) {
+                    // NOTE: If the only usage of local coordinates is for the inline texture fetch
+                    // before FPs, then there are no registered FPCoordTransforms and this ends up
+                    // emitting nothing, so there isn't a duplication of local coordinates
+                    this->emitTransforms(args.fVertBuilder,
+                                         args.fVaryingHandler,
+                                         args.fUniformHandler,
+                                         gp.fLocalCoord.asShaderVar(),
+                                         args.fFPCoordTransformHandler);
+                }
+
+                // Solid color before any texturing gets modulated in
+                if (gp.fColor.isInitialized()) {
+                    args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
+                                                                  Interpolation::kCanBeFlat);
+                }
+
+                // If there is a texture, must also handle texture coordinates and reading from
+                // the texture in the fragment shader before continuing to fragment processors.
+                if (gp.fSampler.isInitialized()) {
+                    // Texture coordinates clamped by the domain on the fragment shader; if the GP
+                    // has a texture, it's guaranteed to have local coordinates
+                    args.fFragBuilder->codeAppend("float2 texCoord;");
+                    if (gp.fLocalCoord.cpuType() == kFloat3_GrVertexAttribType) {
+                        // Can't do a pass through since we need to perform perspective division
+                        GrGLSLVarying v(gp.fLocalCoord.gpuType());
+                        args.fVaryingHandler->addVarying(gp.fLocalCoord.name(), &v);
+                        args.fVertBuilder->codeAppendf("%s = %s;",
+                                                       v.vsOut(), gp.fLocalCoord.name());
+                        args.fFragBuilder->codeAppendf("texCoord = %s.xy / %s.z;",
+                                                       v.fsIn(), v.fsIn());
+                    } else {
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fLocalCoord, "texCoord");
+                    }
+
+                    // Clamp the now 2D localCoordName variable by the domain if it is provided
+                    if (gp.fDomain.isInitialized()) {
+                        args.fFragBuilder->codeAppend("float4 domain;");
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fDomain, "domain",
+                                                                      Interpolation::kCanBeFlat);
+                        args.fFragBuilder->codeAppend(
+                                "texCoord = clamp(texCoord, domain.xy, domain.zw);");
+                    }
+
+                    // Now modulate the starting output color by the texture lookup
+                    args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
+                    args.fFragBuilder->appendTextureLookupAndModulate(
+                        args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
+                        &fTextureColorSpaceXformHelper);
+                    args.fFragBuilder->codeAppend(";");
+                }
+
+                // And lastly, output the coverage calculation code
+                if (gp.fAAEdgeDistances.isInitialized()) {
+                    GrGLSLVarying maxCoverage(kFloat_GrSLType);
+                    args.fVaryingHandler->addVarying("maxCoverage", &maxCoverage);
+                    args.fVertBuilder->codeAppendf("%s = %s.w;",
+                                                   maxCoverage.vsOut(), gp.fPositionWithCoverage.name());
+
+                    args.fFragBuilder->codeAppend("float4 edgeDists;");
+                    args.fVaryingHandler->addPassThroughAttribute(gp.fAAEdgeDistances, "edgeDists");
+
+                    args.fFragBuilder->codeAppend(
+                            "float minDist = min(min(edgeDists.x, edgeDists.y),"
+                            " min(edgeDists.z, edgeDists.w));");
+                    if (gp.fNeedsPerspective) {
+                        // The distance from edge equation e to homogeneous point p=sk_Position is
+                        // e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
+                        // interpolation of this distance. We can do this by multiplying the vertex
+                        // attribute by p.w and then multiplying by sk_FragCoord.w in the FS. So we
+                        // output e.x*p.x + e.y*p.y + e.z * p.w
+                        args.fFragBuilder->codeAppend("minDist *= sk_FragCoord.w;");
+                    }
+                    // Clamp to max coverage after the perspective divide since perspective quads
+                    // calculated the max coverage in projected space.
+                    args.fFragBuilder->codeAppendf("%s = float4(clamp(minDist, 0.0, %s));",
+                                                   args.fOutputCoverage, maxCoverage.fsIn());
+                } else {
+                    // Set coverage to 1
+                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+                }
+            }
+            GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
+        };
+        return new GLSLProcessor;
+    }
+
+private:
+    QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
+            : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
+            , fTextureColorSpaceXform(nullptr) {
+        SkASSERT(spec.hasVertexColors() && !spec.hasDomain());
+        this->initializeAttrs(spec);
+        this->setTextureSamplerCnt(0);
+    }
+
+    QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec, const GrShaderCaps& caps,
+                                   GrTextureType textureType, GrPixelConfig textureConfig,
+                                   GrSamplerState::Filter filter,
+                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+            : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
+            , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
+            , fSampler(textureType, textureConfig, filter) {
+        SkASSERT(spec.hasVertexColors() && spec.hasLocalCoords());
+        this->initializeAttrs(spec);
+        this->setTextureSamplerCnt(1);
+    }
+
+    void initializeAttrs(const VertexSpec& spec) {
+        fNeedsPerspective = spec.deviceDimensionality() == 3;
+        fPositionWithCoverage = {"posAndCoverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+
+        int localDim = spec.localDimensionality();
+        if (localDim == 3) {
+            fLocalCoord = {"localCoord", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        } else if (localDim == 2) {
+            fLocalCoord = {"localCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        } // else localDim == 0 and attribute remains uninitialized
+
+        if (ColorType::kByte == spec.colorType()) {
+            fColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        } else if (ColorType::kHalf == spec.colorType()) {
+            fColor = {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+        }
+
+        if (spec.hasDomain()) {
+            fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        }
+
+        if (spec.usesCoverageAA()) {
+            fAAEdgeDistances = {"aaEdgeDist", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        }
+        this->setVertexAttributes(&fPositionWithCoverage, 5);
+    }
+
+    const TextureSampler& onTextureSampler(int) const override { return fSampler; }
+
+    Attribute fPositionWithCoverage;
+    Attribute fColor;
+    Attribute fLocalCoord;
+    Attribute fDomain;
+    Attribute fAAEdgeDistances;
+
+    // The positions attribute is always a vec4 and can't be used to encode perspectiveness
+    bool fNeedsPerspective;
+
+    // Color space will be null and fSampler.isInitialized() returns false when the GP is configured
+    // to skip texturing.
+    sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
+    TextureSampler fSampler;
+
+    typedef GrGeometryProcessor INHERITED;
+};
+
+sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec) {
+    return QuadPerEdgeAAGeometryProcessor::Make(spec);
+}
+
+sk_sp<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const GrShaderCaps& caps,
+        GrTextureType textureType, GrPixelConfig textureConfig,
+        const GrSamplerState::Filter filter, sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+    return QuadPerEdgeAAGeometryProcessor::Make(spec, caps, textureType, textureConfig, filter,
+                                                std::move(textureColorSpaceXform));
 }
 
 } // namespace GrQuadPerEdgeAA
