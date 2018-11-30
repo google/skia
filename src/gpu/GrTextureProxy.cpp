@@ -138,6 +138,13 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
                                   this->proxyMipMapped(), !this->priv().isExact());
 }
 
+bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
+                                                        const GrTextureProxy* second) {
+    return first->config() == second->config() &&
+           first->textureType() == second->textureType() &&
+           first->backendFormat() == second->backendFormat();
+}
+
 void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey

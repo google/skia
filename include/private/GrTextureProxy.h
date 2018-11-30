@@ -44,6 +44,12 @@ public:
     bool hasRestrictedSampling() const {
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
+
+    // Returns true if the passed in proxies can be used as dynamic state together when flushing
+    // draws to the gpu.
+    static bool ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
+                                                   const GrTextureProxy* second);
+
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
      */

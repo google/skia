@@ -66,6 +66,9 @@ public:
         return GrBackendFormat(config);
     }
 
+    bool operator==(const GrBackendFormat& that) const;
+    bool operator!=(const GrBackendFormat& that) const { return !(*this == that); }
+
     GrBackendApi backend() const { return fBackend; }
     GrTextureType textureType() const { return fTextureType; }
 

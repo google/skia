@@ -93,9 +93,15 @@ struct GrVkYcbcrConversionInfo {
             , fChromaFilter(chromaFilter)
             , fForceExplicitReconstruction(forceExplicitReconstruction)
             , fExternalFormat(externalFormat)
-            , fExternalFormatFeatures(externalFormatFeatures) {}
+            , fExternalFormatFeatures(externalFormatFeatures) {
+        SkASSERT(fExternalFormat);
+    }
 
     bool operator==(const GrVkYcbcrConversionInfo& that) const {
+        // Invalid objects are not required to have all other fields intialized or matching.
+        if (!this->isValid() && !that.isValid()) {
+            return true;
+        }
         return this->fYcbcrModel == that.fYcbcrModel &&
                this->fYcbcrRange == that.fYcbcrRange &&
                this->fXChromaOffset == that.fXChromaOffset &&
@@ -106,6 +112,7 @@ struct GrVkYcbcrConversionInfo {
         // We don't check fExternalFormatFeatures here since all matching external formats must have
         // the same format features at least in terms of how they effect ycbcr sampler conversion.
     }
+    bool operator!=(const GrVkYcbcrConversionInfo& that) const { return !(*this == that); }
 
     bool isValid() const { return fExternalFormat != 0; }
 
