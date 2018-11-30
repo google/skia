@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "201487cd_0a12ee83",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-11-30T16:20:04Z",
+      "side": 1,
+      "message": "I\u0027m assuming this traverses hwbProps.pNext to also populate hwbFormatProps?",
+      "range": {
+        "startLine": 504,
+        "startChar": 39,
+        "endLine": 504,
+        "endChar": 73
+      },
+      "revId": "feb9801d90ace371a014b44e2cf82450e91c0cf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
