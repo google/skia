@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4aee2c1e_c29bfe57",
+        "filename": "experimental/canvaskit/canvaskit/example.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-30T19:29:00Z",
+      "side": 1,
+      "message": "Yes.  Although, note that this is in the example.html, not CanvasKit itself.\nSo this is a case where a user (me) decided I wanted exactly a white background. \n\nWe initialize all the pixels to be transparent black (see cpu.js) to give all users the choice of what they want as a background.",
+      "parentUuid": "8003f34b_f6861e18",
+      "range": {
+        "startLine": 436,
+        "startChar": 19,
+        "endLine": 436,
+        "endChar": 34
+      },
+      "revId": "70d0d52353f18db5f4f3d23d865ec4e2d5df2ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "654304ff_e7102441",
         "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "70d0d52353f18db5f4f3d23d865ec4e2d5df2ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a50b0ba9_b00aea0f",
+        "filename": "experimental/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-11-30T19:29:00Z",
+      "side": 1,
+      "message": "Alas, I cannot since those fields are private.  value_object is meant mostly for simple structs.\n\nI could expose SkImageInfo directly, but I didn\u0027t want it to be yet another thing that required manual .delete() after it was used.  I try to keep it so if there is a \"config object\", a user can make a POJO (plain ol javascript object) and pass it in and then forget about it.",
+      "parentUuid": "654304ff_e7102441",
+      "range": {
+        "startLine": 868,
+        "startChar": 17,
+        "endLine": 868,
+        "endChar": 32
+      },
+      "revId": "70d0d52353f18db5f4f3d23d865ec4e2d5df2ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
