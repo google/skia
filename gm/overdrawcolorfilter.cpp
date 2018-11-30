@@ -26,7 +26,7 @@ public:
 
 protected:
     virtual SkString onShortName() override {
-        return SkString("overdrawcolorfilter");;
+        return SkString("overdrawcolorfilter");
     }
 
     virtual SkISize onISize() override {
