@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfda0d35_a9904624",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-11-30T14:20:19Z",
+      "side": 1,
+      "message": "Should we share code with draw_orientation:\n\nhttps://googleplex-android.git.corp.google.com/platform/external/skia/+/00f62d23bb5729bea4e3e0dee452f76ce79820f2/src/core/SkPixmap.cpp#437\n\n?",
+      "range": {
+        "startLine": 104,
+        "startChar": 16,
+        "endLine": 104,
+        "endChar": 34
+      },
+      "revId": "6030cf940a4d34e924c2a1d03726c82bce6ae71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
