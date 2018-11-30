@@ -38,6 +38,11 @@ Skia][1].  Here is how that process works:
         git commit --amend --reuse-message=HEAD
         git push origin HEAD:refs/for/skqp/dev
 
+    Review and submit the change:
+
+        NUM=$(experimental/tools/gerrit-change-id-to-number HEAD)
+        tools/skqp/sysopen.py https://review.skia.org/$NUM
+
 `tools/skqp/cut_release`
 ------------------------
 
