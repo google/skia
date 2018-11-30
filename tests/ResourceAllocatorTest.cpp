@@ -89,7 +89,8 @@ static void cleanup_backend(GrContext* context, const GrBackendTexture& backendT
 // assigned different GrSurfaces.
 static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                          GrSurfaceProxy* p1, GrSurfaceProxy* p2, bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    GrResourceAllocator alloc(resourceProvider, &uninstantiateTracker);
 
     alloc.addInterval(p1, 0, 4);
     alloc.addInterval(p2, 1, 2);
@@ -97,8 +98,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    GrUninstantiateProxyTracker uninstantiateTracker;
-    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
+    alloc.assign(&startIndex, &stopIndex, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
@@ -112,7 +112,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
 static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
                              GrSurfaceProxy* p1, GrSurfaceProxy* p2,
                              bool expectedResult) {
-    GrResourceAllocator alloc(resourceProvider);
+    GrUninstantiateProxyTracker uninstantiateTracker;
+    GrResourceAllocator alloc(resourceProvider, &uninstantiateTracker);
 
     alloc.addInterval(p1, 0, 2);
     alloc.addInterval(p2, 3, 5);
@@ -120,8 +121,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
     int startIndex, stopIndex;
     GrResourceAllocator::AssignError error;
-    GrUninstantiateProxyTracker uninstantiateTracker;
-    alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
+    alloc.assign(&startIndex, &stopIndex, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->peekSurface());
