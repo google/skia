@@ -73,6 +73,7 @@ declare_args() {
                                skia_use_freetype && !skia_use_fontconfig
   skia_enable_fontmgr_custom_empty = is_fuchsia && skia_use_freetype
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
+  skia_enable_fontmgr_fuchsia = is_fuchsia
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
@@ -408,6 +409,18 @@ optional("fontmgr_custom") {
     "src/ports/SkFontMgr_custom_directory_factory.cpp",
     "src/ports/SkFontMgr_custom_embedded.cpp",
     "src/ports/SkFontMgr_custom_empty.cpp",
+  ]
+}
+
+optional("fontmgr_fuchsia") {
+  enabled = skia_enable_fontmgr_fuchsia
+
+  deps = [
+    "//garnet/public/fidl/fuchsia.fonts",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_fuchsia.cpp",
+    "src/ports/SkFontMgr_fuchsia.h",
   ]
 }
 
@@ -854,6 +867,7 @@ component("skia") {
     ":fontmgr_custom_empty",
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
+    ":fontmgr_fuchsia",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -983,9 +997,7 @@ component("skia") {
   }
 
   if (skia_use_fonthost_mac) {
-    sources += [
-      "src/ports/SkFontHost_mac.cpp",
-    ]
+    sources += [ "src/ports/SkFontHost_mac.cpp" ]
   }
 
   if (is_mac) {
