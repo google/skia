@@ -5204,3 +5204,166 @@ DEF_TEST(Path_increserve_handle_neg_crbug_883666, r) {
     shallowPath.incReserve(0xffffffff);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+ *  For speed, we tried to preserve useful/expensive attributes about paths,
+ *      - convexity, isrect, isoval, ...
+ *  Axis-aligned shapes (rect, oval, rrect) should survive, including convexity if the matrix
+ *  is axis-aligned (e.g. scale+translate)
+ */
+
+struct Xforms {
+    SkMatrix    fIM, fTM, fSM, fRM;
+
+    Xforms() {
+        fIM.reset();
+        fTM.setTranslate(10, 20);
+        fSM.setScale(2, 3);
+        fRM.setRotate(30);
+    }
+};
+
+// expect axis-aligned shape to survive assignment, identity and scale/translate matrices
+static void isrect_survive(const Xforms& x, skiatest::Reporter* reporter) {
+    SkPath path, path2;
+
+    path.addRect({10, 10, 40, 50});
+    REPORTER_ASSERT(reporter, path.isRect(nullptr));
+    // compute convexity the first time
+    REPORTER_ASSERT(reporter, path.getConvexity() == SkPath::kConvex_Convexity);
+
+    path2 = path;
+    REPORTER_ASSERT(reporter, path2.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fTM, &path2);
+    REPORTER_ASSERT(reporter, path2.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fSM);
+    REPORTER_ASSERT(reporter, path.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fIM, &path2);
+    REPORTER_ASSERT(reporter, path2.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fIM);
+    REPORTER_ASSERT(reporter, path.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fSM, &path2);
+    REPORTER_ASSERT(reporter, path2.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fSM);
+    REPORTER_ASSERT(reporter, path.isRect(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    // For security, post-rotation, we can't assume we're still convex. It might prove to
+    // in fact, still be convex, be we can't have cached that setting, hence the call to
+    // getConvexityOrUnknown()
+
+    path.transform(x.fRM, &path2);
+    REPORTER_ASSERT(reporter, !path2.isRect(nullptr));
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+   REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+#endif
+    path.transform(x.fRM);
+    REPORTER_ASSERT(reporter, !path.isRect(nullptr));
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+    REPORTER_ASSERT(reporter,  path.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+#endif
+}
+
+// expect axis-aligned shape to survive assignment, identity and scale/translate matrices
+static void isoval_survive(const Xforms& x, skiatest::Reporter* reporter) {
+    SkPath path, path2;
+
+    path.addOval({10, 10, 40, 50});
+    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+    // compute convexity the first time
+    REPORTER_ASSERT(reporter, path.getConvexity() == SkPath::kConvex_Convexity);
+
+    path2 = path;
+    REPORTER_ASSERT(reporter, path2.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fIM, &path2);
+    REPORTER_ASSERT(reporter, path2.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fIM);
+    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fTM, &path2);
+    REPORTER_ASSERT(reporter, path2.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fSM);
+    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    path.transform(x.fSM, &path2);
+    REPORTER_ASSERT(reporter, path2.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fSM);
+    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+    // For security, post-rotation, we can't assume we're still convex. It might prove to
+    // in fact, still be convex, be we can't have cached that setting, hence the call to
+    // getConvexityOrUnknown()
+
+    path.transform(x.fRM, &path2);
+    REPORTER_ASSERT(reporter, !path2.isOval(nullptr));
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+#endif
+    path.transform(x.fRM);
+    REPORTER_ASSERT(reporter, !path.isOval(nullptr));
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+    REPORTER_ASSERT(reporter,  path.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+#endif
+}
+
+// only expect non-axis-aligned convex shape to survive assignment and identity-matrix
+static void non_axis_aligned_survive(const Xforms& x, skiatest::Reporter* reporter) {
+    SkPath path, path2;
+
+    // make a trapazoid; definitely convex, but not marked as axis-aligned (e.g. oval, rrect)
+    path.moveTo(0, 0).lineTo(100, 0).lineTo(70, 100).lineTo(30, 100);
+    REPORTER_ASSERT(reporter, path.getConvexity() == SkPath::kConvex_Convexity);
+
+    // we should survive assignment and identity, but nothing else (to be safe numerically)
+    path2 = path;
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fIM, &path2);
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+    path.transform(x.fIM);
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() == SkPath::kConvex_Convexity);
+
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+    path.transform(x.fTM, &path2);
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+    path.transform(x.fTM);
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+
+    path.transform(x.fSM, &path2);
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+    path.transform(x.fSM);
+    REPORTER_ASSERT(reporter, path.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+
+    path.transform(x.fRM, &path2);
+    REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+    path.transform(x.fRM);
+    REPORTER_ASSERT(reporter,  path.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
+#endif
+}
+
+DEF_TEST(Path_survive_transform, r) {
+    const Xforms x;
+
+    isrect_survive(x, r);
+    isoval_survive(x, r);
+
+    non_axis_aligned_survive(x, r);
+}
+
