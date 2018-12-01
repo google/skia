@@ -1785,6 +1785,15 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
 }
 
 void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+    if (matrix.isIdentity()) {
+        if (dst != nullptr && dst != this) {
+            *dst = *this;
+        }
+        return;
+    }
+#endif
+
     SkDEBUGCODE(this->validate();)
     if (dst == nullptr) {
         dst = (SkPath*)this;
@@ -1832,14 +1841,32 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         matrix.mapPoints(ed.points(), ed.pathRef()->countPoints());
         dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
     } else {
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+        Convexity convexity = fConvexity;
+#endif
+
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
 
         if (this != dst) {
             dst->fLastMoveToIndex = fLastMoveToIndex;
             dst->fFillType = fFillType;
+#ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
             dst->fConvexity.store(fConvexity);
+#endif
             dst->fIsVolatile = fIsVolatile;
         }
+
+#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
+        // Due to finite/fragile float numerics, we can't assume that a convex path remains
+        // convex after a transformation, so mark it as unknown here.
+        // However, some transformations are thought to be safe:
+        //    axis-aligned values under scale/translate.
+        if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
+            dst->fConvexity = convexity;
+        } else {
+            dst->fConvexity = kUnknown_Convexity;
+        }
+#endif
 
         if (SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
             dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
@@ -1853,7 +1880,9 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             } else if (det2x2 > 0) {
                 dst->fFirstDirection = fFirstDirection.load();
             } else {
+#ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
                 dst->fConvexity = kUnknown_Convexity;
+#endif
                 dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
             }
         }
