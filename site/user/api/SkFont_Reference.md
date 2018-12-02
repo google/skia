@@ -27,13 +27,6 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
         kSubpixelAntiAlias,
     };
 
-    enum <a href='#SkFont_Hinting'>Hinting</a> : uint8_t {
-        <a href='#SkFont_kNo_Hinting'>kNo_Hinting</a> = 0,
-        <a href='#SkFont_kSlight_Hinting'>kSlight_Hinting</a> = 1,
-        <a href='#SkFont_kNormal_Hinting'>kNormal_Hinting</a> = 2,
-        <a href='#SkFont_kFull_Hinting'>kFull_Hinting</a> = 3,
-    };
-
     <a href='#SkFont_empty_constructor'>SkFont()</a>;
     <a href='#SkFont_SkTypeface_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>);
     <a href='#SkFont_SkTypeface_SkScalar_SkScalar_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>, <a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX);
@@ -117,62 +110,6 @@ may have transparent pixels on glyph edges</td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 glyph positioned in pixel using transparency</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-<a name='SkFont_Hinting'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkFont_Hinting'>Hinting</a> : uint8_t {
-        <a href='#SkFont_kNo_Hinting'>kNo_Hinting</a> = 0,
-        <a href='#SkFont_kSlight_Hinting'>kSlight_Hinting</a> = 1,
-        <a href='#SkFont_kNormal_Hinting'>kNormal_Hinting</a> = 2,
-        <a href='#SkFont_kFull_Hinting'>kFull_Hinting</a> = 3,
-    };
-
-</pre>
-
-Amount of <a href='SkFont_Reference#Font'>font</a> hinting applied to <a href='undocumented#Glyph'>glyph</a> outlines.
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFont_kNo_Hinting'><code>SkFont::kNo_Hinting</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-glyph outlines unchanged</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFont_kSlight_Hinting'><code>SkFont::kSlight_Hinting</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-minimal modification to improve constrast</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFont_kNormal_Hinting'><code>SkFont::kNormal_Hinting</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-glyph outlines modified to improve constrast</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkFont_kFull_Hinting'><code>SkFont::kFull_Hinting</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-modifies glyph outlines for maximum constrast</td>
   </tr>
 </table>
 

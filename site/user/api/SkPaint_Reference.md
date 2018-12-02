@@ -592,7 +592,7 @@ Does not check for valid values of <a href='#SkPaint_setHinting_hintingLevel'>hi
 
 ### Example
 
-<div><fiddle-embed name="197268a89c3343f600b9bade61c513ae">
+<div><fiddle-embed name="bb179ec5698ec1398ff18f3657ab73f7">
 
 #### Example Output
 
