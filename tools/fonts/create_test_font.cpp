@@ -9,10 +9,11 @@
 // and ./tools/fonts/test_font_<generic name>.inc which are read by
 // ./tools/fonts/SkTestFontMgr.cpp
 
+#include "SkFont.h"
+#include "SkFontMetrics.h"
 #include "SkFontStyle.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
-#include "SkPaint.h"
 #include "SkPath.h"
 #include "SkSpan.h"
 #include "SkStream.h"
@@ -120,15 +121,13 @@ static int output_points(const SkPoint* pts, int emSize, int count, SkString* pt
     return count;
 }
 
-static void output_path_data(const SkPaint& paint,
+static void output_path_data(const SkFont& font,
         int emSize, SkString* ptsOut, SkTDArray<SkPath::Verb>* verbs,
         SkTDArray<unsigned>* charCodes, SkTDArray<SkScalar>* widths) {
     for (SkUnichar index = 0x00; index < 0x7f; ++index) {
-        uint16_t utf16[2];
-        size_t utf16Bytes = sizeof(uint16_t) * SkUTF::ToUTF16(index, utf16);
+        uint16_t glyphID = font.unicharToGlyph(index);
         SkPath path;
-        SkASSERT(paint.getTextEncoding() == SkPaint::kUTF16_TextEncoding);
-        paint.getTextPath(utf16, utf16Bytes, 0, 0, &path);
+        font.getPath(glyphID, &path);
         SkPath::RawIter iter(path);
         SkPath::Verb verb;
         SkPoint pts[4];
@@ -157,8 +156,7 @@ static void output_path_data(const SkPaint& paint,
         *verbs->append() = SkPath::kDone_Verb;
         *charCodes->append() = index;
         SkScalar width;
-        SkDEBUGCODE(int charCount =) paint.getTextWidths(utf16, utf16Bytes, &width);
-        SkASSERT(charCount == 1);
+        font.getWidths(&glyphID, 1, &width);
      // SkASSERT(floor(width) == width);  // not true for Hiragino Maru Gothic Pro
         *widths->append() = width;
         if (0 == index) {
@@ -195,17 +193,17 @@ static SkString strip_final(const SkString& str) {
 }
 
 static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* out) {
-    int emSize = face->getUnitsPerEm() * 2;
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
-    paint.setTextSize(emSize);
-    paint.setTypeface(std::move(face));
+    const int emSize = face->getUnitsPerEm() * 2;
+    SkFont font;
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    font.setSize(emSize);
+    font.setTypeface(std::move(face));
+
     SkTDArray<SkPath::Verb> verbs;
     SkTDArray<unsigned> charCodes;
     SkTDArray<SkScalar> widths;
     SkString ptsOut;
-    output_path_data(paint, emSize, &ptsOut, &verbs, &charCodes, &widths);
+    output_path_data(font, emSize, &ptsOut, &verbs, &charCodes, &widths);
     fprintf(out, "const SkScalar %sPoints[] = {\n", identifier);
     ptsOut = strip_final(ptsOut);
     fprintf(out, "%s", ptsOut.c_str());
@@ -263,7 +261,7 @@ static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* ou
             identifier, identifier);
 
     SkFontMetrics metrics;
-    paint.getFontMetrics(&metrics);
+    font.getMetrics(&metrics);
     fprintf(out, "const SkFontMetrics %sMetrics = {\n", identifier);
     SkString metricsStr;
     metricsStr.printf("0x%08x, ", metrics.fFlags);
