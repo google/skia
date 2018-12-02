@@ -36,15 +36,14 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkPaint paint;
-        this->setupPaint(&paint);
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
 
         const uint16_t* array = gUniqueGlyphIDs;
         while (*array != gUniqueGlyphIDs_Sentinel) {
             int count = count_glyphs(array);
             for (int i = 0; i < loops; ++i) {
-                paint.measureText(array, count * sizeof(uint16_t));
+                (void)font.measureText(array, count * sizeof(uint16_t), kGlyphID_SkTextEncoding);
             }
             array += count + 1;    // skip the sentinel
         }
