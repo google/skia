@@ -203,7 +203,11 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage, c
 }
 
 void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture, const sk_matrix_t* cmatrix, const sk_paint_t* cpaint) {
-    AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), cmatrix ? &AsMatrix(cmatrix) : nullptr, AsPaint(cpaint));
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
+    AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), cmatrix ? &m : nullptr, AsPaint(cpaint));
 }
 
 void sk_canvas_flush(sk_canvas_t* ccanvas) {

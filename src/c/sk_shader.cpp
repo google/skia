@@ -26,13 +26,21 @@ sk_shader_t* sk_shader_new_color(sk_color_t color) {
 }
 
 sk_shader_t* sk_shader_new_bitmap(const sk_bitmap_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix) {
+    SkMatrix m;
+    if (localMatrix) {
+        m = AsMatrix(localMatrix);
+    }
     return ToShader(SkShader::MakeBitmapShader(
-        *AsBitmap(src), (SkShader::TileMode)tmx, (SkShader::TileMode)tmy, localMatrix ? &AsMatrix(localMatrix) : nullptr).release());
+        *AsBitmap(src), (SkShader::TileMode)tmx, (SkShader::TileMode)tmy, localMatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_picture(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile) {
+    SkMatrix m;
+    if (localMatrix) {
+        m = AsMatrix(localMatrix);
+    }
     return ToShader(SkShader::MakePictureShader(
-        sk_ref_sp(AsPicture(src)), (SkShader::TileMode)tmx, (SkShader::TileMode)tmy, localMatrix ? &AsMatrix(localMatrix) : nullptr, AsRect(tile)).release());
+        sk_ref_sp(AsPicture(src)), (SkShader::TileMode)tmx, (SkShader::TileMode)tmy, localMatrix ? &m : nullptr, AsRect(tile)).release());
 }
 
 sk_shader_t* sk_shader_new_color_filter(sk_shader_t* proxy, sk_colorfilter_t* filter) {
@@ -72,21 +80,37 @@ void sk_shader_unref(sk_shader_t* cshader) {
 }
 
 sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2], const sk_color_t* colors, const float* colorPos, int colorCount, sk_shader_tilemode_t cmode, const sk_matrix_t* cmatrix) {
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
     return ToShader(SkGradientShader::MakeLinear(
-        AsPoint(pts), colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &AsMatrix(cmatrix) : nullptr).release());
+        AsPoint(pts), colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter, float radius, const sk_color_t* colors, const float* colorPos, int colorCount, sk_shader_tilemode_t cmode, const sk_matrix_t* cmatrix) {
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
     return ToShader(SkGradientShader::MakeRadial(
-        *AsPoint(ccenter), (SkScalar)radius, colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &AsMatrix(cmatrix) : nullptr).release());
+        *AsPoint(ccenter), (SkScalar)radius, colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_sweep_gradient(const sk_point_t* ccenter, const sk_color_t* colors, const float* colorPos, int colorCount, sk_shader_tilemode_t cmode, float startAngle, float endAngle, const sk_matrix_t* cmatrix) {
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
     return ToShader(SkGradientShader::MakeSweep(
-        ccenter->x, ccenter->y, colors, colorPos, colorCount, (SkShader::TileMode)cmode, startAngle, endAngle, 0, cmatrix ? &AsMatrix(cmatrix) : nullptr).release());
+        ccenter->x, ccenter->y, colors, colorPos, colorCount, (SkShader::TileMode)cmode, startAngle, endAngle, 0, cmatrix ? &m : nullptr).release());
 }
 
 sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start, float startRadius, const sk_point_t* end, float endRadius, const sk_color_t* colors, const float* colorPos, int colorCount, sk_shader_tilemode_t cmode, const sk_matrix_t* cmatrix) {
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
     return ToShader(SkGradientShader::MakeTwoPointConical(
-        *AsPoint(start), startRadius, *AsPoint(end), endRadius, colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &AsMatrix(cmatrix) : nullptr).release());
+        *AsPoint(start), startRadius, *AsPoint(end), endRadius, colors, colorPos, colorCount, (SkShader::TileMode)cmode, 0, cmatrix ? &m : nullptr).release());
 }
