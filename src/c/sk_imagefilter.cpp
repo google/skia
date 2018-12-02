@@ -58,9 +58,7 @@ void sk_imagefilter_unref(sk_imagefilter_t* cfilter) {
 }
 
 sk_imagefilter_t* sk_imagefilter_new_matrix(const sk_matrix_t* cmatrix, sk_filter_quality_t cquality, sk_imagefilter_t* input) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    return ToImageFilter(SkImageFilter::MakeMatrixFilter(matrix, (SkFilterQuality)cquality, sk_ref_sp(AsImageFilter(input))).release());
+    return ToImageFilter(SkImageFilter::MakeMatrixFilter(AsMatrix(cmatrix), (SkFilterQuality)cquality, sk_ref_sp(AsImageFilter(input))).release());
 }
 
 sk_imagefilter_t* sk_imagefilter_new_alpha_threshold(const sk_region_t* region, float innerThreshold, float outerThreshold, sk_imagefilter_t* input) {

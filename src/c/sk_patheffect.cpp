@@ -45,15 +45,11 @@ sk_path_effect_t* sk_path_effect_create_1d_path(const sk_path_t* path, float adv
 }
 
 sk_path_effect_t* sk_path_effect_create_2d_line(float width, const sk_matrix_t* cmatrix) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    return ToPathEffect(SkLine2DPathEffect::Make(width, matrix).release());
+    return ToPathEffect(SkLine2DPathEffect::Make(width, AsMatrix(cmatrix)).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_2d_path(const sk_matrix_t* cmatrix, const sk_path_t* path) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    return ToPathEffect(SkPath2DPathEffect::Make(matrix, *AsPath(path)).release());
+    return ToPathEffect(SkPath2DPathEffect::Make(AsMatrix(cmatrix), *AsPath(path)).release());
 }
 
 sk_path_effect_t* sk_path_effect_create_dash(const float intervals[], int count, float phase) {

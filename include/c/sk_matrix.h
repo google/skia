@@ -15,14 +15,7 @@
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
 
-SK_C_API void sk_matrix_set_identity (sk_matrix_t*);
-SK_C_API void sk_matrix_set_translate (sk_matrix_t*, float tx, float ty);
-SK_C_API void sk_matrix_pre_translate (sk_matrix_t*, float tx, float ty);
-SK_C_API void sk_matrix_post_translate (sk_matrix_t*, float tx, float ty);
-SK_C_API void sk_matrix_set_scale (sk_matrix_t*, float sx, float sy);
-SK_C_API void sk_matrix_pre_scale (sk_matrix_t*, float sx, float sy);
-SK_C_API void sk_matrix_post_scale (sk_matrix_t*, float sx, float sy);
-SK_C_API int sk_matrix_try_invert (sk_matrix_t *matrix, sk_matrix_t *result);
+SK_C_API bool sk_matrix_try_invert (sk_matrix_t *matrix, sk_matrix_t *result);
 SK_C_API void sk_matrix_concat (sk_matrix_t *result, sk_matrix_t *first, sk_matrix_t *second);
 SK_C_API void sk_matrix_pre_concat (sk_matrix_t *result, sk_matrix_t *matrix);
 SK_C_API void sk_matrix_post_concat (sk_matrix_t *result, sk_matrix_t *matrix);

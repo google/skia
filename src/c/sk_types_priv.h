@@ -155,14 +155,16 @@ DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
 
 #include "SkMatrix.h"
-static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
-    matrix->setAll(
-        cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
-        cmatrix->mat[3], cmatrix->mat[4], cmatrix->mat[5],
-        cmatrix->mat[6], cmatrix->mat[7], cmatrix->mat[8]);
+static inline SkMatrix AsMatrix(const sk_matrix_t* matrix) {
+    return SkMatrix::MakeAll(
+        matrix->mat[0], matrix->mat[1], matrix->mat[2],
+        matrix->mat[3], matrix->mat[4], matrix->mat[5],
+        matrix->mat[6], matrix->mat[7], matrix->mat[8]);
 }
-static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
-    matrix->get9(cmatrix->mat);
+static inline sk_matrix_t ToMatrix(const SkMatrix* matrix) {
+    sk_matrix_t m;
+    matrix->get9(m.mat);
+    return m;
 }
 
 #include "SkImageInfo.h"

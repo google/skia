@@ -55,11 +55,7 @@ sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_ba
 }
 
 sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* cmatrix, const sk_paint_t* paint) {
-    SkMatrix* matrix = nullptr;
-    if (cmatrix) {
-        from_c(cmatrix, matrix);
-    }
-    return ToImage(SkImage::MakeFromPicture(sk_ref_sp(AsPicture(picture)), *AsISize(dimensions), matrix, AsPaint(paint), SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB()).release());
+    return ToImage(SkImage::MakeFromPicture(sk_ref_sp(AsPicture(picture)), *AsISize(dimensions), cmatrix ? &AsMatrix(cmatrix) : nullptr, AsPaint(paint), SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB()).release());
 }
 
 int sk_image_get_width(const sk_image_t* cimage) {
@@ -91,11 +87,7 @@ bool sk_image_is_alpha_only(const sk_image_t* image) {
 }
 
 sk_shader_t* sk_image_make_shader(const sk_image_t* image, sk_shader_tilemode_t tileX, sk_shader_tilemode_t tileY, const sk_matrix_t* cmatrix) {
-    SkMatrix* matrix = nullptr;
-    if (cmatrix) {
-        from_c(cmatrix, matrix);
-    }
-    return ToShader(AsImage(image)->makeShader((SkShader::TileMode)tileX, (SkShader::TileMode)tileY, matrix).release());
+    return ToShader(AsImage(image)->makeShader((SkShader::TileMode)tileX, (SkShader::TileMode)tileY, cmatrix ? &AsMatrix(cmatrix) : nullptr).release());
 }
 
 bool sk_image_peek_pixels(const sk_image_t* image, sk_pixmap_t* pixmap) {

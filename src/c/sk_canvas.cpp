@@ -87,13 +87,11 @@ void sk_canvas_reset_matrix(sk_canvas_t* ccanvas) {
 }
 
 void sk_canvas_set_matrix(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    AsCanvas(ccanvas)->setMatrix(matrix);
+    AsCanvas(ccanvas)->setMatrix(AsMatrix(cmatrix));
 }
 
 void sk_canvas_get_total_matrix(sk_canvas_t* ccanvas, sk_matrix_t* cmatrix) {
-    from_sk(&AsCanvas(ccanvas)->getTotalMatrix(), cmatrix);
+    *cmatrix = ToMatrix(&AsCanvas(ccanvas)->getTotalMatrix());
 }
 
 void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, float rx, float ry, const sk_paint_t* cpaint) {
@@ -153,9 +151,7 @@ void sk_canvas_skew(sk_canvas_t* ccanvas, float sx, float sy) {
 }
 
 void sk_canvas_concat(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    AsCanvas(ccanvas)->concat(matrix);
+    AsCanvas(ccanvas)->concat(AsMatrix(cmatrix));
 }
 
 bool sk_canvas_quick_reject(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
@@ -207,11 +203,7 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage, c
 }
 
 void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture, const sk_matrix_t* cmatrix, const sk_paint_t* cpaint) {
-    SkMatrix* matrix = nullptr;
-    if (cmatrix) {
-        from_c(cmatrix, matrix);
-    }
-    AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), matrix, AsPaint(cpaint));
+    AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), cmatrix ? &AsMatrix(cmatrix) : nullptr, AsPaint(cpaint));
 }
 
 void sk_canvas_flush(sk_canvas_t* ccanvas) {

@@ -89,7 +89,5 @@ bool sk_rrect_is_valid(const sk_rrect_t* rrect) {
 }
 
 bool sk_rrect_transform(sk_rrect_t* rrect, const sk_matrix_t* matrix, sk_rrect_t* dest) {
-    SkMatrix skmatrix;
-    from_c(matrix, &skmatrix);
-    return AsRRect(rrect)->transform(skmatrix, AsRRect(dest));
+    return AsRRect(rrect)->transform(AsMatrix(matrix), AsRRect(dest));
 }

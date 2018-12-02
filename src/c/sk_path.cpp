@@ -53,9 +53,7 @@ sk_path_filltype_t sk_path_get_filltype(sk_path_t *cpath) {
 }
 
 void sk_path_transform(sk_path_t* cpath, const sk_matrix_t* cmatrix) {
-    SkMatrix matrix;
-    from_c(cmatrix, &matrix);
-    return AsPath(cpath)->transform(matrix);
+    return AsPath(cpath)->transform(AsMatrix(cmatrix));
 }
 
 sk_path_t* sk_path_clone(const sk_path_t* cpath) {
@@ -119,9 +117,7 @@ void sk_path_add_path_offset (sk_path_t* cpath, sk_path_t* other, float dx, floa
 }
 
 void sk_path_add_path_matrix (sk_path_t* cpath, sk_path_t* other, sk_matrix_t *matrix, sk_path_add_mode_t add_mode) {
-    SkMatrix skmatrix;
-    from_c(matrix, &skmatrix);
-    AsPath (cpath)->addPath (AsPath (*other), skmatrix, (SkPath::AddPathMode) add_mode);
+    AsPath (cpath)->addPath (AsPath (*other), AsMatrix(matrix), (SkPath::AddPathMode) add_mode);
 }
 
 void sk_path_add_path (sk_path_t* cpath, sk_path_t* other, sk_path_add_mode_t add_mode) {
@@ -311,7 +307,7 @@ bool sk_pathmeasure_get_pos_tan(sk_pathmeasure_t* pathMeasure, float distance, s
 bool sk_pathmeasure_get_matrix(sk_pathmeasure_t* pathMeasure, float distance, sk_matrix_t* matrix, sk_pathmeasure_matrixflags_t flags) {
     SkMatrix skmatrix;
     bool result = AsPathMeasure(pathMeasure)->getMatrix(distance, &skmatrix, (SkPathMeasure::MatrixFlags)flags);
-    from_sk(&skmatrix, matrix);
+    *matrix = ToMatrix(&skmatrix);
     return result;
 }
 

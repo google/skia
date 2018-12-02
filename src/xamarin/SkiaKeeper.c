@@ -63,7 +63,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_imagefilter_croprect_new,
         (void*)sk_mask_alloc_image,
         (void*)sk_maskfilter_ref,
-        (void*)sk_matrix_set_identity,
+        (void*)sk_matrix_concat,
         (void*)sk_paint_new,
         (void*)sk_path_new,
         (void*)sk_path_effect_unref,
