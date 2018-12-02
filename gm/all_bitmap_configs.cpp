@@ -10,8 +10,9 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-#include "SkMath.h"
 #include "SkColorPriv.h"
+#include "SkFont.h"
+#include "SkMath.h"
 
 static SkBitmap copy_bitmap(const SkBitmap& src, SkColorType colorType) {
     const SkBitmap* srcPtr = &src;
@@ -56,23 +57,21 @@ static SkBitmap make_bitmap(SkColorType ct) {
     return bm;
 }
 
-static void draw_center_letter(char c,
-                               SkPaint* p,
-                               SkColor color,
-                               SkScalar x,
-                               SkScalar y,
-                               SkCanvas* canvas) {
+static void draw_center_letter(char c, const SkFont& font, SkColor color,
+                               SkScalar x, SkScalar y, SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setColor(color);
     SkRect bounds;
-    p->setColor(color);
-    p->measureText(&c, 1, &bounds);
-    canvas->drawText(&c, 1, x - bounds.centerX(), y - bounds.centerY(), *p);
+    font.measureText(&c, 1, kUTF8_SkTextEncoding, &bounds);
+    canvas->drawSimpleText(&c, 1, kUTF8_SkTextEncoding,
+                           x - bounds.centerX(), y - bounds.centerY(),
+                           font, paint);
 }
 
 static void color_wheel_native(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     canvas->translate(0.5f * SCALE, 0.5f * SCALE);
     SkPaint p;
-    p.setAntiAlias(false);
     p.setColor(SK_ColorWHITE);
     canvas->drawCircle(0.0f, 0.0f, SCALE * 0.5f, p);
 
@@ -81,15 +80,18 @@ static void color_wheel_native(SkCanvas* canvas) {
     const SkScalar D = 0.3f * SkIntToScalar(SCALE);
     const SkScalar X = SkDoubleToScalar(D * sqrt_3_over_2);
     const SkScalar Y = D * SK_ScalarHalf;
-    sk_tool_utils::set_portable_typeface(&p, nullptr, SkFontStyle::Bold());
-    p.setTextSize(0.28125f * SCALE);
-    draw_center_letter('K', &p, SK_ColorBLACK, Z, Z, canvas);
-    draw_center_letter('R', &p, SK_ColorRED, Z, D, canvas);
-    draw_center_letter('G', &p, SK_ColorGREEN, -X, -Y, canvas);
-    draw_center_letter('B', &p, SK_ColorBLUE, X, -Y, canvas);
-    draw_center_letter('C', &p, SK_ColorCYAN, Z, -D, canvas);
-    draw_center_letter('M', &p, SK_ColorMAGENTA, X, Y, canvas);
-    draw_center_letter('Y', &p, SK_ColorYELLOW, -X, Y, canvas);
+
+    SkFont font;
+    font.setEdging(SkFont::Edging::kAlias);
+    font.setTypeface(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
+    font.setSize(0.28125f * SCALE);
+    draw_center_letter('K', font, SK_ColorBLACK, Z, Z, canvas);
+    draw_center_letter('R', font, SK_ColorRED, Z, D, canvas);
+    draw_center_letter('G', font, SK_ColorGREEN, -X, -Y, canvas);
+    draw_center_letter('B', font, SK_ColorBLUE, X, -Y, canvas);
+    draw_center_letter('C', font, SK_ColorCYAN, Z, -D, canvas);
+    draw_center_letter('M', font, SK_ColorMAGENTA, X, Y, canvas);
+    draw_center_letter('Y', font, SK_ColorYELLOW, -X, Y, canvas);
 }
 
 template <typename T>

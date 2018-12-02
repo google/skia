@@ -21,9 +21,10 @@
 #include "sk_tool_utils.h"
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
-                           SkScalar y, const SkPaint& paint) {
-    canvas->drawString(text, x, y, paint);
-    return x + paint.measureText(text.c_str(), text.size());
+                           SkScalar y, const SkFont& font) {
+    SkPaint paint;
+    canvas->drawSimpleText(text.c_str(), text.size(), kUTF8_SkTextEncoding, x, y, font, paint);
+    return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
 }
 
 class FontCacheGM : public skiagm::GM {
@@ -87,10 +88,9 @@ private:
                                           SkString("abcdefghijklmnopqrstuvwxyz"),
                                           SkString("0123456789"),
                                           SkString("!@#$%^&*()<>[]{}")};
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(false);
-        paint.setSubpixelText(true);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
 
         static const SkScalar kSubPixelInc = 1 / 2.f;
         SkScalar x = 0;
@@ -106,11 +106,11 @@ private:
         do {
             for (auto s : kSizes) {
                 auto size = 2 * s;
-                paint.setTextSize(size);
+                font.setSize(size);
                 for (const auto& typeface : fTypefaces) {
-                    paint.setTypeface(typeface);
+                    font.setTypeface(typeface);
                     for (const auto& text : kTexts) {
-                        x = size + draw_string(canvas, text, x + subpixelX, y + subpixelY, paint);
+                        x = size + draw_string(canvas, text, x + subpixelX, y + subpixelY, font);
                         x = SkScalarCeilToScalar(x);
                         if (x + 100 > kSize) {
                             x = 0;

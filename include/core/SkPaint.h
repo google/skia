@@ -968,6 +968,18 @@ public:
     */
     SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr); }
 
+    /** Returns the union of bounds of all glyphs.
+     Returned dimensions are computed by font manager from font data,
+     ignoring SkPaint::Hinting. Includes font metrics, but not fake bold or SkPathEffect.
+
+     If text size is large, text scale is one, and text skew is zero,
+     returns the bounds as:
+     { SkFontMetrics::fXMin, SkFontMetrics::fTop, SkFontMetrics::fXMax, SkFontMetrics::fBottom }.
+
+     @return  union of bounds of all glyphs
+     */
+    SkRect getFontBounds() const;
+
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
         SkPaint::TextEncoding specifies how text represents characters or glyphs.
@@ -1004,6 +1016,7 @@ public:
         @return            true if all text corresponds to a non-zero glyph index
     */
     bool containsText(const void* text, size_t byteLength) const;
+#endif
 
     /** Converts glyphs into text if possible.
         Glyph values without direct Unicode equivalents are mapped to zero.
@@ -1018,6 +1031,7 @@ public:
     */
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Returns the number of glyphs in text.
         Uses SkPaint::TextEncoding to count the glyphs.
         Returns the same result as textToGlyphs().
@@ -1124,6 +1138,7 @@ public:
     */
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_TEXTINTERCEPTS
 public:
@@ -1220,19 +1235,6 @@ public:
     */
     int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
                               SkScalar* intervals) const;
-
-    /** Returns the union of bounds of all glyphs.
-        Returned dimensions are computed by font manager from font data,
-        ignoring SkPaint::Hinting. Includes font metrics, but not fake bold or SkPathEffect.
-
-        If text size is large, text scale is one, and text skew is zero,
-        returns the bounds as:
-        { SkFontMetrics::fXMin, SkFontMetrics::fTop, SkFontMetrics::fXMax, SkFontMetrics::fBottom }.
-
-        @return  union of bounds of all glyphs
-    */
-    SkRect getFontBounds() const;
-#endif
 
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.
