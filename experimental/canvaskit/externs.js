@@ -27,10 +27,14 @@ var CanvasKit = {
 	Color: function() {},
 	/** @return {CanvasKit.SkRect} */
 	LTRBRect: function() {},
+	/** @return {CanvasKit.SkRect} */
+	XYWHRect: function() {},
 	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
 	MakeImageShader: function() {},
+	/** @return {CanvasKit.SkImage} */
+	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
 	MakeNimaActor: function() {},
@@ -58,6 +62,7 @@ var CanvasKit = {
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
+	_decodeImage: function() {},
 	_getRasterDirectSurface: function() {},
 	_getRasterN32PremulSurface: function() {},
 	_getWebGLSurface: function() {},
@@ -84,6 +89,8 @@ var CanvasKit = {
 		// public API (from C++ bindings)
 		clear: function() {},
 		clipPath: function() {},
+		drawImage: function() {},
+		drawImageRect: function() {},
 		drawPaint: function() {},
 		drawPath: function() {},
 		drawRect: function() {},
@@ -104,6 +111,9 @@ var CanvasKit = {
 	},
 
 	SkImage: {
+		// public API (from C++ bindings)
+		height: function() {},
+		width: function() {},
 		// private API
 		_encodeToData: function() {},
 		_encodeToDataWithFormat: function() {},
@@ -125,6 +135,7 @@ var CanvasKit = {
 		copy: function() {},
 		getBlendMode: function() {},
 		getColor: function() {},
+		getFilterQuality: function() {},
 		getStrokeCap: function() {},
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
@@ -134,6 +145,7 @@ var CanvasKit = {
 		setAntiAlias: function() {},
 		setBlendMode: function() {},
 		setColor: function() {},
+		setFilterQuality: function() {},
 		setMaskFilter: function() {},
 		setPathEffect: function() {},
 		setShader: function() {},
@@ -301,6 +313,13 @@ var CanvasKit = {
 		InverseEvenOdd: {},
 	},
 
+	FilterQuality: {
+		None: {},
+		Low: {},
+		Medium: {},
+		High: {},
+	},
+
 	ImageFormat: {
 		PNG: {},
 		JPEG: {},
@@ -411,9 +430,10 @@ StrokeOpts.prototype.join;
 
 // Define everything created in the canvas2d spec here
 var HTMLCanvas = {};
+HTMLCanvas.prototype.decodeImage = function() {};
+HTMLCanvas.prototype.dispose = function() {};
 HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
-HTMLCanvas.prototype.dispose = function() {};
 
 var CanvasRenderingContext2D = {};
 CanvasRenderingContext2D.prototype.addHitRegion = function() {};
@@ -428,6 +448,7 @@ CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.createLinearGradient = function() {};
 CanvasRenderingContext2D.prototype.createRadialGradient = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
+CanvasRenderingContext2D.prototype.drawImage = function() {};
 CanvasRenderingContext2D.prototype.ellipse = function() {};
 CanvasRenderingContext2D.prototype.fill = function() {};
 CanvasRenderingContext2D.prototype.fillRect = function() {};

@@ -344,40 +344,77 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         it('supports gradients, which respect clip/save/restore', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 multipleCanvasTest('gradients_clip', done, (canvas) => {
-                      let ctx = canvas.getContext('2d');
+                    let ctx = canvas.getContext('2d');
 
-                      var rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
+                    var rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
 
-                      rgradient.addColorStop(0, 'red');
-                      rgradient.addColorStop(.7, 'white');
-                      rgradient.addColorStop(1, 'blue');
+                    rgradient.addColorStop(0, 'red');
+                    rgradient.addColorStop(.7, 'white');
+                    rgradient.addColorStop(1, 'blue');
 
-                      ctx.fillStyle = rgradient;
-                      ctx.globalAlpha = 0.7;
-                      ctx.fillRect(0,0,600,600);
-                      ctx.globalAlpha = 0.95;
+                    ctx.fillStyle = rgradient;
+                    ctx.globalAlpha = 0.7;
+                    ctx.fillRect(0,0,600,600);
+                    ctx.globalAlpha = 0.95;
 
-                      ctx.beginPath();
-                      ctx.arc(300, 100, 90, 0, Math.PI*1.66);
-                      ctx.closePath();
-                      ctx.strokeStyle = 'yellow';
-                      ctx.lineWidth = 5;
-                      ctx.stroke();
-                      ctx.save();
-                      ctx.clip();
+                    ctx.beginPath();
+                    ctx.arc(300, 100, 90, 0, Math.PI*1.66);
+                    ctx.closePath();
+                    ctx.strokeStyle = 'yellow';
+                    ctx.lineWidth = 5;
+                    ctx.stroke();
+                    ctx.save();
+                    ctx.clip();
 
-                      var lgradient = ctx.createLinearGradient(200, 20, 420, 40);
+                    var lgradient = ctx.createLinearGradient(200, 20, 420, 40);
 
-                      lgradient.addColorStop(0, 'green');
-                      lgradient.addColorStop(.5, 'cyan');
-                      lgradient.addColorStop(1, 'orange');
+                    lgradient.addColorStop(0, 'green');
+                    lgradient.addColorStop(.5, 'cyan');
+                    lgradient.addColorStop(1, 'orange');
 
-                      ctx.fillStyle = lgradient;
+                    ctx.fillStyle = lgradient;
 
-                      ctx.fillRect(200, 30, 200, 300);
+                    ctx.fillRect(200, 30, 200, 300);
 
-                      ctx.restore();
-                      ctx.fillRect(550, 550, 40, 40);
+                    ctx.restore();
+                    ctx.fillRect(550, 550, 40, 40);
+                });
+            }));
+        });
+
+        it('can draw png images', function(done) {
+            let skImageData = null;
+            let htmlImage = null;
+            let skPromise = fetch('/assets/mandrill_512.png')
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                    skImageData = buffer;
+
+                });
+            let realPromise = fetch('/assets/mandrill_512.png')
+                .then((response) => response.blob())
+                .then((blob) => createImageBitmap(blob))
+                .then((bitmap) => {
+                    htmlImage = bitmap;
+                });
+            LoadCanvasKit.then(catchException(done, () => {
+                Promise.all([realPromise, skPromise]).then(() => {
+                    multipleCanvasTest('draw_image', done, (canvas) => {
+                        let ctx = canvas.getContext('2d');
+                        let img = htmlImage;
+                        if (canvas._config == 'software_canvas') {
+                            img = canvas.decodeImage(skImageData);
+                        }
+                        ctx.drawImage(img, 30, -200);
+
+                        ctx.globalAlpha = 0.7
+                        ctx.rotate(.1);
+                        ctx.imageSmoothingQuality = 'medium';
+                        ctx.drawImage(img, 200, 350, 150, 100);
+                        ctx.rotate(-.2);
+                        ctx.imageSmoothingEnabled = false;
+                        ctx.drawImage(img, 100, 150, 400, 350, 10, 400, 150, 100);
+                    });
                 });
             }));
         });
@@ -396,7 +433,8 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                                 'lineJoin', 'miterLimit', 'shadowOffsetY',
                                 'shadowBlur', 'shadowColor', 'shadowOffsetX',
                                 'globalAlpha', 'globalCompositeOperation',
-                                'lineDashOffset'];
+                                'lineDashOffset', 'imageSmoothingEnabled',
+                                'imageFilterQuality'];
 
                 // Compare all the default values of the properties of skcanvas
                 // to the default values on the properties of a real canvas.
