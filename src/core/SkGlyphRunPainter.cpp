@@ -708,7 +708,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
         const SkPaint& runPaint = glyphRun.paint();
         Run* run = this->pushBackRun();
 
-        run->setRunPaintFlags(runPaint.getFlags());
+        run->setRunFontAntiAlias(runPaint.isAntiAlias());
 
         if (GrTextContext::CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), options)) {

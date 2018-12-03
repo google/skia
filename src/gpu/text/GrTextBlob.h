@@ -396,9 +396,6 @@ private:
      * would greatly increase the memory of these cached items.
      */
     struct Run {
-        // the only flags we need to set
-        static constexpr auto kPaintFlagsMask = SkPaint::kAntiAlias_Flag;
-
         explicit Run(GrTextBlob* blob)
         : fBlob{blob} {
             // To ensure we always have one subrun, we push back a fresh run here
@@ -440,8 +437,8 @@ private:
                                         SkScalerContextFlags scalerContextFlags,
                                         const SkMatrix& viewMatrix);
 
-        void setRunPaintFlags(uint16_t paintFlags) {
-            fPaintFlags = paintFlags & Run::kPaintFlagsMask;
+        void setRunFontAntiAlias(bool aa) {
+            fAntiAlias = aa;
         }
 
         // sets the last subrun of runIndex to use distance field text
@@ -495,7 +492,7 @@ private:
 
         SkTArray<PathGlyph> fPathGlyphs;
 
-        uint16_t fPaintFlags{0};   // needed mainly for rendering paths
+        bool fAntiAlias{false};   // needed mainly for rendering paths
         bool fInitialized{false};
 
         GrTextBlob* const fBlob;
