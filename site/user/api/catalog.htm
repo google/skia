@@ -1842,8 +1842,8 @@
         "stdout": "paint.isAntiAlias()\\npaint.isDither()\\n"
     },
         "SkPaint_setHinting": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(kNormal_SkFontHinting);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
-    "hash": "197268a89c3343f600b9bade61c513ae",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint2.setHinting(SkFontHinting::kNormal);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : ':');\n}",
+    "hash": "bb179ec5698ec1398ff18f3657ab73f7",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setHinting",
         "stdout": "paint1 == paint2\\n"
@@ -5795,14 +5795,6 @@
     "file": "SkFont_Reference",
     "name": "SkFont::Edging"
 },
-    "SkFont_Hinting": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkFont_Reference",
-    "name": "SkFont::Hinting"
-},
     "SkFont_SkTypeface_SkScalar": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -5818,6 +5810,14 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
     "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)"
+},
+    "SkFont_breakText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::breakText"
 },
     "SkFont_containsText": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
