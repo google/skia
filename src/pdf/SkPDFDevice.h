@@ -132,7 +132,8 @@ public:
         int fGraphicStateIndex = -1;
     };
 
-    void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset);
+    void DrawGlyphRunAsPath(SkPDFDevice* dev, const SkGlyphRun& glyphRun,
+                            SkPoint offset, const SkPaint&);
 
 protected:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
@@ -224,8 +225,8 @@ private:
                                             bool hasText,
                                             GraphicStateEntry* entry);
 
-    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
-    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset);
+    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint&);
+    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint&);
 
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,

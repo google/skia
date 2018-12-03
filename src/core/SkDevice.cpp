@@ -327,11 +327,11 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 #include "SkUtils.h"
 
 void SkBaseDevice::drawGlyphRunRSXform(
-        SkGlyphRun* run, const SkRSXform* xform) {
+        SkGlyphRun* run, const SkRSXform* xform, const SkPaint& paint) {
     const SkMatrix originalCTM = this->ctm();
-    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->paint().getTextSize()) ||
-        !SkScalarIsFinite(run->paint().getTextScaleX()) ||
-        !SkScalarIsFinite(run->paint().getTextSkewX())) {
+    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->font().getSize()) ||
+        !SkScalarIsFinite(run->font().getScaleX()) ||
+        !SkScalarIsFinite(run->font().getSkewX())) {
         return;
     }
 

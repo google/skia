@@ -17,6 +17,7 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
+#include "SkFont.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkJpegCodec.h"
@@ -852,10 +853,13 @@ public:
     SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
             : fOrigin(origin)
             , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
-        const SkPaint& paint = glyphRun.paint();
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
+
+        SkPaint paint;
+        glyphRun.font().LEGACY_applyToPaint(&paint);
         paint.glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
+
         auto positions = glyphRun.positions();
         for (size_t i = 0; i < runSize; ++i) {
             this->appendUnichar(unichars[i], positions[i]);

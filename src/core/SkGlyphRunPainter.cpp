@@ -19,6 +19,7 @@
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -101,7 +102,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkFont& font,
+                                             const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -112,9 +114,7 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatri
         return true;
     }
 
-    SkMatrix textM;
-    SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+    return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
 void SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
@@ -161,18 +161,19 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         const BitmapDevicePainter* bitmapDevice) {
 
     SkPoint origin = glyphRunList.origin();
+    const SkPaint& paint = glyphRunList.paint();
     for (auto& glyphRun : glyphRunList) {
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+        auto& props = (kN32_SkColorType == fColorType && paint.isSrcOver())
                       ? fDeviceProps
                       : fBitmapFallbackProps;
 
-        const SkPaint& paint = glyphRun.paint();
+        const SkFont& font = glyphRun.font();
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, deviceMatrix)) {
+        if (ShouldDrawAsPath(paint, font, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
@@ -703,7 +704,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
     for (const auto& glyphRun : glyphRunList) {
-        const SkPaint& runPaint = glyphRun.paint();
+        const SkFont& font = glyphRun.font();
         Run* run = this->pushBackRun();
 
         run->setRunPaintFlags(runPaint.getFlags());
