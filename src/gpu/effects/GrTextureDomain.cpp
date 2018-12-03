@@ -165,8 +165,8 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
     GrTexture* tex = proxy->peekTexture();
     SkASSERT(fHasMode && textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
-        SkScalar wInv = SK_Scalar1 / tex->width();
-        SkScalar hInv = SK_Scalar1 / tex->height();
+        SkScalar wInv = proxy->textureType() == GrTextureType::kRectangle ? 1.f : SK_Scalar1 / tex->width();
+        SkScalar hInv = proxy->textureType() == GrTextureType::kRectangle ? 1.f : SK_Scalar1 / tex->height();
 
         float values[kPrevDomainCount] = {
             SkScalarToFloat(textureDomain.domain().fLeft * wInv),
@@ -182,8 +182,10 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
         // vertical flip if necessary
         if (kBottomLeft_GrSurfaceOrigin == proxy->origin()) {
-            values[1] = 1.0f - values[1];
-            values[3] = 1.0f - values[3];
+            float h = proxy->textureType() == GrTextureType::kRectangle ? proxy->height() : 1.f;
+            values[1] = h - values[1];
+            values[3] = h - values[3];
+
             // The top and bottom were just flipped, so correct the ordering
             // of elements so that values = (l, t, r, b).
             using std::swap;

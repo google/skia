@@ -1620,10 +1620,12 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
+    /*
     if (function.fBuiltin && function.fName == "texture" &&
         arguments[0]->fType == *fContext.fSampler2DRect_Type) {
         this->fixRectSampling(arguments);
     }
+     */
     return std::unique_ptr<FunctionCall>(new FunctionCall(offset, *returnType, function,
                                                           std::move(arguments)));
 }

@@ -303,8 +303,8 @@ private:
         TRACE_EVENT0("skia", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
-        float iw = 1.f / texture->width();
-        float ih = 1.f / texture->height();
+        float iw = proxy->textureType() == GrTextureType::kRectangle ? 1.f : 1.f / texture->width();
+        float ih = proxy->textureType() == GrTextureType::kRectangle ? 1.f : 1.f / texture->height();
 
         for (int i = start; i < start + cnt; ++i) {
             const auto q = fQuads[i];

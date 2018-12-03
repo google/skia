@@ -26,6 +26,7 @@ SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatri
     if (coordTransform.reverseY()) {
         // combined.postScale(1,-1);
         // combined.postTranslate(0,1);
+        // TODO: Handle case where not normalized correctly.
         combined.set(SkMatrix::kMSkewY,
             combined[SkMatrix::kMPersp0] - combined[SkMatrix::kMSkewY]);
         combined.set(SkMatrix::kMScaleY,
