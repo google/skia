@@ -100,9 +100,9 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
                                                              bool isWrapped) {
     VkImage image = info.fImage;
     // Create the texture ImageView
-    const GrVkImageView* imageView = GrVkImageView::Create(
-            gpu, image, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
-            info.fYcbcrConversionInfo);
+    const GrVkImageView* imageView = GrVkImageView::Create(gpu, image, info.fFormat,
+                                                           GrVkImageView::kColor_Type,
+                                                           info.fLevelCount);
     if (!imageView) {
         return nullptr;
     }
@@ -141,7 +141,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
         // Create resolve attachment view.
         resolveAttachmentView = GrVkImageView::Create(gpu, image, pixelFormat,
                                                       GrVkImageView::kColor_Type,
-                                                      info.fLevelCount, GrVkYcbcrConversionInfo());
+                                                      info.fLevelCount);
         if (!resolveAttachmentView) {
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
             imageView->unref(gpu);
@@ -154,8 +154,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
     }
 
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
-                                                                     GrVkImageView::kColor_Type, 1,
-                                                                     GrVkYcbcrConversionInfo());
+                                                                     GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
         if (desc.fSampleCnt > 1) {
             resolveAttachmentView->unref(gpu);
@@ -252,8 +251,7 @@ bool GrVkTextureRenderTarget::updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo&
                                       newInfo.fImage,
                                       pixelFormat,
                                       GrVkImageView::kColor_Type,
-                                      newInfo.fLevelCount,
-                                      GrVkYcbcrConversionInfo());
+                                      newInfo.fLevelCount);
         if (!resolveAttachmentView) {
             return false;
         }
@@ -264,8 +262,7 @@ bool GrVkTextureRenderTarget::updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo&
                                                                          newInfo.fImage,
                                                                          pixelFormat,
                                                                          GrVkImageView::kColor_Type,
-                                                                         1,
-                                                                         GrVkYcbcrConversionInfo());
+                                                                         1);
         if (!colorAttachmentView) {
             return false;
         }

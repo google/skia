@@ -36,12 +36,10 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 
 bool GrVkFormatIsSupported(VkFormat);
 
-#ifdef SK_DEBUG
 /**
  * Returns true if the passed in VkFormat and GrPixelConfig are compatible with each other.
  */
 bool GrVkFormatPixelConfigPairIsValid(VkFormat, GrPixelConfig);
-#endif
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 

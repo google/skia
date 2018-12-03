@@ -63,36 +63,20 @@ const GrGLenum* GrBackendFormat::getGLTarget() const {
     return nullptr;
 }
 
-GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
-#ifdef SK_BUILD_FOR_ANDROID
-    return GrBackendFormat(VK_FORMAT_UNDEFINED, ycbcrInfo);
-#else
-    return GrBackendFormat();
-#endif
-}
-
-GrBackendFormat::GrBackendFormat(VkFormat vkFormat, const GrVkYcbcrConversionInfo& ycbcrInfo)
+GrBackendFormat::GrBackendFormat(VkFormat vkFormat)
         : fBackend(GrBackendApi::kVulkan)
 #ifdef SK_VULKAN
         , fValid(true)
 #else
         , fValid(false)
 #endif
+        , fVkFormat(vkFormat)
         , fTextureType(GrTextureType::k2D) {
-    fVk.fFormat = vkFormat;
-    fVk.fYcbcrConversionInfo = ycbcrInfo;
 }
 
 const VkFormat* GrBackendFormat::getVkFormat() const {
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        return &fVk.fFormat;
-    }
-    return nullptr;
-}
-
-const GrVkYcbcrConversionInfo* GrBackendFormat::getVkYcbcrConversionInfo() const {
-    if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        return &fVk.fYcbcrConversionInfo;
+        return &fVkFormat;
     }
     return nullptr;
 }
