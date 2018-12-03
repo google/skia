@@ -37,7 +37,6 @@ var CanvasKit = {
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
-	MakeNimaActor: function() {},
 	MakeRadialGradientShader: function() {},
 	MakeSWCanvasSurface: function() {},
 	MakeSkDashPathEffect: function() {},
@@ -57,7 +56,6 @@ var CanvasKit = {
 	// in the pre-js file)
 	_MakeImageShader: function() {},
 	_MakeLinearGradientShader: function() {},
-	_MakeNimaActor: function() {},
 	_MakeRadialGradientShader: function() {},
 	_MakeSkDashPathEffect: function() {},
 	_MakeSkVertices: function() {},
@@ -72,18 +70,6 @@ var CanvasKit = {
 	_testing: {},
 
 	// Objects and properties on CanvasKit
-
-	NimaActor: {
-		// public API (from C++ bindings)
-		duration: function() {},
-		getAnimationNames: function() {},
-		render: function() {},
-		seek: function() {},
-		setAnimationByIndex: function() {},
-		setAnimationByName: function() {},
-
-		// private API
-	},
 
 	SkCanvas: {
 		// public API (from C++ bindings)
