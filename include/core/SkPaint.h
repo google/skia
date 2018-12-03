@@ -875,6 +875,7 @@ public:
     */
     void setTextSkewX(SkScalar skewX);
 
+#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
     /** \enum SkPaint::TextEncoding
         TextEncoding determines whether text specifies character codes and their encoded
         size, or glyph indices. Characters are encoded as specified by the Unicode standard.
@@ -918,11 +919,17 @@ public:
         @param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
                          kGlyphID_TextEncoding
     */
-    void setTextEncoding(TextEncoding encoding);
-    // Experimental
-    void setTextEncoding(SkTextEncoding encoding) {
-        this->setTextEncoding((TextEncoding)encoding);
+    void setTextEncoding(TextEncoding encoding) {
+        this->setTextEncoding((SkTextEncoding)encoding);
     }
+#else
+    // Experimental
+    SkTextEncoding getTextEncoding() const {
+        return (SkTextEncoding)fBitfields.fTextEncoding;
+    }
+#endif
+    // Experimental
+    void setTextEncoding(SkTextEncoding encoding);
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 
@@ -982,7 +989,7 @@ public:
 
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
-        SkPaint::TextEncoding specifies how text represents characters or glyphs.
+        SkTextEncoding specifies how text represents characters or glyphs.
         glyphs may be nullptr, to compute the glyph count.
 
         Does not check text for valid character codes or valid glyph indices.
@@ -990,10 +997,10 @@ public:
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
-        If SkPaint::TextEncoding is kUTF8_TextEncoding and
+        If SkTextEncoding is kUTF8_SkTextEncoding and
         text contains an invalid UTF-8 sequence, zero is returned.
 
-        @param text        character storage encoded with SkPaint::TextEncoding
+        @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
         @param glyphs      storage for glyph indices; may be nullptr
         @return            number of glyphs represented by text of length byteLength
@@ -1005,7 +1012,7 @@ public:
         Returns false if any characters in text are not supported in
         SkTypeface.
 
-        If SkPaint::TextEncoding is kGlyphID_TextEncoding,
+        If SkTextEncoding is kGlyphID_SkTextEncoding,
         returns true if all glyph indices in text are non-zero;
         does not check to see if text contains valid glyph indices for SkTypeface.
 
@@ -1021,7 +1028,7 @@ public:
     /** Converts glyphs into text if possible.
         Glyph values without direct Unicode equivalents are mapped to zero.
         Uses the SkTypeface, but is unaffected
-        by SkPaint::TextEncoding; the text values returned are equivalent to kUTF32_TextEncoding.
+        by SkTextEncoding; the text values returned are equivalent to kUTF32_SkTextEncoding.
 
         Only supported on platforms that use FreeType as the font engine.
 
@@ -1033,10 +1040,10 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Returns the number of glyphs in text.
-        Uses SkPaint::TextEncoding to count the glyphs.
+        Uses SkTextEncoding to count the glyphs.
         Returns the same result as textToGlyphs().
 
-        @param text        character storage encoded with SkPaint::TextEncoding
+        @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
         @return            number of glyphs represented by text of length byteLength
     */
@@ -1044,7 +1051,7 @@ public:
 
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
         and text size, text scale x, text skew x, stroke width, and
         SkPathEffect to scale the metrics and bounds.
         Returns the bounding box of text if bounds is not nullptr.
@@ -1059,7 +1066,7 @@ public:
 
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the metrics.
         Does not scale the advance or bounds by fake bold or SkPathEffect.
 
@@ -1076,7 +1083,7 @@ public:
         The text fragment fits if its advance width is less than or equal to maxWidth.
         Measures only while the advance is less than or equal to maxWidth.
         Returns the advance or the text fragment in measuredWidth if it not nullptr.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the metrics.
         Does not scale the advance or bounds by fake bold or SkPathEffect.
 
@@ -1095,7 +1102,7 @@ public:
         Both widths and bounds may be nullptr.
         If widths is not nullptr, widths must be an array of glyph count entries.
         if bounds is not nullptr, bounds must be an array of glyph count entries.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the widths and bounds.
         Does not scale the advance by fake bold or SkPathEffect.
         Does include fake bold and SkPathEffect in the bounds.
@@ -1110,7 +1117,7 @@ public:
                       SkRect bounds[] = nullptr) const;
 
     /** Returns the geometry as SkPath equivalent to the drawn text.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         All of the glyph paths are stored in path.
         Uses x, y, to position path.
@@ -1125,7 +1132,7 @@ public:
                      SkPath* path) const;
 
     /** Returns the geometry as SkPath equivalent to the drawn text.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         All of the glyph paths are stored in path.
         Uses pos array to position path.
@@ -1149,7 +1156,7 @@ private:
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
         the string.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses x, y to position intervals.
 
@@ -1172,7 +1179,7 @@ private:
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
         the string.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses pos array to position intervals.
 
@@ -1194,7 +1201,7 @@ private:
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
         the string.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses xpos array, constY to position intervals.
 
@@ -1222,7 +1229,7 @@ public:
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses run array to position intervals.
 
-        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+        SkTextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
         Pass nullptr for intervals to determine the size of the interval array.
 

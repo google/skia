@@ -257,7 +257,7 @@ protected:
         canvas->drawText(utf8, sizeof(utf8) - 1, x, y, paint);
 
         canvas->translate(0, SkIntToScalar(60));
-        paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+        paint.setTextEncoding(kUTF8_SkTextEncoding);
         canvas->restore();
     }
 

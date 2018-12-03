@@ -69,7 +69,7 @@ public:
     static bool ShouldDither(const SkPaint&, SkColorType);
 
     // returns -1 if buffer is invalid for specified encoding
-    static int ValidCountText(const void* text, size_t length, SkPaint::TextEncoding);
+    static int ValidCountText(const void* text, size_t length, SkTextEncoding);
 
     static SkTypeface* GetTypefaceOrDefault(const SkPaint& paint) {
         return paint.getTypeface() ? paint.getTypeface() : SkTypeface::GetDefaultTypeface();

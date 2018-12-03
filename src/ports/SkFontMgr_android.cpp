@@ -399,7 +399,7 @@ protected:
 
             SkPaint paint;
             paint.setTypeface(face);
-            paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+            paint.setTextEncoding(kUTF32_SkTextEncoding);
 
             uint16_t glyphID;
             paint.textToGlyphs(&character, sizeof(character), &glyphID);

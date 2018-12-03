@@ -96,7 +96,7 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypef
 
         SkPaint paint;
         paint.setTypeface(face);
-        paint.setTextEncoding((SkPaint::TextEncoding)test.typefaceEncoding);
+        paint.setTextEncoding((SkTextEncoding)test.typefaceEncoding);
         paint.textToGlyphs(test.chars, test.charsByteLength, paintGlyphIds);
 
         face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
@@ -159,7 +159,7 @@ static void test_symbolfont(skiatest::Reporter* reporter) {
     uint16_t g;
     SkPaint paint;
     paint.setTypeface(MakeResourceAsTypeface("fonts/SpiderSymbol.ttf"));
-    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+    paint.setTextEncoding(kUTF32_SkTextEncoding);
     paint.textToGlyphs(&c, 4, &g);
 
     if (!paint.getTypeface()) {

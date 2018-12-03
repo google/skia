@@ -61,9 +61,9 @@ public:
         @return            SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
-                                      SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding);
+                                      SkTextEncoding encoding = kUTF8_SkTextEncoding);
 
-    /** Creates SkTextBlob with a single run. string meaning depends on SkPaint::TextEncoding;
+    /** Creates SkTextBlob with a single run. string meaning depends on SkTextEncoding;
         by default, string is encoded as UTF-8.
 
         font contains attributes used to define the run text.
@@ -73,7 +73,7 @@ public:
         @return        SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
-                                    SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding) {
+                                    SkTextEncoding encoding = kUTF8_SkTextEncoding) {
         if (!string) {
             return nullptr;
         }

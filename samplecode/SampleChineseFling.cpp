@@ -27,7 +27,7 @@ static void make_paint(SkPaint* paint, sk_sp<SkTypeface> typeface) {
   paint->setColor(0xDE000000);
   paint->setTypeface(typeface);
   paint->setTextSize(kTextSize);
-  paint->setTextEncoding(SkPaint::kUTF32_TextEncoding);
+  paint->setTextEncoding(kUTF32_SkTextEncoding);
 }
 
 static sk_sp<SkTypeface> chinese_typeface() {
@@ -167,7 +167,7 @@ protected:
         paint.setColor(0xDE000000);
         paint.setTypeface(fTypeface);
         paint.setTextSize(11);
-        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        paint.setTextEncoding(kUTF32_SkTextEncoding);
 
         if (afterFirstFrame) {
 #if SK_SUPPORT_GPU
@@ -220,7 +220,7 @@ private:
         paint.setColor(0xDE000000);
         paint.setTypeface(fTypeface);
         paint.setTextSize(11);
-        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        paint.setTextEncoding(kUTF32_SkTextEncoding);
 
         paint.getFontMetrics(&fMetrics);
 

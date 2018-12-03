@@ -164,7 +164,7 @@ static void test_issue1083() {
     sk_sp<SkDocument> doc(SkPDF::MakeDocument(&outStream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
     SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     uint16_t glyphID = 65000;
     canvas->drawText(&glyphID, 2, 0, 0, paint);
@@ -497,7 +497,7 @@ static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
 
 DEF_TEST(SkPDF_Clusterator, reporter) {
     SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     {
         constexpr unsigned len = 11;
         const uint32_t clusters[len] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };
