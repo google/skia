@@ -40,6 +40,16 @@
   function HTMLCanvas(skSurface) {
     this._surface = skSurface;
     this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
+    this._imgs = [];
+
+    // Data is either an arraybuffer, a Blob, or a Node Buffer
+    this.decodeImage = function(data) {
+      // TODO(kjlubick): blob detection/translation
+      // TODO(kjlubick): Node Buffer detection
+      var img = CanvasKit.MakeImageFromEncoded(data);
+      this._imgs.push(img);
+      return img;
+    }
 
     // A normal <canvas> requires that clients call getContext
     this.getContext = function(type) {
@@ -76,6 +86,9 @@
 
     this.dispose = function() {
       this._context._dispose();
+      this._imgs.forEach(function(i) {
+        i.delete();
+      });
       this._surface.dispose();
     }
   }
@@ -251,6 +264,8 @@
     this._lineDashList   = [];
     // aka SkBlendMode
     this._globalCompositeOperation = CanvasKit.BlendMode.SrcOver;
+    this._imageFilterQuality = CanvasKit.FilterQuality.Low;
+    this._imageSmoothingEnabled = true;
 
     this._paint.setStrokeWidth(this._strokeWidth);
     this._paint.setBlendMode(this._globalCompositeOperation);
@@ -524,6 +539,43 @@
       }
     });
 
+    Object.defineProperty(this, 'imageSmoothingEnabled', {
+      enumerable: true,
+      get: function() {
+        return this._imageSmoothingEnabled;
+      },
+      set: function(newVal) {
+        this._imageSmoothingEnabled = !!newVal;
+      }
+    });
+
+    Object.defineProperty(this, 'imageSmoothingQuality', {
+      enumerable: true,
+      get: function() {
+        switch (this._imageFilterQuality) {
+          case CanvasKit.FilterQuality.Low:
+            return 'low';
+          case CanvasKit.FilterQuality.Medium:
+            return 'medium';
+          case CanvasKit.FilterQuality.High:
+            return 'high';
+        }
+      },
+      set: function(newQuality) {
+        switch (newQuality) {
+          case 'low':
+            this._imageFilterQuality = CanvasKit.FilterQuality.Low;
+            return;
+          case 'medium':
+            this._imageFilterQuality = CanvasKit.FilterQuality.Medium;
+            return;
+          case 'high':
+            this._imageFilterQuality = CanvasKit.FilterQuality.High;
+            return;
+        }
+      }
+    });
+
     Object.defineProperty(this, 'lineCap', {
       enumerable: true,
       get: function() {
@@ -784,12 +836,49 @@
       return rcg;
     }
 
-    this._commitSubpath = function () {
+    this._commitSubpath = function() {
       if (this._currentSubpath) {
         this._currentPath.addPath(this._currentSubpath, false);
         this._currentSubpath.delete();
         this._currentSubpath = null;
       }
+    }
+
+    this._imagePaint = function() {
+      var iPaint = this._fillPaint();
+      if (!this._imageSmoothingEnabled) {
+        iPaint.setFilterQuality(CanvasKit.FilterQuality.None);
+      } else {
+        iPaint.setFilterQuality(this._imageFilterQuality);
+      }
+      return iPaint;
+    }
+
+    this.drawImage = function(img) {
+      // 3 potential sets of arguments
+      // - image, dx, dy
+      // - image, dx, dy, dWidth, dHeight
+      // - image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight
+      this._canvas.setMatrix(this._currentTransform);
+      // use the fillPaint, which has the globalAlpha in it
+      // which drawImageRect will use.
+      var iPaint = this._imagePaint();
+      if (arguments.length === 3 || arguments.length === 5) {
+        var destRect = CanvasKit.XYWHRect(arguments[1], arguments[2],
+                          arguments[3] || img.width(), arguments[4] || img.height());
+        var srcRect = CanvasKit.XYWHRect(0, 0, img.width(), img.height());
+      } else if (arguments.length === 9){
+        var destRect = CanvasKit.XYWHRect(arguments[5], arguments[6],
+                                          arguments[7], arguments[8]);
+        var srcRect = CanvasKit.XYWHRect(arguments[1], arguments[2],
+                                         arguments[3], arguments[4]);
+      } else {
+        throw 'invalid number of args for drawImage, need 3, 5, or 9; got '+ arguments.length;
+      }
+      this._canvas.drawImageRect(img, srcRect, destRect, iPaint, false);
+
+      this._canvas.setMatrix(CanvasKit.SkMatrix.identity());
+      iPaint.dispose();
     }
 
     this.ellipse = function(x, y, radiusX, radiusY, rotation,
@@ -991,7 +1080,9 @@
       this._globalCompositeOperation = newState.gco;
       this._paint.setBlendMode(this._globalCompositeOperation);
       this._lineDashOffset = newState.ldo;
-      //TODO: font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+      this._imageSmoothingEnabled = newState.ise;
+      this._imageFilterQuality = newState.isq;
+      //TODO: font, textAlign, textBaseline, direction
 
       // restores the clip
       this._canvas.restore();
@@ -1034,7 +1125,9 @@
         ga:  this._globalAlpha,
         ldo: this._lineDashOffset,
         gco: this._globalCompositeOperation,
-        //TODO: font, textAlign, textBaseline, direction, imageSmoothingEnabled, imageSmoothingQuality.
+        ise: this._imageSmoothingEnabled,
+        isq: this._imageFilterQuality,
+        //TODO: font, textAlign, textBaseline, direction
       });
       // Saves the clip
       this._canvas.save();
