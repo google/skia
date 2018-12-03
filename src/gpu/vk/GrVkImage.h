@@ -48,7 +48,6 @@ public:
         return GrBackendFormat::MakeVk(this->imageFormat());
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
-    GrVkYcbcrConversionInfo ycbcrConversionInfo() const { return fInfo.fYcbcrConversionInfo; }
     const Resource* resource() const { return fResource; }
     bool isLinearTiled() const {
         return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);

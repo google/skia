@@ -352,17 +352,6 @@ static void setup_extension_features(GrVkGetProc getProc, VkInstance inst, VkPhy
         tailPNext = &blend->pNext;
     }
 
-    VkPhysicalDeviceSamplerYcbcrConversionFeatures* ycbcrFeature = nullptr;
-    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
-        ycbcrFeature = (VkPhysicalDeviceSamplerYcbcrConversionFeatures*) sk_malloc_throw(
-                sizeof(VkPhysicalDeviceSamplerYcbcrConversionFeatures));
-        ycbcrFeature->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES;
-        ycbcrFeature->pNext = nullptr;
-        *tailPNext = ycbcrFeature;
-        tailPNext = &ycbcrFeature->pNext;
-    }
-
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
         grVkGetPhysicalDeviceFeatures2(physDev, features);

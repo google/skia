@@ -13,6 +13,7 @@
 #include "GrVkGpu.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
+#include "GrVkSampler.h"
 #include "GrVkUniformBuffer.h"
 #include "GrVkUtil.h"
 
@@ -165,35 +166,15 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
     return new GrVkDescriptorPool(fGpu, type, count);
 }
 
-GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
-        const GrSamplerState& params, const GrVkYcbcrConversionInfo& ycbcrInfo) {
-    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, ycbcrInfo));
+GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
+    GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params));
     if (!sampler) {
-        sampler = GrVkSampler::Create(fGpu, params, ycbcrInfo);
-        if (!sampler) {
-            return nullptr;
-        }
+        sampler = GrVkSampler::Create(fGpu, params);
         fSamplers.add(sampler);
     }
     SkASSERT(sampler);
     sampler->ref();
     return sampler;
-}
-
-GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerYcbcrConversion(
-        const GrVkYcbcrConversionInfo& ycbcrInfo) {
-    GrVkSamplerYcbcrConversion* ycbcrConversion =
-            fYcbcrConversions.find(GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo));
-    if (!ycbcrConversion) {
-        ycbcrConversion = GrVkSamplerYcbcrConversion::Create(fGpu, ycbcrInfo);
-        if (!ycbcrConversion) {
-            return nullptr;
-        }
-        fYcbcrConversions.add(ycbcrConversion);
-    }
-    SkASSERT(ycbcrConversion);
-    ycbcrConversion->ref();
-    return ycbcrConversion;
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
@@ -368,7 +349,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unref(fGpu);
     }
@@ -427,7 +408,7 @@ void GrVkResourceProvider::abandonResources() {
     fRenderPassArray.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
+    SkTDynamicHash<GrVkSampler, uint8_t>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
         (*iter).unrefAndAbandon();
     }

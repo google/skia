@@ -51,8 +51,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
 
     const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage,
                                                            format.fInternalFormat,
-                                                           GrVkImageView::kStencil_Type, 1,
-                                                           GrVkYcbcrConversionInfo());
+                                                           GrVkImageView::kStencil_Type, 1);
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;

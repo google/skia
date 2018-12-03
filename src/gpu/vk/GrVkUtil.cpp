@@ -75,7 +75,6 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     return false;
 }
 
-#ifdef SK_DEBUG
 bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
     switch (format) {
         case VK_FORMAT_R8G8B8A8_UNORM:
@@ -114,7 +113,6 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
             return false;
     }
 }
-#endif
 
 bool GrVkFormatIsSupported(VkFormat format) {
     switch (format) {

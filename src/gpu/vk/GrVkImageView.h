@@ -13,9 +13,6 @@
 #include "GrTypes.h"
 #include "GrVkResource.h"
 
-class GrVkSamplerYcbcrConversion;
-struct GrVkYcbcrConversionInfo;
-
 class GrVkImageView : public GrVkResource {
 public:
     enum Type {
@@ -23,9 +20,8 @@ public:
         kStencil_Type
     };
 
-    static const GrVkImageView* Create(GrVkGpu* gpu, VkImage image, VkFormat format,
-                                       Type viewType, uint32_t miplevels,
-                                       const GrVkYcbcrConversionInfo& ycbcrInfo);
+    static const GrVkImageView* Create(const GrVkGpu* gpu, VkImage image, VkFormat format,
+                                       Type viewType, uint32_t miplevels);
 
     VkImageView imageView() const { return fImageView; }
 
@@ -36,17 +32,14 @@ public:
 #endif
 
 private:
-    GrVkImageView(VkImageView imageView, GrVkSamplerYcbcrConversion* ycbcrConversion)
-            : INHERITED(), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
+    GrVkImageView(VkImageView imageView) : INHERITED(), fImageView(imageView) {}
 
     GrVkImageView(const GrVkImageView&);
     GrVkImageView& operator=(const GrVkImageView&);
 
     void freeGPUData(const GrVkGpu* gpu) const override;
-    void abandonGPUData() const override;
 
     VkImageView  fImageView;
-    GrVkSamplerYcbcrConversion* fYcbcrConversion;
 
     typedef GrVkResource INHERITED;
 };
