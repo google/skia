@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54704d2b_e1810139",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-03T19:46:45Z",
+      "side": 1,
+      "message": "run is a pointer?",
+      "range": {
+        "startLine": 734,
+        "startChar": 27,
+        "endLine": 734,
+        "endChar": 31
+      },
+      "revId": "e44908fe83e0b6304ecf90376507baf39a3192fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
