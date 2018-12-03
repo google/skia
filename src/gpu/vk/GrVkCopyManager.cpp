@@ -13,6 +13,7 @@
 #include "GrSurface.h"
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
+#include "GrVkCommandPool.h"
 #include "GrVkCopyPipeline.h"
 #include "GrVkDescriptorSet.h"
 #include "GrVkGpu.h"
@@ -156,11 +157,6 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         return false;
     }
 
-    if (gpu->vkCaps().newCBOnPipelineChange()) {
-        // We bind a new pipeline here for the copy so we must start a new command buffer.
-        gpu->finishFlush(0, nullptr);
-    }
-
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());
     if (!rt) {
         return false;
@@ -294,8 +290,6 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
         gpu->onResolveRenderTarget(texRT);
     }
 
-    GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();
-
     // TODO: Make tighter bounds and then adjust bounds for origin and granularity if we see
     //       any perf issues with using the whole bounds
     SkIRect bounds = SkIRect::MakeWH(rt->width(), rt->height());
@@ -354,9 +348,13 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     SkASSERT(renderPass->isCompatible(*rt->simpleRenderPass()));
 
+    GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();
+    cmdBuffer->beginRenderPass(gpu, renderPass, nullptr, *rt, bounds, true);
 
-    cmdBuffer->beginRenderPass(gpu, renderPass, nullptr, *rt, bounds, false);
-    cmdBuffer->bindPipeline(gpu, pipeline);
+    GrVkSecondaryCommandBuffer* secondary = gpu->cmdPool()->findOrCreateSecondaryCommandBuffer(gpu);
+    secondary->begin(gpu, rt->framebuffer(), renderPass);
+
+    secondary->bindPipeline(gpu, pipeline);
 
     // Uniform DescriptorSet, Sampler DescriptorSet, and vertex shader uniformBuffer
     SkSTArray<3, const GrVkRecycledResource*> descriptorRecycledResources;
@@ -370,7 +368,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     descriptorResources.push_back(srcTex->textureView());
     descriptorResources.push_back(srcTex->resource());
 
-    cmdBuffer->bindDescriptorSets(gpu,
+    secondary->bindDescriptorSets(gpu,
                                   descriptorRecycledResources,
                                   descriptorResources,
                                   fPipelineLayout,
@@ -389,7 +387,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     viewport.height = SkIntToScalar(rt->height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    cmdBuffer->setViewport(gpu, 0, 1, &viewport);
+    secondary->setViewport(gpu, 0, 1, &viewport);
 
     // We assume the scissor is not enabled so just set it to the whole RT
     VkRect2D scissor;
@@ -397,11 +395,14 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     scissor.extent.height = rt->height();
     scissor.offset.x = 0;
     scissor.offset.y = 0;
-    cmdBuffer->setScissor(gpu, 0, 1, &scissor);
+    secondary->setScissor(gpu, 0, 1, &scissor);
 
-    cmdBuffer->bindInputBuffer(gpu, 0, fVertexBuffer.get());
-    cmdBuffer->draw(gpu, 4, 1, 0, 0);
+    secondary->bindInputBuffer(gpu, 0, fVertexBuffer.get());
+    secondary->draw(gpu, 4, 1, 0, 0);
+    secondary->end(gpu);
+    cmdBuffer->executeCommands(gpu, secondary);
     cmdBuffer->endRenderPass(gpu);
+    secondary->unref(gpu);
 
     // Release all temp resources which should now be reffed by the cmd buffer
     pipeline->unref(gpu);

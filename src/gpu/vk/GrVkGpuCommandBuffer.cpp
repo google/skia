@@ -15,6 +15,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
+#include "GrVkCommandPool.h"
 #include "GrVkGpu.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderPass.h"
@@ -122,7 +123,7 @@ void GrVkGpuRTCommandBuffer::init() {
         cbInfo.fLoadStoreState = LoadStoreState::kStartsWithDiscard;
     }
 
-    cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
+    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
@@ -461,7 +462,7 @@ void GrVkGpuRTCommandBuffer::addAdditionalCommandBuffer() {
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     cbInfo.currentCmdBuf()->end(fGpu);
-    cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
+    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
@@ -491,7 +492,7 @@ void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
     }
     cbInfo.fLoadStoreState = LoadStoreState::kLoadAndStore;
 
-    cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
+    cbInfo.fCommandBuffers.push_back(fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu));
     // It shouldn't matter what we set the clear color to here since we will assume loading of the
     // attachment.
     memset(&cbInfo.fColorClearValue, 0, sizeof(VkClearValue));
