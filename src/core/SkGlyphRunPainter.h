@@ -81,7 +81,8 @@ public:
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
 
     using ARGBFallback =
-    std::function<void(const SkPaint& fallbackPaint, // The run paint maybe with a new text size
+    std::function<void(const SkPaint& fallbackPaint,
+                       const SkFont& fallbackFont,// The run paint maybe with a new text size
                        SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs
                        SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
                        SkScalar fallbackTextScale,               // Scale factor for glyph
@@ -96,7 +97,7 @@ public:
     // fallback glyphIDs and positions to fallbackARGB.
     template <typename PerEmptyT, typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
-            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun, const SkPaint&,
             SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
             PerEmptyT&& perEmpty, PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
@@ -107,11 +108,11 @@ public:
             PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
 private:
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont&, const SkMatrix& matrix);
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
-            SkScalar maxGlyphDimension, const SkPaint& runPaint,
+            SkScalar maxGlyphDimension, const SkPaint& paint, const SkFont& font,
             const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
 
     // The props as on the actual device.

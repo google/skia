@@ -327,37 +327,37 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 #include "SkUtils.h"
 
 void SkBaseDevice::drawGlyphRunRSXform(
-        SkGlyphRun* run, const SkRSXform* xform) {
+        SkGlyphRun* run, const SkRSXform* xform, const SkPaint& paint) {
     const SkMatrix originalCTM = this->ctm();
-    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->paint().getTextSize()) ||
-        !SkScalarIsFinite(run->paint().getTextScaleX()) ||
-        !SkScalarIsFinite(run->paint().getTextSkewX())) {
+    if (!originalCTM.isFinite() || !SkScalarIsFinite(run->font().getSize()) ||
+        !SkScalarIsFinite(run->font().getScaleX()) ||
+        !SkScalarIsFinite(run->font().getSkewX())) {
         return;
     }
 
-    auto perGlyph = [this, &xform, &originalCTM] (const SkGlyphRun& glyphRun) {
+    auto perGlyph = [this, &xform, &originalCTM, &paint] (const SkGlyphRun& glyphRun) {
         SkMatrix ctm;
         ctm.setRSXform(*xform++);
 
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
         // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
-        SkPaint transformingPaint = glyphRun.paint();
-        auto shader = transformingPaint.getShader();
-        if (shader) {
+        SkTLazy<SkPaint> transformingPaint;
+        const SkPaint* paintPtr = &paint;
+        if (paint.getShader()) {
+            paintPtr = transformingPaint.set(paint);
             SkMatrix inverse;
             if (ctm.invert(&inverse)) {
-                transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
+                transformingPaint.get()->setShader(paint.getShader()->makeWithLocalMatrix(inverse));
             } else {
-                transformingPaint.setShader(nullptr);  // can't handle this xform
+                transformingPaint.get()->setShader(nullptr);  // can't handle this xform
             }
         }
 
         ctm.setConcat(originalCTM, ctm);
         this->setCTM(ctm);
 
-        SkGlyphRun transformedGlyphRun{glyphRun, transformingPaint};
-        this->drawGlyphRunList(SkGlyphRunList{transformedGlyphRun});
+        this->drawGlyphRunList(SkGlyphRunList{glyphRun, paintPtr});
     };
     run->eachGlyphToGlyphRun(perGlyph);
     this->setCTM(originalCTM);

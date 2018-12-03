@@ -19,6 +19,7 @@
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -101,7 +102,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkFont& font,
+                                             const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -112,9 +114,7 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatri
         return true;
     }
 
-    SkMatrix textM;
-    SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+    return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
 void SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
@@ -161,18 +161,19 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         const BitmapDevicePainter* bitmapDevice) {
 
     SkPoint origin = glyphRunList.origin();
+    const SkPaint& paint = glyphRunList.paint();
     for (auto& glyphRun : glyphRunList) {
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+        auto& props = (kN32_SkColorType == fColorType && paint.isSrcOver())
                       ? fDeviceProps
                       : fBitmapFallbackProps;
 
-        const SkPaint& paint = glyphRun.paint();
+        const SkFont& font = glyphRun.font();
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, deviceMatrix)) {
+        if (ShouldDrawAsPath(paint, font, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
@@ -255,7 +256,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 //   scale factor is used to increase the size of the destination rectangles. The destination
 //   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
 void SkGlyphRunListPainter::processARGBFallback(
-        SkScalar maxGlyphDimension, const SkPaint& runPaint,
+        SkScalar maxGlyphDimension, const SkPaint& paint, const SkFont& font,
         const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback) {
     SkASSERT(!fARGBGlyphsIDs.empty());
 
@@ -284,7 +285,7 @@ void SkGlyphRunListPainter::processARGBFallback(
         }
 
         auto positions = SkSpan<const SkPoint>{fARGBPositions};
-        argbFallback(runPaint, glyphIDs, positions, SK_Scalar1, viewMatrix, kTransformDone);
+        argbFallback(paint, font, glyphIDs, positions, SK_Scalar1, viewMatrix, kTransformDone);
 
     } else {
         // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
@@ -293,29 +294,29 @@ void SkGlyphRunListPainter::processARGBFallback(
         // Subtract 2 to account for the bilerp pad around the glyph
         SkScalar maxAtlasDimension = SkGlyphCacheCommon::kSkSideTooBigForAtlas - 2;
 
-        SkScalar runPaintTextSize = runPaint.getTextSize();
+        SkScalar runTextSize = font.getSize();
 
         // Scale the text size down so the long side of all the glyphs will fit in the atlas.
         SkScalar reducedTextSize =
-                (maxAtlasDimension / conservativeMaxGlyphDimension) * runPaintTextSize;
+                (maxAtlasDimension / conservativeMaxGlyphDimension) * runTextSize;
 
         // If there's a glyph in the font that's particularly large, it's possible
         // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
         // that glyph than make the others blurry, so we set a minimum size of half the
         // maximum text size to avoid this case.
         SkScalar fallbackTextSize =
-                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runPaintTextSize));
+                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runTextSize));
 
         // Don't allow the text size to get too big. This will also improve glyph cache hit rate
         // for larger text sizes.
         fallbackTextSize = std::min(fallbackTextSize, 256.0f);
 
-        SkPaint fallbackPaint{runPaint};
-        fallbackPaint.setTextSize(fallbackTextSize);
-        SkScalar fallbackTextScale = runPaintTextSize / fallbackTextSize;
+        SkFont fallbackFont{font};
+        fallbackFont.setSize(fallbackTextSize);
+        SkScalar fallbackTextScale = runTextSize / fallbackTextSize;
         auto positions = SkSpan<const SkPoint>{fARGBPositions};
         argbFallback(
-                fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
+                paint, fallbackFont, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
     }
 }
 
@@ -323,7 +324,7 @@ void SkGlyphRunListPainter::processARGBFallback(
 // will not be the same cache (which would cause two separate caches to be created).
 template <typename PerEmptyT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
-        SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
+        SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun, const SkPaint& paint,
         SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
@@ -352,7 +353,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
     if (!fARGBGlyphsIDs.empty()) {
         this->processARGBFallback(
-                maxFallbackDimension, glyphRun.paint(), viewMatrix, textScale,
+                maxFallbackDimension, paint, glyphRun.font(), viewMatrix, textScale,
                 std::move(argbFallback));
 
     }
@@ -705,7 +706,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
     for (const auto& glyphRun : glyphRunList) {
-        const SkPaint& runPaint = glyphRun.paint();
+        const SkFont& font = glyphRun.font();
         Run* run = this->pushBackRun();
 
         run->setRunFontAntiAlias(runPaint.isAntiAlias());
@@ -787,7 +788,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                             glyphCache, filteredColor};
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                pathCache.get(), glyphRun, origin, viewMatrix, textScale,
+                pathCache.get(), glyphRun, paint, origin, viewMatrix, textScale,
                 std::move(perEmpty), std::move(perPath), std::move(argbFallback));
         } else {
             // Ensure the blob is set for bitmaptext
@@ -972,7 +973,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
 
     fPainter.drawGlyphRunAsPathWithARGBFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, textScale,
+            glyphCacheState, glyphRun, paint, origin, runMatrix, textScale,
             std::move(perEmpty), std::move(perPath), std::move(argbFallback));
 }
 
