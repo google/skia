@@ -231,6 +231,55 @@ bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncodin
     return true;
 }
 
+size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encoding,
+                         SkScalar maxWidth, SkScalar* measuredWidth) const {
+    if (0 == length || !(maxWidth > 0)) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return 0;
+    }
+    if (0 == fSize) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return length;
+    }
+
+    SkCanonicalizeFont canon(*this);
+    const SkFont& font = canon.getFont();
+    SkScalar scale = canon.getScale();
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+
+    const char* text = static_cast<const char*>(textD);
+    const char* stop = text + length;
+    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(encoding, false);
+
+    if (scale) {
+        maxWidth /= scale;
+    }
+
+    SkScalar width = 0;
+    while (text < stop) {
+        const char* curr = text;
+        SkScalar x = glyphCacheProc(cache.get(), &text, stop).fAdvanceX;
+        if ((width += x) > maxWidth) {
+            width -= x;
+            text = curr;
+            break;
+        }
+    }
+
+    if (measuredWidth) {
+        if (scale) {
+            width *= scale;
+        }
+        *measuredWidth = width;
+    }
+    return text - stop + length;
+}
+
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
     bounds->set(SkIntToScalar(g.fLeft),
                 SkIntToScalar(g.fTop),
