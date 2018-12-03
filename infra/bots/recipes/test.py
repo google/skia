@@ -665,6 +665,12 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
+  if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
+    # DO NOT SUBMIT: add bug
+    if 'Debug' in bot:
+      blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
+    blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
+
   if 'MoltenVK' in bot:
     # skbug.com/7959
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
@@ -758,6 +764,7 @@ def dm_flags(api, bot):
       'IntelIris6100' in bot or # gen 8 - broadwell
       'IntelIris540' in bot or  # gen 9 - skylake
       'IntelIris640' in bot or  # gen 9 - kaby lake
+      'IntelIris655' in bot or  # gen 9 - coffee lake
       'MaliT760' in bot or
       'MaliT860' in bot or
       'MaliT880' in bot):
@@ -912,7 +919,12 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  bot = api.vars.builder_name
+  if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
+    for i in range(100):
+      api.run(api.flavor.step, 'dm %d' % i, cmd=args + ['--shard', str(i), '--shards', str(100)], abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
@@ -994,6 +1006,7 @@ TEST_BUILDERS = [
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
