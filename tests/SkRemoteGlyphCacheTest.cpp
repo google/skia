@@ -553,6 +553,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
     SkPaint paint;
+    SkFont font;
 
     // A perspective transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::I();
@@ -562,7 +563,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
     GrTextContext::Options options;
     GrTextContext::SanitizeOptions(&options);
     REPORTER_ASSERT(reporter, GrTextContext::CanDrawAsDistanceFields(
-                                      paint, matrix, surfaceProps, true, options));
+                                      paint, font, matrix, surfaceProps, true, options));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());

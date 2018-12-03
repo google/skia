@@ -91,13 +91,14 @@ void GrTextContext::SanitizeOptions(Options* options) {
     }
 }
 
-bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& font,
+                                            const SkMatrix& viewMatrix,
                                             const SkSurfaceProps& props,
                                             bool contextSupportsDistanceFieldText,
                                             const Options& options) {
     if (!viewMatrix.hasPerspective()) {
         SkScalar maxScale = viewMatrix.getMaxScale();
-        SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
+        SkScalar scaledTextSize = maxScale * font.getSize();
         // Hinted text looks far better at small resolutions
         // Scaling up beyond 2x yields undesireable artifacts
         if (scaledTextSize < options.fMinDistanceFieldFontSize ||
@@ -116,12 +117,12 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatr
     }
 
     // mask filters modify alpha, which doesn't translate well to distance
-    if (skPaint.getMaskFilter() || !contextSupportsDistanceFieldText) {
+    if (paint.getMaskFilter() || !contextSupportsDistanceFieldText) {
         return false;
     }
 
     // TODO: add some stroking support
-    if (skPaint.getStyle() != SkPaint::kFill_Style) {
+    if (paint.getStyle() != SkPaint::kFill_Style) {
         return false;
     }
 
