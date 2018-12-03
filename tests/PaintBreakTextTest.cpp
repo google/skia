@@ -6,8 +6,22 @@
  */
 
 #include "SkAutoMalloc.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "Test.h"
+
+static size_t break_text(const SkPaint& paint, const void* text, size_t length, SkScalar maxw,
+                         SkScalar* measuredw, skiatest::Reporter* reporter) {
+    size_t n = paint.breakText(text, length, maxw, measuredw);
+    SkScalar measuredw2;
+    size_t n2 = SkFont::LEGACY_ExtractFromPaint(paint).breakText(text, length,
+                                     (SkTextEncoding)paint.getTextEncoding(), maxw, &measuredw2);
+    REPORTER_ASSERT(reporter, n == n2);
+    if (measuredw) {
+        REPORTER_ASSERT(reporter, *measuredw == measuredw2);
+    }
+    return n;
+}
 
 static void test_monotonic(skiatest::Reporter* reporter,
                            const SkPaint& paint,
@@ -21,7 +35,7 @@ static void test_monotonic(skiatest::Reporter* reporter,
     const SkScalar step = SkMaxScalar(width / 10, SK_Scalar1);
     for (SkScalar w = 0; w <= width; w += step) {
         SkScalar m;
-        const size_t n = paint.breakText(text, length, w, &m);
+        const size_t n = break_text(paint, text, length, w, &m, reporter);
 
         REPORTER_ASSERT(reporter, n <= length, msg);
         REPORTER_ASSERT(reporter, m <= width, msg);
@@ -51,7 +65,7 @@ static void test_eq_measure_text(skiatest::Reporter* reporter,
     const SkScalar width = paint.measureText(text, length);
 
     SkScalar mm;
-    const size_t length2 = paint.breakText(text, length, width, &mm);
+    const size_t length2 = break_text(paint, text, length, width, &mm, reporter);
     REPORTER_ASSERT(reporter, length2 == length, msg);
     REPORTER_ASSERT(reporter, mm == width, msg);
 }
@@ -67,7 +81,7 @@ static void test_long_text(skiatest::Reporter* reporter,
     const SkScalar width = paint.measureText(text, kSize);
 
     SkScalar mm;
-    const size_t length = paint.breakText(text, kSize, width, &mm);
+    const size_t length = break_text(paint, text, kSize, width, &mm, reporter);
     REPORTER_ASSERT(reporter, length == kSize, msg);
     REPORTER_ASSERT(reporter, mm == width, msg);
 }

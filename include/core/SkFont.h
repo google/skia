@@ -295,6 +295,9 @@ public:
      */
     bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
 
+    size_t breakText(const void* text, size_t length, SkTextEncoding, SkScalar maxWidth,
+                     SkScalar* measuredWidth = nullptr) const;
+
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Returns the bounding box of text if bounds is not nullptr.
