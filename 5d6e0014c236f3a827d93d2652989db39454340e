@@ -16,6 +16,24 @@
       "revId": "5d6e0014c236f3a827d93d2652989db39454340e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3327415_54eaed4e",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-03T16:04:38Z",
+      "side": 1,
+      "message": "Yeah, probably.",
+      "parentUuid": "e895c577_296373ac",
+      "revId": "5d6e0014c236f3a827d93d2652989db39454340e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
