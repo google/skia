@@ -290,7 +290,6 @@ const GrUniqueKey& GrCoverageCountingPathRenderer::testingOnly_getStashedAtlasKe
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
-DRAW_OP_TEST_EXTERN(AAFillRectOp);
 DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAHairlineOp);
 DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
@@ -303,7 +302,6 @@ DRAW_OP_TEST_EXTERN(FillRectOp);
 DRAW_OP_TEST_EXTERN(GrAtlasTextOp);
 DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
 DRAW_OP_TEST_EXTERN(GrDrawVerticesOp);
-DRAW_OP_TEST_EXTERN(NonAAFillRectOp);
 DRAW_OP_TEST_EXTERN(NonAALatticeOp);
 DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(ShadowRRectOp);
@@ -318,7 +316,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
             DRAW_OP_TEST_ENTRY(AAConvexPathOp),
-            DRAW_OP_TEST_ENTRY(AAFillRectOp),
             DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAHairlineOp),
             DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
@@ -331,7 +328,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
             DRAW_OP_TEST_ENTRY(GrAtlasTextOp),
             DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
             DRAW_OP_TEST_ENTRY(GrDrawVerticesOp),
-            DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
             DRAW_OP_TEST_ENTRY(NonAALatticeOp),
             DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(ShadowRRectOp),
