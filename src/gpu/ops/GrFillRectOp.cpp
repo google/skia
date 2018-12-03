@@ -73,6 +73,69 @@ private:
     GrQuadAAFlags fAAFlags;
 };
 
+// A GeometryProcessor for rendering TransformedQuads using the vertex attributes from
+// GrQuadPerEdgeAA. This is similar to the TextureGeometryProcessor of GrTextureOp except that it
+// handles full GrPaints.
+class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
+public:
+
+    static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
+        return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
+    }
+
+    const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        // The attributes' key includes the device and local quad types implicitly since those
+        // types decide the vertex attribute size
+        b->add32(fAttrs.getKey());
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
+        class GLSLProcessor : public GrGLSLGeometryProcessor {
+        public:
+            void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
+                         FPCoordTransformIter&& transformIter) override {
+                const auto& gp = proc.cast<QuadPerEdgeAAGeometryProcessor>();
+                if (gp.fAttrs.hasLocalCoords()) {
+                    this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+                }
+            }
+
+        private:
+            void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+                const auto& gp = args.fGP.cast<QuadPerEdgeAAGeometryProcessor>();
+                args.fVaryingHandler->emitAttributes(gp);
+                gpArgs->fPositionVar = gp.fAttrs.emitPosition(args, "pos");
+
+                if (gp.fAttrs.hasLocalCoords()) {
+                    this->emitTransforms(args.fVertBuilder,
+                                         args.fVaryingHandler,
+                                         args.fUniformHandler,
+                                         gp.fAttrs.localCoords().asShaderVar(),
+                                         args.fFPCoordTransformHandler);
+                }
+
+                gp.fAttrs.emitColor(args, "paintColor");
+                gp.fAttrs.emitCoverage(args, "aaDist");
+            }
+        };
+        return new GLSLProcessor;
+    }
+
+private:
+    QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
+            : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
+            , fAttrs(spec) {
+        SkASSERT(spec.hasVertexColors());
+        this->setVertexAttributes(fAttrs.attributes(), fAttrs.attributeCount());
+    }
+
+    GrQuadPerEdgeAA::GPAttributes fAttrs;
+
+    typedef GrGeometryProcessor INHERITED;
+};
+
 class FillRectOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
@@ -210,7 +273,7 @@ private:
                               this->localQuadType(), fHelper.usesLocalCoords(), Domain::kNo,
                               fHelper.aaType());
 
-        sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
+        sk_sp<GrGeometryProcessor> gp = QuadPerEdgeAAGeometryProcessor::Make(vertexSpec);
         size_t vertexSize = gp->vertexStride();
 
         const GrBuffer* vbuffer;
