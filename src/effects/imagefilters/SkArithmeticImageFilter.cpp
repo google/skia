@@ -308,11 +308,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     std::unique_ptr<GrFragmentProcessor> bgFP;
 
     if (backgroundProxy) {
-        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
-                                                        -SkIntToScalar(backgroundOffset.fY));
+        SkIRect bgSubset = background->subset();
+        SkMatrix backgroundMatrix = SkMatrix::MakeTrans(
+                SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
+                SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
         bgFP = GrTextureDomainEffect::Make(
                 std::move(backgroundProxy), backgroundMatrix,
-                GrTextureDomain::MakeTexelDomain(background->subset()),
+                GrTextureDomain::MakeTexelDomain(bgSubset),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
                                              background->alphaType(),
@@ -323,11 +325,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     if (foregroundProxy) {
-        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
-                                                        -SkIntToScalar(foregroundOffset.fY));
+        SkIRect fgSubset = foreground->subset();
+        SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
+                SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
+                SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
         auto foregroundFP = GrTextureDomainEffect::Make(
                 std::move(foregroundProxy), foregroundMatrix,
-                GrTextureDomain::MakeTexelDomain(foreground->subset()),
+                GrTextureDomain::MakeTexelDomain(fgSubset),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
                                                      foreground->getColorSpace(),
