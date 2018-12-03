@@ -60,6 +60,8 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
     uint16_t <a href='#SkFont_unicharToGlyph'>unicharToGlyph</a>(<a href='undocumented#SkUnichar'>SkUnichar</a> uni) const;
     int <a href='#SkFont_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding) const;
     bool <a href='#SkFont_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding) const;
+    size_t breakText(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
+                     <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkFont_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding,
                          <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr) const;
     bool <a href='#SkFont_getPath'>getPath</a>(uint16_t glyphID, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
