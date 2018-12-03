@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "690fe1a3_6580c93b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-03T14:44:44Z",
+      "side": 1,
+      "message": "nit: samplers",
+      "range": {
+        "startLine": 9,
+        "startChar": 44,
+        "endLine": 9,
+        "endChar": 51
+      },
+      "revId": "680264b6ec6253c77b08c232194675cd1f688d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b023c6b5_2f2c0c4c",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-03T14:44:44Z",
+      "side": 1,
+      "message": "nit: affected",
+      "range": {
+        "startLine": 414,
+        "startChar": 86,
+        "endLine": 414,
+        "endChar": 94
+      },
+      "revId": "680264b6ec6253c77b08c232194675cd1f688d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
