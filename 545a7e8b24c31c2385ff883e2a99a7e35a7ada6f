@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df2ff13c_fd43852b",
+        "filename": "src/gpu/vk/GrVkCopyManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T20:02:09Z",
+      "side": 1,
+      "message": "may want to check to make sure this didn\u0027t return nullptr",
+      "range": {
+        "startLine": 354,
+        "startChar": 4,
+        "endLine": 354,
+        "endChar": 43
+      },
+      "revId": "545a7e8b24c31c2385ff883e2a99a7e35a7ada6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
