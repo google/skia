@@ -17,9 +17,6 @@ assert '..' == os.pardir
 
 skia_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
-cmd = ['gsutil', 'ls', 'gs://' + bucket]
-extant = set(l.strip() for l in check_output(cmd).split('\n') if l)
-
 header = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,6 +38,15 @@ td { padding:12px 6px; }
 '''
 footer = '</body>\n</html>\n'
 
+def get_existing_files():
+    cmd = ['gsutil', 'ls', 'gs://' + bucket]
+    try:
+        output = check_output(cmd)
+    except:
+        sys.stderr.write('command: "%s" failed.\n' % ' '.join(cmd))
+        sys.exit(1)
+    return set(l.strip() for l in output.split('\n') if l)
+
 def find(short, extant):
     key_fmt = 'gs://%s/skqp-universal-%s.apk'
     while len(short) > 8:
@@ -53,6 +59,7 @@ def find(short, extant):
 def table(o, from_commit, to_commit):
     env_copy = os.environ.copy()
     env_copy['TZ'] = ''
+    extant = get_existing_files()
     o.write('<h2>%s %s</h2>\n' % (to_commit, ' '.join(from_commit)))
     o.write('<table>\n<tr><th>APK</th><th>Date</th><th>Commit</th></tr>\n')
     cmd = ['git', 'log'] + from_commit + [to_commit, '--format=%H']
