@@ -710,7 +710,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
         run->setRunFontAntiAlias(runPaint.isAntiAlias());
 
-        if (GrTextContext::CanDrawAsDistanceFields(runPaint, viewMatrix, props,
+        if (GrTextContext::CanDrawAsDistanceFields(runPaint,
+                                   SkFont::LEGACY_ExtractFromPaint(runPaint), viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), options)) {
             bool hasWCoord = viewMatrix.hasPerspective()
                              || options.fDistanceFieldVerticesAlwaysHaveW;
@@ -987,7 +988,8 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
     options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
     GrTextContext::SanitizeOptions(&options);
-    if (!GrTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, this->surfaceProps(),
+    if (!GrTextContext::CanDrawAsDistanceFields(runPaint, SkFont::LEGACY_ExtractFromPaint(runPaint),
+                                                runMatrix, this->surfaceProps(),
                                                 fSettings.fContextSupportsDistanceFieldText,
                                                 options)) {
         return false;
