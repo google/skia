@@ -33,7 +33,6 @@ var CanvasKit = {
 	MakeImageShader: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
-	MakeNimaActor: function() {},
 	MakeRadialGradientShader: function() {},
 	MakeSWCanvasSurface: function() {},
 	MakeSkDashPathEffect: function() {},
