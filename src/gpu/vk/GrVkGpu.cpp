@@ -194,6 +194,7 @@ void GrVkGpu::destroyResources() {
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
     VkResult res = VK_CALL(QueueWaitIdle(fQueue));
+    SkDebugf("QueueWaitIdle result: %d\n", res);
 
     // On windows, sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
@@ -2164,4 +2165,3 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
 void GrVkGpu::addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
     fDrawables.emplace_back(std::move(drawable));
 }
-
