@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5ffe9dee_424c049d",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-03T16:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79e6567f_82443aeb",
+      "range": {
+        "startLine": 277,
+        "startChar": 40,
+        "endLine": 277,
+        "endChar": 76
+      },
+      "revId": "53f160c2effb482bb6aabed0296c6bc7e747b727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3eddeb54_260ca8b8",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "cbca9cae_e44b1551",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-03T16:04:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3eddeb54_260ca8b8",
+      "range": {
+        "startLine": 279,
+        "startChar": 34,
+        "endLine": 279,
+        "endChar": 35
+      },
+      "revId": "53f160c2effb482bb6aabed0296c6bc7e747b727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6118713_ac247a20",
         "filename": "src/core/SkString.cpp",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "53f160c2effb482bb6aabed0296c6bc7e747b727",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6034b196_b8be9f76",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-03T16:04:14Z",
+      "side": 1,
+      "message": "Requires a ref qualified validate which is otherwise unneeded, so leave alone.",
+      "parentUuid": "f6118713_ac247a20",
+      "range": {
+        "startLine": 306,
+        "startChar": 4,
+        "endLine": 306,
+        "endChar": 21
+      },
+      "revId": "53f160c2effb482bb6aabed0296c6bc7e747b727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
