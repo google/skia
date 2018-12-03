@@ -4,23 +4,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 import os
 import re
 import sys
 import tempfile
 
-bucket = 'skia-skqp'
-
-assert '/' in [os.sep, os.altsep]
-assert '..' == os.pardir
-
-skia_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-
-cmd = ['gsutil', 'ls', 'gs://' + bucket]
-extant = set(l.strip() for l in check_output(cmd).split('\n') if l)
-
-header = '''<!DOCTYPE html>
+HEADER = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -29,71 +19,93 @@ header = '''<!DOCTYPE html>
 <style>
 body {
 font-family:sans-serif;
-max-width:55em;
+max-width:50em;
 margin:8px auto;
 padding:0 8px;
 }
-td { padding:12px 6px; }
+table { max-width:100%; border-collapse: collapse; }
+td { padding:12px 8px; vertical-align:top; }
+tr:nth-child(even) {background: #F2F2F2; color:#000;}
+tr:nth-child(odd)  {background: #FFFFFF; color:#000;}
 </style>
 </head>
 <body>
 <h1>SkQP Pre-built APKs</h1>
 '''
-footer = '</body>\n</html>\n'
+FOOTER = '</body>\n</html>\n'
 
-def find(short, extant):
-    key_fmt = 'gs://%s/skqp-universal-%s.apk'
-    while len(short) > 8:
-        key = key_fmt % (bucket, short)
-        if key in extant:
-            return key
-        short = short[:-1]
+BUCKET = 'skia-skqp'
+
+NAME_FMT = 'skqp-universal-%s.apk'
+
+def get_existing_files():
+    cmd = ['gsutil', 'ls', 'gs://' + BUCKET]
+    try:
+        output = check_output(cmd)
+    except (OSError, CalledProcessError):
+        sys.stderr.write('command: "%s" failed.\n' % ' '.join(cmd))
+        sys.exit(1)
+    result = set()
+    regex = re.compile('gs://%s/%s' % (BUCKET, NAME_FMT % '([0-9a-f]+)'))
+    for line in output.split('\n'):
+        m = regex.match(line.strip())
+        if m is not None:
+            result.add(m.group(1))
+    return result
+
+def find(v, extant):
+    l = min(16, len(v))
+    while l > 8:
+        if v[:l] in extant:
+            return v[:l]
+        l -= 1
     return None
+
+def nowrap(s):
+    return (s.replace(' ', u'\u00A0'.encode('utf-8'))
+             .replace('-', u'\u2011'.encode('utf-8')))
 
 def table(o, from_commit, to_commit):
     env_copy = os.environ.copy()
     env_copy['TZ'] = ''
+    extant = get_existing_files()
     o.write('<h2>%s %s</h2>\n' % (to_commit, ' '.join(from_commit)))
     o.write('<table>\n<tr><th>APK</th><th>Date</th><th>Commit</th></tr>\n')
-    cmd = ['git', 'log'] + from_commit + [to_commit, '--format=%H']
-    for line in check_output(cmd).split('\n'):
-        commit = line.strip()
-        if not commit:
+    git_cmd = ['git', 'log', '--format=%H;%cd;%<(100,trunc)%s',
+               '--date=format-local:%Y-%m-%d %H:%M:%S %Z'
+               ] + from_commit + [to_commit]
+    commits = check_output(git_cmd, env=env_copy)
+    for line in commits.split('\n'):
+        line = line.strip()
+        if not line:
             continue
-        short = check_output(['git', 'log', '-1',
-                              '--format=%h', commit]).strip()
-        name = find(short, extant)
-
-        if name is not None:
-            url = re.sub('gs://', 'https://storage.googleapis.com/', name)
-            apk_name = 'skqp-universal-%s.apk' % short
+        commit, date, subj = line.split(';', 2)
+        short = find(commit, extant)
+        if short is not None:
+            apk_name =  NAME_FMT % short
+            url = 'https://storage.googleapis.com/%s/%s' % (BUCKET, apk_name)
         else:
-            url = ''
-            apk_name = ''
-        date = check_output(['git', 'log', '-1', commit,
-                             '--date=format-local:%Y-%m-%d %H:%M:%S %Z',
-                             '--format=%cd'], env=env_copy).strip()
-        subj = check_output(['git', 'log', '-1', commit,
-                             '--format=%<(50,trunc)%s']).strip()
+            apk_name, url =  '', ''
         commit_url = 'https://skia.googlesource.com/skia/+/' + commit
-
         o.write('<tr>\n<td><a href="%s">%s</a></td>\n'
                 '<td>%s</td>\n<td><a href="%s">%s</a></td>\n</tr>\n' %
-                (url, apk_name, date, commit_url, subj))
+                (url, nowrap(apk_name), nowrap(date), commit_url, subj))
     o.write('</table>\n')
 
-if __name__ == '__main__':
+def main():
+    assert '/' in [os.sep, os.altsep] and '..' == os.pardir
+    os.chdir(os.path.join(os.path.dirname(__file__), '../..'))
     d = tempfile.mkdtemp()
     path = os.path.join(d, 'apklist.html')
     with open(path, 'w') as o:
-        o.write(header)
+        o.write(HEADER)
         table(o, ['^origin/master', '^3e34285f2a0'], 'origin/skqp/dev')
         table(o, ['^origin/master'], 'origin/skqp/release')
-        o.write(footer)
+        o.write(FOOTER)
     print path
-    cmd = 'gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
-    print cmd % path
+    gscmd = 'gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
+    print gscmd % path
 
-
-
+if __name__ == '__main__':
+    main()
 
