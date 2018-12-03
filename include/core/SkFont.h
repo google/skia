@@ -61,10 +61,12 @@ public:
     /** Compares SkFont and font, and returns true if they are equivalent.
         May return false if SkTypeface has identical contents but different pointers.
 
-        @param font  SkPaint to compare
+        @param font  font to compare
         @return      true if SkFont pair are equivalent
     */
     bool operator==(const SkFont& font) const;
+    // Experimental
+    bool operator!=(const SkFont& font) const { return !(*this == font); }
 
     /** If true, instructs the font manager to always hint glyphs.
         Returned value is only meaningful if platform uses FreeType as the font manager.
