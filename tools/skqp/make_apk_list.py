@@ -17,8 +17,8 @@ assert '..' == os.pardir
 
 skia_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 
-cmd = ['gsutil', 'ls', 'gs://' + bucket]
-extant = set(l.strip() for l in check_output(cmd).split('\n') if l)
+_gsutil_ls = ['gsutil', 'ls', 'gs://' + bucket]
+_extant = set(l.strip() for l in check_output(_gsutil_ls).split('\n') if l)
 
 header = '''<!DOCTYPE html>
 <html lang="en">
@@ -62,7 +62,7 @@ def table(o, from_commit, to_commit):
             continue
         short = check_output(['git', 'log', '-1',
                               '--format=%h', commit]).strip()
-        name = find(short, extant)
+        name = find(short, _extant)
 
         if name is not None:
             url = re.sub('gs://', 'https://storage.googleapis.com/', name)
@@ -85,15 +85,11 @@ def table(o, from_commit, to_commit):
 if __name__ == '__main__':
     d = tempfile.mkdtemp()
     path = os.path.join(d, 'apklist.html')
-    with open(path, 'w') as o:
-        o.write(header)
-        table(o, ['^origin/master', '^3e34285f2a0'], 'origin/skqp/dev')
-        table(o, ['^origin/master'], 'origin/skqp/release')
-        o.write(footer)
+    with open(path, 'w') as out:
+        out.write(header)
+        table(out, ['^origin/master', '^3e34285f2a0'], 'origin/skqp/dev')
+        table(out, ['^origin/master'], 'origin/skqp/release')
+        out.write(footer)
     print path
-    cmd = 'gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
-    print cmd % path
-
-
-
-
+    print ('gsutil -h "Content-Type:text/html" cp "%s" gs://skia-skqp/apklist'
+           % path)
