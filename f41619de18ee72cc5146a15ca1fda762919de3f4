@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4a52dfdd_5db47662",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-03T21:19:47Z",
+      "side": 1,
+      "message": "Looks like onFreeGPUData doesn\u0027t reference the pool, so I should be able to release the lock earlier.",
+      "parentUuid": "c61bc25d_48c9e842",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 29
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a573837_e70f9703",
         "filename": "src/gpu/vk/GrVkCommandBuffer.h",
         "patchSetId": 18
@@ -45,6 +69,30 @@
       "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b563ee3_c77f9c67",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-03T21:19:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4a573837_e70f9703",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 42
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "66ff6cde_60ea5794",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-03T21:19:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "204ff218_370b869f",
+      "range": {
+        "startLine": 38,
+        "startChar": 5,
+        "endLine": 40,
+        "endChar": 50
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f8e3951_3cb039a0",
         "filename": "src/gpu/vk/GrVkCommandPool.h",
         "patchSetId": 18
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "4f8bce49_106d75ec",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-03T21:19:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f8e3951_3cb039a0",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 81
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6139258_3aa27832",
         "filename": "src/gpu/vk/GrVkCommandPool.h",
         "patchSetId": 18
@@ -105,6 +201,30 @@
       "writtenOn": "2018-12-03T18:45:14Z",
       "side": 1,
       "message": "Can a command pool even have more than one primary command buffer? In my head I picture a GrVkCommandPool owns a single primary command buffer (that it makes in its ctor) and just always uses that one.",
+      "range": {
+        "startLine": 82,
+        "startChar": 5,
+        "endLine": 83,
+        "endChar": 74
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39bcc9c1_a423fe0d",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-03T21:19:47Z",
+      "side": 1,
+      "message": "There are definitely times where we call submitCommandBuffer multiple times during a single frame - doesn\u0027t that require multiple primary buffers?",
+      "parentUuid": "f6139258_3aa27832",
       "range": {
         "startLine": 82,
         "startChar": 5,
