@@ -97,7 +97,7 @@ for (int index = 0; index < 2; ++index) {
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
-                                          SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding)
+                                          SkTextEncoding encoding = kUTF8_SkTextEncoding)
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
@@ -133,7 +133,7 @@ font contains attributes used to define the run text: #paint_font_metrics#.
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
-             SkPaint::TextEncoding encoding = SkPaint::kUTF8_TextEncoding)
+             SkTextEncoding encoding = kUTF8_SkTextEncoding)
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
