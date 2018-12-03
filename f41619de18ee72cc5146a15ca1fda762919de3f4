@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c61bc25d_48c9e842",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T18:45:14Z",
+      "side": 1,
+      "message": "do we want to keep holding the lock through this call or can we release it after the FreeCommandBuffers.",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 29
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a573837_e70f9703",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T18:45:14Z",
+      "side": 1,
+      "message": "Is this a ref or just a raw pointer? Maybe add comment to describe how its lifetime relates to the command pool",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 42
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "204ff218_370b869f",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T18:45:14Z",
+      "side": 1,
+      "message": "Lets move these to private as I don\u0027t think they should be called directly by anything outside of the unref calls",
+      "range": {
+        "startLine": 38,
+        "startChar": 5,
+        "endLine": 40,
+        "endChar": 50
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f8e3951_3cb039a0",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T18:45:14Z",
+      "side": 1,
+      "message": "Part of me likes our system with all GrVkResources are gotten via calls to GrVkResourceProvider. To keep consistency with the rest of the system maybe we have these calls on GrVkResourceProvider instead. The resource provider can then ask the GrVkGpu for the current GrVkCommandPool. Since it makes sense for the command pool to own the caches of command buffers, I think the resource provider would then just call these functions on the command pool. I think it would even be fine for the command pool to make these private and friend the resource provider.",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 81
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6139258_3aa27832",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-03T18:45:14Z",
+      "side": 1,
+      "message": "Can a command pool even have more than one primary command buffer? In my head I picture a GrVkCommandPool owns a single primary command buffer (that it makes in its ctor) and just always uses that one.",
+      "range": {
+        "startLine": 82,
+        "startChar": 5,
+        "endLine": 83,
+        "endChar": 74
+      },
+      "revId": "f41619de18ee72cc5146a15ca1fda762919de3f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
