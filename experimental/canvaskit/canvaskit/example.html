@@ -48,9 +48,6 @@
 <!-- Doesn't work yet. -->
 <button id=lego_btn>Take a picture of the legos</button>
 
-<h2> Nima </h2>
-
-<canvas id=nima_example width=300 height=300></canvas>
 
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
@@ -89,8 +86,6 @@
       SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
       SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-
-      NimaExample(CanvasKit, nimaFile, nimaTexture);
 
       CanvasAPI1(CanvasKit);
       CanvasAPI2(CanvasKit);
@@ -132,20 +127,6 @@
     resp.text().then((str) => {
       onboardingJSON = str;
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima').then((resp) => {
-    resp.arrayBuffer().then((buffer) => {
-      nimaFile = buffer;
-      NimaExample(CanvasKit, nimaFile, nimaTexture);
-    });
-  });
-
-  fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima.png').then((resp) => {
-    resp.arrayBuffer().then((arrayBuffer) => {
-      nimaTexture = arrayBuffer;
-      NimaExample(CanvasKit, nimaFile, nimaTexture);
     });
   });
 
@@ -740,42 +721,6 @@
 
     }
     document.getElementById('api6').src = skcanvas.toDataURL();
-  }
-
-  function NimaExample(CanvasKit, nimaFile, nimaTexture) {
-    if (!CanvasKit || !nimaFile || !nimaTexture) {
-      return;
-    }
-    const animation = CanvasKit.MakeNimaActor(nimaFile, nimaTexture);
-    if (!animation) {
-      console.error('could not make animation');
-      return;
-    }
-
-    const surface = CanvasKit.MakeCanvasSurface('nima_example');
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
-    }
-
-    const context = CanvasKit.currentContext();
-    const canvas = surface.getCanvas();
-    canvas.translate(125, 275);
-    canvas.scale(0.4, -0.4);
-
-    let firstFrame = Date.now();
-    animation.setAnimationByName('attack');
-
-    function drawFrame() {
-      let seek = ((Date.now() - firstFrame) / 1000.0);
-      CanvasKit.setCurrentContext(context);
-      canvas.clear(CanvasKit.TRANSPARENT);
-      animation.seek(seek);
-      animation.render(canvas);
-      surface.flush();
-      window.requestAnimationFrame(drawFrame);
-    }
-    window.requestAnimationFrame(drawFrame);
   }
 
   function VertexAPI1(CanvasKit) {

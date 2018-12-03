@@ -76,15 +76,6 @@ if [[ $@ == *no_managed_skottie* ]]; then
   WASM_MANAGED_SKOTTIE="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
-GN_NIMA="skia_enable_nima=true"
-WASM_NIMA="-DSK_INCLUDE_NIMA=1 \
-  experimental/nima/NimaActor.cpp"
-if [[ $@ == *no_nima* ]]; then
-  echo "Omitting Nima"
-  GN_NIMA="skia_enable_nima=false"
-  WASM_NIMA="-DSK_INCLUDE_NIMA=0"
-fi
-
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/canvas2d.js"
 if [[ $@ == *no_canvas* ]]; then
   echo "Omitting bindings for HTML Canvas API"
@@ -139,7 +130,6 @@ echo "Compiling bitcode"
   skia_enable_ccpr=false \
   skia_enable_nvpr=false \
   skia_enable_skpicture=false \
-  ${GN_NIMA} \
   ${GN_GPU} \
   skia_enable_fontmgr_empty=false \
   skia_enable_pdf=false"
@@ -178,8 +168,6 @@ ${EMCXX} \
     -Isrc/utils/ \
     -Itools \
     -Itools/fonts \
-    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Cpp \
-    -I$BUILD_DIR/gen/third_party/Nima-Cpp/Nima-Math-Cpp \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     -DSK_DISABLE_DAA \
@@ -192,7 +180,6 @@ ${EMCXX} \
     $BASE_DIR/canvaskit_bindings.cpp \
     tools/fonts/SkTestFontMgr.cpp \
     tools/fonts/SkTestTypeface.cpp \
-    $WASM_NIMA \
     $WASM_SKOTTIE \
     $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
