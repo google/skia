@@ -733,7 +733,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
                 auto perSDF =
-                    [this, run, &currStrike, filteredColor, cache{cache.get()}, textRatio]
+                    [this, &run, &currStrike, &filteredColor, cache{cache.get()}, textRatio]
                     (const SkGlyph& glyph, SkPoint position) {
                         run->appendGlyph(this, currStrike,
                                     glyph, GrGlyph::kDistance_MaskStyle, position,
@@ -742,7 +742,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                     };
 
                 auto perPath =
-                    [run, textRatio, cache{cache.get()}]
+                    [&run, textRatio, cache{cache.get()}]
                     (const SkGlyph& glyph, SkPoint position) {
                         if (const SkPath* glyphPath = cache->findPath(glyph)) {
                             run->appendPathGlyph(*glyphPath, position, textRatio, false);
@@ -775,7 +775,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                 scalerContextFlags, SkMatrix::I());
 
             // Given a glyph that is not ARGB, draw it.
-            auto perPath = [textScale, run, &pathCache]
+            auto perPath = [textScale, &run, &pathCache]
                            (const SkGlyph& glyph, SkPoint position) {
                 const SkPath* path = pathCache->findPath(glyph);
                 if (path != nullptr) {
@@ -800,7 +800,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
             auto perGlyph =
-                [this, run, &currStrike, filteredColor, cache{cache.get()}]
+                [this, &run, &currStrike, &filteredColor, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint mappedPt) {
                     SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
                                SkScalarFloorToScalar(mappedPt.fY)};
@@ -810,7 +810,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 };
 
             auto perPath =
-                [run, cache{cache.get()}]
+                [&run, cache{cache.get()}]
                 (const SkGlyph& glyph, SkPoint position) {
                     const SkPath* glyphPath = cache->findPath(glyph);
                     SkPoint pt{SkScalarFloorToScalar(position.fX),
