@@ -570,6 +570,22 @@ Whether edge pixels draw opaque or with partial transparency.
 
 # ------------------------------------------------------------------------------
 
+#Method size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth,
+                     SkScalar* measuredWidth = nullptr) const
+#In  incomplete
+#Line # incomplete ##
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const
 #In incomplete

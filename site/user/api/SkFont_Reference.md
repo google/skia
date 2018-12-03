@@ -60,7 +60,7 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
     uint16_t <a href='#SkFont_unicharToGlyph'>unicharToGlyph</a>(<a href='undocumented#SkUnichar'>SkUnichar</a> uni) const;
     int <a href='#SkFont_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding) const;
     bool <a href='#SkFont_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding) const;
-    size_t breakText(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
+    size_t <a href='#SkFont_breakText'>breakText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
                      <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkFont_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding,
                          <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr) const;
@@ -998,6 +998,54 @@ Returns true if <a href='#SkFont_containsText_byteLength'>byteLength</a> is zero
 ### Return Value
 
 true if all <a href='#SkFont_containsText_text'>text</a> corresponds to a non-zero <a href='undocumented#Glyph'>glyph</a> index
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_breakText'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+size_t <a href='#SkFont_breakText'>breakText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
+                 <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr)const
+</pre>
+
+Returns the bytes of <a href='#SkFont_breakText_text'>text</a> that fit within <a href='#SkFont_breakText_maxWidth'>maxWidth</a>.
+The <a href='#SkFont_breakText_text'>text</a> fragment fits if its advance width is less than or equal to <a href='#SkFont_breakText_maxWidth'>maxWidth</a>.
+Measures only while the advance is less than or equal to <a href='#SkFont_breakText_maxWidth'>maxWidth</a>.
+Returns the advance or the <a href='#SkFont_breakText_text'>text</a> fragment in <a href='#SkFont_breakText_measuredWidth'>measuredWidth</a> if it not nullptr.
+Uses <a href='#SkFont_breakText_encoding'>encoding</a> to decode <a href='#SkFont_breakText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='SkFont_Reference#Font'>font</a> metrics,
+and <a href='#SkFont_breakText_text'>text</a> <a href='undocumented#Size'>size</a> to scale the metrics.
+Does not scale the advance or bounds by fake bold.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_breakText_text'><code><strong>text</strong></code></a></td>
+    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
+  </tr>
+  <tr>    <td><a name='SkFont_breakText_length'><code><strong>length</strong></code></a></td>
+    <td>number of bytes of <a href='#SkFont_breakText_text'>text</a> to measure</td>
+  </tr>
+  <tr>    <td><a name='SkFont_breakText_encoding'><code><strong>encoding</strong></code></a></td>
+    <td><a href='#SkFont_breakText_text'>text</a> <a href='#SkFont_breakText_encoding'>encoding</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_breakText_maxWidth'><code><strong>maxWidth</strong></code></a></td>
+    <td>advance limit; <a href='#SkFont_breakText_text'>text</a> is measured while advance is less than <a href='#SkFont_breakText_maxWidth'>maxWidth</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_breakText_measuredWidth'><code><strong>measuredWidth</strong></code></a></td>
+    <td>returns the width of the <a href='#SkFont_breakText_text'>text</a> less than or equal to <a href='#SkFont_breakText_maxWidth'>maxWidth</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+bytes of <a href='#SkFont_breakText_text'>text</a> that fit, always less than or equal to <a href='#SkFont_breakText_length'>length</a>
 
 ### Example
 

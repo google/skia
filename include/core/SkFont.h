@@ -295,7 +295,22 @@ public:
      */
     bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
 
-    size_t breakText(const void* text, size_t length, SkTextEncoding, SkScalar maxWidth,
+    /** Returns the bytes of text that fit within maxWidth.
+        The text fragment fits if its advance width is less than or equal to maxWidth.
+        Measures only while the advance is less than or equal to maxWidth.
+        Returns the advance or the text fragment in measuredWidth if it not nullptr.
+        Uses encoding to decode text, SkTypeface to get the font metrics,
+        and text size to scale the metrics.
+        Does not scale the advance or bounds by fake bold.
+
+        @param text           character codes or glyph indices to be measured
+        @param length         number of bytes of text to measure
+        @param encoding       text encoding
+        @param maxWidth       advance limit; text is measured while advance is less than maxWidth
+        @param measuredWidth  returns the width of the text less than or equal to maxWidth
+        @return               bytes of text that fit, always less than or equal to length
+    */
+    size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth,
                      SkScalar* measuredWidth = nullptr) const;
 
     /** Returns the advance width of text.
