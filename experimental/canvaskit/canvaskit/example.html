@@ -136,35 +136,23 @@
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          nimaFile = reader.result;
-          NimaExample(CanvasKit, nimaFile, nimaTexture);
-      });
-      reader.readAsArrayBuffer(blob);
+    resp.arrayBuffer().then((buffer) => {
+      nimaFile = buffer;
+      NimaExample(CanvasKit, nimaFile, nimaTexture);
     });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/robot.nima.png').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          nimaTexture = reader.result;
-          NimaExample(CanvasKit, nimaFile, nimaTexture);
-      });
-      reader.readAsArrayBuffer(blob);
+    resp.arrayBuffer().then((arrayBuffer) => {
+      nimaTexture = arrayBuffer;
+      NimaExample(CanvasKit, nimaFile, nimaTexture);
     });
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
-    resp.blob().then((blob) => {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", function() {
-          bonesImage = reader.result;
-          VertexAPI2(CanvasKit, bonesImage);
-      });
-      reader.readAsArrayBuffer(blob);
+    resp.arrayBuffer().then((buffer) => {
+      bonesImage = buffer;
+      VertexAPI2(CanvasKit, bonesImage);
     });
   });
 
@@ -448,25 +436,55 @@
     let skcanvas = CanvasKit.MakeCanvas(300, 300);
     let realCanvas = document.getElementById('api1_c');
 
-    for (let canvas of [skcanvas, realCanvas]) {
-      let ctx = canvas.getContext('2d');
-      ctx.font = '30px Impact'
-      ctx.rotate(.1);
-      let text = ctx.measureText('Awesome');
-      ctx.fillText('Awesome ', 50, 100);
-      ctx.strokeText('Groovy!', 60+text.width, 100);
+    let skPromise   = fetch('./test.png')
+                        // if clients want to use a Blob, they are responsible
+                        // for reading it themselves.
+                        .then((response) => response.arrayBuffer())
+                        .then((buffer) => {
+                          skcanvas._img = skcanvas.decodeImage(buffer);
+                        });
+    let realPromise = fetch('./test.png')
+                        .then((response) => response.blob())
+                        .then((blob) => createImageBitmap(blob))
+                        .then((bitmap) => {
+                          realCanvas._img = bitmap;
+                        });
 
-      // Draw line under Awesome
-      ctx.strokeStyle = 'rgba(125,0,0,0.5)';
-      ctx.beginPath();
-      ctx.lineWidth=6;
-      ctx.lineTo(50, 105);
-      ctx.lineTo(50 + text.width, 105);
-      ctx.stroke();
-    }
 
-    // TODO load image
-    document.getElementById('api1').src = skcanvas.toDataURL();
+    Promise.all([realPromise, skPromise]).then(() => {
+      for (let canvas of [skcanvas, realCanvas]) {
+        let ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#EEE';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.fillStyle = 'black';
+        ctx.font = '30px Impact'
+        ctx.rotate(.1);
+        let text = ctx.measureText('Awesome');
+        ctx.fillText('Awesome ', 50, 100);
+        ctx.strokeText('Groovy!', 60+text.width, 100);
+
+        // Draw line under Awesome
+        ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+        ctx.beginPath();
+        ctx.lineWidth=6;
+        ctx.lineTo(50, 105);
+        ctx.lineTo(50 + text.width, 105);
+        ctx.stroke();
+
+        // squished vertically
+        ctx.globalAlpha = 0.7
+        ctx.imageSmoothingQuality = 'medium';
+        ctx.drawImage(canvas._img, 150, 150, 150, 100);
+        ctx.rotate(-.2);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(canvas._img, 100, 150, 400, 350, 10, 200, 150, 100);
+      }
+
+
+      document.getElementById('api1').src = skcanvas.toDataURL();
+      skcanvas.dispose();
+    });
+
   }
 
   function CanvasAPI2(CanvasKit) {

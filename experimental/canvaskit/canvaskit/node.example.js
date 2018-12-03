@@ -1,12 +1,18 @@
 console.log('hello world');
 
 const CanvasKitInit = require('./bin/canvaskit.js');
+const fs = require('fs');
+const path = require('path');
+
 
 CanvasKitInit({
   locateFile: (file) => __dirname + '/bin/'+file,
 }).then((CK) => {
   CanvasKit = CK;
   let canvas = CanvasKit.MakeCanvas(300, 300);
+
+  let img = fs.readFileSync(path.join(__dirname, 'test.png'));
+  img = canvas.decodeImage(img);
 
   let ctx = canvas.getContext('2d');
   ctx.font = '30px Impact'
@@ -22,6 +28,14 @@ CanvasKitInit({
   ctx.lineTo(50, 102);
   ctx.lineTo(50 + text.width, 102);
   ctx.stroke();
+
+  // squished vertically
+  ctx.globalAlpha = 0.7
+  ctx.imageSmoothingQuality = 'medium';
+  ctx.drawImage(img, 150, 150, 150, 100);
+  ctx.rotate(-.2);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, 100, 150, 400, 350, 10, 200, 150, 100);
 
   // TODO load an image from file
   console.log('<img src="' + canvas.toDataURL() + '" />');
