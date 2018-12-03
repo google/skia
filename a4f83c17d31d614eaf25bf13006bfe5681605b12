@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46c367b7_ed0c80f3",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-03T19:49:56Z",
+      "side": 1,
+      "message": "Does it make sense for this to be\n\n   const SkPath* path() const { return ...; }\n         SkPath* path()       { return ...; }\n\n?",
+      "range": {
+        "startLine": 169,
+        "startChar": 3,
+        "endLine": 171,
+        "endChar": 5
+      },
+      "revId": "a4f83c17d31d614eaf25bf13006bfe5681605b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
