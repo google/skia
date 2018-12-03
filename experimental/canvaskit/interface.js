@@ -328,6 +328,15 @@
     };
   }
 
+  CanvasKit.XYWHRect = function(x, y, w, h) {
+    return {
+      fLeft: x,
+      fTop: y,
+      fRight: x+w,
+      fBottom: y+h,
+    };
+  }
+
   var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 
   // arr can be a normal JS array or a TypedArray
@@ -401,6 +410,26 @@
     var dpe = CanvasKit._MakeSkDashPathEffect(ptr, intervals.length, phase);
     CanvasKit._free(ptr);
     return dpe;
+  }
+
+  // data is a TypedArray or ArrayBuffer
+  CanvasKit.MakeImageFromEncoded = function(data) {
+    data = new Uint8Array(data);
+
+    var iptr = CanvasKit._malloc(data.byteLength);
+    CanvasKit.HEAPU8.set(data, iptr);
+    var img = CanvasKit._decodeImage(iptr, data.byteLength);
+    if (!img) {
+      SkDebug('Could not decode image');
+      CanvasKit._free(iptr);
+      return null;
+    }
+    var realDelete = img.delete.bind(img);
+    img.delete = function() {
+      CanvasKit._free(iptr);
+      realDelete();
+    }
+    return img;
   }
 
   CanvasKit.MakeImageShader = function(imgData, xTileMode, yTileMode) {
