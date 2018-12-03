@@ -106,7 +106,7 @@ public:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                 const auto& gp = args.fGP.cast<QuadPerEdgeAAGeometryProcessor>();
                 args.fVaryingHandler->emitAttributes(gp);
-                gpArgs->fPositionVar = gp.fAttrs.positions().asShaderVar();
+                gpArgs->fPositionVar = gp.fAttrs.emitPosition(args, "pos");
 
                 if (gp.fAttrs.hasLocalCoords()) {
                     this->emitTransforms(args.fVertBuilder,

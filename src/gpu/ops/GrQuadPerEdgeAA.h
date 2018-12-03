@@ -84,7 +84,7 @@ namespace GrQuadPerEdgeAA {
 
         GPAttributes(const VertexSpec& vertexSpec);
 
-        const Attribute& positions() const { return fPositions; }
+        const Attribute& positionsAndMaxCoverage() const { return fPositions; }
         const Attribute& colors() const { return fColors; }
         const Attribute& localCoords() const { return fLocalCoords; }
         const Attribute& domain() const { return fDomain; }
@@ -111,6 +111,10 @@ namespace GrQuadPerEdgeAA {
         // variables the emitted code must declare, so that the calling GP can ensure there's no
         // naming conflicts with their own code.
 
+        // Returns the GrShaderVar to store in GrGPArgs
+        GrShaderVar emitPosition(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                 const char* posVarName) const;
+
         void emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args, const char* colorVarName) const;
 
         // localCoordName will be declared as a float2, with any domain applied after any
@@ -132,6 +136,9 @@ namespace GrQuadPerEdgeAA {
         Attribute fLocalCoords;     // named "localCoord" in SkSL
         Attribute fDomain;          // named "domain" in SkSL
         Attribute fAAEdgeDistances; // named "aaEdgeDist" in SkSL
+
+        // The positions attribute is always a vec4 and can't be used to encode perspectiveness
+        bool fNeedsPerspective;
     };
 
     // Fill vertices with the vertex data needed to represent the given quad. The device position,
