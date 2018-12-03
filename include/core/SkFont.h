@@ -246,7 +246,7 @@ public:
         If maxGlyphCount is not sufficient to store all the glyphs, no glyphs are copied.
         The total glyph count is returned for subsequent buffer reallocation.
 
-        @param text          character storage encoded with SkPaint::TextEncoding
+        @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
         @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
                              kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
@@ -268,7 +268,7 @@ public:
 
     /** Returns number of glyphs represented by text.
 
-        @param text          character storage encoded with SkPaint::TextEncoding
+        @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
         @param encoding      one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
                              kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
@@ -317,7 +317,7 @@ public:
         The advance is the normal distance to move before drawing additional text.
         Returns the bounding box of text if bounds is not nullptr.
 
-        @param text        character storage encoded with SkPaint::TextEncoding
+        @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
         @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
                            kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding

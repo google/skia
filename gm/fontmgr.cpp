@@ -254,7 +254,7 @@ public:
         {
             int numGlyphs = glyphPaint.getTypeface()->countGlyphs();
             SkRect min = {0, 0, 0, 0};
-            glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            glyphPaint.setTextEncoding(kGlyphID_SkTextEncoding);
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
                 SkRect cur;

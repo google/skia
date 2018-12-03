@@ -151,7 +151,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     paint.setTypeface(font.refTypeface());
     paint.setTextSize(font.size());
     paint.setStyle(SkPaint::kFill_Style);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     // The atlas text context does munging of the paint color. We store the client's color here
     // and then overwrite the generated op's color when addDrawOp() is called.

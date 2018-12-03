@@ -109,17 +109,17 @@ void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
                                          const SkPaint& paint) {
     const char* stop = (const char*)text + byteLength;
     CountTextProc proc = nullptr;
-    switch (paint.getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding:
+    switch ((SkTextEncoding)paint.getTextEncoding()) {
+        case kUTF8_SkTextEncoding:
             proc = count_utf8;
             break;
-        case SkPaint::kUTF16_TextEncoding:
+        case kUTF16_SkTextEncoding:
             proc = count_utf16;
             break;
-        case SkPaint::kUTF32_TextEncoding:
+        case kUTF32_SkTextEncoding:
             proc = return_4;
             break;
-        case SkPaint::kGlyphID_TextEncoding:
+        case kGlyphID_SkTextEncoding:
             proc = return_2;
             break;
     }

@@ -12,7 +12,7 @@
 #include "SkTypeface.h"
 
 // TODO: add to clients, and then remove from here.
-#define SK_SUPPORT_LEGACY_TEXTENCODINGENUM
+//#define SK_SUPPORT_LEGACY_TEXTENCODINGENUM
 
 #ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
 enum SkTextEncoding : uint8_t {

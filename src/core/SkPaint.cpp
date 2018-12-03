@@ -58,7 +58,7 @@ SkPaint::SkPaint() {
     fBitfields.fCapType      = kDefault_Cap;
     fBitfields.fJoinType     = kDefault_Join;
     fBitfields.fStyle        = kFill_Style;
-    fBitfields.fTextEncoding = kUTF8_TextEncoding;
+    fBitfields.fTextEncoding = static_cast<unsigned>(kUTF8_SkTextEncoding);
     fBitfields.fHinting      = static_cast<unsigned>(SkPaintDefaults_Hinting);
 }
 
@@ -326,9 +326,9 @@ void SkPaint::setTextSkewX(SkScalar skewX) {
     fTextSkewX = skewX;
 }
 
-void SkPaint::setTextEncoding(TextEncoding encoding) {
-    if ((unsigned)encoding <= kGlyphID_TextEncoding) {
-        fBitfields.fTextEncoding = encoding;
+void SkPaint::setTextEncoding(SkTextEncoding encoding) {
+    if ((unsigned)encoding <= (unsigned)kGlyphID_SkTextEncoding) {
+        fBitfields.fTextEncoding = (unsigned)encoding;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);
@@ -445,7 +445,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     buffer.writeUInt(pack_paint_flags(paint.getFlags(), static_cast<unsigned>(paint.getHinting()),
                                       paint.getFilterQuality(), flatFlags));
     buffer.writeUInt(pack_4(paint.getStrokeCap(), paint.getStrokeJoin(),
-                            (paint.getStyle() << 4) | paint.getTextEncoding(),
+                            (paint.getStyle() << 4) | (unsigned)paint.getTextEncoding(),
                             paint.fBlendMode));
 
     buffer.writeTypeface(tf);
@@ -483,7 +483,7 @@ bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
     paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
     paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
     paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
-    paint->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, SkPaint::kGlyphID_TextEncoding));
+    paint->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_SkTextEncoding));
     paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
