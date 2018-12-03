@@ -6,17 +6,18 @@ Skia][1].  Here is how that process works:
 
 1.  Get the positively triaged results from Gold:
 
-    Go to [Skia Gold's search][2] and search for results that are
+        cd SKIA_SOURCE_DIRECTORY
+        git fetch origin
+        git checkout origin/master
+        tools/skqp/get_gold_export_url.py HEAD~10 HEAD
 
-      * Positive
-      * config=gles OR config=vk
-      * Span as many commits in the past as possible.
+    Open the resulting URL in a browser and download the resulting `meta.json` file.
 
-    Then go to "Actions" → "Export" and save the resulting `meta.json` file.
+        tools/skqp/sysopen.py $(tools/skqp/get_gold_export_url.py HEAD~10 HEAD)
 
 2.  From a checkout of Skia's master branch, execute:
 
-        origin	https://skia.googlesource.com/skia.git
+        cd SKIA_SOURCE_DIRECTORY
         git checkout origin/master
         tools/skqp/cut_release META_JSON_FILE
 
