@@ -146,6 +146,7 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
 
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
+    <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const;
     int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength,
                      <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[]) const;
     bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const;
@@ -169,7 +170,6 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
                               <a href='undocumented#SkScalar'>SkScalar</a> constY, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
                               <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
-    <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const;
     bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const;
 };
 
