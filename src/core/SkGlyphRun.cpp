@@ -17,11 +17,11 @@
 #include "SkUtils.h"
 
 namespace {
-static SkTypeface::Encoding convert_encoding(SkPaint::TextEncoding encoding) {
+static SkTypeface::Encoding convert_encoding(SkTextEncoding encoding) {
     switch (encoding) {
-        case  SkPaint::kUTF8_TextEncoding: return SkTypeface::kUTF8_Encoding;
-        case SkPaint::kUTF16_TextEncoding: return SkTypeface::kUTF16_Encoding;
-        case SkPaint::kUTF32_TextEncoding: return SkTypeface::kUTF32_Encoding;
+        case  kUTF8_SkTextEncoding: return SkTypeface::kUTF8_Encoding;
+        case kUTF16_SkTextEncoding: return SkTypeface::kUTF16_Encoding;
+        case kUTF32_SkTextEncoding: return SkTypeface::kUTF32_Encoding;
         default: return SkTypeface::kUTF32_Encoding;
     }
 }
@@ -309,8 +309,8 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 
 SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         const SkPaint& paint, const void* bytes, size_t byteLength) {
-    auto encoding = paint.getTextEncoding();
-    if (encoding != SkPaint::kGlyphID_TextEncoding) {
+    SkTextEncoding encoding = (SkTextEncoding)paint.getTextEncoding();
+    if (encoding != kGlyphID_SkTextEncoding) {
         auto tfEncoding = convert_encoding(encoding);
         int utfSize = SkUTFN_CountUnichars(tfEncoding, bytes, byteLength);
         if (utfSize > 0) {

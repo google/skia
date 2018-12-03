@@ -175,8 +175,8 @@ static SkPaint::Join make_paint_join() {
     return static_cast<SkPaint::Join>(R(SkPaint::kDefault_Join+1));
 }
 
-static SkPaint::TextEncoding make_paint_text_encoding() {
-    return static_cast<SkPaint::TextEncoding>(R(SkPaint::kGlyphID_TextEncoding+1));
+static SkTextEncoding make_paint_text_encoding() {
+    return static_cast<SkTextEncoding>(R((int)kGlyphID_SkTextEncoding+1));
 }
 
 static SkBlurStyle make_blur_style() {

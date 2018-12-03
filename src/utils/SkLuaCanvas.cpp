@@ -37,7 +37,12 @@ public:
         lua_settop(L, -1);
     }
 
-    void pushEncodedText(SkPaint::TextEncoding, const void*, size_t);
+#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
+    void pushEncodedText(SkPaint::TextEncoding enc, const void* text, size_t length) {
+        this->pushEncodedText((SkTextEncoding)enc, text, length);
+    }
+#endif
+    void pushEncodedText(SkTextEncoding, const void*, size_t);
 
 private:
     typedef SkLua INHERITED;
@@ -48,20 +53,19 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void AutoCallLua::pushEncodedText(SkPaint::TextEncoding enc, const void* text,
-                                  size_t length) {
+void AutoCallLua::pushEncodedText(SkTextEncoding enc, const void* text, size_t length) {
     switch (enc) {
-        case SkPaint::kUTF8_TextEncoding:
+        case kUTF8_SkTextEncoding:
             this->pushString((const char*)text, length, "text");
             break;
-        case SkPaint::kUTF16_TextEncoding:
+        case kUTF16_SkTextEncoding:
             this->pushString(SkStringFromUTF16((const uint16_t*)text, length), "text");
             break;
-        case SkPaint::kGlyphID_TextEncoding:
+        case kGlyphID_SkTextEncoding:
             this->pushArrayU16((const uint16_t*)text, SkToInt(length >> 1),
                                "glyphs");
             break;
-        case SkPaint::kUTF32_TextEncoding:
+        case kUTF32_SkTextEncoding:
             break;
     }
 }
