@@ -983,9 +983,7 @@ component("skia") {
   }
 
   if (skia_use_fonthost_mac) {
-    sources += [
-      "src/ports/SkFontHost_mac.cpp",
-    ]
+    sources += [ "src/ports/SkFontHost_mac.cpp" ]
   }
 
   if (is_mac) {
@@ -1659,6 +1657,16 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       "//third_party/jsoncpp",
+    ]
+  }
+
+  test_app("convex") {
+    sources = [
+      "tools/convex/convex.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
     ]
   }
 
