@@ -7,6 +7,7 @@
 
 #include "GrVkCommandBuffer.h"
 
+#include "GrVkCommandPool.h"
 #include "GrVkGpu.h"
 #include "GrVkFramebuffer.h"
 #include "GrVkImage.h"
@@ -40,7 +41,7 @@ void GrVkCommandBuffer::invalidateState() {
     }
 }
 
-void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu) const {
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
@@ -54,8 +55,11 @@ void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
         fTrackedRecordingResources[i]->unref(gpu);
     }
 
-    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), gpu->cmdPool(),
-                                                      1, &fCmdBuffer));
+    {
+        std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
+        GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), fCmdPool->vkCommandPool(),
+                                                          1, &fCmdBuffer));
+    }
 
     this->onFreeGPUData(gpu);
 }
@@ -75,7 +79,9 @@ void GrVkCommandBuffer::abandonGPUData() const {
     }
 }
 
-void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
+void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
+    SkDEBUGCODE(fResourcesReleased = true;)
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unref(gpu);
@@ -102,9 +108,14 @@ void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
         fTrackedRecordingResources.rewind();
     }
 
-
     this->invalidateState();
 
+    this->onReleaseResources(gpu);
+}
+
+void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
+    SkASSERT(fResourcesReleased);
     // we will retain resources for later use
     VkCommandBufferResetFlags flags = 0;
     GR_VK_CALL(gpu->vkInterface(), ResetCommandBuffer(fCmdBuffer, flags));
@@ -122,6 +133,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
                                         bool byRegion,
                                         BarrierType barrierType,
                                         void* barrier) const {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     // For images we can have barriers inside of render passes but they require us to add more
     // support in subpasses which need self dependencies to have barriers inside them. Also, we can
@@ -168,6 +180,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
 
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
                                         const GrVkVertexBuffer* vbuffer) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     VkBuffer vkBuffer = vbuffer->buffer();
     SkASSERT(VK_NULL_HANDLE != vkBuffer);
     SkASSERT(binding < kMaxInputBuffers);
@@ -186,6 +199,7 @@ void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
 }
 
 void GrVkCommandBuffer::bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     VkBuffer vkBuffer = ibuffer->buffer();
     SkASSERT(VK_NULL_HANDLE != vkBuffer);
     // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
@@ -205,6 +219,7 @@ void GrVkCommandBuffer::clearAttachments(const GrVkGpu* gpu,
                                          const VkClearAttachment* attachments,
                                          int numRects,
                                          const VkClearRect* clearRects) const {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(fActiveRenderPass);
     SkASSERT(numAttachments > 0);
@@ -233,6 +248,7 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
                                            const VkDescriptorSet* descriptorSets,
                                            uint32_t dynamicOffsetCount,
                                            const uint32_t* dynamicOffsets) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     GR_VK_CALL(gpu->vkInterface(), CmdBindDescriptorSets(fCmdBuffer,
                                                          VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -254,6 +270,7 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
                                            const VkDescriptorSet* descriptorSets,
                                            uint32_t dynamicOffsetCount,
                                            const uint32_t* dynamicOffsets) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     GR_VK_CALL(gpu->vkInterface(), CmdBindDescriptorSets(fCmdBuffer,
                                                          VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -273,6 +290,7 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
 }
 
 void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     GR_VK_CALL(gpu->vkInterface(), CmdBindPipeline(fCmdBuffer,
                                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -286,6 +304,7 @@ void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,
                                     uint32_t firstIndex,
                                     int32_t vertexOffset,
                                     uint32_t firstInstance) const {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(fActiveRenderPass);
     GR_VK_CALL(gpu->vkInterface(), CmdDrawIndexed(fCmdBuffer,
@@ -301,6 +320,7 @@ void GrVkCommandBuffer::draw(const GrVkGpu* gpu,
                              uint32_t instanceCount,
                              uint32_t firstVertex,
                              uint32_t firstInstance) const {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(fActiveRenderPass);
     GR_VK_CALL(gpu->vkInterface(), CmdDraw(fCmdBuffer,
@@ -314,6 +334,7 @@ void GrVkCommandBuffer::setViewport(const GrVkGpu* gpu,
                                     uint32_t firstViewport,
                                     uint32_t viewportCount,
                                     const VkViewport* viewports) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(1 == viewportCount);
     if (memcmp(viewports, &fCachedViewport, sizeof(VkViewport))) {
@@ -329,6 +350,7 @@ void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
                                    uint32_t firstScissor,
                                    uint32_t scissorCount,
                                    const VkRect2D* scissors) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(1 == scissorCount);
     if (memcmp(scissors, &fCachedScissor, sizeof(VkRect2D))) {
@@ -342,6 +364,7 @@ void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
 
 void GrVkCommandBuffer::setBlendConstants(const GrVkGpu* gpu,
                                           const float blendConstants[4]) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     if (memcmp(blendConstants, fCachedBlendConstant, 4 * sizeof(float))) {
         GR_VK_CALL(gpu->vkInterface(), CmdSetBlendConstants(fCmdBuffer, blendConstants));
@@ -358,11 +381,11 @@ GrVkPrimaryCommandBuffer::~GrVkPrimaryCommandBuffer() {
 }
 
 GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
-                                                           VkCommandPool cmdPool) {
+                                                           GrVkCommandPool* cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        cmdPool,                                          // commandPool
+        cmdPool->vkCommandPool(),                         // commandPool
         VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
         1                                                 // bufferCount
     };
@@ -374,10 +397,11 @@ GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
     if (err) {
         return nullptr;
     }
-    return new GrVkPrimaryCommandBuffer(cmdBuffer);
+    return new GrVkPrimaryCommandBuffer(cmdBuffer, cmdPool);
 }
 
 void GrVkPrimaryCommandBuffer::begin(const GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(!fIsActive);
     VkCommandBufferBeginInfo cmdBufferBeginInfo;
     memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
@@ -391,7 +415,8 @@ void GrVkPrimaryCommandBuffer::begin(const GrVkGpu* gpu) {
     fIsActive = true;
 }
 
-void GrVkPrimaryCommandBuffer::end(const GrVkGpu* gpu) {
+void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), EndCommandBuffer(fCmdBuffer));
@@ -409,6 +434,7 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
                                                const GrVkRenderTarget& target,
                                                const SkIRect& bounds,
                                                bool forSecondaryCB) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     SkASSERT(renderPass->isCompatible(target));
@@ -437,6 +463,7 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
 }
 
 void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(fActiveRenderPass);
     GR_VK_CALL(gpu->vkInterface(), CmdEndRenderPass(fCmdBuffer));
@@ -445,6 +472,8 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
 
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
                                                GrVkSecondaryCommandBuffer* buffer) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
+    SkASSERT(buffer->commandPool() == fCmdPool);
     SkASSERT(fIsActive);
     SkASSERT(!buffer->fIsActive);
     SkASSERT(fActiveRenderPass);
@@ -488,6 +517,7 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
         GrVkGpu::SyncQueue sync,
         SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
         SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(!fIsActive);
 
     VkResult err;
@@ -565,6 +595,7 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
 }
 
 bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
+    SkASSERT(!fIsActive);
     if (VK_NULL_HANDLE == fSubmitFence) {
         return true;
     }
@@ -586,8 +617,15 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
     return false;
 }
 
+void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
+    for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
+        fSecondaryCommandBuffers[i]->releaseResources(gpu);
+    }
+}
+
 void GrVkPrimaryCommandBuffer::onReset(GrVkGpu* gpu) {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
+        SkASSERT(fSecondaryCommandBuffers[i]->commandPool() == fCmdPool);
         gpu->resourceProvider().recycleSecondaryCommandBuffer(fSecondaryCommandBuffers[i]);
     }
     fSecondaryCommandBuffers.reset();
@@ -600,6 +638,7 @@ void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,
                                          VkImageLayout dstLayout,
                                          uint32_t copyRegionCount,
                                          const VkImageCopy* copyRegions) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(srcImage->resource());
@@ -623,6 +662,7 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
                                          uint32_t blitRegionCount,
                                          const VkImageBlit* blitRegions,
                                          VkFilter filter) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(srcResource);
@@ -643,6 +683,7 @@ void GrVkPrimaryCommandBuffer::blitImage(const GrVkGpu* gpu,
                                          uint32_t blitRegionCount,
                                          const VkImageBlit* blitRegions,
                                          VkFilter filter) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     this->blitImage(gpu,
                     srcImage.resource(),
                     srcImage.image(),
@@ -662,6 +703,7 @@ void GrVkPrimaryCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
                                                  GrVkTransferBuffer* dstBuffer,
                                                  uint32_t copyRegionCount,
                                                  const VkBufferImageCopy* copyRegions) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(srcImage->resource());
@@ -680,6 +722,7 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
                                                  VkImageLayout dstLayout,
                                                  uint32_t copyRegionCount,
                                                  const VkBufferImageCopy* copyRegions) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(srcBuffer->resource());
@@ -698,6 +741,7 @@ void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
                                           GrVkBuffer* dstBuffer,
                                           uint32_t regionCount,
                                           const VkBufferCopy* regions) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
 #ifdef SK_DEBUG
@@ -724,6 +768,7 @@ void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                             VkDeviceSize dstOffset,
                                             VkDeviceSize dataSize,
                                             const void* data) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     SkASSERT(0 == (dstOffset & 0x03));   // four byte aligned
@@ -743,6 +788,7 @@ void GrVkPrimaryCommandBuffer::clearColorImage(const GrVkGpu* gpu,
                                                const VkClearColorValue* color,
                                                uint32_t subRangeCount,
                                                const VkImageSubresourceRange* subRanges) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(image->resource());
@@ -759,6 +805,7 @@ void GrVkPrimaryCommandBuffer::clearDepthStencilImage(const GrVkGpu* gpu,
                                                       const VkClearDepthStencilValue* color,
                                                       uint32_t subRangeCount,
                                                       const VkImageSubresourceRange* subRanges) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
     this->addResource(image->resource());
@@ -775,6 +822,7 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
                                             const GrVkImage& dstImage,
                                             uint32_t regionCount,
                                             const VkImageResolve* regions) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
 
@@ -790,7 +838,7 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
                                                    regions));
 }
 
-void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
+void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
     SkASSERT(!fActiveRenderPass);
     // Destroy the fence, if any
     if (VK_NULL_HANDLE != fSubmitFence) {
@@ -803,11 +851,11 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gpu,
-                                                               VkCommandPool cmdPool) {
+                                                               GrVkCommandPool* cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        cmdPool,                                          // commandPool
+        cmdPool->vkCommandPool(),                         // commandPool
         VK_COMMAND_BUFFER_LEVEL_SECONDARY,                // level
         1                                                 // bufferCount
     };
@@ -819,12 +867,13 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gp
     if (err) {
         return nullptr;
     }
-    return new GrVkSecondaryCommandBuffer(cmdBuffer);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, cmdPool);
 }
 
 
 void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                                        const GrVkRenderPass* compatibleRenderPass) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(!fIsActive);
     SkASSERT(compatibleRenderPass);
     fActiveRenderPass = compatibleRenderPass;
@@ -853,10 +902,10 @@ void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer
     fIsActive = true;
 }
 
-void GrVkSecondaryCommandBuffer::end(const GrVkGpu* gpu) {
+void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
+    std::unique_lock<std::recursive_mutex> poolLock(fCmdPool->mutex());
     SkASSERT(fIsActive);
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), EndCommandBuffer(fCmdBuffer));
     this->invalidateState();
     fIsActive = false;
 }
-
