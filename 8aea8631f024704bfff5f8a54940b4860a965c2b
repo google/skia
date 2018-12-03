@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98d5c04a_13bbd263",
+        "filename": "tools/skqp/make_apk_list.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-03T20:14:16Z",
+      "side": 1,
+      "message": "This is only ever called with \"_extant\" as the parameter, so we could remove this parameter and call the global whatever we want.",
+      "range": {
+        "startLine": 44,
+        "startChar": 16,
+        "endLine": 44,
+        "endChar": 22
+      },
+      "revId": "8aea8631f024704bfff5f8a54940b4860a965c2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
