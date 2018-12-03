@@ -37,7 +37,7 @@ public:
     // This routine handles all of them using inline polymorphic variable (no heap allocation).
     template<typename ProcessOneGlyph>
     static void ProcessPosText(
-        SkPaint::TextEncoding, const char text[], size_t byteLength,
+        SkTextEncoding, const char text[], size_t byteLength,
         SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
         SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
 
@@ -205,15 +205,15 @@ private:
     };
 
     static GlyphFinderInterface* getGlyphFinder(
-        SkArenaAlloc* arena, SkPaint::TextEncoding encoding, SkGlyphCache* cache) {
+        SkArenaAlloc* arena, SkTextEncoding encoding, SkGlyphCache* cache) {
         switch(encoding) {
-            case SkPaint::kUTF8_TextEncoding:
+            case kUTF8_SkTextEncoding:
                 return arena->make<Utf8GlyphFinder>(cache);
-            case SkPaint::kUTF16_TextEncoding:
+            case kUTF16_SkTextEncoding:
                 return arena->make<Utf16GlyphFinder>(cache);
-            case SkPaint::kUTF32_TextEncoding:
+            case kUTF32_SkTextEncoding:
                 return arena->make<Utf32GlyphFinder>(cache);
-            case SkPaint::kGlyphID_TextEncoding:
+            case kGlyphID_SkTextEncoding:
                 return arena->make<GlyphIdGlyphFinder>(cache);
         }
         SK_ABORT("Should not get here.");
@@ -428,7 +428,7 @@ private:
 
 template<typename ProcessOneGlyph>
 inline void SkFindAndPlaceGlyph::ProcessPosText(
-    SkPaint::TextEncoding textEncoding, const char text[], size_t byteLength,
+    SkTextEncoding textEncoding, const char text[], size_t byteLength,
     SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
     SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
 
@@ -436,7 +436,7 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
     uint32_t mtype = matrix.getType();
 
     // Specialized code for handling the most common case for blink.
-    if (textEncoding == SkPaint::kGlyphID_TextEncoding
+    if (textEncoding == kGlyphID_SkTextEncoding
         && axisAlignment == kX_SkAxisAlignment
         && cache->isSubpixel()
         && mtype <= SkMatrix::kTranslate_Mask)

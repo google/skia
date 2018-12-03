@@ -235,7 +235,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTypeface(fEmFace);
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        paint.setTextEncoding(kGlyphID_SkTextEncoding);
         paint.setStrokeWidth(SkIntToScalar(4));
         paint.setTextSize(SkIntToScalar(40));
 

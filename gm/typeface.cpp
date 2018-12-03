@@ -19,7 +19,7 @@
 
 static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
-    SkASSERT(SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding());
+    SkASSERT(kGlyphID_SkTextEncoding == (SkTextEncoding)paint.getTextEncoding());
 
     SkAutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
@@ -65,7 +65,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     }
 
     SkPaint glyphPaint(paint);
-    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    glyphPaint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     SkAutoSTMalloc<128, SkPoint> posStorage(glyphCount);
     SkPoint* pos = posStorage.get();

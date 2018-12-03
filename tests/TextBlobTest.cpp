@@ -327,7 +327,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     int glyphCount = paint.textToGlyphs(text1, strlen(text1), nullptr);
     SkAutoTMalloc<uint16_t> glyphs(glyphCount);
     (void)paint.textToGlyphs(text1, strlen(text1), glyphs.get());
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     auto run = SkTextBlobBuilderPriv::AllocRunText(&textBlobBuilder,
             paint, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
@@ -441,7 +441,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     const char text[] = "Hello";
-    auto blob = SkTextBlob::MakeFromString(text, SkFont(), SkPaint::kUTF8_TextEncoding);
+    auto blob = SkTextBlob::MakeFromString(text, SkFont(), kUTF8_SkTextEncoding);
 
     int runs = 0;
     for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {

@@ -149,7 +149,7 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     SkAutoTArray<SkGlyphID> glyphs(glyphCount);
     blobPaint.textToGlyphs(text, textLen, glyphs.get());
 
-    blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    blobPaint.setTextEncoding(kGlyphID_SkTextEncoding);
     const size_t glyphTextBytes = SkTo<uint32_t>(glyphCount) * sizeof(SkGlyphID);
     const int widthCount = blobPaint.getTextWidths(glyphs.get(), glyphTextBytes, nullptr);
     SkAssertResult(widthCount == glyphCount);

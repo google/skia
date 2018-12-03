@@ -48,8 +48,8 @@ static size_t uni_to_utf32(const SkUnichar src[], void* dst, int count) {
 }
 
 static SkTypeface::Encoding paint2encoding(const SkPaint& paint) {
-    SkPaint::TextEncoding enc = paint.getTextEncoding();
-    SkASSERT(SkPaint::kGlyphID_TextEncoding != enc);
+    SkTextEncoding enc = (SkTextEncoding)paint.getTextEncoding();
+    SkASSERT(kGlyphID_SkTextEncoding != enc);
     return (SkTypeface::Encoding)enc;
 }
 
@@ -74,11 +74,11 @@ DEF_TEST(Paint_cmap, reporter) {
 
     static const struct {
         size_t (*fSeedTextProc)(const SkUnichar[], void* dst, int count);
-        SkPaint::TextEncoding   fEncoding;
+        SkTextEncoding   fEncoding;
     } gRec[] = {
-        { uni_to_utf8,  SkPaint::kUTF8_TextEncoding },
-        { uni_to_utf16, SkPaint::kUTF16_TextEncoding },
-        { uni_to_utf32, SkPaint::kUTF32_TextEncoding },
+        { uni_to_utf8,  kUTF8_SkTextEncoding },
+        { uni_to_utf16, kUTF16_SkTextEncoding },
+        { uni_to_utf32, kUTF32_SkTextEncoding },
     };
 
     SkRandom rand;
@@ -225,11 +225,11 @@ DEF_TEST(Paint_flattening, reporter) {
         SkPaint::kRound_Join,
         SkPaint::kBevel_Join,
     };
-    const SkPaint::TextEncoding encodings[] = {
-        SkPaint::kUTF8_TextEncoding,
-        SkPaint::kUTF16_TextEncoding,
-        SkPaint::kUTF32_TextEncoding,
-        SkPaint::kGlyphID_TextEncoding,
+    const SkTextEncoding encodings[] = {
+        kUTF8_SkTextEncoding,
+        kUTF16_SkTextEncoding,
+        kUTF32_SkTextEncoding,
+        kGlyphID_SkTextEncoding,
     };
     const SkPaint::Style styles[] = {
         SkPaint::kFill_Style,
@@ -370,7 +370,7 @@ DEF_TEST(Paint_getwidths, r) {
     uint16_t* glyphs = glyphStorage.get();
 
     (void)paint.textToGlyphs(text, strlen(text), glyphs);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     SkAutoTArray<SkScalar> widthStorage(count * 2);
     SkScalar* widths = widthStorage.get();

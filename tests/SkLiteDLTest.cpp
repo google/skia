@@ -73,7 +73,7 @@ DEF_TEST(SkLiteRecorder_RSXformAlignment, r) {
     canvas.reset(&dl, {0,0,100,100});
 
     SkPaint paint;
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    paint.setTextEncoding(kUTF8_SkTextEncoding);
 
     // These values don't really matter... we just need 5 valid transforms.
     SkRSXform xforms[] = {

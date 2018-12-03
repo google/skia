@@ -18,11 +18,11 @@ void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkSc
     SkAutoSTArray<32, uint16_t> glyphStorage;
     const uint16_t* glyphs;
 
-    if (paint.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
+    if ((SkTextEncoding)paint.getTextEncoding() != kGlyphID_SkTextEncoding) {
         glyphStorage.reset(count);
         paint.textToGlyphs(text, size, glyphStorage.get());
         glyphs = glyphStorage.get();
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        paint.setTextEncoding(kGlyphID_SkTextEncoding);
     } else {
         glyphs = static_cast<const uint16_t*>(text);
     }

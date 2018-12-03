@@ -1975,11 +1975,11 @@ HRESULT SkXPSDevice::AddGlyphs(IXpsOMObjectFactory* xpsFactory,
     return S_OK;
 }
 
-static int num_glyph_guess(SkPaint::TextEncoding encoding, const void* text, size_t byteLength) {
-    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
-    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
-    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
-    if (encoding == SkPaint::kGlyphID_TextEncoding) {
+static int num_glyph_guess(SkTextEncoding encoding, const void* text, size_t byteLength) {
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)kUTF8_SkTextEncoding,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)kUTF16_SkTextEncoding, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)kUTF32_SkTextEncoding, "");
+    if (encoding == kGlyphID_SkTextEncoding) {
         return SkToInt(byteLength / 2);
     }
     return SkUTFN_CountUnichars((SkTypeface::Encoding)encoding, text, byteLength);

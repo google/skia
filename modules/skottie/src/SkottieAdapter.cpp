@@ -215,7 +215,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     font.setHinting(kNo_SkFontHinting);
     font.setSubpixelText(true);
     font.setAntiAlias(true);
-    font.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    font.setTextEncoding(kUTF8_SkTextEncoding);
 
     const auto align_fract = [](SkTextUtils::Align align) {
         switch (align) {

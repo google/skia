@@ -629,7 +629,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
 
     SkPaint paint;
     paint.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     out->writeText("  <CBDT>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
@@ -797,7 +797,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
 
     SkPaint paint;
     paint.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     out->writeText("  <glyf>\n");
     for (int i = 0; i < fGlyphCount; ++i) {

@@ -46,7 +46,7 @@ DEF_TEST(GlyphRunBasic, reporter) {
     uint16_t count = SK_ARRAY_COUNT(glyphs);
 
     SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     SkGlyphRunBuilder builder;
     builder.drawText(paint, glyphs, count, SkPoint::Make(0, 0));

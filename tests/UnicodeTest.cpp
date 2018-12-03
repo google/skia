@@ -31,13 +31,13 @@ DEF_TEST(Unicode_textencodings, reporter) {
 
     SkPaint paint;
 
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    paint.setTextEncoding(kUTF8_SkTextEncoding);
     int count8  = paint.textToGlyphs(text8,  len8,  glyphs8);
 
-    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
+    paint.setTextEncoding(kUTF16_SkTextEncoding);
     int count16 = paint.textToGlyphs(text16, len16, glyphs16);
 
-    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+    paint.setTextEncoding(kUTF32_SkTextEncoding);
     int count32 = paint.textToGlyphs(text32, len32, glyphs32);
 
     REPORTER_ASSERT(reporter, (int)len8 == count8);

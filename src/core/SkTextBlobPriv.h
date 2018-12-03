@@ -237,7 +237,7 @@ inline SkPaint::SkPaint(const SkPaint& basePaint, const SkRunFont& runFont)
         , fMiterLimit{basePaint.fMiterLimit}
         , fBlendMode{basePaint.fBlendMode}
         , fBitfieldsUInt{(basePaint.fBitfieldsUInt & ~SkRunFont::kFlagsMask) | runFont.fFlags} {
-    fBitfields.fTextEncoding = kGlyphID_TextEncoding;
+    fBitfields.fTextEncoding = (unsigned)kGlyphID_SkTextEncoding;
     fBitfields.fHinting = runFont.fHinting;
 }
 

@@ -90,12 +90,12 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
         || !p.getShader() || !as_SB(p.getShader())->isConstant();
 }
 
-int SkPaintPriv::ValidCountText(const void* text, size_t length, SkPaint::TextEncoding encoding) {
+int SkPaintPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
     switch (encoding) {
-        case SkPaint::kUTF8_TextEncoding: return SkUTF::CountUTF8((const char*)text, length);
-        case SkPaint::kUTF16_TextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
-        case SkPaint::kUTF32_TextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
-        case SkPaint::kGlyphID_TextEncoding:
+        case kUTF8_SkTextEncoding: return SkUTF::CountUTF8((const char*)text, length);
+        case kUTF16_SkTextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
+        case kUTF32_SkTextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
+        case kGlyphID_SkTextEncoding:
             if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
                 return -1;
             }

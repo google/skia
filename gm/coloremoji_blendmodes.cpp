@@ -146,7 +146,7 @@ protected:
                 SkAutoCanvasRestore arc(canvas, true);
                 canvas->clipRect(r);
                 textP.setBlendMode(gModes[i]);
-                textP.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+                textP.setTextEncoding(kUTF32_SkTextEncoding);
                 const char* text = sk_tool_utils::emoji_sample_text();
                 SkUnichar unichar = SkUTF::NextUTF8(&text, text + strlen(text));
                 SkASSERT(unichar >= 0);

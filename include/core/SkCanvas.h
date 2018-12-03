@@ -1846,7 +1846,7 @@ public:
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
-        text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
+        text meaning depends on SkTextEncoding; by default, text is encoded as
         UTF-8.
 
         x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
@@ -1873,8 +1873,8 @@ public:
     /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
         SkPaint paint.
 
-        string meaning depends on SkPaint::TextEncoding; by default, strings are encoded
-        as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
+        string meaning depends on SkTextEncoding; by default, strings are encoded
+        as UTF-8. Other values of SkTextEncoding are unlikely to produce the desired
         results, since zero bytes may be embedded in the string.
 
         x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
@@ -1901,8 +1901,8 @@ public:
     /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
         SkPaint paint.
 
-        string meaning depends on SkPaint::TextEncoding; by default, strings are encoded
-        as UTF-8. Other values of SkPaint::TextEncoding are unlikely to produce the desired
+        string meaning depends on SkTextEncoding; by default, strings are encoded
+        as UTF-8. Other values of SkTextEncoding are unlikely to produce the desired
         results, since zero bytes may be embedded in the string.
 
         x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
@@ -1925,7 +1925,7 @@ public:
         SkPaint paint. The number of entries in pos array must match the number of glyphs
         described by byteLength of text.
 
-        text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
+        text meaning depends on SkTextEncoding; by default, text is encoded as
         UTF-8. pos elements meaning depends on SkPaint vertical text; by default
         glyph left side bearing and baseline are relative to SkPoint in pos array.
         Text size is affected by SkMatrix and SkPaint text size.
@@ -1949,7 +1949,7 @@ public:
         constY, using clip, SkMatrix, and SkPaint paint. The number of entries in xpos array
         must match the number of glyphs described by byteLength of text.
 
-        text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
+        text meaning depends on SkTextEncoding; by default, text is encoded as
         UTF-8. xpos elements meaning depends on SkPaint vertical text;
         by default each glyph left side bearing is positioned at an xpos element and
         its baseline is positioned at constY. Text size is affected by SkMatrix and
@@ -2002,7 +2002,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
 
         Elements of paint: anti-alias, SkBlendMode, color including alpha,
         SkColorFilter, SkPaint dither, SkDrawLooper, SkMaskFilter, SkPathEffect, SkShader, and
@@ -2025,7 +2025,7 @@ public:
         SkPaint font embedded bitmaps, SkPaint full hinting spacing, LCD text, SkPaint linear text,
         and SkPaint subpixel text.
 
-        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
 
         Elements of paint: SkPathEffect, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.

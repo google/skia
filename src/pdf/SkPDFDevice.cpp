@@ -1033,9 +1033,8 @@ static bool contains(const SkRect& r, SkPoint p) {
 
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
     SkPaint paint{glyphRun.paint()};
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     SkPath path;
-    SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
 
     paint.getPosTextPath(glyphRun.glyphsIDs().data(),
                          glyphRun.glyphsIDs().size() * sizeof(SkGlyphID),
@@ -1047,7 +1046,7 @@ void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset)
     SkPaint transparent;
     transparent.setTypeface(paint.getTypeface() ? paint.refTypeface()
                                                 : SkTypeface::MakeDefault());
-    transparent.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    transparent.setTextEncoding(kGlyphID_SkTextEncoding);
     transparent.setColor(SK_ColorTRANSPARENT);
     transparent.setTextSize(paint.getTextSize());
     transparent.setTextScaleX(paint.getTextScaleX());
@@ -1087,7 +1086,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     const SkGlyphID* glyphs = glyphRun.glyphsIDs().data();
     uint32_t glyphCount = SkToU32(glyphRun.glyphsIDs().size());
     SkPaint srcPaint{glyphRun.paint()};
-    srcPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    srcPaint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     if (!glyphCount || !glyphs || srcPaint.getTextSize() <= 0 || this->hasEmptyClip()) {
         return;
