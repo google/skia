@@ -42,6 +42,17 @@ static AI Sk4f compute_edge_mask(GrQuadAAFlags aaFlags) {
                 (GrQuadAAFlags::kRight & aaFlags) ? 1.f : 0.f);
 }
 
+// Outputs normalized edge vectors in xdiff and ydiff, as well as the reciprocal of the original
+// edge lengths in invLengths
+static AI void compute_edge_vectors(const Sk4f& x, const Sk4f& y, const Sk4f& xnext,
+                                    const Sk4f& ynext, Sk4f* xdiff, Sk4f* ydiff, Sk4f* invLengths) {
+    *xdiff = xnext - x;
+    *ydiff = ynext - y;
+    *invLengths = fma(*xdiff, *xdiff, *ydiff * *ydiff).rsqrt();
+    *xdiff *= *invLengths;
+    *ydiff *= *invLengths;
+}
+
 static AI void outset_masked_vertices(const Sk4f& xdiff, const Sk4f& ydiff, const Sk4f& invLengths,
                                       const Sk4f& mask, Sk4f* x, Sk4f* y, Sk4f* u, Sk4f* v, Sk4f* r,
                                       int uvrCount) {
@@ -88,6 +99,15 @@ static AI void compute_edge_distances(const Sk4f& a, const Sk4f& b, const Sk4f& 
     }
 }
 
+static AI float get_max_coverage(const Sk4f& lengths) {
+    float minWidth = SkMinScalar(lengths[0], lengths[3]);
+    float minHeight = SkMinScalar(lengths[1], lengths[2]);
+    // Calculate approximate area of the quad, pinning dimensions to 1 in case the quad is larger
+    // than a pixel. Sub-pixel quads that are rotated may in fact have a different true maximum
+    // coverage than this calculation, but this will be close and is stable.
+    return SkMinScalar(minWidth, 1.f) * SkMinScalar(minHeight, 1.f);
+}
+
 // This computes the four edge equations for a quad, then outsets them and optionally computes a new
 // quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
 // input and the outset points as output. In order to be used as a component of perspective edge
@@ -95,7 +115,9 @@ static AI void compute_edge_distances(const Sk4f& a, const Sk4f& b, const Sk4f& 
 // compute_edge_distances to turn these equations into the distances needed by the shader. The
 // values in x, y, u, v, and r are possibly updated if outsetting is needed. r is the local
 // position's w component if it exists.
-static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
+//
+// Returns maximum coverage allowed for any given pixel.
+static float compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
         Sk4f* a, Sk4f* b, Sk4f* c, Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount, bool outset) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -103,11 +125,8 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
     auto xnext = nextCCW(*x);
     auto ynext = nextCCW(*y);
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    auto invLengths = fma(xdiff, xdiff, ydiff * ydiff).rsqrt();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
+    Sk4f xdiff, ydiff, invLengths;
+    compute_edge_vectors(*x, *y, xnext, ynext, &xdiff, &ydiff, &invLengths);
 
     // Use above vectors to compute edge equations (importantly before we outset positions).
     *c = fma(xnext, *y,  -ynext * *x) * invLengths;
@@ -139,25 +158,21 @@ static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* 
     } else if (outset) {
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
+
+    return get_max_coverage(invLengths.invert());
 }
 
 // A specialization of the above function that can compute edge distances very quickly when it knows
 // that the edges intersect at right angles, i.e. any transform other than skew and perspective
 // (GrQuadType::kRectilinear). Unlike the above function, this always outsets the corners since it
 // cannot be reused in the perspective case.
-static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static float compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y,  Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
-    auto xnext = nextCCW(*x);
-    auto ynext = nextCCW(*y);
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
-    auto xdiff = xnext - *x;
-    auto ydiff = ynext - *y;
-    // Need length and 1/length in this variant
-    auto lengths = fma(xdiff, xdiff, ydiff * ydiff).sqrt();
-    auto invLengths = lengths.invert();
-    xdiff *= invLengths;
-    ydiff *= invLengths;
+    Sk4f xdiff, ydiff, invLengths;
+    compute_edge_vectors(*x, *y, nextCCW(*x), nextCCW(*y), &xdiff, &ydiff, &invLengths);
+    Sk4f lengths = invLengths.invert();
 
     // Since the quad is rectilinear, the edge distances are predictable and independent of the
     // actual orientation of the quad. The lengths vector stores |p1-p0|, |p3-p1|, |p0-p2|, |p2-p3|,
@@ -200,12 +215,14 @@ static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags,
 
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
+
+    return get_max_coverage(lengths);
 }
 
 // Generalizes compute_quad_edge_distances_and_outset_vertices to extrapolate local coords such that
 // after perspective division of the device coordinate, the original local coordinate value is at
 // the original un-outset device position. r is the local coordinate's w component.
-static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y, Sk4f* w, Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -216,8 +233,8 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
     // Don't compute outset corners in the normalized space, which means u, v, and r don't need
     // to be provided here (outset separately below). Since this is computing distances for a
     // projected quad, there is a very good chance it's not rectilinear so use the general 2D path.
-    compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c, nullptr, nullptr,
-                                           nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
+    float maxProjectedCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d,
+            &a, &b, &c, nullptr, nullptr, nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
 
     static const float kOutset = 0.5f;
     if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
@@ -306,6 +323,8 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
     // distance (technically multiplied by w, so that the fragment shader can do perspective
     // interpolation when it multiplies by 1/w later).
     compute_edge_distances(a, b, c, *x, *y, *w, edgeDistances);
+
+    return maxProjectedCoverage;
 }
 
 // Calculate safe edge distances for non-aa quads that have been batched with aa quads. Since the
@@ -315,7 +334,7 @@ static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, 
 // actually sees d = (iA*wA + iB*wB + iC*wC) * (iA/wA + iB/wB + iC/wC). Without perspective this
 // simplifies to 1 as necessary, but we must choose something other than w when there is perspective
 // to ensure that d >= 1 and the edge shows as non-aa.
-static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
+static float compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
     // Let n = min(w1,w2,w3,w4) and m = max(w1,w2,w3,w4) and rewrite
     //   d = (iA*wA + iB*wB + iC*wC) * (iA*wB*wC + iB*wA*wC + iC*wA*wB) / (wA*wB*wC)
     //       |   e=attr from VS    |   |         fragCoord.w = 1/w                 |
@@ -337,6 +356,9 @@ static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edge
     for (int i = 0; i < 4; ++i) {
         edgeDistances[i] = e;
     }
+
+    // Non-aa, so always use full coverage
+    return 1.f;
 }
 
 } // anonymous namespace
@@ -370,23 +392,24 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
     // Index into array refers to vertex. Index into particular Sk4f refers to edge.
     Sk4f edgeDistances[4];
+    float maxCoverage = 1.f;
     if (spec.usesCoverageAA()) {
         // Must calculate edges and possibly outside the positions
         if (aaFlags == GrQuadAAFlags::kNone) {
             // A non-AA quad that got batched into an AA group, so it should have full coverage
-            compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
+            maxCoverage = compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
         } else if (deviceHasPerspective) {
             // For simplicity, pointers to u, v, and r are always provided, but the local dim param
             // ensures that only loaded Sk4fs are modified in the compute functions.
-            compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w, edgeDistances,
-                                                         &u, &v, &r, spec.localDimensionality());
+            maxCoverage = compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w,
+                    edgeDistances, &u, &v, &r, spec.localDimensionality());
         } else if (spec.deviceQuadType() <= GrQuadType::kRectilinear) {
-            compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y, edgeDistances,
-                                                          &u, &v, &r, spec.localDimensionality());
+            maxCoverage = compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y,
+                    edgeDistances, &u, &v, &r, spec.localDimensionality());
         } else {
             Sk4f a, b, c;
-            compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v, &r,
-                                                   spec.localDimensionality(), /*outset*/ true);
+            maxCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c,
+                    &u, &v, &r, spec.localDimensionality(), /*outset*/ true);
             compute_edge_distances(a, b, c, x, y, w, edgeDistances); // w holds 1.f as desired
         }
     }
@@ -395,12 +418,9 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
     //  i.e. x1x2x3x4 y1y2y3y4 -> x1y1 x2y2 x3y3 x4y
     GrVertexWriter vb{vertices};
     for (int i = 0; i < 4; ++i) {
-        // save position and hold on to the homogeneous point for later
-        if (deviceHasPerspective) {
-            vb.write<SkPoint3>({x[i], y[i], w[i]});
-        } else {
-            vb.write<SkPoint>({x[i], y[i]});
-        }
+        // save position, always send a vec4 because we embed max coverage in the last component.
+        // For 2D quads, we know w holds the correct 1.f, so just write it out without branching
+        vb.write(x[i], y[i], w[i], maxCoverage);
 
         // save color
         if (spec.hasVertexColors()) {
@@ -443,11 +463,8 @@ int VertexSpec::localDimensionality() const {
 ////////////////// GPAttributes Implementation
 
 GPAttributes::GPAttributes(const VertexSpec& spec) {
-    if (spec.deviceDimensionality() == 3) {
-        fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
-    } else {
-        fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    }
+    fNeedsPerspective = spec.deviceDimensionality() == 3;
+    fPositions = {"position", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
 
     int localDim = spec.localDimensionality();
     if (localDim == 3) {
@@ -474,7 +491,7 @@ GPAttributes::GPAttributes(const VertexSpec& spec) {
 bool GPAttributes::needsPerspectiveInterpolation() const {
     // This only needs to check the position; local position having perspective does not change
     // how the varyings are interpolated
-    return fPositions.cpuType() == kFloat3_GrVertexAttribType;
+    return fNeedsPerspective;
 }
 
 uint32_t GPAttributes::getKey() const {
@@ -482,7 +499,7 @@ uint32_t GPAttributes::getKey() const {
     uint32_t x = this->usesCoverageAA() ? 0 : 1;
     x |= this->hasDomain() ? 0 : 2;
     // regular position has two options as well
-    x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 4;
+    x |= fNeedsPerspective ? 0 : 4;
     // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
     if (this->hasLocalCoords()) {
         x |= kFloat3_GrVertexAttribType == fLocalCoords.cpuType() ? 8 : 16;
@@ -492,6 +509,17 @@ uint32_t GPAttributes::getKey() const {
         x |= kUByte4_norm_GrVertexAttribType == fColors.cpuType() ? 32 : 64;
     }
     return x;
+}
+
+GrShaderVar GPAttributes::emitPosition(GrGLSLPrimitiveProcessor::EmitArgs& args,
+                                       const char* posVarName) const {
+    if (fNeedsPerspective) {
+        args.fVertBuilder->codeAppendf("float3 %s = %s.xyz;", posVarName, fPositions.name());
+        return {posVarName, kFloat3_GrSLType, GrShaderVar::kNone_TypeModifier};
+    } else {
+        args.fVertBuilder->codeAppendf("float2 %s = %s.xy;", posVarName, fPositions.name());
+        return {posVarName, kFloat2_GrSLType, GrShaderVar::kNone_TypeModifier};
+    }
 }
 
 void GPAttributes::emitColor(GrGLSLPrimitiveProcessor::EmitArgs& args,
@@ -536,21 +564,27 @@ void GPAttributes::emitExplicitLocalCoords(
 void GPAttributes::emitCoverage(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                 const char* edgeDistName) const {
     if (this->usesCoverageAA()) {
+        GrGLSLVarying maxCoverage(kFloat_GrSLType);
+        args.fVaryingHandler->addVarying("maxCoverage", &maxCoverage);
+        args.fVertBuilder->codeAppendf("%s = %s.w;", maxCoverage.vsOut(), fPositions.name());
+
         args.fFragBuilder->codeAppendf("float4 %s;", edgeDistName);
         args.fVaryingHandler->addPassThroughAttribute(fAAEdgeDistances, edgeDistName);
 
         args.fFragBuilder->codeAppendf(
                 "float min%s = min(min(%s.x, %s.y), min(%s.z, %s.w));",
                 edgeDistName, edgeDistName, edgeDistName, edgeDistName, edgeDistName);
-        if (fPositions.cpuType() == kFloat3_GrVertexAttribType) {
+        if (fNeedsPerspective) {
             // The distance from edge equation e to homogeneous point p=sk_Position is e.x*p.x/p.w +
             // e.y*p.y/p.w + e.z. However, we want screen space interpolation of this distance. We
             // can do this by multiplying the vertex attribute by p.w and then multiplying by
             // sk_FragCoord.w in the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
             args.fFragBuilder->codeAppendf("min%s *= sk_FragCoord.w;", edgeDistName);
         }
-        args.fFragBuilder->codeAppendf("%s = float4(saturate(min%s));",
-                                       args.fOutputCoverage, edgeDistName);
+        // Clamp to max coverage after the perspective divide since perspective quads calculated
+        // the max coverage in projected space.
+        args.fFragBuilder->codeAppendf("%s = float4(clamp(min%s, 0.0, %s));",
+                                       args.fOutputCoverage, edgeDistName, maxCoverage.fsIn());
     } else {
         // Set coverage to 1
         args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
