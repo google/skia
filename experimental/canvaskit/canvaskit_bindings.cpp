@@ -169,6 +169,7 @@ public:
     static sk_sp<ManagedAnimation> Make(const std::string& json) {
         auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
+                            .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())
                             .make(json.c_str(), json.size());
 
@@ -218,6 +219,18 @@ public:
 
     bool setOpacity(const std::string& key, float o) {
         return fPropMgr->setOpacity(key, o);
+    }
+
+    JSArray getMarkers() const {
+        JSArray markers = emscripten::val::array();
+        for (const auto& m : fPropMgr->markers()) {
+            JSObject marker = emscripten::val::object();
+            marker.set("name", m.name);
+            marker.set("t0"  , m.t0);
+            marker.set("t1"  , m.t1);
+            markers.call<void>("push", marker);
+        }
+        return markers;
     }
 
 private:
@@ -977,6 +990,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                     (&ManagedAnimation::render), allow_raw_pointers())
         .function("setColor"  , &ManagedAnimation::setColor)
         .function("setOpacity", &ManagedAnimation::setOpacity)
+        .function("getMarkers", &ManagedAnimation::getMarkers)
         .function("getColorProps"  , &ManagedAnimation::getColorProps)
         .function("getOpacityProps", &ManagedAnimation::getOpacityProps);
 
