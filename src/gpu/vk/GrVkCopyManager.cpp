@@ -261,7 +261,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrSamplerState samplerState = GrSamplerState::ClampNearest();
 
-    GrVkSampler* sampler = resourceProv.findOrCreateCompatibleSampler(samplerState);
+    GrVkSampler* sampler = resourceProv.findOrCreateCompatibleSampler(
+            samplerState, GrVkYcbcrConversionInfo());
 
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
