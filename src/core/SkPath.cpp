@@ -65,11 +65,11 @@ static bool is_degenerate(const SkPath& path) {
 class SkAutoDisableDirectionCheck {
 public:
     SkAutoDisableDirectionCheck(SkPath* path) : fPath(path) {
-        fSaved = static_cast<SkPathPriv::FirstDirection>(fPath->fFirstDirection.load());
+        fSaved = static_cast<SkPathPriv::FirstDirection>(fPath->getFirstDirection());
     }
 
     ~SkAutoDisableDirectionCheck() {
-        fPath->fFirstDirection = fSaved;
+        fPath->setFirstDirection(fSaved);
     }
 
 private:
@@ -163,8 +163,8 @@ void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fFillType = kWinding_FillType;
-    fConvexity = kUnknown_Convexity;
-    fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+    this->setConvexity(kUnknown_Convexity);
+    this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
 
     // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
     // don't want to muck with it if it's been set to something non-nullptr.
@@ -199,8 +199,8 @@ void SkPath::copyFields(const SkPath& that) {
     fIsBadForDAA     = that.fIsBadForDAA;
 
     // Non-atomic assignment of atomic values.
-    fConvexity     .store(that.fConvexity     .load());
-    fFirstDirection.store(that.fFirstDirection.load());
+    this->setConvexity(that.getConvexityOrUnknown());
+    this->setFirstDirection(that.getFirstDirection());
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -224,13 +224,13 @@ void SkPath::swap(SkPath& that) {
         that.fIsVolatile = iv;
 
         // Non-atomic swaps of atomic values.
-        Convexity c = fConvexity.load();
-        fConvexity.store(that.fConvexity.load());
-        that.fConvexity.store(c);
+        Convexity c = this->getConvexityOrUnknown();
+        this->setConvexity(that.getConvexityOrUnknown());
+        that.setConvexity(c);
 
-        uint8_t fd = fFirstDirection.load();
-        fFirstDirection.store(that.fFirstDirection.load());
-        that.fFirstDirection.store(fd);
+        uint8_t fd = this->getFirstDirection();
+        this->setFirstDirection(that.getFirstDirection());
+        that.setFirstDirection(fd);
     }
 }
 
@@ -742,19 +742,29 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
     }
 }
 
+// This is the public-facing non-const setConvexity().
 void SkPath::setConvexity(Convexity c) {
-    if (fConvexity != c) {
-        fConvexity = c;
-    }
+    fConvexity.store(c, std::memory_order_relaxed);
+}
+
+// Const hooks for working with fConvexity and fFirstDirection from const methods.
+void SkPath::setConvexity(Convexity c) const {
+    fConvexity.store(c, std::memory_order_relaxed);
+}
+void SkPath::setFirstDirection(uint8_t d) const {
+    fFirstDirection.store(d, std::memory_order_relaxed);
+}
+uint8_t SkPath::getFirstDirection() const {
+    return fFirstDirection.load(std::memory_order_relaxed);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
-#define DIRTY_AFTER_EDIT                                        \
-    do {                                                        \
-        fConvexity = kUnknown_Convexity;                        \
-        fFirstDirection = SkPathPriv::kUnknown_FirstDirection;  \
+#define DIRTY_AFTER_EDIT                                               \
+    do {                                                               \
+        this->setConvexity(kUnknown_Convexity);                        \
+        this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);  \
     } while (0)
 
 void SkPath::incReserve(int inc) {
@@ -1027,8 +1037,8 @@ SkPath& SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
 
 SkPath& SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) {
     assert_known_direction(dir);
-    fFirstDirection = this->hasOnlyMoveTos() ?
-        (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
+    this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathPriv::FirstDirection)dir
+                                                   : SkPathPriv::kUnknown_FirstDirection);
     SkAutoDisableDirectionCheck addc(this);
     SkAutoPathBoundsUpdate apbu(this, rect);
 
@@ -1174,8 +1184,8 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startInde
         // degenerate(oval) => line points are collapsing
         this->addOval(bounds, dir, startIndex / 2);
     } else {
-        fFirstDirection = this->hasOnlyMoveTos() ?
-                            (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
+        this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathPriv::FirstDirection)dir
+                                                       : SkPathPriv::kUnknown_FirstDirection);
 
         SkAutoPathBoundsUpdate apbu(this, bounds);
         SkAutoDisableDirectionCheck addc(this);
@@ -1281,9 +1291,9 @@ SkPath& SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIn
      */
     bool isOval = hasOnlyMoveTos();
     if (isOval) {
-        fFirstDirection = (SkPathPriv::FirstDirection)dir;
+        this->setFirstDirection((SkPathPriv::FirstDirection)dir);
     } else {
-        fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+        this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
     }
 
     SkAutoDisableDirectionCheck addc(this);
@@ -1839,10 +1849,10 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         dst->swap(tmp);
         SkPathRef::Editor ed(&dst->fPathRef);
         matrix.mapPoints(ed.points(), ed.pathRef()->countPoints());
-        dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+        dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
     } else {
 #ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
-        Convexity convexity = fConvexity;
+        Convexity convexity = this->getConvexityOrUnknown();
 #endif
 
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
@@ -1851,7 +1861,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fLastMoveToIndex = fLastMoveToIndex;
             dst->fFillType = fFillType;
 #ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
-            dst->fConvexity.store(fConvexity);
+            dst->setConvexity(this->getConvexityOrUnknown());
 #endif
             dst->fIsVolatile = fIsVolatile;
         }
@@ -1862,28 +1872,29 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         // However, some transformations are thought to be safe:
         //    axis-aligned values under scale/translate.
         if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
-            dst->fConvexity = convexity;
+            dst->setConvexity(convexity);
         } else {
-            dst->fConvexity = kUnknown_Convexity;
+            dst->setConvexity(kUnknown_Convexity);
         }
 #endif
 
-        if (SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-            dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+        if (this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
+            dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
         } else {
             SkScalar det2x2 =
                 matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
                 matrix.get(SkMatrix::kMSkewX)  * matrix.get(SkMatrix::kMSkewY);
             if (det2x2 < 0) {
-                dst->fFirstDirection = SkPathPriv::OppositeFirstDirection(
-                        (SkPathPriv::FirstDirection)fFirstDirection.load());
+                dst->setFirstDirection(
+                        SkPathPriv::OppositeFirstDirection(
+                            (SkPathPriv::FirstDirection)this->getFirstDirection()));
             } else if (det2x2 > 0) {
-                dst->fFirstDirection = fFirstDirection.load();
+                dst->setFirstDirection(this->getFirstDirection());
             } else {
 #ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
-                dst->fConvexity = kUnknown_Convexity;
+                dst->setConvexity(kUnknown_Convexity);
 #endif
-                dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
             }
         }
 
@@ -2496,7 +2507,8 @@ private:
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
     // Sometimes we think we need to calculate convexity but another thread already did.
-    for (auto c = (Convexity)fConvexity; c != kUnknown_Convexity; ) {
+    auto c = this->getConvexityOrUnknown();
+    if (c != kUnknown_Convexity) {
         return c;
     }
 
@@ -2515,7 +2527,7 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
         switch (verb) {
             case kMove_Verb:
                 if (++contourCount > 1) {
-                    fConvexity = kConcave_Convexity;
+                    this->setConvexity(kConcave_Convexity);
                     return kConcave_Convexity;
                 }
                 pts[1] = pts[0];
@@ -2541,7 +2553,7 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
-                fConvexity = kConcave_Convexity;
+                this->setConvexity(kConcave_Convexity);
                 return kConcave_Convexity;
         }
 
@@ -2553,20 +2565,24 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
             return kUnknown_Convexity;
         }
         if (kConcave_Convexity == state.getConvexity()) {
-            fConvexity = kConcave_Convexity;
+            this->setConvexity(kConcave_Convexity);
             return kConcave_Convexity;
         }
     }
-    fConvexity = state.getConvexity();
-    if (kConvex_Convexity == fConvexity && SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-        if (SkPathPriv::kUnknown_FirstDirection == state.getFirstDirection() &&
-                !this->getBounds().isEmpty() && !state.hasBackwards()) {
-            fConvexity = Convexity::kConcave_Convexity;
+    this->setConvexity(state.getConvexity());
+
+    if (this->getConvexityOrUnknown() == kConvex_Convexity &&
+            this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
+
+        if (state.getFirstDirection() == SkPathPriv::kUnknown_FirstDirection
+                && !this->getBounds().isEmpty()
+                && !state.hasBackwards()) {
+            this->setConvexity(Convexity::kConcave_Convexity);
         } else {
-            fFirstDirection = state.getFirstDirection();
+            this->setFirstDirection(state.getFirstDirection());
         }
     }
-    return static_cast<Convexity>(fConvexity);
+    return this->getConvexityOrUnknown();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2738,16 +2754,17 @@ static void crossToDir(SkScalar cross, SkPathPriv::FirstDirection* dir) {
  *  its cross product.
  */
 bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, FirstDirection* dir) {
-    if (kUnknown_FirstDirection != path.fFirstDirection.load()) {
-        *dir = static_cast<FirstDirection>(path.fFirstDirection.load());
+    auto d = path.getFirstDirection();
+    if (d != kUnknown_FirstDirection) {
+        *dir = static_cast<FirstDirection>(d);
         return true;
     }
 
-    // don't want to pay the cost for computing this if it
-    // is unknown, so we don't call isConvex()
-    if (SkPath::kConvex_Convexity == path.getConvexityOrUnknown()) {
-        SkASSERT(kUnknown_FirstDirection == path.fFirstDirection);
-        *dir = static_cast<FirstDirection>(path.fFirstDirection.load());
+    // We don't want to pay the cost for computing convexity if it is unknown,
+    // so we call getConvexityOrUnknown() instead of isConvex().
+    if (path.getConvexityOrUnknown() == SkPath::kConvex_Convexity) {
+        SkASSERT(path.getFirstDirection() == kUnknown_FirstDirection);
+        *dir = static_cast<FirstDirection>(path.getFirstDirection());
         return false;
     }
 
@@ -2820,7 +2837,7 @@ bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, FirstDirection* 
     }
     if (ymaxCross) {
         crossToDir(ymaxCross, dir);
-        path.fFirstDirection = *dir;
+        path.setFirstDirection(*dir);
         return true;
     } else {
         return false;
@@ -3486,7 +3503,7 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
         path->close();
     }
     path->setConvexity(convex ? SkPath::kConvex_Convexity : SkPath::kConcave_Convexity);
-    path->fFirstDirection.store(firstDir);
+    path->setFirstDirection(firstDir);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -69,7 +69,7 @@ public:
      */
     GrVkResource() : fRefCnt(1) {
 #ifdef SK_TRACE_VK_RESOURCES
-        fKey = sk_atomic_fetch_add(&fKeyCounter, 1u, sk_memory_order_relaxed);
+        fKey = sk_atomic_fetch_add(&fKeyCounter, 1u, std::memory_order_relaxed);
         GetTrace()->add(this);
 #endif
     }
@@ -92,7 +92,7 @@ public:
      *  Ensures that all previous owner's actions are complete.
      */
     bool unique() const {
-        if (1 == sk_atomic_load(&fRefCnt, sk_memory_order_acquire)) {
+        if (1 == sk_atomic_load(&fRefCnt, std::memory_order_acquire)) {
             // The acquire barrier is only really needed if we return true.  It
             // prevents code conditioned on the result of unique() from running
             // until previous owners are all totally done calling unref().
@@ -106,7 +106,7 @@ public:
      */
     void ref() const {
         SkASSERT(fRefCnt > 0);
-        (void)sk_atomic_fetch_add(&fRefCnt, +1, sk_memory_order_relaxed);  // No barrier required.
+        (void)sk_atomic_fetch_add(&fRefCnt, +1, std::memory_order_relaxed);  // No barrier required.
     }
 
     /** Decrement the reference count. If the reference count is 1 before the
@@ -118,7 +118,7 @@ public:
         SkASSERT(fRefCnt > 0);
         SkASSERT(gpu);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose(gpu);
@@ -129,7 +129,7 @@ public:
     void unrefAndAbandon() const {
         SkASSERT(fRefCnt > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose();

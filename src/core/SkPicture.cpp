@@ -37,12 +37,12 @@ SkPicture::SkPicture() : fUniqueID(0) {}
 
 uint32_t SkPicture::uniqueID() const {
     static uint32_t gNextID = 1;
-    uint32_t id = sk_atomic_load(&fUniqueID, sk_memory_order_relaxed);
+    uint32_t id = sk_atomic_load(&fUniqueID, std::memory_order_relaxed);
     while (id == 0) {
         uint32_t next = sk_atomic_fetch_add(&gNextID, 1u);
         if (sk_atomic_compare_exchange(&fUniqueID, &id, next,
-                                       sk_memory_order_relaxed,
-                                       sk_memory_order_relaxed)) {
+                                       std::memory_order_relaxed,
+                                       std::memory_order_relaxed)) {
             id = next;
         } else {
             // sk_atomic_compare_exchange replaced id with the current value of fUniqueID.

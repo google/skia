@@ -8,6 +8,7 @@
 #ifndef SkPathMeasure_DEFINED
 #define SkPathMeasure_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "../private/SkTDArray.h"
 #include "SkPath.h"
 
