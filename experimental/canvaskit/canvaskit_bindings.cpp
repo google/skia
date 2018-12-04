@@ -454,9 +454,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkImage::MakeFromEncoded(bytes);
     }), allow_raw_pointers());
     function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
-                                                             uintptr_t /* uint8_t*  */ pptr,
+                                                             uintptr_t /* uint8_t*  */ pPtr,
                                                              size_t rowBytes)->sk_sp<SkSurface> {
-        uint8_t* pixels = reinterpret_cast<uint8_t*>(pptr);
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
         SkImageInfo imageInfo = toSkImageInfo(ii);
         return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
     }), allow_raw_pointers());
@@ -623,6 +623,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
+        .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
+                                                      uintptr_t /* uint8_t* */ pPtr,
+                                                      size_t dstRowBytes, int srcX, int srcY) {
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo dstInfo = toSkImageInfo(di);
+
+            return self.readPixels(dstInfo, pixels, dstRowBytes, srcX, srcY);
+        }))
         .function("restore", &SkCanvas::restore)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
@@ -631,7 +639,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.setMatrix(toSkMatrix(m));
         }))
         .function("skew", &SkCanvas::skew)
-        .function("translate", &SkCanvas::translate);
+        .function("translate", &SkCanvas::translate)
+        .function("_writePixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
+                                                       uintptr_t /* uint8_t* */ pPtr,
+                                                       size_t srcRowBytes, int dstX, int dstY) {
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo dstInfo = toSkImageInfo(di);
+
+            return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
+        }))
+        ;
 
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
@@ -745,11 +762,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_flush", &SkSurface::flush)
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
-        .function("_readPixels", optional_override([](SkSurface& self, int width, int height, uintptr_t /* uint8_t* */ cptr)->bool {
-            uint8_t* dst = reinterpret_cast<uint8_t*>(cptr);
-            auto dstInfo = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
-            return self.readPixels(dstInfo, dst, width*4, 0, 0);
-        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
 
     class_<SkVertices>("SkVertices")
