@@ -7,6 +7,7 @@
 
 #include "SkPictureShader.h"
 
+#include "SkAtomics.h"
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"

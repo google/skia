@@ -7,7 +7,6 @@
 
 #include "SkRegion.h"
 
-#include "SkAtomics.h"
 #include "SkMacros.h"
 #include "SkRegionPriv.h"
 #include "SkSafeMath.h"
@@ -26,8 +25,6 @@
  *
  *  Y-Sentinel
  */
-
-SkDEBUGCODE(int32_t gRgnAllocCounter;)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,9 +136,6 @@ void SkRegion::freeRuns() {
     if (this->isComplex()) {
         SkASSERT(fRunHead->fRefCnt >= 1);
         if (--fRunHead->fRefCnt == 0) {
-            //SkASSERT(gRgnAllocCounter > 0);
-            //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
-            //SkDEBUGF("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter);
             sk_free(fRunHead);
         }
     }

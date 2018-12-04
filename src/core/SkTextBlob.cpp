@@ -7,6 +7,7 @@
 
 #include "SkTextBlob.h"
 
+#include "SkAtomics.h"
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
