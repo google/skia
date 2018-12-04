@@ -1114,83 +1114,6 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     return SkPack888ToRGB16(r, g, b);
 }
 
-// Is this GDI color neither black nor white? If so, we have to keep this
-// image as is, rather than smashing it down to a BW mask.
-//
-// returns int instead of bool, since we don't want/have to pay to convert
-// the zero/non-zero value into a bool
-static int is_not_black_or_white(SkGdiRGB c) {
-    // same as (but faster than)
-    //      c &= 0x00FFFFFF;
-    //      return 0 == c || 0x00FFFFFF == c;
-    return (c + (c & 1)) & 0x00FFFFFF;
-}
-
-static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, size_t srcRB) {
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            if (is_not_black_or_white(src[x])) {
-                return false;
-            }
-        }
-        src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
-    }
-    return true;
-}
-
-// gdi's bitmap is upside-down, so we reverse dst walking in Y
-// whenever we copy it into skia's buffer
-static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph) {
-    const int width = glyph.fWidth;
-    const size_t dstRB = (width + 7) >> 3;
-    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-
-    int byteCount = width >> 3;
-    int bitCount = width & 7;
-
-    // adjust srcRB to skip the values in our byteCount loop,
-    // since we increment src locally there
-    srcRB -= byteCount * 8 * sizeof(SkGdiRGB);
-
-    for (int y = 0; y < glyph.fHeight; ++y) {
-        if (byteCount > 0) {
-            for (int i = 0; i < byteCount; ++i) {
-                unsigned byte = 0;
-                byte |= src[0] & (1 << 7);
-                byte |= src[1] & (1 << 6);
-                byte |= src[2] & (1 << 5);
-                byte |= src[3] & (1 << 4);
-                byte |= src[4] & (1 << 3);
-                byte |= src[5] & (1 << 2);
-                byte |= src[6] & (1 << 1);
-                byte |= src[7] & (1 << 0);
-                dst[i] = byte;
-                src += 8;
-            }
-        }
-        if (bitCount > 0) {
-            unsigned byte = 0;
-            unsigned mask = 0x80;
-            for (int i = 0; i < bitCount; i++) {
-                byte |= src[i] & mask;
-                mask >>= 1;
-            }
-            dst[byteCount] = byte;
-        }
-        src = SkTAddOffset<const SkGdiRGB>(src, srcRB);
-        dst -= dstRB;
-    }
-#if SK_SHOW_TEXT_BLIT_COVERAGE
-    if (glyph.fWidth > 0 && glyph.fHeight > 0) {
-        uint8_t* first = (uint8_t*)glyph.fImage;
-        uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
-        *first |= 1 << 7;
-        *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
-    }
-#endif
-}
-
 template<bool APPLY_PREBLEND>
 static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
                       const SkGlyph& glyph, const uint8_t* table8) {
@@ -1269,7 +1192,6 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         }
     }
 
-    int width = glyph.fWidth;
     size_t dstRB = glyph.rowBytes();
     if (isBW) {
         const uint8_t* src = (const uint8_t*)bits;
@@ -1281,7 +1203,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         }
 #if SK_SHOW_TEXT_BLIT_COVERAGE
             if (glyph.fWidth > 0 && glyph.fHeight > 0) {
-                int bitCount = width & 7;
+                int bitCount = glyph.fWidth & 7;
                 uint8_t* first = (uint8_t*)glyph.fImage;
                 uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.fHeight * dstRB - 1);
                 *first |= 1 << 7;
@@ -1299,18 +1221,13 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
-        if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
-            rgb_to_bw(src, srcRB, glyph);
-            ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
+        SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
+        if (fPreBlend.isApplicable()) {
+            rgb_to_lcd16<true>(src, srcRB, glyph,
+                               fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
-            if (fPreBlend.isApplicable()) {
-                rgb_to_lcd16<true>(src, srcRB, glyph,
-                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-            } else {
-                rgb_to_lcd16<false>(src, srcRB, glyph,
-                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
-            }
+            rgb_to_lcd16<false>(src, srcRB, glyph,
+                                fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }
