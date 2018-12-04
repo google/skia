@@ -8,117 +8,59 @@
 #ifndef SkAtomics_DEFINED
 #define SkAtomics_DEFINED
 
-// This file is not part of the public Skia API.
-#include "../private/SkNoncopyable.h"
 #include "SkTypes.h"
 #include <atomic>
 
-// ~~~~~~~~ APIs ~~~~~~~~~
-
-enum sk_memory_order {
-    sk_memory_order_relaxed,
-    sk_memory_order_consume,
-    sk_memory_order_acquire,
-    sk_memory_order_release,
-    sk_memory_order_acq_rel,
-    sk_memory_order_seq_cst,
-};
+// ~~~~~~~~ Legacy APIs ~~~~~~~~~
+//
+// Please use types from <atomic> for any new code.
+// That's all this file ends up doing under the hood.
 
 template <typename T>
-T sk_atomic_load(const T*, sk_memory_order = sk_memory_order_seq_cst);
-
-template <typename T>
-void sk_atomic_store(T*, T, sk_memory_order = sk_memory_order_seq_cst);
-
-template <typename T>
-T sk_atomic_fetch_add(T*, T, sk_memory_order = sk_memory_order_seq_cst);
-
-template <typename T>
-bool sk_atomic_compare_exchange(T*, T* expected, T desired,
-                                sk_memory_order success = sk_memory_order_seq_cst,
-                                sk_memory_order failure = sk_memory_order_seq_cst);
-
-// A little wrapper class for small T (think, builtins: int, float, void*) to
-// ensure they're always used atomically.  This is our stand-in for std::atomic<T>.
-// !!! Please _really_ know what you're doing if you change default_memory_order. !!!
-template <typename T, sk_memory_order default_memory_order = sk_memory_order_seq_cst>
-class SkAtomic : SkNoncopyable {
-public:
-    SkAtomic() {}
-    explicit SkAtomic(const T& val) : fVal(val) {}
-
-    // It is essential we return by value rather than by const&.  fVal may change at any time.
-    T load(sk_memory_order mo = default_memory_order) const {
-        return sk_atomic_load(&fVal, mo);
-    }
-
-    void store(const T& val, sk_memory_order mo = default_memory_order) {
-        sk_atomic_store(&fVal, val, mo);
-    }
-
-    // Alias for .load(default_memory_order).
-    operator T() const {
-        return this->load();
-    }
-
-    // Alias for .store(v, default_memory_order).
-    T operator=(const T& v) {
-        this->store(v);
-        return v;
-    }
-private:
-    T fVal;
-};
-
-// ~~~~~~~~ Implementations ~~~~~~~~~
-
-template <typename T>
-T sk_atomic_load(const T* ptr, sk_memory_order mo) {
-    SkASSERT(mo == sk_memory_order_relaxed ||
-             mo == sk_memory_order_seq_cst ||
-             mo == sk_memory_order_acquire ||
-             mo == sk_memory_order_consume);
+T sk_atomic_load(const T* ptr, std::memory_order mo = std::memory_order_seq_cst) {
+    SkASSERT(mo == std::memory_order_relaxed ||
+             mo == std::memory_order_seq_cst ||
+             mo == std::memory_order_acquire ||
+             mo == std::memory_order_consume);
     const std::atomic<T>* ap = reinterpret_cast<const std::atomic<T>*>(ptr);
-    return std::atomic_load_explicit(ap, (std::memory_order)mo);
+    return std::atomic_load_explicit(ap, mo);
 }
 
 template <typename T>
-void sk_atomic_store(T* ptr, T val, sk_memory_order mo) {
-    SkASSERT(mo == sk_memory_order_relaxed ||
-             mo == sk_memory_order_seq_cst ||
-             mo == sk_memory_order_release);
+void sk_atomic_store(T* ptr, T val, std::memory_order mo = std::memory_order_seq_cst) {
+    SkASSERT(mo == std::memory_order_relaxed ||
+             mo == std::memory_order_seq_cst ||
+             mo == std::memory_order_release);
     std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_store_explicit(ap, val, (std::memory_order)mo);
+    return std::atomic_store_explicit(ap, val, mo);
 }
 
 template <typename T>
-T sk_atomic_fetch_add(T* ptr, T val, sk_memory_order mo) {
+T sk_atomic_fetch_add(T* ptr, T val, std::memory_order mo = std::memory_order_seq_cst) {
     // All values of mo are valid.
     std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_fetch_add_explicit(ap, val, (std::memory_order)mo);
+    return std::atomic_fetch_add_explicit(ap, val, mo);
 }
 
 template <typename T>
 bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
-                                sk_memory_order success,
-                                sk_memory_order failure) {
+                                std::memory_order success = std::memory_order_seq_cst,
+                                std::memory_order failure = std::memory_order_seq_cst) {
     // All values of success are valid.
-    SkASSERT(failure == sk_memory_order_relaxed ||
-             failure == sk_memory_order_seq_cst ||
-             failure == sk_memory_order_acquire ||
-             failure == sk_memory_order_consume);
+    SkASSERT(failure == std::memory_order_relaxed ||
+             failure == std::memory_order_seq_cst ||
+             failure == std::memory_order_acquire ||
+             failure == std::memory_order_consume);
     SkASSERT(failure <= success);
     std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_compare_exchange_strong_explicit(ap, expected, desired,
-                                                        (std::memory_order)success,
-                                                        (std::memory_order)failure);
+    return std::atomic_compare_exchange_strong_explicit(ap, expected, desired, success, failure);
 }
 
-// ~~~~~~~~ Legacy APIs ~~~~~~~~~
-
-// From here down we have shims for our old atomics API, to be weaned off of.
-// We use the default sequentially-consistent memory order to make things simple
-// and to match the practical reality of our old _sync and _win implementations.
+// ~~~~~~~~ Very Legacy APIs ~~~~~~~~~
+//
+// Here are shims for our very old atomics API, to be weaned off of.  They use
+// sequentially-consistent memory order to match historical behavior, but most
+// of the callers could perform better with explicit, weaker memory ordering.
 
 inline int32_t sk_atomic_inc(int32_t* ptr) { return sk_atomic_fetch_add(ptr, +1); }
 inline int32_t sk_atomic_dec(int32_t* ptr) { return sk_atomic_fetch_add(ptr, -1); }

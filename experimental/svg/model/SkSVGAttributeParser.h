@@ -8,6 +8,7 @@
 #ifndef SkSVGAttributeParser_DEFINED
 #define SkSVGAttributeParser_DEFINED
 
+#include "SkNoncopyable.h"
 #include "SkSVGTypes.h"
 
 class SkSVGAttributeParser : public SkNoncopyable {
