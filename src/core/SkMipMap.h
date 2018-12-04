@@ -42,7 +42,11 @@ public:
     // the base level. So index 0 represents mipmap level 1.
     static SkISize ComputeLevelSize(int baseWidth, int baseHeight, int level);
 
-    struct Level {
+    // We use a block of (possibly discardable) memory to hold an array of Level structs, followed
+    // by the pixel data for each level. On 32-bit platforms, Level would naturally be 4 byte
+    // aligned, so the pixel data could end up with 4 byte alignment. If the pixel data is F16,
+    // it must be 8 byte aligned. To ensure this, keep the Level struct 8 byte aligned as well.
+    struct alignas(8) Level {
         SkPixmap    fPixmap;
         SkSize      fScale; // < 1.0
     };

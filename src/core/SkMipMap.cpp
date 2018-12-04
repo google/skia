@@ -423,6 +423,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     int         height = src.height();
     uint32_t    rowBytes;
     SkPixmap    srcPM(src);
+    SkASSERT(SkIsAlign8((uintptr_t)addr));
 
     for (int i = 0; i < countLevels; ++i) {
         FilterProc* proc;
