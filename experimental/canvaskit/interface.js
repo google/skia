@@ -299,7 +299,7 @@
     }
 
     CanvasKit.SkImage.prototype.encodeToData = function() {
-      if (arguments.length === 0) {
+      if (!arguments.length) {
         return this._encodeToData();
       }
 
@@ -309,6 +309,59 @@
       }
 
       throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
+    }
+
+    // returns Uint8Array
+    CanvasKit.SkCanvas.prototype.readPixels = function(x, y, w, h, alphaType, colorType, dstRowBytes) {
+      // supply defaults (which are compatible with HTMLCanvas's getImageData)
+      alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
+      colorType = colorType || CanvasKit.ColorType.RGBA_8888;
+      dstRowBytes = dstRowBytes || (4 * w);
+
+      var len = h * dstRowBytes
+      var pptr = CanvasKit._malloc(len);
+      var ok = this._readPixels({
+        'width': w,
+        'height': h,
+        'colorType': colorType,
+        'alphaType': alphaType,
+      }, pptr, dstRowBytes, x, y);
+      if (!ok) {
+        CanvasKit._free(pptr);
+        return null;
+      }
+
+      // The first typed array is just a view into memory. Because we will
+      // be free-ing that, we call slice to make a persistent copy.
+      var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pptr, len).slice();
+      CanvasKit._free(pptr);
+      return pixels;
+    }
+
+    // pixels is a TypedArray. No matter the input size, it will be treated as
+    // a Uint8Array (essentially, a byte array).
+    CanvasKit.SkCanvas.prototype.writePixels = function(pixels, srcWidth, srcHeight, destX, destY, alphaType, colorType) {
+      if (pixels.byteLength % (srcWidth * srcHeight)) {
+        throw 'pixels length must be a multiple of the srcWidth * srcHeight';
+      }
+      var bytesPerPixel = pixels.byteLength / (srcWidth * srcHeight);
+      // supply defaults (which are compatible with HTMLCanvas's putImageData)
+      alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
+      colorType = colorType || CanvasKit.ColorType.RGBA_8888;
+      var srcRowBytes = bytesPerPixel * srcWidth;
+
+      var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+
+      var ok = this._writePixels({
+        'width': srcWidth,
+        'height': srcHeight,
+        'colorType': colorType,
+        'alphaType': alphaType,
+      }, pptr, srcRowBytes, destX, destY);
+
+      CanvasKit._free(pptr);
+      // call flush?
+      return ok;
     }
 
     // Run through the JS files that are added at compile time.
