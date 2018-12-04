@@ -8,6 +8,7 @@
 #include "SkTextBlob.h"
 
 #include "SkAtomics.h"
+#include "SkFontPriv.h"
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
@@ -328,7 +329,8 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
 
     SkPaint paint;
     run.font().applyToPaint(&paint);
-    const SkRect fontBounds = paint.getFontBounds();
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+    const SkRect fontBounds = SkFontPriv::GetFontBounds(font);
     if (fontBounds.isEmpty()) {
         // Empty font bounds are likely a font bug.  TightBounds has a better chance of
         // producing useful results in this case.
