@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "094cab7a_bb7dbc6e",
+        "filename": "src/core/SkFontPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-04T18:30:08Z",
+      "side": 1,
+      "message": "Copy the comment over from paint?",
+      "range": {
+        "startLine": 49,
+        "startChar": 18,
+        "endLine": 49,
+        "endChar": 31
+      },
+      "revId": "f3d4a0f8135bf09d45a180d7fc182c03d271a357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
