@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac782b1_f19031f1",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-04T20:41:37Z",
+      "side": 1,
+      "message": "Is the idea here that _canvas\u0027s matrix is always kept as identity?\n\nIt\u0027s a little funny to see a field _currentTransform held in parallel to _canvas... it might be more natural to actually allow _canvas\u0027 matrix to track the current transform?  That\u0027d make it so those places below where you manually multiply the current transform with other matrices a lot simpler.  Calls to translate just map to translate calls on the canvas, etc.",
+      "range": {
+        "startLine": 849,
+        "startChar": 6,
+        "endLine": 849,
+        "endChar": 50
+      },
+      "revId": "9db511b299e7a390c6834d7aeecafb7c2c42ad50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
