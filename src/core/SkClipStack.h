@@ -489,10 +489,6 @@ private:
     SkDeque fDeque;
     int     fSaveCount;
 
-    // Generation ID for the clip stack. This is incremented for each
-    // clipDevRect and clipDevPath call. 0 is reserved to indicate an
-    // invalid ID.
-    static int32_t     gGenID;
     SkRect fClipRestrictionRect = SkRect::MakeEmpty();
 
     bool internalQuickContains(const SkRect& devRect) const;

@@ -16,6 +16,7 @@
 #include "SkSLPipelineStageCodeGenerator.h"
 #include "SkRefCnt.h"
 #include "../private/GrSkSLFPFactoryCache.h"
+#include <atomic>
 
 #if GR_TEST_UTILS
 #define GR_FP_SRC_STRING const char*
@@ -33,8 +34,8 @@ public:
      * NewIndex once, statically, and use this index for all calls to Make.
      */
     static int NewIndex() {
-        static int index = 0;
-        return sk_atomic_inc(&index);
+        static std::atomic<int> nextIndex{0};
+        return nextIndex++;
     }
 
     /**

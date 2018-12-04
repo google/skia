@@ -7,7 +7,6 @@
 
 #include "SkRWBuffer.h"
 
-#include "SkAtomics.h"
 #include "SkMakeUnique.h"
 #include "SkMalloc.h"
 #include "SkStream.h"
