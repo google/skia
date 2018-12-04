@@ -71,6 +71,10 @@ public:
                             uint32_t dynamicOffsetCount,
                             const uint32_t* dynamicOffsets);
 
+    GrVkCommandPool* commandPool() {
+        return fCmdPool;
+    }
+
     void setViewport(const GrVkGpu* gpu,
                      uint32_t firstViewport,
                      uint32_t viewportCount,
@@ -124,13 +128,17 @@ public:
         fTrackedRecordingResources.append(1, &resource);
     }
 
+    void releaseResources(GrVkGpu* gpu);
+
     void reset(GrVkGpu* gpu);
 
 protected:
-        GrVkCommandBuffer(VkCommandBuffer cmdBuffer, const GrVkRenderPass* rp = VK_NULL_HANDLE)
+        GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
+                          const GrVkRenderPass* rp = VK_NULL_HANDLE)
             : fIsActive(false)
             , fActiveRenderPass(rp)
             , fCmdBuffer(cmdBuffer)
+            , fCmdPool(cmdPool)
             , fNumResets(0) {
             fTrackedResources.setReserve(kInitialTrackedResourcesCount);
             fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
@@ -153,13 +161,18 @@ protected:
 
         VkCommandBuffer           fCmdBuffer;
 
+        // Raw pointer, not refcounted. The command pool controls the command buffer's lifespan, so
+        // it's guaranteed to outlive us.
+        GrVkCommandPool*          fCmdPool;
+
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
-    virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
+    void freeGPUData(GrVkGpu* gpu) const override;
+    virtual void onFreeGPUData(GrVkGpu* gpu) const = 0;
     void abandonGPUData() const override;
 
+    virtual void onReleaseResources(GrVkGpu* gpu) {}
     virtual void onReset(GrVkGpu* gpu) {}
 
     static constexpr uint32_t kMaxInputBuffers = 2;
@@ -178,6 +191,10 @@ private:
     VkViewport fCachedViewport;
     VkRect2D   fCachedScissor;
     float      fCachedBlendConstant[4];
+
+#ifdef SK_DEBUG
+    bool fResourcesReleased = false;
+#endif
 };
 
 class GrVkSecondaryCommandBuffer;
@@ -186,10 +203,10 @@ class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
 public:
     ~GrVkPrimaryCommandBuffer() override;
 
-    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
 
     void begin(const GrVkGpu* gpu);
-    void end(const GrVkGpu* gpu);
+    void end(GrVkGpu* gpu);
 
     // Begins render pass on this command buffer. The framebuffer from GrVkRenderTarget will be used
     // in the render pass.
@@ -290,11 +307,13 @@ public:
 #endif
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
-        : INHERITED(cmdBuffer)
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
+        : INHERITED(cmdBuffer, cmdPool)
         , fSubmitFence(VK_NULL_HANDLE) {}
 
-    void onFreeGPUData(const GrVkGpu* gpu) const override;
+    void onFreeGPUData(GrVkGpu* gpu) const override;
+
+    void onReleaseResources(GrVkGpu* gpu) override;
 
     void onReset(GrVkGpu* gpu) override;
 
@@ -306,11 +325,11 @@ private:
 
 class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
 public:
-    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
 
     void begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                const GrVkRenderPass* compatibleRenderPass);
-    void end(const GrVkGpu* gpu);
+    void end(GrVkGpu* gpu);
 
     VkCommandBuffer vkCommandBuffer() { return fCmdBuffer; }
 
@@ -321,11 +340,10 @@ public:
 #endif
 
 private:
-    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer)
-        : INHERITED(cmdBuffer) {
-    }
+    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
+        : INHERITED(cmdBuffer, cmdPool) {}
 
-    void onFreeGPUData(const GrVkGpu* gpu) const override {}
+    void onFreeGPUData(GrVkGpu* gpu) const override {}
 
     friend class GrVkPrimaryCommandBuffer;
 
