@@ -22,6 +22,30 @@
       "revId": "9db511b299e7a390c6834d7aeecafb7c2c42ad50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81ec0eaa_3edd2f91",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T20:46:19Z",
+      "side": 1,
+      "message": "Yes.  I thought about re-working that whole thing, but I think there were some edge cases where it won\u0027t work out because the behavior seems to differ slightly.\n\nAdditionally, HTMLCanvas exposes transform (setMatrix) and resetTransform (resetMatrix) which we\u0027d like to not expose. I couldn\u0027t think of a way to implement those features without exposing similar ones in SkCanvas.\n\nImplementing some Matrix things in JS seemed like an ok compromise.",
+      "parentUuid": "3ac782b1_f19031f1",
+      "range": {
+        "startLine": 849,
+        "startChar": 6,
+        "endLine": 849,
+        "endChar": 50
+      },
+      "revId": "9db511b299e7a390c6834d7aeecafb7c2c42ad50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
