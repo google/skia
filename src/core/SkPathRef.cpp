@@ -44,7 +44,7 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
     fPathRef->callGenIDChangeListeners();
     fPathRef->fGenerationID = 0;
     fPathRef->fBoundsIsDirty = true;
-    SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
+    SkDEBUGCODE(fPathRef->fEditorsAttached++;)
 }
 
 // Sort of like makeSpace(0) but the the additional requirement that we actively shrink the
@@ -102,7 +102,7 @@ SkPathRef::~SkPathRef() {
     SkDEBUGCODE(fPointCnt = 0xAAAAAAA;)
     SkDEBUGCODE(fPointCnt = 0xBBBBBBB;)
     SkDEBUGCODE(fGenerationID = 0xEEEEEEEE;)
-    SkDEBUGCODE(fEditorsAttached = 0x7777777;)
+    SkDEBUGCODE(fEditorsAttached.store(0x7777777);)
 }
 
 static SkPathRef* gEmpty = nullptr;
@@ -687,18 +687,17 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
 }
 
 uint32_t SkPathRef::genID() const {
-    SkASSERT(!fEditorsAttached);
+    SkASSERT(fEditorsAttached.load() == 0);
     static const uint32_t kMask = (static_cast<int64_t>(1) << SkPathPriv::kPathRefGenIDBitCnt) - 1;
-    if (!fGenerationID) {
-        if (0 == fPointCnt && 0 == fVerbCnt) {
+
+    if (fGenerationID == 0) {
+        if (fPointCnt == 0 && fVerbCnt == 0) {
             fGenerationID = kEmptyGenID;
         } else {
-            static int32_t  gPathRefGenerationID;
-            // do a loop in case our global wraps around, as we never want to return a 0 or the
-            // empty ID
+            static std::atomic<uint32_t> nextID{kEmptyGenID + 1};
             do {
-                fGenerationID = (sk_atomic_inc(&gPathRefGenerationID) + 1) & kMask;
-            } while (fGenerationID <= kEmptyGenID);
+                fGenerationID = nextID.fetch_add(1, std::memory_order_relaxed) & kMask;
+            } while (fGenerationID == 0 || fGenerationID == kEmptyGenID);
         }
     }
     return fGenerationID;
