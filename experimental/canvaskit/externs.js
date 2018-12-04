@@ -29,6 +29,8 @@ var CanvasKit = {
 	LTRBRect: function() {},
 	/** @return {CanvasKit.SkRect} */
 	XYWHRect: function() {},
+	/** @return {ImageData} */
+	ImageData: function() {},
 	MakeBlurMaskFilter: function() {},
 	MakeCanvas: function() {},
 	MakeCanvasSurface: function() {},
@@ -54,6 +56,7 @@ var CanvasKit = {
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
+	_MakeImage: function() {},
 	_MakeImageShader: function() {},
 	_MakeLinearGradientShader: function() {},
 	_MakeRadialGradientShader: function() {},
@@ -74,6 +77,8 @@ var CanvasKit = {
 	SkCanvas: {
 		// public API (from C++ bindings)
 		clear: function() {},
+		concat: function() {},
+		clipRect: function() {},
 		clipPath: function() {},
 		drawImage: function() {},
 		drawImageRect: function() {},
@@ -88,11 +93,13 @@ var CanvasKit = {
 		rotate: function() {},
 		save: function() {},
 		scale: function() {},
-		setMatrix: function() {},
 		skew: function() {},
 		translate: function() {},
 
 		// private API
+		_readPixels: function() {},
+		_writePixels: function() {},
+		_setMatrix: function() {},
 		delete: function() {},
 	},
 
@@ -200,7 +207,6 @@ var CanvasKit = {
 		// private API
 		_flush: function() {},
 		_getRasterN32PremulSurface: function() {},
-		_readPixels: function() {},
 		delete: function() {},
 	},
 
@@ -407,6 +413,10 @@ CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
 
+/** @return {Uint8Array} */
+CanvasKit.SkCanvas.prototype.readPixels = function() {};
+CanvasKit.SkCanvas.prototype.writePixels = function() {};
+
 // Define StrokeOpts object
 var StrokeOpts = {};
 StrokeOpts.prototype.width;
@@ -431,6 +441,7 @@ CanvasRenderingContext2D.prototype.clearHitRegions = function() {};
 CanvasRenderingContext2D.prototype.clearRect = function() {};
 CanvasRenderingContext2D.prototype.clip = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
+CanvasRenderingContext2D.prototype.createImageData = function() {};
 CanvasRenderingContext2D.prototype.createLinearGradient = function() {};
 CanvasRenderingContext2D.prototype.createRadialGradient = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
@@ -439,10 +450,12 @@ CanvasRenderingContext2D.prototype.ellipse = function() {};
 CanvasRenderingContext2D.prototype.fill = function() {};
 CanvasRenderingContext2D.prototype.fillRect = function() {};
 CanvasRenderingContext2D.prototype.fillText = function() {};
+CanvasRenderingContext2D.prototype.getImageData = function() {};
 CanvasRenderingContext2D.prototype.getLineDash = function() {};
 CanvasRenderingContext2D.prototype.lineTo = function() {};
 CanvasRenderingContext2D.prototype.measureText = function() {};
 CanvasRenderingContext2D.prototype.moveTo = function() {};
+CanvasRenderingContext2D.prototype.putImageData = function() {};
 CanvasRenderingContext2D.prototype.quadraticCurveTo = function() {};
 CanvasRenderingContext2D.prototype.rect = function() {};
 CanvasRenderingContext2D.prototype.removeHitRegion = function() {};
@@ -464,6 +477,15 @@ var LinearCanvasGradient = {};
 LinearCanvasGradient.prototype.addColorStop = function() {};
 var RadialCanvasGradient = {};
 RadialCanvasGradient.prototype.addColorStop = function() {};
+
+var ImageData = {
+	/**
+	 * @type {Uint8ClampedArray}
+	 */
+	data: {},
+	height: {},
+	width: {},
+};
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.
 function loadWebAssemblyModule() {};
