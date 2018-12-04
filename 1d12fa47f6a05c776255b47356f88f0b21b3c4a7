@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6c4ae13_f6fdac6a",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-04T19:15:03Z",
+      "side": 1,
+      "message": "Why didn\u0027t my (internal) reviewer catch this :-) Fixed by Yoda this is.",
+      "range": {
+        "startLine": 1127,
+        "startChar": 29,
+        "endLine": 1127,
+        "endChar": 30
+      },
+      "revId": "1d12fa47f6a05c776255b47356f88f0b21b3c4a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
