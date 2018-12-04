@@ -201,8 +201,9 @@ void GrVkGpu::destroyResources() {
     // sleep to make sure the fence signals.
 #ifdef SK_DEBUG
     if (this->vkCaps().mustSleepOnTearDown()) {
+        SkDebugf("Imma sleep now after QueueWaitIdle\n");
 #if defined(SK_BUILD_FOR_WIN)
-        Sleep(10); // In milliseconds
+        Sleep(1000); // In milliseconds
 #else
         sleep(1);  // In seconds
 #endif
