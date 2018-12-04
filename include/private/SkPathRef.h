@@ -8,7 +8,6 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "SkAtomics.h"
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPoint.h"
@@ -18,7 +17,7 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTo.h"
-
+#include <atomic>
 #include <limits>
 
 class SkRBuffer;
@@ -47,7 +46,7 @@ public:
                int incReserveVerbs = 0,
                int incReservePoints = 0);
 
-        ~Editor() { SkDEBUGCODE(sk_atomic_dec(&fPathRef->fEditorsAttached);) }
+        ~Editor() { SkDEBUGCODE(fPathRef->fEditorsAttached--;) }
 
         /**
          * Returns the array of points.
@@ -358,7 +357,7 @@ private:
         // The next two values don't matter unless fIsOval or fIsRRect are true.
         fRRectOrOvalIsCCW = false;
         fRRectOrOvalStartIdx = 0xAC;
-        SkDEBUGCODE(fEditorsAttached = 0;)
+        SkDEBUGCODE(fEditorsAttached.store(0);)
         SkDEBUGCODE(this->validate();)
     }
 
@@ -558,7 +557,7 @@ private:
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
     };
     mutable uint32_t    fGenerationID;
-    SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
+    SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
 
     SkMutex                         fGenIDChangeListenersMutex;
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed

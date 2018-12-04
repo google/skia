@@ -20,8 +20,5 @@
 inline int32_t sk_atomic_inc(int32_t* ptr) {
     return reinterpret_cast<std::atomic<int32_t>*>(ptr)->fetch_add(+1);
 }
-inline int32_t sk_atomic_dec(int32_t* ptr) {
-    return reinterpret_cast<std::atomic<int32_t>*>(ptr)->fetch_add(-1);
-}
 
 #endif//SkAtomics_DEFINED
