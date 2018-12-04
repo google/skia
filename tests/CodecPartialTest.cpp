@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "CodecPriv.h"
 #include "FakeStreams.h"
 #include "Resources.h"
 #include "SkBitmap.h"
@@ -40,19 +41,21 @@ static bool create_truth(sk_sp<SkData> data, SkBitmap* dst) {
     return SkCodec::kSuccess == codec->getPixels(info, dst->getPixels(), dst->rowBytes());
 }
 
-static void compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const SkBitmap& bm2) {
+static bool compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const SkBitmap& bm2) {
     const SkImageInfo& info = bm1.info();
     if (info != bm2.info()) {
         ERRORF(r, "Bitmaps have different image infos!");
-        return;
+        return false;
     }
     const size_t rowBytes = info.minRowBytes();
     for (int i = 0; i < info.height(); i++) {
         if (memcmp(bm1.getAddr(0, i), bm2.getAddr(0, i), rowBytes)) {
             ERRORF(r, "Bitmaps have different pixels, starting on line %i!", i);
-            return;
+            return false;
         }
     }
+
+    return true;
 }
 
 static void test_partial(skiatest::Reporter* r, const char* name, size_t minBytes = 0) {
@@ -289,7 +292,14 @@ DEF_TEST(Codec_partialAnim, r) {
         frameInfo = partialCodec->getFrameInfo();
         REPORTER_ASSERT(r, frameInfo.size() == i + 1);
         REPORTER_ASSERT(r, frameInfo[i].fFullyReceived);
-        compare_bitmaps(r, frames[i], frame);
+        if (!compare_bitmaps(r, frames[i], frame)) {
+            ERRORF(r, "\tfailure was on frame %i", i);
+            SkString name = SkStringPrintf("expected_%i", i);
+            write_bm(name.c_str(), frames[i]);
+
+            name = SkStringPrintf("actual_%i", i);
+            write_bm(name.c_str(), frame);
+        }
     }
 }
 
