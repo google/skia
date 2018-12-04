@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkBitmapCache.h"
 #include "SkMutex.h"
 #include "SkPixelRef.h"

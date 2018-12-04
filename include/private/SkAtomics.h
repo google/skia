@@ -17,25 +17,6 @@
 // That's all this file ends up doing under the hood.
 
 template <typename T>
-T sk_atomic_load(const T* ptr, std::memory_order mo = std::memory_order_seq_cst) {
-    SkASSERT(mo == std::memory_order_relaxed ||
-             mo == std::memory_order_seq_cst ||
-             mo == std::memory_order_acquire ||
-             mo == std::memory_order_consume);
-    const std::atomic<T>* ap = reinterpret_cast<const std::atomic<T>*>(ptr);
-    return std::atomic_load_explicit(ap, mo);
-}
-
-template <typename T>
-void sk_atomic_store(T* ptr, T val, std::memory_order mo = std::memory_order_seq_cst) {
-    SkASSERT(mo == std::memory_order_relaxed ||
-             mo == std::memory_order_seq_cst ||
-             mo == std::memory_order_release);
-    std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_store_explicit(ap, val, mo);
-}
-
-template <typename T>
 T sk_atomic_fetch_add(T* ptr, T val, std::memory_order mo = std::memory_order_seq_cst) {
     // All values of mo are valid.
     std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);

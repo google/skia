@@ -17,7 +17,7 @@
 #include "GrVkUtil.h"
 
 #ifdef SK_TRACE_VK_RESOURCES
-uint32_t GrVkResource::fKeyCounter = 0;
+std::atomic<uint32_t> GrVkResource::fKeyCounter{0};
 #endif
 
 GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
