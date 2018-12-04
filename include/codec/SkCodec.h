@@ -403,6 +403,9 @@ public:
      *
      *  This may require a rewind.
      *
+     *  If kIncompleteInput is returned, may be called again after more data has
+     *  been provided to the source SkStream.
+     *
      *  @param dstInfo Info of the destination. If the dimensions do not match
      *      those of getInfo, this implies a scale.
      *  @param dst Memory to write to. Needs to be large enough to hold the subset,
@@ -421,10 +424,11 @@ public:
     /**
      *  Start/continue the incremental decode.
      *
-     *  Not valid to call before calling startIncrementalDecode().
+     *  Not valid to call before a call to startIncrementalDecode() returns
+     *  kSuccess.
      *
-     *  After the first call, should only be called again if more data has been
-     *  provided to the source SkStream.
+     *  If kIncompleteInput is returned, may be called again after more data has
+     *  been provided to the source SkStream.
      *
      *  Unlike getPixels and getScanlines, this does not do any filling. This is
      *  left up to the caller, since they may be skipping lines or continuing the
