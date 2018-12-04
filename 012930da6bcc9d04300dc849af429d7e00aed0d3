@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "083e6111_1ade8fd7",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-04T18:59:06Z",
+      "side": 1,
+      "message": "That said, we\u0027ve initialized it to zero, which is just an arbitrary color from the palette. So it\u0027s better than before, but it could look funny depending on the first color in the palette. This would only be for an image that is incomplete.",
+      "range": {
+        "startLine": 437,
+        "startChar": 83,
+        "endLine": 438,
+        "endChar": 55
+      },
+      "revId": "012930da6bcc9d04300dc849af429d7e00aed0d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
