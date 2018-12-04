@@ -231,7 +231,7 @@ May return false if <a href='undocumented#SkTypeface'>SkTypeface</a> has identic
 ### Parameters
 
 <table>  <tr>    <td><a name='SkFont_equal1_operator_font'><code><strong>font</strong></code></a></td>
-    <td><a href='SkPaint_Reference#SkPaint'>SkPaint</a> to compare</td>
+    <td><a href='#SkFont_equal1_operator_font'>font</a> to compare</td>
   </tr>
 </table>
 
@@ -864,7 +864,7 @@ The total <a href='undocumented#Glyph'>glyph</a> count is returned for subsequen
 ### Parameters
 
 <table>  <tr>    <td><a name='SkFont_textToGlyphs_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
   </tr>
   <tr>    <td><a name='SkFont_textToGlyphs_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>length of character storage in bytes</td>
@@ -940,7 +940,7 @@ Returns number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href
 ### Parameters
 
 <table>  <tr>    <td><a name='SkFont_countText_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
   </tr>
   <tr>    <td><a name='SkFont_countText_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>length of character storage in bytes</td>
@@ -1071,7 +1071,7 @@ Returns the bounding box of <a href='#SkFont_measureText_text'>text</a> if <a hr
 ### Parameters
 
 <table>  <tr>    <td><a name='SkFont_measureText_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
   </tr>
   <tr>    <td><a name='SkFont_measureText_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>length of character storage in bytes</td>

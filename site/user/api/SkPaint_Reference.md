@@ -3798,7 +3798,7 @@ int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocu
 
 Converts <a href='#SkPaint_textToGlyphs_text'>text</a> into <a href='undocumented#Glyph'>glyph</a> indices.
 Returns the number of <a href='undocumented#Glyph'>glyph</a> indices represented by <a href='#SkPaint_textToGlyphs_text'>text</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> specifies how <a href='#SkPaint_textToGlyphs_text'>text</a> represents characters or <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a>.
+<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> specifies how <a href='#SkPaint_textToGlyphs_text'>text</a> represents characters or <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a>.
 <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> may be nullptr, to compute the <a href='undocumented#Glyph'>glyph</a> count.
 
 Does not check <a href='#SkPaint_textToGlyphs_text'>text</a> for valid character codes or valid <a href='undocumented#Glyph'>glyph</a> indices.
@@ -3806,13 +3806,13 @@ Does not check <a href='#SkPaint_textToGlyphs_text'>text</a> for valid character
 If <a href='#SkPaint_textToGlyphs_byteLength'>byteLength</a> equals zero, returns zero.
 If <a href='#SkPaint_textToGlyphs_byteLength'>byteLength</a> includes a partial character, the partial character is ignored.
 
-If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> is <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a> and
+If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a> and
 <a href='#SkPaint_textToGlyphs_text'>text</a> contains an invalid UTF-8 sequence, zero is returned.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_textToGlyphs_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_textToGlyphs_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>length of character storage in bytes</td>
@@ -3839,13 +3839,13 @@ int <a href='#SkPaint_countText'>countText</a>(const void* <a href='undocumented
 </pre>
 
 Returns the number of <a href='undocumented#Glyph'>glyphs</a> in <a href='#SkPaint_countText_text'>text</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to count the <a href='undocumented#Glyph'>glyphs</a>.
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to count the <a href='undocumented#Glyph'>glyphs</a>.
 Returns the same result as <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>().
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_countText_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
   </tr>
   <tr>    <td><a name='SkPaint_countText_byteLength'><code><strong>byteLength</strong></code></a></td>
     <td>length of character storage in bytes</td>
@@ -3880,7 +3880,7 @@ Returns true if all <a href='#SkPaint_containsText_text'>text</a> corresponds to
 Returns false if any characters in <a href='#SkPaint_containsText_text'>text</a> are not supported in
 <a href='undocumented#SkTypeface'>SkTypeface</a>.
 
-If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> is <a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>,
+If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>,
 returns true if all <a href='undocumented#Glyph'>glyph</a> indices in <a href='#SkPaint_containsText_text'>text</a> are non-zero;
 does not check to see if <a href='#SkPaint_containsText_text'>text</a> contains valid <a href='undocumented#Glyph'>glyph</a> indices for <a href='undocumented#SkTypeface'>SkTypeface</a>.
 
@@ -3942,7 +3942,7 @@ void <a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a>(const <a href='und
 Converts <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> into <a href='#SkPaint_glyphsToUnichars_text'>text</a> if possible.
 <a href='undocumented#Glyph'>Glyph</a> values without direct Unicode equivalents are mapped to zero.
 Uses the <a href='undocumented#SkTypeface'>SkTypeface</a>, but is unaffected
-by <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; the <a href='#SkPaint_glyphsToUnichars_text'>text</a> values returned are equivalent to <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>.
+by <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; the <a href='#SkPaint_glyphsToUnichars_text'>text</a> values returned are equivalent to <a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>.
 
 Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#Font_Engine'>font engine</a>.
 
@@ -3976,7 +3976,7 @@ Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#
 
 Returns the advance width of <a href='#SkPaint_measureText_text'>text</a>.
 The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_text'>text</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_measureText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_measureText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
 and  <a href='#Text_Size'>text size</a>,   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Stroke_Width'>stroke width</a>, and
 <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale the metrics and <a href='#SkPaint_measureText_bounds'>bounds</a>.
 Returns the bounding box of <a href='#SkPaint_measureText_text'>text</a> if <a href='#SkPaint_measureText_bounds'>bounds</a> is not nullptr.
@@ -4013,7 +4013,7 @@ advance width or height
 
 Returns the advance width of <a href='#SkPaint_measureText_2_text'>text</a>.
 The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_2_text'>text</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_measureText_2_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_measureText_2_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
 and  <a href='#Text_Size'>text size</a> to scale the metrics.
 Does not scale the advance or bounds by  <a href='#Fake_Bold'>fake bold</a> or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 
@@ -4057,7 +4057,7 @@ Returns the bytes of <a href='#SkPaint_breakText_text'>text</a> that fit within 
 The <a href='#SkPaint_breakText_text'>text</a> fragment fits if its advance width is less than or equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
 Measures only while the advance is less than or equal to <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
 Returns the advance or the <a href='#SkPaint_breakText_text'>text</a> fragment in <a href='#SkPaint_breakText_measuredWidth'>measuredWidth</a> if it not nullptr.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_breakText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_breakText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
 and  <a href='#Text_Size'>text size</a> to scale the metrics.
 Does not scale the advance or bounds by  <a href='#Fake_Bold'>fake bold</a> or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 
@@ -4100,7 +4100,7 @@ the <a href='undocumented#Glyph'>glyph</a> count in <a href='#SkPaint_getTextWid
 Both <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a> may be nullptr.
 If <a href='#SkPaint_getTextWidths_widths'>widths</a> is not nullptr, <a href='#SkPaint_getTextWidths_widths'>widths</a> must be an array of <a href='undocumented#Glyph'>glyph</a> count entries.
 if <a href='#SkPaint_getTextWidths_bounds'>bounds</a> is not nullptr, <a href='#SkPaint_getTextWidths_bounds'>bounds</a> must be an array of <a href='undocumented#Glyph'>glyph</a> count entries.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getTextWidths_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextWidths_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
 and  <a href='#Text_Size'>text size</a> to scale the <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a>.
 Does not scale the advance by  <a href='#Fake_Bold'>fake bold</a> or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
 Does include  <a href='#Fake_Bold'>fake bold</a> and <a href='undocumented#SkPathEffect'>SkPathEffect</a> in the <a href='#SkPaint_getTextWidths_bounds'>bounds</a>.
@@ -4144,7 +4144,7 @@ void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* <a href='undocum
 </pre>
 
 Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getTextPath_text'>text</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getTextPath_path'>path</a>.
 Uses <a href='#SkPaint_getTextPath_x'>x</a>, <a href='#SkPaint_getTextPath_y'>y</a>, to position <a href='#SkPaint_getTextPath_path'>path</a>.
@@ -4183,7 +4183,7 @@ void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='u
 </pre>
 
 Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getPosTextPath_text'>text</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getPosTextPath_path'>path</a>.
 Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array to position <a href='#SkPaint_getPosTextPath_path'>path</a>.
@@ -4229,7 +4229,7 @@ Returns the number of <a href='#SkPaint_getTextIntercepts_intervals'>intervals</
 <a href='#SkPaint_getTextIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getTextIntercepts_text'>text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
 the <a href='undocumented#String'>string</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 Uses <a href='#SkPaint_getTextIntercepts_x'>x</a>, <a href='#SkPaint_getTextIntercepts_y'>y</a> to position <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a>.
 
@@ -4279,7 +4279,7 @@ Returns the number of <a href='#SkPaint_getPosTextIntercepts_intervals'>interval
 <a href='#SkPaint_getPosTextIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getPosTextIntercepts_text'>text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
 the <a href='undocumented#String'>string</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 Uses <a href='#SkPaint_getPosTextIntercepts_pos'>pos</a> array to position <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a>.
 
@@ -4326,7 +4326,7 @@ Returns the number of <a href='#SkPaint_getPosTextHIntercepts_intervals'>interva
 <a href='#SkPaint_getPosTextHIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getPosTextHIntercepts_text'>text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
 the <a href='undocumented#String'>string</a>.
-Uses <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to decode <a href='#SkPaint_getPosTextHIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
+Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextHIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 Uses <a href='#SkPaint_getPosTextHIntercepts_xpos'>xpos</a> array, <a href='#SkPaint_getPosTextHIntercepts_constY'>constY</a> to position <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a>.
 
@@ -4379,7 +4379,7 @@ Uses <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocu
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 Uses run array to position <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a>.
 
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
+<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
 
 Pass nullptr for <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 
