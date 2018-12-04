@@ -119,7 +119,7 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
         }
     }
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, primProc, hasPoints, pipeline, *fGpu->caps()->shaderCaps())) {
+    if (!GrProgramDesc::Build(&desc, primProc, hasPoints, pipeline, fGpu)) {
         return nullptr;
     }
     desc.finalize();
