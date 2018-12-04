@@ -454,9 +454,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkImage::MakeFromEncoded(bytes);
     }), allow_raw_pointers());
     function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
-                                                             uintptr_t /* uint8_t*  */ pptr,
+                                                             uintptr_t /* uint8_t*  */ pPtr,
                                                              size_t rowBytes)->sk_sp<SkSurface> {
-        uint8_t* pixels = reinterpret_cast<uint8_t*>(pptr);
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
         SkImageInfo imageInfo = toSkImageInfo(ii);
         return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
     }), allow_raw_pointers());
@@ -478,6 +478,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // See comment above for uintptr_t explanation
         const float* intervals = reinterpret_cast<const float*>(cptr);
         return SkDashPathEffect::Make(intervals, count, phase);
+    }), allow_raw_pointers());
+    function("_MakeImage", optional_override([](SimpleImageInfo ii,
+                                                uintptr_t /* uint8_t*  */ pPtr, int plen,
+                                                size_t rowBytes)->sk_sp<SkImage> {
+        // See comment above for uintptr_t explanation
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+        SkImageInfo info = toSkImageInfo(ii);
+        sk_sp<SkData> pixelData = SkData::MakeFromMalloc(pixels, plen);
+
+        return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
     function("_MakeImageShader", optional_override([](uintptr_t /* uint8_t*  */ iPtr, int ilen,
                                 SkShader::TileMode tx, SkShader::TileMode ty)->sk_sp<SkShader> {
@@ -595,6 +605,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.clear(SkColor(color));
         }))
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
+        .function("clipRect", select_overload<void (const SkRect&, SkClipOp, bool)>(&SkCanvas::clipRect))
+        .function("concat", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
+            self.concat(toSkMatrix(m));
+        }))
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
@@ -623,15 +637,34 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
+        .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
+                                                      uintptr_t /* uint8_t* */ pPtr,
+                                                      size_t dstRowBytes, int srcX, int srcY) {
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo dstInfo = toSkImageInfo(di);
+
+            return self.readPixels(dstInfo, pixels, dstRowBytes, srcX, srcY);
+        }))
         .function("restore", &SkCanvas::restore)
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("scale", &SkCanvas::scale)
-        .function("setMatrix", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
+        .function("_setMatrix", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
+            // TODO(kjlubick): set this to be private. See if I can completely replace it
+            // with concat.
             self.setMatrix(toSkMatrix(m));
         }))
         .function("skew", &SkCanvas::skew)
-        .function("translate", &SkCanvas::translate);
+        .function("translate", &SkCanvas::translate)
+        .function("_writePixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
+                                                       uintptr_t /* uint8_t* */ pPtr,
+                                                       size_t srcRowBytes, int dstX, int dstY) {
+            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+            SkImageInfo dstInfo = toSkImageInfo(di);
+
+            return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
+        }))
+        ;
 
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
@@ -745,11 +778,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_flush", &SkSurface::flush)
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
-        .function("_readPixels", optional_override([](SkSurface& self, int width, int height, uintptr_t /* uint8_t* */ cptr)->bool {
-            uint8_t* dst = reinterpret_cast<uint8_t*>(cptr);
-            auto dstInfo = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
-            return self.readPixels(dstInfo, dst, width*4, 0, 0);
-        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
 
     class_<SkVertices>("SkVertices")
