@@ -8,13 +8,10 @@
 #ifndef SkRegionPriv_DEFINED
 #define SkRegionPriv_DEFINED
 
-#include "SkRegion.h"
-
-#include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkRegion.h"
 #include "SkTo.h"
-
-
+#include <atomic>
 #include <functional>
 
 class SkRegionPriv {
@@ -41,8 +38,6 @@ inline bool SkRegionValueIsSentinel(int32_t value) {
 
 #define assert_sentinel(value, isSentinel) \
     SkASSERT(SkRegionValueIsSentinel(value) == isSentinel)
-
-//SkDEBUGCODE(extern int32_t gRgnAllocCounter;)
 
 #ifdef SK_DEBUG
 // Given the first interval (just past the interval-count), compute the
@@ -86,9 +81,6 @@ public:
     }
 
     static RunHead* Alloc(int count) {
-        //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
-        //SkDEBUGF("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter);
-
         if (count < SkRegion::kRectRegionRuns) {
             return nullptr;
         }
@@ -131,9 +123,8 @@ public:
     RunHead* ensureWritable() {
         RunHead* writable = this;
         if (fRefCnt > 1) {
-            // We need to alloc & copy the current region before we call
-            // sk_atomic_dec because it could be freed in the meantime,
-            // otherwise.
+            // We need to alloc & copy the current region before decrease
+            // the refcount because it could be freed in the meantime.
             writable = Alloc(fRunCount, fYSpanCount, fIntervalCount);
             memcpy(writable->writable_runs(), this->readonly_runs(),
                    fRunCount * sizeof(RunType));

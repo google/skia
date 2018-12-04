@@ -7,46 +7,21 @@
 
 #include "SkTLS.h"
 
-// enable to help debug TLS storage
-//#define SK_TRACE_TLS_LIFETIME
-
-
-#ifdef SK_TRACE_TLS_LIFETIME
-    #include "SkAtomics.h"
-    static int32_t gTLSRecCount;
-#endif
-
 struct SkTLSRec {
     SkTLSRec*           fNext;
     void*               fData;
     SkTLS::CreateProc   fCreateProc;
     SkTLS::DeleteProc   fDeleteProc;
 
-#ifdef SK_TRACE_TLS_LIFETIME
-    SkTLSRec() {
-        int n = sk_atomic_inc(&gTLSRecCount);
-        SkDebugf(" SkTLSRec[%d]\n", n);
-    }
-#endif
-
     ~SkTLSRec() {
         if (fDeleteProc) {
             fDeleteProc(fData);
         }
         // else we leak fData, or it will be managed by the caller
-
-#ifdef SK_TRACE_TLS_LIFETIME
-        int n = sk_atomic_dec(&gTLSRecCount);
-        SkDebugf("~SkTLSRec[%d]\n", n - 1);
-#endif
     }
 };
 
 void SkTLS::Destructor(void* ptr) {
-#ifdef SK_TRACE_TLS_LIFETIME
-    SkDebugf("SkTLS::Destructor(%p)\n", ptr);
-#endif
-
     SkTLSRec* rec = (SkTLSRec*)ptr;
     do {
         SkTLSRec* next = rec->fNext;

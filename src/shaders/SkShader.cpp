@@ -6,7 +6,6 @@
  */
 
 #include "SkArenaAlloc.h"
-#include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
 #include "SkColorSpaceXformer.h"
@@ -26,35 +25,13 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-//#define SK_TRACK_SHADER_LIFETIME
-
-#ifdef SK_TRACK_SHADER_LIFETIME
-    static int32_t gShaderCounter;
-#endif
-
-static inline void inc_shader_counter() {
-#ifdef SK_TRACK_SHADER_LIFETIME
-    int32_t prev = sk_atomic_inc(&gShaderCounter);
-    SkDebugf("+++ shader counter %d\n", prev + 1);
-#endif
-}
-static inline void dec_shader_counter() {
-#ifdef SK_TRACK_SHADER_LIFETIME
-    int32_t prev = sk_atomic_dec(&gShaderCounter);
-    SkDebugf("--- shader counter %d\n", prev - 1);
-#endif
-}
-
 SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)
     : fLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I()) {
-    inc_shader_counter();
     // Pre-cache so future calls to fLocalMatrix.getType() are threadsafe.
     (void)fLocalMatrix.getType();
 }
 
-SkShaderBase::~SkShaderBase() {
-    dec_shader_counter();
-}
+SkShaderBase::~SkShaderBase() {}
 
 void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);

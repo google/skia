@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkBitmapCache.h"
 #include "SkBitmapProvider.h"
 #include "SkImage.h"
@@ -61,12 +60,6 @@ void SkBitmapCache_setImmutableWithID(SkPixelRef* pr, uint32_t id) {
     pr->setImmutableWithID(id);
 }
 
-//#define REC_TRACE   SkDebugf
-static void REC_TRACE(const char format[], ...) {}
-
-// for diagnostics
-static int32_t gRecCounter;
-
 class SkBitmapCache::Rec : public SkResourceCache::Rec {
 public:
     Rec(const SkBitmapCacheDesc& desc, const SkImageInfo& info, size_t rowBytes,
@@ -83,8 +76,6 @@ public:
         // We need an ID to return with the bitmap/pixelref. We can't necessarily use the key/desc
         // ID - lazy images cache the same ID with multiple keys (in different color types).
         fPrUniqueID = SkNextID::ImageID();
-        REC_TRACE(" Rec(%d): [%d %d] %d\n",
-                  sk_atomic_inc(&gRecCounter), fInfo.width(), fInfo.height(), fPrUniqueID);
     }
 
     ~Rec() override {
@@ -94,8 +85,6 @@ public:
             SkASSERT(fDM->data());
             fDM->unlock();
         }
-        REC_TRACE("~Rec(%d): [%d %d] %d\n",
-                  sk_atomic_dec(&gRecCounter) - 1, fInfo.width(), fInfo.height(), fPrUniqueID);
         sk_free(fMalloc);   // may be null
     }
 
@@ -120,14 +109,11 @@ public:
         Rec* rec = static_cast<Rec*>(ctx);
         SkAutoMutexAcquire ama(rec->fMutex);
 
-        REC_TRACE(" Rec: [%d] releaseproc\n", rec->fPrUniqueID);
-
         SkASSERT(rec->fExternalCounter > 0);
         rec->fExternalCounter -= 1;
         if (rec->fDM) {
             SkASSERT(rec->fMalloc == nullptr);
             if (rec->fExternalCounter == 0) {
-                REC_TRACE(" Rec [%d] unlock\n", rec->fPrUniqueID);
                 rec->fDM->unlock();
             }
         } else {
@@ -140,7 +126,6 @@ public:
 
         // are we still valid
         if (!fDM && !fMalloc) {
-            REC_TRACE(" Rec: [%d] invalid\n", fPrUniqueID);
             return false;
         }
 
@@ -157,19 +142,15 @@ public:
             } else {
                 SkASSERT(fExternalCounter == 0);
                 if (!fDM->lock()) {
-                    REC_TRACE(" Rec [%d] re-lock failed\n", fPrUniqueID);
                     fDM.reset(nullptr);
                     return false;
                 }
-                REC_TRACE(" Rec [%d] re-lock succeeded\n", fPrUniqueID);
             }
             SkASSERT(fDM->data());
         }
 
         bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, ReleaseProc, this);
         SkBitmapCache_setImmutableWithID(bitmap->pixelRef(), fPrUniqueID);
-
-        REC_TRACE(" Rec: [%d] install new pr\n", fPrUniqueID);
 
         if (kBeforeFirstInstall_ExternalCounter == fExternalCounter) {
             fExternalCounter = 1;
@@ -183,7 +164,6 @@ public:
     static bool Finder(const SkResourceCache::Rec& baseRec, void* contextBitmap) {
         Rec* rec = (Rec*)&baseRec;
         SkBitmap* result = (SkBitmap*)contextBitmap;
-        REC_TRACE(" Rec: [%d] found\n", rec->fPrUniqueID);
         return rec->install(result);
     }
 

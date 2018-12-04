@@ -7,6 +7,7 @@
 
 #include "SkImageFilter.h"
 
+#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkFuzzLogging.h"
 #include "SkImageFilterCache.h"

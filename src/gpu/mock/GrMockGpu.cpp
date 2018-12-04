@@ -11,31 +11,32 @@
 #include "GrMockGpuCommandBuffer.h"
 #include "GrMockStencilAttachment.h"
 #include "GrMockTexture.h"
+#include <atomic>
 
 int GrMockGpu::NextInternalTextureID() {
-    static int gID = 0;
-    return sk_atomic_inc(&gID) + 1;
+    static std::atomic<int> nextID{1};
+    return nextID++;
 }
 
 int GrMockGpu::NextExternalTextureID() {
     // We use negative ints for the "testing only external textures" so they can easily be
     // identified when debugging.
-    static int gID = 0;
-    return sk_atomic_dec(&gID) - 1;
+    static std::atomic<int> nextID{-1};
+    return nextID--;
 }
 
 int GrMockGpu::NextInternalRenderTargetID() {
-    // We start off with large numbers to differentiate from texture IDs, even though their
+    // We start off with large numbers to differentiate from texture IDs, even though they're
     // technically in a different space.
-    static int gID = SK_MaxS32;
-    return sk_atomic_dec(&gID);
+    static std::atomic<int> nextID{SK_MaxS32};
+    return nextID--;
 }
 
 int GrMockGpu::NextExternalRenderTargetID() {
     // We use large negative ints for the "testing only external render targets" so they can easily
     // be identified when debugging.
-    static int gID = SK_MinS32;
-    return sk_atomic_inc(&gID);
+    static std::atomic<int> nextID{SK_MinS32};
+    return nextID++;
 }
 
 sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
