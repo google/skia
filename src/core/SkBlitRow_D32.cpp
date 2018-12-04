@@ -80,8 +80,6 @@ static void blit_row_s32_opaque(SkPMColor* dst,
     }
 
 #elif defined(SK_ARM_HAS_NEON)
-
-    #include "SkColor_opts_neon.h"
     #include <arm_neon.h>
 
     static void blit_row_s32_blend(SkPMColor* dst, const SkPMColor* src, int count, U8CPU alpha) {
