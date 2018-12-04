@@ -8,9 +8,11 @@
 #include "GrLatticeOp.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
+#include "GrGpu.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
+#include "GrResourceProviderPriv.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "GrVertexWriter.h"
 #include "SkBitmap.h"
@@ -25,10 +27,11 @@ namespace {
 
 class LatticeGP : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* proxy,
+    static sk_sp<GrGeometryProcessor> Make(GrGpu* gpu,
+                                           const GrTextureProxy* proxy,
                                            sk_sp<GrColorSpaceXform> csxf,
                                            GrSamplerState::Filter filter) {
-        return sk_sp<GrGeometryProcessor>(new LatticeGP(proxy, std::move(csxf), filter));
+        return sk_sp<GrGeometryProcessor>(new LatticeGP(gpu, proxy, std::move(csxf), filter));
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -86,10 +89,17 @@ public:
     }
 
 private:
-    LatticeGP(const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
+    LatticeGP(GrGpu* gpu, const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
-        fSampler.reset(proxy->textureType(), proxy->config(), filter);
+
+        GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                     filter);
+        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(samplerState,
+                                                                     proxy->backendFormat());
+
+        fSampler.reset(proxy->textureType(), proxy->config(), samplerState,
+                       extraSamplerKey);
         this->setTextureSamplerCnt(1);
         fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
@@ -193,7 +203,8 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        auto gp = LatticeGP::Make(fProxy.get(), fColorSpaceXform, fFilter);
+        GrGpu* gpu = target->resourceProvider()->priv().gpu();
+        auto gp = LatticeGP::Make(gpu, fProxy.get(), fColorSpaceXform, fFilter);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

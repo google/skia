@@ -309,7 +309,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(const GrGLGpu*, const GrPrimitiveProcessor&,
+        GrGLProgram* refProgram(GrGLGpu*, const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
                                 const GrPipeline&, bool hasPointSize);
 

@@ -13,12 +13,14 @@
 #include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrGeometryProcessor.h"
+#include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrQuad.h"
 #include "GrQuadPerEdgeAA.h"
 #include "GrResourceProvider.h"
+#include "GrResourceProviderPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
@@ -352,9 +354,17 @@ private:
         VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
                               GrQuadType::kRect, /* hasLocal */ true, domain, aaType);
 
+        GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                     this->filter());
+        GrGpu* gpu = target->resourceProvider()->priv().gpu();
+        uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
+                samplerState, fProxies[0].fProxy->backendFormat());
+
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
                 vertexSpec, *target->caps().shaderCaps(),
-                textureType, config, this->filter(), std::move(fTextureColorSpaceXform));
+                textureType, config, samplerState, extraSamplerKey,
+                std::move(fTextureColorSpaceXform));
+
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();

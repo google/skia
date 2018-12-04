@@ -197,7 +197,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.fCurrentGeometryUBOOffset,
                                  fUniformHandler.fCurrentFragmentUBOOffset,
-                                 (uint32_t)fUniformHandler.numSamplers(),
+                                 fUniformHandler.fSamplers,
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
                                  std::move(fFragmentProcessors),
@@ -228,9 +228,9 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            const GrPipeline& pipeline,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
-                                           const GrShaderCaps& caps) {
+                                           GrVkGpu* gpu) {
     if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
-                          caps)) {
+                          gpu)) {
         return false;
     }
 

@@ -96,7 +96,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
     if (!GrVkPipelineStateBuilder::Desc::Build(&desc, primProc, pipeline, stencil, primitiveType,
-                                               *fGpu->caps()->shaderCaps())) {
+                                               fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
