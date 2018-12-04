@@ -165,8 +165,15 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
     GrTexture* tex = proxy->peekTexture();
     SkASSERT(fHasMode && textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
-        SkScalar wInv = SK_Scalar1 / tex->width();
-        SkScalar hInv = SK_Scalar1 / tex->height();
+        SkScalar wInv, hInv, h;
+        if (proxy->textureType() == GrTextureType::kRectangle) {
+            wInv = hInv = 1.f;
+            h = tex->height();
+        } else {
+            wInv = SK_Scalar1 / tex->width();
+            hInv = SK_Scalar1 / tex->height();
+            h = 1.f;
+        }
 
         float values[kPrevDomainCount] = {
             SkScalarToFloat(textureDomain.domain().fLeft * wInv),
@@ -175,15 +182,23 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
             SkScalarToFloat(textureDomain.domain().fBottom * hInv)
         };
 
-        SkASSERT(values[0] >= 0.0f && values[0] <= 1.0f);
-        SkASSERT(values[1] >= 0.0f && values[1] <= 1.0f);
-        SkASSERT(values[2] >= 0.0f && values[2] <= 1.0f);
-        SkASSERT(values[3] >= 0.0f && values[3] <= 1.0f);
+        if (proxy->textureType() == GrTextureType::kRectangle) {
+            SkASSERT(values[0] >= 0.0f && values[0] <= proxy->height());
+            SkASSERT(values[1] >= 0.0f && values[1] <= proxy->height());
+            SkASSERT(values[2] >= 0.0f && values[2] <= proxy->height());
+            SkASSERT(values[3] >= 0.0f && values[3] <= proxy->height());
+        } else {
+            SkASSERT(values[0] >= 0.0f && values[0] <= 1.0f);
+            SkASSERT(values[1] >= 0.0f && values[1] <= 1.0f);
+            SkASSERT(values[2] >= 0.0f && values[2] <= 1.0f);
+            SkASSERT(values[3] >= 0.0f && values[3] <= 1.0f);
+        }
 
         // vertical flip if necessary
         if (kBottomLeft_GrSurfaceOrigin == proxy->origin()) {
-            values[1] = 1.0f - values[1];
-            values[3] = 1.0f - values[3];
+            values[1] = h - values[1];
+            values[3] = h - values[3];
+
             // The top and bottom were just flipped, so correct the ordering
             // of elements so that values = (l, t, r, b).
             using std::swap;
