@@ -74,8 +74,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     }
 
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(backendTex, origin, ownership,
-                                                                    releaseProc, releaseCtx);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
+            backendTex, origin, ownership, kRead_GrIOType, releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }

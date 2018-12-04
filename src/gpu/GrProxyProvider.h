@@ -104,11 +104,11 @@ public:
     typedef void (*ReleaseProc)(ReleaseContext);
 
     /*
-     * Create a texture proxy that wraps a (non-renderable) backend texture.
+     * Create read only a texture proxy that wraps a (non-renderable) backend texture.
      */
     sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                             GrWrapOwnership = kBorrow_GrWrapOwnership,
-                                             ReleaseProc = nullptr, ReleaseContext = nullptr);
+                                             GrWrapOwnership, GrIOType, ReleaseProc = nullptr,
+                                             ReleaseContext = nullptr);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
