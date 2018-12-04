@@ -1742,7 +1742,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             fRTHeightFieldIndex = 0;
         }
         SkASSERT(fRTHeightFieldIndex != (SpvId) -1);
-        // write float4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, 1.0)
+        // write float4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, gl_FragCoord.w)
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), xId,
                                result, 0, out);
@@ -1766,7 +1766,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         FloatLiteral zero(fContext, -1, 0.0);
         SpvId zeroId = writeFloatLiteral(zero);
         FloatLiteral one(fContext, -1, 1.0);
-        SpvId oneId = writeFloatLiteral(one);
+        SpvId wId = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), wId,
+                               result, 3, out);
         SpvId flipped = this->nextId();
         this->writeOpCode(SpvOpCompositeConstruct, 7, out);
         this->writeWord(this->getType(*fContext.fFloat4_Type), out);
@@ -1774,7 +1776,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->writeWord(xId, out);
         this->writeWord(flippedYId, out);
         this->writeWord(zeroId, out);
-        this->writeWord(oneId, out);
+        this->writeWord(wId, out);
         return flipped;
     }
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
