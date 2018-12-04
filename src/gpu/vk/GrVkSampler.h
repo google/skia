@@ -12,6 +12,7 @@
 
 #include "GrVkResource.h"
 #include "GrVkSamplerYcbcrConversion.h"
+#include "SkAtomics.h"
 #include "SkOpts.h"
 #include "vk/GrVkTypes.h"
 
@@ -23,6 +24,7 @@ public:
     static GrVkSampler* Create(GrVkGpu* gpu, const GrSamplerState&, const GrVkYcbcrConversionInfo&);
 
     VkSampler sampler() const { return fSampler; }
+    const VkSampler* samplerPtr() const { return &fSampler; }
 
     struct Key {
         Key(uint16_t samplerKey, const GrVkSamplerYcbcrConversion::Key& ycbcrKey) {
@@ -49,6 +51,8 @@ public:
         return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
     }
 
+    uint32_t uniqueID() const { return fUniqueID; }
+
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
         SkDebugf("GrVkSampler: %d (%d refs)\n", fSampler, this->getRefCnt());
@@ -57,14 +61,28 @@ public:
 
 private:
     GrVkSampler(VkSampler sampler, GrVkSamplerYcbcrConversion* ycbcrConversion, Key key)
-            : INHERITED(), fSampler(sampler), fYcbcrConversion(ycbcrConversion), fKey(key) {}
+            : INHERITED()
+            , fSampler(sampler)
+            , fYcbcrConversion(ycbcrConversion)
+            , fKey(key)
+            , fUniqueID(GenID()) {}
 
     void freeGPUData(const GrVkGpu* gpu) const override;
     void abandonGPUData() const override;
 
+    static uint32_t GenID() {
+        static int32_t gUniqueID = SK_InvalidUniqueID;
+        uint32_t id;
+        do {
+            id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+        } while (id == SK_InvalidUniqueID);
+        return id;
+    }
+
     VkSampler                   fSampler;
     GrVkSamplerYcbcrConversion* fYcbcrConversion;
     Key                         fKey;
+    uint32_t                    fUniqueID;
 
     typedef GrVkResource INHERITED;
 };

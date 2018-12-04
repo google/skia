@@ -49,7 +49,7 @@ public:
             const UniformInfoArray& uniforms,
             uint32_t geometryUniformSize,
             uint32_t fragmentUniformSize,
-            uint32_t numSamplers,
+            const UniformInfoArray& samplers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
             std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
@@ -135,6 +135,8 @@ private:
     const GrVkDescriptorSet* fSamplerDescriptorSet;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
+
+    SkSTArray<4, const GrVkSampler*>   fImmutableSamplers;
 
     std::unique_ptr<GrVkUniformBuffer> fGeometryUniformBuffer;
     std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
