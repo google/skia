@@ -5224,12 +5224,10 @@ struct Xforms {
     }
 };
 
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
 static bool conditional_convex(const SkPath& path, bool is_convex) {
     SkPath::Convexity c = path.getConvexityOrUnknown();
     return is_convex ? (c == SkPath::kConvex_Convexity) : (c != SkPath::kConvex_Convexity);
 }
-#endif
 
 // expect axis-aligned shape to survive assignment, identity and scale/translate matrices
 template <typename ISA>
@@ -5259,20 +5257,16 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
     path->transform(x.fTM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
     REPORTER_ASSERT(reporter, isa_proc(*path));
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
     REPORTER_ASSERT(reporter, conditional_convex(path2, isAxisAligned));
     REPORTER_ASSERT(reporter, conditional_convex(*path, isAxisAligned));
-#endif
 
     // a path's isa should survive scaling, convexity depends on axis alignment
     path->transform(x.fSM, &path2);
     path->transform(x.fSM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
     REPORTER_ASSERT(reporter, isa_proc(*path));
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
     REPORTER_ASSERT(reporter, conditional_convex(path2, isAxisAligned));
     REPORTER_ASSERT(reporter, conditional_convex(*path, isAxisAligned));
-#endif
 
     // For security, post-rotation, we can't assume we're still convex. It might prove to be,
     // in fact, still be convex, be we can't have cached that setting, hence the call to
@@ -5283,10 +5277,8 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
         REPORTER_ASSERT(reporter, !isa_proc(path2));
         REPORTER_ASSERT(reporter, !isa_proc(*path));
     }
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
     REPORTER_ASSERT(reporter, path2.getConvexityOrUnknown() != SkPath::kConvex_Convexity);
     REPORTER_ASSERT(reporter, path->getConvexityOrUnknown() != SkPath::kConvex_Convexity);
-#endif
 }
 
 DEF_TEST(Path_survive_transform, r) {

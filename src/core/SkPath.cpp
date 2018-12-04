@@ -1795,14 +1795,12 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
 }
 
 void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
     if (matrix.isIdentity()) {
         if (dst != nullptr && dst != this) {
             *dst = *this;
         }
         return;
     }
-#endif
 
     SkDEBUGCODE(this->validate();)
     if (dst == nullptr) {
@@ -1851,22 +1849,16 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         matrix.mapPoints(ed.points(), ed.pathRef()->countPoints());
         dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
     } else {
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
         Convexity convexity = this->getConvexityOrUnknown();
-#endif
 
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
 
         if (this != dst) {
             dst->fLastMoveToIndex = fLastMoveToIndex;
             dst->fFillType = fFillType;
-#ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
-            dst->setConvexity(this->getConvexityOrUnknown());
-#endif
             dst->fIsVolatile = fIsVolatile;
         }
 
-#ifndef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
         // Due to finite/fragile float numerics, we can't assume that a convex path remains
         // convex after a transformation, so mark it as unknown here.
         // However, some transformations are thought to be safe:
@@ -1876,7 +1868,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         } else {
             dst->setConvexity(kUnknown_Convexity);
         }
-#endif
 
         if (this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
             dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
@@ -1891,9 +1882,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             } else if (det2x2 > 0) {
                 dst->setFirstDirection(this->getFirstDirection());
             } else {
-#ifdef SK_SUPPORT_LEGACY_CACHE_CONVEXITY
-                dst->setConvexity(kUnknown_Convexity);
-#endif
                 dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
             }
         }
