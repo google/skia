@@ -424,6 +424,10 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
     uint32_t    rowBytes;
     SkPixmap    srcPM(src);
 
+    // Depending on architecture and other factors, the pixel data alignment may need to be as
+    // large as 8 (for F16 pixels). See the comment on SkMipMap::Level.
+    SkASSERT(SkIsAlign8((uintptr_t)addr));
+
     for (int i = 0; i < countLevels; ++i) {
         FilterProc* proc;
         if (height & 1) {
