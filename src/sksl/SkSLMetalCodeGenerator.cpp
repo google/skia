@@ -324,7 +324,8 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c) {
 }
 
 void MetalCodeGenerator::writeFragCoord() {
-    this->write("float4(_fragCoord.x, _anonInterface0.u_skRTHeight - _fragCoord.y, 0.0, 1.0)");
+    this->write("float4(_fragCoord.x, _anonInterface0.u_skRTHeight - _fragCoord.y, 0.0, "
+                "_fragCoord.w)");
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
