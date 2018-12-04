@@ -23,6 +23,7 @@
 #include "ops/GrRectOpFactory.h"
 #include "TestUtils.h"
 
+#include <atomic>
 #include <random>
 
 namespace {
@@ -84,9 +85,8 @@ public:
     const char* name() const override { return "test"; }
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        // We don't really care about reusing these.
-        static int32_t gKey = 0;
-        b->add32(sk_atomic_inc(&gKey));
+        static std::atomic<int32_t> nextKey{0};
+        b->add32(nextKey++);
     }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {

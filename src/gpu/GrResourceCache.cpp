@@ -19,6 +19,7 @@
 #include "SkRandom.h"
 #include "SkTSort.h"
 #include "SkTo.h"
+#include <atomic>
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
@@ -30,9 +31,9 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
 //////////////////////////////////////////////////////////////////////////////
 
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
-    static int32_t gType = INHERITED::kInvalidDomain + 1;
+    static std::atomic<int32_t> nextType{INHERITED::kInvalidDomain + 1};
 
-    int32_t type = sk_atomic_inc(&gType);
+    int32_t type = nextType++;
     if (type > SkTo<int32_t>(UINT16_MAX)) {
         SK_ABORT("Too many Resource Types");
     }
@@ -41,9 +42,9 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
 }
 
 GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
-    static int32_t gDomain = INHERITED::kInvalidDomain + 1;
+    static std::atomic<int32_t> nextDomain{INHERITED::kInvalidDomain + 1};
 
-    int32_t domain = sk_atomic_inc(&gDomain);
+    int32_t domain = nextDomain++;
     if (domain > SkTo<int32_t>(UINT16_MAX)) {
         SK_ABORT("Too many GrUniqueKey Domains");
     }

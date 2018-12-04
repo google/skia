@@ -8,8 +8,6 @@
 #ifndef GrOp_DEFINED
 #define GrOp_DEFINED
 
-#include <new>
-#include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
 #include "GrTracing.h"
@@ -17,6 +15,8 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
+#include <atomic>
+#include <new>
 
 class GrCaps;
 class GrGpuCommandBuffer;
@@ -303,11 +303,9 @@ private:
     // Otherwise, this op's bounds.
     virtual void onExecute(GrOpFlushState*, const SkRect& chainBounds) = 0;
 
-    static uint32_t GenID(int32_t* idCounter) {
-        // The atomic inc returns the old value not the incremented value. So we add
-        // 1 to the returned value.
-        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
-        if (!id) {
+    static uint32_t GenID(std::atomic<uint32_t>* idCounter) {
+        uint32_t id = (*idCounter)++;
+        if (id == 0) {
             SK_ABORT("This should never wrap as it should only be called once for each GrOp "
                    "subclass.");
         }
@@ -339,8 +337,8 @@ private:
     mutable uint32_t                    fUniqueID = SK_InvalidUniqueID;
     SkRect                              fBounds;
 
-    static int32_t                      gCurrOpUniqueID;
-    static int32_t                      gCurrOpClassID;
+    static std::atomic<uint32_t> gCurrOpUniqueID;
+    static std::atomic<uint32_t> gCurrOpClassID;
 };
 
 #endif
