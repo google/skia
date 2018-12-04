@@ -198,7 +198,6 @@ private:
 
     // Incremental decoding state.
     uint8_t* fIncrDecDst;
-    bool     fIncrDecHaveFrameConfig;
     size_t   fIncrDecRowBytes;
 
     std::unique_ptr<SkSwizzler> fSwizzler;
@@ -319,7 +318,6 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fPixelBuffer(pixbuf),
       fIOBuffer((wuffs_base__io_buffer){}),
       fIncrDecDst(nullptr),
-      fIncrDecHaveFrameConfig(false),
       fIncrDecRowBytes(0),
       fSwizzler(nullptr),
       fNumFullyReceivedFrames(0),
@@ -382,12 +380,19 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     }
 
     fSpySampler.reset();
-    fIncrDecDst = static_cast<uint8_t*>(dst);
-    fIncrDecHaveFrameConfig = false;
-    fIncrDecRowBytes = rowBytes;
     fSwizzler = nullptr;
 
-    return SkCodec::kSuccess;
+    const char* status = this->decodeFrameConfig();
+    if (status == nullptr) {
+        fIncrDecDst = static_cast<uint8_t*>(dst);
+        fIncrDecRowBytes = rowBytes;
+        return SkCodec::kSuccess;
+    } else if (status == wuffs_base__suspension__short_read) {
+        return SkCodec::kIncompleteInput;
+    } else {
+        SkCodecPrintf("decodeFrameConfig: %s", status);
+        return SkCodec::kErrorInInput;
+    }
 }
 
 static bool independent_frame(SkCodec* codec, int frameIndex) {
@@ -415,44 +420,58 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
-    if (!fIncrDecHaveFrameConfig) {
-        const char* status = this->decodeFrameConfig();
-        if (status == nullptr) {
-            // No-op.
-        } else if (status == wuffs_base__suspension__short_read) {
-            return SkCodec::kIncompleteInput;
-        } else {
-            SkCodecPrintf("decodeFrameConfig: %s", status);
-            return SkCodec::kErrorInInput;
-        }
-        fIncrDecHaveFrameConfig = true;
-    }
-
-    SkCodec::Result result = SkCodec::kSuccess;
-    const char*     status = this->decodeFrame();
-    if (status == nullptr) {
-        // No-op.
-    } else if (status == wuffs_base__suspension__short_read) {
-        result = SkCodec::kIncompleteInput;
-    } else {
-        SkCodecPrintf("decodeFrame: %s", status);
-        return SkCodec::kErrorInInput;
-    }
+    // In Wuffs, a paletted image is always 1 byte per pixel.
+    static constexpr size_t src_bpp = 1;
+    wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
 
     const bool independent = independent_frame(this, options().fFrameIndex);
     wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
     if (!fSwizzler) {
-        SkIRect swizzleRect = SkIRect::MakeLTRB(r.min_incl_x, 0, r.max_excl_x, 1);
-        fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fColorTable, dstInfo(), Options(),
-                                     &swizzleRect);
+        auto bounds = SkIRect::MakeLTRB(r.min_incl_x, r.min_incl_y, r.max_excl_x, r.max_excl_y);
+        fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fColorTable, dstInfo(),
+                                     this->options(), &bounds);
         fSwizzler->setSampleX(fSpySampler.sampleX());
         fSwizzler->setSampleY(fSpySampler.sampleY());
 
-        if (independent) {
+        // Zero-initialize wuffs' buffer covering the frame rect. This will later be used to
+        // determine how we write to the output, even if the image was incomplete. This ensures
+        // that we do not swizzle uninitialized memory.
+        for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
+            uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * src_bpp);
+            sk_bzero(s, r.width() * src_bpp);
+        }
+
+        // If the frame rect does not fill the output, ensure that those pixels are not
+        // left uninitialized either.
+        if (independent && bounds != this->bounds()) {
             auto fillInfo = dstInfo().makeWH(fSwizzler->fillWidth(),
                                              get_scaled_dimension(this->dstInfo().height(),
                                                                   fSwizzler->sampleY()));
             SkSampler::Fill(fillInfo, fIncrDecDst, fIncrDecRowBytes, options().fZeroInitialized);
+        }
+    }
+
+    SkCodec::Result result = SkCodec::kSuccess;
+    const char*     status = this->decodeFrame();
+    if (status != nullptr) {
+        if (status == wuffs_base__suspension__short_read) {
+            result = SkCodec::kIncompleteInput;
+        } else {
+            SkCodecPrintf("decodeFrame: %s", status);
+            result = SkCodec::kErrorInInput;
+        }
+
+        if (!independent) {
+            if (rowsDecoded) {
+                // Though no rows were written by this call, the prior frame
+                // initialized all the rows.
+                *rowsDecoded = get_scaled_dimension(this->dstInfo().height(),
+                                                    fSwizzler->sampleY());
+            }
+            // For a dependent frame, we cannot blend the partial result, since
+            // that will overwrite the contribution from prior frames with all
+            // zeroes that were written to |pixels| above.
+            return result;
         }
     }
 
@@ -468,13 +487,9 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     if (!independent) {
         tmpBuffer.reset(new uint8_t[dstInfo().minRowBytes()]);
     }
-    wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
     const int            sampleY = fSwizzler->sampleY();
     const int            scaledHeight = get_scaled_dimension(dstInfo().height(), sampleY);
     for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
-        // In Wuffs, a paletted image is always 1 byte per pixel.
-        static constexpr size_t src_bpp = 1;
-
         int dstY = y;
         if (sampleY != 1) {
             if (!fSwizzler->rowNeeded(y)) {
@@ -533,7 +548,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     if (result == SkCodec::kSuccess) {
         fSpySampler.reset();
         fIncrDecDst = nullptr;
-        fIncrDecHaveFrameConfig = false;
         fIncrDecRowBytes = 0;
         fSwizzler = nullptr;
     } else {
