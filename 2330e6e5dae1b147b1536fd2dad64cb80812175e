@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4abf846_fc8b90d1",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T18:20:06Z",
+      "side": 1,
+      "message": "you can have docker run --rm --priv...\n\nAnd tthen remove line 26",
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389aee1b_a0c6b726",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T18:20:06Z",
+      "side": 1,
+      "message": "I prefer the long form of the names in scripts\n--env\n--volume",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 10
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4d2f5ad_29d0878a",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T18:20:06Z",
+      "side": 1,
+      "message": "I don\u0027t think this needs to be interactive/TTY",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 15
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40ce46c5_7ee7d3f8",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T18:20:06Z",
+      "side": 1,
+      "message": "quotes here and below in case of space in names?",
+      "range": {
+        "startLine": 28,
+        "startChar": 14,
+        "endLine": 28,
+        "endChar": 18
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
