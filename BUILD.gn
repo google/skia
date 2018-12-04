@@ -983,9 +983,7 @@ component("skia") {
   }
 
   if (skia_use_fonthost_mac) {
-    sources += [
-      "src/ports/SkFontHost_mac.cpp",
-    ]
+    sources += [ "src/ports/SkFontHost_mac.cpp" ]
   }
 
   if (is_mac) {
@@ -1488,6 +1486,8 @@ if (skia_enable_tools) {
       "tools/trace/SkDebugfTracer.h",
       "tools/trace/SkEventTracingPriv.cpp",
       "tools/trace/SkEventTracingPriv.h",
+      "tools/trace/SkRealTimeTracer.cpp",
+      "tools/trace/SkRealTimeTracer.h",
     ]
     libs = []
     if (is_ios) {
