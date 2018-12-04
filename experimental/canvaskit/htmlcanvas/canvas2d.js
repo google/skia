@@ -94,6 +94,29 @@
     }
   }
 
+  function ImageData(arr, width, height) {
+    if (!width || height === 0) {
+      throw 'invalid dimensions, width and height must be non-zero';
+    }
+    if (arr.length % 4) {
+      throw 'arr must be a multiple of 4';
+    }
+    height = height || arr.length/(4*width);
+
+    Object.defineProperty(this, 'data', {
+      value: arr,
+      writable: false
+    });
+    Object.defineProperty(this, 'height', {
+      value: height,
+      writable: false
+    });
+    Object.defineProperty(this, 'width', {
+      value: width,
+      writable: false
+    });
+  }
+
   function LinearCanvasGradient(x1, y1, x2, y2) {
     this._shader = null;
     this._colors = [];
@@ -981,6 +1004,19 @@
       fillPaint.dispose();
     }
 
+    this.getImageData = function(x, y, w, h) {
+      var pixels = this._canvas.readPixels(x, y, w, h);
+      if (!pixels) {
+        return null;
+      }
+      // This essentially re-wraps the pixels from a Uint8Array to
+      // a Uint8ClampedArray (without making a copy of pixels).
+      return new ImageData(
+        new Uint8ClampedArray(pixels.buffer),
+        w, h,
+      );
+    }
+
     this.getLineDash = function() {
       return this._lineDashList.slice();
     }
@@ -1023,6 +1059,10 @@
       this._commitSubpath();
       this._currentSubpath = new CanvasKit.SkPath();
       this._currentSubpath.moveTo(x, y);
+    }
+
+    this.putImageData = function(imageData, x, y) {
+      this._canvas.writePixels(imageData.data, imageData.width, imageData.height, x, y);
     }
 
     this.quadraticCurveTo = function(cpx, cpy, x, y) {
