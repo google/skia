@@ -469,7 +469,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                         return sk_sp<GrTexture>();
                     }
 
-                    sk_sp<GrTexture> texture = rp->wrapBackendTexture(backendTex);
+                    sk_sp<GrTexture> texture = rp->wrapBackendTexture(
+                            backendTex, kBorrow_GrWrapOwnership, kRead_GrIOType);
                     if (!texture) {
                         return sk_sp<GrTexture>();
                     }
