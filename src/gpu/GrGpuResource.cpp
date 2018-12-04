@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "SkTraceMemoryDump.h"
+#include <atomic>
 
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
@@ -206,10 +207,10 @@ void GrGpuResource::makeUnbudgeted() {
 }
 
 uint32_t GrGpuResource::CreateUniqueID() {
-    static int32_t gUniqueID = SK_InvalidUniqueID;
+    static std::atomic<uint32_t> nextID{1};
     uint32_t id;
     do {
-        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+        id = nextID++;
     } while (id == SK_InvalidUniqueID);
     return id;
 }

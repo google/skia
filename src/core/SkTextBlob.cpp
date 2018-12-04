@@ -7,7 +7,6 @@
 
 #include "SkTextBlob.h"
 
-#include "SkAtomics.h"
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
@@ -16,6 +15,7 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+#include <atomic>
 #include <limits>
 #include <new>
 
@@ -157,11 +157,11 @@ void SkTextBlob::RunRecord::grow(uint32_t count) {
     memmove(posBuffer(), initialPosBuffer, copySize);
 }
 
-static int32_t gNextID = 1;
 static int32_t next_id() {
+    static std::atomic<int32_t> nextID{1};
     int32_t id;
     do {
-        id = sk_atomic_inc(&gNextID);
+        id = nextID++;
     } while (id == SK_InvalidGenID);
     return id;
 }

@@ -6,10 +6,11 @@
  */
 
 #include "CrashHandler.h"
+#include "GrContext.h"
+#include "GrContextFactory.h"
 #include "OverwriteLine.h"
 #include "PathOpsDebug.h"
 #include "Resources.h"
-#include "SkAtomics.h"
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
@@ -19,9 +20,7 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "Test.h"
-
-#include "GrContext.h"
-#include "GrContextFactory.h"
+#include <atomic>
 
 using namespace skiatest;
 using namespace sk_gpu_test;
@@ -50,10 +49,8 @@ public:
                  bool success,
                  SkMSec elapsed,
                  int testCount) {
-        const int done = 1 + sk_atomic_inc(&fDone);
-        for (int i = 0; i < testCount; ++i) {
-            sk_atomic_inc(&fTestCount);
-        }
+        const int done = ++fDone;
+        fTestCount += testCount;
         if (!success) {
             SkDebugf("\n---- %s FAILED", testName);
         }
@@ -68,15 +65,15 @@ public:
                  testName);
     }
 
-    void reportFailure() { sk_atomic_inc(&fFailCount); }
+    void reportFailure() { fFailCount++; }
 
     int32_t testCount() { return fTestCount; }
     int32_t failCount() { return fFailCount; }
 
 private:
-    int32_t fDone;  // atomic
-    int32_t fTestCount;  // atomic
-    int32_t fFailCount;  // atomic
+    std::atomic<int32_t> fDone;
+    std::atomic<int32_t> fTestCount;
+    std::atomic<int32_t> fFailCount;
     const int fTotal;
 };
 

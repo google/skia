@@ -422,7 +422,6 @@ skia_core_sources = [
 
   # private
   "$_include/private/SkArenaAlloc.h",
-  "$_include/private/SkAtomics.h",
   "$_include/private/SkChecksum.h",
   "$_include/private/SkDeferredDisplayList.h",
   "$_include/private/SkFixed.h",

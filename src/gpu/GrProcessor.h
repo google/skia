@@ -8,7 +8,6 @@
 #ifndef GrProcessor_DEFINED
 #define GrProcessor_DEFINED
 
-#include "../private/SkAtomics.h"
 #include "GrBuffer.h"
 #include "GrColor.h"
 #include "GrProcessorUnitTest.h"

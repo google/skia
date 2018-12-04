@@ -6,7 +6,6 @@
  */
 
 #include "GrContext.h"
-#include <unordered_map>
 #include "GrBackendSemaphore.h"
 #include "GrClip.h"
 #include "GrContextOptions.h"
@@ -39,6 +38,8 @@
 #include "effects/GrSkSLFP.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextBlobCache.h"
+#include <atomic>
+#include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
@@ -58,11 +59,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static int32_t gNextID = 1;
 static int32_t next_id() {
+    static std::atomic<int32_t> nextID{1};
     int32_t id;
     do {
-        id = sk_atomic_inc(&gNextID);
+        id = nextID++;
     } while (id == SK_InvalidGenID);
     return id;
 }

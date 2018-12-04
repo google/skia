@@ -7,7 +7,6 @@
 
 #include "SkBitmap.h"
 
-#include "SkAtomics.h"
 #include "SkColorData.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"

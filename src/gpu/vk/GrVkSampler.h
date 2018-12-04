@@ -12,9 +12,9 @@
 
 #include "GrVkResource.h"
 #include "GrVkSamplerYcbcrConversion.h"
-#include "SkAtomics.h"
 #include "SkOpts.h"
 #include "vk/GrVkTypes.h"
+#include <atomic>
 
 class GrSamplerState;
 class GrVkGpu;
@@ -71,10 +71,10 @@ private:
     void abandonGPUData() const override;
 
     static uint32_t GenID() {
-        static int32_t gUniqueID = SK_InvalidUniqueID;
+        static std::atomic<uint32_t> nextID{1};
         uint32_t id;
         do {
-            id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+            id = nextID++;
         } while (id == SK_InvalidUniqueID);
         return id;
     }

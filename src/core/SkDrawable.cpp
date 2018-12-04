@@ -5,20 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
+#include <atomic>
 
 static int32_t next_generation_id() {
-    static int32_t gCanvasDrawableGenerationID;
+    static std::atomic<int32_t> nextID{1};
 
-    // do a loop in case our global wraps around, as we never want to
-    // return a 0
-    int32_t genID;
+    int32_t id;
     do {
-        genID = sk_atomic_inc(&gCanvasDrawableGenerationID) + 1;
-    } while (0 == genID);
-    return genID;
+        id = nextID++;
+    } while (id == 0);
+    return id;
 }
 
 SkDrawable::SkDrawable() : fGenerationID(0) {}

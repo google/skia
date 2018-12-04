@@ -16,6 +16,7 @@
 #include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
+#include <atomic>
 
 class GrCCAtlas::Node {
 public:
@@ -154,8 +155,8 @@ void GrCCAtlas::setStrokeBatchID(int id) {
 }
 
 static uint32_t next_atlas_unique_id() {
-    static int32_t nextID;
-    return sk_atomic_inc(&nextID);
+    static std::atomic<uint32_t> nextID;
+    return nextID++;
 }
 
 const GrUniqueKey& GrCCAtlas::getOrAssignUniqueKey(GrOnFlushResourceProvider* onFlushRP) {
