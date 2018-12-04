@@ -202,3 +202,10 @@ DEF_TEST(MipMap_ComputeLevelSize, reporter) {
         REPORTER_ASSERT(reporter, currentTest.fExpectedMipMapLevelSize == levelSize);
     }
 }
+
+DEF_TEST(MipMap_F16, reporter) {
+    SkBitmap bmp;
+    bmp.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType, kPremul_SkAlphaType));
+    bmp.eraseColor(0);
+    sk_sp<SkMipMap> mipmap(SkMipMap::Build(bmp, nullptr));
+}
