@@ -71,9 +71,9 @@
     SkEventTracer::GetInstance()->updateTraceEventDuration
 
 #define TRACE_EVENT_API_ATOMIC_WORD intptr_t
-#define TRACE_EVENT_API_ATOMIC_LOAD(var) sk_atomic_load(&var, sk_memory_order_relaxed)
+#define TRACE_EVENT_API_ATOMIC_LOAD(var) sk_atomic_load(&var, std::memory_order_relaxed)
 #define TRACE_EVENT_API_ATOMIC_STORE(var, value) \
-    sk_atomic_store(&var, value, sk_memory_order_relaxed)
+    sk_atomic_store(&var, value, std::memory_order_relaxed)
 
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API

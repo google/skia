@@ -54,7 +54,7 @@ bool SkEventTracer::SetInstance(SkEventTracer* tracer) {
 }
 
 SkEventTracer* SkEventTracer::GetInstance() {
-    if (SkEventTracer* tracer = sk_atomic_load(&gUserTracer, sk_memory_order_acquire)) {
+    if (SkEventTracer* tracer = sk_atomic_load(&gUserTracer, std::memory_order_acquire)) {
         return tracer;
     }
     static SkOnce once;
