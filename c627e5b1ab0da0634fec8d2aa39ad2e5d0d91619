@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "253ecdbf_5e955e20",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T18:01:03Z",
+      "side": 1,
+      "message": "Looks like you\u0027ve added a lot of these locks so I\u0027m assuming you\u0027ve covered the required commands that need synchronization. Just to double check have you run through the list here (https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#fundamentals-commandsyntax), specifically the \"Externally Synchronized Parameters\" and \"Implicit Externally Synchronized Parameters\"",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 47
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96ea3209_ed92df6d",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T18:01:03Z",
+      "side": 1,
+      "message": "Is this lock really needed for every thing in here? Seems like the majority of the work here involves skia stuff and not need synchronization.",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 71
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd34524c_034bf5b0",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T18:01:03Z",
+      "side": 1,
+      "message": "Kind of the theme, but maybe just have RestCommandBuffer behind lock and allow onReset to not be locked. The sub class can lock things if it needs to in onReset",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 117,
+        "endChar": 71
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "132295ee_c2833671",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T18:01:03Z",
+      "side": 1,
+      "message": "So a lot of the following commands (pipelinebarrier, bind*, draw*, etc.) will only ever be called on our main rendering thread. Are these not just inherently synchronized? How would we get into a state where the cleanup thread is trying to access a resource from the same command pool as the render thread. I would have thought we would have synchronized sending the command pool object (and all its command buffers) between the main render thread and clean up, but once on those threads we don\u0027t need any sort of locking. Is this not true?",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 64
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
