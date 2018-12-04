@@ -148,7 +148,7 @@ public:
 
         @return  identifier for SkPicture
     */
-    uint32_t uniqueID() const;
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /** Returns storage containing SkData describing SkPicture, using optional custom
         encoders.
@@ -278,7 +278,7 @@ private:
     struct SkPictInfo createHeader() const;
     class SkPictureData* backport() const;
 
-    mutable uint32_t fUniqueID;
+    uint32_t fUniqueID;
 };
 
 #endif

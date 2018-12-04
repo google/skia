@@ -42,20 +42,6 @@ T sk_atomic_fetch_add(T* ptr, T val, std::memory_order mo = std::memory_order_se
     return std::atomic_fetch_add_explicit(ap, val, mo);
 }
 
-template <typename T>
-bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
-                                std::memory_order success = std::memory_order_seq_cst,
-                                std::memory_order failure = std::memory_order_seq_cst) {
-    // All values of success are valid.
-    SkASSERT(failure == std::memory_order_relaxed ||
-             failure == std::memory_order_seq_cst ||
-             failure == std::memory_order_acquire ||
-             failure == std::memory_order_consume);
-    SkASSERT(failure <= success);
-    std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_compare_exchange_strong_explicit(ap, expected, desired, success, failure);
-}
-
 // ~~~~~~~~ Very Legacy APIs ~~~~~~~~~
 //
 // Here are shims for our very old atomics API, to be weaned off of.  They use

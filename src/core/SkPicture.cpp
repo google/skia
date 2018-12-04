@@ -7,7 +7,6 @@
 
 #include "SkPicture.h"
 
-#include "SkAtomics.h"
 #include "SkImageGenerator.h"
 #include "SkMathPriv.h"
 #include "SkPictureCommon.h"
@@ -18,6 +17,7 @@
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 #include "SkTo.h"
+#include <atomic>
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.
 // Note: in the read/write buffer versions, we have a slightly different convention:
@@ -33,22 +33,11 @@ enum {
 
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
 
-SkPicture::SkPicture() : fUniqueID(0) {}
-
-uint32_t SkPicture::uniqueID() const {
-    static uint32_t gNextID = 1;
-    uint32_t id = sk_atomic_load(&fUniqueID, std::memory_order_relaxed);
-    while (id == 0) {
-        uint32_t next = sk_atomic_fetch_add(&gNextID, 1u);
-        if (sk_atomic_compare_exchange(&fUniqueID, &id, next,
-                                       std::memory_order_relaxed,
-                                       std::memory_order_relaxed)) {
-            id = next;
-        } else {
-            // sk_atomic_compare_exchange replaced id with the current value of fUniqueID.
-        }
-    }
-    return id;
+SkPicture::SkPicture() {
+    static std::atomic<uint32_t> nextID{1};
+    do {
+        fUniqueID = nextID.fetch_add(+1, std::memory_order_relaxed);
+    } while (fUniqueID == 0);
 }
 
 static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'c', 't' };
