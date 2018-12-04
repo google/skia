@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19dc4f76_46b05e67",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-04T23:05:42Z",
+      "side": 0,
+      "message": "Don\u0027t you still need this? Did you intent to set this like HasPath?",
+      "range": {
+        "startLine": 122,
+        "startChar": 12,
+        "endLine": 122,
+        "endChar": 43
+      },
+      "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
