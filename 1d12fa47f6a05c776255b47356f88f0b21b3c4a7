@@ -22,6 +22,30 @@
       "revId": "1d12fa47f6a05c776255b47356f88f0b21b3c4a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f27513e_a1aa04c6",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-04T19:42:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b6c4ae13_f6fdac6a",
+      "range": {
+        "startLine": 1127,
+        "startChar": 29,
+        "endLine": 1127,
+        "endChar": 30
+      },
+      "revId": "1d12fa47f6a05c776255b47356f88f0b21b3c4a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
