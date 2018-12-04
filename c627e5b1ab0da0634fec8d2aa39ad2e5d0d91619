@@ -91,6 +91,29 @@
       "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25af4961_f590f81a",
+        "filename": "src/gpu/vk/GrVkResource.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T18:16:34Z",
+      "side": 1,
+      "message": "This seems like it could cause a pretty big perf impact when doing tracing. This may be related to my question above about accessing command pool/buffers at the same time from different threads, but in general how are resources getting hit by multiple threads at the same time?",
+      "range": {
+        "startLine": 62,
+        "startChar": 12,
+        "endLine": 62,
+        "endChar": 54
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
