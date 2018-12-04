@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9206c331_9358c9cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T15:55:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "690fe1a3_6580c93b",
+      "range": {
+        "startLine": 9,
+        "startChar": 44,
+        "endLine": 9,
+        "endChar": 51
+      },
+      "revId": "680264b6ec6253c77b08c232194675cd1f688d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b023c6b5_2f2c0c4c",
         "filename": "src/gpu/GrGpu.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "680264b6ec6253c77b08c232194675cd1f688d41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04028f7b_e580cbda",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-04T15:55:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b023c6b5_2f2c0c4c",
+      "range": {
+        "startLine": 414,
+        "startChar": 86,
+        "endLine": 414,
+        "endChar": 94
+      },
+      "revId": "680264b6ec6253c77b08c232194675cd1f688d41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
