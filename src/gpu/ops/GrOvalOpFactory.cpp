@@ -32,12 +32,6 @@ namespace {
 
 static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
 
-static inline GrPrimitiveProcessor::Attribute color_attribute(bool wideColor) {
-    return { "inColor",
-             wideColor ? kHalf4_GrVertexAttribType : kUByte4_norm_GrVertexAttribType,
-             kHalf4_GrSLType };
-}
-
 // Produces TriStrip vertex data for an origin-centered rectangle from [-x, -y] to [x, y]
 static inline GrVertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
     return GrVertexWriter::TriStrip<float>{ -x, -y, x, y };
@@ -74,7 +68,7 @@ public:
             , fLocalMatrix(localMatrix)
             , fStroke(stroke) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInColor = color_attribute(wideColor);
+        fInColor = MakeColorAttribute("inColor", wideColor);
         fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
 
         if (clipPlane) {
@@ -266,7 +260,7 @@ public:
     ButtCapDashedCircleGeometryProcessor(bool wideColor, const SkMatrix& localMatrix)
             : INHERITED(kButtCapStrokedCircleGeometryProcessor_ClassID), fLocalMatrix(localMatrix) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInColor = color_attribute(wideColor);
+        fInColor = MakeColorAttribute("inColor", wideColor);
         fInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         fInDashParams = {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         this->setVertexAttributes(&fInPosition, 4);
@@ -513,7 +507,7 @@ public:
     : INHERITED(kEllipseGeometryProcessor_ClassID)
     , fLocalMatrix(localMatrix) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInColor = color_attribute(wideColor);
+        fInColor = MakeColorAttribute("inColor", wideColor);
         fInEllipseOffset = {"inEllipseOffset", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
         fInEllipseRadii = {"inEllipseRadii", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
         this->setVertexAttributes(&fInPosition, 4);
@@ -665,7 +659,7 @@ public:
             , fViewMatrix(viewMatrix) {
         fStyle = style;
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        fInColor = color_attribute(wideColor);
+        fInColor = MakeColorAttribute("inColor", wideColor);
         fInEllipseOffsets0 = {"inEllipseOffsets0", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
         fInEllipseOffsets1 = {"inEllipseOffsets1", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
         this->setVertexAttributes(&fInPosition, 4);

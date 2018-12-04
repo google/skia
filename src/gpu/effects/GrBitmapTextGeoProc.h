@@ -23,13 +23,14 @@ class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps, const SkPMColor4f& color,
+    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                           const SkPMColor4f& color, bool wideColor,
                                            const sk_sp<GrTextureProxy>* proxies,
                                            int numActiveProxies,
                                            const GrSamplerState& p, GrMaskFormat format,
                                            const SkMatrix& localMatrix, bool usesW) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(caps, color, proxies, numActiveProxies, p, format,
+            new GrBitmapTextGeoProc(caps, color, wideColor, proxies, numActiveProxies, p, format,
                                     localMatrix, usesW));
     }
 
@@ -54,7 +55,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&,
+    GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
                         const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesW);

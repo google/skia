@@ -321,8 +321,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            *target->caps().shaderCaps(), this->color(), proxies, numActiveProxies, samplerState,
-            maskFormat, localMatrix, vmPerspective);
+            *target->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
+            samplerState, maskFormat, localMatrix, vmPerspective);
     }
 
     flushInfo.fGlyphsToFlush = 0;
