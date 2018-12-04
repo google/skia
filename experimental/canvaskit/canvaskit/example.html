@@ -45,10 +45,6 @@
 <canvas id=sk_party width=500 height=500></canvas>
 <canvas id=sk_onboarding width=500 height=500></canvas>
 
-<!-- Doesn't work yet. -->
-<button id=lego_btn>Take a picture of the legos</button>
-
-
 <script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -59,9 +55,6 @@
   var confettiJSON = null;
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
-
-  var nimaFile = null;
-  var nimaTexture = null;
 
   var bonesImage = null;
   CanvasKitInit({
@@ -80,8 +73,8 @@
       PathExample(CanvasKit);
       InkExample(CanvasKit);
       // Set bounds to fix the 4:3 resolution of the legos
-      addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                              {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
       // Re-size to fit
       SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
       SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
@@ -104,8 +97,8 @@
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
-      addScreenshotListener(SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                            {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300}));
+      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
     });
   });
 
@@ -136,28 +129,6 @@
       VertexAPI2(CanvasKit, bonesImage);
     });
   });
-
-  function addScreenshotListener(surface) {
-    if (!surface) {
-      return;
-    }
-    if (CanvasKit.gpu) {
-      // Doesn't work on GPU (yet)
-      document.getElementById('lego_btn').remove();
-      return;
-    }
-    const btn = document.getElementById('lego_btn');
-    btn.addEventListener('click', () => {
-      const img = surface.makeImageSnapshot()
-      if (!img) { return }
-      const png = img.encodeToData()
-      if (!png) { return }
-      const pngBytes = CanvasKit.getSkDataBytes(png);
-      // See https://stackoverflow.com/a/12713326
-      let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
-      console.log("base64 encoded image", b64encoded);
-    });
-  }
 
   function DrawingExample(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('patheffect');
@@ -447,7 +418,7 @@
         // Draw line under Awesome
         ctx.strokeStyle = 'rgba(125,0,0,0.5)';
         ctx.beginPath();
-        ctx.lineWidth=6;
+        ctx.lineWidth = 6;
         ctx.lineTo(50, 105);
         ctx.lineTo(50 + text.width, 105);
         ctx.stroke();
@@ -459,8 +430,18 @@
         ctx.rotate(-.2);
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(canvas._img, 100, 150, 400, 350, 10, 200, 150, 100);
-      }
 
+        let idata = ctx.getImageData(80, 220, 40, 45);
+        ctx.putImageData(idata, 250, 10);
+        ctx.putImageData(idata, 200, 10, 20, 10, 20, 30);
+        ctx.resetTransform();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(200, 10, 40, 45);
+
+        idata = ctx.createImageData(10, 20);
+        ctx.putImageData(idata, 10, 10);
+      }
 
       document.getElementById('api1').src = skcanvas.toDataURL();
       skcanvas.dispose();

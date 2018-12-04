@@ -419,6 +419,35 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             }));
         });
 
+        it('can get and put pixels', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('get_put_imagedata', done, (canvas) => {
+                    let ctx = canvas.getContext('2d');
+                    // Make a gradient so we see if the pixels copying worked
+                    let grad = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                    grad.addColorStop(0, 'yellow');
+                    grad.addColorStop(1, 'red');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                    let iData = ctx.getImageData(400, 100, 200, 150);
+                    expect(iData.width).toBe(200);
+                    expect(iData.height).toBe(150);
+                    expect(iData.data.byteLength).toBe(200*150*4);
+                    ctx.putImageData(iData, 10, 10);
+                    ctx.putImageData(iData, 350, 350, 100, 75, 45, 40);
+                    ctx.strokeRect(350, 350, 200, 150);
+
+                    let box = ctx.createImageData(20, 40);
+                    ctx.putImageData(box, 10, 300);
+                    let biggerBox = ctx.createImageData(iData);
+                    ctx.putImageData(biggerBox, 10, 350);
+                    expect(biggerBox.width).toBe(iData.width);
+                    expect(biggerBox.height).toBe(iData.height);
+                });
+            }));
+        });
+
         it('can read default properties', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
