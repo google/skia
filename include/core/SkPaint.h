@@ -975,18 +975,6 @@ public:
     */
     SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr); }
 
-    /** Returns the union of bounds of all glyphs.
-     Returned dimensions are computed by font manager from font data,
-     ignoring SkPaint::Hinting. Includes font metrics, but not fake bold or SkPathEffect.
-
-     If text size is large, text scale is one, and text skew is zero,
-     returns the bounds as:
-     { SkFontMetrics::fXMin, SkFontMetrics::fTop, SkFontMetrics::fXMax, SkFontMetrics::fBottom }.
-
-     @return  union of bounds of all glyphs
-     */
-    SkRect getFontBounds() const;
-
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
         SkTextEncoding specifies how text represents characters or glyphs.

@@ -45,6 +45,8 @@ public:
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);
+
+    static SkRect GetFontBounds(const SkFont&);
 };
 
 class SkAutoToGlyphs {

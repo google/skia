@@ -527,3 +527,18 @@ void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
     }
     this->setEdging(edging);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
+    SkMatrix m;
+    m.setScale(font.getSize() * font.getScaleX(), font.getSize());
+    m.postSkew(font.getSkewX(), 0);
+
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+
+    SkRect bounds;
+    m.mapRect(&bounds, typeface->getBounds());
+    return bounds;
+}
+
