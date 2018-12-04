@@ -46,6 +46,30 @@
       "revId": "9db511b299e7a390c6834d7aeecafb7c2c42ad50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6a0c6fb_517e3cfc",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-04T20:53:08Z",
+      "side": 1,
+      "message": "For completeness, a few of the edge cases are:\n - scaling up the line width\n - When gradients are created, the start/end points are done using the transform upon creation, but are drawn later with whatever the transform ends up being.",
+      "parentUuid": "81ec0eaa_3edd2f91",
+      "range": {
+        "startLine": 849,
+        "startChar": 6,
+        "endLine": 849,
+        "endChar": 50
+      },
+      "revId": "9db511b299e7a390c6834d7aeecafb7c2c42ad50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
