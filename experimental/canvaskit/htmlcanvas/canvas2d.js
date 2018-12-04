@@ -846,7 +846,7 @@
 
     this.clearRect = function(x, y, width, height) {
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       this._paint.setStyle(CanvasKit.PaintStyle.Fill);
       this._paint.setBlendMode(CanvasKit.BlendMode.Clear);
       this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), this._paint);
@@ -935,7 +935,7 @@
       // - image, dx, dy, dWidth, dHeight
       // - image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       // use the fillPaint, which has the globalAlpha in it
       // which drawImageRect will use.
       var iPaint = this._imagePaint();
@@ -1019,7 +1019,7 @@
           CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
         );
         this._canvas.save();
-        this._canvas._setMatrix(offsetMatrix);
+        this._canvas.concat(offsetMatrix);
         this._canvas.drawPath(this._currentPath, shadowPaint);
         this._canvas.restore();
         shadowPaint.dispose();
@@ -1032,7 +1032,7 @@
     this.fillRect = function(x, y, width, height) {
       var fillPaint = this._fillPaint();
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), fillPaint);
       this._canvas.restore();
       fillPaint.dispose();
@@ -1048,13 +1048,13 @@
           CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
         );
         this._canvas.save();
-        this._canvas._setMatrix(offsetMatrix);
+        this._canvas.concat(offsetMatrix);
         this._canvas.drawText(text, x, y, shadowPaint);
         this._canvas.restore();
         shadowPaint.dispose();
       }
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       this._canvas.drawText(text, x, y, fillPaint);
       this._canvas.restore();
       fillPaint.dispose();
@@ -1183,7 +1183,6 @@
       CanvasKit.SkMatrix.mapPoints(this._currentTransform, pts);
       // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
       this._newSubpath(x, y);
-      var scale = this._scalefactor();
       this._currentSubpath.addRect(x, y, x+width, y+height);
       this._currentSubpath.transform(this._currentTransform);
       this._newSubpath(pts[0], pts[1]);
@@ -1377,7 +1376,7 @@
           CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
         );
         this._canvas.save();
-        this._canvas._setMatrix(offsetMatrix);
+        this._canvas.concat(offsetMatrix);
         this._canvas.drawPath(this._currentPath, shadowPaint);
         this._canvas.restore();
         shadowPaint.dispose();
@@ -1390,7 +1389,7 @@
     this.strokeRect = function(x, y, width, height) {
       var strokePaint = this._strokePaint();
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), strokePaint);
       this._canvas.restore();
       strokePaint.dispose();
@@ -1407,13 +1406,13 @@
           CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY)
         );
         this._canvas.save();
-        this._canvas._setMatrix(offsetMatrix);
+        this._canvas.concat(offsetMatrix);
         this._canvas.drawText(text, x, y, shadowPaint);
         this._canvas.restore();
         shadowPaint.dispose();
       }
       this._canvas.save();
-      this._canvas._setMatrix(this._currentTransform);
+      this._canvas.concat(this._currentTransform);
       this._canvas.drawText(text, x, y, strokePaint);
       this._canvas.restore();
       strokePaint.dispose();

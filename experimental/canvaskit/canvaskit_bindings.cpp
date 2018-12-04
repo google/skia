@@ -649,11 +649,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("scale", &SkCanvas::scale)
-        .function("_setMatrix", optional_override([](SkCanvas& self, const SimpleMatrix& m) {
-            // TODO(kjlubick): set this to be private. See if I can completely replace it
-            // with concat.
-            self.setMatrix(toSkMatrix(m));
-        }))
         .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate)
         .function("_writePixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
