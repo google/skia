@@ -233,7 +233,8 @@ public:
         @return  computed or stored SkPath::Convexity
     */
     Convexity getConvexity() const {
-        for (Convexity convexity = fConvexity.load(); kUnknown_Convexity != convexity; ) {
+        Convexity convexity = this->getConvexityOrUnknown();
+        if (convexity != kUnknown_Convexity) {
             return convexity;
         }
         return this->internalGetConvexity();
@@ -244,7 +245,7 @@ public:
 
         @return  stored SkPath::Convexity
     */
-    Convexity getConvexityOrUnknown() const { return (Convexity)fConvexity; }
+    Convexity getConvexityOrUnknown() const { return fConvexity.load(std::memory_order_relaxed); }
 
     /** Stores convexity so that it is later returned by getConvexity() or getConvexityOrUnknown().
         convexity may differ from getConvexity(), although setting an incorrect value may
@@ -1687,13 +1688,13 @@ public:
 #endif
 
 private:
-    sk_sp<SkPathRef>                                     fPathRef;
-    int                                                  fLastMoveToIndex;
-    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;       // SkPath::Convexity
-   mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection; // SkPathPriv::FirstDirection
-    uint8_t                                              fFillType    : 2;
-    uint8_t                                              fIsVolatile  : 1;
-    uint8_t                                              fIsBadForDAA : 1;
+    sk_sp<SkPathRef>               fPathRef;
+    int                            fLastMoveToIndex;
+    mutable std::atomic<Convexity> fConvexity;
+    mutable std::atomic<uint8_t>   fFirstDirection; // really an SkPathPriv::FirstDirection
+    uint8_t                        fFillType    : 2;
+    uint8_t                        fIsVolatile  : 1;
+    uint8_t                        fIsBadForDAA : 1;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
@@ -1764,6 +1765,12 @@ private:
     }
 
     void setPt(int index, SkScalar x, SkScalar y);
+
+    // Bottlenecks for working with fConvexity and fFirstDirection.
+    // Notice the setters are const... these are mutable atomic fields.
+    void    setConvexity(Convexity) const;
+    void    setFirstDirection(uint8_t) const;
+    uint8_t getFirstDirection() const;
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
