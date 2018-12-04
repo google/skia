@@ -7,7 +7,6 @@
 
 #include "SkString.h"
 
-#include "SkAtomics.h"
 #include "SkSafeMath.h"
 #include "SkTo.h"
 #include "SkUtils.h"

@@ -5,19 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
 #include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkClipOpPriv.h"
-
+#include <atomic>
 #include <new>
-
-
-// 0-2 are reserved for invalid, empty & wide-open
-static const int32_t kFirstUnreservedGenID = 3;
-int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getDeviceSpaceType()) {
@@ -1004,9 +998,13 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
 }
 
 uint32_t SkClipStack::GetNextGenID() {
+    // 0-2 are reserved for invalid, empty & wide-open
+    static const uint32_t kFirstUnreservedGenID = 3;
+    static std::atomic<uint32_t> nextID{kFirstUnreservedGenID};
+
     uint32_t id;
     do {
-        id = static_cast<uint32_t>(sk_atomic_inc(&gGenID));
+        id = nextID++;
     } while (id < kFirstUnreservedGenID);
     return id;
 }

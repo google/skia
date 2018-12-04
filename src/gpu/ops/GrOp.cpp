@@ -7,9 +7,8 @@
 
 #include "GrOp.h"
 
-int32_t GrOp::gCurrOpClassID = GrOp::kIllegalOpID;
-
-int32_t GrOp::gCurrOpUniqueID = GrOp::kIllegalOpID;
+std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
+std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
 
 #ifdef SK_DEBUG
 void* GrOp::operator new(size_t size) {

@@ -7,7 +7,6 @@
 
 #include "SkSharedMutex.h"
 
-#include "SkAtomics.h"
 #include "SkTypes.h"
 #include "SkSemaphore.h"
 
