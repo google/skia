@@ -2165,3 +2165,17 @@ void GrVkGpu::addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) 
     fDrawables.emplace_back(std::move(drawable));
 }
 
+uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerState,
+                                               const GrBackendFormat& format) {
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+    if (!ycbcrInfo->isValid()) {
+        return 0;
+    }
+
+    const GrVkSampler* sampler = this->resourceProvider().findOrCreateCompatibleSampler(
+            samplerState, *ycbcrInfo);
+
+    return sampler->uniqueID();
+}
+
