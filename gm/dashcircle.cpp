@@ -225,3 +225,39 @@ protected:
 };
 
 DEF_GM(return new DashCircle2GM;)
+
+DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
+    canvas->drawRect({0, 0, 1600, 1600}, SkPaint());
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(380);
+
+    SkScalar intvls[] = { 2.5, 10 /* 1200 */ };
+    p.setPathEffect(SkDashPathEffect::Make(intvls, 2, 0));
+
+    canvas->drawCircle(400, 400, 200, p);
+
+    SkPath path;
+    path.moveTo(800, 400);
+    path.quadTo(1000, 400, 1000, 600);
+    path.quadTo(1000, 800, 800, 800);
+    path.quadTo(600, 800, 600, 600);
+    path.quadTo(600, 400, 800, 400);
+    path.close();
+    canvas->translate(350, 150);
+    p.setStrokeWidth(320);
+    canvas->drawPath(path, p);
+
+    path.reset();
+    path.moveTo(800, 400);
+    path.cubicTo(900, 400, 1000, 500, 1000, 600);
+    path.cubicTo(1000, 700, 900, 800, 800, 800);
+    path.cubicTo(700, 800, 600, 700, 600, 600);
+    path.cubicTo(600, 500, 700, 400, 800, 400);
+    path.close();
+    canvas->translate(-550, 500);
+    p.setStrokeWidth(300);
+    canvas->drawPath(path, p);
+}
