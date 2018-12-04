@@ -27,7 +27,35 @@ static void blit_row_s32_opaque(SkPMColor* dst,
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <emmintrin.h>
-    #include "SkColor_opts_SSE2.h"
+
+    static inline __m128i SkPMLerp_SSE2(const __m128i& src,
+                                        const __m128i& dst,
+                                        const unsigned src_scale) {
+        // Computes dst + (((src - dst)*src_scale)>>8)
+        const __m128i mask = _mm_set1_epi32(0x00FF00FF);
+
+        // Unpack the 16x8-bit source into 2 8x16-bit splayed halves.
+        __m128i src_rb = _mm_and_si128(mask, src);
+        __m128i src_ag = _mm_srli_epi16(src, 8);
+        __m128i dst_rb = _mm_and_si128(mask, dst);
+        __m128i dst_ag = _mm_srli_epi16(dst, 8);
+
+        // Compute scaled differences.
+        __m128i diff_rb = _mm_sub_epi16(src_rb, dst_rb);
+        __m128i diff_ag = _mm_sub_epi16(src_ag, dst_ag);
+        __m128i s = _mm_set1_epi16(src_scale);
+        diff_rb = _mm_mullo_epi16(diff_rb, s);
+        diff_ag = _mm_mullo_epi16(diff_ag, s);
+
+        // Pack the differences back together.
+        diff_rb = _mm_srli_epi16(diff_rb, 8);
+        diff_ag = _mm_andnot_si128(mask, diff_ag);
+        __m128i diff = _mm_or_si128(diff_rb, diff_ag);
+
+        // Add difference to destination.
+        return _mm_add_epi8(dst, diff);
+    }
+
 
     static void blit_row_s32_blend(SkPMColor* dst, const SkPMColor* src, int count, U8CPU alpha) {
         SkASSERT(alpha <= 255);
@@ -52,6 +80,46 @@ static void blit_row_s32_opaque(SkPMColor* dst,
             src++;
             dst++;
         }
+    }
+
+    static inline __m128i SkBlendARGB32_SSE2(const __m128i& src,
+                                             const __m128i& dst,
+                                             const unsigned aa) {
+        unsigned alpha = SkAlpha255To256(aa);
+        __m128i src_scale = _mm_set1_epi16(alpha);
+        // SkAlphaMulInv256(SkGetPackedA32(src), src_scale)
+        __m128i dst_scale = _mm_srli_epi32(src, 24);
+        // High words in dst_scale are 0, so it's safe to multiply with 16-bit src_scale.
+        dst_scale = _mm_mullo_epi16(dst_scale, src_scale);
+        dst_scale = _mm_sub_epi32(_mm_set1_epi32(0xFFFF), dst_scale);
+        dst_scale = _mm_add_epi32(dst_scale, _mm_srli_epi32(dst_scale, 8));
+        dst_scale = _mm_srli_epi32(dst_scale, 8);
+        // Duplicate scales into 2x16-bit pattern per pixel.
+        dst_scale = _mm_shufflelo_epi16(dst_scale, _MM_SHUFFLE(2, 2, 0, 0));
+        dst_scale = _mm_shufflehi_epi16(dst_scale, _MM_SHUFFLE(2, 2, 0, 0));
+
+        const __m128i mask = _mm_set1_epi32(0x00FF00FF);
+
+        // Unpack the 16x8-bit source/destination into 2 8x16-bit splayed halves.
+        __m128i src_rb = _mm_and_si128(mask, src);
+        __m128i src_ag = _mm_srli_epi16(src, 8);
+        __m128i dst_rb = _mm_and_si128(mask, dst);
+        __m128i dst_ag = _mm_srli_epi16(dst, 8);
+
+        // Scale them.
+        src_rb = _mm_mullo_epi16(src_rb, src_scale);
+        src_ag = _mm_mullo_epi16(src_ag, src_scale);
+        dst_rb = _mm_mullo_epi16(dst_rb, dst_scale);
+        dst_ag = _mm_mullo_epi16(dst_ag, dst_scale);
+
+        // Add the scaled source and destination.
+        dst_rb = _mm_add_epi16(src_rb, dst_rb);
+        dst_ag = _mm_add_epi16(src_ag, dst_ag);
+
+        // Unsplay the halves back together.
+        dst_rb = _mm_srli_epi16(dst_rb, 8);
+        dst_ag = _mm_andnot_si128(mask, dst_ag);
+        return _mm_or_si128(dst_rb, dst_ag);
     }
 
     static void blit_row_s32a_blend(SkPMColor* dst, const SkPMColor* src, int count, U8CPU alpha) {
