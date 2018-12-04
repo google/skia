@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bff100c_55394591",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-04T20:36:27Z",
+      "side": 1,
+      "message": "Remind me about how JS works... does this mean width is required and !\u003d 0, and height is optional, but if set, !\u003d 0?",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 30
+      },
+      "revId": "2398fb4a7af64d296b66872d5539a6425dc29ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
