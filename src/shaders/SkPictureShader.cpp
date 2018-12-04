@@ -18,6 +18,7 @@
 #include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
+#include <atomic>
 
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
@@ -93,13 +94,14 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
     }
 };
 
-static int32_t gNextID = 1;
 uint32_t next_id() {
-    int32_t id;
+    static std::atomic<uint32_t> nextID{1};
+
+    uint32_t id;
     do {
-        id = sk_atomic_inc(&gNextID);
+        id = nextID++;
     } while (id == SK_InvalidGenID);
-    return static_cast<uint32_t>(id);
+    return id;
 }
 
 } // namespace

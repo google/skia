@@ -5,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkAtomics.h"
+#include "GrBackendSurface.h"
 #include "SkCanvas.h"
 #include "SkFontLCDConfig.h"
 #include "SkImagePriv.h"
 #include "SkSurface_Base.h"
-
-#include "GrBackendSurface.h"
+#include <atomic>
 
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
@@ -122,8 +121,8 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
 
 uint32_t SkSurface_Base::newGenerationID() {
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
-    static int32_t gID;
-    return sk_atomic_inc(&gID) + 1;
+    static std::atomic<uint32_t> nextID{1};
+    return nextID++;
 }
 
 static SkSurface_Base* asSB(SkSurface* surface) {
