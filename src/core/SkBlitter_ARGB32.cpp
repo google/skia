@@ -435,7 +435,12 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
     }
 
 #elif defined(SK_ARM_HAS_NEON)
-    #include "SkColor_opts_neon.h"
+    #include <arm_neon.h>
+
+    #define NEON_A (SK_A32_SHIFT / 8)
+    #define NEON_R (SK_R32_SHIFT / 8)
+    #define NEON_G (SK_G32_SHIFT / 8)
+    #define NEON_B (SK_B32_SHIFT / 8)
 
     static inline uint8x8_t blend_32_neon(uint8x8_t src, uint8x8_t dst, uint16x8_t scale) {
         int16x8_t src_wide, dst_wide;
