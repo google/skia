@@ -541,18 +541,6 @@ int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds
     return count;
 }
 
-SkRect SkPaint::getFontBounds() const {
-    SkMatrix m;
-    m.setScale(fTextSize * fTextScaleX, fTextSize);
-    m.postSkew(fTextSkewX, 0);
-
-    SkTypeface* typeface = SkPaintPriv::GetTypefaceOrDefault(*this);
-
-    SkRect bounds;
-    m.mapRect(&bounds, typeface->getBounds());
-    return bounds;
-}
-
 // return true if the paint is just a single color (i.e. not a shader). If its
 // a shader, then we can't compute a const luminance for it :(
 static bool just_a_color(const SkPaint& paint, SkColor* color) {

@@ -2530,13 +2530,14 @@ void SkCanvas::drawString(const SkString& string, SkScalar x, SkScalar y, const 
 }
 
 // These call the (virtual) onDraw... method
-void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding,
+void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                               SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         SkPaint tmp(paint);
         font.LEGACY_applyToPaint(&tmp);
+        tmp.setTextEncoding(encoding);
         this->onDrawText(text, byteLength, x, y, tmp);
     }
 }

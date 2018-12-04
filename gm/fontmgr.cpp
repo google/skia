@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
+#include "SkFontPriv.h"
 #include "SkPath.h"
 #include "SkGraphics.h"
 #include "SkTypeface.h"
@@ -218,19 +219,19 @@ public:
         fFM = SkFontMgr::RefDefault();
     }
 
-    static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,
+    static void show_bounds(SkCanvas* canvas, const SkFont& font, SkScalar x, SkScalar y,
                             SkColor boundsColor)
     {
-        SkPaint glyphPaint(paint);
-        SkRect fontBounds = glyphPaint.getFontBounds();
-        fontBounds.offset(x, y);
-        SkPaint boundsPaint(glyphPaint);
+        SkRect fontBounds = SkFontPriv::GetFontBounds(font).makeOffset(x, y);
+
+        SkPaint boundsPaint;
+        boundsPaint.setAntiAlias(true);
         boundsPaint.setColor(boundsColor);
         boundsPaint.setStyle(SkPaint::kStroke_Style);
         canvas->drawRect(fontBounds, boundsPaint);
 
         SkFontMetrics fm;
-        glyphPaint.getFontMetrics(&fm);
+        font.getMetrics(&fm);
         SkPaint metricsPaint(boundsPaint);
         metricsPaint.setStyle(SkPaint::kFill_Style);
         metricsPaint.setAlpha(0x40);
@@ -252,13 +253,12 @@ public:
 
         SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
         {
-            int numGlyphs = glyphPaint.getTypeface()->countGlyphs();
+            int numGlyphs = font.getTypeface()->countGlyphs();
             SkRect min = {0, 0, 0, 0};
-            glyphPaint.setTextEncoding(kGlyphID_SkTextEncoding);
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
                 SkRect cur;
-                glyphPaint.measureText(&glyphId, sizeof(glyphId), &cur);
+                font.getBounds(&glyphId, 1, &cur, nullptr);
                 if (cur.fLeft   < min.fLeft  ) { min.fLeft   = cur.fLeft;   left   = i; }
                 if (cur.fTop    < min.fTop   ) { min.fTop    = cur.fTop ;   top    = i; }
                 if (min.fRight  < cur.fRight ) { min.fRight  = cur.fRight;  right  = i; }
@@ -273,27 +273,30 @@ public:
             {fontBounds.centerX(), fontBounds.bottom()}
         };
 
-        SkPaint labelPaint;
-        labelPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&labelPaint);
+        SkFont labelFont;
+        labelFont.setEdging(SkFont::Edging::kAntiAlias);
+        labelFont.setTypeface(sk_tool_utils::create_portable_typeface());
+
         if (FLAGS_veryVerbose) {
             SkString name;
-            paint.getTypeface()->getFamilyName(&name);
-            canvas->drawText(name.c_str(), name.size(),
-                             fontBounds.fLeft, fontBounds.fBottom, labelPaint);
+            font.getTypeface()->getFamilyName(&name);
+            canvas->drawSimpleText(name.c_str(), name.size(), kUTF8_SkTextEncoding,
+                             fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
         }
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
             SkPath path;
-            glyphPaint.getTextPath(&str[i], sizeof(str[0]), x, y, &path);
+            font.getPath(str[i], &path);
+            path.offset(x, y);
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
+            SkPaint glyphPaint;
             glyphPaint.setStyle(style);
-            canvas->drawText(&str[i], sizeof(str[0]), x, y, glyphPaint);
+            canvas->drawSimpleText(&str[i], sizeof(str[0]), kGlyphID_SkTextEncoding, x, y, font, glyphPaint);
 
             if (FLAGS_veryVerbose) {
                 SkString glyphStr;
                 glyphStr.appendS32(str[i]);
-                canvas->drawText(glyphStr.c_str(), glyphStr.size(),
-                                 location[i].fX, location[i].fY, labelPaint);
+                canvas->drawSimpleText(glyphStr.c_str(), glyphStr.size(), kUTF8_SkTextEncoding,
+                                 location[i].fX, location[i].fY, labelFont, SkPaint());
             }
 
         }
@@ -310,12 +313,12 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setTextSize(100);
-        paint.setTextScaleX(fScaleX);
-        paint.setTextSkewX(fSkewX);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+        font.setSize(100);
+        font.setScaleX(fScaleX);
+        font.setSkewX(fSkewX);
 
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
 
@@ -330,13 +333,13 @@ protected:
         for (int i = 0; i < count; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count() && j < 3; ++j) {
-                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
-                if (paint.getTypeface() && paint.getTypeface()->countGlyphs() < 1000) {
-                    SkRect fontBounds = paint.getFontBounds();
+                if (font.getTypeface() && font.getTypeface()->countGlyphs() < 1000) {
+                    SkRect fontBounds = SkFontPriv::GetFontBounds(font);
                     x -= fontBounds.fLeft;
-                    show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
+                    show_bounds(canvas, font, x, y, boundsColors[index & 1]);
                     x += fontBounds.fRight + 20;
                     index += 1;
                     if (x > 900) {
