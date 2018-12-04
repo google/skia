@@ -12,8 +12,30 @@
 #include "SkMSAN.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include "SkColor_opts_SSE2.h"
     #include <immintrin.h>
+
+    static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
+        auto SkAlphaMulQ_SSE2 = [](const __m128i& c, const __m128i& scale) {
+            const __m128i mask = _mm_set1_epi32(0xFF00FF);
+            __m128i s = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
+
+            // uint32_t rb = ((c & mask) * scale) >> 8
+            __m128i rb = _mm_and_si128(mask, c);
+            rb = _mm_mullo_epi16(rb, s);
+            rb = _mm_srli_epi16(rb, 8);
+
+            // uint32_t ag = ((c >> 8) & mask) * scale
+            __m128i ag = _mm_srli_epi16(c, 8);
+            ag = _mm_mullo_epi16(ag, s);
+
+            // (rb & mask) | (ag & ~mask)
+            ag = _mm_andnot_si128(mask, ag);
+            return _mm_or_si128(rb, ag);
+        };
+        return _mm_add_epi32(src,
+                             SkAlphaMulQ_SSE2(dst, _mm_sub_epi32(_mm_set1_epi32(256),
+                                                                 _mm_srli_epi32(src, 24))));
+    }
 #endif
 
 namespace SK_OPTS_NS {
