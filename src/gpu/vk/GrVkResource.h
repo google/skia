@@ -10,9 +10,9 @@
 
 #include "GrVkVulkan.h"
 
-#include "SkAtomics.h"
 #include "SkRandom.h"
 #include "SkTHash.h"
+#include <atomic>
 
 class GrVkGpu;
 
@@ -62,14 +62,14 @@ public:
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
     };
 
-    static uint32_t fKeyCounter;
+    static std::atomic<uint32_t> fKeyCounter;
 #endif
 
     /** Default construct, initializing the reference count to 1.
      */
     GrVkResource() : fRefCnt(1) {
 #ifdef SK_TRACE_VK_RESOURCES
-        fKey = sk_atomic_fetch_add(&fKeyCounter, 1u, std::memory_order_relaxed);
+        fKey = fKeyCounter.fetch_add(+1, std::memory_order_relaxed);
         GetTrace()->add(this);
 #endif
     }
@@ -78,35 +78,33 @@ public:
      */
     virtual ~GrVkResource() {
 #ifdef SK_DEBUG
-        SkASSERTF(fRefCnt == 1, "fRefCnt was %d", fRefCnt);
-        fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
+        auto count = this->getRefCnt();
+        SkASSERTF(count == 1, "fRefCnt was %d", count);
+        fRefCnt.store(0);    // illegal value, to catch us if we reuse after delete
 #endif
     }
 
 #ifdef SK_DEBUG
     /** Return the reference count. Use only for debugging. */
-    int32_t getRefCnt() const { return fRefCnt; }
+    int32_t getRefCnt() const { return fRefCnt.load(); }
 #endif
 
     /** May return true if the caller is the only owner.
      *  Ensures that all previous owner's actions are complete.
      */
     bool unique() const {
-        if (1 == sk_atomic_load(&fRefCnt, std::memory_order_acquire)) {
-            // The acquire barrier is only really needed if we return true.  It
-            // prevents code conditioned on the result of unique() from running
-            // until previous owners are all totally done calling unref().
-            return true;
-        }
-        return false;
+        // The acquire barrier is only really needed if we return true.  It
+        // prevents code conditioned on the result of unique() from running
+        // until previous owners are all totally done calling unref().
+        return 1 == fRefCnt.load(std::memory_order_acquire);
     }
 
     /** Increment the reference count.
         Must be balanced by a call to unref() or unrefAndFreeResources().
      */
     void ref() const {
-        SkASSERT(fRefCnt > 0);
-        (void)sk_atomic_fetch_add(&fRefCnt, +1, std::memory_order_relaxed);  // No barrier required.
+        SkASSERT(this->getRefCnt() > 0);
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);  // No barrier required.
     }
 
     /** Decrement the reference count. If the reference count is 1 before the
@@ -115,10 +113,10 @@ public:
         Any GPU data associated with this resource will be freed before it's deleted.
      */
     void unref(const GrVkGpu* gpu) const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->getRefCnt() > 0);
         SkASSERT(gpu);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, std::memory_order_acq_rel)) {
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose(gpu);
@@ -127,9 +125,9 @@ public:
 
     /** Unref without freeing GPU data. Used only when we're abandoning the resource */
     void unrefAndAbandon() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->getRefCnt() > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, std::memory_order_acq_rel)) {
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose();
@@ -138,7 +136,7 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->getRefCnt() > 0);
     }
 #endif
 
@@ -176,8 +174,11 @@ private:
 #ifdef SK_TRACE_VK_RESOURCES
         GetTrace()->remove(this);
 #endif
-        SkASSERT(0 == fRefCnt);
-        fRefCnt = 1;
+
+#ifdef SK_DEBUG
+        SkASSERT(0 == this->getRefCnt());
+        fRefCnt.store(1);
+#endif
         delete this;
     }
 
@@ -189,12 +190,15 @@ private:
 #ifdef SK_TRACE_VK_RESOURCES
         GetTrace()->remove(this);
 #endif
-        SkASSERT(0 == fRefCnt);
-        fRefCnt = 1;
+
+#ifdef SK_DEBUG
+        SkASSERT(0 == this->getRefCnt());
+        fRefCnt.store(1);
+#endif
         delete this;
     }
 
-    mutable int32_t fRefCnt;
+    mutable std::atomic<int32_t> fRefCnt;
 #ifdef SK_TRACE_VK_RESOURCES
     uint32_t fKey;
 #endif
