@@ -14,7 +14,7 @@ cd "${SKIA_ROOT}/infra/skqp/docker"
 docker build -t android-skqp ./android-skqp/
 docker run --rm --privileged -d --name android_em \
         --env=DEVICE="Samsung Galaxy S6" \
-        ---volume="$SKIA_ROOT":/SRC \
+        --volume="$SKIA_ROOT":/SRC \
         --volume="$OUT":/OUT \
         --volume="$BUILD":/BUILD \
         android-skqp
