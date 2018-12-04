@@ -99,7 +99,6 @@ var CanvasKit = {
 		// private API
 		_readPixels: function() {},
 		_writePixels: function() {},
-		_setMatrix: function() {},
 		delete: function() {},
 	},
 
