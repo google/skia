@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "SkTypefaceCache.h"
-#include "SkAtomics.h"
 #include "SkMutex.h"
+#include <atomic>
 
 #define TYPEFACE_CACHE_LIMIT    1024
 
@@ -60,8 +58,8 @@ SkTypefaceCache& SkTypefaceCache::Get() {
 }
 
 SkFontID SkTypefaceCache::NewFontID() {
-    static int32_t gFontID;
-    return sk_atomic_inc(&gFontID) + 1;
+    static std::atomic<int32_t> nextID{1};
+    return nextID++;
 }
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
