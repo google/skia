@@ -181,6 +181,7 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
 const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (nullptr == glyph.fImage) {
+            SkMask::Format oldFormat = (SkMask::Format)glyph.fMaskFormat;
             size_t  size = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
             // check that alloc() actually succeeded
             if (glyph.fImage) {
@@ -191,6 +192,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
                 // is smaller, and if so, strink the alloc size in fImageAlloc.
                 fMemoryUsed += size;
             }
+            SkASSERT(oldFormat == glyph.fMaskFormat);
         }
     }
     return glyph.fImage;
