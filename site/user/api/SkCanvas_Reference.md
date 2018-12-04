@@ -4912,7 +4912,7 @@ void <a href='#SkCanvas_drawText'>drawText</a>(const void* <a href='undocumented
 
 Draws <a href='#SkCanvas_drawText_text'>text</a>, with origin at (<a href='#SkCanvas_drawText_x'>x</a>, <a href='#SkCanvas_drawText_y'>y</a>), using clip, <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>, and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawText_paint'>paint</a>.
 
-<a href='#SkCanvas_drawText_text'>text</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, <a href='#SkCanvas_drawText_text'>text</a> is encoded as
+<a href='#SkCanvas_drawText_text'>text</a> meaning depends on <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; by default, <a href='#SkCanvas_drawText_text'>text</a> is encoded as
 UTF-8.
 
 <a href='#SkCanvas_drawText_x'>x</a> and <a href='#SkCanvas_drawText_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='#SkCanvas_drawText_text'>text</a>; by default
@@ -4963,8 +4963,8 @@ void <a href='#SkCanvas_drawString'>drawString</a>(const char* <a href='undocume
 Draws null terminated <a href='#SkCanvas_drawString_string'>string</a>, with origin at (<a href='#SkCanvas_drawString_x'>x</a>, <a href='#SkCanvas_drawString_y'>y</a>), using clip, <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>, and
 <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawString_paint'>paint</a>.
 
-<a href='#SkCanvas_drawString_string'>string</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, strings are encoded
-as UTF-8. Other values of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> are unlikely to produce the desired
+<a href='#SkCanvas_drawString_string'>string</a> meaning depends on <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; by default, strings are encoded
+as UTF-8. Other values of <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_string'>string</a>.
 
 <a href='#SkCanvas_drawString_x'>x</a> and <a href='#SkCanvas_drawString_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
@@ -5016,8 +5016,8 @@ void <a href='#SkCanvas_drawString'>drawString</a>(const <a href='undocumented#S
 Draws null terminated <a href='#SkCanvas_drawString_2_string'>string</a>, with origin at (<a href='#SkCanvas_drawString_2_x'>x</a>, <a href='#SkCanvas_drawString_2_y'>y</a>), using clip, <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>, and
 <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawString_2_paint'>paint</a>.
 
-<a href='#SkCanvas_drawString_2_string'>string</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, strings are encoded
-as UTF-8. Other values of <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> are unlikely to produce the desired
+<a href='#SkCanvas_drawString_2_string'>string</a> meaning depends on <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; by default, strings are encoded
+as UTF-8. Other values of <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> are unlikely to produce the desired
 results, since zero bytes may be embedded in the <a href='#SkCanvas_drawString_2_string'>string</a>.
 
 <a href='#SkCanvas_drawString_2_x'>x</a> and <a href='#SkCanvas_drawString_2_y'>y</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Align and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='undocumented#Text'>text</a>; by default
@@ -5070,7 +5070,7 @@ Draws each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkCanvas_drawPosT
 <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawPosText_paint'>paint</a>. The number of entries in <a href='#SkCanvas_drawPosText_pos'>pos</a> array must match the number of <a href='undocumented#Glyph'>glyphs</a>
 described by <a href='#SkCanvas_drawPosText_byteLength'>byteLength</a> of <a href='#SkCanvas_drawPosText_text'>text</a>.
 
-<a href='#SkCanvas_drawPosText_text'>text</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, <a href='#SkCanvas_drawPosText_text'>text</a> is encoded as
+<a href='#SkCanvas_drawPosText_text'>text</a> meaning depends on <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; by default, <a href='#SkCanvas_drawPosText_text'>text</a> is encoded as
 UTF-8. <a href='#SkCanvas_drawPosText_pos'>pos</a> elements meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='#SkCanvas_drawPosText_text'>text</a>; by default
 <a href='undocumented#Glyph'>glyph</a>   <a href='undocumented#Left_Side_Bearing'>left side bearing</a> and baseline are relative to <a href='SkPoint_Reference#SkPoint'>SkPoint</a> in <a href='#SkCanvas_drawPosText_pos'>pos</a> array.
 <a href='undocumented#Text'>Text</a> <a href='undocumented#Size'>size</a> is affected by <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawPosText_text'>text</a> <a href='undocumented#Size'>size</a>.
@@ -5119,7 +5119,7 @@ Draws each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkCanvas_drawPosT
 <a href='#SkCanvas_drawPosTextH_constY'>constY</a>, using clip, <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>, and <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_drawPosTextH_paint'>paint</a>. The number of entries in <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> array
 must match the number of <a href='undocumented#Glyph'>glyphs</a> described by <a href='#SkCanvas_drawPosTextH_byteLength'>byteLength</a> of <a href='#SkCanvas_drawPosTextH_text'>text</a>.
 
-<a href='#SkCanvas_drawPosTextH_text'>text</a> meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>; by default, <a href='#SkCanvas_drawPosTextH_text'>text</a> is encoded as
+<a href='#SkCanvas_drawPosTextH_text'>text</a> meaning depends on <a href='undocumented#SkTextEncoding'>SkTextEncoding</a>; by default, <a href='#SkCanvas_drawPosTextH_text'>text</a> is encoded as
 UTF-8. <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> elements meaning depends on <a href='SkPaint_Reference#SkPaint'>SkPaint</a> vertical <a href='#SkCanvas_drawPosTextH_text'>text</a>;
 by default each <a href='undocumented#Glyph'>glyph</a>   <a href='undocumented#Left_Side_Bearing'>left side bearing</a> is positioned at an <a href='#SkCanvas_drawPosTextH_xpos'>xpos</a> element and
 its baseline is positioned at <a href='#SkCanvas_drawPosTextH_constY'>constY</a>. <a href='undocumented#Text'>Text</a> <a href='undocumented#Size'>size</a> is affected by <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and
