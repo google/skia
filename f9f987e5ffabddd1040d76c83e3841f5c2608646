@@ -22,6 +22,30 @@
       "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4417577e_03e71948",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-04T20:04:06Z",
+      "side": 1,
+      "message": "Not necessarily - the passed in color is only used if the mask format is ARGB, otherwise it\u0027s a vertex attribute. And when this is called, we just pass the \"op\u0027s color\", which is the color of the first batched path. fWideColor (which is passed here) is true if any of the batched paths has a color that doesn\u0027t fit in bytes.",
+      "parentUuid": "a1a5902f_cc41d0f1",
+      "range": {
+        "startLine": 27,
+        "startChar": 68,
+        "endLine": 27,
+        "endChar": 84
+      },
+      "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
