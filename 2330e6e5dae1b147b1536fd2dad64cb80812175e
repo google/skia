@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a6c59ad7_ef507090",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-04T18:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4abf846_fc8b90d1",
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "389aee1b_a0c6b726",
         "filename": "tools/skqp/docker_build_universal_apk.sh",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20cac3d0_d068caf1",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-04T18:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "389aee1b_a0c6b726",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 10
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "8727b203_8abcb1d6",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-04T18:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4d2f5ad_29d0878a",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 15
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40ce46c5_7ee7d3f8",
         "filename": "tools/skqp/docker_build_universal_apk.sh",
         "patchSetId": 2
@@ -85,6 +151,30 @@
       "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "290426e8_e6b1c064",
+        "filename": "tools/skqp/docker_build_universal_apk.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-04T18:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40ce46c5_7ee7d3f8",
+      "range": {
+        "startLine": 28,
+        "startChar": 14,
+        "endLine": 28,
+        "endChar": 18
+      },
+      "revId": "2330e6e5dae1b147b1536fd2dad64cb80812175e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
