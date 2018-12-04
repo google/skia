@@ -368,12 +368,6 @@ public:
         const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
         SkScalerContextEffects* effects);
 
-    static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
-        const SkPaint& paint, const SkSurfaceProps& surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,
-        SkScalerContextEffects* effects);
-
 protected:
     SkScalerContextRec fRec;
 

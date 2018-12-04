@@ -58,17 +58,17 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount) {
     return blob;
 }
 
-SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& skPaint,
+SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& paint,
                                                  const SkSurfaceProps& props,
                                                  SkScalerContextFlags scalerContextFlags,
                                                  const SkMatrix& viewMatrix) {
-
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     // if we have an override descriptor for the run, then we should use that
     SkAutoDescriptor* desc = fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        skPaint, props, scalerContextFlags, viewMatrix, desc, &effects);
-    fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
+        font, paint, props, scalerContextFlags, viewMatrix, desc, &effects);
+    fTypeface = SkFontPriv::RefTypefaceOrDefault(font);
     fPathEffect = sk_ref_sp(effects.fPathEffect);
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *fTypeface);
