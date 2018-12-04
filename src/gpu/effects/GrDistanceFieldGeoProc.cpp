@@ -509,6 +509,7 @@ private:
 
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
                                                        const SkMatrix& matrix,
+                                                       bool wideColor,
                                                        const sk_sp<GrTextureProxy>* proxies,
                                                        int numProxies,
                                                        const GrSamplerState& params,
@@ -520,7 +521,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-    fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    fInColor = MakeColorAttribute("inColor", wideColor);
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
                         caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
@@ -596,6 +597,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
 
     return GrDistanceFieldPathGeoProc::Make(*d->caps()->shaderCaps(),
                                             GrTest::TestMatrix(d->fRandom),
+                                            d->fRandom->nextBool(),
                                             proxies, 1,
                                             samplerState,
                                             flags);
