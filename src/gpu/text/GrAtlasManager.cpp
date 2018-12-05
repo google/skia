@@ -77,8 +77,9 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
                                                   GrGlyph* glyph,
                                                   GrDeferredUploadToken token) {
     SkASSERT(glyph);
-    updater->add(glyph->fID);
-    this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
+    if (updater->add(glyph->fID)) {
+        this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
+    }
 }
 
 #ifdef SK_DEBUG

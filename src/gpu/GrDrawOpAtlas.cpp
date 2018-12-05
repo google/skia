@@ -285,8 +285,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
         for (unsigned int pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
             Plot* plot = fPages[pageIdx].fPlotList.tail();
             SkASSERT(plot);
-            if (plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush() ||
-                plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
+            if (plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) {
                 this->processEvictionAndResetRects(plot);
                 SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
                 SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
