@@ -67,6 +67,9 @@ Creating a Change
 
     [Gerrit Upload Documentation](https://gerrit-review.googlesource.com/Documentation/user-upload.html)
 
+5.  Open in web browser:
+
+        echo https://skia-review.googlesource.com/c/skia/+/$(bin/gerrit-number @)
 
 Updating a Change
 -----------------
@@ -99,7 +102,7 @@ Using `git cl try`
 
 On your current branch, after uploading to gerrit:
 
-    git cl issue $(experimental/tools/gerrit-change-id-to-number @)
+    git cl issue $(bin/gerrit-number @)
 
 Now `git cl try` and `bin/try` will work correctly.
 
@@ -117,7 +120,7 @@ The following alias amends the head without editing the commit message:
 
 Set the CL issue numnber:
 
-    git config alias.setcl '!git-cl issue $(experimental/tools/gerrit-change-id-to-number @)'
+    git config alias.setcl '!git-cl issue $(bin/gerrit-number @)'
 
 The following shell script will squash all commits on the current branch,
 assuming that the branch has an upstream topic branch.

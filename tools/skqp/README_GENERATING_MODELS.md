@@ -36,8 +36,8 @@ Skia][1].  Here is how that process works:
     Review and submit the change:
 
         git push origin HEAD:refs/for/skqp/dev
-        NUM=$(experimental/tools/gerrit-change-id-to-number HEAD)
-        tools/skqp/sysopen.py https://review.skia.org/$NUM
+        tools/skqp/sysopen.py https://review.skia.org/$(bin/gerrit-number HEAD)
+
 
 `tools/skqp/cut_release`
 ------------------------
