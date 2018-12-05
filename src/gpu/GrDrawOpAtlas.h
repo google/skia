@@ -174,12 +174,14 @@ public:
             memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
         }
 
-        void add(AtlasID id) {
+        bool add(AtlasID id) {
             int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
             int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
-            if (!this->find(pageIdx, index)) {
-                this->set(pageIdx, index);
+            if (this->find(pageIdx, index)) {
+                return false;
             }
+            this->set(pageIdx, index);
+            return true;
         }
 
         void reset() {
