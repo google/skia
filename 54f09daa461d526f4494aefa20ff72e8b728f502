@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43b85bd4_9c95d72f",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-12-05T18:37:03Z",
+      "side": 1,
+      "message": "- bookmaker wants the description to be present tense: \"Returns the text encoding...\"\n- no need for \"stored in the paint\". Other descriptions assume that the \u0027this\u0027 is assumed and doesn\u0027t need a reference.\n- add \"@return  text encoding\" or some such",
+      "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "512c4772_cde66c06",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-12-05T18:37:03Z",
+      "side": 1,
+      "message": "- \"Sets the text encoding.\" as above.\n- add @param encoding  one of: \u003cvalid values for encoding\u003e or something else if you like.",
+      "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
