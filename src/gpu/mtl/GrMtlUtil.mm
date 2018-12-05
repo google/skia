@@ -33,6 +33,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGB_888_GrPixelConfig:
             // TODO: MTLPixelFormatRGB8Unorm
             return false;
+        case kRG_88_GrPixelConfig:
+            // TODO: MTLPixelFormatRG8Unorm
+            return false;
         case kBGRA_8888_GrPixelConfig:
             *format = MTLPixelFormatBGRA8Unorm;
             return true;
@@ -107,6 +110,8 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
         case MTLPixelFormatABGR4Unorm:
             return kRGBA_4444_GrPixelConfig;
 #endif
+        case MTLPixelFormatRG8Unorm:
+            return kRG_88_GrPixelConfig;
         case MTLPixelFormatR8Unorm:
             // We currently set this to be Alpha_8 and have no way to go to Gray_8
             return kAlpha_8_GrPixelConfig;
