@@ -70,6 +70,30 @@
       "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf00d259_bd8015bd",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-05T22:20:45Z",
+      "side": 0,
+      "message": "Added to PathData ctor.",
+      "parentUuid": "ebc40bf2_9a5b1822",
+      "range": {
+        "startLine": 122,
+        "startChar": 12,
+        "endLine": 122,
+        "endChar": 43
+      },
+      "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
