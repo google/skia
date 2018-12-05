@@ -523,37 +523,30 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkFont&
     return fCurrentRunBuffer;
 }
 
-// SkPaint versions
-
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& paint, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkFont& font, int count,
                                                                     SkScalar x, SkScalar y,
                                                                     int textByteCount,
                                                                     SkString lang,
                                                                     const SkRect* bounds) {
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkPaint& paint, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkFont& font, int count,
                                                                         SkScalar y,
                                                                         int textByteCount,
                                                                         SkString lang,
                                                                         const SkRect* bounds) {
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kHorizontal_Positioning, count, textByteCount, SkPoint::Make(0, y),
                         bounds);
-
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkPaint& paint, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkFont& font, int count,
                                                                        int textByteCount,
                                                                        SkString lang,
                                                                        const SkRect *bounds) {
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
-
     return fCurrentRunBuffer;
 }
 
@@ -671,8 +664,9 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkPaint font;
-        reader.readPaint(&font);
+        SkPaint paint;
+        reader.readPaint(&paint);
+        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.

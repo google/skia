@@ -396,16 +396,16 @@ struct ShapedGlyph {
     bool fHasVisual;
 };
 struct ShapedRun {
-    ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkFont& paint,
+    ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkFont& font,
               UBiDiLevel level, std::unique_ptr<ShapedGlyph[]> glyphs)
-        : fUtf8Start(utf8Start), fUtf8End(utf8End), fNumGlyphs(numGlyphs), fPaint(paint)
+        : fUtf8Start(utf8Start), fUtf8End(utf8End), fNumGlyphs(numGlyphs), fFont(font)
         , fLevel(level), fGlyphs(std::move(glyphs))
     {}
 
     const char* fUtf8Start;
     const char* fUtf8End;
     int fNumGlyphs;
-    SkFont fPaint;
+    SkFont fFont;
     UBiDiLevel fLevel;
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
 };
@@ -416,9 +416,7 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 
 static void append(SkTextBlobBuilder* b, const ShapedRun& run, int start, int end, SkPoint* p) {
     unsigned len = end - start;
-    SkPaint tmpPaint;
-    run.fPaint.LEGACY_applyToPaint(&tmpPaint);
-    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, tmpPaint, len,
+    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, run.fFont, len,
             run.fUtf8End - run.fUtf8Start, SkString());
     memcpy(runBuffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
 
@@ -641,8 +639,8 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
                                            std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]));
         int scaleX, scaleY;
         hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
-        double textSizeY = run.fPaint.getSize() / scaleY;
-        double textSizeX = run.fPaint.getSize() / scaleX * run.fPaint.getScaleX();
+        double textSizeY = run.fFont.getSize() / scaleY;
+        double textSizeX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
         for (unsigned i = 0; i < len; i++) {
             ShapedGlyph& glyph = run.fGlyphs[i];
             glyph.fID = info[i].codepoint;
@@ -732,7 +730,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
 
         if (previousRunIndex != runIndex) {
             SkFontMetrics metrics;
-            runs[runIndex].fPaint.getMetrics(&metrics);
+            runs[runIndex].fFont.getMetrics(&metrics);
             maxAscent = SkTMin(maxAscent, metrics.fAscent);
             maxDescent = SkTMax(maxDescent, metrics.fDescent);
             maxLeading = SkTMax(maxLeading, metrics.fLeading);
