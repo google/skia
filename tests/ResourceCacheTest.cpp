@@ -223,10 +223,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     context->resetContext();
 
     sk_sp<GrTexture> borrowed(resourceProvider->wrapBackendTexture(
-            backendTextures[0], kBorrow_GrWrapOwnership, kRead_GrIOType));
+            backendTextures[0], kBorrow_GrWrapOwnership));
 
     sk_sp<GrTexture> adopted(resourceProvider->wrapBackendTexture(
-            backendTextures[1], kAdopt_GrWrapOwnership, kRead_GrIOType));
+            backendTextures[1], kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {

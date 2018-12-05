@@ -888,8 +888,7 @@ static bool check_image_info(const GrVkCaps& caps,
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrWrapOwnership ownership, GrIOType ioType,
-                                               bool purgeImmediately) {
+                                               GrWrapOwnership ownership, bool purgeImmediately) {
     GrVkImageInfo imageInfo;
     if (!backendTex.getVkImageInfo(&imageInfo)) {
         return nullptr;
@@ -908,7 +907,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
-    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, ioType, purgeImmediately,
+    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, purgeImmediately,
                                            imageInfo, std::move(layout));
 }
 

@@ -50,8 +50,9 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
         wrappedTex = gpu->wrapRenderableBackendTexture(backendTex, 1,
                                                        GrWrapOwnership::kAdopt_GrWrapOwnership);
     } else {
-        wrappedTex = gpu->wrapBackendTexture(backendTex, GrWrapOwnership::kAdopt_GrWrapOwnership,
-                                             kRead_GrIOType, false);
+        wrappedTex = gpu->wrapBackendTexture(backendTex,
+                                             GrWrapOwnership::kAdopt_GrWrapOwnership,
+                                             false);
     }
     REPORTER_ASSERT(reporter, wrappedTex);
 

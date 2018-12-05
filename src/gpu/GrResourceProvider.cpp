@@ -226,13 +226,12 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
 
 sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& tex,
                                                         GrWrapOwnership ownership,
-                                                        GrIOType ioType,
                                                         bool purgeImmediately) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapBackendTexture(tex, ownership, ioType, purgeImmediately);
+    return fGpu->wrapBackendTexture(tex, ownership, purgeImmediately);
 }
 
 sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,

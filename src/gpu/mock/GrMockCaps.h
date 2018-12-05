@@ -66,7 +66,13 @@ public:
         return 0;
     }
 
+    bool surfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
+
+    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                        const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
+        return true;
+    }
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
@@ -135,11 +141,6 @@ private:
         GrMockTextureInfo mockInfo;
         SkAssertResult(backendTex.getMockTextureInfo(&mockInfo));
         return GrBackendFormat::MakeMock(mockInfo.fConfig);
-    }
-    bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
-        return true;
     }
 
     static const int kMaxSampleCnt = 16;

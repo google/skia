@@ -6,10 +6,9 @@
  */
 
 #include "GrCaps.h"
+
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
-#include "GrSurface.h"
-#include "GrSurfaceProxy.h"
 #include "GrTypesPriv.h"
 #include "GrWindowRectangles.h"
 #include "SkJSONWriter.h"
@@ -242,15 +241,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 #else
 void GrCaps::dumpJSON(SkJSONWriter* writer) const { }
 #endif
-
-bool GrCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
-    return surface->readOnly() ? false : this->onSurfaceSupportsWritePixels(surface);
-}
-
-bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                            const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    return dst->readOnly() ? false : this->onCanCopySurface(dst, src, srcRect, dstPoint);
-}
 
 bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) const {
     if (!this->isConfigTexturable(desc.fConfig)) {

@@ -192,7 +192,7 @@ public:
      * If this returns false then the caller should implement a fallback where a temporary texture
      * is created, pixels are written to it, and then that is copied or drawn into the the surface.
      */
-    bool surfaceSupportsWritePixels(const GrSurface*) const;
+    virtual bool surfaceSupportsWritePixels(const GrSurface*) const = 0;
 
     /**
      * Backends may have restrictions on what types of surfaces support GrGpu::readPixels().
@@ -246,8 +246,8 @@ public:
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
      */
-    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+    virtual bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                                const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
 
     bool dynamicStateArrayGeometryProcessorTextureSupport() const {
         return fDynamicStateArrayGeometryProcessorTextureSupport;
@@ -389,9 +389,6 @@ protected:
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
-    virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
-    virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window
     // rectangles for a specific GrBackendRenderTarget outside of basic support.
