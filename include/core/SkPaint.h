@@ -875,12 +875,18 @@ public:
     */
     void setTextSkewX(SkScalar skewX);
 
-    // Experimental
+    /**
+     *  Return the text encoding stored in the paint. Text encoding describes how to interpret
+     *  the text bytes passed to methods that use this paint (e.g. measureText, drawText).
+     */
     SkTextEncoding getTextEncoding() const {
         return (SkTextEncoding)fBitfields.fTextEncoding;
     }
 
-    // Experimental
+    /**
+     *  Set the text encoding stored in the paint. Text encoding describes how to interpret
+     *  the text bytes passed to methods that use this paint (e.g. measureText, drawText).
+     */
     void setTextEncoding(SkTextEncoding encoding);
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
@@ -1169,7 +1175,7 @@ public:
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses run array to position intervals.
 
-        SkTextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
 
         Pass nullptr for intervals to determine the size of the interval array.
 
