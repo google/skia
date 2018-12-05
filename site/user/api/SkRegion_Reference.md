@@ -25,7 +25,7 @@ class <a href='SkRegion_Reference#SkRegion'>SkRegion</a> {
     <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
     bool operator==(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
     bool operator!=(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
-    bool set(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& src);
+    bool <a href='#SkRegion_set'>set</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& src);
     void <a href='#SkRegion_swap'>swap</a>(<a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other);
     bool <a href='#SkRegion_isEmpty'>isEmpty</a>() const;
     bool <a href='#SkRegion_isRect'>isRect</a>() const;
@@ -39,18 +39,18 @@ class <a href='SkRegion_Reference#SkRegion'>SkRegion</a> {
     bool <a href='#SkRegion_setRects'>setRects</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='SkRect_Reference#Rect'>rects</a>[], int count);
     bool <a href='#SkRegion_setRegion'>setRegion</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
     bool <a href='#SkRegion_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& clip);
-    bool intersects(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
-    bool intersects(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
-    bool contains(int32_t x, int32_t y) const;
-    bool contains(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& other) const;
-    bool contains(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
+    bool <a href='#SkRegion_intersects'>intersects</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
+    bool <a href='#SkRegion_intersects'>intersects</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
+    bool <a href='#SkRegion_contains'>contains</a>(int32_t x, int32_t y) const;
+    bool <a href='#SkRegion_contains'>contains</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& other) const;
+    bool <a href='#SkRegion_contains'>contains</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
     bool <a href='#SkRegion_quickContains'>quickContains</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& r) const;
     bool <a href='#SkRegion_quickContains'>quickContains</a>(int32_t left, int32_t top, int32_t right,
                        int32_t bottom) const;
     bool <a href='#SkRegion_quickReject'>quickReject</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
     bool <a href='#SkRegion_quickReject'>quickReject</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& rgn) const;
-    void translate(int dx, int dy);
-    void translate(int dx, int dy, <a href='SkRegion_Reference#SkRegion'>SkRegion</a>* dst) const;
+    void <a href='#SkRegion_translate'>translate</a>(int dx, int dy);
+    void <a href='#SkRegion_translate'>translate</a>(int dx, int dy, <a href='SkRegion_Reference#SkRegion'>SkRegion</a>* dst) const;
 
     enum <a href='#SkRegion_Op'>Op</a> {
         <a href='#SkRegion_kDifference_Op'>kDifference_Op</a>,
@@ -89,9 +89,9 @@ rectangles contained by it, optionally intersecting a bounding rectangle.
     class <a href='#SkRegion_Iterator'>Iterator</a> {
     public:
         <a href='#SkRegion_Iterator_Iterator'>Iterator()</a>;
-        <a href='#SkRegion_Iterator'>Iterator</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
+        <a href='#SkRegion_Iterator_Iterator'>Iterator</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
         bool <a href='#SkRegion_Iterator_rewind'>rewind()</a>;
-        void reset(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
+        void <a href='#SkRegion_Iterator_reset'>reset</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
         bool <a href='#SkRegion_Iterator_done'>done()</a> const;
         void <a href='#SkRegion_Iterator_next'>next()</a>;
         const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Iterator_rect'>rect()</a>;
@@ -514,7 +514,7 @@ after set rect rect={1,2,3,3}
     class <a href='#SkRegion_Spanerator'>Spanerator</a> {
     public:
         <a href='#SkRegion_Spanerator'>Spanerator</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>, int y, int left, int right);
-        bool next(int* left, int* right);
+        bool <a href='#SkRegion_Spanerator_next'>next</a>(int* left, int* right);
     };
 </pre>
 
