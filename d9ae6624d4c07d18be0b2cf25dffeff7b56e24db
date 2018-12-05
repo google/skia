@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d2e9aa8_e4f9ee06",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T16:39:02Z",
+      "side": 1,
+      "message": "// Maybe some dox like:\n// Read only surfaces will fail writePixels ...\n\nMaybe:\n// Internally, these resources are also ignored by the explicit resource allocator",
+      "revId": "d9ae6624d4c07d18be0b2cf25dffeff7b56e24db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abb092ce_d63a2ce7",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T16:39:02Z",
+      "side": 1,
+      "message": "// Have comment similar to GrSurface\u0027s here too ?",
+      "revId": "d9ae6624d4c07d18be0b2cf25dffeff7b56e24db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4433b4fa_a11e6a28",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T16:39:02Z",
+      "side": 1,
+      "message": "I think this behavior is important to add to the above comments i.e., \"we not going to create mipmaps for read only texture(Proxy)s regardless of the filtering level\"",
+      "revId": "d9ae6624d4c07d18be0b2cf25dffeff7b56e24db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a50289cd_902f59da",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T16:39:02Z",
+      "side": 1,
+      "message": "// We promise not to modify promise images \n\nor maybe better else where\n?",
+      "revId": "d9ae6624d4c07d18be0b2cf25dffeff7b56e24db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c4030da_a0ab1058",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T16:39:02Z",
+      "side": 1,
+      "message": "Why commented out ?",
+      "revId": "d9ae6624d4c07d18be0b2cf25dffeff7b56e24db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
