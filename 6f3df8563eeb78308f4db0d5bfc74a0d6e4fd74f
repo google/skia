@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68b23d0a_d8f2658c",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T19:15:24Z",
+      "side": 1,
+      "message": "What do you think about jamming this in the new else block (just to skip the hash lookup) ?",
+      "revId": "6f3df8563eeb78308f4db0d5bfc74a0d6e4fd74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3dda828_0ec9eba4",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T19:15:24Z",
+      "side": 1,
+      "message": "// Because readOnly proxies do not get a usage interval we must instantiate them here (since it won\u0027t occur in GrResourceAllocator::assign)\n\n?",
+      "revId": "6f3df8563eeb78308f4db0d5bfc74a0d6e4fd74f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
