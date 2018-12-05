@@ -3,40 +3,59 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import httplib
 import json
 import re
 import subprocess
 import sys
+import urllib
+
+# TODO(halcanary): document functions and script usage.
 
 def retrieve_changeid(commit_or_branch):
-  b = subprocess.check_output(['git', 'log', '-1', '--format=%B', commit_or_branch])
-  r = re.compile(r'^Change-Id: (.*)$')
-  for l in b.split('\n'):
-    m = r.match(l)
-    if m:
-      return m.group(1)
-  return None
+  try:
+    cmd = ['git', 'log', '-1', '--format=%B', commit_or_branch, '--']
+    body = subprocess.check_output(cmd)
+  except OSError:
+    raise Exception('git not found')
+  except subprocess.CalledProcessError:
+    raise Exception('`%s` failed' % ' '.join(cmd))
+  match = re.search(r'^Change-Id: *(.*) *$', body, re.MULTILINE)
+  if match is None:
+    raise Exception('Change-Id field missing from commit %s' % commit_or_branch)
+  return match.group(1)
 
-def gerrit_change_id_to_number(cid):
-    conn = httplib.HTTPSConnection('skia-review.googlesource.com')
-    conn.request('GET', '/changes/?q=change:%s' % cid)
-    r = conn.getresponse()
-    assert(r.status == 200)
-    x = r.read()
-    i = 0
-    while i < len(x) and x[i] != '[':
-      i += 1
-    return json.loads(x[i:])[0]['_number']
+
+def gerrit_change_id_to_number(site, cid):
+  url = 'https://%s/changes/?q=change:%s' % (site, cid)
+  try:
+    content = urllib.urlopen(url).read()
+  except IOError:
+    raise Exception('error reading "%s"' % url)
+  try:
+    parsed = json.loads(content[content.find('['):])
+  except ValueError:
+    raise Exception('unable to parse content\n"""\n%s\n"""' % content)
+  try:
+    return parsed[0]['_number']
+  except (IndexError, KeyError):
+    raise Exception('Content missing\n"""\n%s\n"""' %
+                    json.dumps(parsed, indent=2))
+
+
+def args_to_changeid(argv):
+  if len(argv) == 2 and len(argv[1]) == 41 and argv[1][0] == 'I':
+    return argv[1]
+  else:
+    return retrieve_changeid(argv[1] if len(argv) == 2 else 'HEAD')
+
 
 if __name__ == '__main__':
   try:
-    if len(sys.argv) == 2 and len(sys.argv[1]) == 41 and sys.argv[1][0] == 'I':
-      gerrit_change_id_to_number(sys.argv[1])
-    else:
-      changeid = retrieve_changeid(sys.argv[1] if len(sys.argv) == 2 else 'HEAD')
-      if changeid is None:
-        exit(2)
-      sys.stdout.write('%d\n' % gerrit_change_id_to_number(changeid))
-  except:
-    exit(1)
+    sys.stdout.write('%d\n' %
+        gerrit_change_id_to_number('skia-review.googlesource.com',
+                                   args_to_changeid(sys.argv)))
+  except Exception as e:
+    sys.stderr.write('%s\n' % e)
+    sys.exit(1)
+
+
