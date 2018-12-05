@@ -46,6 +46,30 @@
       "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc40bf2_9a5b1822",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-05T21:32:53Z",
+      "side": 0,
+      "message": "I meant, do you still need to set it to nullptr. I don\u0027t see where it is initialized to nullptr in the new code.",
+      "parentUuid": "8a4f9f98_5089f153",
+      "range": {
+        "startLine": 122,
+        "startChar": 12,
+        "endLine": 122,
+        "endChar": 43
+      },
+      "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
