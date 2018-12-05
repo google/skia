@@ -365,12 +365,6 @@ public:
      */
     SkBudgeted isBudgeted() const { return fBudgeted; }
 
-    /**
-     * The pixel values of this proxy's surface cannot be modified (e.g. doesn't support write
-     * pixels or MIP map level regen),
-     */
-    bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
-
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
 
@@ -438,7 +432,7 @@ protected:
                    const GrBackendFormat& format, const GrSurfaceDesc&, GrSurfaceOrigin,
                    SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
-    // Wrapped version.
+    // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, SkBackingFit);
 
     virtual ~GrSurfaceProxy();

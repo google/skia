@@ -2172,8 +2172,8 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
            !rt->rtPriv().glRTFBOIDIs0();
 }
 
-bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+bool GrGLCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     GrSurfaceOrigin dstOrigin = dst->origin();
     GrSurfaceOrigin srcOrigin = src->origin();
 
@@ -2756,7 +2756,7 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     }
 }
 
-bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
+bool GrGLCaps::surfaceSupportsWritePixels(const GrSurface* surface) const {
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
             if (tex->hasBaseLevelBeenBoundToFBO()) {
