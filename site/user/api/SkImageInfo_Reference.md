@@ -978,8 +978,8 @@ struct <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a> {
     uint64_t <a href='#SkImageInfo_minRowBytes64'>minRowBytes64</a>() const;
     size_t <a href='#SkImageInfo_minRowBytes'>minRowBytes</a>() const;
     size_t <a href='#SkImageInfo_computeOffset'>computeOffset</a>(int x, int y, size_t rowBytes) const;
-    bool operator==(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& other) const;
-    bool operator!=(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& other) const;
+    bool <a href='#SkImageInfo_equal1_operator'>operator==</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& other) const;
+    bool <a href='#SkImageInfo_notequal1_operator'>operator!=</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& other) const;
     size_t <a href='#SkImageInfo_computeByteSize'>computeByteSize</a>(size_t rowBytes) const;
     size_t <a href='#SkImageInfo_computeMinByteSize'>computeMinByteSize</a>() const;
     static bool <a href='#SkImageInfo_ByteSizeOverflowed'>ByteSizeOverflowed</a>(size_t byteSize);
@@ -2059,7 +2059,7 @@ info1 == info2
 
 ### See Also
 
-operator!=(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkImageInfo_equal1_operator_other'>other</a>) const <a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_Equals'>Equals</a>
+<a href='#SkImageInfo_notequal1_operator'>operator!=</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkImageInfo_equal1_operator_other'>other</a>) const <a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_Equals'>Equals</a>
 
 <a name='SkImageInfo_notequal1_operator'></a>
 
@@ -2100,7 +2100,7 @@ info1 == info2
 
 ### See Also
 
-operator==(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkImageInfo_notequal1_operator_other'>other</a>) const <a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_Equals'>Equals</a>
+<a href='#SkImageInfo_equal1_operator'>operator==</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkImageInfo_notequal1_operator_other'>other</a>) const <a href='undocumented#SkColorSpace'>SkColorSpace</a>::<a href='#SkColorSpace_Equals'>Equals</a>
 
 <a name='SkImageInfo_computeByteSize'></a>
 
