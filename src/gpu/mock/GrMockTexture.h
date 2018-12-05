@@ -23,10 +23,12 @@ public:
     }
 
     enum Wrapped { kWrapped };
-    GrMockTexture(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
-                  GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& info,
-                  bool purgeImmediately)
+    GrMockTexture(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
+                  const GrMockTextureInfo& info, GrIOType ioType, bool purgeImmediately)
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
+        if (ioType == kRead_GrIOType) {
+            this->setReadOnly();
+        }
         this->registerWithCacheWrapped(purgeImmediately);
     }
 

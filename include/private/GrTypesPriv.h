@@ -824,9 +824,12 @@ enum class GrInternalSurfaceFlags {
     kNone                           = 0,
 
     // Surface-level
-    kNoPendingIO                    = 1 << 0,
 
-    kSurfaceMask                    = kNoPendingIO,
+    kNoPendingIO                    = 1 << 0,
+    // Means the pixels in the surface are read-only. Cannot be a GrRenderTarget[Proxy].
+    kReadOnly                       = 1 << 1,
+
+    kSurfaceMask                    = kReadOnly | kNoPendingIO,
 
     // RT-only
 
