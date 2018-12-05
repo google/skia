@@ -3652,28 +3652,6 @@ void draw(SkCanvas* canvas) {
 #Subtopic Text_Intercepts ##
 # ------------------------------------------------------------------------------
 
-#Method SkRect getFontBounds() const
-
-#In Font_Metrics
-#Line # returns union all glyph bounds ##
-#Populate
-
-#Example
-    SkPaint paint;
-    SkFontMetrics fm;
-    paint.getFontMetrics(&fm);
-    SkRect fb = paint.getFontBounds();
-    SkDebugf("metrics bounds = { %g, %g, %g, %g }\n", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );
-    SkDebugf("font bounds    = { %g, %g, %g, %g }\n", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );
-
-    #StdOut
-        metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }
-        font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
-    ##
-##
-
-##
-
 #Method bool nothingToDraw() const
 #In Utility
 #Line # returns true if Paint prevents all drawing ##
