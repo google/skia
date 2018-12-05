@@ -80,6 +80,7 @@ public:
     static constexpr GrSwizzle RRRR() { return GrSwizzle("rrrr"); }
     static constexpr GrSwizzle RRRA() { return GrSwizzle("rrra"); }
     static constexpr GrSwizzle BGRA() { return GrSwizzle("bgra"); }
+    static constexpr GrSwizzle RGRG() { return GrSwizzle("rgrg"); }
 
 private:
     char fSwiz[5];
