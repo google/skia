@@ -37,11 +37,6 @@ public:
         lua_settop(L, -1);
     }
 
-#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
-    void pushEncodedText(SkPaint::TextEncoding enc, const void* text, size_t length) {
-        this->pushEncodedText((SkTextEncoding)enc, text, length);
-    }
-#endif
     void pushEncodedText(SkTextEncoding, const void*, size_t);
 
 private:

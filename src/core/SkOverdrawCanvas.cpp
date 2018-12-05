@@ -75,7 +75,7 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                                 SkFont::LEGACY_ExtractFromPaint(paint), paint, props,
                                 SkScalerContextFlags::kNone, this->getTotalMatrix());
-    SkFindAndPlaceGlyph::ProcessPosText((SkTextEncoding)paint.getTextEncoding(),
+    SkFindAndPlaceGlyph::ProcessPosText(paint.getTextEncoding(),
                                         (const char*)text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
                                         cache.get(), processBounds);
@@ -110,7 +110,7 @@ void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
                                          const SkPaint& paint) {
     const char* stop = (const char*)text + byteLength;
     CountTextProc proc = nullptr;
-    switch ((SkTextEncoding)paint.getTextEncoding()) {
+    switch (paint.getTextEncoding()) {
         case kUTF8_SkTextEncoding:
             proc = count_utf8;
             break;

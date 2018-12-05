@@ -48,7 +48,7 @@ static size_t uni_to_utf32(const SkUnichar src[], void* dst, int count) {
 }
 
 static SkTypeface::Encoding paint2encoding(const SkPaint& paint) {
-    SkTextEncoding enc = (SkTextEncoding)paint.getTextEncoding();
+    SkTextEncoding enc = paint.getTextEncoding();
     SkASSERT(kGlyphID_SkTextEncoding != enc);
     return (SkTypeface::Encoding)enc;
 }

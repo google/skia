@@ -338,6 +338,26 @@ FT_Load_Glyph
 ##
 #Const kGlyphID_SkTextEncoding 3
 ##
+TextEncoding determines whether text specifies character codes and their encoded
+size, or glyph indices. Characters are encoded as specified by the
+#A Unicode standard # https://unicode.org/standard/standard.html ##
+.
+
+Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
+All character code formats are able to represent all of Unicode, differing only
+in the total storage required.
+
+#A UTF-8 (RFC 3629) # https://tools.ietf.org/html/rfc3629 ##
+encodes each character as one or more 8-bit bytes.
+
+#A UTF-16 (RFC 2781) # https://tools.ietf.org/html/rfc2781 ##
+encodes each character as one or two 16-bit words.
+
+#A UTF-32 # https://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ##
+encodes each character as one 32-bit word.
+
+Font_Manager uses font data to convert character code points into glyph indices.
+A glyph index is a 16-bit word.
 ##
 
 #EnumClass SkFontHinting

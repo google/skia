@@ -309,7 +309,7 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 
 SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
         const SkPaint& paint, const void* bytes, size_t byteLength) {
-    SkTextEncoding encoding = (SkTextEncoding)paint.getTextEncoding();
+    SkTextEncoding encoding = paint.getTextEncoding();
     if (encoding != kGlyphID_SkTextEncoding) {
         auto tfEncoding = convert_encoding(encoding);
         int utfSize = SkUTFN_CountUnichars(tfEncoding, bytes, byteLength);

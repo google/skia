@@ -4080,7 +4080,7 @@ Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 blob contains Glyphs, their positions, and paint attributes specific to text:
 #paint_font_metrics#.
 
-Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+Paint_Text_Encoding must be set to kGlyphID_SkTextEncoding.
 
 Elements of paint: Anti_Alias, Blend_Mode, Color including Color_Alpha,
 Color_Filter, Paint_Dither, Draw_Looper, Mask_Filter, Path_Effect, Shader, and
@@ -4102,7 +4102,7 @@ void draw(SkCanvas* canvas) {
     uint16_t glyphs[len];
     SkPaint paint;
     paint.textToGlyphs(bunny, len, glyphs);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     SkFont font;
     int runs[] = { 3, 1, 3 };
     SkPoint textPos = { 20, 100 };
@@ -4135,7 +4135,7 @@ Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 blob contains Glyphs, their positions, and paint attributes specific to text:
 #paint_font_metrics#.
 
-Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+Paint_Text_Encoding must be set to kGlyphID_SkTextEncoding.
 
 Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter,
 Image_Filter, and Draw_Looper; apply to blob.

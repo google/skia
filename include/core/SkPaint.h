@@ -875,59 +875,11 @@ public:
     */
     void setTextSkewX(SkScalar skewX);
 
-#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
-    /** \enum SkPaint::TextEncoding
-        TextEncoding determines whether text specifies character codes and their encoded
-        size, or glyph indices. Characters are encoded as specified by the Unicode standard.
-
-        Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
-        All character code formats are able to represent all of Unicode, differing only
-        in the total storage required.
-
-        UTF-8 (RFC 3629) encodes each character as one or more 8-bit bytes.
-
-        UTF-16 (RFC 2781) encodes each character as one or two 16-bit words.
-
-        UTF-32 encodes each character as one 32-bit word.
-
-        font manager uses font data to convert character code points into glyph indices.
-        A glyph index is a 16-bit word.
-
-        TextEncoding is set to kUTF8_TextEncoding by default.
-    */
-    enum TextEncoding : uint8_t {
-        kUTF8_TextEncoding,    //!< uses bytes to represent UTF-8 or ASCII
-        kUTF16_TextEncoding,   //!< uses two byte words to represent most of Unicode
-        kUTF32_TextEncoding,   //!< uses four byte words to represent all of Unicode
-        kGlyphID_TextEncoding, //!< uses two byte words to represent glyph indices
-    };
-
-    /** Returns SkPaint::TextEncoding.
-        SkPaint::TextEncoding determines how character code points are mapped to font glyph indices.
-
-        @return  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
-                 kGlyphID_TextEncoding
-    */
-    TextEncoding getTextEncoding() const {
-      return (TextEncoding)fBitfields.fTextEncoding;
-    }
-
-    /** Sets SkPaint::TextEncoding to encoding.
-        SkPaint::TextEncoding determines how character code points are mapped to font glyph indices.
-        Invalid values for encoding are ignored.
-
-        @param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
-                         kGlyphID_TextEncoding
-    */
-    void setTextEncoding(TextEncoding encoding) {
-        this->setTextEncoding((SkTextEncoding)encoding);
-    }
-#else
     // Experimental
     SkTextEncoding getTextEncoding() const {
         return (SkTextEncoding)fBitfields.fTextEncoding;
     }
-#endif
+
     // Experimental
     void setTextEncoding(SkTextEncoding encoding);
 

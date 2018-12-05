@@ -79,7 +79,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
                     sk_srgb_singleton());
 
     BitFlags bits = info.fPaintBits;
-    SkTextEncoding encoding = (SkTextEncoding)dst->getTextEncoding();
+    SkTextEncoding encoding = dst->getTextEncoding();
 
     if (0 == bits) {
         return;
