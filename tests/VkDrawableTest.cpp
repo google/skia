@@ -67,7 +67,7 @@ public:
 
             VkClearAttachment attachment;
             attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            attachment.colorAttachment = vkInfo.fImageAttachmentIndex;
+            attachment.colorAttachment = vkInfo.fColorAttachmentIndex;
             attachment.clearValue.color = vkColor;
 
             GR_VK_CALL(fInterface, CmdClearAttachments(vkInfo.fSecondaryCommandBuffer,
