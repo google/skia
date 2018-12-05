@@ -311,7 +311,6 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    bool surfaceSupportsWritePixels(const GrSurface*) const override;
     bool surfaceSupportsReadPixels(const GrSurface*) const override;
     GrColorType supportedReadPixelsColorType(GrPixelConfig, GrColorType) const override;
 
@@ -419,9 +418,6 @@ public:
                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
     bool canCopyAsDraw(GrPixelConfig dstConfig, bool srcIsTextureable) const;
 
-    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
-
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -480,6 +476,9 @@ private:
     // This must be called after initFSAASupport().
     void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
                          GrShaderCaps*);
+    bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
 
     GrGLStandard fStandard;
 
