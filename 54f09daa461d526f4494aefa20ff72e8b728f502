@@ -33,6 +33,24 @@
       "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0244697_af8668da",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-12-05T18:46:16Z",
+      "side": 1,
+      "message": "One more: I try to avoid parenthetical comments because:\n- as a reader, I don\u0027t know what they are trying to tell me (i.e., is this information assumed? optional? unnecessary?) \n- I parse parentheses sometimes to mean math, (1 + 2) * 3.\n\n- I also try to avoid abbreviations for the non-English native speaker because they add another level of indirection, e.g., adds Latin to our working vocabulary.\n\nI would probably word this as:\n\n\"Text encoding describes how to interpret the text bytes pass to methods like measureText() and drawText().\"",
+      "parentUuid": "512c4772_cde66c06",
+      "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
