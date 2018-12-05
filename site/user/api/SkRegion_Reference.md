@@ -23,8 +23,8 @@ class <a href='SkRegion_Reference#SkRegion'>SkRegion</a> {
     explicit <a href='#SkRegion_copy_const_SkIRect'>SkRegion</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='SkRect_Reference#Rect'>rect</a>);
     <a href='#SkRegion_destructor'>~SkRegion()</a>;
     <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>);
-    bool operator==(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
-    bool operator!=(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
+    bool <a href='#SkRegion_equal1_operator'>operator==</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
+    bool <a href='#SkRegion_notequal1_operator'>operator!=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const;
     bool <a href='#SkRegion_set'>set</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& src);
     void <a href='#SkRegion_swap'>swap</a>(<a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other);
     bool <a href='#SkRegion_isEmpty'>isEmpty</a>() const;
@@ -818,7 +818,7 @@ set empty one == two
 
 ### See Also
 
-operator!=(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_equal1_operator_other'>other</a>) const <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>)
+<a href='#SkRegion_notequal1_operator'>operator!=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_equal1_operator_other'>other</a>) const <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>)
 
 <a name='SkRegion_notequal1_operator'></a>
 
@@ -857,7 +857,7 @@ union rect one == two
 
 ### See Also
 
-operator==(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_notequal1_operator_other'>other</a>) const <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>)
+<a href='#SkRegion_equal1_operator'>operator==</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='#SkRegion_notequal1_operator_other'>other</a>) const <a href='#SkRegion_copy_operator'>operator=</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& <a href='SkRegion_Reference#Region'>region</a>)
 
 <a name='SkRegion_set'></a>
 
@@ -976,7 +976,7 @@ set empty: region is empty
 
 ### See Also
 
-<a href='#SkRegion_isRect'>isRect</a> <a href='#SkRegion_isComplex'>isComplex</a> operator==(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const
+<a href='#SkRegion_isRect'>isRect</a> <a href='#SkRegion_isComplex'>isComplex</a> <a href='#SkRegion_equal1_operator'>operator==</a>(const <a href='SkRegion_Reference#SkRegion'>SkRegion</a>& other) const
 
 <a name='SkRegion_isRect'></a>
 
