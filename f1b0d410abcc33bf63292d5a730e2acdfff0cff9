@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bb186047_1cdb2d58",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-05T15:32:34Z",
+      "side": 1,
+      "message": "Is there a reason to have this out here and not as a local struct inside drawGlyphRunAsPath? Does something else in this file need it?",
+      "range": {
+        "startLine": 1035,
+        "startChar": 11,
+        "endLine": 1035,
+        "endChar": 14
+      },
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d862de3f_da3063ae",
         "filename": "src/pdf/SkPDFDevice.cpp",
         "patchSetId": 1
