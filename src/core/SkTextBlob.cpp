@@ -480,9 +480,7 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
                                       SkTextBlob::GlyphPositioning positioning,
                                       int count, int textSize, SkPoint offset,
                                       const SkRect* bounds) {
-    if (count <= 0 || textSize < 0 ||
-        (SkTextEncoding)font.getTextEncoding() != kGlyphID_SkTextEncoding)
-    {
+    if (count <= 0 || textSize < 0 || font.getTextEncoding() != kGlyphID_SkTextEncoding) {
         fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
         return;
     }
