@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d862de3f_da3063ae",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-05T15:25:28Z",
+      "side": 1,
+      "message": "is PDF the only one doing this operation (making a single path from all of the glyphs?)",
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
