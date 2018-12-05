@@ -21,7 +21,7 @@ timeout 60 adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) 
 # Some extra sleep to make sure the emulator is awake and ready for installation
 sleep 10
 
-adb install -r /OUT/skqp-x86-debug.apk
+adb install -r /OUT/skqp-universal-debug.apk
 adb logcat -c
 
 tmp_file="$(mktemp "${TMPDIR:-/tmp}/skqp.XXXXXXXXXX")"
