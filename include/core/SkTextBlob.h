@@ -285,17 +285,17 @@ public:
                                  const SkRect* bounds = nullptr);
 
 private:
-    const RunBuffer& allocRunText(const SkPaint& font,
+    const RunBuffer& allocRunText(const SkFont& font,
                                   int count,
                                   SkScalar x,
                                   SkScalar y,
                                   int textByteCount,
                                   SkString lang,
                                   const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
+    const RunBuffer& allocRunTextPosH(const SkFont& font, int count, SkScalar y,
                                       int textByteCount, SkString lang,
                                       const SkRect* bounds = nullptr);
-    const RunBuffer& allocRunTextPos(const SkPaint& font, int count,
+    const RunBuffer& allocRunTextPos(const SkFont& font, int count,
                                      int textByteCount, SkString lang,
                                      const SkRect* bounds = nullptr);
     void reserve(size_t size);

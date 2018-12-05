@@ -320,17 +320,16 @@ DEF_TEST(TextBlob_paint, reporter) {
 
 DEF_TEST(TextBlob_extended, reporter) {
     SkTextBlobBuilder textBlobBuilder;
-    SkPaint paint;
+    SkFont font;
     const char text1[] = "Foo";
     const char text2[] = "Bar";
 
-    int glyphCount = paint.textToGlyphs(text1, strlen(text1), nullptr);
+    int glyphCount = font.countText(text1, strlen(text1), kUTF8_SkTextEncoding);
     SkAutoTMalloc<uint16_t> glyphs(glyphCount);
-    (void)paint.textToGlyphs(text1, strlen(text1), glyphs.get());
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    (void)font.textToGlyphs(text1, strlen(text1), kUTF8_SkTextEncoding, glyphs.get(), glyphCount);
 
     auto run = SkTextBlobBuilderPriv::AllocRunText(&textBlobBuilder,
-            paint, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
+            font, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
     memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
     memcpy(run.utf8text, text2, strlen(text2));
     for (int i = 0; i < glyphCount; ++i) {

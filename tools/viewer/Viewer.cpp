@@ -992,15 +992,17 @@ public:
                 continue;
             }
 
+            SkFont font = SkFont::LEGACY_ExtractFromPaint(*filteredPaint);
+
             const SkTextBlobBuilder::RunBuffer& runBuffer
                 = it.positioning() == SkTextBlobRunIterator::kDefault_Positioning
-                    ? SkTextBlobBuilderPriv::AllocRunText(&builder, *filteredPaint,
+                    ? SkTextBlobBuilderPriv::AllocRunText(&builder, font,
                         it.offset().x(),it.offset().y(), it.glyphCount(), it.textSize(), SkString())
                 : it.positioning() == SkTextBlobRunIterator::kHorizontal_Positioning
-                    ? SkTextBlobBuilderPriv::AllocRunTextPosH(&builder, *filteredPaint,
+                    ? SkTextBlobBuilderPriv::AllocRunTextPosH(&builder, font,
                         it.offset().y(), it.glyphCount(), it.textSize(), SkString())
                 : it.positioning() == SkTextBlobRunIterator::kFull_Positioning
-                    ? SkTextBlobBuilderPriv::AllocRunTextPos(&builder, *filteredPaint,
+                    ? SkTextBlobBuilderPriv::AllocRunTextPos(&builder, font,
                         it.glyphCount(), it.textSize(), SkString())
                 : (SkASSERT_RELEASE(false), SkTextBlobBuilder::RunBuffer());
             uint32_t glyphCount = it.glyphCount();
