@@ -318,6 +318,7 @@ void MdOut::DefinedState::setLink() {
         parser.skipToEndBracket('(');
         const char* parenStart = parser.fChar;
         parser.skipToBalancedEndBracket('(', ')');
+        (void) parser.skipExact(" const");
         string methodName = fPriorWord + fSeparator
                 + string(parenStart + 1, parser.fChar - parenStart - 1);
         string testLink;

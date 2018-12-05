@@ -18,13 +18,13 @@ struct <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> {
     float <a href='#SkRGBA4f_fB'>fB</a>;
     float <a href='#SkRGBA4f_fA'>fA</a>;
 
-    bool operator==(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& other) const;
-    bool operator!=(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& other) const;
-    <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> operator*(float scale) const;
-    <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> operator*(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& scale) const;
+    bool <a href='#SkRGBA4f_equal1_operator'>operator==</a>(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& other) const;
+    bool <a href='#SkRGBA4f_notequal1_operator'>operator!=</a>(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& other) const;
+    <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_multiply_operator'>operator*</a>(float scale) const;
+    <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_multiply1_operator'>operator*</a>(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& scale) const;
     const float* <a href='#SkRGBA4f_vec'>vec()</a> const;
     float* <a href='#SkRGBA4f_vec'>vec()</a>;
-    float <a href='#SkRGBA4f_array1_operator'>operator[]</a>(int index) const;
+    float <a href='#SkRGBA4f_array_operator'>operator[]</a>(int index) const;
     float& <a href='#SkRGBA4f_array1_operator'>operator[]</a>(int index);
     bool <a href='#SkRGBA4f_isOpaque'>isOpaque</a>() const;
     static <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a> <a href='#SkRGBA4f_FromColor'>FromColor</a>(<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='SkColor_Reference#Color'>color</a>);
@@ -121,7 +121,7 @@ colorRed == colorNamedRed
 
 ### See Also
 
-operator!=(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& <a href='#SkRGBA4f_equal1_operator_other'>other</a>) const
+<a href='#SkRGBA4f_notequal1_operator'>operator!=</a>(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& <a href='#SkRGBA4f_equal1_operator_other'>other</a>) const
 
 <a name='SkRGBA4f_notequal1_operator'></a>
 
@@ -159,7 +159,7 @@ colorGray != colorNamedGray
 
 ### See Also
 
-operator==(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& <a href='#SkRGBA4f_notequal1_operator_other'>other</a>) const
+<a href='#SkRGBA4f_equal1_operator'>operator==</a>(const <a href='SkColor4f_Reference#SkRGBA4f'>SkRGBA4f</a>& <a href='#SkRGBA4f_notequal1_operator_other'>other</a>) const
 
 <a name='SkRGBA4f_multiply_operator'></a>
 

@@ -30,7 +30,7 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
     <a href='#SkFont_empty_constructor'>SkFont()</a>;
     <a href='#SkFont_SkTypeface_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>);
     <a href='#SkFont_SkTypeface_SkScalar_SkScalar_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>, <a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX);
-    bool operator==(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>) const;
+    bool <a href='#SkFont_equal1_operator'>operator==</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>) const;
     bool <a href='#SkFont_isForceAutoHinting'>isForceAutoHinting</a>() const;
     bool <a href='#SkFont_isEmbeddedBitmaps'>isEmbeddedBitmaps</a>() const;
     bool <a href='#SkFont_isSubpixel'>isSubpixel</a>() const;

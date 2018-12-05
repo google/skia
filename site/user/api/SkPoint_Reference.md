@@ -35,7 +35,7 @@ struct <a href='SkPoint_Reference#SkPoint'>SkPoint</a> {
     <a href='SkPoint_Reference#SkPoint'>SkPoint</a> operator-() const;
     void <a href='#SkPoint_addto_operator'>operator+=</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& v);
     void <a href='#SkPoint_subtractfrom_operator'>operator-=</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& v);
-    <a href='SkPoint_Reference#SkPoint'>SkPoint</a> operator*(<a href='undocumented#SkScalar'>SkScalar</a> scale) const;
+    <a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='#SkPoint_multiply_operator'>operator*</a>(<a href='undocumented#SkScalar'>SkScalar</a> scale) const;
     <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> scale);
     bool <a href='#SkPoint_isFinite'>isFinite</a>() const;
     bool <a href='#SkPoint_equals'>equals</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
@@ -653,7 +653,7 @@ Sets <a href='#SkPoint_scale_dst'>dst</a> to <a href='SkPoint_Reference#SkPoint'
 
 ### See Also
 
-operator*(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale_scale'>scale</a>) const <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale_scale'>scale</a>) <a href='#SkPoint_setLength'>setLength</a>
+<a href='#SkPoint_multiply_operator'>operator*</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale_scale'>scale</a>) const <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale_scale'>scale</a>) <a href='#SkPoint_setLength'>setLength</a>
 
 <a name='SkPoint_scale_2'></a>
 
@@ -678,7 +678,7 @@ Scales <a href='SkPoint_Reference#SkPoint'>SkPoint</a> in place by scale.
 
 ### See Also
 
-operator*(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale'>scale</a>) const <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale'>scale</a>) <a href='#SkPoint_setLength'>setLength</a>
+<a href='#SkPoint_multiply_operator'>operator*</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale'>scale</a>) const <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_scale'>scale</a>) <a href='#SkPoint_setLength'>setLength</a>
 
 <a name='SkPoint_negate'></a>
 
@@ -848,7 +848,7 @@ reference to <a href='SkPoint_Reference#Point'>Point</a>
 
 ### See Also
 
-operator*(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_multiplyby_operator_scale'>scale</a>) const <a href='#SkPoint_scale'>scale()</a> <a href='#SkPoint_setLength'>setLength</a> <a href='#SkPoint_setNormalize'>setNormalize</a>
+<a href='#SkPoint_multiply_operator'>operator*</a>(<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_multiplyby_operator_scale'>scale</a>) const <a href='#SkPoint_scale'>scale()</a> <a href='#SkPoint_setLength'>setLength</a> <a href='#SkPoint_setNormalize'>setNormalize</a>
 
 <a name='SkPoint_isFinite'></a>
 
