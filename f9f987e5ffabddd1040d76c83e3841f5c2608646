@@ -70,6 +70,29 @@
       "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24f64e5d_e9bd43c4",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-05T16:20:13Z",
+      "side": 1,
+      "message": "Do we want this for text as well?",
+      "range": {
+        "startLine": 324,
+        "startChar": 57,
+        "endLine": 324,
+        "endChar": 62
+      },
+      "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
