@@ -10,6 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkFont.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -59,45 +60,18 @@ public:
 };
 
 // TODO(fmalita): replace with SkFont.
-class SkRunFont : SkNoncopyable {
+class SkRunFont : public SkFont {
 public:
+    SkRunFont(const SkFont& font) : SkFont(font) {}
     SkRunFont(const SkPaint& paint);
 
     void applyToPaint(SkPaint* paint) const;
 
-    bool operator==(const SkRunFont& other) const;
+    bool operator==(const SkRunFont& other) const { return SkFont::operator==(other); }
 
     bool operator!=(const SkRunFont& other) const {
         return !(*this == other);
     }
-
-    uint32_t flags() const { return fFlags; }
-
-private:
-    friend SkPaint;
-    const static uint32_t kFlagsMask =
-            SkPaint::kAntiAlias_Flag          |
-            SkPaint::kFakeBoldText_Flag       |
-            SkPaint::kLinearText_Flag         |
-            SkPaint::kSubpixelText_Flag       |
-            SkPaint::kLCDRenderText_Flag      |
-            SkPaint::kEmbeddedBitmapText_Flag |
-            SkPaint::kAutoHinting_Flag        ;
-
-    SkScalar                 fSize;
-    SkScalar                 fScaleX;
-
-    // Keep this sk_sp off the first position, to avoid interfering with SkNoncopyable
-    // empty baseclass optimization (http://code.google.com/p/skia/issues/detail?id=3694).
-    sk_sp<SkTypeface>        fTypeface;
-    SkScalar                 fSkewX;
-
-    static_assert(static_cast<unsigned>(kFull_SkFontHinting) < 4, "insufficient_hinting_bits");
-    uint32_t                 fHinting : 2;
-    static_assert((kFlagsMask & 0xffff) == kFlagsMask, "insufficient_flags_bits");
-    uint32_t                 fFlags : 16;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 //
@@ -124,7 +98,7 @@ SkDEBUGCODE(static const unsigned kRunRecordMagic = 0xb10bcafe;)
 
 class SkTextBlob::RunRecord {
 public:
-    RunRecord(uint32_t count, uint32_t textSize,  const SkPoint& offset, const SkPaint& font, GlyphPositioning pos)
+    RunRecord(uint32_t count, uint32_t textSize,  const SkPoint& offset, const SkFont& font, GlyphPositioning pos)
             : fFont(font)
             , fCount(count)
             , fOffset(offset)
@@ -221,24 +195,9 @@ private:
 };
 
 // (paint->getFlags() & ~kFlagsMask) | fFlags
-inline SkPaint::SkPaint(const SkPaint& basePaint, const SkRunFont& runFont)
-        : fTypeface{runFont.fTypeface}
-        , fPathEffect{basePaint.fPathEffect}
-        , fShader{basePaint.fShader}
-        , fMaskFilter{basePaint.fMaskFilter}
-        , fColorFilter{basePaint.fColorFilter}
-        , fDrawLooper{basePaint.fDrawLooper}
-        , fImageFilter{basePaint.fImageFilter}
-        , fTextSize{runFont.fSize}
-        , fTextScaleX{runFont.fScaleX}
-        , fTextSkewX{runFont.fSkewX}
-        , fColor4f{basePaint.fColor4f}
-        , fWidth{basePaint.fWidth}
-        , fMiterLimit{basePaint.fMiterLimit}
-        , fBlendMode{basePaint.fBlendMode}
-        , fBitfieldsUInt{(basePaint.fBitfieldsUInt & ~SkRunFont::kFlagsMask) | runFont.fFlags} {
+inline SkPaint::SkPaint(const SkPaint& basePaint, const SkRunFont& runFont) : SkPaint(basePaint) {
     fBitfields.fTextEncoding = (unsigned)kGlyphID_SkTextEncoding;
-    fBitfields.fHinting = runFont.fHinting;
+    runFont.applyToPaint(this);
 }
 
 /**

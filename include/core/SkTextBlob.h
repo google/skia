@@ -299,9 +299,9 @@ private:
                                      int textByteCount, SkString lang,
                                      const SkRect* bounds = nullptr);
     void reserve(size_t size);
-    void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
+    void allocInternal(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);
-    bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
+    bool mergeRun(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
                   uint32_t count, SkPoint offset);
     void updateDeferredBounds();
 
