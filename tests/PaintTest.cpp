@@ -47,12 +47,6 @@ static size_t uni_to_utf32(const SkUnichar src[], void* dst, int count) {
     return count * sizeof(SkUnichar);
 }
 
-static SkTypeface::Encoding paint2encoding(const SkPaint& paint) {
-    SkTextEncoding enc = paint.getTextEncoding();
-    SkASSERT(kGlyphID_SkTextEncoding != enc);
-    return (SkTypeface::Encoding)enc;
-}
-
 static int find_first_zero(const uint16_t glyphs[], int count) {
     for (int i = 0; i < count; ++i) {
         if (0 == glyphs[i]) {
@@ -82,9 +76,9 @@ DEF_TEST(Paint_cmap, reporter) {
     };
 
     SkRandom rand;
-    SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeDefault());
-    SkTypeface* face = paint.getTypeface();
+    SkFont font;
+    font.setTypeface(SkTypeface::MakeDefault());
+    SkTypeface* face = font.getTypeface();
 
     for (int i = 0; i < 1000; ++i) {
         // generate some random text
@@ -95,15 +89,14 @@ DEF_TEST(Paint_cmap, reporter) {
         src[rand.nextU() & 63] = rand.nextU() & 0xFFF;
 
         for (size_t k = 0; k < SK_ARRAY_COUNT(gRec); ++k) {
-            paint.setTextEncoding(gRec[k].fEncoding);
-
             size_t len = gRec[k].fSeedTextProc(src, dst, NGLYPHS);
 
             uint16_t    glyphs0[NGLYPHS], glyphs1[NGLYPHS];
 
-            bool contains = paint.containsText(dst, len);
-            int nglyphs = paint.textToGlyphs(dst, len, glyphs0);
-            int first = face->charsToGlyphs(dst, paint2encoding(paint), glyphs1, NGLYPHS);
+            bool contains = font.containsText(dst, len, gRec[k].fEncoding);
+            int nglyphs = font.textToGlyphs(dst, len, gRec[k].fEncoding, glyphs0, NGLYPHS);
+            int first = face->charsToGlyphs(dst, (SkTypeface::Encoding)gRec[k].fEncoding,
+                                            glyphs1, NGLYPHS);
             int index = find_first_zero(glyphs1, NGLYPHS);
 
             REPORTER_ASSERT(reporter, NGLYPHS == nglyphs);

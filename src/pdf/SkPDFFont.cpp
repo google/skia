@@ -123,17 +123,18 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
     }
 
     if (0 == metrics->fStemV || 0 == metrics->fCapHeight) {
-        SkPaint tmpPaint;
-        tmpPaint.setHinting(kNo_SkFontHinting);
-        tmpPaint.setTypeface(sk_ref_sp(typeface));
-        tmpPaint.setTextSize(1000);  // glyph coordinate system
+        SkFont font;
+        font.setHinting(kNo_SkFontHinting);
+        font.setTypeface(sk_ref_sp(typeface));
+        font.setSize(1000);  // glyph coordinate system
         if (0 == metrics->fStemV) {
             // Figure out a good guess for StemV - Min width of i, I, !, 1.
             // This probably isn't very good with an italic font.
             int16_t stemV = SHRT_MAX;
             for (char c : {'i', 'I', '!', '1'}) {
+                uint16_t g = font.unicharToGlyph(c);
                 SkRect bounds;
-                tmpPaint.measureText(&c, 1, &bounds);
+                font.getBounds(&g, 1, &bounds, nullptr);
                 stemV = SkTMin(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
             }
             metrics->fStemV = stemV;
@@ -142,8 +143,9 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface* typefac
             // Figure out a good guess for CapHeight: average the height of M and X.
             SkScalar capHeight = 0;
             for (char c : {'M', 'X'}) {
+                uint16_t g = font.unicharToGlyph(c);
                 SkRect bounds;
-                tmpPaint.measureText(&c, 1, &bounds);
+                font.getBounds(&g, 1, &bounds, nullptr);
                 capHeight += bounds.height();
             }
             metrics->fCapHeight = SkToS16(SkScalarRoundToInt(capHeight / 2));

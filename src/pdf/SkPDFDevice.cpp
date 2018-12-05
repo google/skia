@@ -1033,14 +1033,26 @@ static bool contains(const SkRect& r, SkPoint p) {
 
 void SkPDFDevice::drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset) {
     SkPaint paint{glyphRun.paint()};
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    SkFont font{SkFont::LEGACY_ExtractFromPaint(paint)};
     SkPath path;
 
-    paint.getPosTextPath(glyphRun.glyphsIDs().data(),
-                         glyphRun.glyphsIDs().size() * sizeof(SkGlyphID),
-                         glyphRun.positions().data(),
-                         &path);
-    path.offset(offset.x(), offset.y());
+    struct Rec {
+        SkPath* fPath;
+        SkPoint fOffset;
+        const SkPoint* fPos;
+    } rec = {&path, offset, glyphRun.positions().data()};
+
+    font.getPaths(glyphRun.glyphsIDs().data(), glyphRun.glyphsIDs().size(),
+                  [](const SkPath* path, const SkMatrix& mx, void* ctx) {
+                      Rec* rec = reinterpret_cast<Rec*>(ctx);
+                      if (path) {
+                          SkMatrix total = mx;
+                          total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
+                                              rec->fPos->fY + rec->fOffset.fY);
+                          rec->fPath->addPath(*path, total);
+                      }
+                      rec->fPos += 1; // move to the next glyph's position
+                  }, &rec);
     this->drawPath(path, paint, true);
 
     SkPaint transparent;
