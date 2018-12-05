@@ -16,21 +16,21 @@ struct <a href='SkPoint_Reference#SkPoint'>SkPoint</a> {
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_x'>x()</a> const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_y'>y()</a> const;
     bool <a href='#SkPoint_isZero'>isZero</a>() const;
-    void set(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
+    void <a href='#SkPoint_set'>set</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
     void <a href='#SkPoint_iset'>iset</a>(int32_t x, int32_t y);
     void <a href='#SkPoint_iset'>iset</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& p);
     void <a href='#SkPoint_setAbs'>setAbs</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& pt);
     static void <a href='#SkPoint_Offset'>Offset</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPoint_Reference#Point'>points</a>[], int count, const <a href='SkPoint_Reference#SkVector'>SkVector</a>& offset);
     static void <a href='#SkPoint_Offset'>Offset</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> <a href='SkPoint_Reference#Point'>points</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
-    void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkPoint_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_length'>length()</a> const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_distanceToOrigin'>distanceToOrigin</a>() const;
     bool <a href='#SkPoint_normalize'>normalize()</a>;
     bool <a href='#SkPoint_setNormalize'>setNormalize</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
     bool <a href='#SkPoint_setLength'>setLength</a>(<a href='undocumented#SkScalar'>SkScalar</a> length);
     bool <a href='#SkPoint_setLength'>setLength</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='undocumented#SkScalar'>SkScalar</a> length);
-    void scale(<a href='undocumented#SkScalar'>SkScalar</a> scale, <a href='SkPoint_Reference#SkPoint'>SkPoint</a>* dst) const;
-    void scale(<a href='undocumented#SkScalar'>SkScalar</a> value);
+    void <a href='#SkPoint_scale'>scale</a>(<a href='undocumented#SkScalar'>SkScalar</a> scale, <a href='SkPoint_Reference#SkPoint'>SkPoint</a>* dst) const;
+    void <a href='#SkPoint_scale'>scale</a>(<a href='undocumented#SkScalar'>SkScalar</a> value);
     void <a href='#SkPoint_negate'>negate()</a>;
     <a href='SkPoint_Reference#SkPoint'>SkPoint</a> operator-() const;
     void <a href='#SkPoint_addto_operator'>operator+=</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& v);
@@ -38,7 +38,7 @@ struct <a href='SkPoint_Reference#SkPoint'>SkPoint</a> {
     <a href='SkPoint_Reference#SkPoint'>SkPoint</a> operator*(<a href='undocumented#SkScalar'>SkScalar</a> scale) const;
     <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& <a href='#SkPoint_multiplyby_operator'>operator*=</a>(<a href='undocumented#SkScalar'>SkScalar</a> scale);
     bool <a href='#SkPoint_isFinite'>isFinite</a>() const;
-    bool equals(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
+    bool <a href='#SkPoint_equals'>equals</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
     friend bool <a href='#SkPoint_equal_operator'>operator==</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& a, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& b);
     friend bool <a href='#SkPoint_notequal_operator'>operator!=</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& a, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& b);
     friend <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkPoint_subtract_operator'>operator-</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& a, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& b);
@@ -48,8 +48,8 @@ struct <a href='SkPoint_Reference#SkPoint'>SkPoint</a> {
     static <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_Distance'>Distance</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& a, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& b);
     static <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_DotProduct'>DotProduct</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& a, const <a href='SkPoint_Reference#SkVector'>SkVector</a>& b);
     static <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_CrossProduct'>CrossProduct</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& a, const <a href='SkPoint_Reference#SkVector'>SkVector</a>& b);
-    <a href='undocumented#SkScalar'>SkScalar</a> cross(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& vec) const;
-    <a href='undocumented#SkScalar'>SkScalar</a> dot(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& vec) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_cross'>cross</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& vec) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPoint_dot'>dot</a>(const <a href='SkPoint_Reference#SkVector'>SkVector</a>& vec) const;
 };
 
 </pre>

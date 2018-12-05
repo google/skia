@@ -16,11 +16,11 @@ struct <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> {
     int32_t <a href='#SkIPoint_x'>x()</a> const;
     int32_t <a href='#SkIPoint_y'>y()</a> const;
     bool <a href='#SkIPoint_isZero'>isZero</a>() const;
-    void set(int32_t x, int32_t y);
+    void <a href='#SkIPoint_set'>set</a>(int32_t x, int32_t y);
     <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a> operator-() const;
     void <a href='#SkIPoint_addto_operator'>operator+=</a>(const <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& v);
     void <a href='#SkIPoint_subtractfrom_operator'>operator-=</a>(const <a href='SkIPoint_Reference#SkIVector'>SkIVector</a>& v);
-    bool equals(int32_t x, int32_t y) const;
+    bool <a href='#SkIPoint_equals'>equals</a>(int32_t x, int32_t y) const;
     friend bool <a href='#SkIPoint_equal_operator'>operator==</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& a, const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& b);
     friend bool <a href='#SkIPoint_notequal_operator'>operator!=</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& a, const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& b);
     friend <a href='SkIPoint_Reference#SkIVector'>SkIVector</a> <a href='#SkIPoint_subtract_operator'>operator-</a>(const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& a, const <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>& b);

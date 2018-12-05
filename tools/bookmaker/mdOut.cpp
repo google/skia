@@ -446,7 +446,8 @@ void MdOut::DefinedState::setLink() {
     }
     // look in parent fNames and above for match
     if (fNames) {
-        if (this->findLink(fWord, &fLink, Resolvable::kClone == fResolvable && fAddParens)) {
+        if (this->findLink(fWord, &fLink, (Resolvable::kClone == fResolvable && fAddParens)
+                || (Resolvable::kCode == fResolvable && '(' == fEnd[0]))) {
             return;
         }
     }

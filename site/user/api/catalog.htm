@@ -1491,13 +1491,6 @@
     "name": "SkPaint::getFlags",
         "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
     },
-        "SkPaint_getFontBounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkFontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
-    "hash": "f29d005a75efd4746c6744004a0cb421",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getFontBounds",
-        "stdout": "metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }\\nfont bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }\\n"
-    },
         "SkPaint_getFontSpacing": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (SkScalar textSize : { 12, 18, 24, 32 } ) {\n        paint.setTextSize(textSize);\n        SkDebugf(\"textSize: %g fontSpacing: %g\\n\", textSize, paint.getFontSpacing());\n    }\n}",
     "hash": "424741e26e1b174e43087d67422ce14f",

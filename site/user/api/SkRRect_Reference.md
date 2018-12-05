@@ -54,24 +54,24 @@ public:
     };
 
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_rect'>rect()</a> const;
-    <a href='SkPoint_Reference#SkVector'>SkVector</a> radii(<a href='#SkRRect_Corner'>Corner</a> corner) const;
+    <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_radii'>radii</a>(<a href='#SkRRect_Corner'>Corner</a> corner) const;
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkRRect_getBounds'>getBounds</a>() const;
     friend bool <a href='#SkRRect_equal_operator'>operator==</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& a, const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& b);
     friend bool <a href='#SkRRect_notequal_operator'>operator!=</a>(const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& a, const <a href='SkRRect_Reference#SkRRect'>SkRRect</a>& b);
-    void inset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
-    void inset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
-    void outset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
-    void outset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
-    void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
+    void <a href='#SkRRect_inset'>inset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
+    void <a href='#SkRRect_outset'>outset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkRRect_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
     <a href='SkRRect_Reference#SkRRect'>SkRRect</a> <a href='#SkRRect_makeOffset'>makeOffset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy) const;
-    bool contains(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
+    bool <a href='#SkRRect_contains'>contains</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='SkRect_Reference#Rect'>rect</a>) const;
     bool <a href='#SkRRect_isValid'>isValid</a>() const;
 
     static constexpr size_t <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> = 12 * <a href='undocumented#sizeof()'>sizeof</a>(<a href='undocumented#SkScalar'>SkScalar</a>);
 
     size_t <a href='#SkRRect_writeToMemory'>writeToMemory</a>(void* buffer) const;
     size_t <a href='#SkRRect_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length);
-    bool transform(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
+    bool <a href='#SkRRect_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkRRect_Reference#SkRRect'>SkRRect</a>* dst) const;
     void <a href='#SkRRect_dump'>dump</a>(bool asHex) const;
     void <a href='#SkRRect_dump'>dump()</a> const;
     void <a href='#SkRRect_dumpHex'>dumpHex</a>() const;

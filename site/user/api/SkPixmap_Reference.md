@@ -12,7 +12,7 @@ class <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a> {
     <a href='#SkPixmap_empty_constructor'>SkPixmap()</a>;
     <a href='#SkPixmap_const_SkImageInfo_const_star'>SkPixmap</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* addr, size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>);
     void <a href='#SkPixmap_reset'>reset()</a>;
-    void reset(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* addr, size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>);
+    void <a href='#SkPixmap_reset'>reset</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, const void* addr, size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>);
     void <a href='#SkPixmap_setColorSpace'>setColorSpace</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkColorSpace'>SkColorSpace</a>> <a href='#SkPixmap_colorSpace'>colorSpace</a>);
     bool <a href='#SkPixmap_extractSubset'>extractSubset</a>(<a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>* subset, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& area) const;
     const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& <a href='#SkPixmap_info'>info()</a> const;
