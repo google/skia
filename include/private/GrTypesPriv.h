@@ -825,11 +825,19 @@ enum class GrInternalSurfaceFlags {
     kNone                           = 0,
 
     // Surface-level
+
     kNoPendingIO                    = 1 << 0,
 
     kSurfaceMask                    = kNoPendingIO,
 
-    // RT-only
+    // Texture-level
+
+    // Means the pixels in the texture are read-only. Cannot also be a GrRenderTarget[Proxy].
+    kReadOnly                       = 1 << 1,
+
+    kTextureMask                    = kReadOnly,
+
+    // RT-level
 
     // For internal resources:
     //    this is enabled whenever MSAA is enabled and GrCaps reports mixed samples are supported

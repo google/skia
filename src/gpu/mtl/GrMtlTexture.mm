@@ -28,11 +28,15 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus,
+                           GrIOType ioType,
                            bool purgeImmediately)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    if (ioType == kRead_GrIOType) {
+        this->setReadOnly();
+    }
     this->registerWithCacheWrapped(purgeImmediately);
 }
 
@@ -63,6 +67,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
                                                      const GrSurfaceDesc& desc,
                                                      id<MTLTexture> texture,
+                                                     GrIOType ioType,
                                                      bool purgeImmediately) {
     if (desc.fSampleCnt > 1) {
         SkASSERT(false); // Currently we don't support msaa
@@ -72,7 +77,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     SkASSERT(MTLTextureUsageShaderRead & texture.usage);
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
                                                                  : GrMipMapsStatus::kNotAllocated;
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus,
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus, ioType,
                                                 purgeImmediately));
 }
 

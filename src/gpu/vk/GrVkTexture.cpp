@@ -41,12 +41,16 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership,
+                         GrIOType ioType,
                          bool purgeImmediately)
         : GrSurface(gpu, desc)
         , GrVkImage(info, std::move(layout), ownership)
         , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
+    if (ioType == kRead_GrIOType) {
+        this->setReadOnly();
+    }
     this->registerWithCacheWrapped(purgeImmediately);
 }
 
@@ -92,6 +96,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
                                                    const GrSurfaceDesc& desc,
                                                    GrWrapOwnership wrapOwnership,
+                                                   GrIOType ioType,
                                                    bool purgeImmediately,
                                                    const GrVkImageInfo& info,
                                                    sk_sp<GrVkImageLayout> layout) {
@@ -111,7 +116,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
     GrBackendObjectOwnership ownership = kBorrow_GrWrapOwnership == wrapOwnership
             ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, info, std::move(layout),
-                                              imageView, mipMapsStatus, ownership,
+                                              imageView, mipMapsStatus, ownership, ioType,
                                               purgeImmediately));
 }
 

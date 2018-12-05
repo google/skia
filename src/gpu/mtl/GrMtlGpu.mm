@@ -338,7 +338,8 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                                GrWrapOwnership ownership, bool purgeImmediately) {
+                                                GrWrapOwnership ownership, GrIOType ioType,
+                                                bool purgeImmediately) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex, ownership);
     if (!mtlTexture) {
         return nullptr;
@@ -347,7 +348,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
     GrSurfaceDesc surfDesc;
     init_surface_desc(&surfDesc, mtlTexture, false, backendTex.config());
 
-    return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, purgeImmediately);
+    return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, ioType, purgeImmediately);
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,

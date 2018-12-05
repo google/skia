@@ -415,8 +415,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
                                                           GrSurfaceOrigin origin,
                                                           GrWrapOwnership ownership,
+                                                          GrIOType ioType,
                                                           ReleaseProc releaseProc,
                                                           ReleaseContext releaseCtx) {
+    SkASSERT(ioType != kWrite_GrIOType);
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -426,7 +428,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership);
+    sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType);
     if (!tex) {
         return nullptr;
     }

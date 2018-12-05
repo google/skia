@@ -21,8 +21,8 @@ public:
                                                 MTLTextureDescriptor*,
                                                 GrMipMapsStatus);
 
-    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&,
-                                                  id<MTLTexture>, bool purgeImmediately);
+    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>,
+                                                  GrIOType, bool purgeImmediately);
 
     ~GrMtlTexture() override;
 
@@ -65,7 +65,7 @@ private:
                  GrMipMapsStatus);
 
     GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus,
-                 bool purgeImmediately);
+                 GrIOType, bool purgeImmediately);
 
     id<MTLTexture> fTexture;
 

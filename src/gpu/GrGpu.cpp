@@ -145,7 +145,9 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budg
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            GrWrapOwnership ownership,
+                                           GrIOType ioType,
                                            bool purgeImmediately) {
+    SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
@@ -154,7 +156,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-    return this->onWrapBackendTexture(backendTex, ownership, purgeImmediately);
+    return this->onWrapBackendTexture(backendTex, ownership, ioType, purgeImmediately);
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -214,7 +216,13 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                         bool canDiscardOutsideDstRect) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
+
+    if (dst->readOnly()) {
+        return false;
+    }
+
     this->handleDirtyContext();
+
     return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
                                canDiscardOutsideDstRect);
 }
@@ -239,6 +247,11 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
 bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int height,
                         GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(surface);
+
+    if (surface->readOnly()) {
+        return false;
+    }
+
     if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -271,7 +284,12 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,
                            GrColorType bufferColorType, GrBuffer* transferBuffer, size_t offset,
                            size_t rowBytes) {
+    SkASSERT(texture);
     SkASSERT(transferBuffer);
+
+    if (texture->readOnly()) {
+        return false;
+    }
 
     // We require that the write region is contained in the texture
     SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -298,6 +316,9 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
     SkASSERT(texture->texturePriv().mipMapped() == GrMipMapped::kYes);
     SkASSERT(texture->texturePriv().mipMapsAreDirty());
     SkASSERT(!texture->asRenderTarget() || !texture->asRenderTarget()->needsResolve());
+    if (texture->readOnly()) {
+        return false;
+    }
     if (this->onRegenerateMipMapLevels(texture)) {
         texture->texturePriv().markMipMapsClean();
         return true;
@@ -314,6 +335,7 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
 void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                               uint32_t mipLevels) const {
     SkASSERT(surface);
+    SkASSERT(!surface->readOnly());
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
         if (GrRenderTarget* target = surface->asRenderTarget()) {
