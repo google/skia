@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fcd6454f_2fe112da",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-05T20:09:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43b85bd4_9c95d72f",
+      "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "512c4772_cde66c06",
         "filename": "include/core/SkPaint.h",
         "patchSetId": 1
@@ -51,6 +69,24 @@
       "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5937a5fe_eada1552",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-05T20:09:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0244697_af8668da",
+      "revId": "54f09daa461d526f4494aefa20ff72e8b728f502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
