@@ -8,28 +8,19 @@
 #ifndef SkFontTypes_DEFINED
 #define SkFontTypes_DEFINED
 
-#include "SkScalar.h"
-#include "SkTypeface.h"
+#include "SkTypes.h"
 
-#ifdef SK_SUPPORT_LEGACY_TEXTENCODINGENUM
-enum SkTextEncoding : uint8_t {
-    kUTF8_SkTextEncoding,
-    kUTF16_SkTextEncoding,
-    kUTF32_SkTextEncoding,
-    kGlyphID_SkTextEncoding,
-};
-#else
 enum class SkTextEncoding {
-    kUTF8,
-    kUTF16,
-    kUTF32,
-    kGlyphID,
+    kUTF8,      //!< uses bytes to represent UTF-8 or ASCII
+    kUTF16,     //!< uses two byte words to represent most of Unicode
+    kUTF32,     //!< uses four byte words to represent all of Unicode
+    kGlyphID,   //!< uses two byte words to represent glyph indices
 };
+
 #define kUTF8_SkTextEncoding    SkTextEncoding::kUTF8
 #define kUTF16_SkTextEncoding   SkTextEncoding::kUTF16
 #define kUTF32_SkTextEncoding   SkTextEncoding::kUTF32
 #define kGlyphID_SkTextEncoding SkTextEncoding::kGlyphID
-#endif
 
 enum class SkFontHinting {
     kNone,      //!< glyph outlines unchanged

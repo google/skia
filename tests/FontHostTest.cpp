@@ -96,7 +96,7 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypef
 
         SkPaint paint;
         paint.setTypeface(face);
-        paint.setTextEncoding((SkTextEncoding)test.typefaceEncoding);
+        paint.setTextEncoding(static_cast<SkTextEncoding>(test.typefaceEncoding));
         paint.textToGlyphs(test.chars, test.charsByteLength, paintGlyphIds);
 
         face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
