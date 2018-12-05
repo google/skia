@@ -26,7 +26,7 @@ fonts and text rendering are used by run.
     uint16_t glyphs[len];
     SkPaint paint;
     paint.textToGlyphs(bunny, len, glyphs);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     SkFont font;
     int runs[] = { 3, 1, 3 };
     SkPoint textPos = { 20, 50 };
@@ -65,7 +65,7 @@ for (int index = 0; index < 2; ++index) {
     uint16_t glyphs[len];
     SkPaint paint;
     paint.textToGlyphs(bunny, len, glyphs);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     paint.setTextScaleX(0.5);
     SkFont font;
     font.setScaleX(0.5);
@@ -101,7 +101,7 @@ for (int index = 0; index < 2; ++index) {
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
-Creates Text_Blob with a single run. text meaning depends on Paint_Text_Encoding;
+Creates Text_Blob with a single run. text meaning depends on Text_Encoding;
 by default, text is encoded as UTF-8.
 
 font contains attributes used to define the run text: #paint_font_metrics#.

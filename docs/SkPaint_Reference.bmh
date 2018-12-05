@@ -3041,7 +3041,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#Method TextEncoding getTextEncoding() const
+#Method SkTextEncoding getTextEncoding() const
 
 #In Text_Encoding
 #Line # returns character or glyph encoded size ##
@@ -3064,7 +3064,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 
-#Method void setTextEncoding(TextEncoding encoding)
+#Method void setTextEncoding(SkTextEncoding encoding)
 
 #In Text_Encoding
 #Line # sets character or glyph encoded size ##
@@ -3072,8 +3072,8 @@ void draw(SkCanvas* canvas) {
 
 #Example
         SkPaint paint;
-        paint.setTextEncoding((SkPaint::TextEncoding) 4);
-        SkDebugf("4 %c= text encoding\n", (SkPaint::TextEncoding) 4 == paint.getTextEncoding() ? '=' : '!');
+        paint.setTextEncoding((SkTextEncoding) 4);
+        SkDebugf("4 %c= text encoding\n", (SkTextEncoding) 4 == paint.getTextEncoding() ? '=' : '!');
 
         #StdOut
             4 != text encoding
