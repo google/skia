@@ -36,7 +36,7 @@ class <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> {
 
     static constexpr int <a href='#SkMatrix_kMScaleX'>kMScaleX</a> = 0    static constexpr int <a href='#SkMatrix_kMSkewX'>kMSkewX</a> = 1    static constexpr int <a href='#SkMatrix_kMTransX'>kMTransX</a> = 2    static constexpr int <a href='#SkMatrix_kMSkewY'>kMSkewY</a> = 3    static constexpr int <a href='#SkMatrix_kMScaleY'>kMScaleY</a> = 4    static constexpr int <a href='#SkMatrix_kMTransY'>kMTransY</a> = 5    static constexpr int <a href='#SkMatrix_kMPersp0'>kMPersp0</a> = 6    static constexpr int <a href='#SkMatrix_kMPersp1'>kMPersp1</a> = 7    static constexpr int <a href='#SkMatrix_kMPersp2'>kMPersp2</a> = 8    static constexpr int <a href='#SkMatrix_kAScaleX'>kAScaleX</a> = 0    static constexpr int <a href='#SkMatrix_kASkewY'>kASkewY</a> = 1    static constexpr int <a href='#SkMatrix_kASkewX'>kASkewX</a> = 2    static constexpr int <a href='#SkMatrix_kAScaleY'>kAScaleY</a> = 3    static constexpr int <a href='#SkMatrix_kATransX'>kATransX</a> = 4    static constexpr int <a href='#SkMatrix_kATransY'>kATransY</a> = 5
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_array1_operator'>operator[]</a>(int index) const;
-    <a href='undocumented#SkScalar'>SkScalar</a> get(int index) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_get'>get</a>(int index) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getScaleX'>getScaleX</a>() const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getScaleY'>getScaleY</a>() const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getSkewY'>getSkewY</a>() const;
@@ -46,7 +46,7 @@ class <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> {
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getPerspX'>getPerspX</a>() const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkMatrix_getPerspY'>getPerspY</a>() const;
     <a href='undocumented#SkScalar'>SkScalar</a>& <a href='#SkMatrix_array1_operator'>operator[]</a>(int index);
-    void set(int index, <a href='undocumented#SkScalar'>SkScalar</a> value);
+    void <a href='#SkMatrix_set'>set</a>(int index, <a href='undocumented#SkScalar'>SkScalar</a> value);
     void <a href='#SkMatrix_setScaleX'>setScaleX</a>(<a href='undocumented#SkScalar'>SkScalar</a> v);
     void <a href='#SkMatrix_setScaleY'>setScaleY</a>(<a href='undocumented#SkScalar'>SkScalar</a> v);
     void <a href='#SkMatrix_setSkewY'>setSkewY</a>(<a href='undocumented#SkScalar'>SkScalar</a> v);
