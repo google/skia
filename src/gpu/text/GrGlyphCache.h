@@ -31,11 +31,10 @@ public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
     ~GrTextStrike();
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                      SkGlyphCache* cache) {
+    GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
-            glyph = this->generateGlyph(skGlyph, packed, cache);
+            glyph = this->generateGlyph(skGlyph, packed);
         }
         return glyph;
     }
@@ -53,7 +52,7 @@ public:
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
             const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
-            glyph = this->generateGlyph(skGlyph, packed, cache);
+            glyph = this->generateGlyph(skGlyph, packed);
             glyph->fMaskFormat = expectedMaskFormat;
         }
         return glyph;
@@ -98,7 +97,7 @@ private:
                                         GrGlyph::UnpackFixedY(id));
     }
 
-    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID, SkGlyphCache*);
+    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID);
 
     friend class GrGlyphCache;
 };

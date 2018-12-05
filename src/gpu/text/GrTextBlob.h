@@ -429,7 +429,7 @@ private:
                          const sk_sp<GrTextStrike>& strike,
                          const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
                          SkPoint origin,
-                         const SkPMColor4f& color, SkGlyphCache* skGlyphCache,
+                         const SkPMColor4f& color,
                          SkScalar textRatio, bool needsTransform);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
