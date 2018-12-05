@@ -837,6 +837,9 @@ static bool get_yuva_config(VkFormat vkFormat, GrPixelConfig* config) {
     case VK_FORMAT_R8G8B8_UNORM:
         *config = kRGB_888_GrPixelConfig;
         break;
+    case VK_FORMAT_R8G8_UNORM:
+        *config = kRG_88_GrPixelConfig;
+        break;
     case VK_FORMAT_B8G8R8A8_UNORM:
         *config = kBGRA_8888_GrPixelConfig;
         break;
