@@ -215,10 +215,11 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.rect(90, 10, 20, 20);
                     ctx.resetTransform();
 
+                    ctx.save();
                     ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
                     ctx.rect(110, 10, 20, 20);
                     ctx.lineTo(110, 0);
-                    ctx.resetTransform();
+                    ctx.restore();
                     ctx.lineTo(220, 120);
 
                     ctx.scale(3.0, 3.0);
@@ -246,46 +247,59 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         it('properly saves and restores states, even when drawing shadows', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 multipleCanvasTest('shadows_and_save_restore', done, (canvas) => {
-                  let ctx = canvas.getContext('2d');
-                  ctx.strokeStyle = '#000';
-                  ctx.fillStyle = '#CCC';
-                  ctx.shadowColor = 'rebeccapurple';
-                  ctx.shadowBlur = 1;
-                  ctx.shadowOffsetX = 3;
-                  ctx.shadowOffsetY = -8;
-                  ctx.rect(10, 10, 30, 30);
+                    let ctx = canvas.getContext('2d');
+                    ctx.strokeStyle = '#000';
+                    ctx.fillStyle = '#CCC';
+                    ctx.shadowColor = 'rebeccapurple';
+                    ctx.shadowBlur = 1;
+                    ctx.shadowOffsetX = 3;
+                    ctx.shadowOffsetY = -8;
+                    ctx.rect(10, 10, 30, 30);
 
-                  ctx.save();
-                  ctx.strokeStyle = '#C00';
-                  ctx.fillStyle = '#00C';
-                  ctx.shadowBlur = 0;
-                  ctx.shadowColor = 'transparent';
+                    ctx.save();
+                    ctx.strokeStyle = '#C00';
+                    ctx.fillStyle = '#00C';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowColor = 'transparent';
 
-                  ctx.stroke();
+                    ctx.stroke();
 
-                  ctx.restore();
-                  ctx.fill();
+                    ctx.restore();
+                    ctx.fill();
 
-                  ctx.beginPath();
-                  ctx.moveTo(36, 148);
-                  ctx.quadraticCurveTo(66, 188, 120, 136);
-                  ctx.closePath();
-                  ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(36, 148);
+                    ctx.quadraticCurveTo(66, 188, 120, 136);
+                    ctx.closePath();
+                    ctx.stroke();
 
-                  ctx.beginPath();
-                  ctx.shadowColor = '#993366AA';
-                  ctx.shadowOffsetX = 8;
-                  ctx.shadowBlur = 5;
-                  ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
-                  ctx.rect(110, 10, 20, 20);
-                  ctx.lineTo(110, 0);
-                  ctx.resetTransform();
-                  ctx.lineTo(220, 120);
-                  ctx.stroke();
+                    ctx.beginPath();
+                    ctx.shadowColor = '#993366AA';
+                    ctx.shadowOffsetX = 8;
+                    ctx.shadowBlur = 5;
+                    ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
+                    ctx.rect(110, 10, 20, 20);
+                    ctx.lineTo(110, 0);
+                    ctx.resetTransform();
+                    ctx.lineTo(220, 120);
+                    ctx.stroke();
 
-                  ctx.fillStyle = 'green';
-                  ctx.font = '16pt Arial';
-                  ctx.fillText('This should be shadowed', 20, 80);
+                    ctx.fillStyle = 'green';
+                    ctx.font = '16pt Arial';
+                    ctx.fillText('This should be shadowed', 20, 80);
+
+                    ctx.beginPath();
+                    ctx.lineWidth = 6;
+                    ctx.ellipse(10, 290, 30, 30, 0, 0, Math.PI * 2);
+                    ctx.scale(2, 1);
+                    ctx.moveTo(10, 290)
+                    ctx.ellipse(10, 290, 30, 60, 0, 0, Math.PI * 2);
+                    ctx.resetTransform();
+                    ctx.shadowColor = '#993366AA';
+                    ctx.scale(3, 1);
+                    ctx.moveTo(10, 290)
+                    ctx.ellipse(10, 290, 30, 90, 0, 0, Math.PI * 2);
+                    ctx.stroke();
                 });
             }));
         });
