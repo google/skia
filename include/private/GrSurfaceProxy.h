@@ -367,7 +367,8 @@ public:
 
     /**
      * The pixel values of this proxy's surface cannot be modified (e.g. doesn't support write
-     * pixels or MIP map level regen),
+     * pixels or MIP map level regen). Read-only proxies also bypass interval tracking and
+     * assignment in GrResourceAllocator.
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
