@@ -13,7 +13,7 @@ Skia][1].  Here is how that process works:
 
     Open the resulting URL in a browser and download the resulting `meta.json` file.
 
-        tools/skqp/sysopen.py $(tools/skqp/get_gold_export_url.py HEAD~10 HEAD)
+        bin/sysopen $(tools/skqp/get_gold_export_url.py HEAD~10 HEAD)
 
 2.  From a checkout of Skia's master branch, execute:
 
@@ -36,7 +36,7 @@ Skia][1].  Here is how that process works:
     Review and submit the change:
 
         git push origin HEAD:refs/for/skqp/dev
-        tools/skqp/sysopen.py https://review.skia.org/$(bin/gerrit-number HEAD)
+        bin/sysopen https://review.skia.org/$(bin/gerrit-number HEAD)
 
 
 `tools/skqp/cut_release`

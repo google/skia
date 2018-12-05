@@ -69,17 +69,10 @@ adb pull "${ODIR}" "${TDIR}/${odir_basename}"
 
 REPORT="${TDIR}/${odir_basename}/report.html"
 
-open_file() {
-    case "$(uname)" in
-        Linux) [ "$DISPLAY" ] && xdg-open "$@" > /dev/null 2>&1 & ;;
-        Darwin) open "$@" & ;;
-    esac
-}
-
 if [ -f "$REPORT" ]; then
     grep 'f(.*;' "$REPORT"
     echo "$REPORT"
-    open_file "$REPORT"
+    "$(dirname "$0")"/../../bin/sysopen "$REPORT"
 else
     echo "$TDIR"
 fi

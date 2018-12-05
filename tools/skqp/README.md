@@ -65,7 +65,7 @@ How to build and run the SkQP tests
 
         OUTPUT_LOCATION="/storage/emulated/0/Android/data/org.skia.skqp/files/output"
         adb pull $OUTPUT_LOCATION /tmp/
-        tools/skqp/sysopen.py /tmp/output/skqp_report/report.html
+        bin/sysopen /tmp/output/skqp_report/report.html
 
 Running a single test
 ---------------------
