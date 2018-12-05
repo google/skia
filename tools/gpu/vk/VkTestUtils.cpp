@@ -31,7 +31,7 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
 #if defined _WIN32
         vkLib = DynamicLoadLibrary("vulkan-1.dll");
 #else
-        vkLib = DynamicLoadLibrary("libvulkan.so");
+        vkLib = DynamicLoadLibrary("libvulkan.so.1");
 #endif
         if (!vkLib) {
             return false;
