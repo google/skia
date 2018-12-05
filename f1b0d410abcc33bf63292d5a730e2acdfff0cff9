@@ -99,6 +99,24 @@
       "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e76f6d_37c1e3e0",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-05T16:30:16Z",
+      "side": 1,
+      "message": "Nope. That\u0027s a nice idea, but we have never drawn text in that way.",
+      "parentUuid": "f4847bd5_b4f6ba82",
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
