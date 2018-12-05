@@ -5189,7 +5189,6 @@ DEF_TEST(Path_setLastPt, r) {
     REPORTER_ASSERT(r, p.getBounds() == SkRect::MakeLTRB(0,0, 30,10));  // was {0,0, 20,61}
 
     REPORTER_ASSERT(r, p.isValid());
-    REPORTER_ASSERT(r, p.pathRefIsValid());
 }
 
 DEF_TEST(Path_increserve_handle_neg_crbug_883666, r) {
