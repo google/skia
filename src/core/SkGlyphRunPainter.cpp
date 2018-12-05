@@ -616,14 +616,14 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
                                   const sk_sp<GrTextStrike>& strike,
                                   const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
                                   SkPoint origin,
-                                  const SkPMColor4f& color4f, SkGlyphCache* skGlyphCache,
+                                  const SkPMColor4f& color4f,
                                   SkScalar textRatio, bool needsTransform) {
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
                                          skGlyph.getSubYFixed(),
                                          maskStyle);
-    GrGlyph* glyph = strike->getGlyph(skGlyph, id, skGlyphCache);
+    GrGlyph* glyph = strike->getGlyph(skGlyph, id);
     if (!glyph) {
         return;
     }
@@ -686,8 +686,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
                 fRun->appendGlyph(fBlob, strike, glyph,
                                  GrGlyph::kCoverage_MaskStyle,
-                                 *glyphPos, fFilteredColor,
-                                 fallbackCache.get(), textScale, needsTransform);
+                                 *glyphPos, fFilteredColor, textScale, needsTransform);
                 glyphPos++;
             }
         }
@@ -734,12 +733,11 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
                 auto perSDF =
-                    [this, run, &currStrike, &filteredColor, cache{cache.get()}, textScale]
+                    [this, run, &currStrike, &filteredColor, textScale]
                     (const SkGlyph& glyph, SkPoint position) {
                         run->appendGlyph(this, currStrike,
                                     glyph, GrGlyph::kDistance_MaskStyle, position,
-                                    filteredColor,
-                                    cache, textScale, true);
+                                    filteredColor, textScale, true);
                     };
 
                 auto perPath =
@@ -802,13 +800,13 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
             auto perGlyph =
-                [this, run, &currStrike, &filteredColor, cache{cache.get()}]
+                [this, run, &currStrike, &filteredColor]
                 (const SkGlyph& glyph, SkPoint mappedPt) {
                     SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
                                SkScalarFloorToScalar(mappedPt.fY)};
                     run->appendGlyph(this, currStrike,
                                      glyph, GrGlyph::kCoverage_MaskStyle, pt,
-                                     filteredColor, cache, SK_Scalar1, false);
+                                     filteredColor, SK_Scalar1, false);
                 };
 
             auto perPath =

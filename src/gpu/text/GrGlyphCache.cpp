@@ -200,13 +200,9 @@ GrTextStrike::~GrTextStrike() {
     }
 }
 
-GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed,
-                                     SkGlyphCache* cache) {
+GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed) {
     SkIRect bounds;
 
-    // crbug:510931
-    // Retrieving the image from the cache can actually change the mask format.
-    cache->findImage(skGlyph);
     bounds.setXYWH(skGlyph.fLeft, skGlyph.fTop, skGlyph.fWidth, skGlyph.fHeight);
 
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
