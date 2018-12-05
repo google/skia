@@ -21,7 +21,7 @@ class <a href='SkPath_Reference#SkPath'>SkPath</a> {
     friend bool <a href='#SkPath_equal_operator'>operator==</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
     friend bool <a href='#SkPath_notequal_operator'>operator!=</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& a, const <a href='SkPath_Reference#SkPath'>SkPath</a>& b);
     bool <a href='#SkPath_isInterpolatable'>isInterpolatable</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& compare) const;
-    bool interpolate(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out) const;
+    bool <a href='#SkPath_interpolate'>interpolate</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& ending, <a href='undocumented#SkScalar'>SkScalar</a> weight, <a href='SkPath_Reference#SkPath'>SkPath</a>* out) const;
 
     enum <a href='#SkPath_FillType'>FillType</a> {
         <a href='#SkPath_kWinding_FillType'>kWinding_FillType</a>,
@@ -142,10 +142,10 @@ class <a href='SkPath_Reference#SkPath'>SkPath</a> {
     <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_addPath'>addPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>,
                     <a href='#SkPath_AddPathMode'>AddPathMode</a> mode = <a href='#SkPath_kAppend_AddPathMode'>kAppend_AddPathMode</a>);
     <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='#SkPath_reverseAddPath'>reverseAddPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src);
-    void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const;
-    void offset(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
-    void transform(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const;
-    void transform(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>);
+    void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const;
+    void <a href='#SkPath_offset'>offset</a>(<a href='undocumented#SkScalar'>SkScalar</a> dx, <a href='undocumented#SkScalar'>SkScalar</a> dy);
+    void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const;
+    void <a href='#SkPath_transform'>transform</a>(const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& <a href='SkMatrix_Reference#Matrix'>matrix</a>);
     bool <a href='#SkPath_getLastPt'>getLastPt</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a>* lastPt) const;
     void <a href='#SkPath_setLastPt'>setLastPt</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y);
     void <a href='#SkPath_setLastPt'>setLastPt</a>(const <a href='SkPoint_Reference#SkPoint'>SkPoint</a>& p);
@@ -169,7 +169,7 @@ class <a href='SkPath_Reference#SkPath'>SkPath</a> {
         <a href='#SkPath_kDone_Verb'>kDone_Verb</a>,
     };
 
-    bool contains(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
+    bool <a href='#SkPath_contains'>contains</a>(<a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y) const;
     void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* <a href='SkStream_Reference#Stream'>stream</a>, bool forceClose, bool dumpAsHex) const;
     void <a href='#SkPath_dump'>dump()</a> const;
     void <a href='#SkPath_dumpHex'>dumpHex</a>() const;
@@ -4983,9 +4983,9 @@ true if <a href='SkPath_Reference#SkPath'>SkPath</a> <a href='undocumented#Data'
     class <a href='#SkPath_Iter'>Iter</a> {
 
         <a href='#SkPath_Iter_Iter'>Iter()</a>;
-        <a href='#SkPath_Iter'>Iter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
+        <a href='#SkPath_Iter_Iter'>Iter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
         void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>, bool forceClose);
-        <a href='#SkPath_Verb'>Verb</a> next(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false);
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false);
         <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a>() const;
         bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a>() const;
         bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const;
@@ -5337,9 +5337,9 @@ with close(),    forceClose is true : isClosedContour returns true
     class <a href='#SkPath_RawIter'>RawIter</a> {
 
         <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
-        <a href='#SkPath_RawIter'>RawIter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
+        <a href='#SkPath_RawIter_RawIter'>RawIter</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
         void <a href='#SkPath_RawIter_setPath'>setPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& <a href='SkPath_Reference#Path'>path</a>);
-        <a href='#SkPath_Verb'>Verb</a> next(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4]);
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4]);
         <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek()</a> const;
         <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a>() const;
     };
