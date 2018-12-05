@@ -19,7 +19,7 @@
 
 static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
-    SkASSERT(kGlyphID_SkTextEncoding == (SkTextEncoding)paint.getTextEncoding());
+    SkASSERT(kGlyphID_SkTextEncoding == paint.getTextEncoding());
 
     SkAutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();

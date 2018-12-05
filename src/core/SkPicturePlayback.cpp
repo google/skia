@@ -78,7 +78,7 @@ public:
                     fCount = 0;
                 } else {
                     fCount = SkPaintPriv::ValidCountText(fText, fByteLength,
-                                                         (SkTextEncoding)paint->getTextEncoding());
+                                                         paint->getTextEncoding());
                     reader->validate(fCount > 0);
                 }
             }
