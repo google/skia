@@ -875,12 +875,18 @@ public:
     */
     void setTextSkewX(SkScalar skewX);
 
-    // Experimental
+    /**
+     *  Return the text encoding stored in the paint. Text encoding describes how to interpret
+     *  the text bytes passed to methods that use this paint (e.g. measureText, drawText).
+     */
     SkTextEncoding getTextEncoding() const {
         return (SkTextEncoding)fBitfields.fTextEncoding;
     }
 
-    // Experimental
+    /**
+     *  Set the text encoding stored in the paint. Text encoding describes how to interpret
+     *  the text bytes passed to methods that use this paint (e.g. measureText, drawText).
+     */
     void setTextEncoding(SkTextEncoding encoding);
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
