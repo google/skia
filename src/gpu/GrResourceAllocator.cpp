@@ -77,20 +77,30 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         return;
     }
 
-    Interval* newIntvl;
-    if (fFreeIntervalList) {
-        newIntvl = fFreeIntervalList;
-        fFreeIntervalList = newIntvl->next();
-        newIntvl->setNext(nullptr);
-        newIntvl->resetTo(proxy, start, end);
+    // If a proxy is read only it must refer to a texture with specific content that cannot be
+    // recycled. We don't need to assign a texture to it and no other proxy can be instantiated
+    // with the same texture.
+    if (proxy->readOnly()) {
+        // Since we aren't going to add an interval we won't revisit this proxy in assign(). So it
+        // must already be instantiated or it must be a lazy proxy that we will instantiate below.
+        SkASSERT(proxy->isInstantiated() ||
+                 GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState());
     } else {
-        newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
+        Interval* newIntvl;
+        if (fFreeIntervalList) {
+            newIntvl = fFreeIntervalList;
+            fFreeIntervalList = newIntvl->next();
+            newIntvl->setNext(nullptr);
+            newIntvl->resetTo(proxy, start, end);
+        } else {
+            newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
+        }
+
+        fIntvlList.insertByIncreasingStart(newIntvl);
+        fIntvlHash.add(newIntvl);
     }
 
-    fIntvlList.insertByIncreasingStart(newIntvl);
-    fIntvlHash.add(newIntvl);
-
-    if (!fResourceProvider->explicitlyAllocateGPUResources()) {
+    if (proxy->readOnly() || !fResourceProvider->explicitlyAllocateGPUResources()) {
         // FIXME: remove this once we can do the lazy instantiation from assign instead.
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
             if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
