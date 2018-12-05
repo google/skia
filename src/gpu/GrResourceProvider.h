@@ -98,13 +98,17 @@ public:
     /**
      * Wraps an existing texture with a GrTexture object.
      *
+     * GrIOType must either be kRead or kRW. kRead blocks any operations that would modify the
+     * pixels (e.g. dst for a copy, regenerating MIP levels, write pixels).
+     *
      * OpenGL: if the object is a texture Gr may change its GL texture params
      *         when it is drawn.
      *
      * @return GrTexture object or NULL on failure.
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
-                                        GrWrapOwnership = kBorrow_GrWrapOwnership,
+                                        GrWrapOwnership /* = kBorrow_GrWrapOwnership*/,
+                                        GrIOType,
                                         bool purgeImmediately = false);
 
     /**
