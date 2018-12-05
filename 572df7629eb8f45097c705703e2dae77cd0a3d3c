@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "977931ec_bbbf941e",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T19:02:24Z",
+      "side": 1,
+      "message": "Weak suggestion for moving it here ...",
+      "revId": "572df7629eb8f45097c705703e2dae77cd0a3d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c9670c3_c81409d3",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-05T19:02:24Z",
+      "side": 1,
+      "message": "Is support for this required in Vulkan?",
+      "revId": "572df7629eb8f45097c705703e2dae77cd0a3d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
