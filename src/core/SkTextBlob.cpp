@@ -23,32 +23,11 @@
 #include "text/GrTextBlobCache.h"
 #endif
 
-SkRunFont::SkRunFont(const SkPaint& paint)
-        : fSize(paint.getTextSize())
-        , fScaleX(paint.getTextScaleX())
-        , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
-        , fSkewX(paint.getTextSkewX())
-        , fHinting(static_cast<unsigned>(paint.getHinting()))
-        , fFlags(paint.getFlags() & kFlagsMask) { }
+SkRunFont::SkRunFont(const SkPaint& paint) : SkFont(SkFont::LEGACY_ExtractFromPaint(paint)) {}
 
 void SkRunFont::applyToPaint(SkPaint* paint) const {
+    this->LEGACY_applyToPaint(paint);
     paint->setTextEncoding(kGlyphID_SkTextEncoding);
-    paint->setTypeface(fTypeface);
-    paint->setTextSize(fSize);
-    paint->setTextScaleX(fScaleX);
-    paint->setTextSkewX(fSkewX);
-    paint->setHinting(static_cast<SkFontHinting>(fHinting));
-
-    paint->setFlags((paint->getFlags() & ~kFlagsMask) | fFlags);
-}
-
-bool SkRunFont::operator==(const SkRunFont& other) const {
-    return fTypeface == other.fTypeface
-           && fSize == other.fSize
-           && fScaleX == other.fScaleX
-           && fSkewX == other.fSkewX
-           && fHinting == other.fHinting
-           && fFlags == other.fFlags;
 }
 
 namespace {
@@ -260,7 +239,7 @@ void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
 }
 
 bool SkTextBlobRunIterator::isLCD() const {
-    return SkToBool(fCurrentRun->font().flags() & SkPaint::kLCDRenderText_Flag);
+    return fCurrentRun->font().getEdging() == SkFont::Edging::kSubpixelAntiAlias;
 }
 
 SkTextBlobBuilder::SkTextBlobBuilder()
@@ -326,10 +305,7 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
              SkTextBlob::kHorizontal_Positioning == run.positioning());
 
-    SkPaint paint;
-    run.font().applyToPaint(&paint);
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-    const SkRect fontBounds = SkFontPriv::GetFontBounds(font);
+    const SkRect fontBounds = SkFontPriv::GetFontBounds(run.font());
     if (fontBounds.isEmpty()) {
         // Empty font bounds are likely a font bug.  TightBounds has a better chance of
         // producing useful results in this case.
