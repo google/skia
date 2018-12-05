@@ -69,7 +69,7 @@ Constructs Paint with default values.
 # Path_Effect            # nullptr                  ##
 # Shader                 # nullptr                  ##
 # Style                  # kFill_Style              ##
-# Text_Encoding          # kUTF8_TextEncoding       ##
+# Text_Encoding          # kUTF8_SkTextEncoding     ##
 # Text_Scale_X           # 1                        ##
 # Text_Size              # 12                       ##
 # Text_Skew_X            # 0                        ##
@@ -3043,7 +3043,7 @@ in the total storage required.
 Font_Manager uses font data to convert character code points into glyph indices.
 A glyph index is a 16-bit word.
 
-TextEncoding is set to kUTF8_TextEncoding by default.
+TextEncoding is set to kUTF8_SkTextEncoding by default.
 
 #Const kUTF8_TextEncoding 0
 #Line # uses bytes to represent UTF-8 or ASCII ##
@@ -3075,13 +3075,13 @@ void draw(SkCanvas* canvas) {
     const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };
     paint.setTextSize(24);
     canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);
-    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
+    paint.setTextEncoding(kUTF16_SkTextEncoding);
     canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);
-    paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+    paint.setTextEncoding(kUTF32_SkTextEncoding);
     canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);
     uint16_t glyphs[SK_ARRAY_COUNT(hello32)];
     paint.textToGlyphs(hello32, sizeof(hello32), glyphs);
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
     canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);
 }
 ##
@@ -3094,15 +3094,15 @@ void draw(SkCanvas* canvas) {
 
 #Example
         SkPaint paint;
-        SkDebugf("kUTF8_TextEncoding %c= text encoding\n",
-                SkPaint::kUTF8_TextEncoding == paint.getTextEncoding() ? '=' : '!');
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        SkDebugf("kGlyphID_TextEncoding %c= text encoding\n",
-                SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding() ? '=' : '!');
+        SkDebugf("kUTF8_SkTextEncoding %c= text encoding\n",
+                kUTF8_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');
+        paint.setTextEncoding(kGlyphID_SkTextEncoding);
+        SkDebugf("kGlyphID_SkTextEncoding %c= text encoding\n",
+                kGlyphID_SkTextEncoding == paint.getTextEncoding() ? '=' : '!');
 
         #StdOut
-            kUTF8_TextEncoding == text encoding
-            kGlyphID_TextEncoding == text encoding
+            kUTF8_SkTextEncoding == text encoding
+            kGlyphID_SkTextEncoding == text encoding
         ##
     ##
 
@@ -3198,7 +3198,7 @@ void draw(SkCanvas* canvas) {
             int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);
             glyphs.resize(count);
             (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());
-            paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            paint.setTextEncoding(kGlyphID_SkTextEncoding);
             paint.setTextSize(32);
             canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);
         }
@@ -3237,7 +3237,7 @@ void draw(SkCanvas* canvas) {
         SkPaint paint;
         const uint16_t goodChar = 0x00B0;  // degree symbol
         const uint16_t badChar = 0xD800;   // Unicode surrogate
-        paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
+        paint.setTextEncoding(kUTF16_SkTextEncoding);
         SkDebugf("0x%04x %c= has char\n", goodChar,
                 paint.containsText(&goodChar, 2) ? '=' : '!');
         SkDebugf("0x%04x %c= has char\n", badChar,
@@ -3258,7 +3258,7 @@ void draw(SkCanvas* canvas) {
         const uint16_t goodGlyph = 511;
         const uint16_t zeroGlyph = 0;
         const uint16_t badGlyph = 65535; // larger than glyph count in font
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+        paint.setTextEncoding(kGlyphID_SkTextEncoding);
         SkDebugf("0x%04x %c= has glyph\n", goodGlyph,
                 paint.containsText(&goodGlyph, 2) ? '=' : '!');
         SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,
@@ -3300,7 +3300,7 @@ void draw(SkCanvas* canvas) {
         }
         SkUnichar unichars[count];
         paint.glyphsToUnichars(glyphs, count, unichars);
-        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        paint.setTextEncoding(kUTF32_SkTextEncoding);
         canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);
     }
     ##
