@@ -81,6 +81,24 @@
       "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4847bd5_b4f6ba82",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-05T16:19:05Z",
+      "side": 1,
+      "message": "Don\u0027t all paint effects apply to the entire drawText call at once?  If glyphs overlap and have 50% opacity, what happens?",
+      "parentUuid": "fe733855_aa2207fa",
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
