@@ -7,35 +7,19 @@
 
 #include "SkAutoMalloc.h"
 #include "SkFont.h"
-#include "SkPaint.h"
 #include "Test.h"
 
-static size_t break_text(const SkPaint& paint, const void* text, size_t length, SkScalar maxw,
-                         SkScalar* measuredw, skiatest::Reporter* reporter) {
-    size_t n = paint.breakText(text, length, maxw, measuredw);
-    SkScalar measuredw2;
-    size_t n2 = SkFont::LEGACY_ExtractFromPaint(paint).breakText(text, length,
-                                     (SkTextEncoding)paint.getTextEncoding(), maxw, &measuredw2);
-    REPORTER_ASSERT(reporter, n == n2);
-    if (measuredw) {
-        REPORTER_ASSERT(reporter, *measuredw == measuredw2);
-    }
-    return n;
-}
-
-static void test_monotonic(skiatest::Reporter* reporter,
-                           const SkPaint& paint,
-                           const char* msg) {
+static void test_monotonic(skiatest::Reporter* reporter, const SkFont& font, const char* msg) {
     const char* text = "sdfkljAKLDFJKEWkldfjlk#$%&sdfs.dsj";
     const size_t length = strlen(text);
-    const SkScalar width = paint.measureText(text, length);
+    const SkScalar width = font.measureText(text, length, kUTF8_SkTextEncoding);
 
     SkScalar mm = 0;
     size_t nn = 0;
     const SkScalar step = SkMaxScalar(width / 10, SK_Scalar1);
     for (SkScalar w = 0; w <= width; w += step) {
         SkScalar m;
-        const size_t n = break_text(paint, text, length, w, &m, reporter);
+        const size_t n = font.breakText(text, length, kUTF8_SkTextEncoding, w, &m);
 
         REPORTER_ASSERT(reporter, n <= length, msg);
         REPORTER_ASSERT(reporter, m <= width, msg);
@@ -56,44 +40,41 @@ static void test_monotonic(skiatest::Reporter* reporter,
     }
 }
 
-static void test_eq_measure_text(skiatest::Reporter* reporter,
-                                 const SkPaint& paint,
+static void test_eq_measure_text(skiatest::Reporter* reporter, const SkFont& font,
                                  const char* msg) {
     const char* text = "The ultimate measure of a man is not where he stands in moments of comfort "
         "and convenience, but where he stands at times of challenge and controversy.";
     const size_t length = strlen(text);
-    const SkScalar width = paint.measureText(text, length);
+    const SkScalar width = font.measureText(text, length, kUTF8_SkTextEncoding);
 
     SkScalar mm;
-    const size_t length2 = break_text(paint, text, length, width, &mm, reporter);
+    const size_t length2 = font.breakText(text, length, kUTF8_SkTextEncoding, width, &mm);
     REPORTER_ASSERT(reporter, length2 == length, msg);
     REPORTER_ASSERT(reporter, mm == width, msg);
 }
 
-static void test_long_text(skiatest::Reporter* reporter,
-                           const SkPaint& paint,
-                           const char* msg) {
+static void test_long_text(skiatest::Reporter* reporter, const SkFont& font, const char* msg) {
     static const int kSize = 16 * 1024;
     SkAutoMalloc block(kSize);
     memset(block.get(), 'a', kSize - 1);
     char* text = static_cast<char*>(block.get());
     text[kSize - 1] = '\0';
-    const SkScalar width = paint.measureText(text, kSize);
+    const SkScalar width = font.measureText(text, kSize, kUTF8_SkTextEncoding);
 
     SkScalar mm;
-    const size_t length = break_text(paint, text, kSize, width, &mm, reporter);
+    const size_t length = font.breakText(text, kSize, kUTF8_SkTextEncoding, width, &mm);
     REPORTER_ASSERT(reporter, length == kSize, msg);
     REPORTER_ASSERT(reporter, mm == width, msg);
 }
 
 DEF_TEST(PaintBreakText, reporter) {
-    SkPaint paint;
-    test_monotonic(reporter, paint, "default");
-    test_eq_measure_text(reporter, paint, "default");
-    test_long_text(reporter, paint, "default");
-    paint.setTextSize(SkIntToScalar(1 << 17));
-    test_monotonic(reporter, paint, "huge text size");
-    test_eq_measure_text(reporter, paint, "huge text size");
-    paint.setTextSize(0);
-    test_monotonic(reporter, paint, "zero text size");
+    SkFont font;
+    test_monotonic(reporter, font, "default");
+    test_eq_measure_text(reporter, font, "default");
+    test_long_text(reporter, font, "default");
+    font.setSize(SkIntToScalar(1 << 17));
+    test_monotonic(reporter, font, "huge text size");
+    test_eq_measure_text(reporter, font, "huge text size");
+    font.setSize(0);
+    test_monotonic(reporter, font, "zero text size");
 }
