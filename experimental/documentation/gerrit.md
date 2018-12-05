@@ -69,7 +69,7 @@ Creating a Change
 
 5.  Open in web browser:
 
-        echo https://skia-review.googlesource.com/c/skia/+/$(bin/gerrit-number @)
+        bin/sysopen https://skia-review.googlesource.com/c/skia/+/$(bin/gerrit-number @)
 
 Updating a Change
 -----------------
