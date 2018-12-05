@@ -802,7 +802,7 @@ void GrVkGpuRTCommandBuffer::executeDrawable(std::unique_ptr<SkDrawable::GpuDraw
     GrVkDrawableInfo vkInfo;
     vkInfo.fSecondaryCommandBuffer = cbInfo.currentCmdBuf()->vkCommandBuffer();
     vkInfo.fCompatibleRenderPass = cbInfo.fRenderPass->vkRenderPass();
-    SkAssertResult(cbInfo.fRenderPass->colorAttachmentIndex(&vkInfo.fImageAttachmentIndex));
+    SkAssertResult(cbInfo.fRenderPass->colorAttachmentIndex(&vkInfo.fColorAttachmentIndex));
     vkInfo.fFormat = targetImage->imageFormat();
     vkInfo.fDrawBounds = &bounds;
 

@@ -217,7 +217,6 @@ struct GrVkDrawableInfo {
     VkCommandBuffer fSecondaryCommandBuffer;
     uint32_t        fColorAttachmentIndex;
     VkRenderPass    fCompatibleRenderPass;
-    uint32_t        fImageAttachmentIndex;
     VkFormat        fFormat;
     VkRect2D*       fDrawBounds;
 };
