@@ -15,7 +15,7 @@ class <a href='SkPicture_Reference#SkPicture'>SkPicture</a> : public <a href='un
                                          const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkPicture_Reference#SkPicture'>SkPicture</a>> <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const void* <a href='undocumented#Data'>data</a>, size_t <a href='undocumented#Size'>size</a>,
                                          const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr);
-    virtual void playback(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0;
+    virtual void <a href='#SkPicture_playback'>playback</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='SkCanvas_Reference#Canvas'>canvas</a>, <a href='#SkPicture_AbortCallback'>AbortCallback</a>* callback = nullptr) const = 0;
     virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0;
     uint32_t <a href='#SkPicture_uniqueID'>uniqueID</a>() const;
     <a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkData'>SkData</a>> <a href='#SkPicture_serialize'>serialize</a>(const <a href='undocumented#SkSerialProcs'>SkSerialProcs</a>* procs = nullptr) const;

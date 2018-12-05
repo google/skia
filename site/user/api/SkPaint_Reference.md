@@ -146,7 +146,6 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
 
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
-    <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>() const;
     int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength,
                      <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[]) const;
     bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const;
@@ -4405,39 +4404,6 @@ number of intersections; may be zero
 ### Example
 
 <div><fiddle-embed name="728ea9089f233a71a1062e364b8c73fa"></fiddle-embed></div>
-
-<a name='SkPaint_getFontBounds'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPaint_getFontBounds'>getFontBounds</a>()const
-</pre>
-
-Returns the union of bounds of all <a href='undocumented#Glyph'>glyphs</a>.
-Returned dimensions are computed by <a href='SkFont_Reference#Font'>font</a> manager from <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a>,
-ignoring <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting. Includes <a href='SkFont_Reference#Font'>font</a> metrics, but not fake bold or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-
-If <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> is large, <a href='undocumented#Text'>text</a> scale is one, and <a href='undocumented#Text'>text</a> skew is zero,
-returns the bounds as:
-{ <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fXMin'>fXMin</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fTop'>fTop</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fXMax'>fXMax</a>, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>::<a href='#SkFontMetrics_fBottom'>fBottom</a> }.
-
-### Return Value
-
-union of bounds of all <a href='undocumented#Glyph'>glyphs</a>
-
-### Example
-
-<div><fiddle-embed name="f29d005a75efd4746c6744004a0cb421">
-
-#### Example Output
-
-~~~~
-metrics bounds = { -12.2461, -14.7891, 21.5215, 5.55469 }
-font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
-~~~~
-
-</fiddle-embed></div>
 
 <a name='SkPaint_nothingToDraw'></a>
 
