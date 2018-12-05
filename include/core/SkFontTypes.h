@@ -9,6 +9,8 @@
 #define SkFontTypes_DEFINED
 
 #include "SkTypes.h"
+// remove me once google3 uses IWYU
+#include "SkTypeface.h"
 
 enum class SkTextEncoding {
     kUTF8,      //!< uses bytes to represent UTF-8 or ASCII
