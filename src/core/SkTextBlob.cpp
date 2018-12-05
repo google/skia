@@ -23,32 +23,11 @@
 #include "text/GrTextBlobCache.h"
 #endif
 
-SkRunFont::SkRunFont(const SkPaint& paint)
-        : fSize(paint.getTextSize())
-        , fScaleX(paint.getTextScaleX())
-        , fTypeface(SkPaintPriv::RefTypefaceOrDefault(paint))
-        , fSkewX(paint.getTextSkewX())
-        , fHinting(static_cast<unsigned>(paint.getHinting()))
-        , fFlags(paint.getFlags() & kFlagsMask) { }
+SkRunFont::SkRunFont(const SkPaint& paint) : SkFont(SkFont::LEGACY_ExtractFromPaint(paint)) {}
 
 void SkRunFont::applyToPaint(SkPaint* paint) const {
+    this->LEGACY_applyToPaint(paint);
     paint->setTextEncoding(kGlyphID_SkTextEncoding);
-    paint->setTypeface(fTypeface);
-    paint->setTextSize(fSize);
-    paint->setTextScaleX(fScaleX);
-    paint->setTextSkewX(fSkewX);
-    paint->setHinting(static_cast<SkFontHinting>(fHinting));
-
-    paint->setFlags((paint->getFlags() & ~kFlagsMask) | fFlags);
-}
-
-bool SkRunFont::operator==(const SkRunFont& other) const {
-    return fTypeface == other.fTypeface
-           && fSize == other.fSize
-           && fScaleX == other.fScaleX
-           && fSkewX == other.fSkewX
-           && fHinting == other.fHinting
-           && fFlags == other.fFlags;
 }
 
 namespace {
@@ -260,7 +239,7 @@ void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
 }
 
 bool SkTextBlobRunIterator::isLCD() const {
-    return SkToBool(fCurrentRun->font().flags() & SkPaint::kLCDRenderText_Flag);
+    return fCurrentRun->font().getEdging() == SkFont::Edging::kSubpixelAntiAlias;
 }
 
 SkTextBlobBuilder::SkTextBlobBuilder()
@@ -326,10 +305,7 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
     SkASSERT(SkTextBlob::kFull_Positioning == run.positioning() ||
              SkTextBlob::kHorizontal_Positioning == run.positioning());
 
-    SkPaint paint;
-    run.font().applyToPaint(&paint);
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-    const SkRect fontBounds = SkFontPriv::GetFontBounds(font);
+    const SkRect fontBounds = SkFontPriv::GetFontBounds(run.font());
     if (fontBounds.isEmpty()) {
         // Empty font bounds are likely a font bug.  TightBounds has a better chance of
         // producing useful results in this case.
@@ -416,7 +392,7 @@ void SkTextBlobBuilder::reserve(size_t size) {
     fStorage.realloc(safe ? fStorageSize : std::numeric_limits<size_t>::max());
 }
 
-bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioning positioning,
+bool SkTextBlobBuilder::mergeRun(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
                                  uint32_t count, SkPoint offset) {
     if (0 == fLastRun) {
         SkASSERT(0 == fRunCount);
@@ -476,11 +452,11 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
     return true;
 }
 
-void SkTextBlobBuilder::allocInternal(const SkPaint &font,
+void SkTextBlobBuilder::allocInternal(const SkFont& font,
                                       SkTextBlob::GlyphPositioning positioning,
                                       int count, int textSize, SkPoint offset,
                                       const SkRect* bounds) {
-    if (count <= 0 || textSize < 0 || font.getTextEncoding() != kGlyphID_SkTextEncoding) {
+    if (count <= 0 || textSize < 0) {
         fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
         return;
     }
@@ -530,58 +506,52 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRun(const SkFont& font, int count,
                                                                 SkScalar x, SkScalar y,
                                                                 const SkRect* bounds) {
-    SkPaint legacyPaint;
-    font.LEGACY_applyToPaint(&legacyPaint);
-    legacyPaint.setTextEncoding(kGlyphID_SkTextEncoding);
-
-    return this->allocRunText(legacyPaint, count, x, y, 0, SkString(), bounds);
+    this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, 0, {x, y}, bounds);
+    return fCurrentRunBuffer;
 }
 
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPosH(const SkFont& font, int count,
                                                                     SkScalar y,
                                                                     const SkRect* bounds) {
-    SkPaint legacyPaint;
-    font.LEGACY_applyToPaint(&legacyPaint);
-    legacyPaint.setTextEncoding(kGlyphID_SkTextEncoding);
-
-    return this->allocRunTextPosH(legacyPaint, count, y, 0, SkString(), bounds);
+    this->allocInternal(font, SkTextBlob::kHorizontal_Positioning, count, 0, {0, y}, bounds);
+    return fCurrentRunBuffer;
 }
 
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkFont& font, int count,
                                                                    const SkRect* bounds) {
-    SkPaint legacyPaint;
-    font.LEGACY_applyToPaint(&legacyPaint);
-    legacyPaint.setTextEncoding(kGlyphID_SkTextEncoding);
-
-    return this->allocRunTextPos(legacyPaint, count, 0, SkString(), bounds);
+    this->allocInternal(font, SkTextBlob::kFull_Positioning, count, 0, {0, 0}, bounds);
+    return fCurrentRunBuffer;
 }
 
 // SkPaint versions
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPaint& paint, int count,
                                                                     SkScalar x, SkScalar y,
                                                                     int textByteCount,
                                                                     SkString lang,
                                                                     const SkRect* bounds) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const SkPaint& paint, int count,
                                                                         SkScalar y,
                                                                         int textByteCount,
                                                                         SkString lang,
                                                                         const SkRect* bounds) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kHorizontal_Positioning, count, textByteCount, SkPoint::Make(0, y),
                         bounds);
 
     return fCurrentRunBuffer;
 }
 
-const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkPaint& font, int count,
+const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkPaint& paint, int count,
                                                                        int textByteCount,
                                                                        SkString lang,
                                                                        const SkRect *bounds) {
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
 
     return fCurrentRunBuffer;
