@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f0aa7bb3_afaee3c6",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-05T16:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb186047_1cdb2d58",
+      "range": {
+        "startLine": 1035,
+        "startChar": 11,
+        "endLine": 1035,
+        "endChar": 14
+      },
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d862de3f_da3063ae",
         "filename": "src/pdf/SkPDFDevice.cpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-12-05T15:25:28Z",
       "side": 1,
       "message": "is PDF the only one doing this operation (making a single path from all of the glyphs?)",
+      "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe733855_aa2207fa",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-05T16:02:48Z",
+      "side": 1,
+      "message": "This is no longer core functionality.\nBTW -- its not clear to me that this is what PDF should actually do. If you\u0027re \"simulating\" drawing text, should we draw each path 1 at a time, in the same way we draw glyphs 1 at a time?",
+      "parentUuid": "d862de3f_da3063ae",
       "revId": "f1b0d410abcc33bf63292d5a730e2acdfff0cff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
