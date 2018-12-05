@@ -22,6 +22,30 @@
       "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a4f9f98_5089f153",
+        "filename": "src/core/SkGlyph.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-05T20:10:27Z",
+      "side": 0,
+      "message": "No. I would like to keep this a pointer. This is never used, and doesn\u0027t need to be inlined into PathData.",
+      "parentUuid": "19dc4f76_46b05e67",
+      "range": {
+        "startLine": 122,
+        "startChar": 12,
+        "endLine": 122,
+        "endChar": 43
+      },
+      "revId": "de2244cbda797ec779c3eaa1f589f33b9a1912bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

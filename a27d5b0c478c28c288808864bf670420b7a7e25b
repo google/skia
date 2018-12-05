@@ -22,6 +22,30 @@
       "revId": "a27d5b0c478c28c288808864bf670420b7a7e25b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e90629f0_15631500",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-05T20:10:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd37b59e_18a11b28",
+      "range": {
+        "startLine": 220,
+        "startChar": 12,
+        "endLine": 220,
+        "endChar": 15
+      },
+      "revId": "a27d5b0c478c28c288808864bf670420b7a7e25b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
