@@ -56,7 +56,7 @@
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
-  var bonesImage = null;
+  var bonesImageData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
   }).then((CK) => {
@@ -88,7 +88,7 @@
       CanvasAPI6(CanvasKit);
 
       VertexAPI1(CanvasKit);
-      VertexAPI2(CanvasKit, bonesImage);
+      VertexAPI2(CanvasKit, bonesImageData);
 
       GradiantAPI1(CanvasKit);
     }, 0);
@@ -125,8 +125,8 @@
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/bones.jpg').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
-      bonesImage = buffer;
-      VertexAPI2(CanvasKit, bonesImage);
+      bonesImageData = buffer;
+      VertexAPI2(CanvasKit, bonesImageData);
     });
   });
 
@@ -519,10 +519,11 @@
       ctx.rect(90, 10, 20, 20);
       ctx.resetTransform();
 
+      ctx.save();
       ctx.setTransform(2, 0, -.5, 2.5, -40, 120);
       ctx.rect(110, 10, 20, 20);
       ctx.lineTo(110, 0);
-      ctx.resetTransform();
+      ctx.restore();
       ctx.lineTo(220, 120);
 
       ctx.scale(3.0, 3.0);
@@ -596,6 +597,18 @@
       ctx.fillStyle = 'green';
       ctx.font = '16pt Arial';
       ctx.fillText('This should be shadowed', 20, 80);
+
+      ctx.beginPath();
+      ctx.lineWidth = 6;
+      ctx.ellipse(10, 290, 30, 30, 0, 0, Math.PI * 2);
+      ctx.scale(2, 1);
+      ctx.moveTo(10, 290)
+      ctx.ellipse(10, 290, 30, 60, 0, 0, Math.PI * 2);
+      ctx.resetTransform();
+      ctx.scale(3, 1);
+      ctx.moveTo(10, 290)
+      ctx.ellipse(10, 290, 30, 90, 0, 0, Math.PI * 2);
+      ctx.stroke();
     }
     document.getElementById('api4').src = skcanvas.toDataURL();
   }
@@ -746,8 +759,9 @@
     surface.delete();
   }
 
-  function VertexAPI2(CanvasKit, bonesImage) {
-    if (!CanvasKit || !bonesImage) {
+  // bonesImageDatae is passed in as raw, encoded bytes.
+  function VertexAPI2(CanvasKit, bonesImageData) {
+    if (!CanvasKit || !bonesImageData) {
       return;
     }
     const surface = CanvasKit.MakeCanvasSurface('vertex2');
@@ -759,7 +773,7 @@
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
 
-    let shader = CanvasKit.MakeImageShader(bonesImage,
+    let shader = CanvasKit.MakeImageShader(bonesImageData,
                     CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
 
     // comment this out to see just the triangles move.
