@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3e058d97_f13a8fc1",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-06T15:17:58Z",
+      "side": 1,
+      "message": "Yeah. I\u0027ll make that change as part of moving things around, per Brian\u0027s suggestion.",
+      "parentUuid": "ac1b426e_a484f8e4",
+      "range": {
+        "startLine": 139,
+        "startChar": 20,
+        "endLine": 141,
+        "endChar": 42
+      },
+      "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b3f3ded_5538f215",
         "filename": "src/gpu/GrPrimitiveProcessor.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-12-06T15:08:07Z",
       "side": 1,
       "message": "Curious about whether it\u0027d be better to do this in GrProgramDesc when building the key and then just skipping the hash by sticking the values directly into the desc.",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 75
+      },
+      "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac208bcc_625eb6df",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-06T15:17:58Z",
+      "side": 1,
+      "message": "That does sound better. My main concern was overflowing the pre-allocated key size, although from my tests, I don\u0027t think that\u0027s going to be an issue. I can make that change.",
+      "parentUuid": "2b3f3ded_5538f215",
       "range": {
         "startLine": 134,
         "startChar": 0,
