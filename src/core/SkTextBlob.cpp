@@ -23,13 +23,6 @@
 #include "text/GrTextBlobCache.h"
 #endif
 
-SkRunFont::SkRunFont(const SkPaint& paint) : SkFont(SkFont::LEGACY_ExtractFromPaint(paint)) {}
-
-void SkRunFont::applyToPaint(SkPaint* paint) const {
-    this->LEGACY_applyToPaint(paint);
-    paint->setTextEncoding(kGlyphID_SkTextEncoding);
-}
-
 namespace {
 struct RunFontStorageEquivalent {
     SkScalar fSize, fScaleX;
@@ -37,7 +30,7 @@ struct RunFontStorageEquivalent {
     SkScalar fSkewX;
     uint32_t fFlags;
 };
-static_assert(sizeof(SkRunFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
+static_assert(sizeof(SkFont) == sizeof(RunFontStorageEquivalent), "runfont_should_stay_packed");
 }
 
 size_t SkTextBlob::RunRecord::StorageSize(uint32_t glyphCount, uint32_t textSize,
@@ -74,7 +67,7 @@ const SkTextBlob::RunRecord* SkTextBlob::RunRecord::Next(const RunRecord* run) {
 
 namespace {
 struct RunRecordStorageEquivalent {
-    SkRunFont  fFont;
+    SkFont   fFont;
     SkPoint  fOffset;
     uint32_t fCount;
     uint32_t fFlags;
@@ -235,7 +228,8 @@ SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() con
 void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
     SkASSERT(!this->done());
 
-    fCurrentRun->font().applyToPaint(paint);
+    fCurrentRun->font().LEGACY_applyToPaint(paint);
+    paint->setTextEncoding(kGlyphID_SkTextEncoding);
 }
 
 bool SkTextBlobRunIterator::isLCD() const {
@@ -262,7 +256,8 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
 SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     SkRect bounds;
     SkPaint paint;
-    run.font().applyToPaint(&paint);
+    run.font().LEGACY_applyToPaint(&paint);
+    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     if (SkTextBlob::kDefault_Positioning == run.positioning()) {
         paint.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t), &bounds);
