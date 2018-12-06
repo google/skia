@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac1b426e_a484f8e4",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-06T15:07:29Z",
+      "side": 1,
+      "message": "Can we put in some asserts in here. First that cpuTyp() and gpuType() and less than 1 \u003c\u003c 16. Also maybe assert cpuType or gpuType is less than 1 \u003c\u003c 15 to guarantee that a 0 appears in the key so that ~0 will never match a valid one.",
+      "range": {
+        "startLine": 139,
+        "startChar": 20,
+        "endLine": 141,
+        "endChar": 42
+      },
+      "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
