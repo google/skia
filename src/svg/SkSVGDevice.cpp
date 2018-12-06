@@ -852,10 +852,11 @@ public:
     SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
             : fOrigin(origin)
             , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
-        const SkPaint& paint = glyphRun.paint();
+        // const SkFont& font = glyphRun.font();
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
-        paint.glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
+        // DO NOT SUBMIT
+        // font.glyphsToUnichars(glyphRun.glyphsIDs().data(), runSize, unichars.get());
         auto positions = glyphRun.positions();
         for (size_t i = 0; i < runSize; ++i) {
             this->appendUnichar(unichars[i], positions[i]);
@@ -929,8 +930,10 @@ private:
 
 void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
 
-    auto processGlyphRun = [this](SkPoint origin, const SkGlyphRun& glyphRun) {
-        const SkPaint& paint = glyphRun.paint();
+    auto processGlyphRun = [this]
+                           (SkPoint origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint) {
+        SkPaint paint{runPaint};
+        glyphRun.font().LEGACY_applyToPaint(&paint);
         AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
         elem.addTextAttributes(paint);
 
@@ -941,7 +944,7 @@ void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
     };
 
     for (auto& glyphRun : glyphRunList) {
-        processGlyphRun(glyphRunList.origin(), glyphRun);
+        processGlyphRun(glyphRunList.origin(), glyphRun, glyphRunList.paint());
     }
 }
 
