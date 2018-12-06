@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f773ed7b_33f4e804",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-06T18:10:03Z",
+      "side": 1,
+      "message": "line wrap",
+      "range": {
+        "startLine": 731,
+        "startChar": 83,
+        "endLine": 731,
+        "endChar": 88
+      },
+      "revId": "990193fdb24ab8aed6d11764683326b085906f8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89b5ed90_f2e9c5e2",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-06T18:10:03Z",
+      "side": 1,
+      "message": "wrap",
+      "range": {
+        "startLine": 741,
+        "startChar": 84,
+        "endLine": 741,
+        "endChar": 95
+      },
+      "revId": "990193fdb24ab8aed6d11764683326b085906f8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d40e444_5016d100",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-06T18:10:03Z",
+      "side": 1,
+      "message": "why not expand to pos here too? I\u0027m just going to expand it later.",
+      "range": {
+        "startLine": 747,
+        "startChar": 0,
+        "endLine": 747,
+        "endChar": 55
+      },
+      "revId": "990193fdb24ab8aed6d11764683326b085906f8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
