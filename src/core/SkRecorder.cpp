@@ -262,33 +262,6 @@ void SkRecorder::onDrawImageSet(const ImageSetEntry set[], int count, SkFilterQu
     this->append<SkRecords::DrawImageSet>(std::move(setCopy), count, filterQuality, mode);
 }
 
-void SkRecorder::onDrawText(const void* text, size_t byteLength,
-                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    this->append<SkRecords::DrawText>(
-           paint, this->copy((const char*)text, byteLength), byteLength, x, y);
-}
-
-void SkRecorder::onDrawPosText(const void* text, size_t byteLength,
-                               const SkPoint pos[], const SkPaint& paint) {
-    const int points = paint.countText(text, byteLength);
-    this->append<SkRecords::DrawPosText>(
-           paint,
-           this->copy((const char*)text, byteLength),
-           byteLength,
-           this->copy(pos, points));
-}
-
-void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
-                                const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
-    const int points = paint.countText(text, byteLength);
-    this->append<SkRecords::DrawPosTextH>(
-           paint,
-           this->copy((const char*)text, byteLength),
-           SkToUInt(byteLength),
-           constY,
-           this->copy(xpos, points));
-}
-
 void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                    const SkRect* cull, const SkPaint& paint) {
     this->append<SkRecords::DrawTextRSXform>(

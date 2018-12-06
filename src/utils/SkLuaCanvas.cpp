@@ -254,27 +254,6 @@ void SkLuaCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const
     }
 }
 
-void SkLuaCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                             const SkPaint& paint) {
-    AUTO_LUA("drawText");
-    lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
-    lua.pushPaint(paint, "paint");
-}
-
-void SkLuaCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                const SkPaint& paint) {
-    AUTO_LUA("drawPosText");
-    lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
-    lua.pushPaint(paint, "paint");
-}
-
-void SkLuaCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                 SkScalar constY, const SkPaint& paint) {
-    AUTO_LUA("drawPosTextH");
-    lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
-    lua.pushPaint(paint, "paint");
-}
-
 void SkLuaCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                     const SkRect* cull, const SkPaint& paint) {
     AUTO_LUA("drawTextRSXform");

@@ -108,21 +108,6 @@ public:
         fTarget->drawVertices(vertices, bones, boneCount, mode, fXformer->apply(paint));
     }
 
-    void onDrawText(const void* ptr, size_t len,
-                    SkScalar x, SkScalar y,
-                    const SkPaint& paint) override {
-        fTarget->drawText(ptr, len, x, y, fXformer->apply(paint));
-    }
-    void onDrawPosText(const void* ptr, size_t len,
-                       const SkPoint* xys,
-                       const SkPaint& paint) override {
-        fTarget->drawPosText(ptr, len, xys, fXformer->apply(paint));
-    }
-    void onDrawPosTextH(const void* ptr, size_t len,
-                        const SkScalar* xs, SkScalar y,
-                        const SkPaint& paint) override {
-        fTarget->drawPosTextH(ptr, len, xs, y, fXformer->apply(paint));
-    }
     void onDrawTextRSXform(const void* ptr, size_t len,
                            const SkRSXform* xforms, const SkRect* cull,
                            const SkPaint& paint) override {
