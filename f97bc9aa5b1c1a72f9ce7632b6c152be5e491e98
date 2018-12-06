@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcb9d5fa_0076cd65",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-06T22:08:10Z",
+      "side": 1,
+      "message": "We\u0027ll have to stage this with Chromium, like we did for SkEncodedInfo.cpp and SkColorTable.cpp.\n\nI had thought that adding gn/codec.gni would make this simpler, and it would in this specific situation, but I\u0027m not convinced it\u0027s simpler overall.",
+      "range": {
+        "startLine": 906,
+        "startChar": 15,
+        "endLine": 906,
+        "endChar": 38
+      },
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dee786bb_c3e3f491",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-06T22:08:10Z",
+      "side": 1,
+      "message": "These methods are unchanged from their old location.",
+      "range": {
+        "startLine": 20,
+        "startChar": 5,
+        "endLine": 20,
+        "endChar": 26
+      },
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
