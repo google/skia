@@ -224,8 +224,8 @@ private:
                                             bool hasText,
                                             GraphicStateEntry* entry);
 
-    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
-    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset);
+    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
+    void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
 
     void internalDrawImageRect(SkKeyedImage,
                                const SkRect* src,

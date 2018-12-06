@@ -161,7 +161,8 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto* grContext = this->context()->internal().grContext();
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
     SkGlyphRunBuilder builder;
-    builder.drawGlyphPos(paint, SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)}, positions);
+    builder.drawGlyphsWithPositions(paint, SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)},
+                                    positions);
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
         atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(), props,
