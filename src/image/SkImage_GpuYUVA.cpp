@@ -181,7 +181,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
             SkBitmap bmp;
             bmp.installPixels(*pixmap);
             tempTextureProxies[i] = proxyProvider->createMipMapProxyFromBitmap(bmp);
-        } else {
+        }
+        if (!tempTextureProxies[i]) {
             if (SkImageInfoIsValid(pixmap->info())) {
                 ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]",
                                          pixmap->width(), pixmap->height());
