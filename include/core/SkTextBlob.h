@@ -80,6 +80,15 @@ public:
         return MakeFromText(string, strlen(string), font, encoding);
     }
 
+    // Experimental
+    static sk_sp<SkTextBlob> MakeFromPosTextH(const void* text, size_t byteLength,
+                                      const SkScalar xpos[], SkScalar constY, const SkFont& font,
+                                      SkTextEncoding encoding = kUTF8_SkTextEncoding);
+    // Experimental
+    static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
+                                             const SkPoint pos[], const SkFont& font,
+                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
         to receive the encoded data, and memory_size describes the size of storage.
         Returns bytes used if provided storage is large enough to hold all data;
