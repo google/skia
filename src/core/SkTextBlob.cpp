@@ -718,24 +718,36 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
 sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, const SkFont& font,
                                            SkTextEncoding encoding) {
-    SkPaint legacyPaint;
-    font.LEGACY_applyToPaint(&legacyPaint);
-    legacyPaint.setTextEncoding(encoding);
+    // Note: we deliberately promote this to fully positioned blobs, since we'd have to pay the
+    // same cost down stream (i.e. computing bounds), so its cheaper to pay the cost once now.
+    const int count = font.countText(text, byteLength, encoding);
+    SkTextBlobBuilder builder;
+    auto buffer = builder.allocRunPos(font, count);
+    font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
+    font.getPos(buffer.glyphs, count, reinterpret_cast<SkPoint*>(buffer.pos), {0, 0});
+    return builder.make();
+}
 
-    SkGlyphRunBuilder runBuilder;
+sk_sp<SkTextBlob> SkTextBlob::MakeFromPosText(const void* text, size_t byteLength,
+                                              const SkPoint pos[], const SkFont& font,
+                                              SkTextEncoding encoding) {
+    const int count = font.countText(text, byteLength, encoding);
+    SkTextBlobBuilder builder;
+    auto buffer = builder.allocRunPos(font, count);
+    font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
+    memcpy(buffer.pos, pos, count * sizeof(SkPoint));
+    return builder.make();
+}
 
-    runBuilder.drawText(legacyPaint, text, byteLength, SkPoint::Make(0, 0));
-
-    auto glyphRunList = runBuilder.useGlyphRunList();
-    SkTextBlobBuilder blobBuilder;
-    if (!glyphRunList.empty()) {
-        auto run = glyphRunList[0];
-
-        auto runData = blobBuilder.allocRunPos(font, run.runSize());
-        run.filloutGlyphsAndPositions(runData.glyphs, (SkPoint *)runData.pos);
-    }
-
-    return blobBuilder.make();
+sk_sp<SkTextBlob> SkTextBlob::MakeFromPosTextH(const void* text, size_t byteLength,
+                                               const SkScalar xpos[], SkScalar constY,
+                                               const SkFont& font, SkTextEncoding encoding) {
+    const int count = font.countText(text, byteLength, encoding);
+    SkTextBlobBuilder builder;
+    auto buffer = builder.allocRunPosH(font, count, constY);
+    font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
+    memcpy(buffer.pos, xpos, count * sizeof(SkScalar));
+    return builder.make();
 }
 
 sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {

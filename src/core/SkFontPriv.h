@@ -58,6 +58,9 @@ public:
         @return  union of bounds of all glyphs
      */
     static SkRect GetFontBounds(const SkFont&);
+
+    // Returns the number of elements (characters or glyphs) in the array.
+    static int CountTextElements(const void* text, size_t byteLength, SkTextEncoding);
 };
 
 class SkAutoToGlyphs {
