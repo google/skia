@@ -25,6 +25,57 @@
     },
     {
       "key": {
+        "uuid": "c427ae1d_3c1956fc",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-06T23:08:02Z",
+      "side": 1,
+      "message": "??",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab02208b_13fdbc5e",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-06T23:08:02Z",
+      "side": 1,
+      "message": "Probably don\u0027t need these guards?  This\u0027ll all compile without libjpeg or libwebp, right?  If stripping the code out for code-size is the concern, it ought to be fine to let the linker handle that with dead code stripping and/or LTO.",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5a3b106_db713671",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-06T23:08:02Z",
+      "side": 1,
+      "message": "Might make a good lambda inside the other function?",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dee786bb_c3e3f491",
         "filename": "src/codec/SkOrientationMarker.cpp",
         "patchSetId": 1
@@ -45,6 +96,29 @@
       "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "183393a5_55556156",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-06T23:08:02Z",
+      "side": 1,
+      "message": "Since it\u0027s not static, we should probably namespace this a bit, like sk_is_orientation_marker?\n\nWhile we\u0027re at it, let\u0027s give it a header, etc. ?  Might as well make it normal code.",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 27
+      },
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
