@@ -43,9 +43,6 @@ protected:
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override {}
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override {}
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override {}
-    void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override {}
-    void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override {}
-    void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override {}
     void onDrawTextRSXform(const void*, size_t, const SkRSXform[], const SkRect*,
                            const SkPaint&) override {}
     void onDrawTextBlob(const SkTextBlob*, SkScalar, SkScalar, const SkPaint&) override {}

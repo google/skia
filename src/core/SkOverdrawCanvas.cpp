@@ -61,11 +61,6 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     fPaint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kIncrementAlpha));
 }
 
-void SkOverdrawCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                                  const SkPaint& paint) {
-    SK_ABORT("This canvas does not support draw text.");
-}
-
 void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, const SkScalar pos[],
                                          int scalarsPerPos, const SkPoint& offset,
                                          const SkPaint& paint) {
@@ -79,16 +74,6 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
                                         (const char*)text, byteLength,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
                                         cache.get(), processBounds);
-}
-
-void SkOverdrawCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                     const SkPaint& paint) {
-    this->drawPosTextCommon(text, byteLength, (SkScalar*) pos, 2, SkPoint::Make(0, 0), paint);
-}
-
-void SkOverdrawCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xs[],
-                                      SkScalar y, const SkPaint& paint) {
-    this->drawPosTextCommon(text, byteLength, (SkScalar*) xs, 1, SkPoint::Make(0, y), paint);
 }
 
 typedef int (*CountTextProc)(const char* text, const char* stop);
@@ -153,7 +138,7 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
         it.applyFontToPaint(&runPaint);
         switch (it.positioning()) {
             case SkTextBlobRunIterator::kDefault_Positioning:
-                this->onDrawText(it.glyphs(), textLen, x + offset.x(), y + offset.y(), runPaint);
+                SK_ABORT("This canvas does not support draw text.");
                 break;
             case SkTextBlobRunIterator::kHorizontal_Positioning:
                 this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 1,
