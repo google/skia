@@ -74,10 +74,6 @@ public:
     */
     SkGlyphID unicharToGlyph(SkUnichar);
 
-    /** Map the glyph to its Unicode equivalent. Unmappable glyphs map to a character code of zero.
-    */
-    SkUnichar glyphToUnichar(SkGlyphID);
-
     /** Returns the number of glyphs for this strike.
     */
     unsigned getGlyphCount() const;

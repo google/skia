@@ -77,21 +77,7 @@ bool SkPaint::containsText(const void* text, size_t length) const {
 }
 
 void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar textData[]) const {
-    if (count <= 0) {
-        return;
-    }
-
-    SkASSERT(glyphs != nullptr);
-    SkASSERT(textData != nullptr);
-
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(*this);
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            font, *this, props, SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
-
-    for (int index = 0; index < count; index++) {
-        textData[index] = cache->glyphToUnichar(glyphs[index]);
-    }
+    SkFont::LEGACY_ExtractFromPaint(*this).glyphsToUnichars(glyphs, count, textData);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

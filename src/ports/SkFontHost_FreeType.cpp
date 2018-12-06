@@ -503,7 +503,6 @@ protected:
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
-    SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
 private:
     using UnrefFTFace = SkFunctionWrapper<void, SkFaceRec, unref_ft_face>;
@@ -1032,22 +1031,6 @@ unsigned SkScalerContext_FreeType::generateGlyphCount() {
 uint16_t SkScalerContext_FreeType::generateCharToGlyph(SkUnichar uni) {
     SkAutoMutexAcquire  ac(gFTMutex);
     return SkToU16(FT_Get_Char_Index( fFace, uni ));
-}
-
-SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
-    SkAutoMutexAcquire  ac(gFTMutex);
-    // iterate through each cmap entry, looking for matching glyph indices
-    FT_UInt glyphIndex;
-    SkUnichar charCode = FT_Get_First_Char( fFace, &glyphIndex );
-
-    while (glyphIndex != 0) {
-        if (glyphIndex == glyph) {
-            return charCode;
-        }
-        charCode = FT_Get_Next_Char( fFace, charCode, &glyphIndex );
-    }
-
-    return 0;
 }
 
 bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
