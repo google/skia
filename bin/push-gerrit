@@ -1,0 +1,72 @@
+#! /usr/bin/env python
+# Copyright 2018 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import argparse
+import gerrit_number
+import re
+import subprocess
+import sys
+import sysopen
+
+def get_upstream_branch():
+    try:
+        upstream_full = subprocess.check_output(
+                ['git', 'rev-parse', '--symbolic-full-name', '@{u}']).strip()
+    except:
+        return None
+    match = re.match('^refs/remotes/([^/]*)/(.*)$', upstream_full)
+    if match is not None:
+        return (match.group(1), match.group(2))
+    return None
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    a = parser.add_argument
+    a('-u', '--use-upstream', action='store_true',
+      help='If set, use git\'s upstream bracnh instead of -r and -b options')
+    a('-r', '--remote', default='origin', help='default value is "origin"')
+    a('-b', '--branch', default='master', help='default value is "master"')
+    a('-m', '--message', default='')
+    args = parser.parse_args(argv)
+    return args.branch, args.remote, args.message, args.use_upstream
+
+
+def push(branch, remote, message, use_upstream):
+    if use_upstream:
+        ub = get_upstream_branch()
+        if ub is not None:
+            remote, branch = ub
+        else:
+            raise Exception('no upstream branch found')
+    if message:
+        message = '%m=' + re.sub('[^0-9a-zA-Z_]', '_', message)
+
+    cmd = ['git', 'push', remote, '@:refs/for/' + branch + message]
+    try:
+        subprocess.check_call(cmd)
+    except OSError:
+        raise Exception('git not found')
+    except subprocess.CalledProcessError:
+        raise Exception('push failed')
+
+
+def review_url(site, repo):
+    num = gerrit_number.gerrit_change_id_to_number(
+            site, gerrit_number.retrieve_changeid('@'))
+    return 'https://%s/c/%s/+/%d' % (site, repo, num)
+
+
+if __name__ == '__main__':
+    try:
+        push(*parse_args(sys.argv[1:]))
+    except Exception as e:
+        pass
+    try:
+        url = review_url('skia-review.googlesource.com', 'skia')
+        sys.stdout.write(url + '\n')
+        sysopen.sysopen(url)
+    except Exception as e:
+        sys.stderr.write('%s\n' % e)
+        sys.exit(1)
