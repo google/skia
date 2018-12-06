@@ -46,6 +46,30 @@
       "revId": "4f1921ad1ed156878ac0c97ea0e71fe33c683699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19aaa5e4_d32f9a7d",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T15:33:49Z",
+      "side": 1,
+      "message": "Nope, I just always found Pos and PosH a bit odd naming-wise, but they\u0027re already established, so...\n\nI wish there was a good way to abstract the positioning info and just have one single maker...  PositioningInfo struct or something?  Maybe something to look at later.",
+      "parentUuid": "e8b20809_17746a8b",
+      "range": {
+        "startLine": 84,
+        "startChar": 29,
+        "endLine": 84,
+        "endChar": 46
+      },
+      "revId": "4f1921ad1ed156878ac0c97ea0e71fe33c683699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
