@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81ddcb5a_6ecea6a8",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-06T17:32:25Z",
+      "side": 1,
+      "message": "Maybe we should just assert that we have the caps bit set? Maybe that has to wait until we have the fallback.",
+      "revId": "a9823d23607e4b6916d3ab4aec4c7bd3bcd61635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
