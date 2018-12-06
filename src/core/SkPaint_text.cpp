@@ -344,12 +344,6 @@ SkScalar SkPaint::measureText(const void* textData, size_t length, SkRect* bound
     return width;
 }
 
-size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
-                          SkScalar* measuredWidth) const {
-    return SkFont::LEGACY_ExtractFromPaint(*this).breakText(textD, length,
-                                                this->getTextEncoding(), maxWidth, measuredWidth);
-}
-
 SkScalar SkPaint::getFontMetrics(SkFontMetrics* metrics) const {
     return SkFont::LEGACY_ExtractFromPaint(*this).getMetrics(metrics);
 }
