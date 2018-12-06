@@ -120,7 +120,6 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fMapBufferRange = bind_to_member(this, &GrGLTestInterface::mapBufferRange);
     fFunctions.fMapBufferSubData = bind_to_member(this, &GrGLTestInterface::mapBufferSubData);
     fFunctions.fMapTexSubImage2D = bind_to_member(this, &GrGLTestInterface::mapTexSubImage2D);
-    fFunctions.fMinSampleShading = bind_to_member(this, &GrGLTestInterface::minSampleShading);
     fFunctions.fPixelStorei = bind_to_member(this, &GrGLTestInterface::pixelStorei);
     fFunctions.fPolygonMode = bind_to_member(this, &GrGLTestInterface::polygonMode);
     fFunctions.fPopGroupMarker = bind_to_member(this, &GrGLTestInterface::popGroupMarker);

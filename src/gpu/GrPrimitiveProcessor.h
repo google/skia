@@ -210,13 +210,6 @@ public:
 
     virtual bool isPathRendering() const { return false; }
 
-    /**
-     * If non-null, overrides the dest color returned by GrGLSLFragmentShaderBuilder::dstColor().
-     */
-    virtual const char* getDestColorOverride() const { return nullptr; }
-
-    virtual float getSampleShading() const { return 0.0; }
-
 protected:
     void setVertexAttributes(const Attribute* attrs, int attrCount) {
         fVertexAttributes.init(attrs, attrCount);

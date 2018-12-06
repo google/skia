@@ -581,17 +581,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,0)) ||
-        fExtensions.has("GL_ARB_sample_shading")) {
-        if (!fFunctions.fMinSampleShading) {
-            RETURN_FALSE_INTERFACE;
-        }
-    } else if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_OES_sample_shading")) {
-        if (!fFunctions.fMinSampleShading) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
             if (!fFunctions.fFenceSync ||

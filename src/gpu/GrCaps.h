@@ -239,8 +239,6 @@ public:
 
     bool wireframeMode() const { return fWireframeMode; }
 
-    bool sampleShadingSupport() const { return fSampleShadingSupport; }
-
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
     /**
@@ -358,7 +356,6 @@ protected:
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
 
-    bool fSampleShadingSupport                       : 1;
     // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
 

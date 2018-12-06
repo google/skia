@@ -229,10 +229,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fOversizedStencilSupport = true;
 
-    // Looks like there is a field called rasterSampleCount labeled as beta in the Metal docs. This
-    // may be what we eventually need here, but it has no description.
-    fSampleShadingSupport = false;
-
     fSRGBSupport = true;   // always available in Metal
     fSRGBWriteControl = false;
     fMipMapSupport = true;   // always available in Metal

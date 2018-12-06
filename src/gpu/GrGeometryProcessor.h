@@ -21,23 +21,12 @@ class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
     GrGeometryProcessor(ClassID classID)
         : INHERITED(classID)
-        , fWillUseGeoShader(false)
-        , fSampleShading(0.0) {}
+        , fWillUseGeoShader(false) {}
 
     bool willUseGeoShader() const final { return fWillUseGeoShader; }
 
-    /**
-     * Returns the minimum fraction of samples for which the fragment shader will be run. For
-     * instance, if sampleShading is 0.5 in MSAA16 mode, the fragment shader will run a minimum of
-     * 8 times per pixel. The default value is zero.
-     */
-    float getSampleShading() const final { return fSampleShading; }
-
 protected:
     void setWillUseGeoShader() { fWillUseGeoShader = true; }
-    void setSampleShading(float sampleShading) {
-        fSampleShading = sampleShading;
-    }
 
     // GPs that need to use either half-float or ubyte colors can just call this to get a correctly
     // configured Attribute struct
@@ -49,7 +38,6 @@ protected:
 
 private:
     bool fWillUseGeoShader;
-    float fSampleShading;
 
     typedef GrPrimitiveProcessor INHERITED;
 };
