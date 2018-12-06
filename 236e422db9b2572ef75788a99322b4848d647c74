@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f66fd6e2_2a1f16f4",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2444,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-06T19:56:26Z",
+      "side": 1,
+      "message": "Chromium needs this for benchmarking_canvas.h, sim_canvas.h, intercepting_canvas.h ... ? So this will just go in without these being ifdef\u0027ed out, then remove from all the users (no longer called), then remove these lines.",
+      "range": {
+        "startLine": 2444,
+        "startChar": 7,
+        "endLine": 2444,
+        "endChar": 35
+      },
+      "revId": "236e422db9b2572ef75788a99322b4848d647c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "187c3f88_c776cb31",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2439,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-06T19:56:26Z",
+      "side": 1,
+      "message": "Any reason not to just remove?",
+      "range": {
+        "startLine": 2439,
+        "startChar": 0,
+        "endLine": 2439,
+        "endChar": 5
+      },
+      "revId": "236e422db9b2572ef75788a99322b4848d647c74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
