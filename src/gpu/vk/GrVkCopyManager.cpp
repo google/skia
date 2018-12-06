@@ -292,7 +292,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(srcTex->asRenderTarget());
     if (texRT) {
-        gpu->onResolveRenderTarget(texRT);
+        gpu->resolveRenderTargetNoFlush(texRT);
     }
 
     GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();

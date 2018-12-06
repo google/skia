@@ -676,7 +676,7 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         // We may need to resolve the texture first if it is also a render target
         GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
         if (texRT) {
-            fGpu->onResolveRenderTarget(texRT);
+            fGpu->resolveRenderTargetNoFlush(texRT);
         }
 
         // Check if we need to regenerate any mip maps
