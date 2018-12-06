@@ -234,8 +234,9 @@ def dm_flags(api, bot):
         blacklist('gltestpersistentcache gm _ glyph_pos_h_b')
 
     # Test SkColorSpaceXformCanvas and rendering to wrapped dsts on a few bots
+    # Also test 'glenarrow', which hits F16 surfaces and F16 vertex colors.
     if 'BonusConfigs' in api.vars.extra_tokens:
-      configs = ['gbr-gl', 'glbetex', 'glbert']
+      configs = ['gbr-gl', 'glbetex', 'glbert', 'glenarrow']
 
 
     if 'ChromeOS' in bot:
