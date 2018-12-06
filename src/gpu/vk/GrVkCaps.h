@@ -72,13 +72,6 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
-    // On Nvidia there is a current bug where we must the current command buffer before copy
-    // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
-    // as draws.
-    bool mustSubmitCommandsBeforeCopyOp() const {
-        return fMustSubmitCommandsBeforeCopyOp;
-    }
-
     // Sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
@@ -229,7 +222,6 @@ private:
     SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
     bool fMustDoCopiesFromOrigin = false;
-    bool fMustSubmitCommandsBeforeCopyOp = false;
     bool fMustSleepOnTearDown = false;
     bool fNewCBOnPipelineChange = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
