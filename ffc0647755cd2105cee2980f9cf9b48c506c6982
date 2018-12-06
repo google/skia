@@ -22,6 +22,29 @@
       "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b3f3ded_5538f215",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-06T15:08:07Z",
+      "side": 1,
+      "message": "Curious about whether it\u0027d be better to do this in GrProgramDesc when building the key and then just skipping the hash by sticking the values directly into the desc.",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 75
+      },
+      "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
