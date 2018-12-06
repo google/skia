@@ -903,6 +903,7 @@ component("skia") {
     "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
+    "src/codec/SkOrientationMarker.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
     "src/codec/SkStreamBuffer.cpp",
