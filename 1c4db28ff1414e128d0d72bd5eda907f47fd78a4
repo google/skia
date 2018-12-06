@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cd4bbff_90a9c38a",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-06T21:58:15Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 855,
+        "startChar": 0,
+        "endLine": 855,
+        "endChar": 5
+      },
+      "revId": "1c4db28ff1414e128d0d72bd5eda907f47fd78a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
