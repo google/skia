@@ -36,7 +36,7 @@ public:
     GrCoordTransform(GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(SkMatrix::I(), proxy, true);
+        this->reset(SkMatrix::I(), proxy);
     }
 
     /**
@@ -46,7 +46,7 @@ public:
     GrCoordTransform(const SkMatrix& m, GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(m, proxy, true);
+        this->reset(m, proxy);
     }
 
     /**
@@ -55,24 +55,6 @@ public:
     GrCoordTransform(const SkMatrix& m) {
         SkDEBUGCODE(fInProcessor = false);
         this->reset(m);
-    }
-
-    void reset(const SkMatrix& m, GrTextureProxy* proxy, bool normalize) {
-        SkASSERT(proxy);
-        SkASSERT(!fInProcessor);
-
-        fMatrix = m;
-        fProxy = proxy;
-        fNormalize = normalize;
-        fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
-    }
-
-    void reset(const SkMatrix& m) {
-        SkASSERT(!fInProcessor);
-        fMatrix = m;
-        fProxy = nullptr;
-        fNormalize = false;
-        fReverseY = false;
     }
 
     GrCoordTransform& operator= (const GrCoordTransform& that) {
@@ -119,6 +101,15 @@ public:
     GrTexture* peekTexture() const { return fProxy->peekTexture(); }
 
 private:
+    void reset(const SkMatrix& m, GrTextureProxy* proxy = nullptr) {
+        SkASSERT(!fInProcessor);
+
+        fMatrix = m;
+        fProxy = proxy;
+        fNormalize = proxy && proxy->textureType() != GrTextureType::kRectangle;
+        fReverseY = proxy && kBottomLeft_GrSurfaceOrigin == proxy->origin();
+    }
+
     // The textures' effect is to optionally normalize the final matrix, so a blind
     // equality check could be misleading
     bool operator==(const GrCoordTransform& that) const;

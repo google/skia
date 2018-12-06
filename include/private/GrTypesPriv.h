@@ -362,6 +362,7 @@ static const int kGrSLTypeCount = kLast_GrSLType + 1;
  */
 enum class GrTextureType {
     k2D,
+    /* Rectangle uses unnormalized texture coordinates. */
     kRectangle,
     kExternal
 };
