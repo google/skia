@@ -348,6 +348,10 @@ public:
 
     bool useBufferDataNullHint() const { return fUseBufferDataNullHint; }
 
+    // The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
+    // GLES 3.2, but is also available in extensions.
+    bool clampToBorderSupport() const { return fClampToBorderSupport; }
+
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
     bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
 
@@ -518,6 +522,7 @@ private:
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fUseBufferDataNullHint                : 1;
+    bool fClampToBorderSupport : 1;
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
     bool fSamplerObjectSupport : 1;
