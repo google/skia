@@ -13,6 +13,7 @@
 #include "GrProcessor.h"
 #include "GrProxyRef.h"
 #include "GrShaderVar.h"
+#include "SkOpts.h"
 
 class GrCoordTransform;
 
@@ -130,16 +131,22 @@ public:
             fAttributes = attrs;
             fCount = 0;
             fStride = 0;
+            SkSTArray<8, uint32_t, true> keyData;
             for (int i = 0; i < count; ++i) {
                 if (attrs[i].isInitialized()) {
                     fCount++;
                     fStride += attrs[i].sizeAlign4();
+                    keyData.push_back((attrs[i].cpuType() << 16) | attrs[i].gpuType());
+                } else {
+                    keyData.push_back(~0);
                 }
             }
+            fKey = SkOpts::hash(keyData.begin(), count * sizeof(uint32_t));
         }
 
         const Attribute* fAttributes = nullptr;
         int              fCount = 0;
+        uint32_t         fKey = 0;
         size_t           fStride = 0;
     };
 
@@ -184,6 +191,15 @@ public:
      */
     virtual void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
+
+    void getAttributeKey(GrProcessorKeyBuilder* b) const {
+        if (this->hasVertexAttributes()) {
+            b->add32(fVertexAttributes.fKey);
+        }
+        if (this->hasInstanceAttributes()) {
+            b->add32(fInstanceAttributes.fKey);
+        }
+    }
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
