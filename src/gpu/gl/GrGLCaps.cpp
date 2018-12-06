@@ -53,6 +53,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fUseBufferDataNullHint = SkToBool(GR_GL_USE_BUFFER_DATA_NULL_HINT);
     fDoManualMipmapping = false;
+    fClampToBorderSupport = false;
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
@@ -237,6 +238,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // Command buffer exposes this in GL ES context for Chromium reasons,
         // but it should not be used. Also, at the time of writing command buffer
         // lacks TexImage2D support and ANGLE lacks GL ES 3.0 support.
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        // Clamp to border added in 1.3
+        if (version >= GR_GL_VER(1, 3) || ctxInfo.hasExtension("GL_ARB_texture_border_clamp")) {
+            fClampToBorderSupport = true;
+        }
+    } else if (kGLES_GrGLStandard == standard) {
+        // GLES didn't have clamp to border until 3.2, but provides several alternative extensions
+        if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_EXT_texture_border_clamp") ||
+            ctxInfo.hasExtension("GL_NV_texture_border_clamp") ||
+            ctxInfo.hasExtension("GL_OES_texture_border_clamp")) {
+            fClampToBorderSupport = true;
+        }
     }
 
     if (kGL_GrGLStandard == standard) {
