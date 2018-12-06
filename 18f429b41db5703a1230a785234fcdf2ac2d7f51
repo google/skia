@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb7ca0f3_d2be5afb",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-06T20:39:58Z",
+      "side": 1,
+      "message": "The only difference here is that we no longer set rowsDecoded, because it\u0027s now been set above in one place.",
+      "range": {
+        "startLine": 485,
+        "startChar": 0,
+        "endLine": 488,
+        "endChar": 26
+      },
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e1e6f44_bc77176c",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-06T20:39:58Z",
+      "side": 1,
+      "message": "Besides putting all this code inside the \"if (r.width)\" block, this is unchanged, except we already set scaledHeight above, so I drop that and remove the spacing here.",
+      "range": {
+        "startLine": 506,
+        "startChar": 8,
+        "endLine": 506,
+        "endChar": 49
+      },
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
