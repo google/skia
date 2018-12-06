@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "383d03d6_d136a0e3",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2310,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-12-06T22:10:56Z",
+      "side": 1,
+      "message": "So does template magic make GrVertexColor 8- or 16-bit as needed?",
+      "range": {
+        "startLine": 2310,
+        "startChar": 20,
+        "endLine": 2310,
+        "endChar": 25
+      },
+      "revId": "0e28a97027001aee364abf92b450a2c719d09d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
