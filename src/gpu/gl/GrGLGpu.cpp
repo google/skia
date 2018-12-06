@@ -3741,11 +3741,13 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         sy0 = sh - sy0;
         sy1 = sh - sy1;
     }
-    // src rect edges in normalized texture space (0 to 1)
-    sx0 /= sw;
-    sx1 /= sw;
-    sy0 /= sh;
-    sy1 /= sh;
+    if (srcTex->texturePriv().textureType() != GrTextureType::kRectangle) {
+        // src rect edges in normalized texture space (0 to 1)
+        sx0 /= sw;
+        sx1 /= sw;
+        sy0 /= sh;
+        sy1 /= sh;
+    }
 
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fPosXformUniform, dx1 - dx0, dy1 - dy0, dx0, dy0));
     GL_CALL(Uniform4f(fCopyPrograms[progIdx].fTexCoordXformUniform,

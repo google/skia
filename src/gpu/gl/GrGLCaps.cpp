@@ -227,11 +227,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 1) || ctxInfo.hasExtension("GL_ARB_texture_rectangle") ||
             ctxInfo.hasExtension("GL_ANGLE_texture_rectangle")) {
-            // We also require textureSize() support for rectangle 2D samplers which was added in
-            // GLSL 1.40.
-            if (ctxInfo.glslGeneration() >= k140_GrGLSLGeneration) {
-                fRectangleTextureSupport = true;
-            }
+            fRectangleTextureSupport = true;
         }
     } else {
         // Command buffer exposes this in GL ES context for Chromium reasons,
