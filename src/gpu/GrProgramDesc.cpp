@@ -212,6 +212,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     GrProcessorKeyBuilder b(&desc->key());
 
     primProc.getGLSLProcessorKey(shaderCaps, &b);
+    primProc.getAttributeKey(&b);
     if (!gen_meta_key(primProc, shaderCaps, 0, &b)) {
         desc->key().reset();
         return false;

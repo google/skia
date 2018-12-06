@@ -128,6 +128,7 @@ public:
 
         void init(const Attribute* attrs, int count) {
             fAttributes = attrs;
+            fRawCount = count;
             fCount = 0;
             fStride = 0;
             for (int i = 0; i < count; ++i) {
@@ -139,6 +140,7 @@ public:
         }
 
         const Attribute* fAttributes = nullptr;
+        int              fRawCount = 0;
         int              fCount = 0;
         size_t           fStride = 0;
     };
@@ -184,6 +186,22 @@ public:
      */
     virtual void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
+
+    void getAttributeKey(GrProcessorKeyBuilder* b) const {
+        // Ensure that our CPU and GPU type fields fit together in a 32-bit value, and we never
+        // collide with the "uninitialized" value.
+        static_assert(kGrVertexAttribTypeCount < (1 << 8), "");
+        static_assert(kGrSLTypeCount           < (1 << 8), "");
+
+        auto add_attributes = [=](const Attribute* attrs, int attrCount) {
+            for (int i = 0; i < attrCount; ++i) {
+                b->add32(attrs[i].isInitialized() ? (attrs[i].cpuType() << 16) | attrs[i].gpuType()
+                                                  : ~0);
+            }
+        };
+        add_attributes(fVertexAttributes.fAttributes, fVertexAttributes.fRawCount);
+        add_attributes(fInstanceAttributes.fAttributes, fInstanceAttributes.fRawCount);
+    }
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrProcessor; caller is responsible for deleting
