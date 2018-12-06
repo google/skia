@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0dfe7f72_e0ef3aef",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T14:19:40Z",
+      "side": 1,
+      "message": "naming nit: what do you think about having these as MakeFromText() overloads?",
+      "range": {
+        "startLine": 84,
+        "startChar": 29,
+        "endLine": 84,
+        "endChar": 45
+      },
+      "revId": "170a061ec51de1ade01430cace25c861032d1832",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
