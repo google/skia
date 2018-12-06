@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1ca3a84_dc96df08",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T15:10:10Z",
+      "side": 0,
+      "message": "I don\u0027t recall why we were punting through SkGlyphRunBuilder here -- I guess that\u0027s where the extra allocations were coming from?",
+      "range": {
+        "startLine": 725,
+        "startChar": 4,
+        "endLine": 725,
+        "endChar": 21
+      },
+      "revId": "b45d5124816ed9048e94e0a8e2b24f745b63cae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
