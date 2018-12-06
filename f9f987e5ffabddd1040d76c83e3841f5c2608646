@@ -93,6 +93,30 @@
       "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1441e6ec_9d14884f",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-06T21:11:47Z",
+      "side": 1,
+      "message": "Yup, I\u0027m chipping away at these slowly. Text is a bit more complex because of the partial update of the vertex data. ;)",
+      "parentUuid": "24f64e5d_e9bd43c4",
+      "range": {
+        "startLine": 324,
+        "startChar": 57,
+        "endLine": 324,
+        "endChar": 62
+      },
+      "revId": "f9f987e5ffabddd1040d76c83e3841f5c2608646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
