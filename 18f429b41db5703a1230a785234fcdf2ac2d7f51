@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "269212b6_aefbbd8d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-06T22:05:28Z",
+      "side": 1,
+      "message": "I presume that we don\u0027t need an explicit Skia test case for this, and trust the fuzzer to watch for regressions.",
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb7ca0f3_d2be5afb",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -22,6 +39,23 @@
       "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db694459_fe5b08f4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-06T22:05:28Z",
+      "side": 1,
+      "message": "If this was\nif (!r.is_empty()) {\nthen you\u0027d pick up 0-height frames too. Either checking width or checking is_empty is safe (I think), but is_empty is closer to what the comment says.",
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
