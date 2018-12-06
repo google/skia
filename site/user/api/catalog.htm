@@ -3564,8 +3564,8 @@
         "stdout": "blob equals nullptr"
     },
         "SkTextBlobBuilder_make": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
-    "hash": "a6b09a31f2877ba813c6a4e9e3fef1fa",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(font, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "hash": "34c37c0212cc0aef670d96945d08fe24",
     "file": "SkTextBlobBuilder_Reference",
     "name": "SkTextBlobBuilder::make()",
         "stdout": "blob equals nullptr\\nblob does not equal nullptr\\nblob equals nullptr\\n"
