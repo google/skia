@@ -344,10 +344,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMustDoCopiesFromOrigin = true;
     }
 
-    if (kNvidia_VkVendor == properties.vendorID) {
-        fMustSubmitCommandsBeforeCopyOp = true;
-    }
-
 #if defined(SK_BUILD_FOR_WIN)
     if (kNvidia_VkVendor == properties.vendorID || kIntel_VkVendor == properties.vendorID) {
         fMustSleepOnTearDown = true;
