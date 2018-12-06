@@ -16,6 +16,24 @@
       "revId": "a9823d23607e4b6916d3ab4aec4c7bd3bcd61635",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc4b1ec8_53c86c56",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-06T17:42:09Z",
+      "side": 1,
+      "message": "Following on with this, I think here we should assert it is supported. Then down in SkImageShader (where you have comment about doing fallback there) we set kClampToBorder only if caps support it otherwise fallback to either Clamp for now or domain later on.",
+      "parentUuid": "81ddcb5a_6ecea6a8",
+      "revId": "a9823d23607e4b6916d3ab4aec4c7bd3bcd61635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
