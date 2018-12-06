@@ -65,6 +65,12 @@ public:
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
                               GrMipMapped, bool useNextPow2 = false);
 
+    /**
+     * The pixel values of this surface cannot be modified (e.g. doesn't support write pixels or
+     * MIP map level regen).
+     */
+    bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
+
 protected:
     void setHasMixedSamples() {
         SkASSERT(this->asRenderTarget());
@@ -86,6 +92,11 @@ protected:
     }
     bool glRTFBOIDis0() const {
         return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    }
+
+    void setReadOnly() {
+        SkASSERT(!this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
     }
 
     // Methods made available via GrSurfacePriv

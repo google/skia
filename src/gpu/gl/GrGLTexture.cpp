@@ -51,12 +51,15 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
-                         GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc,
+                         GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc, GrIOType ioType,
                          bool purgeImmediately)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped(purgeImmediately);
+    if (ioType == kRead_GrIOType) {
+        this->setReadOnly();
+    }
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
@@ -111,9 +114,9 @@ GrBackendFormat GrGLTexture::backendFormat() const {
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc,
-                                            bool purgeImmediately) {
-    return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, mipMapsStatus, idDesc,
-                                              purgeImmediately));
+                                            GrIOType ioType, bool purgeImmediately) {
+    return sk_sp<GrGLTexture>(
+            new GrGLTexture(gpu, kWrapped, desc, mipMapsStatus, idDesc, ioType, purgeImmediately));
 }
 
 bool GrGLTexture::onStealBackendTexture(GrBackendTexture* backendTexture,

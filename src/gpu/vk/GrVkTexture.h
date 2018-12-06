@@ -25,8 +25,8 @@ public:
                                              const GrVkImage::ImageDesc&,
                                              GrMipMapsStatus);
 
-    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
-                                                 GrWrapOwnership, bool purgeImmediatley,
+    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&, GrWrapOwnership,
+                                                 GrIOType, bool purgeImmediately,
                                                  const GrVkImageInfo&, sk_sp<GrVkImageLayout>);
 
     ~GrVkTexture() override;
@@ -66,7 +66,7 @@ private:
                 GrMipMapsStatus);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&, const GrVkImageInfo&,
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView, GrMipMapsStatus,
-                GrBackendObjectOwnership, bool purgeImmediately);
+                GrBackendObjectOwnership, GrIOType ioType, bool purgeImmediately);
 
     const GrVkImageView*     fTextureView;
 

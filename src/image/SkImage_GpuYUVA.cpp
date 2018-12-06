@@ -310,7 +310,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         desc.fSampleCnt = 1;
         proxies[texIdx] = proxyProvider->createLazyProxy(
                             std::move(lazyInstCallback), yuvaFormats[texIdx], desc, imageOrigin,
-                            GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
+                            GrMipMapped::kNo, GrInternalSurfaceFlags::kReadOnly,
                             SkBackingFit::kExact, SkBudgeted::kNo,
                             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
         if (!proxies[texIdx]) {

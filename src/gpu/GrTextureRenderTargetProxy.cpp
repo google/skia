@@ -124,11 +124,19 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
 
+    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
+
     GrInternalSurfaceFlags proxyFlags = fSurfaceFlags;
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
+
+    // Only non-RT textures can be read only.
+    SkASSERT(!(proxyFlags & GrInternalSurfaceFlags::kReadOnly));
+    SkASSERT(!(surfaceFlags & GrInternalSurfaceFlags::kReadOnly));
+
     SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
              (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
-    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
+    SkASSERT((proxyFlags & GrInternalSurfaceFlags::kTextureMask) ==
+             (surfaceFlags & GrInternalSurfaceFlags::kTextureMask));
 }
 #endif
 

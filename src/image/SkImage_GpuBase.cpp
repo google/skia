@@ -320,7 +320,8 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
 
         tempTextureProxies[textureIndex] =
-            proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], imageOrigin);
+                proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], imageOrigin,
+                                                  kBorrow_GrWrapOwnership, kRead_GrIOType);
         if (!tempTextureProxies[textureIndex]) {
             return false;
         }
@@ -400,7 +401,8 @@ sk_sp<GrTexture> SkPromiseImageHelper::getTexture(GrResourceProvider* resourcePr
             return sk_sp<GrTexture>();
         }
 
-        tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
+        tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership,
+                                                   kRead_GrIOType);
         if (!tex) {
             // Even though the GrBackendTexture is not valid, we must call the release
             // proc to keep our contract of always calling Fulfill and Release in pairs.
@@ -412,7 +414,8 @@ sk_sp<GrTexture> SkPromiseImageHelper::getTexture(GrResourceProvider* resourcePr
         fReleaseHelper->weak_ref();
     } else {
         SkASSERT(fBackendTex.isValid());
-        tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership);
+        tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership,
+                                                   kRead_GrIOType);
         if (!tex) {
             // We weren't able to make a texture here, but since we are in this branch
             // of the calls (promiseHelper.fReleaseHelper is valid) there is already a
