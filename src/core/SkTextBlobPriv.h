@@ -59,21 +59,6 @@ public:
     }
 };
 
-// TODO(fmalita): replace with SkFont.
-class SkRunFont : public SkFont {
-public:
-    SkRunFont(const SkFont& font) : SkFont(font) {}
-    SkRunFont(const SkPaint& paint);
-
-    void applyToPaint(SkPaint* paint) const;
-
-    bool operator==(const SkRunFont& other) const { return SkFont::operator==(other); }
-
-    bool operator!=(const SkRunFont& other) const {
-        return !(*this == other);
-    }
-};
-
 //
 // Textblob data is laid out into externally-managed storage as follows:
 //
@@ -120,7 +105,7 @@ public:
         return fOffset;
     }
 
-    const SkRunFont& font() const {
+    const SkFont& font() const {
         return fFont;
     }
 
@@ -186,7 +171,7 @@ private:
         return fFlags & kExtended_Flag;
     }
 
-    SkRunFont        fFont;
+    SkFont           fFont;
     uint32_t         fCount;
     SkPoint          fOffset;
     uint32_t         fFlags;
@@ -195,9 +180,9 @@ private:
 };
 
 // (paint->getFlags() & ~kFlagsMask) | fFlags
-inline SkPaint::SkPaint(const SkPaint& basePaint, const SkRunFont& runFont) : SkPaint(basePaint) {
+inline SkPaint::SkPaint(const SkPaint& basePaint, const SkFont& runFont) : SkPaint(basePaint) {
     fBitfields.fTextEncoding = (unsigned)kGlyphID_SkTextEncoding;
-    runFont.applyToPaint(this);
+    runFont.LEGACY_applyToPaint(this);
 }
 
 /**
@@ -238,10 +223,6 @@ public:
         return fCurrentRun->offset();
     }
     const SkFont& font() const {
-        SkASSERT(!this->done());
-        return fCurrentRun->font();
-    }
-    const SkRunFont& runFont() const {
         SkASSERT(!this->done());
         return fCurrentRun->font();
     }
