@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bb434c05_663ecb4a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-06T15:08:19Z",
+      "side": 1,
+      "message": "I can see arguments for moving it or leaving it, so I think I\u0027ll leave it.",
+      "parentUuid": "977931ec_bbbf941e",
+      "revId": "572df7629eb8f45097c705703e2dae77cd0a3d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c9670c3_c81409d3",
         "filename": "src/gpu/vk/GrVkUtil.cpp",
         "patchSetId": 5
@@ -33,6 +51,24 @@
       "revId": "572df7629eb8f45097c705703e2dae77cd0a3d3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a39a291_6e2a05be",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-06T15:08:19Z",
+      "side": 1,
+      "message": "Yes, it\u0027s a mandatory format.",
+      "parentUuid": "5c9670c3_c81409d3",
+      "revId": "572df7629eb8f45097c705703e2dae77cd0a3d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
