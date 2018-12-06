@@ -1,0 +1,80 @@
+#! /usr/bin/env python
+# Copyright 2018 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import argparse
+import gerrit_number
+import re
+import subprocess
+import sys
+import sysopen
+
+def get_upstream_branch(branch):
+    try:
+        upstream_full = subprocess.check_output(
+                ['git', 'rev-parse', '--symbolic-full-name',
+                 branch + '@{u}']).strip()
+    except OSError:
+        raise Exception('git not found')
+    except subprocess.CalledProcessError:
+        raise Exception('no upstream branch found')
+    match = re.match('^refs/remotes/([^/]*)/(.*)$', upstream_full)
+    if match is None:
+        raise Exception('upstream branch is not a remote')
+    return (match.group(1), match.group(2))
+
+default_branch = 'master'
+default_site = 'skia-review.googlesource.com'
+default_repo = 'skia'
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser(prog=argv[0])
+    a = parser.add_argument
+    a('-u', '--use-upstream', action='store_true',
+      help='If set, use git\'s upstream branch instead of '
+      '--site, --repo, and --branch options')
+    def ad(s, l, d):
+        a(s, l, default=d, help='default value is %r' % d)
+    ad('-m', '--message', '')
+    ad('-b', '--branch', default_branch)
+    ad('-s', '--site', default_site)
+    ad('-R', '--repo', default_repo)
+    return parser.parse_args(argv[1:])
+
+
+def push(branch, site, repo, message, use_upstream):
+    remote = 'https://%s/%s.git' % (site, repo)
+    if use_upstream:
+        remote, branch = get_upstream_branch('HEAD')
+    if message:
+        message = '%m=' + re.sub('[^0-9a-zA-Z_]', '_', message)
+    cmd = ['git', 'push', remote, '@:refs/for/' + branch + message]
+    sys.stdout.write(' '.join(cmd) + '\n')
+    try:
+        subprocess.check_call(cmd)
+    except OSError:
+        raise Exception('git not found')
+    except subprocess.CalledProcessError:
+        raise Exception('push failed')
+
+
+def review_url(site, repo):
+    cid = gerrit_number.retrieve_changeid('@')
+    num = gerrit_number.gerrit_change_id_to_number(site, cid)
+    return 'https://%s/c/%s/+/%d' % (site, repo, num)
+
+
+def main(argv):
+    args = parse_args(argv)
+    push(args.branch, args.site, args.repo, args.message, args.use_upstream)
+    url = review_url(args.site, args.repo)
+    sys.stdout.write(url + '\n')
+    sysopen.sysopen(url)
+
+if __name__ == '__main__':
+    try:
+        main(sys.argv)
+    except Exception as e:
+        sys.stderr.write('%s\n' % e)
+        sys.exit(1)
