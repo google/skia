@@ -1826,7 +1826,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->internalResolveRenderTarget(rt, false);
+                this->resolveRenderTargetNoFlush(rt);
                 break;
             default:
                 SK_ABORT("Unknown resolve type");

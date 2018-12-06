@@ -287,7 +287,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(srcTex->asRenderTarget());
     if (texRT) {
-        gpu->onResolveRenderTarget(texRT);
+        gpu->resolveRenderTargetNoFlush(texRT);
     }
 
     // TODO: Make tighter bounds and then adjust bounds for origin and granularity if we see
