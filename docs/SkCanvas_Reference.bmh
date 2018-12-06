@@ -4078,7 +4078,7 @@ void draw(SkCanvas* canvas) {
 Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
-#paint_font_metrics#.
+#font_metrics#.
 
 Paint_Text_Encoding must be set to kGlyphID_SkTextEncoding.
 
@@ -4133,7 +4133,7 @@ void draw(SkCanvas* canvas) {
 Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
-#paint_font_metrics#.
+#font_metrics#.
 
 Paint_Text_Encoding must be set to kGlyphID_SkTextEncoding.
 

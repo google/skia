@@ -328,7 +328,7 @@ FT_Load_Glyph
 ##
 #Topic ##
 
-#Topic Font_Types
+#Topic Text_Encoding
 #Enum SkTextEncoding
 #Const kUTF8_SkTextEncoding 0
 ##
@@ -358,8 +358,11 @@ encodes each character as one 32-bit word.
 
 Font_Manager uses font data to convert character code points into glyph indices.
 A glyph index is a 16-bit word.
-##
+#Enum SkTextEncoding ##
+#Topic Text_Encoding ##
 
+#Topic Font_Hinting
+#Line # glyph outline adjustment ##
 #EnumClass SkFontHinting
 #Const kNone 0
 #Line # glyph outlines unchanged ##
@@ -392,8 +395,10 @@ A glyph index is a 16-bit word.
     horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
     variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
 ##
-##
+#EnumClass SkFontHinting ##
+#Topic Font_Hinting ##
 
+#Topic Font_Metrics
 #Struct SkFontMetrics
 #Line # values computed by Font_Manager using Typeface ##
 

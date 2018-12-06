@@ -45,7 +45,7 @@ conservative bounding box
 
 ### Example
 
-<div><fiddle-embed name="a22a490fd43bcc1cd3e26430debfb99e"></fiddle-embed></div>
+<div><fiddle-embed name="fb8b2502bbe52d2029aecdf569dd9fdb"></fiddle-embed></div>
 
 ### See Also
 
@@ -67,7 +67,7 @@ identifier for <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 
 ### Example
 
-<div><fiddle-embed name="fdd9c8c4470cc4f725af779e9d6db6e4"></fiddle-embed></div>
+<div><fiddle-embed name="6e12cceca981ddabc0fc18c380543f34"></fiddle-embed></div>
 
 ### See Also
 
@@ -82,13 +82,13 @@ static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkTextBlob_Reference#S
                                       <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>)
 </pre>
 
-Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromText_text'>text</a> meaning depends on <a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a>;
+Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromText_text'>text</a> meaning depends on <a href='#Text_Encoding'>Text_Encoding</a>;
 by default, <a href='#SkTextBlob_MakeFromText_text'>text</a> is encoded as UTF-8.
 
-<a href='#SkTextBlob_MakeFromText_font'>font</a> contains attributes used to define the run <a href='#SkTextBlob_MakeFromText_text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Paint_Text_Size'>Paint_Text_Size</a>, <a href='#Paint_Text_Scale_X'>Paint_Text_Scale_X</a>,
-<a href='#Paint_Text_Skew_X'>Paint_Text_Skew_X</a>, <a href='#Paint_Hinting'>Paint_Hinting</a>, <a href='#Paint_Anti_Alias'>Anti_Alias</a>, <a href='#Paint_Fake_Bold'>Paint_Fake_Bold</a>,
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a>, <a href='#Paint_LCD_Text'>LCD_Text</a>, <a href='#Paint_Linear_Text'>Linear_Text</a>,
-and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a>
+<a href='#SkTextBlob_MakeFromText_font'>font</a> contains attributes used to define the run <a href='#SkTextBlob_MakeFromText_text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Font_Size'>Font_Size</a>, <a href='#Font_Scale_X'>Font_Scale_X</a>,
+<a href='#Font_Skew_X'>Font_Skew_X</a>, <a href='#Font_Hinting'>Font_Hinting</a>, <a href='#Paint_Anti_Alias'>Paint_Anti_Alias</a>, <a href='#Font_Embolden'>Font_Embolden</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>,
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a>, <a href='#Font_Anti_Alias'>Font_Anti_Alias</a>, <a href='#Font_Linear'>Font_Linear</a>,
+and <a href='#Font_Subpixel'>Font_Subpixel</a>
 .
 
 ### Parameters
@@ -130,13 +130,13 @@ static <a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='SkTextBlob_Reference#S
                                         <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>)
 </pre>
 
-Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromString_string'>string</a> meaning depends on <a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a>;
+Creates <a href='#Text_Blob'>Text_Blob</a> with a single run. <a href='#SkTextBlob_MakeFromString_string'>string</a> meaning depends on <a href='#Text_Encoding'>Text_Encoding</a>;
 by default, <a href='#SkTextBlob_MakeFromString_string'>string</a> is encoded as UTF-8.
 
-<a href='#SkTextBlob_MakeFromString_font'>font</a> contains <a href='#Paint_Font_Metrics'>Paint_Font_Metrics</a> used to define the run <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Paint_Text_Size'>Paint_Text_Size</a>, <a href='#Paint_Text_Scale_X'>Paint_Text_Scale_X</a>,
-<a href='#Paint_Text_Skew_X'>Paint_Text_Skew_X</a>, <a href='#Paint_Hinting'>Paint_Hinting</a>, <a href='#Paint_Anti_Alias'>Anti_Alias</a>, <a href='#Paint_Fake_Bold'>Paint_Fake_Bold</a>,
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a>, <a href='#Paint_LCD_Text'>LCD_Text</a>, <a href='#Paint_Linear_Text'>Linear_Text</a>,
-and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a>
+<a href='#SkTextBlob_MakeFromString_font'>font</a> contains <a href='#Font_Metrics'>Font_Metrics</a> used to define the run <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Font_Size'>Font_Size</a>, <a href='#Font_Scale_X'>Font_Scale_X</a>,
+<a href='#Font_Skew_X'>Font_Skew_X</a>, <a href='#Font_Hinting'>Font_Hinting</a>, <a href='#Paint_Anti_Alias'>Paint_Anti_Alias</a>, <a href='#Font_Embolden'>Font_Embolden</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>,
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a>, <a href='#Font_Anti_Alias'>Font_Anti_Alias</a>, <a href='#Font_Linear'>Font_Linear</a>,
+and <a href='#Font_Subpixel'>Font_Subpixel</a>
 .
 
 ### Parameters

@@ -131,16 +131,8 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
     void <a href='#SkPaint_setTextScaleX'>setTextScaleX</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX);
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getTextSkewX'>getTextSkewX</a>() const;
     void <a href='#SkPaint_setTextSkewX'>setTextSkewX</a>(<a href='undocumented#SkScalar'>SkScalar</a> skewX);
-
-    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> : uint8_t {
-        <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>,
-        <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>,
-        <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>,
-        <a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>,
-    };
-
-    <a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
-    void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding);
+    <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
+    void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding);
 
     typedef <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> <a href='#SkPaint_FontMetrics'>FontMetrics</a>;
 
@@ -219,29 +211,29 @@ Constructs <a href='SkPaint_Reference#Paint'>Paint</a> with default values.
 | <a href='#Color_Filter'>Color_Filter</a> | nullptr |
 | Dither | false |
 | <a href='#Draw_Looper'>Draw_Looper</a> | nullptr |
-| <a href='#Paint_Fake_Bold'>Fake_Bold</a> | false |
 | <a href='#Filter_Quality'>Filter_Quality</a> | <a href='undocumented#kNone_SkFilterQuality'>kNone_SkFilterQuality</a> |
-| <a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> | false |
-| <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> | false |
-| <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> | false |
-| Hinting | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
+| <a href='#Font_Force_Hinting'>Font_Force_Hinting</a> | false |
+| <a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> | false |
+| <a href='#Font_Embolden'>Font_Embolden</a> | false |
+| <a href='#Font_Hinting'>Font_Hinting</a> | <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> |
+| <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a> | false |
+| <a href='#Font_Anti_Alias'>Font_Anti_Alias</a> | false |
+| <a href='#Font_Linear'>Font_Linear</a> | false |
+| <a href='#Font_Scale_X'>Font_Scale_X</a> | 1 |
+| <a href='#Font_Size'>Font_Size</a> | 12 |
+| <a href='#Font_Skew_X'>Font_Skew_X</a> | 0 |
+| <a href='#Font_Subpixel'>Font_Subpixel</a> | false |
 | <a href='#Image_Filter'>Image_Filter</a> | nullptr |
-| <a href='#Paint_LCD_Text'>LCD_Text</a> | false |
-| <a href='#Paint_Linear_Text'>Linear_Text</a> | false |
 | <a href='#Paint_Miter_Limit'>Miter_Limit</a> | 4 |
 | <a href='#Mask_Filter'>Mask_Filter</a> | nullptr |
 | <a href='#Path_Effect'>Path_Effect</a> | nullptr |
 | <a href='undocumented#Shader'>Shader</a> | nullptr |
 | <a href='#SkPaint_Style'>Style</a> | <a href='#SkPaint_kFill_Style'>kFill_Style</a> |
-| <a href='#Paint_Text_Encoding'>Text_Encoding</a> | <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a> |
-| <a href='#Paint_Text_Scale_X'>Text_Scale_X</a> | 1 |
-| <a href='#Paint_Text_Size'>Text_Size</a> | 12 |
-| <a href='#Paint_Text_Skew_X'>Text_Skew_X</a> | 0 |
+| <a href='#Text_Encoding'>Text_Encoding</a> | <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a> |
 | <a href='undocumented#Typeface'>Typeface</a> | nullptr |
 | <a href='#Paint_Stroke_Cap'>Stroke_Cap</a> | <a href='#SkPaint_kButt_Cap'>kButt_Cap</a> |
 | <a href='#Paint_Stroke_Join'>Stroke_Join</a> | <a href='#SkPaint_kMiter_Join'>kMiter_Join</a> |
 | <a href='#Paint_Stroke_Width'>Stroke_Width</a> | 0 |
-| <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> | false |
 
 The flags, <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a>, hinting, and miter limit may be overridden at compile time by defining
 <a href='SkPaint_Reference#Paint'>paint</a> default values. The overrides may be included in "SkUserConfig.h" or predefined by the
@@ -678,25 +670,25 @@ mask for setting Dither</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kFakeBoldText_Flag'><code>SkPaint::kFakeBoldText_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0020</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Fake_Bold</td>
+mask for setting Font_Embolden</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kLinearText_Flag'><code>SkPaint::kLinearText_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0040</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Linear_Text</td>
+mask for setting Font_Linear</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kSubpixelText_Flag'><code>SkPaint::kSubpixelText_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0080</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Subpixel_Text</td>
+mask for setting Font_Subpixel</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kLCDRenderText_Flag'><code>SkPaint::kLCDRenderText_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0200</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting LCD_Text</td>
+mask for setting Font_Anti_Alias</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kEmbeddedBitmapText_Flag'><code>SkPaint::kEmbeddedBitmapText_Flag</code></a></td>
@@ -708,7 +700,7 @@ mask for setting Font_Embedded_Bitmaps</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAutoHinting_Flag'><code>SkPaint::kAutoHinting_Flag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0800</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-mask for setting Automatic_Hinting</td>
+mask for setting Font_Force_Hinting</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kAllFlags'><code>SkPaint::kAllFlags</code></a></td>
@@ -979,12 +971,12 @@ paint1 == paint2
 
 ---
 
-<a href='#Paint_LCD_Text'>LCD_Text</a> and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> increase the precision of <a href='undocumented#Glyph'>glyph</a> position.
+<a href='#Font_Anti_Alias'>Font_Anti_Alias</a> and <a href='#Font_Subpixel'>Font_Subpixel</a> increase the precision of <a href='undocumented#Glyph'>glyph</a> position.
 
 When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> takes advantage of the organization of RGB stripes that
 create a <a href='SkColor_Reference#Color'>color</a>, and relies
 on the small <a href='undocumented#Size'>size</a> of the stripe and visual perception to make the <a href='SkColor_Reference#Color'>color</a> fringing imperceptible.
-<a href='#Paint_LCD_Text'>LCD_Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
+<a href='#Font_Anti_Alias'>Font_Anti_Alias</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
 the <a href='SkColor_Reference#Color'>color</a> components as RGB or BGR.
 
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> uses the <a href='undocumented#Pixel'>pixel</a> transparency to represent a fractional offset.
@@ -993,21 +985,21 @@ of the <a href='SkColor_Reference#Color'>color</a> increases, the edge of the <a
 
 Either or both techniques can be enabled.
 <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> and <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> are clear by default.
-<a href='#Paint_LCD_Text'>LCD_Text</a> or <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults_Flags</a> to
+<a href='#Font_Anti_Alias'>Font_Anti_Alias</a> or <a href='#Font_Subpixel'>Font_Subpixel</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults_Flags</a> to
 <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> or <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> (or both) at compile time.
 
 ### Example
 
-<div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9"><div>Four commas are drawn normally and with combinations of <a href='#Paint_LCD_Text'>LCD_Text</a> and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a>.
-When <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> is disabled, the comma <a href='undocumented#Glyph'>Glyphs</a> are identical, but not evenly spaced.
-When <a href='#Paint_Subpixel_Text'>Subpixel_Text</a> is enabled, the comma <a href='undocumented#Glyph'>Glyphs</a> are unique, but appear evenly spaced.
+<div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9"><div>Four commas are drawn normally and with combinations of <a href='#Font_Anti_Alias'>Font_Anti_Alias</a> and <a href='#Font_Subpixel'>Font_Subpixel</a>.
+When <a href='#Font_Subpixel'>Font_Subpixel</a> is disabled, the comma <a href='undocumented#Glyph'>Glyphs</a> are identical, but not evenly spaced.
+When <a href='#Font_Subpixel'>Font_Subpixel</a> is enabled, the comma <a href='undocumented#Glyph'>Glyphs</a> are unique, but appear evenly spaced.
 </div></fiddle-embed></div>
 
 <a name='Linear_Text'></a>
 
-<a href='#Paint_Linear_Text'>Linear_Text</a> selects whether <a href='undocumented#Text'>text</a> is rendered as a <a href='undocumented#Glyph'>Glyph</a> or as a <a href='SkPath_Reference#Path'>Path</a>.
-If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
-If <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> is clear, it is the same as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
+<a href='#Font_Linear'>Font_Linear</a> selects whether <a href='undocumented#Text'>text</a> is rendered as a <a href='undocumented#Glyph'>Glyph</a> or as a <a href='SkPath_Reference#Path'>Path</a>.
+If <a href='#Font_Linear'>Font_Linear</a> is set, it has the same effect as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a>.
+If <a href='#Font_Linear'>Font_Linear</a> is clear, it is the same as setting Hinting to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a>.
 
 <a name='SkPaint_isLinearText'></a>
 
@@ -1077,7 +1069,7 @@ of the <a href='SkColor_Reference#Color'>color</a> increases, the edge of the <a
 bool <a href='#SkPaint_isSubpixelText'>isSubpixelText</a>()const
 </pre>
 
-Returns true if <a href='undocumented#Glyph'>glyphs</a> at different sub-pixel positions may differ on <a href='undocumented#Pixel'>pixel</a> edge coverage.
+Returns true if <a href='undocumented#Glyph'>glyphs</a> at different <a href='SkFont_Reference#Subpixel'>sub-pixel</a> positions may differ on <a href='undocumented#Pixel'>pixel</a> edge coverage.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a>() masked with <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a>.
 
@@ -1106,7 +1098,7 @@ paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)
 void <a href='#SkPaint_setSubpixelText'>setSubpixelText</a>(bool subpixelText)
 </pre>
 
-Requests, but does not require, that <a href='undocumented#Glyph'>glyphs</a> respect sub-pixel positioning.
+Requests, but does not require, that <a href='undocumented#Glyph'>glyphs</a> respect <a href='SkFont_Reference#Subpixel'>sub-pixel</a> positioning.
 
 Sets <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> if <a href='#SkPaint_setSubpixelText_subpixelText'>subpixelText</a> is true.
 Clears <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText_Flag</a> if <a href='#SkPaint_setSubpixelText_subpixelText'>subpixelText</a> is false.
@@ -1132,10 +1124,10 @@ paint1 == paint2
 
 <a name='LCD_Text'></a>
 
-When set, <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText_Flag</a> takes advantage of the organization of RGB stripes that
+When set, <a href='#Font_Anti_Alias'>Font_Anti_Alias</a> takes advantage of the organization of RGB stripes that
 create a <a href='SkColor_Reference#Color'>color</a>, and relies
 on the small <a href='undocumented#Size'>size</a> of the stripe and visual perception to make the <a href='SkColor_Reference#Color'>color</a> fringing imperceptible.
-<a href='#Paint_LCD_Text'>LCD_Text</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
+<a href='#Font_Anti_Alias'>Font_Anti_Alias</a> can be enabled on devices that orient stripes horizontally or vertically, and that order
 the <a href='SkColor_Reference#Color'>color</a> components as RGB or BGR.
 
 <a name='SkPaint_isLCDRenderText'></a>
@@ -1199,11 +1191,11 @@ paint1 == paint2
 
 </fiddle-embed></div>
 
-<a name='Font_Embedded_Bitmaps'></a>
+<a name='Embedded_Bitmaps'></a>
 
 ---
 
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> allows selecting custom sized <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>Glyphs</a>.
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> allows selecting custom sized <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> when set chooses an embedded <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> over an outline contained
 in a <a href='SkFont_Reference#Font'>font</a> if the platform supports this option.
 
@@ -1212,8 +1204,8 @@ the outline <a href='undocumented#Glyph'>glyph</a> if <a href='#SkPaint_kEmbedde
 Windows may select the <a href='SkBitmap_Reference#Bitmap'>bitmap</a> <a href='undocumented#Glyph'>glyph</a> but is not required to do so.
 <a href='#OS_X'>OS_X</a> and iOS do not support this option.
 
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> is disabled by default.
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults_Flags</a> to
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> is disabled by default.
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults_Flags</a> to
 <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText_Flag</a> at compile time.
 
 ### Example
@@ -1304,12 +1296,12 @@ paint1 == paint2
 
 <a name='Automatic_Hinting'></a>
 
-If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a>
+If Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>
 instructs the <a href='#Font_Manager'>Font_Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
-<a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> has no effect if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
+<a href='#Font_Force_Hinting'>Font_Force_Hinting</a> has no effect if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
 
-<a href='#Paint_Automatic_Hinting'>Automatic_Hinting</a> only affects platforms that use FreeType as the <a href='#Font_Manager'>Font_Manager</a>.
+<a href='#Font_Force_Hinting'>Font_Force_Hinting</a> only affects platforms that use FreeType as the <a href='#Font_Manager'>Font_Manager</a>.
 
 <a name='SkPaint_isAutohinted'></a>
 
@@ -1357,7 +1349,7 @@ void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter)
 Sets whether to always hint <a href='undocumented#Glyph'>glyphs</a>.
 If <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNormal'>kNormal</a> or <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>
 and <a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> is set, instructs the  <a href='undocumented#Font_Manager'>font manager</a> to always hint <a href='undocumented#Glyph'>glyphs</a>.
-<a href='SkPaint_Reference#Automatic_Hinting'>auto-hinting</a> has no effect if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
+<a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> has no effect if <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kNone'>kNone</a> or
 <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kSlight'>kSlight</a>.
 
 Only affects platforms that use FreeType as the  <a href='undocumented#Font_Manager'>font manager</a>.
@@ -1384,7 +1376,7 @@ Clears <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting_Flag</a> if <a href='#S
 
 ---
 
-<a href='#Paint_Fake_Bold'>Fake_Bold</a> approximates the bold <a href='SkFont_Reference#Font'>font</a> style accompanying a normal <a href='SkFont_Reference#Font'>font</a> when a bold <a href='SkFont_Reference#Font'>font</a> face
+<a href='#Font_Embolden'>Font_Embolden</a> approximates the bold <a href='SkFont_Reference#Font'>font</a> style accompanying a normal <a href='SkFont_Reference#Font'>font</a> when a bold <a href='SkFont_Reference#Font'>font</a> face
 is not available. Skia does not provide <a href='SkFont_Reference#Font'>font</a> substitution; it is up to the client to find the
 bold <a href='SkFont_Reference#Font'>font</a> face using the platform <a href='#Font_Manager'>Font_Manager</a>.
 
@@ -1395,7 +1387,7 @@ A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to dir
 the  <a href='SkFont_Reference#Font_Engine'>font engine</a> to create the bold <a href='undocumented#Glyph'>Glyphs</a>. Otherwise, the extra bold is computed
 by increasing the  <a href='#Stroke_Width'>stroke width</a> and setting the <a href='#SkPaint_Style'>Style</a> to <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill_Style</a> as needed.
 
-<a href='#Paint_Fake_Bold'>Fake_Bold</a> is disabled by default.
+<a href='#Font_Embolden'>Font_Embolden</a> is disabled by default.
 
 ### Example
 
@@ -1462,16 +1454,6 @@ paint1 == paint2
 ~~~~
 
 </fiddle-embed></div>
-
-<a name='Full_Hinting_Spacing'></a>
-
-if Hinting is set to <a href='undocumented#SkFontHinting'>SkFontHinting</a>::<a href='#SkFontHinting_kFull'>kFull</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> adjusts the character
-spacing by the difference of the hinted and unhinted <a href='#Left_Side_Bearing'>Left_Side_Bearing</a> and
-<a href='#Right_Side_Bearing'>Right_Side_Bearing</a>. <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> only applies to platforms that use
-FreeType as their <a href='#Font_Engine'>Font_Engine</a>.
-
-<a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a> is not related to <a href='undocumented#Text'>text</a> kerning, where the space between
-a specific pair of characters is adjusted using <a href='undocumented#Data'>data</a> in the <a href='SkFont_Reference#Font'>font</a> kerning tables.
 
 <a name='Filter_Quality_Methods'></a>
 
@@ -3577,74 +3559,9 @@ Default value is zero.
 
 ---
 
-<a name='SkPaint_TextEncoding'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    enum <a href='#SkPaint_TextEncoding'>TextEncoding</a> : uint8_t {
-        <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>,
-        <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>,
-        <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>,
-        <a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>,
-    };
-
-</pre>
-
-<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines whether <a href='undocumented#Text'>text</a> specifies character codes and their encoded
-<a href='undocumented#Size'>size</a>, or <a href='undocumented#Glyph'>glyph</a> indices. Characters are encoded as specified by the
-<a href='https://unicode.org/standard/standard.html'>Unicode standard</a></a> .
-
-Character codes encoded <a href='undocumented#Size'>size</a> are specified by UTF-8, UTF-16, or UTF-32.
-All character code formats are able to represent all of Unicode, differing only
-in the total storage required.
-
-<a href='https://tools.ietf.org/html/rfc3629'>UTF-8 (RFC 3629)</a></a> encodes each character as one or more 8-bit bytes.
-
-<a href='https://tools.ietf.org/html/rfc2781'>UTF-16 (RFC 2781)</a></a> encodes each character as one or two 16-bit words.
-
-<a href='https://www.unicode.org/versions/Unicode5.0.0/ch03.pdf'>UTF-32</a></a> encodes each character as one 32-bit word.
-
-<a href='#Font_Manager'>Font_Manager</a> uses <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Data'>data</a> to convert character code <a href='SkPoint_Reference#Point'>points</a> into <a href='undocumented#Glyph'>glyph</a> indices.
-A <a href='undocumented#Glyph'>glyph</a> index is a 16-bit word.
-
-<a href='#SkPaint_TextEncoding'>TextEncoding</a> is set to <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a> by default.
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kUTF8_TextEncoding'><code>SkPaint::kUTF8_TextEncoding</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-uses bytes to represent UTF-8 or ASCII</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kUTF16_TextEncoding'><code>SkPaint::kUTF16_TextEncoding</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-uses two byte words to represent most of Unicode</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kUTF32_TextEncoding'><code>SkPaint::kUTF32_TextEncoding</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-uses four byte words to represent all of Unicode</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kGlyphID_TextEncoding'><code>SkPaint::kGlyphID_TextEncoding</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-uses two byte words to represent glyph indices</td>
-  </tr>
-</table>
-
 ### Example
 
-<div><fiddle-embed name="b29294e7f29d160a1b46abf2dcec9d2a"><div>First <a href='undocumented#Line'>line</a> is encoded in UTF-8.
+<div><fiddle-embed name="767fa4e7b6300e16a419f9881f0f9d3d"><div>First <a href='undocumented#Line'>line</a> is encoded in UTF-8.
 Second <a href='undocumented#Line'>line</a> is encoded in UTF-16.
 Third <a href='undocumented#Line'>line</a> is encoded in UTF-32.
 Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Glyph'>glyph</a> indices.
@@ -3655,27 +3572,25 @@ Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Gly
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPaint_TextEncoding'>TextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>()const
+<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>()const
 </pre>
 
-Returns <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
+Returns the <a href='undocumented#Text'>text</a> encoding. <a href='undocumented#Text'>Text</a> encoding describes how to interpret the <a href='undocumented#Text'>text</a> bytes pass
+to methods like <a href='#SkPaint_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
 
 ### Return Value
 
-one of: <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>, <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>, <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>, or
-
-<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>
+the <a href='undocumented#Text'>text</a> encoding
 
 ### Example
 
-<div><fiddle-embed name="c6cc2780a9828b3af8c4621c12b29a1b">
+<div><fiddle-embed name="0d21e968e9a4c78c902ae3ef494941a0">
 
 #### Example Output
 
 ~~~~
-kUTF8_TextEncoding == text encoding
-kGlyphID_TextEncoding == text encoding
+kUTF8_SkTextEncoding == text encoding
+kGlyphID_SkTextEncoding == text encoding
 ~~~~
 
 </fiddle-embed></div>
@@ -3685,25 +3600,22 @@ kGlyphID_TextEncoding == text encoding
 ---
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='#SkPaint_TextEncoding'>TextEncoding</a> encoding)
+void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding)
 </pre>
 
-Sets <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> to <a href='#SkPaint_setTextEncoding_encoding'>encoding</a>.
-<a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_TextEncoding'>TextEncoding</a> determines how character code <a href='SkPoint_Reference#Point'>points</a> are mapped to <a href='SkFont_Reference#Font'>font</a> <a href='undocumented#Glyph'>glyph</a> indices.
-Invalid values for <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> are ignored.
+Sets the  <a href='#Text_Encoding'>text encoding</a>. <a href='undocumented#Text'>Text</a> <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> describes how to interpret the <a href='undocumented#Text'>text</a> bytes pass
+to methods like <a href='#SkPaint_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPaint_setTextEncoding_encoding'><code><strong>encoding</strong></code></a></td>
-    <td>one of: <a href='#SkPaint_kUTF8_TextEncoding'>kUTF8_TextEncoding</a>, <a href='#SkPaint_kUTF16_TextEncoding'>kUTF16_TextEncoding</a>, <a href='#SkPaint_kUTF32_TextEncoding'>kUTF32_TextEncoding</a>, or</td>
+    <td>the new  <a href='#Text_Encoding'>text encoding</a></td>
   </tr>
 </table>
 
-<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>
-
 ### Example
 
-<div><fiddle-embed name="6d9ffdd3c5543e9f12972a06dd4a0ce5">
+<div><fiddle-embed name="a5d1ba0dbf42afb797ffdb07647b5cb9">
 
 #### Example Output
 
@@ -3752,7 +3664,7 @@ recommended spacing between <a href='undocumented#Line'>lines</a>
 
 ### See Also
 
-<a href='#Paint_Text_Size'>Text_Size</a> <a href='undocumented#Typeface'>Typeface</a> <a href='#Paint_Typeface_Methods'>Typeface_Methods</a>
+<a href='#Font_Size'>Font_Size</a> <a href='undocumented#Typeface'>Typeface</a> <a href='#Paint_Typeface_Methods'>Typeface_Methods</a>
 
 <a name='SkPaint_getFontSpacing'></a>
 
@@ -3827,7 +3739,7 @@ number of <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> represented by <a hr
 
 ### Example
 
-<div><fiddle-embed name="343e9471a7f7b5f09abdc3b44983433b"></fiddle-embed></div>
+<div><fiddle-embed name="d11136d8a74f63009da2a7f550710823"></fiddle-embed></div>
 
 <a name='SkPaint_countText'></a>
 
@@ -3912,7 +3824,7 @@ corresponding to the Unicode surrogate code <a href='SkPoint_Reference#Point'>po
 
 ### Example
 
-<div><fiddle-embed name="083557b6f653d6fc00a34e01f87b74ff"><div><a href='#SkPaint_containsText'>containsText</a> returns true that <a href='undocumented#Glyph'>glyph</a> index is greater than zero, not
+<div><fiddle-embed name="6a68cb3c8b81a5976c81ee004f559247"><div><a href='#SkPaint_containsText'>containsText</a> returns true that <a href='undocumented#Glyph'>glyph</a> index is greater than zero, not
 that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
 </div>
 
@@ -3960,7 +3872,7 @@ Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#
 
 ### Example
 
-<div><fiddle-embed name="c12686b0b3e0a87d0a248bbfc57e9492"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code <a href='SkPoint_Reference#Point'>points</a>.
+<div><fiddle-embed name="79c550ec6c34054ab60fbcd1b81adc03"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code <a href='SkPoint_Reference#Point'>points</a>.
 </div></fiddle-embed></div>
 
 <a name='Measure_Text'></a>
@@ -4378,7 +4290,7 @@ Uses <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocu
 and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
 Uses run array to position <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a>.
 
-<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
+<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> must be set to <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>.
 
 Pass nullptr for <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 

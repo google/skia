@@ -1645,7 +1645,7 @@ int <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTex
 </pre>
 
 Saves <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and clip, and allocates a <a href='SkBitmap_Reference#SkBitmap'>SkBitmap</a> for subsequent drawing.
-<a href='SkPaint_Reference#LCD_Text'>LCD text</a> is preserved when the <a href='SkCanvas_Reference#Layer'>layer</a> is drawn to the prior <a href='SkCanvas_Reference#Layer'>layer</a>.
+LCD <a href='undocumented#Text'>text</a> is preserved when the <a href='SkCanvas_Reference#Layer'>layer</a> is drawn to the prior <a href='SkCanvas_Reference#Layer'>layer</a>.
 
 Calling <a href='#SkCanvas_restore'>restore()</a> discards changes to <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a> and clip, and draws <a href='SkCanvas_Reference#Layer'>layer</a>.
 
@@ -1661,8 +1661,8 @@ Optional <a href='SkPaint_Reference#SkPaint'>SkPaint</a> <a href='#SkCanvas_save
 
 Call <a href='#SkCanvas_restoreToCount'>restoreToCount</a>() with returned value to restore this and subsequent saves.
 
-Draw <a href='undocumented#Text'>text</a> on an opaque background so that  <a href='SkPaint_Reference#LCD_Text'>LCD text</a> blends correctly with the
-prior <a href='SkCanvas_Reference#Layer'>layer</a>.  <a href='SkPaint_Reference#LCD_Text'>LCD text</a> drawn on a background with transparency may result in
+Draw <a href='undocumented#Text'>text</a> on an opaque background so that LCD <a href='undocumented#Text'>text</a> blends correctly with the
+prior <a href='SkCanvas_Reference#Layer'>layer</a>. LCD <a href='undocumented#Text'>text</a> drawn on a background with transparency may result in
 incorrect blending.
 
 ### Parameters
@@ -1763,7 +1763,7 @@ defining how <a href='SkCanvas_Reference#Layer'>Layer</a> allocated by <a href='
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kPreserveLCDText_SaveLayerFlag'><code>SkCanvas::kPreserveLCDText_SaveLayerFlag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Creates <a href='SkCanvas_Reference#Layer'>Layer</a> for  <a href='SkPaint_Reference#LCD_Text'>LCD text</a>. Flag is ignored if <a href='SkCanvas_Reference#Layer'>Layer</a> <a href='SkPaint_Reference#Paint'>Paint</a> contains
+Creates <a href='SkCanvas_Reference#Layer'>Layer</a> for LCD <a href='undocumented#Text'>text</a>. Flag is ignored if <a href='SkCanvas_Reference#Layer'>Layer</a> <a href='SkPaint_Reference#Paint'>Paint</a> contains
 <a href='#Image_Filter'>Image_Filter</a> or <a href='#Color_Filter'>Color_Filter</a>.
 </td>
   </tr>
@@ -1864,7 +1864,7 @@ without introducing artifacts. <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fCli
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_SaveLayerRec_fSaveLayerFlags'><code>fSaveLayerFlags</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a> are used to create <a href='SkCanvas_Reference#Layer'>Layer</a> without transparency,
-create <a href='SkCanvas_Reference#Layer'>Layer</a> for  <a href='SkPaint_Reference#LCD_Text'>LCD text</a>, and to create <a href='SkCanvas_Reference#Layer'>Layer</a> with the
+create <a href='SkCanvas_Reference#Layer'>Layer</a> for LCD <a href='undocumented#Text'>text</a>, and to create <a href='SkCanvas_Reference#Layer'>Layer</a> with the
 contents of the previous <a href='SkCanvas_Reference#Layer'>Layer</a>.
 </td>
   </tr>
@@ -5219,13 +5219,13 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='SkTextBlob
 
 Draws <a href='#Text_Blob'>Text_Blob</a> <a href='#SkCanvas_drawTextBlob_blob'>blob</a> at (<a href='#SkCanvas_drawTextBlob_x'>x</a>, <a href='#SkCanvas_drawTextBlob_y'>y</a>), using Clip, <a href='SkMatrix_Reference#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawTextBlob_paint'>paint</a>.
 
-<a href='#SkCanvas_drawTextBlob_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_paint'>paint</a> attributes specific to <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Paint_Text_Size'>Paint_Text_Size</a>, <a href='#Paint_Text_Scale_X'>Paint_Text_Scale_X</a>,
-<a href='#Paint_Text_Skew_X'>Paint_Text_Skew_X</a>, <a href='#Paint_Hinting'>Paint_Hinting</a>, <a href='#Paint_Anti_Alias'>Anti_Alias</a>, <a href='#Paint_Fake_Bold'>Paint_Fake_Bold</a>,
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a>, <a href='#Paint_LCD_Text'>LCD_Text</a>, <a href='#Paint_Linear_Text'>Linear_Text</a>,
-and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a>
+<a href='#SkCanvas_drawTextBlob_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_paint'>paint</a> attributes specific to <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Font_Size'>Font_Size</a>, <a href='#Font_Scale_X'>Font_Scale_X</a>,
+<a href='#Font_Skew_X'>Font_Skew_X</a>, <a href='#Font_Hinting'>Font_Hinting</a>, <a href='#Paint_Anti_Alias'>Paint_Anti_Alias</a>, <a href='#Font_Embolden'>Font_Embolden</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>,
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a>, <a href='#Font_Anti_Alias'>Font_Anti_Alias</a>, <a href='#Font_Linear'>Font_Linear</a>,
+and <a href='#Font_Subpixel'>Font_Subpixel</a>
 .
 
-<a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
+<a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a> must be set to <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>.
 
 Elements of <a href='#SkCanvas_drawTextBlob_paint'>paint</a>: <a href='#Paint_Anti_Alias'>Anti_Alias</a>, <a href='#Blend_Mode'>Blend_Mode</a>, <a href='SkColor_Reference#Color'>Color</a> including <a href='#Color_Alpha'>Color_Alpha</a>,
 <a href='#Color_Filter'>Color_Filter</a>, <a href='#Paint_Dither'>Paint_Dither</a>, <a href='#Draw_Looper'>Draw_Looper</a>, <a href='#Mask_Filter'>Mask_Filter</a>, <a href='#Path_Effect'>Path_Effect</a>, <a href='undocumented#Shader'>Shader</a>, and
@@ -5251,7 +5251,7 @@ apply to <a href='SkPath_Reference#Path'>Path</a> created from <a href='#SkCanva
 
 ### Example
 
-<div><fiddle-embed name="a207bbd7317bfbdadbda8af884631e46"></fiddle-embed></div>
+<div><fiddle-embed name="005502b502c1282cb8d306d6c8d998fb"></fiddle-embed></div>
 
 ### See Also
 
@@ -5267,13 +5267,13 @@ void <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>(const <a href='undocument
 
 Draws <a href='#Text_Blob'>Text_Blob</a> <a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> at (<a href='#SkCanvas_drawTextBlob_2_x'>x</a>, <a href='#SkCanvas_drawTextBlob_2_y'>y</a>), using Clip, <a href='SkMatrix_Reference#Matrix'>Matrix</a>, and <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>.
 
-<a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> attributes specific to <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Paint_Text_Size'>Paint_Text_Size</a>, <a href='#Paint_Text_Scale_X'>Paint_Text_Scale_X</a>,
-<a href='#Paint_Text_Skew_X'>Paint_Text_Skew_X</a>, <a href='#Paint_Hinting'>Paint_Hinting</a>, <a href='#Paint_Anti_Alias'>Anti_Alias</a>, <a href='#Paint_Fake_Bold'>Paint_Fake_Bold</a>,
-<a href='#Paint_Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Paint_Full_Hinting_Spacing'>Full_Hinting_Spacing</a>, <a href='#Paint_LCD_Text'>LCD_Text</a>, <a href='#Paint_Linear_Text'>Linear_Text</a>,
-and <a href='#Paint_Subpixel_Text'>Subpixel_Text</a>
+<a href='#SkCanvas_drawTextBlob_2_blob'>blob</a> contains <a href='undocumented#Glyph'>Glyphs</a>, their positions, and <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> attributes specific to <a href='undocumented#Text'>text</a>: <a href='undocumented#Typeface'>Typeface</a>, <a href='#Font_Size'>Font_Size</a>, <a href='#Font_Scale_X'>Font_Scale_X</a>,
+<a href='#Font_Skew_X'>Font_Skew_X</a>, <a href='#Font_Hinting'>Font_Hinting</a>, <a href='#Paint_Anti_Alias'>Paint_Anti_Alias</a>, <a href='#Font_Embolden'>Font_Embolden</a>, <a href='#Font_Force_Hinting'>Font_Force_Hinting</a>,
+<a href='#Font_Embedded_Bitmaps'>Font_Embedded_Bitmaps</a>, <a href='#Font_Hinting_Spacing'>Font_Hinting_Spacing</a>, <a href='#Font_Anti_Alias'>Font_Anti_Alias</a>, <a href='#Font_Linear'>Font_Linear</a>,
+and <a href='#Font_Subpixel'>Font_Subpixel</a>
 .
 
-<a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a> must be set to <a href='SkPaint_Reference#SkPaint'>SkPaint</a>::<a href='#SkPaint_kGlyphID_TextEncoding'>kGlyphID_TextEncoding</a>.
+<a href='#Paint_Text_Encoding'>Paint_Text_Encoding</a> must be set to <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>.
 
 Elements of <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>: <a href='#Path_Effect'>Path_Effect</a>, <a href='#Mask_Filter'>Mask_Filter</a>, <a href='undocumented#Shader'>Shader</a>, <a href='#Color_Filter'>Color_Filter</a>,
 <a href='#Image_Filter'>Image_Filter</a>, and <a href='#Draw_Looper'>Draw_Looper</a>; apply to <a href='#SkCanvas_drawTextBlob_2_blob'>blob</a>.

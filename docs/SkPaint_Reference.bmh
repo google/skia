@@ -1,13 +1,6 @@
 #Topic Paint
 #Alias Paint_Reference ##
 
-#PhraseDef paint_font_metrics
-Typeface, Paint_Text_Size, Paint_Text_Scale_X,
-Paint_Text_Skew_X, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
-Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
-and Subpixel_Text
-##
-
 #Class SkPaint
 
 #Code
@@ -55,29 +48,29 @@ Constructs Paint with default values.
 # Color_Filter           # nullptr                  ##
 # Dither                 # false                    ##
 # Draw_Looper            # nullptr                  ##
-# Fake_Bold              # false                    ##
 # Filter_Quality         # kNone_SkFilterQuality    ##
+# Font_Force_Hinting     # false                    ##
 # Font_Embedded_Bitmaps  # false                    ##
-# Automatic_Hinting      # false                    ##
-# Full_Hinting_Spacing   # false                    ##
-# Hinting                # SkFontHinting::kNormal   ##
+# Font_Embolden          # false                    ##
+# Font_Hinting           # SkFontHinting::kNormal   ##
+# Font_Hinting_Spacing   # false                    ##
+# Font_Anti_Alias        # false                    ##
+# Font_Linear            # false                    ##
+# Font_Scale_X           # 1                        ##
+# Font_Size              # 12                       ##
+# Font_Skew_X            # 0                        ##
+# Font_Subpixel          # false                    ##
 # Image_Filter           # nullptr                  ##
-# LCD_Text               # false                    ##
-# Linear_Text            # false                    ##
 # Miter_Limit            # 4                        ##
 # Mask_Filter            # nullptr                  ##
 # Path_Effect            # nullptr                  ##
 # Shader                 # nullptr                  ##
 # Style                  # kFill_Style              ##
 # Text_Encoding          # kUTF8_SkTextEncoding     ##
-# Text_Scale_X           # 1                        ##
-# Text_Size              # 12                       ##
-# Text_Skew_X            # 0                        ##
 # Typeface               # nullptr                  ##
 # Stroke_Cap             # kButt_Cap                ##
 # Stroke_Join            # kMiter_Join              ##
 # Stroke_Width           # 0                        ##
-# Subpixel_Text          # false                    ##
 #Table ##
 
 The flags, text size, hinting, and miter limit may be overridden at compile time by defining
@@ -353,22 +346,22 @@ multiple settings at once.
     #Line # mask for setting Dither ##
     ##
     #Const kFakeBoldText_Flag       0x0020
-    #Line # mask for setting Fake_Bold ##
+    #Line # mask for setting Font_Embolden ##
     ##
     #Const kLinearText_Flag         0x0040
-    #Line # mask for setting Linear_Text ##
+    #Line # mask for setting Font_Linear ##
     ##
     #Const kSubpixelText_Flag       0x0080
-    #Line # mask for setting Subpixel_Text ##
+    #Line # mask for setting Font_Subpixel ##
     ##
     #Const kLCDRenderText_Flag      0x0200
-    #Line # mask for setting LCD_Text ##
+    #Line # mask for setting Font_Anti_Alias ##
     ##
     #Const kEmbeddedBitmapText_Flag 0x0400
     #Line # mask for setting Font_Embedded_Bitmaps ##
     ##
     #Const kAutoHinting_Flag        0x0800
-    #Line # mask for setting Automatic_Hinting ##
+    #Line # mask for setting Font_Force_Hinting ##
     ##
     #Const kAllFlags                0xFFFF
     #Line # mask of all Flags ##
@@ -645,12 +638,12 @@ void draw(SkCanvas* canvas) {
 #Subtopic Device_Text
 #Line # increase precision of glyph position ##
 
-LCD_Text and Subpixel_Text increase the precision of glyph position.
+Font_Anti_Alias and Font_Subpixel increase the precision of glyph position.
 
 When set, Flags kLCDRenderText_Flag takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
-LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
+Font_Anti_Alias can be enabled on devices that orient stripes horizontally or vertically, and that order
 the color components as RGB or BGR.
 
 Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
@@ -659,14 +652,14 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 
 Either or both techniques can be enabled.
 kLCDRenderText_Flag and kSubpixelText_Flag are clear by default.
-LCD_Text or Subpixel_Text can be enabled by default by setting SkPaintDefaults_Flags to
+Font_Anti_Alias or Font_Subpixel can be enabled by default by setting SkPaintDefaults_Flags to
 kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 
 #Example
     #Description
-        Four commas are drawn normally and with combinations of LCD_Text and Subpixel_Text.
-        When Subpixel_Text is disabled, the comma Glyphs are identical, but not evenly spaced.
-        When Subpixel_Text is enabled, the comma Glyphs are unique, but appear evenly spaced.
+        Four commas are drawn normally and with combinations of Font_Anti_Alias and Font_Subpixel.
+        When Font_Subpixel is disabled, the comma Glyphs are identical, but not evenly spaced.
+        When Font_Subpixel is enabled, the comma Glyphs are unique, but appear evenly spaced.
     ##
 
     SkBitmap bitmap;
@@ -691,12 +684,11 @@ kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 #Subtopic Device_Text ##
 
 #Subtopic Linear_Text
-#Alias Linear_Text ##
 #Line # selects text rendering as Glyph or Path ##
 
-Linear_Text selects whether text is rendered as a Glyph or as a Path.
-If kLinearText_Flag is set, it has the same effect as setting Hinting to SkFontHinting::kNormal.
-If kLinearText_Flag is clear, it is the same as setting Hinting to SkFontHinting::kNone.
+Font_Linear selects whether text is rendered as a Glyph or as a Path.
+If Font_Linear is set, it has the same effect as setting Hinting to SkFontHinting::kNormal.
+If Font_Linear is clear, it is the same as setting Hinting to SkFontHinting::kNone.
 #Subtopic Linear_Text ##
 
 #Method bool isLinearText() const
@@ -755,7 +747,6 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to SkFontHinting
 ##
 
 #Subtopic Subpixel_Text
-#Alias Subpixel_Text ##
 #Line # uses pixel transparency to represent fractional offset ##
 
 Flags kSubpixelText_Flag uses the pixel transparency to represent a fractional offset.
@@ -765,7 +756,7 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 
 #Method bool isSubpixelText() const
 #In Subpixel_Text
-#Line # returns true if Subpixel_Text is set ##
+#Line # returns true if Font_Subpixel is set ##
 #Populate
 
 #Example
@@ -786,7 +777,7 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 
 #Method void setSubpixelText(bool subpixelText)
 #In Subpixel_Text
-#Line # sets or clears Subpixel_Text ##
+#Line # sets or clears Font_Subpixel ##
 #Populate
 
 #Example
@@ -805,21 +796,16 @@ SkDebugf("paint.isSubpixelText() %c= !!(paint.getFlags() & SkPaint::kSubpixelTex
 #Subtopic LCD_Text
 #Line # text relying on the order of RGB stripes ##
 
-# make this a top level name, since it is under subtopic Device_Text
-#Alias LCD_Text
-#Substitute LCD text
-##
-
-When set, Flags kLCDRenderText_Flag takes advantage of the organization of RGB stripes that
+When set, Font_Anti_Alias takes advantage of the organization of RGB stripes that
 create a color, and relies
 on the small size of the stripe and visual perception to make the color fringing imperceptible.
-LCD_Text can be enabled on devices that orient stripes horizontally or vertically, and that order
+Font_Anti_Alias can be enabled on devices that orient stripes horizontally or vertically, and that order
 the color components as RGB or BGR.
 #Subtopic LCD_Text ##
 
 #Method bool isLCDRenderText() const
 #In LCD_Text
-#Line # returns true if LCD_Text is set ##
+#Line # returns true if Font_Anti_Alias is set ##
 #Populate
 
 #Example
@@ -840,7 +826,7 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 
 #Method void setLCDRenderText(bool lcdText)
 #In LCD_Text
-#Line # sets or clears LCD_Text ##
+#Line # sets or clears Font_Anti_Alias ##
 #Populate
 
 #Example
@@ -858,9 +844,8 @@ SkDebugf("paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderT
 ##
 
 # ------------------------------------------------------------------------------
-#Subtopic Font_Embedded_Bitmaps
+#Subtopic Embedded_Bitmaps
 #Line # custom sized bitmap Glyphs ##
-#Alias Font_Embedded_Bitmaps ## # long-winded enough, alias so I don't type Paint_Font_...
 
 Font_Embedded_Bitmaps allows selecting custom sized bitmap Glyphs.
 Flags kEmbeddedBitmapText_Flag when set chooses an embedded bitmap glyph over an outline contained
@@ -903,10 +888,10 @@ kEmbeddedBitmapText_Flag at compile time.
     canvas->scale(10, 10);
     canvas->drawBitmap(bitmap, -2, 1);
 ##
-#Subtopic Font_Embedded_Bitmaps ##
+#Subtopic Embedded_Bitmaps ##
 
 #Method bool isEmbeddedBitmapText() const
-#In Font_Embedded_Bitmaps
+#In Embedded_Bitmaps
 #Line # returns true if Font_Embedded_Bitmaps is set ##
 #Populate
 
@@ -931,7 +916,7 @@ kEmbeddedBitmapText_Flag at compile time.
 ##
 
 #Method void setEmbeddedBitmapText(bool useEmbeddedBitmapText)
-#In Font_Embedded_Bitmaps
+#In Embedded_Bitmaps
 #Line # sets or clears Font_Embedded_Bitmaps ##
 #Populate
 
@@ -951,14 +936,13 @@ kEmbeddedBitmapText_Flag at compile time.
 # ------------------------------------------------------------------------------
 #Subtopic Automatic_Hinting
 #Line # always adjust glyph paths ##
-#Substitute auto-hinting
 
-If Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull, Automatic_Hinting
+If Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull, Font_Force_Hinting
 instructs the Font_Manager to always hint Glyphs.
-Automatic_Hinting has no effect if Hinting is set to SkFontHinting::kNone or
+Font_Force_Hinting has no effect if Hinting is set to SkFontHinting::kNone or
 SkFontHinting::kSlight.
 
-Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
+Font_Force_Hinting only affects platforms that use FreeType as the Font_Manager.
 #Subtopic Automatic_Hinting ##
 
 #Method bool isAutohinted() const
@@ -1017,7 +1001,7 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 #Subtopic Fake_Bold
 #Line # approximate font styles ##
 
-Fake_Bold approximates the bold font style accompanying a normal font when a bold font face
+Font_Embolden approximates the bold font style accompanying a normal font when a bold font face
 is not available. Skia does not provide font substitution; it is up to the client to find the
 bold font face using the platform Font_Manager.
 
@@ -1028,7 +1012,7 @@ A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to dir
 the font engine to create the bold Glyphs. Otherwise, the extra bold is computed
 by increasing the stroke width and setting the Style to kStrokeAndFill_Style as needed.
 
-Fake_Bold is disabled by default.
+Font_Embolden is disabled by default.
 
 #Example
 #Height 128
@@ -1050,7 +1034,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isFakeBoldText() const
 #In Fake_Bold
-#Line # returns true if Fake_Bold is set ##
+#Line # returns true if Font_Embolden is set ##
 #Populate
 
 #Example
@@ -1071,7 +1055,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void setFakeBoldText(bool fakeBoldText)
 #In Fake_Bold
-#Line # sets or clears Fake_Bold ##
+#Line # sets or clears Font_Embolden ##
 #Populate
 
 #Example
@@ -1086,20 +1070,6 @@ void draw(SkCanvas* canvas) {
     ##
 
 ##
-
-# ------------------------------------------------------------------------------
-#Subtopic Full_Hinting_Spacing
-#Line # glyph spacing affected by hinting ##
-#Alias Full_Hinting_Spacing ## # long winded enough -- maybe things with two underscores auto-aliased?
-
-if Hinting is set to SkFontHinting::kFull, Full_Hinting_Spacing adjusts the character
-spacing by the difference of the hinted and unhinted Left_Side_Bearing and
-Right_Side_Bearing. Full_Hinting_Spacing only applies to platforms that use
-FreeType as their Font_Engine.
-
-Full_Hinting_Spacing is not related to text kerning, where the space between
-a specific pair of characters is adjusted using data in the font kerning tables.
-#Subtopic Full_Hinting_Spacing ##
 
 # ------------------------------------------------------------------------------
 #Subtopic Filter_Quality_Methods
@@ -3106,7 +3076,7 @@ void draw(SkCanvas* canvas) {
         }
     ##
 
-    #SeeAlso Text_Size Typeface Typeface_Methods
+    #SeeAlso Font_Size Typeface Typeface_Methods
 
 ##
 

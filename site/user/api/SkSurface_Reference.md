@@ -798,7 +798,7 @@ fonts; may be nullptr
 
 ### Example
 
-<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div><a href='SkPaint_Reference#LCD_Text'>LCD text</a> takes advantage of raster striping to improve resolution. Only one of
+<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div>LCD <a href='undocumented#Text'>text</a> takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether monitor LCD striping is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.
