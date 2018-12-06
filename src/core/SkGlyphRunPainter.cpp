@@ -164,11 +164,12 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     for (auto& glyphRun : glyphRunList) {
         // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
         // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+        auto& props = (kN32_SkColorType == fColorType && glyphRunList.paint().isSrcOver())
                       ? fDeviceProps
                       : fBitmapFallbackProps;
 
-        const SkPaint& paint = glyphRun.paint();
+        SkPaint paint{glyphRunList.paint()};
+        glyphRun.font().LEGACY_applyToPaint(&paint);
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
@@ -324,7 +325,7 @@ void SkGlyphRunListPainter::processARGBFallback(
 template <typename PerEmptyT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+        SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
@@ -351,8 +352,10 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
     }
 
     if (!fARGBGlyphsIDs.empty()) {
+        SkPaint runPaint{paint};
+        glyphRun.font().LEGACY_applyToPaint(&runPaint);
         this->processARGBFallback(
-                maxFallbackDimension, glyphRun.paint(), viewMatrix, textScale,
+                maxFallbackDimension, runPaint, viewMatrix, textScale,
                 std::move(argbFallback));
 
     }
@@ -400,7 +403,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
 template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& viewMatrix, SkScalar textScale,
+        SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
@@ -437,8 +440,10 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
     }
 
     if (!fARGBGlyphsIDs.empty()) {
+        SkPaint runPaint{paint};
+        glyphRun.font().LEGACY_applyToPaint(&runPaint);
         this->processARGBFallback(
-                maxFallbackDimension, glyphRun.paint(), viewMatrix, textScale,
+                maxFallbackDimension, runPaint, viewMatrix, textScale,
                 std::move(argbFallback));
     }
 }
@@ -704,7 +709,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
     for (const auto& glyphRun : glyphRunList) {
-        const SkPaint& runPaint = glyphRun.paint();
+        SkPaint runPaint {glyphRunList.paint()};
+        glyphRun.font().LEGACY_applyToPaint(&runPaint);
         Run* run = this->pushBackRun();
 
         run->setRunFontAntiAlias(runPaint.isAntiAlias());
@@ -753,7 +759,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                                 glyphCache, filteredColor};
 
                 glyphPainter->drawGlyphRunAsSDFWithARGBFallback(
-                    cache.get(), glyphRun, origin, viewMatrix, textScale,
+                    cache.get(), glyphRun, origin, runPaint, viewMatrix, textScale,
                     std::move(perEmpty), std::move(perSDF), std::move(perPath),
                     std::move(argbFallback));
             }
@@ -787,7 +793,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                             glyphCache, filteredColor};
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                pathCache.get(), glyphRun, origin, viewMatrix, textScale,
+                pathCache.get(), glyphRun, origin, runPaint, viewMatrix, textScale,
                 std::move(perEmpty), std::move(perPath), std::move(argbFallback));
         } else {
             // Ensure the blob is set for bitmaptext
@@ -875,29 +881,30 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
 // -- SkTextBlobCacheDiffCanvas::TrackLayerDevice --------------------------------------------------
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRun(
-        const SkPoint& origin, const SkGlyphRun& glyphRun) {
+        const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& paint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
-    const SkPaint& runPaint = glyphRun.paint();
+    SkPaint runPaint{paint};
+    glyphRun.font().LEGACY_applyToPaint(&runPaint);
     const SkMatrix& runMatrix = this->ctm();
 
     // If the matrix has perspective, we fall back to using distance field text or paths.
 #if SK_SUPPORT_GPU
-    if (this->maybeProcessGlyphRunForDFT(glyphRun, runMatrix, origin)) {
+    if (this->maybeProcessGlyphRunForDFT(glyphRun, runMatrix, origin, runPaint)) {
         return;
     } else
 #endif
     if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
-        this->processGlyphRunForPaths(glyphRun, runMatrix, origin);
+        this->processGlyphRunForPaths(glyphRun, runMatrix, origin, runPaint);
     } else {
-        this->processGlyphRunForMask(glyphRun, runMatrix, origin);
+        this->processGlyphRunForMask(glyphRun, runMatrix, origin, runPaint);
     }
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+        SkPoint origin, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForMask");
-    const SkPaint& runPaint = glyphRun.paint();
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
@@ -950,9 +957,9 @@ struct ARGBHelper {
 };
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+        SkPoint origin, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
-    const SkPaint& runPaint = glyphRun.paint();
     SkPaint pathPaint{runPaint};
 
     SkScalar textScale = pathPaint.setupForAsPaths();
@@ -974,16 +981,15 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
 
     fPainter.drawGlyphRunAsPathWithARGBFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, textScale,
+            glyphCacheState, glyphRun, origin, runPaint, runMatrix, textScale,
             std::move(perEmpty), std::move(perPath), std::move(argbFallback));
 }
 
 #if SK_SUPPORT_GPU
 bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
-        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
+        SkPoint origin, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::maybeProcessGlyphRunForDFT");
-
-    const SkPaint& runPaint = glyphRun.paint();
 
     GrTextContext::Options options;
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
@@ -1022,7 +1028,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
     };
 
     fPainter.drawGlyphRunAsSDFWithARGBFallback(
-            sdfCache, glyphRun, origin, runMatrix, textRatio,
+            sdfCache, glyphRun, origin, runPaint, runMatrix, textRatio,
             std::move(perEmpty), std::move(perSDF), std::move(perPath),
             std::move(argbFallback));
 

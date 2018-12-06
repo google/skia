@@ -213,7 +213,7 @@ SkBaseDevice* SkTextBlobCacheDiffCanvas::TrackLayerDevice::onCreateDevice(
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::drawGlyphRunList(
         const SkGlyphRunList& glyphRunList) {
     for (auto& glyphRun : glyphRunList) {
-        this->processGlyphRun(glyphRunList.origin(), glyphRun);
+        this->processGlyphRun(glyphRunList.origin(), glyphRun, glyphRunList.paint());
     }
 }
 

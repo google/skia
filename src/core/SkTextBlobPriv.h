@@ -179,12 +179,6 @@ private:
     SkDEBUGCODE(unsigned fMagic;)
 };
 
-// (paint->getFlags() & ~kFlagsMask) | fFlags
-inline SkPaint::SkPaint(const SkPaint& basePaint, const SkFont& runFont) : SkPaint(basePaint) {
-    fBitfields.fTextEncoding = (unsigned)kGlyphID_SkTextEncoding;
-    runFont.LEGACY_applyToPaint(this);
-}
-
 /**
  *  Iterate through all of the text runs of the text blob.  For example:
  *    for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {

@@ -1205,10 +1205,6 @@ public:
                                       Style style) const;
 
 private:
-    friend class SkGlyphRun;
-    friend class SkGlyphRunBuilder;
-    SkPaint(const SkPaint&, const SkFont&);
-
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
     sk_sp<SkShader>       fShader;

@@ -2456,7 +2456,7 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform x
         auto list = fScratchGlyphRunBuilder->useGlyphRunList();
         if (!list.empty()) {
             auto glyphRun = list[0];
-            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform);
+            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform, paint);
         }
     }
 
