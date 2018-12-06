@@ -2436,6 +2436,7 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
     LOOPER_END
 }
 
+#if 0
 void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
 
@@ -2479,6 +2480,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
 
     LOOPER_END
 }
+#endif
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
@@ -2535,10 +2537,7 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        SkPaint tmp(paint);
-        font.LEGACY_applyToPaint(&tmp);
-        tmp.setTextEncoding(encoding);
-        this->onDrawText(text, byteLength, x, y, tmp);
+        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
 void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
@@ -2546,7 +2545,9 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawText(text, byteLength, x, y, paint);
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        const SkTextEncoding encoding = paint.getTextEncoding();
+        this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
@@ -2554,7 +2555,9 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint po
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawPosText(text, byteLength, pos, paint);
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        const SkTextEncoding encoding = paint.getTextEncoding();
+        this->drawTextBlob(SkTextBlob::MakeFromPosText(text, byteLength, pos, font, encoding), 0, 0, paint);
     }
 }
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
@@ -2562,7 +2565,9 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        const SkTextEncoding encoding = paint.getTextEncoding();
+        this->drawTextBlob(SkTextBlob::MakeFromPosTextH(text, byteLength, xpos, constY, font, encoding), 0, 0, paint);
     }
 }
 
