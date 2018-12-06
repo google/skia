@@ -146,7 +146,7 @@ public:
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                             GrResourceProvider::SemaphoreWrapType wrapType,
                                             GrWrapOwnership ownership) override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
     // These match the definitions in SkDrawable, from whence they came

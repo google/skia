@@ -369,7 +369,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             } else {
                 semaphore = resourceProvider->makeSemaphore(false);
             }
-            this->insertSemaphore(semaphore, false);
+            this->insertSemaphore(semaphore);
 
             if (!backendSemaphores[i].isInitialized()) {
                 backendSemaphores[i] = semaphore->backendSemaphore();

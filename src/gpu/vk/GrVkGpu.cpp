@@ -2112,17 +2112,13 @@ sk_sp<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semap
     return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), wrapType, ownership);
 }
 
-void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
 
     GrVkSemaphore::Resource* resource = vkSem->getResource();
     if (resource->shouldSignal()) {
         resource->ref();
         fSemaphoresToSignal.push_back(resource);
-    }
-
-    if (flush) {
-        this->submitCommandBuffer(kSkip_SyncQueue);
     }
 }
 

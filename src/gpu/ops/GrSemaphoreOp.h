@@ -16,11 +16,6 @@
 
 class GrSemaphoreOp : public GrOp {
 public:
-    static std::unique_ptr<GrOp> MakeSignal(GrContext*,
-                                            sk_sp<GrSemaphore>,
-                                            GrRenderTargetProxy*,
-                                            bool forceFlush);
-
     static std::unique_ptr<GrOp> MakeWait(GrContext*,
                                           sk_sp<GrSemaphore>,
                                           GrRenderTargetProxy*);

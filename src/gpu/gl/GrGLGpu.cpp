@@ -4333,16 +4333,12 @@ sk_sp<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semap
     return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
 }
 
-void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
+void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());
 
     GrGLsync sync;
     GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
     glSem->setSync(sync);
-
-    if (flush) {
-        GL_CALL(Flush());
-    }
 }
 
 void GrGLGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
@@ -4362,7 +4358,9 @@ void GrGLGpu::insertEventMarker(const char* msg) {
 sk_sp<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     // Set up a semaphore to be signaled once the data is ready, and flush GL
     sk_sp<GrSemaphore> semaphore = this->makeSemaphore(true);
-    this->insertSemaphore(semaphore, true);
+    this->insertSemaphore(semaphore);
+    // We must call flush here to make sure the GrGLSync object gets created and sent to the gpu.
+    GL_CALL(Flush());
 
     return semaphore;
 }
