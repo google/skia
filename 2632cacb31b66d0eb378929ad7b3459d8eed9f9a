@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb5f4b25_54bb3db6",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T21:04:29Z",
+      "side": 1,
+      "message": "Decal rules!",
+      "range": {
+        "startLine": 306,
+        "startChar": 41,
+        "endLine": 306,
+        "endChar": 46
+      },
+      "revId": "2632cacb31b66d0eb378929ad7b3459d8eed9f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba216b2c_11a7c1fd",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T21:04:29Z",
+      "side": 1,
+      "message": "No longer needed/used?",
+      "range": {
+        "startLine": 1029,
+        "startChar": 72,
+        "endLine": 1029,
+        "endChar": 89
+      },
+      "revId": "2632cacb31b66d0eb378929ad7b3459d8eed9f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90946635_c0b4e9e0",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 8
+      },
+      "lineNbr": 1387,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T21:04:29Z",
+      "side": 1,
+      "message": "Does this require the same treatment as _fillPaint?",
+      "revId": "2632cacb31b66d0eb378929ad7b3459d8eed9f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
