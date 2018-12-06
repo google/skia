@@ -104,7 +104,7 @@ for (int index = 0; index < 2; ++index) {
 Creates Text_Blob with a single run. text meaning depends on Text_Encoding;
 by default, text is encoded as UTF-8.
 
-font contains attributes used to define the run text: #paint_font_metrics#.
+font contains attributes used to define the run text: #font_metrics#.
 
 #Param text character code points or Glyphs drawn ##
 #Param  byteLength   byte length of text array ##
@@ -137,10 +137,10 @@ font contains attributes used to define the run text: #paint_font_metrics#.
 #In Constructors
 #Line # constructs Text_Blob with one run ##
 
-Creates Text_Blob with a single run. string meaning depends on Paint_Text_Encoding;
+Creates Text_Blob with a single run. string meaning depends on Text_Encoding;
 by default, string is encoded as UTF-8.
 
-font contains Paint_Font_Metrics used to define the run text: #paint_font_metrics#.
+font contains Font_Metrics used to define the run text: #font_metrics#.
 
 #Param string character code points or Glyphs drawn ##
 #Param  font    text size, typeface, text scale, and so on, used to draw ##

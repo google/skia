@@ -1,6 +1,17 @@
 #Topic Font
 #Alias Font_Reference ##
 
+#Code
+#Populate
+##
+
+#PhraseDef font_metrics
+Typeface, Font_Size, Font_Scale_X,
+Font_Skew_X, Font_Hinting, Paint_Anti_Alias, Font_Embolden, Font_Force_Hinting,
+Font_Embedded_Bitmaps, Font_Hinting_Spacing, Font_Anti_Alias, Font_Linear,
+and Font_Subpixel
+##
+
 #Subtopic Advance
 # incomplete, should probably be in overview, not reference
 ##
@@ -8,8 +19,111 @@
 # incomplete, should probably be in overview, not reference
 ##
 
-#Code
-#Populate
+#Subtopic Size
+#Line # overall height in points ##
+Font_Size adjusts the overall text size in points.
+Font_Size can be set to any positive value or zero.
+Font_Size defaults to 12.
+Font_Size
+##
+
+#Subtopic Scale_X
+#Line # text horizontal scale ##
+Font_Scale_X adjusts the text horizontal scale.
+Text scaling approximates condensed and expanded type faces when the actual face
+is not available.
+Font_Scale_X can be set to any value.
+Font_Scale_X defaults to 1.
+##
+
+#Subtopic Skew_X
+#Line # text horizontal slant ##
+Font_Skew_X adjusts the text horizontal slant.
+Text skewing approximates italic and oblique type faces when the actual face
+is not available.
+Font_Skew_X can be set to any value.
+Font_Skew_X defaults to 0.
+##
+
+#Subtopic Embolden
+#Line # approximate font styles ##
+
+Font_Embolden approximates the bold font style accompanying a normal font when a bold font face
+is not available. Skia does not provide font substitution; it is up to the client to find the
+bold font face using the platform Font_Manager.
+
+Use Font_Skew_X to approximate an italic font style when the italic font face
+is not available.
+
+A FreeType based port may define SK_USE_FREETYPE_EMBOLDEN at compile time to direct
+the font engine to create the bold Glyphs. Otherwise, the extra bold is computed
+by increasing the stroke width and setting the SkPaint::Style to
+SkPaint::kStrokeAndFill_Style as needed.
+
+Font_Embolden is disabled by default.
+#Subtopic Embolden ##
+
+#Subtopic Hinting_Spacing
+#Line # glyph spacing affected by hinting ##
+
+If Hinting is set to SkFontHinting::kFull, Hinting_Spacing adjusts the character
+spacing by the difference of the hinted and unhinted Left_Side_Bearing and
+Right_Side_Bearing. Hinting_Spacing only applies to platforms that use
+FreeType as their Font_Engine.
+
+Hinting_Spacing is not related to text kerning, where the space between
+a specific pair of characters is adjusted using data in the font kerning tables.
+#Subtopic Hinting_Spacing ##
+
+#Subtopic Linear
+#Line # selects text rendering as Glyph or Path ##
+Font_Linear selects whether text is rendered as a Glyph or as a Path.
+If Font_Linear is set, it has the same effect as setting Hinting to SkFontHinting::kNormal.
+If Font_Linear is clear, it is the same as setting Hinting to SkFontHinting::kNone.
+#Subtopic Linear ##
+
+#Subtopic Subpixel
+#Line # uses pixel transparency to represent fractional offset ##
+#Substitute sub-pixel
+Font_Subpixel uses the pixel transparency to represent a fractional offset.
+As the opaqueness of the color increases, the edge of the glyph appears to move
+towards the outside of the pixel.
+#Subtopic Subpixel ##
+
+#Subtopic Anti_Alias
+#Line # text relying on the order of RGB stripes ##
+When set, Anti_Alias positions glyphs within a pixel, using alpha and
+possibly RGB striping. It can take advantage of the organization of RGB stripes
+that create a color, and relies on the small size of the stripe and visual perception
+to make the color fringing imperceptible.
+
+Anti_Alias can be enabled on devices that orient stripes horizontally
+or vertically, and that order the color components as RGB or BGR. Internally, the
+glyph cache may store multiple copies of the same glyph with different sub-pixel
+positions, requiring more memory.
+#Subtopic Anti_Alias ##
+
+#Subtopic Force_Hinting
+#Line # always adjust glyph paths ##
+
+If Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull, Force_Hinting
+instructs the Font_Manager to always hint Glyphs.
+Force_Hinting has no effect if Hinting is set to SkFontHinting::kNone or
+SkFontHinting::kSlight.
+
+Force_Hinting only affects platforms that use FreeType as the Font_Manager.
+#Subtopic Force_Hinting ##
+
+#Subtopic Embedded_Bitmaps
+#Line # custom sized bitmap Glyphs ##
+Embedded_Bitmaps allows selecting custom sized bitmap Glyphs.
+Embedded_Bitmaps when set chooses an embedded bitmap glyph over an outline contained
+in a font if the platform supports this option.
+
+FreeType selects the bitmap glyph if available when Embedded_Bitmaps is set, and selects
+the outline glyph if Embedded_Bitmaps is clear.
+Windows may select the bitmap glyph but is not required to do so.
+OS_X and iOS do not support this option.
 ##
 
 # ------------------------------------------------------------------------------
