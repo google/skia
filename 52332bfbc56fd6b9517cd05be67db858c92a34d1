@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d6241d1_13cf3d01",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-06T16:30:03Z",
+      "side": 1,
+      "message": "Even though it doesn\u0027t matter, it hurts me that isn\u0027t constexpr.",
+      "range": {
+        "startLine": 355,
+        "startChar": 7,
+        "endLine": 355,
+        "endChar": 13
+      },
+      "revId": "52332bfbc56fd6b9517cd05be67db858c92a34d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
