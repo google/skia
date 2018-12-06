@@ -74,8 +74,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     }
 
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(backendTex, origin, ownership,
-                                                                    releaseProc, releaseCtx);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
+            backendTex, origin, ownership, kRead_GrIOType, releaseProc, releaseCtx);
     if (!proxy) {
         return nullptr;
     }
@@ -373,6 +373,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     desc.fHeight = height;
     desc.fConfig = config;
 
+    // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [promiseHelper, config](GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
@@ -382,7 +383,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
                 return promiseHelper.getTexture(resourceProvider, config);
             },
-            backendFormat, desc, origin, mipMapped, GrInternalSurfaceFlags::kNone,
+            backendFormat, desc, origin, mipMapped, GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
@@ -534,7 +535,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
             },
             yuvaFormats[yuvaIndices[SkYUVAIndex::kY_Index].fIndex],
             desc, imageOrigin, GrMipMapped::kNo,
-            GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
     if (!proxy) {

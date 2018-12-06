@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -14,7 +12,10 @@
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkMipMap.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
@@ -233,6 +234,97 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     context->contextPriv().purgeAllUnlockedResources_ForTesting();
                 }
             }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
+    auto fillPixels = [](const SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
+        for (int y = 0; y < p->height(); ++y) {
+            for (int x = 0; x < p->width(); ++x) {
+                *p->writable_addr32(x, y) = f(x, y);
+            }
+        }
+    };
+
+    auto comparePixels = [](const SkPixmap& p1, const SkPixmap& p2, skiatest::Reporter* reporter) {
+        SkASSERT(p1.info() == p2.info());
+        for (int y = 0; y < p1.height(); ++y) {
+            for (int x = 0; x < p1.width(); ++x) {
+                REPORTER_ASSERT(reporter, p1.getColor(x, y) == p2.getColor(x, y));
+                if (p1.getColor(x, y) != p2.getColor(x, y)) {
+                    return;
+                }
+            }
+        }
+    };
+
+    static constexpr int kSize = 100;
+    SkAutoPixmapStorage pixels;
+    pixels.alloc(SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    fillPixels(&pixels,
+               [](int x, int y) { return (0xFFU << 24) | (x << 16) | (y << 8) | uint8_t(x * y); });
+
+    GrContext* context = context_info.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+    // We test both kRW in addition to kRead mostly to ensure that the calls are structured such
+    // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
+    // kRead for the right reason.
+    for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
+        auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+                pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
+        auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+                                                       kBorrow_GrWrapOwnership, ioType);
+        auto surfContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
+
+        // Read pixels should work with a read-only texture.
+        SkAutoPixmapStorage read;
+        read.alloc(pixels.info());
+        auto readResult = surfContext->readPixels(pixels.info(), read.writable_addr(), 0, 0, 0);
+        REPORTER_ASSERT(reporter, readResult);
+        if (readResult) {
+            comparePixels(pixels, read, reporter);
+        }
+
+        // Write pixels should not work with a read-only texture.
+        SkAutoPixmapStorage write;
+        write.alloc(pixels.info());
+        fillPixels(&write, [&pixels](int x, int y) { return ~*pixels.addr32(); });
+        auto writeResult = surfContext->writePixels(pixels.info(), pixels.addr(), 0, 0, 0);
+        REPORTER_ASSERT(reporter, writeResult == (ioType == kRW_GrIOType));
+        // Try the low level write.
+        context->flush();
+        auto gpuWriteResult = context->contextPriv().getGpu()->writePixels(
+                proxy->peekTexture(), 0, 0, kSize, kSize, GrColorType::kRGBA_8888, write.addr32(),
+                0);
+        REPORTER_ASSERT(reporter, gpuWriteResult == (ioType == kRW_GrIOType));
+
+        // Copies should not work with a read-only texture
+        auto copySrc = proxyProvider->createTextureProxy(
+                SkImage::MakeFromRaster(write, nullptr, nullptr), kNone_GrSurfaceFlags, 1,
+                SkBudgeted::kYes, SkBackingFit::kExact);
+        REPORTER_ASSERT(reporter, copySrc);
+        auto copyResult = surfContext->copy(copySrc.get());
+        REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
+        // Try the low level copy.
+        context->flush();
+        auto gpuCopyResult = context->contextPriv().getGpu()->copySurface(
+                proxy->peekTexture(), kTopLeft_GrSurfaceOrigin, copySrc->peekTexture(),
+                kTopLeft_GrSurfaceOrigin, SkIRect::MakeWH(kSize, kSize), {0, 0});
+        REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
+
+        // Mip regen should not work with a read only texture.
+        if (context->contextPriv().caps()->mipMapSupport()) {
+            backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+                    nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
+            proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
+                                                      kBorrow_GrWrapOwnership, ioType);
+            context->flush();
+            proxy->peekTexture()->texturePriv().markMipMapsDirty();  // avoids assert in GrGpu.
+            auto regenResult =
+                    context->contextPriv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
+            REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
         }
     }
 }
