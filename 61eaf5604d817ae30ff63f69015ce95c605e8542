@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbd04fd3_1265de0a",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1101,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T14:53:39Z",
+      "side": 1,
+      "message": "Some complexity in Blink\u0027s C2D implementation is related to handling non-invertible transforms.  Do we have any plans for that corner case, or it is out of scope?",
+      "range": {
+        "startLine": 1101,
+        "startChar": 10,
+        "endLine": 1101,
+        "endChar": 18
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c79f84e_8422d259",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T14:53:39Z",
+      "side": 1,
+      "message": "// putImageData() operates in device space.",
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d62262df_2eb411f6",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T14:53:39Z",
+      "side": 1,
+      "message": "Does _currentTransform ever diverge from _canvas.getTotalMatrix()?  Can we just use the _canvas transform instead?",
+      "range": {
+        "startLine": 1188,
+        "startChar": 11,
+        "endLine": 1188,
+        "endChar": 28
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
