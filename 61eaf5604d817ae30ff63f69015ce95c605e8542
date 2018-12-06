@@ -128,6 +128,30 @@
       "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0482e84e_94dbc2c2",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-06T15:32:36Z",
+      "side": 1,
+      "message": "On the other hand, I think this use case may explain why getTotalMatrix() has been so persistent.  I think it may be better to expose it than to let the matrices drift silently.",
+      "parentUuid": "2b93a175_fe34167a",
+      "range": {
+        "startLine": 1188,
+        "startChar": 11,
+        "endLine": 1188,
+        "endChar": 28
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
