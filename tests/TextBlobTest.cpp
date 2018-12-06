@@ -445,7 +445,7 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     int runs = 0;
     for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
         REPORTER_ASSERT(reporter, it.glyphCount() == strlen(text));
-        REPORTER_ASSERT(reporter, it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
+        REPORTER_ASSERT(reporter, it.positioning() == SkTextBlobRunIterator::kDefault_Positioning);
         runs += 1;
     }
     REPORTER_ASSERT(reporter, runs == 1);
