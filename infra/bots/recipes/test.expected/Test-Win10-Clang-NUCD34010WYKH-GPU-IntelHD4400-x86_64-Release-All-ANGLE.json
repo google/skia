@@ -416,8 +416,6 @@
       "gm",
       "_",
       "lighting",
-      "--match",
-      "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
       "--reduceOpListSplitting",
       "--verbose"

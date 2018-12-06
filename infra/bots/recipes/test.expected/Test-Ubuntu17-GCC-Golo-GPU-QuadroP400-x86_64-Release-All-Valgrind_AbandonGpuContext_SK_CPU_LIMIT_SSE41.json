@@ -317,8 +317,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~Threaded",
       "--nonativeFonts",
       "--reduceOpListSplitting",
       "--verbose",
