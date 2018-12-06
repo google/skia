@@ -93,6 +93,30 @@
       "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c969411f_9cb32ed9",
+        "filename": "src/gpu/GrPrimitiveProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-06T15:25:58Z",
+      "side": 1,
+      "message": "The entire key does get hashed (and the hash is stored near the beginning of the key for fast fail). I\u0027ve wondered whether we could get away with just making the hash the key to avoid the full key comparison on a hit. If we could do that then we could make a pretty large temp buffer to fill out the descriptor on the stack, hash it, and toss it.",
+      "parentUuid": "ac208bcc_625eb6df",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 75
+      },
+      "revId": "ffc0647755cd2105cee2980f9cf9b48c506c6982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
