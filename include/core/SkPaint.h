@@ -47,7 +47,7 @@ class SkMaskFilter;
 class SkPath;
 class SkPathEffect;
 struct SkPoint;
-class SkRunFont;
+class SkFont;
 class SkShader;
 class SkSurfaceProps;
 class SkTextBlob;
@@ -1279,7 +1279,7 @@ public:
 private:
     friend class SkGlyphRun;
     friend class SkGlyphRunBuilder;
-    SkPaint(const SkPaint&, const SkRunFont&);
+    SkPaint(const SkPaint&, const SkFont&);
 
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;

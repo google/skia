@@ -17,14 +17,14 @@
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
+class SkFont;
 class SkGlyph;
-class SkRunFont;
 
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
     SkGlyphRun(const SkPaint& basePaint,
-               const SkRunFont& runFont,
+               const SkFont& runFont,
                SkSpan<const SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
                SkSpan<const char> text,
@@ -137,7 +137,7 @@ private:
 
     void makeGlyphRun(
             const SkPaint& basePaint,
-            const SkRunFont& runFont,
+            const SkFont& runFont,
             SkSpan<const SkGlyphID> glyphIDs,
             SkSpan<const SkPoint> positions,
             SkSpan<const char> text,
@@ -146,17 +146,17 @@ private:
     void makeGlyphRunList(const SkPaint& paint, const SkTextBlob* blob, SkPoint origin);
 
     void simplifyDrawText(
-            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
+            const SkPaint& paint, const SkFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
             SkPoint origin, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     void simplifyDrawPosTextH(
-            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
+            const SkPaint& paint, const SkFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
             const SkScalar* xpos, SkScalar constY, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     void simplifyDrawPosText(
-            const SkPaint& paint, const SkRunFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
+            const SkPaint& paint, const SkFont& runFont, SkSpan<const SkGlyphID> glyphIDs,
             const SkPoint* pos,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
