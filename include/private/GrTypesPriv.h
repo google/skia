@@ -359,7 +359,6 @@ enum GrSLType {
  */
 enum class GrTextureType {
     k2D,
-    /* Rectangle uses unnormalized texture coordinates. */
     kRectangle,
     kExternal
 };

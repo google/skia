@@ -42,8 +42,7 @@ private:
             fSamplers[i].reset(std::move(proxies[i]),
                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filterModes[i]));
             fSamplerTransforms[i] = SkMatrix::MakeScale(scales[i].width(), scales[i].height());
-            fSamplerCoordTransforms[i] =
-                    GrCoordTransform(fSamplerTransforms[i], fSamplers[i].proxy());
+            fSamplerCoordTransforms[i].reset(fSamplerTransforms[i], fSamplers[i].proxy(), true);
         }
 
         this->setTextureSamplerCnt(numPlanes);

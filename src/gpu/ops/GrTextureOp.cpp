@@ -54,11 +54,9 @@ static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const
            SkScalarFraction(qt) != SkScalarFraction(srcRect.fTop);
 }
 
-// if normalizing the domain then pass 1/width, 1/height, 1 for iw, ih, h. Otherwise pass
-// 1, 1, and height.
-static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter, GrSurfaceOrigin origin,
-                             const SkRect& srcRect, float iw, float ih, float h) {
-    static constexpr SkRect kLargeRect = {-100000, -100000, 1000000, 1000000};
+static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter,
+                             GrSurfaceOrigin origin, const SkRect& srcRect, float iw, float ih) {
+    static constexpr SkRect kLargeRect = {-2, -2, 2, 2};
     if (domain == Domain::kNo) {
         // Either the quad has no domain constraint and is batched with a domain constrained op
         // (in which case we want a domain that doesn't restrict normalized tex coords), or the
@@ -77,7 +75,7 @@ static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter, GrSur
     ltrb *= Sk4f(iw, ih, iw, ih);
     if (origin == kBottomLeft_GrSurfaceOrigin) {
         static const Sk4f kMul = {1.f, -1.f, 1.f, -1.f};
-        static const Sk4f kAdd = {0.f, h, 0.f, h};
+        static const Sk4f kAdd = {0.f, 1.f, 0.f, 1.f};
         ltrb = SkNx_shuffle<0, 3, 2, 1>(kMul * ltrb + kAdd);
     }
 
@@ -86,10 +84,8 @@ static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter, GrSur
     return domainRect;
 }
 
-// If normalizing the src quad then pass 1/width, 1/height, 1 for iw, ih, h. Otherwise pass
-// 1, 1, and height.
-static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRect, float iw,
-                                    float ih, float h) {
+static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRect,
+                                    float iw, float ih) {
     // Convert the pixel-space src rectangle into normalized texture coordinates
     SkRect texRect = {
         iw * srcRect.fLeft,
@@ -98,8 +94,8 @@ static GrPerspQuad compute_src_quad(GrSurfaceOrigin origin, const SkRect& srcRec
         ih * srcRect.fBottom
     };
     if (origin == kBottomLeft_GrSurfaceOrigin) {
-        texRect.fTop = h - texRect.fTop;
-        texRect.fBottom = h - texRect.fBottom;
+        texRect.fTop = 1.f - texRect.fTop;
+        texRect.fBottom = 1.f - texRect.fBottom;
     }
     return GrPerspQuad(texRect, SkMatrix::I());
 }
@@ -309,21 +305,13 @@ private:
         TRACE_EVENT0("skia", TRACE_FUNC);
         auto origin = proxy->origin();
         const auto* texture = proxy->peekTexture();
-        float iw, ih, h;
-        if (proxy->textureType() == GrTextureType::kRectangle) {
-            iw = ih = 1.f;
-            h = texture->height();
-        } else {
-            iw = 1.f / texture->width();
-            ih = 1.f / texture->height();
-            h = 1.f;
-        }
+        float iw = 1.f / texture->width();
+        float ih = 1.f / texture->height();
 
         for (int i = start; i < start + cnt; ++i) {
             const auto q = fQuads[i];
-            GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih, h);
-            SkRect domain =
-                    compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih, h);
+            GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih);
+            SkRect domain = compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih);
             v = GrQuadPerEdgeAA::Tessellate(v, spec, q.quad(), q.color(), srcQuad, domain,
                                             q.aaFlags());
         }
