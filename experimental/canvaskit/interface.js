@@ -12,6 +12,10 @@
     // Add some helpers for matrices. This is ported from SkMatrix.cpp
     // to save complexity and overhead of going back and forth between
     // C++ and JS layers.
+    // I would have liked to use something like DOMMatrix, except it
+    // isn't widely supported (would need polyfills) and it doesn't
+    // have a mapPoints() function (which could maybe be tacked on here).
+    // If DOMMatrix catches on, it would be worth re-considering this usage.
     CanvasKit.SkMatrix = {};
     function sdot(a, b, c, d, e, f) {
       e = e || 0;
@@ -24,6 +28,22 @@
         1, 0, 0,
         0, 1, 0,
         0, 0, 1,
+      ];
+    };
+
+    // Return the inverse (if it exists) of this matrix.
+    // Otherwise, return the identity.
+    CanvasKit.SkMatrix.invert = function(m) {
+      var det = m[0]*m[4]*m[8] + m[1]*m[5]*m[6] + m[2]*m[3]*m[7]
+              - m[2]*m[4]*m[6] - m[1]*m[3]*m[8] - m[0]*m[5]*m[7];
+      if (!det) {
+        SkDebug('Warning, uninvertible matrix');
+        return CanvasKit.SkMatrix.identity();
+      }
+      return [
+        (m[4]*m[8] - m[5]*m[7])/det, (m[2]*m[7] - m[1]*m[8])/det, (m[1]*m[5] - m[2]*m[4])/det,
+        (m[5]*m[6] - m[3]*m[8])/det, (m[0]*m[8] - m[2]*m[6])/det, (m[2]*m[3] - m[0]*m[5])/det,
+        (m[3]*m[7] - m[4]*m[6])/det, (m[1]*m[6] - m[0]*m[7])/det, (m[0]*m[4] - m[1]*m[3])/det,
       ];
     };
 
