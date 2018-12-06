@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "598faecb_2c22ed1e",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1101,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T15:48:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e25469c7_c6266edf",
+      "range": {
+        "startLine": 1101,
+        "startChar": 10,
+        "endLine": 1101,
+        "endChar": 18
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c79f84e_8422d259",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 7
@@ -152,6 +176,30 @@
       "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccfc3ad2_6ccca94d",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-06T15:48:07Z",
+      "side": 1,
+      "message": "Yeah, getTotalMatrix() is useful and comes up often enough in client code that I doubt it will go away.  Also, of the \"tricky\" canvas matrix methods it seems to be the least controversial (since we pretty much have to have it internally anyway).\n\nI would vote for exposing instead of duplicating the state tracking logic in client code, but it doesn\u0027t have to happen in this CL.",
+      "parentUuid": "0482e84e_94dbc2c2",
+      "range": {
+        "startLine": 1188,
+        "startChar": 11,
+        "endLine": 1188,
+        "endChar": 28
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
