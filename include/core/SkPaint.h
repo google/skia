@@ -971,22 +971,7 @@ public:
         @return            true if all text corresponds to a non-zero glyph index
     */
     bool containsText(const void* text, size_t byteLength) const;
-#endif
 
-    /** Converts glyphs into text if possible.
-        Glyph values without direct Unicode equivalents are mapped to zero.
-        Uses the SkTypeface, but is unaffected
-        by SkTextEncoding; the text values returned are equivalent to kUTF32_SkTextEncoding.
-
-        Only supported on platforms that use FreeType as the font engine.
-
-        @param glyphs  array of indices into font
-        @param count   length of glyph array
-        @param text    storage for character codes, one per glyph
-    */
-    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Returns the number of glyphs in text.
         Uses SkTextEncoding to count the glyphs.
         Returns the same result as textToGlyphs().
@@ -1025,9 +1010,7 @@ public:
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, nullptr);
     }
-#endif
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Retrieves the advance and bounds for each glyph in text, and returns
         the glyph count in text.
         Both widths and bounds may be nullptr.

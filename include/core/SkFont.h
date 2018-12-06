@@ -492,7 +492,10 @@ private:
 
     SkScalar setupForAsPaths(SkPaint*);
 
+    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
+
     friend class SkCanonicalizeFont;
+    friend class SkSVGDevice;
 };
 
 #endif

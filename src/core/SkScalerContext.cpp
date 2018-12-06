@@ -555,10 +555,6 @@ void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
     this->generateFontMetrics(fm);
 }
 
-SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
-    return 0;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) {

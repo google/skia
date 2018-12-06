@@ -285,13 +285,6 @@ public:
         return generateCharToGlyph(uni);
     }
 
-    /** Map the glyphID to its glyph index, and then to its char code. Unmapped
-        glyphs return zero.
-    */
-    SkUnichar glyphIDToChar(uint16_t glyphID) {
-        return (glyphID < getGlyphCount()) ? generateGlyphToChar(glyphID) : 0;
-    }
-
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
@@ -410,12 +403,6 @@ protected:
      *  If there is no 1:1 mapping from the unichar to a glyph id, returns 0.
      */
     virtual uint16_t generateCharToGlyph(SkUnichar unichar) = 0;
-
-    /** Returns the unichar for the given glyph id.
-     *  If there is no 1:1 mapping from the glyph id to a unichar, returns 0.
-     *  The default implementation always returns 0, indicating failure.
-     */
-    virtual SkUnichar generateGlyphToChar(uint16_t glyphId);
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }

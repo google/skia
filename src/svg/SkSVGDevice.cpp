@@ -852,6 +852,7 @@ public:
     SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
             : fOrigin(origin)
             , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
+#if 0
         const SkPaint& paint = glyphRun.paint();
         auto runSize = glyphRun.runSize();
         SkAutoSTArray<64, SkUnichar> unichars(runSize);
@@ -860,6 +861,7 @@ public:
         for (size_t i = 0; i < runSize; ++i) {
             this->appendUnichar(unichars[i], positions[i]);
         }
+#endif
     }
 
     const SkString& text() const { return fText; }
