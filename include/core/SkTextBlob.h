@@ -80,6 +80,39 @@ public:
         return MakeFromText(string, strlen(string), font, encoding);
     }
 
+    /** Experimental.
+        Returns a textblob built from a single run of text with x-positions and a single y value.
+        This is equivalent to using SkTextBlobBuilder and calling allocRunPosH().
+        Returns nullptr if byteLength is zero.
+
+        @param text        character code points or glyphs drawn (based on encoding)
+        @param byteLength  byte length of text array
+        @param xpos    array of x-positions, must contain values for all of the character points.
+        @param constY  shared y-position for each character point, to be paired with each xpos.
+        @param font    SkFont used for this run
+        @param encoding specifies the encoding of the text array.
+        @return        new textblob or nullptr
+     */
+    static sk_sp<SkTextBlob> MakeFromPosTextH(const void* text, size_t byteLength,
+                                      const SkScalar xpos[], SkScalar constY, const SkFont& font,
+                                      SkTextEncoding encoding = kUTF8_SkTextEncoding);
+
+    /** Experimental.
+        Returns a textblob built from a single run of text with positions.
+        This is equivalent to using SkTextBlobBuilder and calling allocRunPos().
+        Returns nullptr if byteLength is zero.
+
+        @param text        character code points or glyphs drawn (based on encoding)
+        @param byteLength  byte length of text array
+        @param pos     array of positions, must contain values for all of the character points.
+        @param font    SkFont used for this run
+        @param encoding specifies the encoding of the text array.
+        @return        new textblob or nullptr
+     */
+    static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
+                                             const SkPoint pos[], const SkFont& font,
+                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
         to receive the encoded data, and memory_size describes the size of storage.
         Returns bytes used if provided storage is large enough to hold all data;
