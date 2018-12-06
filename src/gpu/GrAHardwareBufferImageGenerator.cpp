@@ -574,8 +574,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     const bool isProtectedContent = fIsProtectedContent;
 
     sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
-            [context, hardwareBuffer, width, height, pixelConfig, isProtectedContent, backendFormat]
-            (GrResourceProvider* resourceProvider) {
+            [context, hardwareBuffer, width, height, pixelConfig, isProtectedContent,
+             backendFormat](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     AHardwareBuffer_release(hardwareBuffer);
                     return sk_sp<GrTexture>();
@@ -596,7 +596,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
                 SkASSERT(deleteImageProc && deleteImageCtx);
 
                 backendTex.fConfig = pixelConfig;
-                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex);
+                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
+                        backendTex, kBorrow_GrWrapOwnership, kRead_GrIOType);
                 if (!tex) {
                     deleteImageProc(deleteImageCtx);
                     return sk_sp<GrTexture>();
@@ -610,8 +611,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
                 return tex;
             },
-            backendFormat, desc, fSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo);
+            backendFormat, desc, fSurfaceOrigin, GrMipMapped::kNo,
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo);
 
     if (!texProxy) {
         AHardwareBuffer_release(hardwareBuffer);

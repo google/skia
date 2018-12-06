@@ -36,7 +36,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
                     backendTex, origin, 1, kAdopt_GrWrapOwnership);
         } else {
             proxy = context->contextPriv().proxyProvider()->wrapBackendTexture(
-                    backendTex, origin, kAdopt_GrWrapOwnership);
+                    backendTex, origin, kAdopt_GrWrapOwnership, kRW_GrIOType);
         }
 
         if (!proxy) {

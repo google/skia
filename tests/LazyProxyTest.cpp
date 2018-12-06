@@ -469,7 +469,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                         return sk_sp<GrTexture>();
                     }
 
-                    sk_sp<GrTexture> texture = rp->wrapBackendTexture(backendTex);
+                    sk_sp<GrTexture> texture = rp->wrapBackendTexture(
+                            backendTex, kBorrow_GrWrapOwnership, kRead_GrIOType);
                     if (!texture) {
                         return sk_sp<GrTexture>();
                     }
@@ -478,7 +479,7 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                     return texture;
                 },
                 format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+                GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
         REPORTER_ASSERT(reporter, lazyProxy.get());
 
