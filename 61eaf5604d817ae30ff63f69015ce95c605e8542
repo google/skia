@@ -200,6 +200,30 @@
       "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "130f8783_1b6eba70",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-06T15:50:50Z",
+      "side": 1,
+      "message": "Sounds good - will expose in a future CL",
+      "parentUuid": "ccfc3ad2_6ccca94d",
+      "range": {
+        "startLine": 1188,
+        "startChar": 11,
+        "endLine": 1188,
+        "endChar": 28
+      },
+      "revId": "61eaf5604d817ae30ff63f69015ce95c605e8542",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
