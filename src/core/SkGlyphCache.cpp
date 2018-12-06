@@ -71,10 +71,6 @@ SkGlyphID SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     }
 }
 
-SkUnichar SkGlyphCache::glyphToUnichar(SkGlyphID glyphID) {
-    return fScalerContext->glyphIDToChar(glyphID);
-}
-
 unsigned SkGlyphCache::getGlyphCount() const {
     return fScalerContext->getGlyphCount();
 }
