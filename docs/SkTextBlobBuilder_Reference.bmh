@@ -25,9 +25,9 @@ Helper class for constructing SkTextBlob.
 
 RunBuffer supplies storage for Glyphs and positions within a run.
 
-A run is a sequence of Glyphs sharing Paint_Font_Metrics and positioning.
+A run is a sequence of Glyphs sharing Font_Metrics and positioning.
 Each run may position its Glyphs in one of three ways:
-by specifying where the first Glyph is drawn, and allowing Paint_Font_Metrics to
+by specifying where the first Glyph is drawn, and allowing Font_Metrics to
 determine the advance to subsequent Glyphs; by specifying a baseline, and
 the position on that baseline for each Glyph in run; or by providing Point
 array, one per Glyph.

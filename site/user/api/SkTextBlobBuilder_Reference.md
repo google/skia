@@ -39,9 +39,9 @@ Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBl
 
 <a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a> supplies storage for <a href='undocumented#Glyph'>Glyphs</a> and positions within a run.
 
-A run is a sequence of <a href='undocumented#Glyph'>Glyphs</a> sharing <a href='#Paint_Font_Metrics'>Paint_Font_Metrics</a> and positioning.
+A run is a sequence of <a href='undocumented#Glyph'>Glyphs</a> sharing <a href='#Font_Metrics'>Font_Metrics</a> and positioning.
 Each run may position its <a href='undocumented#Glyph'>Glyphs</a> in one of three ways:
-by specifying where the first <a href='undocumented#Glyph'>Glyph</a> is drawn, and allowing <a href='#Paint_Font_Metrics'>Paint_Font_Metrics</a> to
+by specifying where the first <a href='undocumented#Glyph'>Glyph</a> is drawn, and allowing <a href='#Font_Metrics'>Font_Metrics</a> to
 determine the advance to subsequent <a href='undocumented#Glyph'>Glyphs</a>; by specifying a baseline, and
 the position on that baseline for each <a href='undocumented#Glyph'>Glyph</a> in run; or by providing <a href='SkPoint_Reference#Point'>Point</a>
 array, one per <a href='undocumented#Glyph'>Glyph</a>.<table style='border-collapse: collapse; width: 62.5em'>
@@ -183,7 +183,7 @@ Returns run with storage for <a href='undocumented#Glyph'>glyphs</a>. Caller mus
 
 <a href='undocumented#Glyph'>Glyphs</a> share metrics in <a href='#SkTextBlobBuilder_allocRun_font'>font</a>.
 
-<a href='undocumented#Glyph'>Glyphs</a> are positioned on a baseline at (<a href='#SkTextBlobBuilder_allocRun_x'>x</a>, <a href='#SkTextBlobBuilder_allocRun_y'>y</a>), using <a href='#SkTextBlobBuilder_allocRun_font'>font</a> metrics to
+<a href='undocumented#Glyph'>Glyphs</a> are positioned on a baseline at (<a href='#SkTextBlobBuilder_allocRun_x'>x</a>, <a href='#SkTextBlobBuilder_allocRun_y'>y</a>), using  <a href='undocumented#Font_Metrics'>font metrics</a> to
 determine their relative placement.
 
 <a href='#SkTextBlobBuilder_allocRun_bounds'>bounds</a> defines an optional bounding box, used to suppress drawing when <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>

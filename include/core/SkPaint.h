@@ -219,7 +219,7 @@ public:
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
-        kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
+        kAutoHinting_Flag        = 0x800,  //!< mask for setting force hinting
                                            // 0x1000 used to be kVertical
         kAllFlags                = 0xFFFF, //!< mask of all Flags
     };
@@ -379,7 +379,7 @@ public:
     /** Sets whether to always hint glyphs.
         If SkPaint::Hinting is set to SkFontHinting::kNormal or SkFontHinting::kFull
         and useAutohinter is set, instructs the font manager to always hint glyphs.
-        auto-hinting has no effect if SkPaint::Hinting is set to SkFontHinting::kNone or
+        useAutohinter has no effect if SkPaint::Hinting is set to SkFontHinting::kNone or
         SkFontHinting::kSlight.
 
         Only affects platforms that use FreeType as the font manager.
@@ -877,7 +877,7 @@ public:
 
     /**
      *  Returns the text encoding. Text encoding describes how to interpret the text bytes pass
-     *  to methods like measureText() and drawText().
+     *  to methods like measureText() and SkCanvas::drawText().
      *  @return the text encoding
      */
     SkTextEncoding getTextEncoding() const {
@@ -886,7 +886,7 @@ public:
 
     /**
      *  Sets the text encoding. Text encoding describes how to interpret the text bytes pass
-     *  to methods like measureText() and drawText().
+     *  to methods like measureText() and SkCanvas::drawText().
      *  @param encoding  the new text encoding
      */
     void setTextEncoding(SkTextEncoding encoding);
