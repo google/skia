@@ -287,10 +287,8 @@ static void setup_multisample_state(const GrPrimitiveProcessor& primProc,
     int numSamples = pipeline.proxy()->numColorSamples();
     SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                    &multisampleInfo->rasterizationSamples));
-    float sampleShading = primProc.getSampleShading();
-    SkASSERT(sampleShading == 0.0f || caps->sampleShadingSupport());
-    multisampleInfo->sampleShadingEnable = sampleShading > 0.0f;
-    multisampleInfo->minSampleShading = sampleShading;
+    multisampleInfo->sampleShadingEnable = VK_FALSE;
+    multisampleInfo->minSampleShading = 0.0f;
     multisampleInfo->pSampleMask = nullptr;
     multisampleInfo->alphaToCoverageEnable = VK_FALSE;
     multisampleInfo->alphaToOneEnable = VK_FALSE;

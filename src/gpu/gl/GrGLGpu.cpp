@@ -331,8 +331,7 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
         , fHWProgramID(0)
         , fTempSrcFBOID(0)
         , fTempDstFBOID(0)
-        , fStencilClearFBOID(0)
-        , fHWMinSampleShading(0.0) {
+        , fStencilClearFBOID(0) {
     SkASSERT(fGLContext);
     GrGLClearErr(this->glInterface());
     fCaps = sk_ref_sp(fGLContext->caps());
@@ -1790,19 +1789,6 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-void GrGLGpu::flushMinSampleShading(float minSampleShading) {
-    if (fHWMinSampleShading != minSampleShading) {
-        if (minSampleShading > 0.0) {
-            GL_CALL(Enable(GR_GL_SAMPLE_SHADING));
-            GL_CALL(MinSampleShading(minSampleShading));
-        }
-        else {
-            GL_CALL(Disable(GR_GL_SAMPLE_SHADING));
-        }
-        fHWMinSampleShading = minSampleShading;
-    }
-}
-
 void GrGLGpu::resolveAndGenerateMipMapsForProcessorTextures(
         const GrPrimitiveProcessor& primProc,
         const GrPipeline& pipeline,
@@ -1871,7 +1857,6 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
 
     this->flushColorWrite(blendInfo.fWriteColor);
-    this->flushMinSampleShading(primProc.getSampleShading());
 
     this->flushProgram(std::move(program));
 

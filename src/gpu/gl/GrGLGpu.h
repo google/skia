@@ -375,8 +375,6 @@ private:
     // rt is used only if useHWAA is true.
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);
 
-    void flushMinSampleShading(float minSampleShading);
-
     void flushFramebufferSRGB(bool enable);
 
     // helper for onCreateTexture and writeTexturePixels
@@ -629,7 +627,6 @@ private:
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
-    float fHWMinSampleShading;
     GrPrimitiveType fLastPrimitiveType;
 
     class SamplerObjectCache;

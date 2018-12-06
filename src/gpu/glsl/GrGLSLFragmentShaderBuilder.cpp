@@ -95,11 +95,6 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
     SkDEBUGCODE(fHasReadDstColor = true;)
 
-    const char* override = fProgramBuilder->primitiveProcessor().getDestColorOverride();
-    if (override != nullptr) {
-        return override;
-    }
-
     const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     if (shaderCaps->fbFetchSupport()) {
         this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,

@@ -445,7 +445,6 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
 
     fOversizedStencilSupport = true;
-    fSampleShadingSupport = features.features.sampleRateShading;
 
     if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
         this->supportsPhysicalDeviceProperties2()) {

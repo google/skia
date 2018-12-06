@@ -121,7 +121,6 @@ public:
     virtual GrGLvoid* mapBufferRange(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access) { return nullptr; }
     virtual GrGLvoid* mapBufferSubData(GrGLuint target, GrGLintptr offset, GrGLsizeiptr size, GrGLenum access) { return nullptr; }
     virtual GrGLvoid* mapTexSubImage2D(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access) { return nullptr; }
-    virtual GrGLvoid minSampleShading(GrGLfloat value) {}
     virtual GrGLvoid pixelStorei(GrGLenum pname, GrGLint param) {}
     virtual GrGLvoid polygonMode(GrGLenum face, GrGLenum mode) {}
     virtual GrGLvoid popGroupMarker() {}

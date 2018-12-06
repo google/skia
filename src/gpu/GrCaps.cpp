@@ -34,7 +34,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferFullscreenClears = false;
     fMustClearUploadedBufferData = false;
     fSupportsAHardwareBufferImages = false;
-    fSampleShadingSupport = false;
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
@@ -179,7 +178,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
-    writer->appendBool("Sample shading support", fSampleShadingSupport);
     writer->appendBool("Fence sync support", fFenceSyncSupport);
     writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
     writer->appendBool("Half float vertex attribute support", fHalfFloatVertexAttributeSupport);

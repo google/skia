@@ -311,7 +311,7 @@ public:
         GrGLFunction<GrGLCoverageModulationFn> fCoverageModulation;
 
         /* ARB_sample_shading */
-        GrGLFunction<GrGLMinSampleShadingFn> fMinSampleShading;
+        GrGLFunction<GrGLMinSampleShadingFn> fMinSampleShading;  // Unused
 
         /* ARB_sync */
         GrGLFunction<GrGLFenceSyncFn> fFenceSync;
