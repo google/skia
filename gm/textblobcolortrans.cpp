@@ -67,7 +67,7 @@ protected:
         SkPaint paint;
         canvas->translate(10, 40);
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
 
         // Colors were chosen to map to pairs of canonical colors.  The GPU Backend will cache A8
         // Texture Blobs based on the canonical color they map to.  Canonical colors are used to

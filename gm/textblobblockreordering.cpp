@@ -56,7 +56,7 @@ protected:
         SkPaint paint;
         canvas->translate(10, 40);
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
         const int yDelta = SkScalarFloorToInt(bounds.height()) + 20;
         const int xDelta = SkScalarFloorToInt(bounds.width());
 

@@ -1735,7 +1735,7 @@ static const struct luaL_Reg gSkPicture_Methods[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 static int ltextblob_bounds(lua_State* L) {
-    SkLua(L).pushRect(get_ref<SkTextBlob>(L, 1)->bounds());
+    SkLua(L).pushRect(get_ref<SkTextBlob>(L, 1)->hidden_bounds());
     return 1;
 }
 

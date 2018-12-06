@@ -120,7 +120,7 @@ protected:
         paint.setTextSize(40);
 
         // compute the bounds of the text and setup some clips
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
 
         const SkScalar boundsHalfWidth = bounds.width() * SK_ScalarHalf;
         const SkScalar boundsHalfHeight = bounds.height() * SK_ScalarHalf;

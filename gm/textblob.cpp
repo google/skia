@@ -115,7 +115,7 @@ protected:
 
             p.setColor(SK_ColorBLUE);
             p.setStyle(SkPaint::kStroke_Style);
-            SkRect box = blob->bounds();
+            SkRect box = blob->hidden_bounds();
             box.offset(offset);
             p.setAntiAlias(false);
             canvas->drawRect(box, p);

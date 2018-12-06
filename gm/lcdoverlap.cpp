@@ -65,7 +65,7 @@ protected:
             canvas->save();
             canvas->translate(x, y);
             canvas->rotate(360.0f / SK_ARRAY_COUNT(colors) * i);
-            canvas->translate(-fBlob->bounds().width() / 2.0f + 0.5f, 0);
+            canvas->translate(-fBlob->hidden_bounds().width() / 2.0f + 0.5f, 0);
 
             SkPaint textPaint;
             textPaint.setColor(colors[i]);

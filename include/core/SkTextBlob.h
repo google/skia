@@ -43,7 +43,7 @@ public:
 
         @return  conservative bounding box
     */
-    const SkRect& bounds() const { return fBounds; }
+    const SkRect& hidden_bounds() const { return fBounds; }
 
     /** Returns a non-zero value unique among all text blobs.
 

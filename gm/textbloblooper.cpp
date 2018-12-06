@@ -228,7 +228,7 @@ protected:
 
         paint.setTextSize(40);
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
 
         int y = 0;
         for (int looper = 0; looper < fLoopers.count(); looper++) {

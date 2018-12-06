@@ -67,7 +67,7 @@ protected:
 
         SkPaint paint;
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
         canvas->translate(20, 20);
 
         // Colors were chosen to map to pairs of canonical colors.  The GPU Backend will cache A8

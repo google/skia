@@ -32,7 +32,7 @@ static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>
     for (int r = 0; r < redraw; r++) {
         for (int i = 0; i < blobs.count(); i++) {
             const auto& blob = blobs[i];
-            const SkRect& bounds = blob->bounds();
+            const SkRect& bounds = blob->hidden_bounds();
             yOffset += SkScalarCeilToInt(bounds.height());
             SkPaint paint;
             canvas->drawTextBlob(blob, 0, SkIntToScalar(yOffset), paint);

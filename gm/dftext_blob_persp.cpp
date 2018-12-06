@@ -66,8 +66,8 @@ protected:
                 for (auto& blob : fBlobs) {
                     for (bool clip : {false, true}) {
                         canvas->save();
-                        SkScalar w = blob->bounds().width();
-                        SkScalar h = blob->bounds().height();
+                        SkScalar w = blob->hidden_bounds().width();
+                        SkScalar h = blob->hidden_bounds().height();
                         if (clip) {
                             auto rect =
                                     SkRect::MakeXYWH(x + 5, y + 5, w * 3.f / 4.f, h * 3.f / 4.f);

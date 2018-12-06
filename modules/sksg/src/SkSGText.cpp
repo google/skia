@@ -78,7 +78,7 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
         return SkRect::MakeEmpty();
     }
 
-    const auto& bounds = fBlob->bounds();
+    const auto& bounds = fBlob->hidden_bounds();
     const auto aligned_pos = this->alignedPosition(bounds.width());
 
     return bounds.makeOffset(aligned_pos.x(), aligned_pos.y());
@@ -108,7 +108,7 @@ TextBlob::TextBlob(sk_sp<SkTextBlob> blob)
 TextBlob::~TextBlob() = default;
 
 SkRect TextBlob::onRevalidate(InvalidationController*, const SkMatrix&) {
-    return fBlob ? fBlob->bounds() : SkRect::MakeEmpty();
+    return fBlob ? fBlob->hidden_bounds() : SkRect::MakeEmpty();
 }
 
 void TextBlob::onDraw(SkCanvas* canvas, const SkPaint& paint) const {

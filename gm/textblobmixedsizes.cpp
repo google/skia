@@ -113,7 +113,7 @@ protected:
         }
         canvas->drawColor(SK_ColorWHITE);
 
-        SkRect bounds = fBlob->bounds();
+        SkRect bounds = fBlob->hidden_bounds();
 
         const int kPadX = SkScalarFloorToInt(bounds.width() / 3);
         const int kPadY = SkScalarFloorToInt(bounds.height() / 3);

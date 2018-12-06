@@ -1881,7 +1881,7 @@ bool SkDrawTextBlobCommand::render(SkCanvas* canvas) const {
     canvas->clear(SK_ColorWHITE);
     canvas->save();
 
-    SkRect bounds = fBlob->bounds().makeOffset(fXPos, fYPos);
+    SkRect bounds = fBlob->hidden_bounds().makeOffset(fXPos, fYPos);
     xlate_and_scale_to_bounds(canvas, bounds);
 
     canvas->drawTextBlob(fBlob, fXPos, fYPos, fPaint);
@@ -1926,7 +1926,7 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
         runs.append(run);
         iter.next();
     }
-    SkRect bounds = fBlob->bounds();
+    SkRect bounds = fBlob->hidden_bounds();
     result[SKDEBUGCANVAS_ATTRIBUTE_RUNS] = runs;
     result[SKDEBUGCANVAS_ATTRIBUTE_X] = Json::Value(fXPos);
     result[SKDEBUGCANVAS_ATTRIBUTE_Y] = Json::Value(fYPos);

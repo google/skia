@@ -472,7 +472,7 @@ private:
     }
 
     Bounds bounds(const DrawTextBlob& op) const {
-        SkRect dst = op.blob->bounds();
+        SkRect dst = op.blob->hidden_bounds();
         dst.offset(op.x, op.y);
         return this->adjustAndMap(dst, &op.paint);
     }

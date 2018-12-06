@@ -2505,7 +2505,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     SkRect storage;
     const SkRect* bounds = nullptr;
     if (paint.canComputeFastBounds()) {
-        storage = blob->bounds().makeOffset(x, y);
+        storage = blob->hidden_bounds().makeOffset(x, y);
         SkRect tmp;
         if (this->quickReject(paint.computeFastBounds(storage, &tmp))) {
             return;
@@ -2578,7 +2578,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(blob);
-    RETURN_ON_FALSE(blob->bounds().makeOffset(x, y).isFinite());
+    RETURN_ON_FALSE(blob->hidden_bounds().makeOffset(x, y).isFinite());
     this->onDrawTextBlob(blob, x, y, paint);
 }
 

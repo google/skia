@@ -114,21 +114,21 @@ public:
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRun(font, 16, 0, 0, &r1);
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+            REPORTER_ASSERT(reporter, blob->hidden_bounds() == r1);
         }
 
         {
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRunPosH(font, 16, 0, &r1);
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+            REPORTER_ASSERT(reporter, blob->hidden_bounds() == r1);
         }
 
         {
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRunPos(font, 16, &r1);
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == r1);
+            REPORTER_ASSERT(reporter, blob->hidden_bounds() == r1);
         }
 
         {
@@ -141,7 +141,7 @@ public:
             builder.allocRunPos(font, 16, &r3);
 
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds() == SkRect::MakeXYWH(0, 5, 65, 65));
+            REPORTER_ASSERT(reporter, blob->hidden_bounds() == SkRect::MakeXYWH(0, 5, 65, 65));
         }
 
         {
@@ -166,7 +166,7 @@ public:
 
             memset(buffer.pos, 0, sizeof(SkScalar) * glyphCount * 2);
             sk_sp<SkTextBlob> blob(builder.make());
-            REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
+            REPORTER_ASSERT(reporter, blob->hidden_bounds().isEmpty());
         }
     }
 
@@ -376,13 +376,13 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
 }
 
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
-    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
-                                               SkScalarRoundToInt(blob->bounds().height()));
+    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->hidden_bounds().width()),
+                                               SkScalarRoundToInt(blob->hidden_bounds().height()));
     if (!surf) {
         return nullptr; // bounds are empty?
     }
     surf->getCanvas()->clear(SK_ColorWHITE);
-    surf->getCanvas()->drawTextBlob(blob, -blob->bounds().left(), -blob->bounds().top(), SkPaint());
+    surf->getCanvas()->drawTextBlob(blob, -blob->hidden_bounds().left(), -blob->hidden_bounds().top(), SkPaint());
     return surf->makeImageSnapshot();
 }
 

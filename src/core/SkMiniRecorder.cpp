@@ -41,7 +41,7 @@ static SkRect bounds(const DrawPath& op) {
                                        : adjust_for_paint(op.path.getBounds(), op.paint);
 }
 static SkRect bounds(const DrawTextBlob& op) {
-    return adjust_for_paint(op.blob->bounds().makeOffset(op.x, op.y), op.paint);
+    return adjust_for_paint(op.blob->hidden_bounds().makeOffset(op.x, op.y), op.paint);
 }
 
 template <typename T>

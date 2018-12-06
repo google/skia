@@ -120,7 +120,7 @@ protected:
 
         SkCanvas* surfaceCanvas = surface->getCanvas();
 
-        SkScalar stride = SkScalarCeilToScalar(fBlob->bounds().height());
+        SkScalar stride = SkScalarCeilToScalar(fBlob->hidden_bounds().height());
         SkScalar yOffset = 5;
 
         canvas->save();
