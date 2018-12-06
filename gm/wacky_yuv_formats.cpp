@@ -661,6 +661,50 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     canvas->drawText(rowLabel.c_str(), rowLabel.size(), 0, y, textPaint);
 }
 
+static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
+                                            SkYUVAIndex yuvaIndices[4], int texIndex) {
+    SkASSERT(texIndex >= 0 && texIndex <= 3);
+    int channelCount = 0;
+    for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
+        if (yuvaIndices[i].fIndex == texIndex) {
+            ++channelCount;
+        }
+    }
+    // Need to create an RG texture for two-channel planes
+    GrBackendTexture tex;
+    if (2 == channelCount) {
+        SkASSERT(kRGBA_8888_SkColorType == bm.colorType());
+        SkAutoTMalloc<char> pixels(2 * bm.width()*bm.height());
+        char* currPixel = pixels;
+        for (int y = 0; y < bm.height(); ++y) {
+            for (int x = 0; x < bm.width(); ++x) {
+                SkColor color = bm.getColor(x, y);
+                currPixel[0] = SkColorGetR(color);
+                currPixel[1] = SkColorGetG(color);
+                currPixel += 2;
+            }
+        }
+        tex = gpu->createTestingOnlyBackendTexture(
+            pixels,
+            bm.width(),
+            bm.height(),
+            GrColorType::kRG_88,
+            false,
+            GrMipMapped::kNo,
+            2*bm.width());
+    } else {
+        tex = gpu->createTestingOnlyBackendTexture(
+            bm.getPixels(),
+            bm.width(),
+            bm.height(),
+            bm.colorType(),
+            false,
+            GrMipMapped::kNo,
+            bm.rowBytes());
+    }
+    return tex;
+}
+
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -723,6 +767,10 @@ protected:
                     SkBitmap resultBMs[4];
                     SkYUVAIndex yuvaIndices[4];
                     create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
+                    int numTextures;
+                    if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
+                        continue;
+                    }
 
                     if (context) {
                         if (context->abandoned()) {
@@ -734,30 +782,12 @@ protected:
                             return;
                         }
 
-                        bool used[4] = { false, false, false, false };
-                        for (int i = 0; i < 4; ++i) {
-                            if (yuvaIndices[i].fIndex >= 0) {
-                                SkASSERT(yuvaIndices[i].fIndex < 4);
-                                used[yuvaIndices[i].fIndex] = true;
-                            }
-                        }
-
                         GrBackendTexture yuvaTextures[4];
                         SkPixmap yuvaPixmaps[4];
 
-                        for (int i = 0; i < 4; ++i) {
-                            if (!used[i]) {
-                                continue;
-                            }
-
-                            yuvaTextures[i] = gpu->createTestingOnlyBackendTexture(
-                                resultBMs[i].getPixels(),
-                                resultBMs[i].width(),
-                                resultBMs[i].height(),
-                                resultBMs[i].colorType(),
-                                false,
-                                GrMipMapped::kNo,
-                                resultBMs[i].rowBytes());
+                        for (int i = 0; i < numTextures; ++i) {
+                            yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
+                                                                  yuvaIndices, i);
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
