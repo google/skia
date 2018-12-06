@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CanvasKit.MakeImageShader` no longer takes encoded bytes, but an SkImage, created from
     `CanvasKit.MakeImageFromEncoded`. Additionally, the optional parameters `clampIfUnpremul`
     and `localMatrix` have been exposed.
+- SkPath.arcTo now takes `startAngle`, `sweepAngle`, `forceMoveTo` as additional parameters.
+- Skpath.stroke has a new option `precision`  It defaults to 1.0
 
 
 
