@@ -489,21 +489,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         return SkImage::MakeRasterData(info, pixelData, rowBytes);
     }), allow_raw_pointers());
-    function("_MakeImageShader", optional_override([](uintptr_t /* uint8_t*  */ iPtr, int ilen,
-                                SkShader::TileMode tx, SkShader::TileMode ty)->sk_sp<SkShader> {
-        // See comment above for uintptr_t explanation
-        const uint8_t* imgBytes = reinterpret_cast<const uint8_t*>(iPtr);
-
-        auto imgData = SkData::MakeFromMalloc(imgBytes, ilen);
-        auto img = SkImage::MakeFromEncoded(imgData);
-        if (!img) {
-            SkDebugf("Could not decode image\n");
-            return nullptr;
-        }
-
-        return SkImageShader::Make(img, tx, ty, nullptr);
+    // Allow localMatrix to be optional, so we have 2 declarations of these shaders
+    function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
+                                SkShader::TileMode tx, SkShader::TileMode ty,
+                                bool clampAsIfUnpremul)->sk_sp<SkShader> {
+        return SkImageShader::Make(img, tx, ty, nullptr, clampAsIfUnpremul);
     }), allow_raw_pointers());
-    // Allow localMatrix to be optional, so we have 2 declarations of these gradients
+    function("_MakeImageShader", optional_override([](sk_sp<SkImage> img,
+                                SkShader::TileMode tx, SkShader::TileMode ty,
+                                bool clampAsIfUnpremul, const SimpleMatrix& lm)->sk_sp<SkShader> {
+        SkMatrix localMatrix = toSkMatrix(lm);
+
+        return SkImageShader::Make(img, tx, ty, &localMatrix, clampAsIfUnpremul);
+    }), allow_raw_pointers());
     function("_MakeLinearGradientShader", optional_override([](SkPoint start, SkPoint end,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkShader::TileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -901,7 +899,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkShader::TileMode>("TileMode")
         .value("Clamp",    SkShader::TileMode::kClamp_TileMode)
         .value("Repeat",   SkShader::TileMode::kRepeat_TileMode)
-        .value("Mirror",   SkShader::TileMode::kMirror_TileMode);
+        .value("Mirror",   SkShader::TileMode::kMirror_TileMode)
+        // Decal mode only works in the SW backend, not WebGl (yet).
+        .value("Decal",    SkShader::TileMode::kDecal_TileMode);
 
     enum_<SkVertices::VertexMode>("VertexMode")
         .value("Triangles",       SkVertices::VertexMode::kTriangles_VertexMode)
