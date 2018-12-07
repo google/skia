@@ -202,11 +202,16 @@ static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
     return 0;
 }
 
-static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode) {
+static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode,
+                                            const GrCaps& caps) {
     switch (wrapMode) {
         case GrSamplerState::WrapMode::kClamp:        return GR_GL_CLAMP_TO_EDGE;
         case GrSamplerState::WrapMode::kRepeat:       return GR_GL_REPEAT;
         case GrSamplerState::WrapMode::kMirrorRepeat: return GR_GL_MIRRORED_REPEAT;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            // May not be supported but should have been caught earlier
+            SkASSERT(caps.clampToBorderSupport());
+            return GR_GL_CLAMP_TO_BORDER;
     }
     SK_ABORT("Unknown wrap mode");
     return 0;
@@ -242,8 +247,8 @@ public:
             fSamplers[index] = s;
             auto minFilter = filter_to_gl_min_filter(state.filter());
             auto magFilter = filter_to_gl_mag_filter(state.filter());
-            auto wrapX = wrap_mode_to_gl_wrap(state.wrapModeX());
-            auto wrapY = wrap_mode_to_gl_wrap(state.wrapModeY());
+            auto wrapX = wrap_mode_to_gl_wrap(state.wrapModeX(), fGpu->glCaps());
+            auto wrapY = wrap_mode_to_gl_wrap(state.wrapModeY(), fGpu->glCaps());
             GR_GL_CALL(fGpu->glInterface(),
                        SamplerParameteri(s, GR_GL_TEXTURE_MIN_FILTER, minFilter));
             GR_GL_CALL(fGpu->glInterface(),
@@ -284,16 +289,16 @@ private:
         int filter = static_cast<int>(state.filter());
         SkASSERT(filter >= 0 && filter < 3);
         int wrapX = static_cast<int>(state.wrapModeX());
-        SkASSERT(wrapX >= 0 && wrapX < 3);
+        SkASSERT(wrapX >= 0 && wrapX < 4);
         int wrapY = static_cast<int>(state.wrapModeY());
-        SkASSERT(wrapY >= 0 && wrapY < 3);
-        int idx = 9 * filter + 3 * wrapX + wrapY;
+        SkASSERT(wrapY >= 0 && wrapY < 4);
+        int idx = 16 * filter + 4 * wrapX + wrapY;
         SkASSERT(idx < kNumSamplers);
         return idx;
     }
 
     GrGLGpu* fGpu;
-    static constexpr int kNumSamplers = 27;
+    static constexpr int kNumSamplers = 48;
     std::unique_ptr<GrGLuint[]> fHWBoundSamplers;
     GrGLuint fSamplers[kNumSamplers];
     int fNumTextureUnits;
@@ -2854,8 +2859,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
         newSamplerParams.fMinFilter = filter_to_gl_min_filter(samplerState.filter());
         newSamplerParams.fMagFilter = filter_to_gl_mag_filter(samplerState.filter());
 
-        newSamplerParams.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX());
-        newSamplerParams.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY());
+        newSamplerParams.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX(), this->glCaps());
+        newSamplerParams.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY(), this->glCaps());
 
         // These are the OpenGL default values.
         newSamplerParams.fMinLOD = -1000;
@@ -2888,6 +2893,17 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
         if (setAll || newSamplerParams.fWrapT != oldSamplerParams.fWrapT) {
             this->setTextureUnit(unitIdx);
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_WRAP_T, newSamplerParams.fWrapT));
+        }
+        if (this->glCaps().clampToBorderSupport()) {
+            // Make sure the border color is transparent black (the default)
+            if (setAll || oldSamplerParams.fBorderColorInvalid) {
+                this->setTextureUnit(unitIdx);
+                // Specify the transparent black as normalized signed integers. The conversion is
+                // defined as (2c+1)/(2^32-1), which makes it impossible to map a signed in to
+                // exactly 0.f.  But 1/(2^32-1) is close enough.
+                static const GrGLint kTransparentBlack[4] = {0, 0, 0, 0};
+                GL_CALL(TexParameteriv(target, GR_GL_TEXTURE_BORDER_COLOR, kTransparentBlack));
+            }
         }
     }
     GrGLTexture::NonSamplerParams newNonSamplerParams;

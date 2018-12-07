@@ -171,8 +171,7 @@ static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkShader::TileMode 
         case SkShader::TileMode::kMirror_TileMode:
             return GrSamplerState::WrapMode::kMirrorRepeat;
         case SkShader::kDecal_TileMode:
-            // TODO: depending on caps, we should extend WrapMode for decal...
-            return GrSamplerState::WrapMode::kClamp;
+            return GrSamplerState::WrapMode::kClampToBorder;
     }
     SK_ABORT("Unknown tile mode.");
     return GrSamplerState::WrapMode::kClamp;
@@ -188,6 +187,19 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     GrSamplerState::WrapMode wrapModes[] = {tile_mode_to_wrap_mode(fTileModeX),
                                             tile_mode_to_wrap_mode(fTileModeY)};
+    if ((wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder ||
+         wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) &&
+        !args.fContext->contextPriv().caps()->clampToBorderSupport()) {
+        // HW clamp to border is unavailable, so fall back to clamp for now
+        // TODO(michaelludwig): If clamp-to-border is selected but is unsupported, the texture
+        // domain effect could be used to emulate the decal effect.
+        if (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder) {
+            wrapModes[0] = GrSamplerState::WrapMode::kClamp;
+        }
+        if (wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) {
+            wrapModes[1] = GrSamplerState::WrapMode::kClamp;
+        }
+    }
 
     // Must set wrap and filter on the sampler before requesting a texture. In two places below
     // we check the matrix scale factors to determine how to interpret the filter quality setting.
