@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bbb7d119_b33c7ac5",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T18:03:19Z",
+      "side": 1,
+      "message": "Of note: Chrome calls computeTightBounds here.\n\nI\u0027ll switch to getBounds(), however the JS version of SkRect does not have a isEmpty() method so I\u0027ve more or less inlined it here too.",
+      "parentUuid": "06f636d7_69e5e5b5",
+      "range": {
+        "startLine": 898,
+        "startChar": 37,
+        "endLine": 898,
+        "endChar": 55
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6807c4d1_835b1177",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 6
@@ -69,6 +93,30 @@
       "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2e7b31_3f1a2d18",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T18:03:19Z",
+      "side": 1,
+      "message": "Shoot, I forgot to port CanonicalizeAngle https://cs.chromium.org/chromium/src/third_party/blink/renderer/modules/canvas/canvas2d/canvas_path.cc?g\u003d0\u0026l\u003d209 which handles this.\n\nDone now.",
+      "parentUuid": "6807c4d1_835b1177",
+      "range": {
+        "startLine": 991,
+        "startChar": 10,
+        "endLine": 991,
+        "endChar": 40
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "294abf3c_95c02628",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T18:03:19Z",
+      "side": 1,
+      "message": "Done, even simpler since sweepDegrees/2 keeps the sign.",
+      "parentUuid": "c2c78105_43e6e2ad",
+      "range": {
+        "startLine": 996,
+        "startChar": 6,
+        "endLine": 1000,
+        "endChar": 7
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2816447c_440cd71c",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 6
@@ -106,6 +178,30 @@
       "writtenOn": "2018-12-07T16:06:31Z",
       "side": 1,
       "message": "Can we avoid this copy when _currentPath.getFillType() happens to match fillmode?",
+      "range": {
+        "startLine": 1125,
+        "startChar": 6,
+        "endLine": 1125,
+        "endChar": 42
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a72cab0_c08b4e3d",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T18:03:19Z",
+      "side": 1,
+      "message": "I think I can avoid the copy entirely because we set the filltype before any fills/clips.  Right?  Or will that lead to subtle bugs down the road?",
+      "parentUuid": "2816447c_440cd71c",
       "range": {
         "startLine": 1125,
         "startChar": 6,
@@ -138,6 +234,30 @@
       "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "326e11dd_ae250460",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T18:03:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd3e1921_3ff60607",
+      "range": {
+        "startLine": 1134,
+        "startChar": 0,
+        "endLine": 1138,
+        "endChar": 17
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
