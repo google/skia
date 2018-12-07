@@ -25,14 +25,6 @@
 #include "SkTextBlob.h"
 #include "SkVertices.h"
 
-// Windows.h, will pull in all of the GDI defines.  GDI #defines
-// DrawText to DrawTextA or DrawTextW, but SkRecord has a struct
-// called DrawText. Since this file does not use GDI, undefing
-// DrawText makes things less confusing.
-#ifdef DrawText
-#undef DrawText
-#endif
-
 namespace SkRecords {
 
 // A list of all the types of canvas calls we can record.
@@ -72,9 +64,6 @@ namespace SkRecords {
     M(DrawPatch)                                                    \
     M(DrawPicture)                                                  \
     M(DrawPoints)                                                   \
-    M(DrawPosText)                                                  \
-    M(DrawPosTextH)                                                 \
-    M(DrawText)                                                     \
     M(DrawTextRSXform)                                              \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
@@ -288,17 +277,6 @@ RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkCanvas::PointMode mode;
         unsigned count;
         SkPoint* pts);
-RECORD(DrawPosText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
-        SkPaint paint;
-        PODArray<char> text;
-        size_t byteLength;
-        PODArray<SkPoint> pos);
-RECORD(DrawPosTextH, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
-        SkPaint paint;
-        PODArray<char> text;
-        unsigned byteLength;
-        SkScalar y;
-        PODArray<SkScalar> xpos);
 RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect rrect);
@@ -308,12 +286,6 @@ RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawRegion, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRegion region);
-RECORD(DrawText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
-        SkPaint paint;
-        PODArray<char> text;
-        size_t byteLength;
-        SkScalar x;
-        SkScalar y);
 RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         sk_sp<const SkTextBlob> blob;
