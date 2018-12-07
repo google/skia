@@ -19,6 +19,7 @@
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -101,7 +102,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+bool SkGlyphRunListPainter::ShouldDrawAsPath(
+        const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -112,9 +114,7 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatri
         return true;
     }
 
-    SkMatrix textM;
-    SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+    return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
 void SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
@@ -161,28 +161,28 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         const BitmapDevicePainter* bitmapDevice) {
 
     SkPoint origin = glyphRunList.origin();
+    const SkPaint& runPaint = glyphRunList.paint();
+    // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
+    // convert the lcd text into A8 text. The props communicates this to the scaler.
+    auto& props = (kN32_SkColorType == fColorType && runPaint.isSrcOver())
+                  ? fDeviceProps
+                  : fBitmapFallbackProps;
     for (auto& glyphRun : glyphRunList) {
-        // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
-        // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRunList.paint().isSrcOver())
-                      ? fDeviceProps
-                      : fBitmapFallbackProps;
-
-        SkPaint paint{glyphRunList.paint()};
-        glyphRun.font().LEGACY_applyToPaint(&paint);
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, deviceMatrix)) {
+        const SkFont& runFont = glyphRun.font();
+
+        if (ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(paint);
-            SkScalar textScale = pathPaint.setupForAsPaths();
+            SkPaint pathPaint(runPaint);
+            SkFont pathFont = runFont;
+            SkScalar textScale = pathFont.setupForAsPaths(&pathPaint);
 
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                SkFont::LEGACY_ExtractFromPaint(pathPaint), pathPaint, props,
-                                fScalerContextFlags, SkMatrix::I());
+                    pathFont, pathPaint, props, fScalerContextFlags, SkMatrix::I());
 
             SkTDArray<PathAndPos> pathsAndPositions;
             pathsAndPositions.setReserve(runSize);
@@ -202,12 +202,10 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             bitmapDevice->paintPaths(
                     SkSpan<const PathAndPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
-                    textScale,
-                    paint);
+                    textScale, runPaint);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                        SkFont::LEGACY_ExtractFromPaint(paint), paint, props,
-                                        fScalerContextFlags, deviceMatrix);
+                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix);
 
             // Add rounding and origin.
             SkMatrix matrix = deviceMatrix;
@@ -229,7 +227,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     }
                 }
             }
-            bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, paint);
+            bitmapDevice->paintMasks(
+                    SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
         }
     }
 }
