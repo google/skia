@@ -34,6 +34,24 @@
       "revId": "a9823d23607e4b6916d3ab4aec4c7bd3bcd61635",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8211f9d_36c9945e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-07T15:39:15Z",
+      "side": 1,
+      "message": "I made this an assert and support is checked in SkImageShader (falling back to kClamp for now)",
+      "parentUuid": "dc4b1ec8_53c86c56",
+      "revId": "a9823d23607e4b6916d3ab4aec4c7bd3bcd61635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
