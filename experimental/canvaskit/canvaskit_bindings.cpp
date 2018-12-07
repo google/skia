@@ -149,6 +149,13 @@ SkMatrix toSkMatrix(const SimpleMatrix& sm) {
                              sm.pers0 , sm.pers1 , sm.pers2);
 }
 
+SimpleMatrix toSimpleSkMatrix(const SkMatrix& sm) {
+    SimpleMatrix m {sm[0], sm[1], sm[2],
+                    sm[3], sm[4], sm[5],
+                    sm[6], sm[7], sm[8]};
+    return m;
+}
+
 struct SimpleImageInfo {
     int width;
     int height;
@@ -640,6 +647,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
+        .function("getTotalMatrix", optional_override([](const SkCanvas& self)->SimpleMatrix {
+            SkMatrix m = self.getTotalMatrix();
+            return toSimpleSkMatrix(m);
+        }))
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       uintptr_t /* uint8_t* */ pPtr,
                                                       size_t dstRowBytes, int srcX, int srcY) {
