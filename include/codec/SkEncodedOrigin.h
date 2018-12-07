@@ -44,5 +44,10 @@ static inline SkMatrix SkEncodedOriginToMatrix(SkEncodedOrigin origin, int w, in
     return SkMatrix::I();
 }
 
+/**
+ * If |data| is an EXIF tag representing an SkEncodedOrigin, return true and set |out|
+ * appropriately. Otherwise return false.
+ */
+bool SkParseEncodedOrigin(const uint8_t* data, size_t data_length, SkEncodedOrigin* out);
 
 #endif // SkEncodedOrigin_DEFINED

@@ -59,7 +59,7 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
 
     // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
     constexpr size_t kOffset = 6;
-    return is_orientation_marker(marker->data + kOffset, marker->data_length - kOffset,
+    return SkParseEncodedOrigin(marker->data + kOffset, marker->data_length - kOffset,
             orientation);
 }
 
