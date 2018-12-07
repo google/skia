@@ -23,7 +23,7 @@ skia_use_libheif = false
 skia_use_lua = false
 skia_use_piex = false
 skia_tools_require_resources = true
-extra_cflags = [ "-DSK_ENABLE_DUMP_GPU" ]
+extra_cflags = [ "-DSK_ENABLE_DUMP_GPU", "-DSK_BUILD_FOR_SKQP" ]
 '''
 
 def parse_args():

@@ -19,8 +19,8 @@
 #include "GrResourceProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "ops/GrFillRectOp.h"
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrRectOpFactory.h"
 #include "TestUtils.h"
 
 #include <atomic>
@@ -259,9 +259,8 @@ void test_draw_op(GrContext* context,
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto op = GrRectOpFactory::MakeNonAAFill(context, std::move(paint), SkMatrix::I(),
-                                             SkRect::MakeWH(rtc->width(), rtc->height()),
-                                             GrAAType::kNone);
+    auto op = GrFillRectOp::Make(context, std::move(paint), GrAAType::kNone, SkMatrix::I(),
+                                 SkRect::MakeWH(rtc->width(), rtc->height()));
     rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
@@ -519,7 +518,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // violating the optimizations, it's reasonable to expect it to violate requirements on
             // a large number of pixels in the image. Sporadic pixel violations are more indicative
             // of device errors and represents a separate problem.
-#if defined(SK_SKQP_GLOBAL_ERROR_TOLERANCE)
+#if defined(SK_BUILD_FOR_SKQP)
             static constexpr int kMaxAcceptableFailedPixels = 0; // Strict when running as SKQP
 #else
             static constexpr int kMaxAcceptableFailedPixels = 2 * kRenderSize; // ~0.7% of the image

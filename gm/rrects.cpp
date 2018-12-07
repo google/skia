@@ -11,7 +11,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrFillRectOp.h"
 #include "SkRRect.h"
 
 namespace skiagm {
@@ -117,9 +117,8 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             renderTargetContext->priv().testingOnly_addDrawOp(
-                                    GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint),
-                                                                   SkMatrix::I(), bounds,
-                                                                   GrAAType::kNone));
+                                    GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
+                                                       SkMatrix::I(), bounds));
                         } else {
                             drew = false;
                         }
