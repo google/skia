@@ -137,12 +137,12 @@ if (target_os == "win") {
   # By default we look for 2017 (Pro & Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
   vc_2017_pro_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
+      "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Professional\\VC"
   vc_2017_com_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC"
+      "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC"
   vc_2017_bt_default =
-      "C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC"
-  vc_2015_default = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
+      "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC"
+  vc_2015_default = "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC"
 
   if (win_vc == "") {
     if ("True" == exec_script("//gn/checkdir.py",
