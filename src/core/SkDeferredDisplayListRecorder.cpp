@@ -41,6 +41,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                                         SkYUVColorSpace yuvColorSpace,
                                                         const GrBackendFormat yuvaFormats[],
+                                                        const SkISize yuvaSizes[],
                                                         const SkYUVAIndex yuvaIndices[4],
                                                         int imageWidth,
                                                         int imageHeight,
@@ -262,36 +263,6 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                                    textureReleaseProc,
                                                    promiseDoneProc,
                                                    textureContexts);
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
-    SkYUVColorSpace yuvColorSpace,
-    const GrBackendFormat yuvaFormats[],
-    const SkYUVAIndex yuvaIndices[4],
-    int imageWidth,
-    int imageHeight,
-    GrSurfaceOrigin imageOrigin,
-    sk_sp<SkColorSpace> imageColorSpace,
-    TextureFulfillProc textureFulfillProc,
-    TextureReleaseProc textureReleaseProc,
-    PromiseDoneProc promiseDoneProc,
-    TextureContext textureContexts[]) {
-    if (!fContext) {
-        return nullptr;
-    }
-
-    return SkImage_Gpu::MakePromiseYUVATexture(fContext.get(),
-                                               yuvColorSpace,
-                                               yuvaFormats,
-                                               yuvaIndices,
-                                               imageWidth,
-                                               imageHeight,
-                                               imageOrigin,
-                                               std::move(imageColorSpace),
-                                               textureFulfillProc,
-                                               textureReleaseProc,
-                                               promiseDoneProc,
-                                               textureContexts);
 }
 
 #endif
