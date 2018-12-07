@@ -356,6 +356,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 
 GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                          GrBackendSemaphore backendSemaphores[]) {
+    this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
 
     if (this->caps()->fenceSyncSupport()) {
