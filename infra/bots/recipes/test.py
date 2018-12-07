@@ -643,6 +643,11 @@ def dm_flags(api, bot):
 
   if api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~GLPrograms']) # skia:7849
+  if api.vars.is_linux and 'IntelIris655' in bot:
+    #https://logs.chromium.org/logs/skia/20181206T221425.142294371Z_0000000000a5c894/+/steps/symbolized_dm/0/stdout
+    #i965: Failed to submit batchbuffer: Input/output error
+    #i965: Failed to submit batchbuffer: Input/output error
+    match.extend(['~GLPrograms']) # DO NOT SUBMIT: add bug
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
     # skia:7322
@@ -759,6 +764,7 @@ def dm_flags(api, bot):
       'IntelIris6100' in bot or # gen 8 - broadwell
       'IntelIris540' in bot or  # gen 9 - skylake
       'IntelIris640' in bot or  # gen 9 - kaby lake
+      'IntelIris655' in bot or  # gen 9 - coffee lake
       'MaliT760' in bot or
       'MaliT860' in bot or
       'MaliT880' in bot):
@@ -990,6 +996,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Lottie',
+  'Test-Ubuntu18-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
