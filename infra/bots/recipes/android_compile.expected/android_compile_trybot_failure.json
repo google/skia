@@ -22,7 +22,7 @@
     "cmd": [
       "gsutil",
       "cat",
-      "gs://android-compile-tasks/1234-1.json"
+      "gs://android-compile-tasks/cf_x86_phone-eng-1234-1.json"
     ],
     "name": "Get task log links",
     "stdout": "/path/to/tmp/json",
