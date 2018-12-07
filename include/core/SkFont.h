@@ -495,6 +495,7 @@ private:
 
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
+    friend class GrTextBlob;
     friend class SkCanonicalizeFont;
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
