@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e9a52e25_8fb21672",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:22:15Z",
+      "side": 1,
+      "message": "That is correct.",
+      "parentUuid": "269212b6_aefbbd8d",
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb7ca0f3_d2be5afb",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -56,6 +74,24 @@
       "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58620073_1ec16d52",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:22:15Z",
+      "side": 1,
+      "message": "I considered it, but ended up using r.width(), since an empty height doesn\u0027t cause any problems. But I agree is_empty fits with the comment and makes sense.\n\nDone.",
+      "parentUuid": "db694459_fe5b08f4",
+      "revId": "18f429b41db5703a1230a785234fcdf2ac2d7f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
