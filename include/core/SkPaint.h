@@ -1095,80 +1095,6 @@ public:
                         const SkPoint pos[], SkPath* path) const;
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_TEXTINTERCEPTS
-public:
-#else
-private:
-#endif
-    /** Returns the number of intervals that intersect bounds.
-        bounds describes a pair of lines parallel to the text advance.
-        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
-        the string.
-        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses x, y to position intervals.
-
-        Pass nullptr for intervals to determine the size of the interval array.
-
-        intervals are cached to improve performance for multiple calls.
-
-        @param text       character codes or glyph indices
-        @param length     number of bytes of text
-        @param x          x-axis value of the origin of the text
-        @param y          y-axis value of the origin of the text
-        @param bounds     lower and upper line parallel to the advance
-        @param intervals  returned intersections; may be nullptr
-        @return           number of intersections; may be zero
-    */
-    int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
-                          const SkScalar bounds[2], SkScalar* intervals) const;
-
-    /** Returns the number of intervals that intersect bounds.
-        bounds describes a pair of lines parallel to the text advance.
-        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
-        the string.
-        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses pos array to position intervals.
-
-        Pass nullptr for intervals to determine the size of the interval array.
-
-        intervals are cached to improve performance for multiple calls.
-
-        @param text       character codes or glyph indices
-        @param length     number of bytes of text
-        @param pos        positions of each glyph
-        @param bounds     lower and upper line parallel to the advance
-        @param intervals  returned intersections; may be nullptr
-        @return           number of intersections; may be zero
-    */
-    int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
-                             const SkScalar bounds[2], SkScalar* intervals) const;
-
-    /** Returns the number of intervals that intersect bounds.
-        bounds describes a pair of lines parallel to the text advance.
-        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
-        the string.
-        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        Uses xpos array, constY to position intervals.
-
-        Pass nullptr for intervals to determine the size of the interval array.
-
-        intervals are cached to improve performance for multiple calls.
-
-        @param text       character codes or glyph indices
-        @param length     number of bytes of text
-        @param xpos       positions of each glyph on x-axis
-        @param constY     position of each glyph on y-axis
-        @param bounds     lower and upper line parallel to the advance
-        @param intervals  returned intersections; may be nullptr
-        @return           number of intersections; may be zero
-    */
-    int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
-                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
-public:
-
     /** Returns the number of intervals that intersect bounds.
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
@@ -1313,6 +1239,13 @@ private:
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
+
+    int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+                          const SkScalar bounds[2], SkScalar* intervals) const;
+    int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+                             const SkScalar bounds[2], SkScalar* intervals) const;
+    int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
 
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
