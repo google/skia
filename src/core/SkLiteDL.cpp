@@ -54,7 +54,6 @@ namespace {
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)          \
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)        \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice) M(DrawImageSet) \
-    M(DrawText) M(DrawPosText) M(DrawPosTextH)                                         \
     M(DrawTextRSXform) M(DrawTextBlob)                                                 \
     M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)
 
@@ -341,44 +340,6 @@ namespace {
             c->experimental_DrawImageSetV1(set.get(), count, quality, xfermode);
         }
     };
-    struct DrawText final : Op {
-        static const auto kType = Type::DrawText;
-        DrawText(size_t bytes, SkScalar x, SkScalar y, const SkPaint& paint)
-            : bytes(bytes), x(x), y(y), paint(paint) {}
-        size_t bytes;
-        SkScalar x,y;
-        SkPaint paint;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawText(pod<void>(this), bytes, x,y, paint);
-        }
-    };
-    struct DrawPosText final : Op {
-        static const auto kType = Type::DrawPosText;
-        DrawPosText(size_t bytes, const SkPaint& paint, int n)
-            : bytes(bytes), paint(paint), n(n) {}
-        size_t bytes;
-        SkPaint paint;
-        int n;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            auto points = pod<SkPoint>(this);
-            auto text   = pod<void>(this, n*sizeof(SkPoint));
-            c->drawPosText(text, bytes, points, paint);
-        }
-    };
-    struct DrawPosTextH final : Op {
-        static const auto kType = Type::DrawPosTextH;
-        DrawPosTextH(size_t bytes, SkScalar y, const SkPaint& paint, int n)
-            : bytes(bytes), y(y), paint(paint), n(n) {}
-        size_t   bytes;
-        SkScalar y;
-        SkPaint  paint;
-        int n;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            auto xs   = pod<SkScalar>(this);
-            auto text = pod<void>(this, n*sizeof(SkScalar));
-            c->drawPosTextH(text, bytes, xs, y, paint);
-        }
-    };
     struct DrawTextRSXform final : Op {
         static const auto kType = Type::DrawTextRSXform;
         DrawTextRSXform(size_t bytes, int xforms, const SkRect* cull, const SkPaint& paint)
@@ -624,23 +585,6 @@ void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
     this->push<DrawImageSet>(0, set, count, filterQuality, mode);
 }
 
-void SkLiteDL::drawText(const void* text, size_t bytes,
-                        SkScalar x, SkScalar y, const SkPaint& paint) {
-    void* pod = this->push<DrawText>(bytes, bytes, x, y, paint);
-    copy_v(pod, (const char*)text,bytes);
-}
-void SkLiteDL::drawPosText(const void* text, size_t bytes,
-                           const SkPoint pos[], const SkPaint& paint) {
-    int n = paint.countText(text, bytes);
-    void* pod = this->push<DrawPosText>(n*sizeof(SkPoint)+bytes, bytes, paint, n);
-    copy_v(pod, pos,n, (const char*)text,bytes);
-}
-void SkLiteDL::drawPosTextH(const void* text, size_t bytes,
-                           const SkScalar xs[], SkScalar y, const SkPaint& paint) {
-    int n = paint.countText(text, bytes);
-    void* pod = this->push<DrawPosTextH>(n*sizeof(SkScalar)+bytes, bytes, y, paint, n);
-    copy_v(pod, xs,n, (const char*)text,bytes);
-}
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
