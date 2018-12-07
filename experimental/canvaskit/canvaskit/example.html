@@ -32,6 +32,8 @@
 <canvas id=api6_c width=300 height=300></canvas>
 <img id=api7 width=300 height=300>
 <canvas id=api7_c width=300 height=300></canvas>
+<img id=api8 width=300 height=300>
+<canvas id=api8_c width=300 height=300></canvas>
 
 <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
@@ -89,6 +91,7 @@
       CanvasAPI5(CanvasKit);
       CanvasAPI6(CanvasKit);
       CanvasAPI7(CanvasKit);
+      CanvasAPI8(CanvasKit)
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImageData);
@@ -492,6 +495,7 @@
       ctx.stroke();
     }
     document.getElementById('api2').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function CanvasAPI3(CanvasKit) {
@@ -550,6 +554,7 @@
 
     }
     document.getElementById('api3').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function CanvasAPI4(CanvasKit) {
@@ -614,6 +619,7 @@
       ctx.stroke();
     }
     document.getElementById('api4').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function CanvasAPI5(CanvasKit) {
@@ -670,6 +676,7 @@
 
     }
     document.getElementById('api5').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function CanvasAPI6(CanvasKit) {
@@ -718,6 +725,7 @@
 
     }
     document.getElementById('api6').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function CanvasAPI7(CanvasKit) {
@@ -770,6 +778,127 @@
       document.getElementById('api7').src = skcanvas.toDataURL();
       skcanvas.dispose();
     });
+  }
+
+  function CanvasAPI8(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api8_c');
+
+    function drawPoint(ctx, x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 1, 1);
+    }
+    const IN = 'purple';
+    const OUT = 'orange';
+    const SCALE = 4;
+
+    const pts = [[3, 3], [4, 4], [5, 5], [10, 10], [8, 10], [6, 10],
+                 [6.5, 9], [15, 10], [17, 10], [17, 11], [24, 24],
+                 [25, 25], [26, 26], [27, 27]];
+
+    for (let canvas of [skcanvas, realCanvas]) {
+      let ctx = canvas.getContext('2d');
+      ctx.font = '11px Arial';
+      ctx.fillText('path-nonzero', 30, 15);
+      ctx.fillText('path-evenodd', 150, 15);
+      ctx.fillText('stroke-1px-wide', 30, 130);
+      ctx.fillText('stroke-2px-wide', 150, 130);
+      // Scale up to make single pixels easier to see
+      ctx.scale(SCALE, SCALE);
+      let xOffset = 0;
+      let yOffset = 0;
+
+      ctx.fillStyle = '#AAA';
+      ctx.lineWidth = 1;
+      ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+      ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+      ctx.fill('nonzero');
+      ctx._currentPath && ctx._currentPath.dump();
+      for (let pt of pts) {
+        let [x, y] = pt;
+        x += xOffset;
+        y += yOffset;
+        // naively apply transform when querying because the points queried
+        // ignore the CTM.
+        if (ctx.isPointInPath(x * SCALE, y * SCALE, 'nonzero')) {
+          drawPoint(ctx, x, y, IN);
+        } else {
+          drawPoint(ctx, x, y, OUT);
+        }
+      }
+      ctx.beginPath();
+
+      xOffset = 30;
+      yOffset = 0;
+
+      ctx.fillStyle = '#AAA';
+      ctx.lineWidth = 1;
+      ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+      ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+      ctx.fill('evenodd');
+
+      for (let pt of pts) {
+        let [x, y] = pt;
+        x += xOffset;
+        y += yOffset;
+        // naively apply transform when querying because the points queried
+        // ignore the CTM.
+        if (ctx.isPointInPath(x * SCALE, y * SCALE, 'evenodd')) {
+          drawPoint(ctx, x, y, IN);
+        } else {
+          drawPoint(ctx, x, y, OUT);
+        }
+      }
+      ctx.beginPath();
+
+      xOffset = 0;
+      yOffset = 30;
+
+      ctx.lineWidth = 1;
+      ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+      ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+      ctx.stroke();
+
+      for (let pt of pts) {
+        let [x, y] = pt;
+        x += xOffset;
+        y += yOffset;
+        // naively apply transform when querying because the points queried
+        // ignore the CTM.
+        if (ctx.isPointInStroke(x * SCALE, y * SCALE)) {
+          drawPoint(ctx, x, y, IN);
+        } else {
+          drawPoint(ctx, x, y, OUT);
+        }
+      }
+      ctx.beginPath();
+
+      xOffset = 30;
+      yOffset = 30;
+
+      ctx.lineWidth = 2;
+      ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+      ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+      ctx.stroke();
+
+      for (let pt of pts) {
+        let [x, y] = pt;
+        x += xOffset;
+        y += yOffset;
+        // naively apply transform when querying because the points queried
+        // ignore the CTM.
+        if (ctx.isPointInStroke(x * SCALE, y * SCALE)) {
+          drawPoint(ctx, x, y, IN);
+        } else {
+          drawPoint(ctx, x, y, OUT);
+        }
+      }
+      ctx.beginPath();
+
+    }
+
+    document.getElementById('api8').src = skcanvas.toDataURL();
+    skcanvas.dispose();
   }
 
   function VertexAPI1(CanvasKit) {

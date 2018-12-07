@@ -423,6 +423,7 @@ StrokeOpts.prototype.width;
 StrokeOpts.prototype.miter_limit;
 StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
+StrokeOpts.prototype.precision;
 
 // Define everything created in the canvas2d spec here
 var HTMLCanvas = {};
