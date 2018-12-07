@@ -29,6 +29,7 @@ public:
         fFn = std::move(that.fFn);
         return *this;
     }
+    void clear() { fFn = {}; }
 
 private:
     std::function<void()> fFn;

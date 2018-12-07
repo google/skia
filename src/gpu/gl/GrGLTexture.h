@@ -77,6 +77,11 @@ public:
         fReleaseHelper = std::move(releaseHelper);
     }
 
+    void setPurgeableProc(PurgeableProc proc, void* context) override {
+        fPurgeableProc = proc;
+        fPurgeableProcCtx = context;
+    }
+
     // These functions are used to track the texture parameters associated with the texture.
     GrGpu::ResetTimestamp getCachedParamsTimestamp() const { return fParamsTimestamp; }
     const SamplerParams& getCachedSamplerParams() const { return fSamplerParams; }
@@ -122,10 +127,14 @@ protected:
 
 private:
     void invokeReleaseProc() {
-        if (fReleaseHelper) {
-            // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
-            // ReleaseProc to be called.
-            fReleaseHelper.reset();
+        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+        // ReleaseProc to be called.
+        fReleaseHelper.reset();
+    }
+
+    void becamePurgeable() const override {
+        if (fPurgeableProc) {
+            fPurgeableProc(fPurgeableProcCtx);
         }
     }
 
@@ -133,6 +142,8 @@ private:
     NonSamplerParams fNonSamplerParams;
     GrGpu::ResetTimestamp fParamsTimestamp;
     sk_sp<GrReleaseProcHelper> fReleaseHelper;
+    PurgeableProc* fPurgeableProc;
+    void* fPurgeableProcCtx;
     GrGLuint fID;
     GrGLenum fFormat;
     GrBackendObjectOwnership fTextureIDOwnership;

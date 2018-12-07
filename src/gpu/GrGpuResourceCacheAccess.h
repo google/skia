@@ -35,6 +35,12 @@ private:
     bool shouldPurgeImmediately() const { return fResource->fShouldPurgeImmediately; }
 
     /**
+     * Called by GrResourceCache when a resource becomes first purgeable and the cache has decided
+     * to keep the resource rather than purge it immediately.
+     */
+    void becamePurgeable() const { fResource->becamePurgeable(); }
+
+    /**
      * Called by the cache to delete the resource under normal circumstances.
      */
     void release() {

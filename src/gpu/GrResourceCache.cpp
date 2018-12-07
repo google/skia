@@ -17,6 +17,7 @@
 #include "SkMessageBus.h"
 #include "SkOpts.h"
 #include "SkRandom.h"
+#include "SkScopeExit.h"
 #include "SkTSort.h"
 #include "SkTo.h"
 #include <atomic>
@@ -412,6 +413,8 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
 
     bool hasUniqueKey = resource->getUniqueKey().isValid();
 
+    SkScopeExit notifyPurgeable([resource]{resource->cacheAccess().becamePurgeable();});
+
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // We keep unbudgeted resources with a unique key in the purgable queue of the cache so they
         // can be reused again by the image connected to the unique key.
@@ -439,6 +442,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     }
 
     SkDEBUGCODE(int beforeCount = this->getResourceCount();)
+    notifyPurgeable.clear();
     resource->cacheAccess().release();
     // We should at least free this resource, perhaps dependent resources as well.
     SkASSERT(this->getResourceCount() < beforeCount);
