@@ -3,13 +3,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/tmp"
+      "[START_DIR]\\tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -18,11 +18,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -32,12 +32,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SKP_VERSION"
+      "[START_DIR]\\tmp\\SKP_VERSION"
     ],
     "infra_step": true,
     "name": "write SKP_VERSION"
@@ -46,11 +46,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -60,12 +60,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
     ],
     "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
@@ -74,11 +74,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -88,12 +88,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SVG_VERSION"
+      "[START_DIR]\\tmp\\SVG_VERSION"
     ],
     "infra_step": true,
     "name": "write SVG_VERSION"
@@ -102,11 +102,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "rmtree [SWARM_OUT_DIR]"
@@ -115,13 +115,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs [SWARM_OUT_DIR]"
@@ -156,15 +156,15 @@
   },
   {
     "cmd": [
-      "[START_DIR]/build/nanobench",
+      "[START_DIR]\\build\\nanobench",
       "-i",
-      "[START_DIR]/skia/resources",
+      "[START_DIR]\\skia\\resources",
       "--skps",
-      "[START_DIR]/skp",
+      "[START_DIR]\\skp",
       "--images",
-      "[START_DIR]/skimage/nanobench",
+      "[START_DIR]\\skimage\\nanobench",
       "--svgs",
-      "[START_DIR]/svg",
+      "[START_DIR]\\svg",
       "--pre_log",
       "--images",
       "--gpuStatsDump",
@@ -175,8 +175,9 @@
       "--nocpu",
       "--config",
       "vk",
+      "--reduceOpListSplitting",
       "--outResultsFile",
-      "[START_DIR]/[SWARM_OUT_DIR]/nanobench_abc123_1337000001.json",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -192,17 +193,17 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "RadeonHD8870M",
+      "IntelIris655",
       "extra_config",
-      "MoltenVK_Vulkan",
+      "Vulkan",
       "model",
-      "MacBookPro11.5",
+      "NUC8i5BEK",
       "os",
-      "Mac"
+      "Win10"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "nanobench"
   },
@@ -210,13 +211,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/[SWARM_OUT_DIR]"
+      "[START_DIR]\\[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

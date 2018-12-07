@@ -453,10 +453,6 @@
       "gm",
       "_",
       "complexclip4_aa",
-      "--match",
-      "~ReadWriteAlpha",
-      "~RGBA4444TextureTest",
-      "~RGB565TextureTest",
       "--nonativeFonts",
       "--verbose"
     ],
