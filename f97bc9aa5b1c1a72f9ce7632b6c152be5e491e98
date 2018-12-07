@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "4ae9505a_a2524067",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:51:28Z",
+      "side": 1,
+      "message": "Oops, copied from the wrong file.",
+      "parentUuid": "c427ae1d_3c1956fc",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab02208b_13fdbc5e",
         "filename": "src/codec/SkOrientationMarker.cpp",
         "patchSetId": 1
@@ -59,6 +77,24 @@
     },
     {
       "key": {
+        "uuid": "1841c528_a03a5d62",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:51:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab02208b_13fdbc5e",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5a3b106_db713671",
         "filename": "src/codec/SkOrientationMarker.cpp",
         "patchSetId": 1
@@ -73,6 +109,24 @@
       "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d6eeaf_d5317e0d",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:51:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5a3b106_db713671",
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -119,6 +173,30 @@
       "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d50d0b50_798cdb25",
+        "filename": "src/codec/SkOrientationMarker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-07T14:51:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "183393a5_55556156",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 27
+      },
+      "revId": "f97bc9aa5b1c1a72f9ce7632b6c152be5e491e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
