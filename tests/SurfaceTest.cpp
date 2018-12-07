@@ -672,8 +672,29 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendTexture* outTexture) {
     GrGpu* gpu = context->contextPriv().getGpu();
 
+    // On Pixel and Pixel2XL's with Adreno 530 and 540s, setting width and height to 10s reliably
+    // triggers what appears to be a driver race condition where the 10x10 surface from the
+    // OverdrawSurface_gpu test is reused(?) for this surface created by the SurfacePartialDraw_gpu
+    // test.
+    //
+    // Immediately after creation of this surface, readback shows the correct initial solid color.
+    // However, sometime before content is rendered into the upper half of the surface, the driver
+    // presumably cleans up the OverdrawSurface_gpu's memory which corrupts this color buffer. The
+    // top half of the surface is fine after the partially-covering rectangle is drawn, but the
+    // untouched bottom half contains random pixel values that trigger asserts in the
+    // SurfacePartialDraw_gpu test for no longer matching the initial color. Running the
+    // SurfacePartialDraw_gpu test without the OverdrawSurface_gpu test completes successfully.
+    //
+    // Requesting a much larger backend texture size seems to prevent it from reusing the same
+    // memory and avoids the issue.
+#if defined(SK_BUILD_FOR_SKQP)
     const int kWidth = 10;
     const int kHeight = 10;
+#else
+    const int kWidth = 100;
+    const int kHeight = 100;
+#endif
+
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
 
