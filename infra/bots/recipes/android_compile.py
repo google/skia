@@ -60,7 +60,8 @@ def RunSteps(api):
     api.step('Trigger and wait for task on android compile server', cmd=cmd)
   except api.step.StepFailure as e:
     # Add withpatch and nopatch logs as links (if they exist).
-    gs_file = 'gs://android-compile-tasks/%s-%s.json' % (issue, patchset)
+    gs_file = 'gs://android-compile-tasks/%s-%s-%s.json' % (
+        lunch_target, issue, patchset)
     step_result = api.step('Get task log links',
                            ['gsutil', 'cat', gs_file],
                            stdout=api.json.output())
