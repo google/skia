@@ -665,6 +665,67 @@ def dm_flags(api, bot):
     # skbug.com/8047
     match.append('~FloatingPointTextureTest$')
 
+  #if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
+    ## DO NOT SUBMIT: add bug
+    ## ../../../src/gpu/vk/GrVkResourceProvider.cpp(339): fatal error: "assert(deviceLost || fActiveCommandBuffers[i]->finished(fGpu))"
+    #blacklist(['vk', 'gm', '_', 'aarectmodes'])
+    #blacklist(['vk', 'gm', '_', 'aaxfermodes'])
+    #blacklist(['vk', 'gm', '_', 'crbug_892988'])
+    #blacklist(['vk', 'gm', '_', 'dftext'])
+    #blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])
+    #blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
+    #blacklist(['vk', 'gm', '_', 'drawregionmodes'])
+    #blacklist(['vk', 'gm', '_', 'filterfastbounds'])
+    #blacklist(['vk', 'gm', '_', 'fontmgr_match'])
+    #blacklist(['vk', 'gm', '_', 'fontscalerdistortable'])
+    #blacklist(['vk', 'gm', '_', 'gammagradienttext'])
+    #blacklist(['vk', 'gm', '_', 'gammatext'])
+    #blacklist(['vk', 'gm', '_', 'gradtext'])
+    #blacklist(['vk', 'gm', '_', 'hairmodes'])
+    #blacklist(['vk', 'gm', '_', 'imagefilters_xfermodes'])
+    #blacklist(['vk', 'gm', '_', 'imagefiltersclipped'])
+    #blacklist(['vk', 'gm', '_', 'imagefiltersscaled'])
+    #blacklist(['vk', 'gm', '_', 'imagefiltersstroked'])
+    #blacklist(['vk', 'gm', '_', 'imagefilterstransformed'])
+    #blacklist(['vk', 'gm', '_', 'imageresizetiled'])
+    #blacklist(['vk', 'gm', '_', 'lcdblendmodes'])
+    #blacklist(['vk', 'gm', '_', 'lcdoverlap'])
+    #blacklist(['vk', 'gm', '_', 'lcdtext'])
+    #blacklist(['vk', 'gm', '_', 'lcdtextsize'])
+    #blacklist(['vk', 'gm', '_', 'matriximagefilter'])
+    #blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
+    #blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
+    #blacklist(['vk', 'gm', '_', 'savelayer_lcdtext'])
+    #blacklist(['vk', 'gm', '_', 'shadermaskfilter_image'])
+    #blacklist(['vk', 'gm', '_', 'srcmode'])
+    #blacklist(['vk', 'gm', '_', 'surfaceprops'])
+    #blacklist(['vk', 'gm', '_', 'textblobgeometrychange'])
+    #blacklist(['vk', 'gm', '_', 'textbloblooper'])
+    #blacklist(['vk', 'gm', '_', 'textfilter_color'])
+    #blacklist(['vk', 'gm', '_', 'textfilter_image'])
+    #blacklist(['vk', 'gm', '_', 'varied_text_clipped_lcd'])
+    #blacklist(['vk', 'gm', '_', 'varied_text_ignorable_clip_lcd'])
+    ## ../../../src/gpu/vk/GrVkCommandBuffer.cpp(390): fatal error: "assert(VK_SUCCESS == ret390)"
+    #blacklist(['vk', 'gm', '_', 'mixedtextblobs'])
+    #blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
+    #blacklist(['vk', 'gm', '_', 'fontscaler'])
+    ## DO NOT SUBMIT
+    ## ../../../src/gpu/vk/GrVkCommandBuffer.cpp(390): fatal error: "assert(VK_SUCCESS == ret390)"
+    #blacklist(['vk', 'gm', '_', 'textblobmixedsizes'])
+    #blacklist(['vk', 'gm', '_', 'textblobmixedsizes_df'])
+    ## DO NOT SUBMIT
+    ## ../../../src/gpu/vk/GrVkCommandBuffer.cpp(482): fatal error: "assert(VK_SUCCESS == ret482)"
+    #blacklist(['vk', 'gm', '_', 'textblobrandomfont'])
+  #  # DO NOT SUBMIT: add bug
+  #  #if 'Release' in bot:
+  #  #  blacklist(['vk', 'gm', '_', 'bitmap_subset_shader'])
+  #  #  blacklist(['vk', 'gm', '_', 'xfermodes3'])
+  #  # DO NOT SUBMIT: add bug
+  #  if 'Release' in bot:
+  #    # Hangs?
+  #    blacklist(['vk', 'gm', '_', 'scaled_tilemodes'])
+  #    # textblobrandomfont
+
   if 'MoltenVK' in bot:
     # skbug.com/7959
     blacklist(['_', 'gm', '_', 'vertices_scaled_shader'])
@@ -728,9 +789,9 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
-  if match:
-    args.append('--match')
-    args.extend(match)
+  #if match:
+  #  args.append('--match')
+  #  args.extend(match)
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel
@@ -758,6 +819,7 @@ def dm_flags(api, bot):
       'IntelIris6100' in bot or # gen 8 - broadwell
       'IntelIris540' in bot or  # gen 9 - skylake
       'IntelIris640' in bot or  # gen 9 - kaby lake
+      'IntelIris655' in bot or  # gen 9 - coffee lake
       'MaliT760' in bot or
       'MaliT860' in bot or
       'MaliT880' in bot):
@@ -912,7 +974,14 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  bot = api.vars.builder_name
+  if 'Vulkan' in bot and 'Win10' in bot and 'IntelIris655' in bot:
+    for i in range(10):
+      for t in ['aarectmodes', 'aaxfermodes', 'crbug_892988', 'dftext', 'dftext_blob_persp', 'dont_clip_to_layer', 'drawregionmodes', 'filterfastbounds', 'fontmgr_iter', 'fontmgr_match', 'fontscaler', 'fontscalerdistortable', 'gammagradienttext', 'gammatext', 'gradtext', 'hairmodes', 'imagefilters_xfermodes', 'imagefiltersclipped', 'imagefiltersscaled', 'imagefiltersstroked', 'imagefilterstransformed', 'imageresizetiled', 'lcdblendmodes', 'lcdoverlap', 'lcdtext', 'lcdtextsize', 'matriximagefilter', 'mixedtextblobs', 'resizeimagefilter', 'rotate_imagefilter', 'savelayer_lcdtext', 'shadermaskfilter_image', 'srcmode', 'surfaceprops', 'textbloblooper', 'textblobmixedsizes', 'textblobmixedsizes_df', 'textfilter_color', 'textfilter_image', 'varied_text_clipped_lcd', 'varied_text_ignorable_clip_lcd', 'textblobgeometrychange', 'textblobrandomfont', 'bitmap_subset_shader', 'xfermodes3', 'scaled_tilemodes']:
+        api.run(api.flavor.step, 'dm %d %s' % (i, t), cmd=args + ['--match', '^%s$' % t], abort_on_failure=False, timeout=120)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
@@ -994,6 +1063,8 @@ TEST_BUILDERS = [
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',

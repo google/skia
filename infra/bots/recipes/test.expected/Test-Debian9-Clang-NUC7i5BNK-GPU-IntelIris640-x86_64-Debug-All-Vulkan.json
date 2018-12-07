@@ -414,9 +414,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~VkHeapTests",
-      "~GLPrograms",
       "--nonativeFonts",
       "--reduceOpListSplitting",
       "--verbose"

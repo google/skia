@@ -483,8 +483,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~^GrMeshTest$",
       "--verbose"
     ],
     "env": {
