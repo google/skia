@@ -16,8 +16,8 @@
 #include "SkTDynamicHash.h"
 #include "SkTMultiMap.h"
 
+class GrDeinstantiateProxyTracker;
 class GrResourceProvider;
-class GrUninstantiateProxyTracker;
 
 // Print out explicit allocation information
 #define GR_ALLOCATION_SPEW 0
@@ -42,8 +42,8 @@ class GrUninstantiateProxyTracker;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrResourceProvider* resourceProvider, GrUninstantiateProxyTracker* tracker)
-            : fResourceProvider(resourceProvider), fUninstantiateTracker(tracker) {}
+    GrResourceAllocator(GrResourceProvider* resourceProvider, GrDeinstantiateProxyTracker* tracker)
+            : fResourceProvider(resourceProvider), fDeinstantiateTracker(tracker) {}
 
     ~GrResourceAllocator();
 
@@ -212,7 +212,7 @@ private:
     static const int kInitialArenaSize = 128 * sizeof(Interval);
 
     GrResourceProvider*          fResourceProvider;
-    GrUninstantiateProxyTracker* fUninstantiateTracker;
+    GrDeinstantiateProxyTracker* fDeinstantiateTracker;
     FreePoolMultiMap             fFreePool;          // Recently created/used GrSurfaces
     IntvlHash                    fIntvlHash;         // All the intervals, hashed by proxyID
 

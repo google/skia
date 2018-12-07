@@ -60,10 +60,10 @@ public:
         return fProxy->fLazyInstantiationType;
     }
 
-    bool isSafeToUninstantiate() const {
+    bool isSafeToDeinstantiate() const {
         return SkToBool(fProxy->fTarget) &&
                SkToBool(fProxy->fLazyInstantiateCallback) &&
-               GrSurfaceProxy::LazyInstantiationType::kUninstantiate == lazyInstantiationType();
+               GrSurfaceProxy::LazyInstantiationType::kDeinstantiate == lazyInstantiationType();
     }
 
     static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,

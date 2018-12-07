@@ -385,7 +385,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
             },
             backendFormat, desc, origin, mipMapped, GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kNo,
-            GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
+            GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
 
     if (!proxy) {
         return nullptr;
@@ -533,10 +533,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseYUVATexture(GrContext* context,
                 return sk_ref_sp<GrTexture>(tmp->getTexture());
 #endif
             },
-            yuvaFormats[yuvaIndices[SkYUVAIndex::kY_Index].fIndex],
-            desc, imageOrigin, GrMipMapped::kNo,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
+            yuvaFormats[yuvaIndices[SkYUVAIndex::kY_Index].fIndex], desc, imageOrigin,
+            GrMipMapped::kNo, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
+            SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
 
     if (!proxy) {
         return nullptr;
