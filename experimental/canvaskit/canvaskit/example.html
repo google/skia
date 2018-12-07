@@ -30,6 +30,8 @@
 <canvas id=api5_c width=300 height=300></canvas>
 <img id=api6 width=300 height=300>
 <canvas id=api6_c width=300 height=300></canvas>
+<img id=api7 width=300 height=300>
+<canvas id=api7_c width=300 height=300></canvas>
 
 <h2> CanvasKit draws Paths to the browser</h2>
 <canvas id=vertex1 width=300 height=300></canvas>
@@ -86,6 +88,7 @@
       CanvasAPI4(CanvasKit);
       CanvasAPI5(CanvasKit);
       CanvasAPI6(CanvasKit);
+      CanvasAPI7(CanvasKit);
 
       VertexAPI1(CanvasKit);
       VertexAPI2(CanvasKit, bonesImageData);
@@ -717,6 +720,58 @@
     document.getElementById('api6').src = skcanvas.toDataURL();
   }
 
+  function CanvasAPI7(CanvasKit) {
+    let skcanvas = CanvasKit.MakeCanvas(300, 300);
+    let realCanvas = document.getElementById('api7_c');
+
+    let skPromise   = fetch('./test.png')
+                        // if clients want to use a Blob, they are responsible
+                        // for reading it themselves.
+                        .then((response) => response.arrayBuffer())
+                        .then((buffer) => {
+                          skcanvas._img = skcanvas.decodeImage(buffer);
+                        });
+    let realPromise = fetch('./test.png')
+                        .then((response) => response.blob())
+                        .then((blob) => createImageBitmap(blob))
+                        .then((bitmap) => {
+                          realCanvas._img = bitmap;
+                        });
+
+
+    Promise.all([realPromise, skPromise]).then(() => {
+      for (let canvas of [skcanvas, realCanvas]) {
+        let ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#EEE';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.lineWidth = 20;
+        ctx.scale(0.1, 0.2);
+
+        let pattern = ctx.createPattern(canvas._img, 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, 1500, 750);
+
+        pattern = ctx.createPattern(canvas._img, 'repeat-x');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(1500, 0, 3000, 750);
+
+        ctx.globalAlpha = 0.7
+        pattern = ctx.createPattern(canvas._img, 'repeat-y');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 750, 1500, 1500);
+        ctx.strokeRect(0, 750, 1500, 1500);
+
+        pattern = ctx.createPattern(canvas._img, 'no-repeat');
+        ctx.fillStyle = pattern;
+        pattern.setTransform({a: 1, b: -.1, c:.1, d: 0.5, e: 1800, f:800});
+        ctx.fillRect(0, 0, 3000, 1500);
+      }
+
+      document.getElementById('api7').src = skcanvas.toDataURL();
+      skcanvas.dispose();
+    });
+  }
+
   function VertexAPI1(CanvasKit) {
     const surface = CanvasKit.MakeCanvasSurface('vertex1');
     if (!surface) {
@@ -772,8 +827,9 @@
     const context = CanvasKit.currentContext();
     const canvas = surface.getCanvas();
     let paint = new CanvasKit.SkPaint();
+    let bonesImage = CanvasKit.MakeImageFromEncoded(bonesImageData);
 
-    let shader = CanvasKit.MakeImageShader(bonesImageData,
+    let shader = CanvasKit.MakeImageShader(bonesImage,
                     CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp);
 
     // comment this out to see just the triangles move.
@@ -819,6 +875,7 @@
     //tVerts.delete();
     //vertices.delete();
 
+    // bonesImage && bonesImage.delete();
     //shader && shader.delete();
     //paint.delete();
     //surface.delete();

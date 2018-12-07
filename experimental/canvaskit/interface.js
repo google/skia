@@ -487,7 +487,7 @@
     return dpe;
   }
 
-  // data is a TypedArray or ArrayBuffer
+  // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
   CanvasKit.MakeImageFromEncoded = function(data) {
     data = new Uint8Array(data);
 
@@ -507,13 +507,21 @@
     return img;
   }
 
-  // imgData is an ArrayBuffer of data, e.g. from fetch().then(resp.arrayBuffer())
-  CanvasKit.MakeImageShader = function(imgData, xTileMode, yTileMode) {
-    var iptr = CanvasKit._malloc(imgData.byteLength);
-    CanvasKit.HEAPU8.set(new Uint8Array(imgData), iptr);
-    // No need to _free iptr, ImageShader takes it with SkData::MakeFromMalloc
-
-    return CanvasKit._MakeImageShader(iptr, imgData.byteLength, xTileMode, yTileMode);
+  // imgData is an Encoded SkImage, e.g. from MakeImageFromEncoded
+  CanvasKit.MakeImageShader = function(img, xTileMode, yTileMode, clampUnpremul, localMatrix) {
+    if (!img) {
+      return null;
+    }
+    clampUnpremul = clampUnpremul || false;
+    if (localMatrix) {
+      // Add perspective args if not provided.
+      if (localMatrix.length === 6) {
+        localMatrix.push(0, 0, 1);
+      }
+      return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul, localMatrix);
+    } else {
+      return CanvasKit._MakeImageShader(img, xTileMode, yTileMode, clampUnpremul);
+    }
   }
 
   // pixels is a Uint8Array

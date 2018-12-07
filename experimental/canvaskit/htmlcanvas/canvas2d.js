@@ -196,7 +196,7 @@
       }
     }
 
-    this._getShader = function(currentTransform, globalAlpha) {
+    this._getShader = function(currentTransform) {
       // From the spec: "The points in the linear gradient must be transformed
       // as described by the current transformation matrix when rendering."
       var pts = [x1, y1, x2, y2];
@@ -207,11 +207,8 @@
       var sy2 = pts[3];
 
       this._dispose();
-      var colors = this._colors.map(function(c) {
-        return CanvasKit.multiplyByAlpha(c, globalAlpha);
-      });
       this._shader = CanvasKit.MakeLinearGradientShader([sx1, sy1], [sx2, sy2],
-        colors, this._pos, CanvasKit.TileMode.Clamp);
+        this._colors, this._pos, CanvasKit.TileMode.Clamp);
       return this._shader;
     }
   }
@@ -268,7 +265,7 @@
       }
     }
 
-    this._getShader = function(currentTransform, globalAlpha) {
+    this._getShader = function(currentTransform) {
       // From the spec: "The points in the linear gradient must be transformed
       // as described by the current transformation matrix when rendering."
       var pts = [x1, y1, x2, y2];
@@ -287,14 +284,77 @@
       var sr2 = r2 * scaleFactor;
 
       this._dispose();
-      var colors = this._colors.map(function(c) {
-        return CanvasKit.multiplyByAlpha(c, globalAlpha);
-      });
       this._shader = CanvasKit.MakeTwoPointConicalGradientShader(
-          [sx1, sy1], sr1, [sx2, sy2], sr2, colors, this._pos,
+          [sx1, sy1], sr1, [sx2, sy2], sr2, this._colors, this._pos,
           CanvasKit.TileMode.Clamp);
       return this._shader;
     }
+  }
+
+  function CanvasPattern(image, repetition) {
+    this._shader = null;
+    // image should be an SkImage returned from HTMLCanvas.decodeImage()
+    this._image = image;
+    this._transform = CanvasKit.SkMatrix.identity();
+
+    if (repetition === '') {
+      repetition = 'repeat';
+    }
+    switch(repetition) {
+      case 'repeat-x':
+        this._tileX = CanvasKit.TileMode.Repeat;
+        this._tileY = CanvasKit.TileMode.Decal;
+        break;
+      case 'repeat-y':
+        this._tileX = CanvasKit.TileMode.Decal;
+        this._tileY = CanvasKit.TileMode.Repeat;
+        break;
+      case 'repeat':
+        this._tileX = CanvasKit.TileMode.Repeat;
+        this._tileY = CanvasKit.TileMode.Repeat;
+        break;
+      case 'no-repeat':
+        this._tileX = CanvasKit.TileMode.Decal;
+        this._tileY = CanvasKit.TileMode.Decal;
+        break;
+      default:
+        throw 'invalid repetition mode ' + repetition;
+    }
+
+    // Takes a DOMMatrix like object. e.g. the identity would be:
+    // {a:1, b: 0, c: 0, d: 1, e: 0, f: 0}
+    // @param {DOMMatrix} m
+    this.setTransform = function(m) {
+      var t = [m.a, m.c, m.e,
+               m.b, m.d, m.f,
+                 0,   0,   1];
+      if (allAreFinite(t)) {
+        this._transform = t;
+      }
+    }
+
+    this._copy = function() {
+      var cp = new CanvasPattern()
+      cp._tileX = this._tileX;
+      cp._tileY = this._tileY;
+      return cp;
+    }
+
+    this._dispose = function() {
+      if (this._shader) {
+        this._shader.delete();
+        this._shader = null;
+      }
+    }
+
+    this._getShader = function(currentTransform) {
+      // Ignore currentTransform since it will be applied later
+      this._dispose();
+      this._shader = CanvasKit.MakeImageShader(this._image, this._tileX, this._tileY,
+                                               false, this._transform);
+      return this._shader;
+    }
+
   }
 
   function CanvasRenderingContext2D(skcanvas) {
@@ -330,16 +390,16 @@
 
     // Use this for save/restore
     this._canvasStateStack = [];
-    // Keep a reference to all the gradients that were allocated
-    // for cleanup in _dispose;
-    this._gradients = [];
+    // Keep a reference to all the effects (e.g. gradients, patterns)
+    // that were allocated for cleanup in _dispose.
+    this._toCleanUp = [];
 
     this._dispose = function() {
       this._currentPath.delete();
       this._currentSubpath && this._currentSubpath.delete();
       this._paint.delete();
-      this._gradients.forEach(function(gradient) {
-        gradient._dispose();
+      this._toCleanUp.forEach(function(c) {
+        c._dispose();
       });
       // Don't delete this._canvas as it will be disposed
       // by the surface of which it is based.
@@ -382,8 +442,8 @@
       set: function(newStyle) {
         if (typeof newStyle === 'string') {
           this._fillStyle = parseColor(newStyle);
-        } else if (newStyle.addColorStop) {
-          // It's probably a gradient.
+        } else if (newStyle._getShader) {
+          // It's an effect that has a shader.
           this._fillStyle = newStyle
         }
       }
@@ -772,11 +832,10 @@
       set: function(newStyle) {
         if (typeof newStyle === 'string') {
           this._strokeStyle = parseColor(newStyle);
-        } else if (newStyle.addColorStop) {
-          // It's probably a gradient.
+        } else if (newStyle._getShader) {
+          // It's probably an effect.
           this._strokeStyle = newStyle
         }
-
       }
     });
 
@@ -869,8 +928,14 @@
         return;
       }
       var lcg = new LinearCanvasGradient(x1, y1, x2, y2);
-      this._gradients.push(lcg);
+      this._toCleanUp.push(lcg);
       return lcg;
+    }
+
+    this.createPattern = function(image, repetition) {
+      var cp = new CanvasPattern(image, repetition);
+      this._toCleanUp.push(cp);
+      return cp;
     }
 
     this.createRadialGradient = function(x1, y1, r1, x2, y2, r2) {
@@ -878,7 +943,7 @@
         return;
       }
       var rcg = new RadialCanvasGradient(x1, y1, r1, x2, y2, r2);
-      this._gradients.push(rcg);
+      this._toCleanUp.push(rcg);
       return rcg;
     }
 
@@ -960,8 +1025,9 @@
         var alphaColor = CanvasKit.multiplyByAlpha(this._fillStyle, this._globalAlpha);
         paint.setColor(alphaColor);
       } else {
-        var gradient = this._fillStyle._getShader(this._currentTransform, this._globalAlpha);
-        paint.setShader(gradient);
+        var shader = this._fillStyle._getShader(this._currentTransform);
+        paint.setColor(CanvasKit.Color(0,0,0, this._globalAlpha));
+        paint.setShader(shader);
       }
 
       paint.dispose = function() {
@@ -1195,14 +1261,14 @@
     this.save = function() {
       if (this._fillStyle._copy) {
         var fs = this._fillStyle._copy();
-        this._gradients.push(fs);
+        this._toCleanUp.push(fs);
       } else {
         var fs = this._fillStyle;
       }
 
       if (this._strokeStyle._copy) {
         var ss = this._strokeStyle._copy();
-        this._gradients.push(ss);
+        this._toCleanUp.push(ss);
       } else {
         var ss = this._strokeStyle;
       }
@@ -1318,8 +1384,9 @@
         var alphaColor = CanvasKit.multiplyByAlpha(this._strokeStyle, this._globalAlpha);
         paint.setColor(alphaColor);
       } else {
-          var gradient = this._strokeStyle._getShader(this._currentTransform, this._globalAlpha);
-          paint.setShader(gradient);
+        var shader = this._strokeStyle._getShader(this._currentTransform);
+        paint.setColor(CanvasKit.Color(0,0,0, this._globalAlpha));
+        paint.setShader(shader);
       }
 
       paint.setStrokeWidth(this._strokeWidth);

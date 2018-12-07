@@ -346,6 +346,7 @@ var CanvasKit = {
 		Clamp: {},
 		Repeat: {},
 		Mirror: {},
+		Decal: {},
 	},
 
 	VertexMode: {
@@ -442,6 +443,7 @@ CanvasRenderingContext2D.prototype.clip = function() {};
 CanvasRenderingContext2D.prototype.closePath = function() {};
 CanvasRenderingContext2D.prototype.createImageData = function() {};
 CanvasRenderingContext2D.prototype.createLinearGradient = function() {};
+CanvasRenderingContext2D.prototype.createPattern = function() {};
 CanvasRenderingContext2D.prototype.createRadialGradient = function() {};
 CanvasRenderingContext2D.prototype.drawFocusIfNeeded = function() {};
 CanvasRenderingContext2D.prototype.drawImage = function() {};
@@ -476,6 +478,8 @@ var LinearCanvasGradient = {};
 LinearCanvasGradient.prototype.addColorStop = function() {};
 var RadialCanvasGradient = {};
 RadialCanvasGradient.prototype.addColorStop = function() {};
+var CanvasPattern = {};
+CanvasPattern.prototype.setTransform = function() {};
 
 var ImageData = {
 	/**
@@ -484,6 +488,15 @@ var ImageData = {
 	data: {},
 	height: {},
 	width: {},
+};
+
+var DOMMatrix = {
+	a: {},
+	b: {},
+	c: {},
+	d: {},
+	e: {},
+	f: {},
 };
 
 // Not sure why this is needed - might be a bug in emsdk that this isn't properly declared.

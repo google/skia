@@ -462,6 +462,57 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             }));
         });
 
+        it('can make patterns', function(done) {
+            let skImageData = null;
+            let htmlImage = null;
+            let skPromise = fetch('/assets/mandrill_512.png')
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                    skImageData = buffer;
+
+                });
+            let realPromise = fetch('/assets/mandrill_512.png')
+                .then((response) => response.blob())
+                .then((blob) => createImageBitmap(blob))
+                .then((bitmap) => {
+                    htmlImage = bitmap;
+                });
+            LoadCanvasKit.then(catchException(done, () => {
+                Promise.all([realPromise, skPromise]).then(() => {
+                    multipleCanvasTest('draw_patterns', done, (canvas) => {
+                        let ctx = canvas.getContext('2d');
+                        let img = htmlImage;
+                        if (canvas._config == 'software_canvas') {
+                            img = canvas.decodeImage(skImageData);
+                        }
+                        ctx.fillStyle = '#EEE';
+                        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                        ctx.lineWidth = 20;
+                        ctx.scale(0.2, 0.4);
+
+                        let pattern = ctx.createPattern(img, 'repeat');
+                        ctx.fillStyle = pattern;
+                        ctx.fillRect(0, 0, 1500, 750);
+
+                        pattern = ctx.createPattern(img, 'repeat-x');
+                        ctx.fillStyle = pattern;
+                        ctx.fillRect(1500, 0, 3000, 750);
+
+                        ctx.globalAlpha = 0.7
+                        pattern = ctx.createPattern(img, 'repeat-y');
+                        ctx.fillStyle = pattern;
+                        ctx.fillRect(0, 750, 1500, 1500);
+                        ctx.strokeRect(0, 750, 1500, 1500);
+
+                        pattern = ctx.createPattern(img, 'no-repeat');
+                        ctx.fillStyle = pattern;
+                        pattern.setTransform({a: 1, b: -.1, c:.1, d: 0.5, e: 1800, f:800});
+                        ctx.fillRect(0, 0, 3000, 1500);
+                    });
+                });
+            }));
+        });
+
         it('can read default properties', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
