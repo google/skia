@@ -109,7 +109,6 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
     for (;;) {
         int     w = 0;
         int     left SK_INIT_TO_AVOID_WARNING;
-        bool    in_interval = false;
         SkEdge* currE = prevHead->fNext;
         SkFixed prevX = prevHead->fX;
 
@@ -123,32 +122,34 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             SkASSERT(currE->fLastY >= curr_y);
 
             int x = SkFixedRoundToInt(currE->fX);
+
+            if ((w & windingMask) == 0) { // we're starting interval
+                left = x;
+            }
+
             w += currE->fWinding;
+
             if ((w & windingMask) == 0) { // we finished an interval
-                SkASSERT(in_interval);
                 int width = x - left;
                 SkASSERT(width >= 0);
-                if (width)
+                if (width > 0) {
                     blitter->blitH(left, curr_y, width);
-                in_interval = false;
-            } else if (!in_interval) {
-                left = x;
-                in_interval = true;
+                }
             }
 
             SkEdge* next = currE->fNext;
             SkFixed newX;
 
             if (currE->fLastY == curr_y) {    // are we done with this edge?
-                if (currE->fCurveCount < 0) {
-                    if (((SkCubicEdge*)currE)->updateCubic()) {
-                        SkASSERT(currE->fFirstY == curr_y + 1);
-
+                if (currE->fCurveCount > 0) {
+                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
                         newX = currE->fX;
                         goto NEXT_X;
                     }
-                } else if (currE->fCurveCount > 0) {
-                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
+                } else if (currE->fCurveCount < 0) {
+                    if (((SkCubicEdge*)currE)->updateCubic()) {
+                        SkASSERT(currE->fFirstY == curr_y + 1);
+
                         newX = currE->fX;
                         goto NEXT_X;
                     }
@@ -169,8 +170,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             SkASSERT(currE);
         }
 
-        // was our right-edge culled away?
-        if (in_interval) {
+        if ((w & windingMask) != 0) { // was our right-edge culled away?
             int width = rightClip - left;
             if (width > 0) {
                 blitter->blitH(left, curr_y, width);
@@ -219,14 +219,9 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
     SkEdge* riteE = leftE->fNext;
     SkEdge* currE = riteE->fNext;
 
-#if 0
-    int local_top = leftE->fFirstY;
-    SkASSERT(local_top == riteE->fFirstY);
-#else
     // our edge choppers for curves can result in the initial edges
     // not lining up, so we take the max.
     int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
-#endif
     SkASSERT(local_top >= start_y);
 
     for (;;) {
