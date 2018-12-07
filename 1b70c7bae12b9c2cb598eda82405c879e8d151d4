@@ -22,6 +22,30 @@
       "revId": "1b70c7bae12b9c2cb598eda82405c879e8d151d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1213916_16f8c924",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-07T17:58:51Z",
+      "side": 1,
+      "message": "I fixed it with the edit from gerrit feature.",
+      "parentUuid": "7714a111_c0a1cbb5",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 91
+      },
+      "revId": "1b70c7bae12b9c2cb598eda82405c879e8d151d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
