@@ -166,11 +166,11 @@ def make_apk(architectures,
     for path in build_paths:
         remove(path)
 
-    if len(architectures) == 1:
-        arch = architectures[0]
-        copy = os.path.join(final_output_dir, "%s-%s-debug.apk" % (app, arch))
-        shutil.copyfile(out, copy)
-        sys.stdout.write(copy + '\n')
+    arches = '_'.join(sorted(architectures))
+    copy = os.path.join(final_output_dir, "%s-%s-debug.apk" % (app, arches))
+    shutil.copyfile(out, copy)
+    sys.stdout.write(copy + '\n')
+
     sys.stdout.write('* * * COMPLETE * * *\n\n')
 
 def main():
