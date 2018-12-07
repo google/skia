@@ -77,9 +77,9 @@ var CanvasKit = {
 	SkCanvas: {
 		// public API (from C++ bindings)
 		clear: function() {},
-		concat: function() {},
-		clipRect: function() {},
 		clipPath: function() {},
+		clipRect: function() {},
+		concat: function() {},
 		drawImage: function() {},
 		drawImageRect: function() {},
 		drawPaint: function() {},
@@ -89,6 +89,7 @@ var CanvasKit = {
 		drawText: function() {},
 		drawVertices: function() {},
 		flush: function() {},
+		getTotalMatrix: function() {},
 		restore: function() {},
 		rotate: function() {},
 		save: function() {},
