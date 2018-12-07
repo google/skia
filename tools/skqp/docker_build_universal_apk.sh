@@ -3,7 +3,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Note: you may need to run as root for docker permissions.
+# Notes:
+#
+#    You may need to run as root for docker permissions.
+#
+#    You *must* run `tools/git-sync-deps` first.
 
 OUT="$(mktemp -d "${TMPDIR:-/tmp}/skqp_apk.XXXXXXXXXX")"
 BUILD="$(mktemp -d "${TMPDIR:-/tmp}/skqp_apk_build.XXXXXXXXXX")"

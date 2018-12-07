@@ -44,6 +44,7 @@ How to build and run the SkQP tests
 
 3.  Build the APK:
 
+        tools/git-sync-deps
         tools/skqp/make_universal_apk
 
 4.  Build, install, and run.
