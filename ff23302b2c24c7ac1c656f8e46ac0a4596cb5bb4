@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1487963b_1b7e1ef6",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-07T15:21:04Z",
+      "side": 1,
+      "message": "Think this oughta be SkParseEncodedOrigin?  Kind of funny to go object-verb.",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 51,
+        "endChar": 26
+      },
+      "revId": "ff23302b2c24c7ac1c656f8e46ac0a4596cb5bb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
