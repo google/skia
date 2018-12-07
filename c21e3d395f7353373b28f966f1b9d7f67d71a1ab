@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "848d2db3_3211365e",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T17:21:09Z",
+      "side": 1,
+      "message": "(unrelated to this change)\n\nLooks like we only modify this paint in the presence of a shader -- we should use SkTCopyOnFirstWrite to avoid unneeded copies.",
+      "revId": "c21e3d395f7353373b28f966f1b9d7f67d71a1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9677fe18_b236feab",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 2
