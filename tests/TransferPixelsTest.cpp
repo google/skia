@@ -68,7 +68,12 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
+#ifdef SK_BUILD_FOR_IOS
+    // UNPACK_ROW_LENGTH is broken on iOS so rowBytes needs to match data width
+    const int kBufferWidth = GrBackendApi::kOpenGL == context->contextPriv().getBackend() ? 16 : 20;
+#else
     const int kBufferWidth = 20;
+#endif
     const int kBufferHeight = 16;
     size_t rowBytes = kBufferWidth * sizeof(GrColor);
     SkAutoTMalloc<GrColor> srcBuffer(kBufferWidth*kBufferHeight);
@@ -137,7 +142,12 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
 
         //////////////////////////
         // transfer partial data
-
+#ifdef SK_BUILD_FOR_IOS
+        // UNPACK_ROW_LENGTH is broken on iOS so we can't do partial transfers
+        if (GrBackendApi::kOpenGL == context->contextPriv().getBackend()) {
+            continue;
+        }
+#endif
         const int kLeft = 2;
         const int kTop = 10;
         const int kWidth = 10;
