@@ -1329,7 +1329,9 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.getConvexity();
-    check_convexity(reporter, tinyConvexPolygon, SkPath::kConvex_Convexity);
+    // in the original bug, making this concave caused the path not to draw
+    // TODO: verify that concave path draws OK in chrome
+    check_convexity(reporter, tinyConvexPolygon, SkPath::kConcave_Convexity);
     check_direction(reporter, tinyConvexPolygon, SkPathPriv::kCW_FirstDirection);
 
     SkPath  platTriangle;
@@ -1360,7 +1362,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
     line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
     line.close();
-    check_convexity(reporter, line, SkPath::kConvex_Convexity);
+    check_convexity(reporter, line, SkPath::kConcave_Convexity);
     check_direction(reporter, line, SkPathPriv::kUnknown_FirstDirection);
 
     SkPath triLeft;
@@ -1541,8 +1543,8 @@ static void test_convexity(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kCW_FirstDirection));
 
     path.reset();
-    path.quadTo(100, 100, 50, 50); // This is a convex path from GM:convexpaths
-    check_convexity(reporter, path, SkPath::kConvex_Convexity);
+    path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
+    check_convexity(reporter, path, SkPath::kConcave_Convexity);
 
     static const struct {
         const char*                 fPathStr;
@@ -1551,7 +1553,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     } gRec[] = {
         { "", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
-        { "0 0 10 10", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
+        { "0 0 10 10", SkPath::kConcave_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0 10 10 20 20 0 0 10 10", SkPath::kConcave_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0 10 10 10 20", SkPath::kConvex_Convexity, SkPathPriv::kCW_FirstDirection },
         { "0 0 10 10 10 0", SkPath::kConvex_Convexity, SkPathPriv::kCCW_FirstDirection },
@@ -1560,7 +1562,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        SkPath path;
+        path.reset();
         setFromString(&path, gRec[i].fPathStr);
         check_convexity(reporter, path, gRec[i].fExpectedConvexity);
         check_direction(reporter, path, gRec[i].fExpectedDirection);
@@ -1646,8 +1648,14 @@ static void test_convexity(skiatest::Reporter* reporter) {
             case 9: path.cubicTo(finitePts[g], finitePts[f], finitePts[f]); break;
             case 10: path.cubicTo(finitePts[g], finitePts[f], finitePts[g]); break;
         }
-        check_convexity(reporter, path, curveSelect == 0 ? SkPath::kConvex_Convexity
-                : SkPath::kUnknown_Convexity);
+        if (curveSelect == 0) {
+            check_convexity(reporter, path, SkPath::kConvex_Convexity);
+        } else {
+            SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
+            SkPath::Convexity c = copy.getConvexity();
+            REPORTER_ASSERT(reporter, SkPath::kUnknown_Convexity == c
+                    || SkPath::kConcave_Convexity == c);
+        }
     }
 
     path.reset();
@@ -3619,10 +3627,13 @@ static void test_arc(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p == ccwOval);
     p.reset();
     p.addArc(oval, 1, 180);
-    REPORTER_ASSERT(reporter, p.isConvex());
+    // diagonal colinear points make arc convex
+    // TODO: one way to keep it concave would be to introduce interpolated on curve points
+    // between control points and computing the on curve point at scan conversion time
+    REPORTER_ASSERT(reporter, !p.isConvex());
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathPriv::kCW_FirstDirection));
     p.setConvexity(SkPath::kUnknown_Convexity);
-    REPORTER_ASSERT(reporter, p.isConvex());
+    REPORTER_ASSERT(reporter, !p.isConvex());
 }
 
 static inline SkScalar oval_start_index_to_angle(unsigned start) {
@@ -5302,4 +5313,3 @@ DEF_TEST(Path_survive_transform, r) {
     REPORTER_ASSERT(r, path.getConvexity() == SkPath::kConvex_Convexity);
     survive(&path, x, false, r, [](const SkPath& p) { return true; });
 }
-
