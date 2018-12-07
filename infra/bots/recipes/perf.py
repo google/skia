@@ -149,6 +149,7 @@ def nanobench_flags(api, bot):
       'IntelIris6100' in bot or # gen 8 - broadwell
       'IntelIris540' in bot or  # gen 9 - skylake
       'IntelIris640' in bot or  # gen 9 - kaby lake
+      'IntelIris655' in bot or  # gen 9 - coffee lake
       'MaliT760' in bot or
       'MaliT860' in bot or
       'MaliT880' in bot):
@@ -202,6 +203,37 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
+  #if 'IntelIris655' in bot and 'Win10' in bot and 'Vulkan' in bot:
+  #  # skia:8587
+  #  match.append('~^GM_varied_text_clipped_lcd$')
+  #D482R  match.append('~^GM_varied_text_ignorable_clip_lcd$')
+  #D852R  match.append('~^blendmode_mask_DstATop$')
+  #D852R  match.append('~^blendmode_mask_Src$')
+  #D852R  match.append('~^blendmode_mask_SrcIn$')
+  #D852R  match.append('~^blendmode_mask_SrcOut$')
+  #  match.append('~^desk_carsvg.skp_1$')
+  #  match.append('~^desk_carsvg.skp_1.1$')
+  #  match.append('~^desk_carsvg.skp_1.1_mpd$')
+  #  match.append('~^desk_carsvg.skp_1_mpd$')
+  #  match.append('~^desk_googlespreadsheet.skp_1$')
+  #  match.append('~^desk_googlespreadsheet.skp_1.1$')
+  #  match.append('~^desk_googlespreadsheet.skp_1.1_mpd$')
+  #  match.append('~^desk_googlespreadsheet.skp_1_mpd$')
+  #  match.append('~^desk_skbug6850overlay2.skp_1$')
+  #  match.append('~^desk_skbug6850overlay2.skp_1.1$')
+  #  match.append('~^desk_skbug6850overlay2.skp_1.1_mpd$')
+  #  match.append('~^desk_skbug6850overlay2.skp_1_mpd$')
+  #D482R  match.append('~^fontscaler_lcd$')
+  #R  match.append('~^rotated_rects_aa_alternating_transparent_and_opaque_src$')
+  #D482R  match.append('~^rotated_rects_aa_changing_transparent_src$')
+  #D482R  match.append('~^rotated_rects_aa_same_transparent_src$')
+  #R  match.append('~^shadermask_LCD_FF$')
+  #D482R  match.append('~^srcmode_rects_1_aa$')
+  #R  match.append('~^text_16_LCD_88$')
+  #R  match.append('~^text_16_LCD_BK$')
+  #R  match.append('~^text_16_LCD_FF$')
+  #R  match.append('~^text_16_LCD_WT$')
+  #  #match.append('~^ynev.svg_1.1$')
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
@@ -228,9 +260,9 @@ def nanobench_flags(api, bot):
   match.append('~inc0.webp')
   match.append('~inc1.webp')
 
-  if match:
-    args.append('--match')
-    args.extend(match)
+  #if match:
+  #  args.append('--match')
+  #  args.extend(match)
 
   if verbose:
     args.append('--verbose')
@@ -318,8 +350,15 @@ def perf_steps(api):
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  bot = api.vars.builder_name
+  if 'IntelIris655' in bot and 'Win10' in bot and 'Vulkan' in bot:
+    for i in range(10):
+      for t in ['^GM_varied_text_clipped_lcd$', '^desk_carsvg.skp_1$', '^desk_carsvg.skp_1.1$', '^desk_carsvg.skp_1.1_mpd$', '^desk_carsvg.skp_1_mpd$', '^desk_googlespreadsheet.skp_1$', '^desk_googlespreadsheet.skp_1.1$', '^desk_googlespreadsheet.skp_1.1_mpd$', '^desk_googlespreadsheet.skp_1_mpd$', '^desk_skbug6850overlay2.skp_1$', '^desk_skbug6850overlay2.skp_1.1$', '^desk_skbug6850overlay2.skp_1.1_mpd$', '^desk_skbug6850overlay2.skp_1_mpd$', '^rotated_rects_aa_alternating_transparent_and_opaque_src$', '^shadermask_LCD_FF$', '^text_16_LCD_88$', '^text_16_LCD_BK$', '^text_16_LCD_FF$', '^text_16_LCD_WT$']:
+        api.run(api.flavor.step, '%s %d %s' % (target, i, t), cmd=args+['--match', t],
+                abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, target, cmd=args,
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
@@ -371,6 +410,8 @@ TEST_BUILDERS = [
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Debug-All-Vulkan',
+  'Perf-Win10-Clang-NUC8i5BEK-GPU-IntelIris655-x86_64-Release-All-Vulkan',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
 ]
 
