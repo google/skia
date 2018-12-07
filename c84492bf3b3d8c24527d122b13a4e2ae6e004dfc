@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "81a15933_11fe30c5",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T18:08:51Z",
+      "side": 1,
+      "message": "Yeah, that was my first thought also, but then I got nervous about almostEqual and potentially not hitting +/-180 exactly :)\n\nProbably premature, so let\u0027s go with sweepDegrees/2.",
+      "parentUuid": "294abf3c_95c02628",
+      "range": {
+        "startLine": 996,
+        "startChar": 6,
+        "endLine": 1000,
+        "endChar": 7
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2816447c_440cd71c",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 6
