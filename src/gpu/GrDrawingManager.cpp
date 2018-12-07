@@ -293,6 +293,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
         }
 
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
+        int numOpListsExecuted = 0;
         while (alloc.assign(&startIndex, &stopIndex, &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
@@ -306,7 +307,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
                 }
             }
 
-            if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
+            if (this->executeOpLists(startIndex, stopIndex, &flushState, &numOpListsExecuted)) {
                 flushed = true;
             }
         }
@@ -349,7 +350,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     return result;
 }
 
-bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
+bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState,
+                                      int* numOpListsExecuted) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.numOpLists());
 
 #if GR_FLUSH_TIME_OP_SPEW
@@ -394,6 +396,13 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     // Upload all data to the GPU
     flushState->preExecuteDraws();
 
+    // For Vulkan, if we have too many oplists to be flushed we end up allocating a lot of resources
+    // for each command buffer associated with the oplists. If this gets too large we can cause the
+    // devices to go OOM. In practice we usually only hit this case in our tests, but to be safe we
+    // put a cap on the number of oplists we will execute before flushing to the GPU to relieve some
+    // memory pressure.
+    static constexpr int kMaxOpListsBeforeFlush = 100;
+
     // Execute the onFlush op lists first, if any.
     for (sk_sp<GrOpList>& onFlushOpList : fOnFlushCBOpLists) {
         if (!onFlushOpList->execute(flushState)) {
@@ -401,6 +410,11 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
         }
         SkASSERT(onFlushOpList->unique());
         onFlushOpList = nullptr;
+        (*numOpListsExecuted)++;
+        if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
+            flushState->gpu()->finishFlush(0, nullptr);
+            *numOpListsExecuted = 0;
+        }
     }
     fOnFlushCBOpLists.reset();
 
@@ -412,6 +426,11 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
         if (fDAG.opList(i)->execute(flushState)) {
             anyOpListsExecuted = true;
+        }
+        (*numOpListsExecuted)++;
+        if (*numOpListsExecuted >= kMaxOpListsBeforeFlush) {
+            flushState->gpu()->finishFlush(0, nullptr);
+            *numOpListsExecuted = 0;
         }
     }
 

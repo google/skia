@@ -41,7 +41,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS)
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS) || defined(GR_TEST_UTILS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0
