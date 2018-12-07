@@ -275,13 +275,17 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
 void ApplyAddRect(SkPath& path, SkScalar left, SkScalar top,
                   SkScalar right, SkScalar bottom, bool ccw) {
     path.addRect(left, top, right, bottom,
-                 ccw ? SkPath::Direction::kCW_Direction :
-                 SkPath::Direction::kCCW_Direction);
+                 ccw ? SkPath::Direction::kCCW_Direction :
+                 SkPath::Direction::kCW_Direction);
 }
 
 void ApplyArcTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                 SkScalar radius) {
     p.arcTo(x1, y1, x2, y2, radius);
+}
+
+void ApplyArcToAngle(SkPath& p, SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo) {
+    p.arcTo(oval, startAngle, sweepAngle, forceMoveTo);
 }
 
 void ApplyClose(SkPath& p) {
@@ -393,6 +397,7 @@ struct StrokeOpts {
     SkScalar miter_limit;
     SkPaint::Join join;
     SkPaint::Cap cap;
+    float precision;
 };
 
 bool ApplyStroke(SkPath& path, StrokeOpts opts) {
@@ -403,7 +408,7 @@ bool ApplyStroke(SkPath& path, StrokeOpts opts) {
     p.setStrokeWidth(opts.width);
     p.setStrokeMiter(opts.miter_limit);
 
-    return p.getFillPath(path, &path);
+    return p.getFillPath(path, &path, nullptr, opts.precision);
 }
 
 // to map from raw memory to a uint8array
@@ -727,11 +732,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // interface.js has 4 overloads of addRect
         .function("_addRect", &ApplyAddRect)
         .function("_arcTo", &ApplyArcTo)
+        .function("_arcTo", &ApplyArcToAngle)
         .function("_close", &ApplyClose)
         .function("_conicTo", &ApplyConicTo)
         .function("countPoints", &SkPath::countPoints)
+        .function("contains", &SkPath::contains)
         .function("_cubicTo", &ApplyCubicTo)
         .function("getPoint", &SkPath::getPoint)
+        .function("isEmpty",  &SkPath::isEmpty)
         .function("_lineTo", &ApplyLineTo)
         .function("_moveTo", &ApplyMoveTo)
         .function("_quadTo", &ApplyQuadTo)
@@ -894,7 +902,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("width",       &StrokeOpts::width)
         .field("miter_limit", &StrokeOpts::miter_limit)
         .field("join",        &StrokeOpts::join)
-        .field("cap",         &StrokeOpts::cap);
+        .field("cap",         &StrokeOpts::cap)
+        .field("precision",   &StrokeOpts::precision);
 
     enum_<SkShader::TileMode>("TileMode")
         .value("Clamp",    SkShader::TileMode::kClamp_TileMode)

@@ -48,3 +48,7 @@
 // if btoa is defined *and* prevents runtime "btoa" or "window" is not defined.
 // Defined outside any scopes to make it available in all files.
 var isNode = !(new Function("try {return this===window;}catch(e){ return false;}")());
+
+function almostEqual(floata, floatb) {
+  return Math.abs(floata - floatb) < 0.00001;
+}

@@ -205,8 +205,23 @@
       return this;
     };
 
-    CanvasKit.SkPath.prototype.arcTo = function(x1, y1, x2, y2, radius) {
-      this._arcTo(x1, y1, x2, y2, radius);
+    CanvasKit.SkPath.prototype.arcTo = function() {
+      // takes 4, 5 or 7 args
+      // - 5 x1, y1, x2, y2, radius
+      // - 4 oval (as Rect), startAngle, sweepAngle, forceMoveTo
+      // - 7 x1, y1, x2, y2, startAngle, sweepAngle, forceMoveTo
+      var args = arguments;
+      if (args.length === 5) {
+        this._arcTo(args[0], args[1], args[2], args[3], args[4]);
+      } else if (args.length === 4) {
+        this._arcTo(args[0], args[1], args[2], args[3]);
+      } else if (args.length === 7) {
+        this._arcTo(CanvasKit.LTRBRect(args[0], args[1], args[2], args[3]),
+                    args[4], args[5], args[6]);
+      } else {
+        throw 'Invalid args for arcTo. Expected 4, 5, or 7, got '+ args.length;
+      }
+
       return this;
     };
 
@@ -272,6 +287,7 @@
       opts.miter_limit = opts.miter_limit || 4;
       opts.cap = opts.cap || CanvasKit.StrokeCap.Butt;
       opts.join = opts.join || CanvasKit.StrokeJoin.Miter;
+      opts.precision = opts.precision || 1;
       if (this._stroke(opts)) {
         return this;
       }
