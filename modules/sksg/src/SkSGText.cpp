@@ -65,7 +65,7 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
 
     // Next, build the cached blob.
     SkTextBlobBuilder builder;
-    const auto& buf = builder.allocRun(font, glyphs.count(), 0, 0, nullptr);
+    const auto& buf = builder.allocRun(font, glyphs.count(), 0, 0);
     if (!buf.glyphs) {
         fBlob.reset();
         return SkRect::MakeEmpty();
