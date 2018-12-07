@@ -42,10 +42,10 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
 
     if (shareContext) {
         EAGLContext* iosShareContext = shareContext->fEAGLContext;
-        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3
                                             sharegroup: [iosShareContext sharegroup]];
     } else {
-        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     }
     SkScopeExit restorer(context_restorer());
     [EAGLContext setCurrentContext:fEAGLContext];
