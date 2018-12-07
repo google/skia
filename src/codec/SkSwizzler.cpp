@@ -1213,7 +1213,7 @@ int SkSwizzler::onSetSampleX(int sampleX) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             SkAndroidFrameworkUtils::SafetyNetLog("118143775");
 #endif
-            SkASSERT(dstSwizzleBytes < dstAllocatedBytes);
+            SkASSERT(dstSwizzleBytes <= dstAllocatedBytes);
             fDstOffsetBytes = dstAllocatedBytes - dstSwizzleBytes;
         }
     }
