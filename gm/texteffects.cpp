@@ -17,8 +17,6 @@
 
 #include "Sk2DPathEffect.h"
 
-#ifdef SK_SUPPORT_LEGACY_TEXTINTERCEPTS
-
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
         SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
@@ -40,15 +38,21 @@ static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
     return underline;
 }
 
-static void find_intercepts(const char* test, size_t len, SkScalar x, SkScalar y,
+static void find_intercepts(const char* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint, SkScalar uWidth, SkTDArray<SkScalar>* intersections) {
-    SkScalar uPos = y + uWidth;
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+    auto blob = SkTextBlob::MakeFromText(text, len, font);
+
+    SkScalar uPos = uWidth;
     SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
-    int count = paint.getTextIntercepts(test, len, x, y, bounds, nullptr);
+    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
     SkASSERT(!(count % 2));
     if (count) {
         intersections->setCount(count);
-        paint.getTextIntercepts(test, len, x, y, bounds, intersections->begin());
+        paint.getTextBlobIntercepts(blob.get(), bounds, intersections->begin());
+        for (int i = 0; i < count; ++i) {
+            (*intersections)[i] += x;
+        }
     }
 }
 
@@ -84,15 +88,18 @@ DEF_SIMPLE_GM(fancyunderline, canvas, 900, 1350) {
     }
 }
 
-static void find_intercepts(const char* test, size_t len, const SkPoint* pos, const SkPaint& paint,
+static void find_intercepts(const char* text, size_t len, const SkPoint* pos, const SkPaint& paint,
         SkScalar uWidth, SkTDArray<SkScalar>* intersections) {
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+    auto blob = SkTextBlob::MakeFromPosText(text, len, pos, font);
+
     SkScalar uPos = pos[0].fY + uWidth;
     SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
-    int count = paint.getPosTextIntercepts(test, len, pos, bounds, nullptr);
+    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
     SkASSERT(!(count % 2));
     if (count) {
         intersections->setCount(count);
-        paint.getPosTextIntercepts(test, len, pos, bounds, intersections->begin());
+        paint.getTextBlobIntercepts(blob.get(), bounds, intersections->begin());
     }
 }
 
@@ -142,20 +149,14 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
 namespace {
 
 sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
-    SkPaint blobPaint(paint);
+    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
     const size_t textLen = strlen(text);
-    const int glyphCount = blobPaint.textToGlyphs(text, textLen, nullptr);
+    const int glyphCount = font.countText(text, textLen, kUTF8_SkTextEncoding);
     SkAutoTArray<SkGlyphID> glyphs(glyphCount);
-    blobPaint.textToGlyphs(text, textLen, glyphs.get());
-
-    blobPaint.setTextEncoding(kGlyphID_SkTextEncoding);
-    const size_t glyphTextBytes = SkTo<uint32_t>(glyphCount) * sizeof(SkGlyphID);
-    const int widthCount = blobPaint.getTextWidths(glyphs.get(), glyphTextBytes, nullptr);
-    SkAssertResult(widthCount == glyphCount);
-
+    font.textToGlyphs(text, textLen, kUTF8_SkTextEncoding, glyphs.get(), glyphCount);
     SkAutoTArray<SkScalar> widths(glyphCount);
-    blobPaint.getTextWidths(glyphs.get(), glyphTextBytes, widths.get());
+    font.getWidths(glyphs.get(), glyphCount, widths.get());
 
     SkTextBlobBuilder blobBuilder;
     int glyphIndex = 0;
@@ -164,7 +165,7 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     // Default-positioned run.
     {
         const int defaultRunLen = glyphCount / 3;
-        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRun(blobPaint,
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRun(font,
                                                                        defaultRunLen,
                                                                        advance, 0);
         memcpy(buf.glyphs, glyphs.get(), SkTo<uint32_t>(defaultRunLen) * sizeof(SkGlyphID));
@@ -177,7 +178,7 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     // Horizontal-positioned run.
     {
         const int horizontalRunLen = glyphCount / 3;
-        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPosH(blobPaint,
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPosH(font,
                                                                            horizontalRunLen,
                                                                            0);
         memcpy(buf.glyphs, glyphs.get() + glyphIndex,
@@ -191,7 +192,7 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     // Full-positioned run.
     {
         const int fullRunLen = glyphCount - glyphIndex;
-        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPos(blobPaint, fullRunLen);
+        const SkTextBlobBuilder::RunBuffer& buf = blobBuilder.allocRunPos(font, fullRunLen);
         memcpy(buf.glyphs, glyphs.get() + glyphIndex,
                SkTo<uint32_t>(fullRunLen) * sizeof(SkGlyphID));
         for (int i = 0; i < fullRunLen; ++i) {
@@ -286,5 +287,3 @@ DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
         canvas->translate(0, textSize * 1.3f);
     }
 }
-#endif
-
