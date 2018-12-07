@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27f0e9cb_4b92a86f",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-12-07T21:26:38Z",
+      "side": 1,
+      "message": "can we provide more detail on why we are setting fQuality lower here than we do for the lossy case?",
+      "revId": "82ff16c428b6408eff8f469cc495187574714919",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
