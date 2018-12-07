@@ -17,7 +17,6 @@
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
-#include "SkSwizzler.h"
 #include "SkTArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
@@ -697,17 +696,6 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
                                         int* rowsDecoded) {
-    SkImageInfo swizzlerInfo = dstInfo;
-    std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
-    if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
-        xformBuffer.reset(new uint32_t[dstInfo.width()]);
-    }
-
-    std::unique_ptr<SkSwizzler> swizzler = SkSwizzler::Make(
-            this->getEncodedInfo(), nullptr, swizzlerInfo, options);
-    SkASSERT(swizzler);
-
     const int width = dstInfo.width();
     const int height = dstInfo.height();
     std::unique_ptr<dng_image> image(fDngImage->render(width, height));
@@ -737,6 +725,34 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     buffer.fPixelSize = sizeof(uint8_t);
     buffer.fRowStep = width * 3;
 
+    constexpr auto srcFormat = skcms_PixelFormat_RGB_888;
+    skcms_PixelFormat dstFormat;
+    switch (dstInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+            dstFormat = skcms_PixelFormat_RGBA_8888;
+            break;
+        case kBGRA_8888_SkColorType:
+            dstFormat = skcms_PixelFormat_BGRA_8888;
+            break;
+        case kRGBA_F16_SkColorType:
+            dstFormat = skcms_PixelFormat_RGBA_hhhh;
+            break;
+        case kRGB_565_SkColorType:
+            dstFormat = skcms_PixelFormat_RGB_565;
+            break;
+        default:
+            return kInvalidConversion;
+    }
+
+    const skcms_ICCProfile* const srcProfile = this->getEncodedInfo().profile();
+    skcms_ICCProfile dstProfileStorage;
+    const skcms_ICCProfile* dstProfile = nullptr;
+    if (auto cs = dstInfo.colorSpace()) {
+        cs->toProfile(&dstProfileStorage);
+        dstProfile = &dstProfileStorage;
+    }
+
+
     for (int i = 0; i < height; ++i) {
         buffer.fArea = dng_rect(i, 0, i + 1, width);
 
@@ -747,13 +763,14 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
             return kIncompleteInput;
         }
 
-        if (this->colorXform()) {
-            swizzler->swizzle(xformBuffer.get(), &srcRow[0]);
-
-            this->applyColorXform(dstRow, xformBuffer.get(), dstInfo.width());
-        } else {
-            swizzler->swizzle(dstRow, &srcRow[0]);
+        if (!skcms_Transform(&srcRow[0], srcFormat, skcms_AlphaFormat_Unpremul, srcProfile,
+                             dstRow,     dstFormat, skcms_AlphaFormat_Unpremul, dstProfile,
+                             dstInfo.width())) {
+            SkDebugf("failed to transform\n");
+            *rowsDecoded = i;
+            return kInternalError;
         }
+
         dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
     }
     return kSuccess;
