@@ -1110,6 +1110,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
         || SkPaint::kFill_Style != srcPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
         this->drawGlyphRunAsPath(glyphRun, offset);
+        return;
     }
     SkPaint paint(srcPaint);
     remove_color_filter(&paint);
