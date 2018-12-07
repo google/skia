@@ -229,13 +229,10 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawPath_OpType: return "DrawPath";
         case kDrawArc_OpType: return "DrawArc";
         case kDrawPoints_OpType: return "DrawPoints";
-        case kDrawPosText_OpType: return "DrawPosText";
-        case kDrawPosTextH_OpType: return "DrawPosTextH";
         case kDrawRect_OpType: return "DrawRect";
         case kDrawRRect_OpType: return "DrawRRect";
         case kDrawRegion_OpType: return "DrawRegion";
         case kDrawShadow_OpType: return "DrawShadow";
-        case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
@@ -1814,57 +1811,6 @@ static Json::Value make_json_text(sk_sp<SkData> text) {
     return Json::Value((const char*)text->data(), (const char*)text->data() + text->size());
 }
 
-SkDrawPosTextCommand::SkDrawPosTextCommand(const void* text, size_t byteLength,
-                                           const SkPoint pos[], const SkPaint& paint)
-    : INHERITED(kDrawPosText_OpType)
-    , fText(SkData::MakeWithCopy(text, byteLength))
-    , fPos(pos, paint.countText(text, byteLength))
-    , fPaint(paint) {}
-
-void SkDrawPosTextCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPosText(fText->data(), fText->size(), fPos.begin(), fPaint);
-}
-
-Json::Value SkDrawPosTextCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
-    Json::Value coords(Json::arrayValue);
-    size_t numCoords = fPaint.textToGlyphs(fText->data(), fText->size(), nullptr);
-    for (size_t i = 0; i < numCoords; i++) {
-        coords.append(MakeJsonPoint(fPos[i]));
-    }
-    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = coords;
-    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
-    return result;
-}
-
-SkDrawPosTextHCommand::SkDrawPosTextHCommand(const void* text, size_t byteLength,
-                                             const SkScalar xpos[], SkScalar constY,
-                                             const SkPaint& paint)
-    : INHERITED(kDrawPosTextH_OpType)
-    , fText(SkData::MakeWithCopy(text, byteLength))
-    , fXpos(xpos, paint.countText(text, byteLength))
-    , fConstY(constY)
-    , fPaint(paint) {}
-
-void SkDrawPosTextHCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPosTextH(fText->data(), fText->size(), fXpos.begin(), fConstY, fPaint);
-}
-
-Json::Value SkDrawPosTextHCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
-    result[SKDEBUGCANVAS_ATTRIBUTE_Y] = Json::Value(fConstY);
-    Json::Value xpos(Json::arrayValue);
-    size_t numXpos = fPaint.textToGlyphs(fText->data(), fText->size(), nullptr);
-    for (size_t i = 0; i < numXpos; i++) {
-        xpos.append(Json::Value(fXpos[i]));
-    }
-    result[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS] = xpos;
-    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
-    return result;
-}
-
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
@@ -2104,29 +2050,6 @@ SkDrawDrawableCommand::SkDrawDrawableCommand(SkDrawable* drawable, const SkMatri
 
 void SkDrawDrawableCommand::execute(SkCanvas* canvas) const {
     canvas->drawDrawable(fDrawable.get(), fMatrix.getMaybeNull());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkDrawTextCommand::SkDrawTextCommand(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                                     const SkPaint& paint)
-    : INHERITED(kDrawText_OpType)
-    , fText(SkData::MakeWithCopy(text, byteLength))
-    , fX(x)
-    , fY(y)
-    , fPaint(paint) {}
-
-void SkDrawTextCommand::execute(SkCanvas* canvas) const {
-    canvas->drawText(fText->data(), fText->size(), fX, fY, fPaint);
-}
-
-Json::Value SkDrawTextCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
-    Json::Value coords(Json::arrayValue);
-    result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonPoint(fX, fY);
-    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
-    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
