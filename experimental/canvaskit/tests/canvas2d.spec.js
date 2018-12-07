@@ -187,6 +187,26 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
 
                     ctx.lineWidth = 2;
                     ctx.stroke();
+
+                    // Test edgecases and draw direction
+                    ctx.beginPath();
+                    ctx.arc(50, 100, 10, Math.PI, -Math.PI/2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(75, 100, 10, Math.PI, -Math.PI/2, true);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 10, Math.PI, 100.1 * Math.PI, true);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(125, 100, 10, Math.PI, 100.1 * Math.PI, false);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.ellipse(155, 100, 10, 15, Math.PI/8, 100.1 * Math.PI, Math.PI, true);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.ellipse(180, 100, 10, 15, Math.PI/8, Math.PI, 100.1 * Math.PI, true);
+                    ctx.stroke();
                 });
             }));
         });
@@ -509,6 +529,95 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                         pattern.setTransform({a: 1, b: -.1, c:.1, d: 0.5, e: 1800, f:800});
                         ctx.fillRect(0, 0, 3000, 1500);
                     });
+                });
+            }));
+        });
+
+        it('can get and put pixels', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                function drawPoint(ctx, x, y, color) {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+                const IN = 'purple';
+                const OUT = 'orange';
+                const SCALE = 8;
+
+                // Check to see if these points are in or out on each of the
+                // test configurations.
+                const pts = [[3, 3], [4, 4], [5, 5], [10, 10], [8, 10], [6, 10],
+                             [6.5, 9], [15, 10], [17, 10], [17, 11], [24, 24],
+                             [25, 25], [26, 26], [27, 27]];
+                const tests = [
+                    {
+                        xOffset: 0,
+                        yOffset: 0,
+                        fillType: 'nonzero',
+                        strokeWidth: 0,
+                        testFn: (ctx, x, y) => ctx.isPointInPath(x * SCALE, y * SCALE, 'nonzero'),
+                    },
+                    {
+                        xOffset: 30,
+                        yOffset: 0,
+                        fillType: 'evenodd',
+                        strokeWidth: 0,
+                        testFn: (ctx, x, y) => ctx.isPointInPath(x * SCALE, y * SCALE, 'evenodd'),
+                    },
+                    {
+                        xOffset: 0,
+                        yOffset: 30,
+                        fillType: null,
+                        strokeWidth: 1,
+                        testFn: (ctx, x, y) => ctx.isPointInStroke(x * SCALE, y * SCALE),
+                    },
+                    {
+                        xOffset: 30,
+                        yOffset: 30,
+                        fillType: null,
+                        strokeWidth: 2,
+                        testFn: (ctx, x, y) => ctx.isPointInStroke(x * SCALE, y * SCALE),
+                    },
+                ];
+                multipleCanvasTest('points_in_path_stroke', done, (canvas) => {
+                    let ctx = canvas.getContext('2d');
+                    ctx.font = '20px Arial';
+                    // Draw some visual aids
+                    ctx.fillText('path-nonzero', 60, 30);
+                    ctx.fillText('path-evenodd', 300, 30);
+                    ctx.fillText('stroke-1px-wide', 60, 260);
+                    ctx.fillText('stroke-2px-wide', 300, 260);
+                    ctx.fillText('purple is IN, orange is OUT', 20, 560);
+
+                    // Scale up to make single pixels easier to see
+                    ctx.scale(SCALE, SCALE);
+                    for (let test of tests) {
+                        ctx.beginPath();
+                        let xOffset = test.xOffset;
+                        let yOffset = test.yOffset;
+
+                        ctx.fillStyle = '#AAA';
+                        ctx.lineWidth = test.strokeWidth;
+                        ctx.rect(5+xOffset, 5+yOffset, 20, 20);
+                        ctx.arc(15+xOffset, 15+yOffset, 8, 0, Math.PI*2, false);
+                        if (test.fillType) {
+                            ctx.fill(test.fillType);
+                        } else {
+                            ctx.stroke();
+                        }
+
+                        for (let pt of pts) {
+                            let [x, y] = pt;
+                            x += xOffset;
+                            y += yOffset;
+                            // naively apply transform when querying because the points queried
+                            // ignore the CTM.
+                            if (test.testFn(ctx, x, y)) {
+                              drawPoint(ctx, x, y, IN);
+                            } else {
+                              drawPoint(ctx, x, y, OUT);
+                            }
+                        }
+                    }
                 });
             }));
         });
