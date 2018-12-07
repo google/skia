@@ -137,20 +137,7 @@ public:
                                           PromiseDoneProc promiseDoneProc,
                                           TextureContext textureContexts[]);
 
-    // deprecated version that doesn't take yuvaSizeInfo
-    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
-                                          const GrBackendFormat yuvaFormats[],
-                                          const SkYUVAIndex yuvaIndices[4],
-                                          int imageWidth,
-                                          int imageHeight,
-                                          GrSurfaceOrigin imageOrigin,
-                                          sk_sp<SkColorSpace> imageColorSpace,
-                                          TextureFulfillProc textureFulfillProc,
-                                          TextureReleaseProc textureReleaseProc,
-                                          PromiseDoneProc promiseDoneProc,
-                                          TextureContext textureContexts[]);
-
-private:
+ private:
     bool init();
 
     const SkSurfaceCharacterization             fCharacterization;

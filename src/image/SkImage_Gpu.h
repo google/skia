@@ -94,21 +94,6 @@ public:
                                              PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
-    /** To be deprecated. Use SkImage_GpuYUVA::MakePromiseYUVATexture instead.
-     */
-    static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
-                                                 SkYUVColorSpace yuvColorSpace,
-                                                 const GrBackendFormat yuvaFormats[],
-                                                 const SkYUVAIndex yuvaIndices[4],
-                                                 int imageWidth,
-                                                 int imageHeight,
-                                                 GrSurfaceOrigin imageOrigin,
-                                                 sk_sp<SkColorSpace> imageColorSpace,
-                                                 TextureFulfillProc textureFulfillProc,
-                                                 TextureReleaseProc textureReleaseProc,
-                                                 PromiseDoneProc promiseDoneProc,
-                                                 TextureContext textureContexts[]);
-
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrContext*, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],
             const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
