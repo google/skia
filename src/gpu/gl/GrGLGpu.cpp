@@ -897,8 +897,10 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
 
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
-        // we should have checked for this support already
-        SkASSERT(this->glCaps().unpackRowLengthSupport());
+        // If we have to do our own unpacking there's no point in doing a transfer
+        if (!this->glCaps().unpackRowLengthSupport()) {
+            return false;
+        }
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
         restoreGLRowLength = true;
     }
