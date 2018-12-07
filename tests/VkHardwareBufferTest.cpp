@@ -1054,11 +1054,13 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
 
 bool VulkanTestHelper::flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter,
                                                       sk_sp<SkSurface> surface) {
+    surface->flush();
+    surface.reset();
     GrBackendSemaphore semaphore;
     if (!this->setupSemaphoreForSignaling(reporter, &semaphore)) {
         return false;
     }
-    GrSemaphoresSubmitted submitted = surface->flushAndSignalSemaphores(1, &semaphore);
+    GrSemaphoresSubmitted submitted = fGrContext->flushAndSignalSemaphores(1, &semaphore);
     if (GrSemaphoresSubmitted::kNo == submitted) {
         ERRORF(reporter, "Failing call to flushAndSignalSemaphores on SkSurface");
         return false;
@@ -1436,12 +1438,10 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
         ///////////////////////////////////////////////////////////////////////////
 
         if (shareSyncs) {
-            if (!srcHelper->flushSurfaceAndSignalSemaphore(reporter, surface)) {
+            if (!srcHelper->flushSurfaceAndSignalSemaphore(reporter, std::move(surface))) {
                 cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
                 return;
             }
-
-            surface.reset();
         } else {
             surface.reset();
             srcHelper->doClientSync();
