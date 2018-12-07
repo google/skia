@@ -22,6 +22,30 @@
       "revId": "0e28a97027001aee364abf92b450a2c719d09d48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a722ce1_963b27e6",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2310,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-07T14:11:20Z",
+      "side": 1,
+      "message": "Yup. When the GrVertexColor is constructed, we pass in a bool that indicates if we should use 8 or 16 bit colors. It the converts the passed in floats to either 8 bit unorms or half-floats, and stores the bool. We pass the same bool to GPs, and they use it to correctly configure the attribute. Then the vertex writer has a specialization for GrVertexColor that checks the bool and writes 4 or 8 bytes.",
+      "parentUuid": "383d03d6_d136a0e3",
+      "range": {
+        "startLine": 2310,
+        "startChar": 20,
+        "endLine": 2310,
+        "endChar": 25
+      },
+      "revId": "0e28a97027001aee364abf92b450a2c719d09d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
