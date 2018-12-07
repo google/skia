@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06f636d7_69e5e5b5",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T16:06:31Z",
+      "side": 1,
+      "message": "Depending on the path, computeTightBounds can be somewhat expensive.  I don\u0027t think we need that level of precision, conservative bounds (getBounds) should also return the right answer if the path is a point.\n\nSince we\u0027re calling this for every closePath, maybe it\u0027s worth looking into even cheaper ways to test... countPoints() \u003d\u003d 1?  Cary, any suggestions here?",
+      "range": {
+        "startLine": 898,
+        "startChar": 37,
+        "endLine": 898,
+        "endChar": 55
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6807c4d1_835b1177",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T16:06:31Z",
+      "side": 1,
+      "message": "Do we need to handle all 360 multiples (mod arithmetic)?  Not sure what the spec says -- and what we do -- about 720, etc...",
+      "range": {
+        "startLine": 991,
+        "startChar": 10,
+        "endLine": 991,
+        "endChar": 40
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2c78105_43e6e2ad",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T16:06:31Z",
+      "side": 1,
+      "message": "I wonder if we could merge these two blocks, something like\n\n      if (almostEqual(Math.abs(sweepDegrees), 360)) {\n        let halfSweep \u003d Math.sign(sweepDegrees) * 180;\n        this._currentPath.arcTo(oval, startDegrees, halfSweep, false);\n        this._currentPath.arcTo(oval, startDegrees + halfSweep, halfSweep, false);\n        return;\n      }\n\n?",
+      "range": {
+        "startLine": 996,
+        "startChar": 6,
+        "endLine": 1000,
+        "endChar": 7
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2816447c_440cd71c",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T16:06:31Z",
+      "side": 1,
+      "message": "Can we avoid this copy when _currentPath.getFillType() happens to match fillmode?",
+      "range": {
+        "startLine": 1125,
+        "startChar": 6,
+        "endLine": 1125,
+        "endChar": 42
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd3e1921_3ff60607",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T16:06:31Z",
+      "side": 1,
+      "message": "This seems to come up repeatedly, maybe add a MapToLocalCoordinates() helper?",
+      "range": {
+        "startLine": 1134,
+        "startChar": 0,
+        "endLine": 1138,
+        "endChar": 17
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
