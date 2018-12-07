@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba76de0_26ff9ee7",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-07T17:09:45Z",
+      "side": 1,
+      "message": "Let\u0027s add font.isFinite()",
+      "range": {
+        "startLine": 332,
+        "startChar": 36,
+        "endLine": 332,
+        "endChar": 52
+      },
+      "revId": "c21e3d395f7353373b28f966f1b9d7f67d71a1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9677fe18_b236feab",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-07T17:09:45Z",
+      "side": 1,
+      "message": "WOOT!",
+      "range": {
+        "startLine": 56,
+        "startChar": 11,
+        "endLine": 56,
+        "endChar": 16
+      },
+      "revId": "c21e3d395f7353373b28f966f1b9d7f67d71a1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49d60dc6_54d63051",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-07T17:09:45Z",
+      "side": 1,
+      "message": "WOOT!",
+      "range": {
+        "startLine": 76,
+        "startChar": 47,
+        "endLine": 76,
+        "endChar": 52
+      },
+      "revId": "c21e3d395f7353373b28f966f1b9d7f67d71a1ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
