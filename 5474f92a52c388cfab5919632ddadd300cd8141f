@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eebbeb6d_260f5dca",
+        "filename": "tests/GrOpListFlushTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-07T15:45:49Z",
+      "side": 1,
+      "message": "WDYT about structuring this so that the resulting image(s) can be checked to ensure all the ops actually executed?\n\ne.g. \n\ninit: clear both to red, draw a green rect to 1x1 top left corner of surf 1.\n\nloop: draw (0,0,1,1) subset of surf 1 to (0,0,1,1) on surf 2, draw  (0,0,0,0) subset of surf 2 to (1 0,2,1) on surf 1, draw from (1,0,2,1) on surf 1 to (1,0,2,1) on surf 2, ...\n\ncheck: both surfaces are green.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 1
+      },
+      "revId": "5474f92a52c388cfab5919632ddadd300cd8141f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
