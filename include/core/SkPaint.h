@@ -1027,6 +1027,7 @@ public:
     }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_BREAKTEXT
     /** Returns the bytes of text that fit within maxWidth.
         The text fragment fits if its advance width is less than or equal to maxWidth.
         Measures only while the advance is less than or equal to maxWidth.
@@ -1043,6 +1044,7 @@ public:
     */
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = nullptr) const;
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Retrieves the advance and bounds for each glyph in text, and returns
