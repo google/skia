@@ -22,6 +22,30 @@
       "revId": "ea510c2f12849401b07de3bb25bf8bb4dfc02bfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e644023e_1f8aa98a",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-07T16:17:38Z",
+      "side": 1,
+      "message": "I figured I\u0027d cache it to save a few back and forths between JS and WASM.",
+      "parentUuid": "a489519d_10c528f9",
+      "range": {
+        "startLine": 1248,
+        "startChar": 6,
+        "endLine": 1248,
+        "endChar": 29
+      },
+      "revId": "ea510c2f12849401b07de3bb25bf8bb4dfc02bfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
