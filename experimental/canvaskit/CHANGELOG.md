@@ -10,10 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Canvas2D JS layer. This mirrors the HTML Canvas API. This may be omitted at compile time
     it by adding `no_canvas` to the `compile.sh` invocation.
 
+### Fixed
+- `SkPath.addRect` now correctly draws counter-clockwise vs clockwise.
+
 ### Changed
 - `CanvasKit.MakeImageShader` no longer takes encoded bytes, but an SkImage, created from
     `CanvasKit.MakeImageFromEncoded`. Additionally, the optional parameters `clampIfUnpremul`
     and `localMatrix` have been exposed.
+- `SkPath.arcTo` now takes `startAngle`, `sweepAngle`, `forceMoveTo` as additional parameters.
+- `SkPath.stroke` has a new option `precision`  It defaults to 1.0.
 
 
 
