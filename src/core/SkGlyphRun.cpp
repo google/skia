@@ -215,30 +215,6 @@ void SkGlyphRunBuilder::drawText(
     this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
 }
 
-void SkGlyphRunBuilder::drawPosTextH(const SkPaint& paint, const void* bytes,
-                                     size_t byteLength, const SkScalar* xpos,
-                                     SkScalar constY) {
-    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
-    if (!glyphIDs.empty()) {
-        this->initialize(glyphIDs.size());
-        this->simplifyDrawPosTextH(
-                paint, SkFont::LEGACY_ExtractFromPaint(paint), glyphIDs, xpos, constY, fPositions);
-    }
-
-    this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
-}
-
-void SkGlyphRunBuilder::drawPosText(const SkPaint& paint, const void* bytes,
-                                    size_t byteLength, const SkPoint* pos) {
-    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
-    if (!glyphIDs.empty()) {
-        this->initialize(glyphIDs.size());
-        this->simplifyDrawPosText(paint, SkFont::LEGACY_ExtractFromPaint(paint), glyphIDs, pos);
-    }
-
-    this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
-}
-
 void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin) {
     // Figure out all the storage needed to pre-size everything below.
     size_t totalGlyphs = 0;

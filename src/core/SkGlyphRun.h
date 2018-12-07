@@ -119,11 +119,6 @@ public:
     void drawTextAtOrigin(const SkPaint& paint, const void* bytes, size_t byteLength);
     void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
-    void drawPosTextH(
-            const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkScalar* xpos, SkScalar constY);
-    void drawPosText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
     void drawGlyphPos(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
