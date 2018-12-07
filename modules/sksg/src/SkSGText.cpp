@@ -57,23 +57,7 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     //  1) SkTextBlob has some trouble computing accurate bounds with alignment.
     //  2) SkPaint::Align is slated for deprecation.
 
-    // First, convert to glyphIDs.
-    SkSTArray<256, SkGlyphID, true> glyphs;
-    glyphs.reset(font.countText(fText.c_str(), fText.size(), kUTF8_SkTextEncoding));
-    SkAssertResult(font.textToGlyphs(fText.c_str(), fText.size(), kUTF8_SkTextEncoding,
-                                     glyphs.begin(), glyphs.count()));
-
-    // Next, build the cached blob.
-    SkTextBlobBuilder builder;
-    const auto& buf = builder.allocRun(font, glyphs.count(), 0, 0, nullptr);
-    if (!buf.glyphs) {
-        fBlob.reset();
-        return SkRect::MakeEmpty();
-    }
-
-    memcpy(buf.glyphs, glyphs.begin(), glyphs.count() * sizeof(SkGlyphID));
-
-    fBlob = builder.make();
+    fBlob = SkTextBlob::MakeFromText(fText.c_str(), fText.size(), font, kUTF8_SkTextEncoding);
     if (!fBlob) {
         return SkRect::MakeEmpty();
     }
