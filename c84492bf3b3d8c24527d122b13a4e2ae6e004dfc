@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "23b0c517_c9164700",
+        "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-12-07T16:42:14Z",
+      "side": 1,
+      "message": "If there are paths where all the points are the same, getBounds().isEmpty() would detect the single point better than countPoints() \u003d\u003d 1; plus getBounds() is cached and fairly cheap.",
+      "parentUuid": "06f636d7_69e5e5b5",
+      "range": {
+        "startLine": 898,
+        "startChar": 37,
+        "endLine": 898,
+        "endChar": 55
+      },
+      "revId": "c84492bf3b3d8c24527d122b13a4e2ae6e004dfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6807c4d1_835b1177",
         "filename": "experimental/canvaskit/htmlcanvas/canvas2d.js",
         "patchSetId": 6
