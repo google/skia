@@ -121,7 +121,7 @@ private:
     SkDEBUGCODE(void validate() const);
     void closeThoseWhoDependOnMe(const GrCaps&);
 
-    // Remove all Ops which reference proxies that have not been instantiated.
+    // Remove all Ops which reference proxies that are not instantiated.
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
 
     // Feed proxy usage intervals to the GrResourceAllocator class

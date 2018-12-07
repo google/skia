@@ -593,7 +593,7 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
     }
 
     // remove ref to the backing texture
-    fProxies[lastPageIndex]->deInstantiate();
+    fProxies[lastPageIndex]->deinstantiate();
     --fNumActivePages;
 }
 

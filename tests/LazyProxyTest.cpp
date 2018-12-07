@@ -247,7 +247,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     for (bool doInstantiate : {true, false}) {
         for (auto lazyType : {LazyInstantiationType::kSingleUse,
                               LazyInstantiationType::kMultipleUse,
-                              LazyInstantiationType::kUninstantiate}) {
+                              LazyInstantiationType::kDeinstantiate}) {
             int testCount = 0;
             int* testCountPtr = &testCount;
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
@@ -390,14 +390,14 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     }
 }
 
-class LazyUninstantiateTestOp : public GrDrawOp {
+class LazyDeinstantiateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context, sk_sp<GrTextureProxy> proxy) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
-        return pool->allocate<LazyUninstantiateTestOp>(std::move(proxy));
+        return pool->allocate<LazyDeinstantiateTestOp>(std::move(proxy));
     }
 
     void visitProxies(const VisitProxyFunc& func, VisitorType) const override {
@@ -407,13 +407,12 @@ public:
 private:
     friend class GrOpMemoryPool; // for ctor
 
-    LazyUninstantiateTestOp(sk_sp<GrTextureProxy> proxy)
-            : INHERITED(ClassID())
-            , fLazyProxy(std::move(proxy)) {
+    LazyDeinstantiateTestOp(sk_sp<GrTextureProxy> proxy)
+            : INHERITED(ClassID()), fLazyProxy(std::move(proxy)) {
         this->setBounds(SkRect::MakeIWH(kSize, kSize), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "LazyUninstantiateTestOp"; }
+    const char* name() const override { return "LazyDeinstantiateTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;
@@ -426,13 +425,11 @@ private:
     typedef GrDrawOp INHERITED;
 };
 
-static void UninstantiateReleaseProc(void* releaseValue) {
-    (*static_cast<int*>(releaseValue))++;
-}
+static void DeinstantiateReleaseProc(void* releaseValue) { (*static_cast<int*>(releaseValue))++; }
 
-// Test that lazy proxies with the Uninstantiate LazyCallbackType are uninstantiated and released as
+// Test that lazy proxies with the Deinstantiate LazyCallbackType are deinstantiated and released as
 // expected.
-DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
+DEF_GPUTEST(LazyProxyDeinstantiateTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
@@ -442,7 +439,7 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                 ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     using LazyType = GrSurfaceProxy::LazyInstantiationType;
-    for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kUninstantiate}) {
+    for (auto lazyType : {LazyType::kSingleUse, LazyType::kMultipleUse, LazyType::kDeinstantiate}) {
         sk_sp<GrRenderTargetContext> rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kExact, 100, 100,
                 kRGBA_8888_GrPixelConfig, nullptr);
@@ -475,7 +472,7 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                         return sk_sp<GrTexture>();
                     }
                     (*instantiatePtr)++;
-                    texture->setRelease(UninstantiateReleaseProc, releasePtr);
+                    texture->setRelease(DeinstantiateReleaseProc, releasePtr);
                     return texture;
                 },
                 format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
@@ -483,12 +480,12 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
 
         REPORTER_ASSERT(reporter, lazyProxy.get());
 
-        rtc->priv().testingOnly_addDrawOp(LazyUninstantiateTestOp::Make(ctx.get(), lazyProxy));
+        rtc->priv().testingOnly_addDrawOp(LazyDeinstantiateTestOp::Make(ctx.get(), lazyProxy));
 
         ctx->flush();
 
         REPORTER_ASSERT(reporter, 1 == instantiateTestValue);
-        if (LazyType::kUninstantiate == lazyType) {
+        if (LazyType::kDeinstantiate == lazyType) {
             REPORTER_ASSERT(reporter, 1 == releaseTestValue);
         } else {
             REPORTER_ASSERT(reporter, 0 == releaseTestValue);
@@ -496,12 +493,12 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
 
         // This should cause the uninstantiate proxies to be instantiated again but have no effect
         // on the others
-        rtc->priv().testingOnly_addDrawOp(LazyUninstantiateTestOp::Make(ctx.get(), lazyProxy));
+        rtc->priv().testingOnly_addDrawOp(LazyDeinstantiateTestOp::Make(ctx.get(), lazyProxy));
         // Add a second op to make sure we only instantiate once.
-        rtc->priv().testingOnly_addDrawOp(LazyUninstantiateTestOp::Make(ctx.get(), lazyProxy));
+        rtc->priv().testingOnly_addDrawOp(LazyDeinstantiateTestOp::Make(ctx.get(), lazyProxy));
         ctx->flush();
 
-        if (LazyType::kUninstantiate == lazyType) {
+        if (LazyType::kDeinstantiate == lazyType) {
             REPORTER_ASSERT(reporter, 2 == instantiateTestValue);
             REPORTER_ASSERT(reporter, 2 == releaseTestValue);
         } else {
@@ -510,7 +507,7 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
         }
 
         lazyProxy.reset();
-        if (LazyType::kUninstantiate == lazyType) {
+        if (LazyType::kDeinstantiate == lazyType) {
             REPORTER_ASSERT(reporter, 2 == releaseTestValue);
         } else {
             REPORTER_ASSERT(reporter, 1 == releaseTestValue);

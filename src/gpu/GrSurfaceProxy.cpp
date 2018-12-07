@@ -245,12 +245,11 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     return true;
 }
 
-void GrSurfaceProxy::deInstantiate() {
+void GrSurfaceProxy::deinstantiate() {
     SkASSERT(this->isInstantiated());
 
     this->release();
 }
-
 
 void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());

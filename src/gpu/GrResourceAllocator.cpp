@@ -7,6 +7,7 @@
 
 #include "GrResourceAllocator.h"
 
+#include "GrDeinstantiateProxyTracker.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrRenderTargetProxy.h"
@@ -16,7 +17,6 @@
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
-#include "GrUninstantiateProxyTracker.h"
 
 #if GR_TRACK_INTERVAL_CREATION
     #include <atomic>
@@ -109,8 +109,8 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
             if (proxy->priv().doLazyInstantiation(fResourceProvider)) {
                 if (proxy->priv().lazyInstantiationType() ==
-                    GrSurfaceProxy::LazyInstantiationType::kUninstantiate) {
-                    fUninstantiateTracker->addProxy(proxy);
+                    GrSurfaceProxy::LazyInstantiationType::kDeinstantiate) {
+                    fDeinstantiateTracker->addProxy(proxy);
                 }
             }
         }
@@ -376,9 +376,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
             } else {
-                if (GrSurfaceProxy::LazyInstantiationType::kUninstantiate ==
+                if (GrSurfaceProxy::LazyInstantiationType::kDeinstantiate ==
                     cur->proxy()->priv().lazyInstantiationType()) {
-                    fUninstantiateTracker->addProxy(cur->proxy());
+                    fDeinstantiateTracker->addProxy(cur->proxy());
                 }
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
