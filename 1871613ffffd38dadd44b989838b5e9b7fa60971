@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41247018_70c36b25",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2916,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-07T22:15:25Z",
+      "side": 1,
+      "message": "cute :) I might take a look at adding glTexParamaterf[v] as a low priority task. Between this and the LOD limit settings (which we set to -1000 and 1000 as integers where floats is more natural), it\u0027d be nice to be able to specify the floating point values directly and remove the comments.",
+      "range": {
+        "startLine": 2914,
+        "startChar": 0,
+        "endLine": 2916,
+        "endChar": 64
+      },
+      "revId": "1871613ffffd38dadd44b989838b5e9b7fa60971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
