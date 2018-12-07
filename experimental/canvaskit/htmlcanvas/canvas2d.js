@@ -275,7 +275,6 @@
       var sx2 = pts[2];
       var sy2 = pts[3];
 
-      // Maybe refactor _scalefactor() on which this is taken?
       var sx = currentTransform[0];
       var sy = currentTransform[4];
       var scaleFactor = (Math.abs(sx) + Math.abs(sy))/2;
@@ -418,13 +417,13 @@
           'f' : this._currentTransform[5],
         };
       },
+      // @param {DOMMatrix} matrix
       set: function(matrix) {
         if (matrix.a) {
           // if we see a property named 'a', guess that b-f will
           // also be there.
-          this._currentTransform = [matrix.a, matrix.c, matrix.e,
-                                    matrix.b, matrix.d, matrix.f,
-                                           0,        0,        1];
+          this.setTransform(matrix.a, matrix.b, matrix.c,
+                            matrix.d, matrix.e, matrix.f);
         }
       }
     });
@@ -1245,7 +1244,8 @@
       this._currentPath.transform(this._currentTransform);
       var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
       this._canvas.concat(inverted);
-      this._currentTransform = CanvasKit.SkMatrix.identity();
+      // This should be identity, modulo floating point drift.
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     this.restore = function() {
@@ -1262,7 +1262,6 @@
       );
       this._currentPath.transform(combined);
 
-      this._currentTransform = newState.ctm;
       this._lineDashList = newState.ldl;
       this._strokeWidth = newState.sw;
       this._paint.setStrokeWidth(this._strokeWidth);
@@ -1283,8 +1282,9 @@
       this._imageFilterQuality = newState.isq;
       //TODO: font, textAlign, textBaseline, direction
 
-      // restores the clip
+      // restores the clip and ctm
       this._canvas.restore();
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     this.rotate = function(radians) {
@@ -1295,10 +1295,8 @@
       // path so it cancels out when we apply the transform at draw time.
       var inverted = CanvasKit.SkMatrix.rotated(-radians);
       this._currentPath.transform(inverted);
-      this._currentTransform = CanvasKit.SkMatrix.multiply(
-                                  this._currentTransform,
-                                  CanvasKit.SkMatrix.rotated(radians));
       this._canvas.rotate(radiansToDegrees(radians), 0, 0);
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     this.save = function() {
@@ -1348,10 +1346,8 @@
       // path so it cancels out when we apply the transform at draw time.
       var inverted = CanvasKit.SkMatrix.scaled(1/sx, 1/sy);
       this._currentPath.transform(inverted);
-      this._currentTransform = CanvasKit.SkMatrix.multiply(
-                                  this._currentTransform,
-                                  CanvasKit.SkMatrix.scaled(sx, sy));
       this._canvas.scale(sx, sy);
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     this.setLineDash = function(dashes) {
@@ -1491,10 +1487,8 @@
       // path so it cancels out when we apply the transform at draw time.
       var inverted = CanvasKit.SkMatrix.translated(-dx, -dy);
       this._currentPath.transform(inverted);
-      this._currentTransform = CanvasKit.SkMatrix.multiply(
-                                  this._currentTransform,
-                                  CanvasKit.SkMatrix.translated(dx, dy));
       this._canvas.translate(dx, dy);
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     this.transform = function(a, b, c, d, e, f) {
@@ -1506,9 +1500,7 @@
       var inverted = CanvasKit.SkMatrix.invert(newTransform);
       this._currentPath.transform(inverted);
       this._canvas.concat(newTransform);
-      this._currentTransform = CanvasKit.SkMatrix.multiply(
-                                  this._currentTransform,
-                                  newTransform);
+      this._currentTransform = this._canvas.getTotalMatrix();
     }
 
     // Not supported operations (e.g. for Web only)
