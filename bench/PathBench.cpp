@@ -1191,3 +1191,54 @@ DEF_BENCH( return new ConicBench_ComputeError() )
 DEF_BENCH( return new ConicBench_asQuadTol() )
 DEF_BENCH( return new ConicBench_quadPow2() )
 */
+
+class CommonConvexBench : public Benchmark {
+protected:
+    SkString    fName;
+    SkPath      fPath;
+    const bool  fAA;
+
+public:
+    CommonConvexBench(int w, int h, bool forceConcave, bool aa) : fAA(aa) {
+        fName.printf("convex_path_%d_%d_%d_%d", w, h, forceConcave, aa);
+
+        SkRect r = SkRect::MakeXYWH(10, 10, w*1.0f, h*1.0f);
+        fPath.addRRect(SkRRect::MakeRectXY(r, w/8.0f, h/8.0f));
+
+        if (forceConcave) {
+            fPath.setConvexity(SkPath::kConcave_Convexity);
+            SkASSERT(!fPath.isConvex());
+        } else {
+            SkASSERT(fPath.isConvex());
+        }
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(fAA);
+
+        for (int i = 0; i < loops; ++i) {
+            for (int inner = 0; inner < 100; ++inner) {
+                canvas->drawPath(fPath, paint);
+            }
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+DEF_BENCH( return new CommonConvexBench( 16, 16, false, false); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, true,  false); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, false, true); )
+DEF_BENCH( return new CommonConvexBench( 16, 16, true,  true); )
+
+DEF_BENCH( return new CommonConvexBench(200, 16, false, false); )
+DEF_BENCH( return new CommonConvexBench(200, 16, true,  false); )
+DEF_BENCH( return new CommonConvexBench(200, 16, false, true); )
+DEF_BENCH( return new CommonConvexBench(200, 16, true,  true); )
