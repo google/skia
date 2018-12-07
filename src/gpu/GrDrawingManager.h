@@ -140,7 +140,7 @@ private:
     void cleanup();
 
     // return true if any opLists were actually executed; false otherwise
-    bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*);
+    bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*, int* numOpListsExecuted);
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
