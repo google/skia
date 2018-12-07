@@ -329,7 +329,7 @@ void SkGlyphRunListPainter::processARGBFallback(
 template <typename PerEmptyT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
         SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textScale,
+        SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
     fARGBPositions.clear();
@@ -356,10 +356,10 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
     }
 
     if (!fARGBGlyphsIDs.empty()) {
-        SkPaint runPaint{paint};
-        glyphRun.font().LEGACY_applyToPaint(&runPaint);
+        SkPaint fallbackPaint{runPaint};
+        glyphRun.font().LEGACY_applyToPaint(&fallbackPaint);
         this->processARGBFallback(
-                maxFallbackDimension, runPaint, viewMatrix, textScale,
+                maxFallbackDimension, fallbackPaint, viewMatrix, textScale,
                 std::move(argbFallback));
 
     }
@@ -701,18 +701,17 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
     };
 
     SkPoint origin = glyphRunList.origin();
-    this->initReusableBlob(
-            glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
+    const SkPaint& runPaint = glyphRunList.paint();
+    this->initReusableBlob(runPaint.computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
 
     for (const auto& glyphRun : glyphRunList) {
-        SkPaint runPaint {glyphRunList.paint()};
-        glyphRun.font().LEGACY_applyToPaint(&runPaint);
+        const SkFont& runFont = glyphRun.font();
+
         Run* run = this->pushBackRun();
 
-        run->setRunFontAntiAlias(runPaint.isAntiAlias());
+        run->setRunFontAntiAlias(runFont.hasSomeAntiAliasing());
 
-        if (GrTextContext::CanDrawAsDistanceFields(runPaint,
-                                   SkFont::LEGACY_ExtractFromPaint(runPaint), viewMatrix, props,
+        if (GrTextContext::CanDrawAsDistanceFields(runPaint, runFont, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), options)) {
             bool hasWCoord = viewMatrix.hasPerspective()
                              || options.fDistanceFieldVerticesAlwaysHaveW;
@@ -720,12 +719,15 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             // Setup distance field runPaint and text ratio
             SkScalar textScale;
             SkPaint distanceFieldPaint{runPaint};
+            runFont.LEGACY_applyToPaint(&distanceFieldPaint);
             SkScalerContextFlags flags;
             GrTextContext::InitDistanceFieldPaint(this, &distanceFieldPaint, viewMatrix,
                                                   options, &textScale, &flags);
             this->setHasDistanceField();
-            run->setSubRunHasDistanceFields(runPaint.isLCDRenderText(),
-                                            runPaint.isAntiAlias(), hasWCoord);
+            run->setSubRunHasDistanceFields(
+                    runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
+                    runFont.hasSomeAntiAliasing(),
+                    hasWCoord);
 
             {
                 auto cache = run->setupCache(distanceFieldPaint, props, flags, SkMatrix::I());
@@ -759,22 +761,23 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                     std::move(perEmpty), std::move(perSDF), std::move(perPath),
                     std::move(argbFallback));
             }
-        } else if (SkGlyphRunListPainter::ShouldDrawAsPath(
-                glyphRunList.paint(), glyphRun.font(), viewMatrix)) {
+
+        } else if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, runFont, viewMatrix)) {
             // The glyphs are big, so use paths to draw them.
 
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
 
             // setup our std runPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(runPaint);
+            SkPaint pathPaint{runPaint};
+            SkFont pathFont{runFont};
+            SkScalar textScale = pathFont.setupForAsPaths(&pathPaint);
+
+            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                                pathFont, pathPaint, props,
+                                scalerContextFlags, SkMatrix::I());
 
             auto perEmpty = [](const SkGlyph&, SkPoint) {};
-
-            SkScalar textScale = pathPaint.setupForAsPaths();
-            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                SkFont::LEGACY_ExtractFromPaint(pathPaint), pathPaint, props,
-                                scalerContextFlags, SkMatrix::I());
 
             // Given a glyph that is not ARGB, draw it.
             auto perPath = [textScale, run]
@@ -785,8 +788,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 }
             };
 
-            ARGBFallbackHelper argbFallback{this, run, props, scalerContextFlags,
-                                            glyphCache};
+            ARGBFallbackHelper argbFallback{this, run, props, scalerContextFlags, glyphCache};
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
                 pathCache.get(), glyphRun, origin, runPaint, viewMatrix, textScale,
@@ -795,7 +797,9 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
 
-            auto cache = run->setupCache(runPaint, props, scalerContextFlags, viewMatrix);
+            SkPaint cachePaint{runPaint};
+            runFont.LEGACY_applyToPaint(&cachePaint);
+            auto cache = run->setupCache(cachePaint, props, scalerContextFlags, viewMatrix);
 
             sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
