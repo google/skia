@@ -77,10 +77,12 @@ public:
     typedef void(*PromiseDoneProc)(TextureContext textureContext);
 
 protected:
+    static sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(GrContext*, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat, GrMipMapped, SkImage_GpuBase::TextureReleaseProc, SkImage_GpuBase::PromiseDoneProc, SkImage_GpuBase::TextureContext);
+
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
-                                 const SkRect& rect, SkYUVColorSpace yuvColorSpace,
-                                 const sk_sp<GrTextureProxy> proxies[4],
-                                 const SkYUVAIndex yuvaIndices[4]);
+                             const SkRect& rect, SkYUVColorSpace yuvColorSpace,
+                             const sk_sp<GrTextureProxy> proxies[4],
+                             const SkYUVAIndex yuvaIndices[4]);
 
     sk_sp<GrContext>      fContext;
     const SkAlphaType     fAlphaType;  // alpha type for final image
@@ -132,65 +134,26 @@ private:
 class SkPromiseImageHelper {
 public:
     SkPromiseImageHelper()
-        : fFulfillProc(nullptr)
-        , fReleaseProc(nullptr)
-        , fContext(nullptr)
-        , fDoneHelper(nullptr) {
+            : fFulfillProc(nullptr), fReleaseProc(nullptr), fDoneProc(nullptr) {
     }
 
     void set(SkImage_GpuBase::TextureFulfillProc fulfillProc,
              SkImage_GpuBase::TextureReleaseProc releaseProc,
-             SkImage_GpuBase::PromiseDoneProc doneProc,
-             SkImage_GpuBase::TextureContext context) {
+             SkImage_GpuBase::PromiseDoneProc doneProc) {
         fFulfillProc = fulfillProc;
         fReleaseProc = releaseProc;
-        fContext = context;
-        fDoneHelper.reset(new GrReleaseProcHelper(doneProc, context));
+        fDoneProc = doneProc;
     }
 
-    SkPromiseImageHelper(SkImage_GpuBase::TextureFulfillProc fulfillProc,
-                         SkImage_GpuBase::TextureReleaseProc releaseProc,
-                         SkImage_GpuBase::PromiseDoneProc doneProc,
-                         SkImage_GpuBase::TextureContext context)
-        : fFulfillProc(fulfillProc)
-        , fReleaseProc(releaseProc)
-        , fContext(context)
-        , fDoneHelper(new GrReleaseProcHelper(doneProc, context)) {
-    }
 
-    bool isValid() { return SkToBool(fDoneHelper); }
-
-    void reset() {
-        this->resetReleaseHelper();
-        fDoneHelper.reset();
-    }
-
-    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider, GrPixelConfig config);
+    sk_sp<GrTextureProxy> createLazyProxy(GrContext*, int width, int height,
+                                          GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
+                                          GrMipMapped, SkImage_GpuBase::TextureContext);
 
 private:
-    // Weak unrefs fReleaseHelper and sets it to null
-    void resetReleaseHelper() {
-        if (fReleaseHelper) {
-            fReleaseHelper->weak_unref();
-            fReleaseHelper = nullptr;
-        }
-    }
-
-    SkImage_GpuBase::TextureFulfillProc fFulfillProc;
-    SkImage_GpuBase::TextureReleaseProc fReleaseProc;
-    SkImage_GpuBase::TextureContext     fContext;
-
-    // We cache the GrBackendTexture so that if we deleted the GrTexture but the the release proc
-    // has yet not been called (this can happen on Vulkan), then we can create a new texture without
-    // needing to call the fulfill proc again.
-    GrBackendTexture           fBackendTex;
-    // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make sure
-    // we are always pairing fulfill and release proc calls correctly.
-    SkPromiseReleaseProcHelper*  fReleaseHelper = nullptr;
-    // We don't want to call the fDoneHelper until we are done with the PromiseImageHelper and all
-    // ReleaseHelpers are finished. Thus we hold a hard ref here and we will pass a hard ref to each
-    // fReleaseHelper we make.
-    sk_sp<GrReleaseProcHelper> fDoneHelper;
+    SkImage_GpuBase::TextureFulfillProc fFulfillProc = nullptr;
+    SkImage_GpuBase::TextureReleaseProc fReleaseProc = nullptr;
+    SkImage_GpuBase::PromiseDoneProc fDoneProc = nullptr;
 };
 
 #endif
