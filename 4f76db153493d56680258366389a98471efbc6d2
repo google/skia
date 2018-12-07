@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22ba2a73_d80a5b43",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T21:49:39Z",
+      "side": 0,
+      "message": "Re. test failures: I guess the bounds computation messes with the cache test...",
+      "range": {
+        "startLine": 80,
+        "startChar": 70,
+        "endLine": 80,
+        "endChar": 77
+      },
+      "revId": "4f76db153493d56680258366389a98471efbc6d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

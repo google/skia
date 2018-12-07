@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77f1ed1c_943021e4",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-07T21:49:39Z",
+      "side": 1,
+      "message": "We can probably get rid of this now, and always compute the complete bounds at build() time. But that\u0027s a more involved change, better to handle separately.",
+      "range": {
+        "startLine": 489,
+        "startChar": 4,
+        "endLine": 489,
+        "endChar": 19
+      },
+      "revId": "1057f6eb576e0aab3008ef55ef10db3ac556b1e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
