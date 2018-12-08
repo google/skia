@@ -328,14 +328,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                                TextureReleaseProc textureReleaseProc,
                                                PromiseDoneProc promiseDoneProc,
                                                TextureContext textureContext) {
-    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
-    // even if creation of the SkImage fails.
-    if (!promiseDoneProc) {
+    SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
+    if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
-
-    SkPromiseImageHelper promiseHelper(textureFulfillProc, textureReleaseProc, promiseDoneProc,
-                                       textureContext);
 
     if (!context) {
         return nullptr;
@@ -345,51 +341,15 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    if (!textureFulfillProc || !textureReleaseProc) {
-        return nullptr;
-    }
-
-    SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
-    if (!SkImageInfoIsValid(info)) {
-        return nullptr;
-    }
     GrPixelConfig config = kUnknown_GrPixelConfig;
     if (!context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType,
                                                                    &config)) {
         return nullptr;
     }
 
-    if (mipMapped == GrMipMapped::kYes &&
-        GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
-        // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
-        // well.
-        return nullptr;
-    }
-
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-
-    // We pass kReadOnly here since we should treat content of the client's texture as immutable.
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [promiseHelper, config](GrResourceProvider* resourceProvider) mutable {
-                if (!resourceProvider) {
-                    promiseHelper.reset();
-                    return sk_sp<GrTexture>();
-                }
-
-                return promiseHelper.getTexture(resourceProvider, config);
-            },
-            backendFormat, desc, origin, mipMapped, GrInternalSurfaceFlags::kReadOnly,
-            SkBackingFit::kExact, SkBudgeted::kNo,
-            GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
-
-    if (!proxy) {
-        return nullptr;
-    }
+    auto proxy = MakePromiseImageLazyProxy(context, width, height, origin, config, backendFormat,
+                                           mipMapped, textureFulfillProc, textureReleaseProc,
+                                           promiseDoneProc, textureContext);
 
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
