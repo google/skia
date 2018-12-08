@@ -1863,6 +1863,11 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         // convex after a transformation, so mark it as unknown here.
         // However, some transformations are thought to be safe:
         //    axis-aligned values under scale/translate.
+        //
+        // See skbug.com/8606
+        // If we can land a robust convex scan-converter, we may be able to relax/remove this
+        // check, and keep convex paths marked as such after a general transform...
+        //
         if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
             dst->setConvexity(convexity);
         } else {
