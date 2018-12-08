@@ -143,8 +143,7 @@ void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t
     glyphs.append(font.countText(text, len, paint.getTextEncoding()));
     font.textToGlyphs(text, len, paint.getTextEncoding(), glyphs.begin(), glyphs.count());
 
-    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(font, glyphs.count(), x, y,
-                                                                nullptr);
+    const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(font, glyphs.count(), x, y);
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
 }
 
