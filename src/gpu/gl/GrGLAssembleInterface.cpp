@@ -208,6 +208,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(TexBufferRange);
     }
     GET_PROC(TexImage2D);
+    GET_PROC(TexParameterf);
+    GET_PROC(TexParameterfv);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);
     if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
@@ -586,6 +588,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     GET_PROC(TexImage2D);
+    GET_PROC(TexParameterf);
+    GET_PROC(TexParameterfv);
     GET_PROC(TexParameteri);
     GET_PROC(TexParameteriv);
     GET_PROC(TexSubImage2D);
