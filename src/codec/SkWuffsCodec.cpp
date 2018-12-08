@@ -202,6 +202,7 @@ private:
 
     std::unique_ptr<SkSwizzler> fSwizzler;
     SkPMColor                   fColorTable[256];
+    bool                        fColorTableFilled;
 
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
@@ -320,6 +321,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fIncrDecDst(nullptr),
       fIncrDecRowBytes(0),
       fSwizzler(nullptr),
+      fColorTableFilled(false),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
       fDecoderIsSuspended(false) {
@@ -381,6 +383,7 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
 
     fSpySampler.reset();
     fSwizzler = nullptr;
+    fColorTableFilled = false;
 
     const char* status = this->decodeFrameConfig();
     if (status == nullptr) {
@@ -425,9 +428,10 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
     int scaledHeight = dstInfo().height();
     const bool independent = independent_frame(this, options().fFrameIndex);
-    wuffs_base__rect_ie_u32 r = fFrameConfig.bounds();
+    wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
     if (!fSwizzler) {
-        auto bounds = SkIRect::MakeLTRB(r.min_incl_x, r.min_incl_y, r.max_excl_x, r.max_excl_y);
+        auto bounds = SkIRect::MakeLTRB(frame_rect.min_incl_x, frame_rect.min_incl_y,
+                                        frame_rect.max_excl_x, frame_rect.max_excl_y);
         fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fColorTable, dstInfo(),
                                      this->options(), &bounds);
         fSwizzler->setSampleX(fSpySampler.sampleX());
@@ -437,9 +441,9 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         // Zero-initialize wuffs' buffer covering the frame rect. This will later be used to
         // determine how we write to the output, even if the image was incomplete. This ensures
         // that we do not swizzle uninitialized memory.
-        for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
-            uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * src_bpp);
-            sk_bzero(s, r.width() * src_bpp);
+        for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
+            uint8_t* s = pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bpp);
+            sk_bzero(s, frame_rect.width() * src_bpp);
         }
 
         // If the frame rect does not fill the output, ensure that those pixels are not
@@ -489,14 +493,18 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         }
     }
 
-    // If the frame rect is empty, no need to swizzle.
-    if (!r.is_empty()) {
-        wuffs_base__slice_u8 palette = fPixelBuffer.palette();
-        SkASSERT(palette.len == 4 * 256);
-        auto proc = choose_pack_color_proc(false, dstInfo().colorType());
-        for (int i = 0; i < 256; i++) {
-            uint8_t* p = palette.ptr + 4 * i;
-            fColorTable[i] = proc(p[3], p[2], p[1], p[0]);
+    // If the frame's dirty rect is empty, no need to swizzle.
+    wuffs_base__rect_ie_u32 dirty_rect = wuffs_gif__decoder__frame_dirty_rect(fDecoder.get());
+    if (!dirty_rect.is_empty()) {
+        if (!fColorTableFilled) {
+            fColorTableFilled = true;
+            wuffs_base__slice_u8 palette = fPixelBuffer.palette();
+            SkASSERT(palette.len == 4 * 256);
+            auto proc = choose_pack_color_proc(false, dstInfo().colorType());
+            for (int i = 0; i < 256; i++) {
+                uint8_t* p = palette.ptr + 4 * i;
+                fColorTable[i] = proc(p[3], p[2], p[1], p[0]);
+            }
         }
 
         std::unique_ptr<uint8_t[]> tmpBuffer;
@@ -504,7 +512,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
             tmpBuffer.reset(new uint8_t[dstInfo().minRowBytes()]);
         }
         const int sampleY = fSwizzler->sampleY();
-        for (uint32_t y = r.min_incl_y; y < r.max_excl_y; y++) {
+        for (uint32_t y = dirty_rect.min_incl_y; y < dirty_rect.max_excl_y; y++) {
             int dstY = y;
             if (sampleY != 1) {
                 if (!fSwizzler->rowNeeded(y)) {
@@ -516,8 +524,8 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
                 }
             }
 
-            // We don't adjust d by (r.min_incl_x * dst_bpp) as we have already
-            // accounted for that in swizzleRect, above.
+            // We don't adjust d by (frame_rect.min_incl_x * dst_bpp) as we
+            // have already accounted for that in swizzleRect, above.
             uint8_t* d = fIncrDecDst + (dstY * fIncrDecRowBytes);
 
             // The Wuffs model is that the dst buffer is the image, not the frame.
@@ -525,8 +533,12 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
             // for the N frames, regardless of each frame's top-left co-ordinate.
             //
             // To get from the start (in the X-direction) of the image to the start
-            // of the frame, we adjust s by (r.min_incl_x * src_bpp).
-            uint8_t* s = pixels.ptr + (y * pixels.stride) + (r.min_incl_x * src_bpp);
+            // of the frame, we adjust s by (frame_rect.min_incl_x * src_bpp).
+            //
+            // We adjust (in the X-direction) by the frame rect, not the dirty
+            // rect, because the swizzler (which operates on rows) was
+            // configured with the frame rect's X range.
+            uint8_t* s = pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bpp);
             if (independent) {
                 fSwizzler->swizzle(d, s);
             } else {
@@ -545,6 +557,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fIncrDecDst = nullptr;
         fIncrDecRowBytes = 0;
         fSwizzler = nullptr;
+        fColorTableFilled = false;
     } else {
         // Make fSpySampler return whatever fSwizzler would have for fillWidth.
         fSpySampler.fFillWidth = fSwizzler->fillWidth();
