@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98b1a721_2d147a14",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-08T05:42:48Z",
+      "side": 1,
+      "message": "You might want to land just this DEPS change (or its equivalent) in any downstream users (e.g. Android, Chromium, Flutter, Google3) first. Without that, landing this CL might break builds because the frame_dirty_rect method is only in the newer version of Wuffs.",
+      "revId": "b46ca2b0b5d7ac784719dce793c46f7aa632c1dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9d6ee55_09a0b945",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-08T05:42:48Z",
+      "side": 1,
+      "message": "I believe that this CL fixes the OSS-Fuzz bug, but I don\u0027t know how to repro or otherwise verify that.",
+      "revId": "527cae36ebf27ee5f9c559124b0be457c7c3609e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
