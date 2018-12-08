@@ -107,7 +107,7 @@ public:
             PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
 private:
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
