@@ -59,7 +59,11 @@ toolchain("msvc") {
       # platforms. (All our builders are x86-64, so x86 is always non-host.)
       cl_m32_flag = "-m32"
     }
-    cl = "$clang_win/bin/clang-cl.exe"
+    if (host_os == "win") {
+      cl = "$clang_win/bin/clang-cl.exe"
+    } else {
+      cl = "$clang_win/bin/clang-cl"
+    }
   } else {
     cl = "$bin/cl.exe"
   }
@@ -105,7 +109,11 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$env_setup \"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    if (host_os == "win") {
+      command = "$env_setup \"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    } else {
+      command = "$env_setup lld-link /lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    }
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -125,7 +133,11 @@ toolchain("msvc") {
     pdbname = "${dllname}.pdb"
     rspfile = "${dllname}.rsp"
 
-    command = "$env_setup \"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    if (host_os == "win") {
+      command = "$env_setup \"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    } else {
+      command = "$env_setup lld-link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    }
     outputs = [
       dllname,
       libname,
@@ -154,8 +166,12 @@ toolchain("msvc") {
     pdbname = "$exename.pdb"
     rspfile = "$exename.rsp"
 
-    command = "$env_setup \"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
-
+    if (host_os == "win") {
+      command = "$env_setup \"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+    } else {
+      command =
+          "$env_setup lld-link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+    }
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
     outputs = [
