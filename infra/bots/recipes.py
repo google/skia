@@ -10,7 +10,7 @@
 ** DO NOT MODIFY **
 *******************
 
-This is a copy of https://chromium.googlesource.com/infra/luci/recipes-py/+/master/doc/recipes.py.
+This is a copy of https://chromium.googlesource.com/infra/luci/recipes-py/+/master/recipes.py.
 To fix bugs, fix in the googlesource repo then run the autoroller.
 """
 
@@ -73,7 +73,7 @@ def parse(repo_root, recipes_cfg_path):
       raise MalformedRecipesCfg('unknown version %d' % pb['api_version'],
                                 recipes_cfg_path)
 
-    # If we're running ./doc/recipes.py from the recipe_engine repo itself, then
+    # If we're running ./recipes.py from the recipe_engine repo itself, then
     # return None to signal that there's no EngineDep.
     if pb['project_id'] == 'recipe_engine':
       return None, pb.get('recipes_path', '')
@@ -132,7 +132,7 @@ def _git_output(argv, **kwargs):
 def parse_args(argv):
   """This extracts a subset of the arguments that this bootstrap script cares
   about. Currently this consists of:
-    * an override for the recipe engine in the form of `-O recipe_engin=/path`
+    * an override for the recipe engine in the form of `-O recipe_engine=/path`
     * the --package option.
   """
   PREFIX = 'recipe_engine='
@@ -211,7 +211,7 @@ def main():
 
   return _subprocess_call([
       VPYTHON, '-u',
-      os.path.join(engine_path, 'recipes.py')] + args)
+      os.path.join(engine_path, 'recipe_engine', 'main.py')] + args)
 
 
 if __name__ == '__main__':
