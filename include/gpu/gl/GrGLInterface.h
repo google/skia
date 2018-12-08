@@ -240,6 +240,8 @@ public:
         GrGLFunction<GrGLTexBufferFn> fTexBuffer;
         GrGLFunction<GrGLTexBufferRangeFn> fTexBufferRange;
         GrGLFunction<GrGLTexImage2DFn> fTexImage2D;
+        GrGLFunction<GrGLTexParameterfFn> fTexParameterf;
+        GrGLFunction<GrGLTexParameterfvFn> fTexParameterfv;
         GrGLFunction<GrGLTexParameteriFn> fTexParameteri;
         GrGLFunction<GrGLTexParameterivFn> fTexParameteriv;
         GrGLFunction<GrGLTexSubImage2DFn> fTexSubImage2D;

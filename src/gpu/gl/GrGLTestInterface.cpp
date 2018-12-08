@@ -144,6 +144,8 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fStencilOpSeparate = bind_to_member(this, &GrGLTestInterface::stencilOpSeparate);
     fFunctions.fTexBuffer = bind_to_member(this, &GrGLTestInterface::texBuffer);
     fFunctions.fTexImage2D = bind_to_member(this, &GrGLTestInterface::texImage2D);
+    fFunctions.fTexParameterf = bind_to_member(this, &GrGLTestInterface::texParameterf);
+    fFunctions.fTexParameterfv = bind_to_member(this, &GrGLTestInterface::texParameterfv);
     fFunctions.fTexParameteri = bind_to_member(this, &GrGLTestInterface::texParameteri);
     fFunctions.fTexParameteriv = bind_to_member(this, &GrGLTestInterface::texParameteriv);
     fFunctions.fTexStorage2D = bind_to_member(this, &GrGLTestInterface::texStorage2D);
