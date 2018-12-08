@@ -2863,8 +2863,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
         newSamplerParams.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY(), this->glCaps());
 
         // These are the OpenGL default values.
-        newSamplerParams.fMinLOD = -1000;
-        newSamplerParams.fMaxLOD = 1000;
+        newSamplerParams.fMinLOD = -1000.f;
+        newSamplerParams.fMaxLOD = 1000.f;
 
         if (setAll || newSamplerParams.fMagFilter != oldSamplerParams.fMagFilter) {
             this->setTextureUnit(unitIdx);
@@ -2875,15 +2875,13 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, newSamplerParams.fMinFilter));
         }
         if (this->glCaps().mipMapLevelAndLodControlSupport()) {
-            // Min and max LOD are actually floats. We don't curently support glTexParameterf.
-            // However, we only set these to integral floats (see above).
             if (setAll || newSamplerParams.fMinLOD != oldSamplerParams.fMinLOD) {
                 this->setTextureUnit(unitIdx);
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MIN_LOD, newSamplerParams.fMinLOD));
+                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MIN_LOD, newSamplerParams.fMinLOD));
             }
             if (setAll || newSamplerParams.fMaxLOD != oldSamplerParams.fMaxLOD) {
                 this->setTextureUnit(unitIdx);
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_MAX_LOD, newSamplerParams.fMaxLOD));
+                GL_CALL(TexParameterf(target, GR_GL_TEXTURE_MAX_LOD, newSamplerParams.fMaxLOD));
             }
         }
         if (setAll || newSamplerParams.fWrapS != oldSamplerParams.fWrapS) {
@@ -2898,11 +2896,8 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, GrGLTexture*
             // Make sure the border color is transparent black (the default)
             if (setAll || oldSamplerParams.fBorderColorInvalid) {
                 this->setTextureUnit(unitIdx);
-                // Specify the transparent black as normalized signed integers. The conversion is
-                // defined as (2c+1)/(2^32-1), which makes it impossible to map a signed in to
-                // exactly 0.f.  But 1/(2^32-1) is close enough.
-                static const GrGLint kTransparentBlack[4] = {0, 0, 0, 0};
-                GL_CALL(TexParameteriv(target, GR_GL_TEXTURE_BORDER_COLOR, kTransparentBlack));
+                static const GrGLfloat kTransparentBlack[4] = {0.f, 0.f, 0.f, 0.f};
+                GL_CALL(TexParameterfv(target, GR_GL_TEXTURE_BORDER_COLOR, kTransparentBlack));
             }
         }
     }

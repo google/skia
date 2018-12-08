@@ -96,10 +96,8 @@ bool GrGLInterface::validate() const {
         !fFunctions.fStencilOp ||
         !fFunctions.fStencilOpSeparate ||
         !fFunctions.fTexImage2D ||
-#if 0  // Check these once Chrome is updated to provide these functions.
         !fFunctions.fTexParameterf ||
         !fFunctions.fTexParameterfv ||
-#endif
         !fFunctions.fTexParameteri ||
         !fFunctions.fTexParameteriv ||
         !fFunctions.fTexSubImage2D ||
