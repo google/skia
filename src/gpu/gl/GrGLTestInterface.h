@@ -149,6 +149,8 @@ public:
     virtual GrGLvoid stencilOpSeparate(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass) {}
     virtual GrGLvoid texBuffer(GrGLenum target, GrGLenum internalformat, GrGLuint buffer) {}
     virtual GrGLvoid texImage2D(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels) {}
+    virtual GrGLvoid texParameterf(GrGLenum target, GrGLenum pname, GrGLfloat param) {}
+    virtual GrGLvoid texParameterfv(GrGLenum target, GrGLenum pname, const GrGLfloat* params) {}
     virtual GrGLvoid texParameteri(GrGLenum target, GrGLenum pname, GrGLint param) {}
     virtual GrGLvoid texParameteriv(GrGLenum target, GrGLenum pname, const GrGLint* params) {}
     virtual GrGLvoid texStorage2D(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height) {}

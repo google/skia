@@ -95,6 +95,8 @@ static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
     M(glStencilOp);
     M(glStencilOpSeparate);
     M(glTexImage2D);
+    M(glTexParameterf);
+    M(glTexParameterfv);
     M(glTexParameteri);
     M(glTexParameteriv);
     M(glTexSubImage2D);
