@@ -30,7 +30,7 @@ public:
 
     // GrSurface overrides
     GrRenderTarget* asRenderTarget() override { return this; }
-    const GrRenderTarget* asRenderTarget() const  override { return this; }
+    const GrRenderTarget* asRenderTarget() const override { return this; }
 
     // GrRenderTarget
     bool isStencilBufferMultisampled() const { return fSampleCnt > 1; }
@@ -125,10 +125,10 @@ private:
 
     friend class GrRenderTargetPriv;
 
-    int                  fSampleCnt;
+    int fSampleCnt;
     sk_sp<GrStencilAttachment> fStencilAttachment;
 
-    SkIRect              fResolveRect;
+    SkIRect fResolveRect;
 
     typedef GrSurface INHERITED;
 };
