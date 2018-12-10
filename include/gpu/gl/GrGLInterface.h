@@ -310,9 +310,6 @@ public:
         /* NV_framebuffer_mixed_samples */
         GrGLFunction<GrGLCoverageModulationFn> fCoverageModulation;
 
-        /* ARB_sample_shading */
-        GrGLFunction<GrGLMinSampleShadingFn> fMinSampleShading;  // Unused
-
         /* ARB_sync */
         GrGLFunction<GrGLFenceSyncFn> fFenceSync;
         GrGLFunction<GrGLIsSyncFn> fIsSync;
