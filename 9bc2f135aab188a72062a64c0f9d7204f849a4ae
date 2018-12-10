@@ -16,6 +16,24 @@
       "revId": "9bc2f135aab188a72062a64c0f9d7204f849a4ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "443107f0_0f4b11be",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-10T13:08:35Z",
+      "side": 1,
+      "message": "Haha, I wondered about that.",
+      "parentUuid": "b57b7681_737f3e3e",
+      "revId": "9bc2f135aab188a72062a64c0f9d7204f849a4ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
