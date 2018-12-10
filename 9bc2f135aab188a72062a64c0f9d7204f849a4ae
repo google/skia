@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b57b7681_737f3e3e",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T12:56:00Z",
+      "side": 1,
+      "message": "I\u0027m of course going to immediately try to change this to use lld-link when we have it...",
+      "revId": "9bc2f135aab188a72062a64c0f9d7204f849a4ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
