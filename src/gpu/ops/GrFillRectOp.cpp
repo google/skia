@@ -174,8 +174,13 @@ public:
                 break;
             }
         }
-        auto result = fHelper.xpRequiresDstTexture(
-                caps, clip, GrProcessorAnalysisCoverage::kSingleChannel, &quadColors);
+
+        // If the AA type is coverage, it will be a single value per pixel; if it's not coverage AA
+        // then the coverage is always 1.0, so specify kNone for more optimal blending.
+        GrProcessorAnalysisCoverage coverage = fHelper.aaType() == GrAAType::kCoverage ?
+                GrProcessorAnalysisCoverage::kSingleChannel :
+                GrProcessorAnalysisCoverage::kNone;
+        auto result = fHelper.xpRequiresDstTexture(caps, clip, coverage, &quadColors);
         // If there is a constant color after analysis, that means all of the quads should be set
         // to the same color (even if they started out with different colors).
         SkPMColor4f colorOverride;
@@ -352,40 +357,40 @@ private:
 
 namespace GrFillRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrContext* context,
-                               GrPaint&& paint,
-                               GrAAType aaType,
-                               GrQuadAAFlags edgeAA,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const GrUserStencilSettings* stencilSettings) {
+std::unique_ptr<GrDrawOp> MakePerEdge(GrContext* context,
+                                      GrPaint&& paint,
+                                      GrAAType aaType,
+                                      GrQuadAAFlags edgeAA,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRect& rect,
+                                      const GrUserStencilSettings* stencilSettings) {
     return FillRectOp::Make(context, std::move(paint), aaType, edgeAA, stencilSettings,
                             GrPerspQuad(rect, viewMatrix), GrQuadTypeForTransformedRect(viewMatrix),
                             GrPerspQuad(rect, SkMatrix::I()), GrQuadType::kRect);
 }
 
-std::unique_ptr<GrDrawOp> MakeWithLocalMatrix(GrContext* context,
-                                              GrPaint&& paint,
-                                              GrAAType aaType,
-                                              GrQuadAAFlags edgeAA,
-                                              const SkMatrix& viewMatrix,
-                                              const SkMatrix& localMatrix,
-                                              const SkRect& rect,
-                                              const GrUserStencilSettings* stencilSettings) {
+std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalMatrix(GrContext* context,
+                                                     GrPaint&& paint,
+                                                     GrAAType aaType,
+                                                     GrQuadAAFlags edgeAA,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkMatrix& localMatrix,
+                                                     const SkRect& rect,
+                                                     const GrUserStencilSettings* stencilSettings) {
     GrQuadType localQuadType = GrQuadTypeForTransformedRect(localMatrix);
     return FillRectOp::Make(context, std::move(paint), aaType, edgeAA, stencilSettings,
                             GrPerspQuad(rect, viewMatrix), GrQuadTypeForTransformedRect(viewMatrix),
                             GrPerspQuad(rect, localMatrix), localQuadType);
 }
 
-std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrContext* context,
-                                            GrPaint&& paint,
-                                            GrAAType aaType,
-                                            GrQuadAAFlags edgeAA,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRect& rect,
-                                            const SkRect& localRect,
-                                            const GrUserStencilSettings* stencilSettings) {
+std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrContext* context,
+                                                   GrPaint&& paint,
+                                                   GrAAType aaType,
+                                                   GrQuadAAFlags edgeAA,
+                                                   const SkMatrix& viewMatrix,
+                                                   const SkRect& rect,
+                                                   const SkRect& localRect,
+                                                   const GrUserStencilSettings* stencilSettings) {
     return FillRectOp::Make(context, std::move(paint), aaType, edgeAA, stencilSettings,
                             GrPerspQuad(rect, viewMatrix), GrQuadTypeForTransformedRect(viewMatrix),
                             GrPerspQuad(localRect, SkMatrix::I()), GrQuadType::kRect);
@@ -424,6 +429,41 @@ std::unique_ptr<GrDrawOp> MakeSet(GrContext* context,
     }
 
     return op;
+}
+
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               GrPaint&& paint,
+                               GrAAType aaType,
+                               const SkMatrix& viewMatrix,
+                               const SkRect& rect,
+                               const GrUserStencilSettings* stencil) {
+    return MakePerEdge(context, std::move(paint), aaType,
+            aaType == GrAAType::kCoverage ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+            viewMatrix, rect, stencil);
+}
+
+std::unique_ptr<GrDrawOp> MakeWithLocalMatrix(GrContext* context,
+                                              GrPaint&& paint,
+                                              GrAAType aaType,
+                                              const SkMatrix& viewMatrix,
+                                              const SkMatrix& localMatrix,
+                                              const SkRect& rect,
+                                              const GrUserStencilSettings* stencil) {
+    return MakePerEdgeWithLocalMatrix(context, std::move(paint), aaType,
+            aaType == GrAAType::kCoverage ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+            viewMatrix, localMatrix, rect, stencil);
+}
+
+std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrContext* context,
+                                            GrPaint&& paint,
+                                            GrAAType aaType,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRect& rect,
+                                            const SkRect& localRect,
+                                            const GrUserStencilSettings* stencil) {
+    return MakePerEdgeWithLocalRect(context, std::move(paint), aaType,
+            aaType == GrAAType::kCoverage ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
+            viewMatrix, rect, localRect, stencil);
 }
 
 } // namespace GrFillRectOp
@@ -477,19 +517,21 @@ GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
             } else {
                 // Single local matrix
                 SkMatrix localMatrix = GrTest::TestMatrixInvertible(random);
-                return GrFillRectOp::MakeWithLocalMatrix(context, std::move(paint), aaType, aaFlags,
-                                                         viewMatrix, localMatrix, rect, stencil);
+                return GrFillRectOp::MakePerEdgeWithLocalMatrix(context, std::move(paint), aaType,
+                                                                aaFlags, viewMatrix, localMatrix,
+                                                                rect, stencil);
             }
         } else {
             // Pass local rect directly
             SkRect localRect = GrTest::TestRect(random);
-            return GrFillRectOp::MakeWithLocalRect(context, std::move(paint), aaType, aaFlags,
-                                                   viewMatrix, rect, localRect, stencil);
+            return GrFillRectOp::MakePerEdgeWithLocalRect(context, std::move(paint), aaType,
+                                                          aaFlags, viewMatrix, rect, localRect,
+                                                          stencil);
         }
     } else {
         // The simplest constructor
-        return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags, viewMatrix, rect,
-                                  stencil);
+        return GrFillRectOp::MakePerEdge(context, std::move(paint), aaType, aaFlags, viewMatrix,
+                                         rect, stencil);
     }
 }
 

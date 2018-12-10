@@ -22,7 +22,7 @@
 #include "SkTaskGroup.h"
 #include "SkTraceEvent.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrFillRectOp.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath
@@ -100,9 +100,9 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& localMatrix) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
     renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           context, std::move(paint), viewMatrix, localMatrix, rect,
-                                           GrAAType::kNone, &userStencilSettings));
+                                   GrFillRectOp::MakeWithLocalMatrix(
+                                           context, std::move(paint), GrAAType::kNone, viewMatrix,
+                                           localMatrix, rect, &userStencilSettings));
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
