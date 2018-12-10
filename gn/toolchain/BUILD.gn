@@ -53,9 +53,6 @@ toolchain("msvc") {
 
   cl_m32_flag = ""
 
-  # Use the Microsoft link tools except when clang_win on a non-Windows host.
-  lib = "\"$bin/lib.exe\""
-  link = "\"$bin/link.exe\""
   if (clang_win != "") {
     if (target_cpu == "x86") {
       # cl.exe knows implicitly by the choice of executable that it's targeting
@@ -64,14 +61,18 @@ toolchain("msvc") {
       cl_m32_flag = "-m32"
     }
     if (host_os == "win") {
-      cl = "$clang_win/bin/clang-cl.exe"
+      cl = "\"$clang_win/bin/clang-cl.exe\""
+      lib = "\"$clang_win/bin/lld-link.exe\" /lib"
+      link = "\"$clang_win/bin/lld-link.exe\""
     } else {
       cl = "$clang_win/bin/clang-cl"
       lib = "$clang_win/bin/lld-link /lib"
       link = "$clang_win/bin/lld-link"
     }
   } else {
-    cl = "$bin/cl.exe"
+    cl = "\"$bin/cl.exe\""
+    lib = "\"$bin/lib.exe\""
+    link = "\"$bin/link.exe\""
   }
 
   tool("asm") {
@@ -91,7 +92,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -104,7 +105,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
