@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00b70f5c_81d545cf",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-10T13:36:20Z",
+      "side": 0,
+      "message": "You may want to check, but this may break Chrome. Chrome wanted to work on the assumption that we will always call the Done proc assuming they give us a valid one. This is why we went back at one point and moved the promiseHelper up here instead of with the rest of the promise code.",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 55
+      },
+      "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
