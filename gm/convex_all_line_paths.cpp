@@ -52,13 +52,11 @@ const SkPoint gPoints3[] = {
     { 50.0f,  50.0f },
     { 0.0f,  50.0f }
 };
-// thin rect with colinear-ish lines
+
 const SkPoint gPoints4[] = {
     { -6.0f, -50.0f },
     { 4.0f, -50.0f },
-    { 5.0f, -25.0f },
     { 6.0f,   0.0f },
-    { 5.0f,  25.0f },
     { 4.0f,  50.0f },
     { -4.0f,  50.0f }
 };
