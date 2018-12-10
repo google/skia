@@ -1142,7 +1142,9 @@ bytes of <a href='#SkFont_breakText_text'>text</a> that fit, always less than or
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="3cad18678254526be66ef162eecd1d23"><div><a href='undocumented#Line'>Line</a> under "Breakfast" shows desired width, shorter than available characters.
+<a href='undocumented#Line'>Line</a> under "Bre" shows measured width after breaking <a href='#SkFont_breakText_text'>text</a>.
+</div></fiddle-embed></div>
 
 ### See Also
 

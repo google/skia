@@ -5805,10 +5805,10 @@
     "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)"
 },
     "SkFont_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    SkFont font;\n    font.setSize(50);\n    int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,\n            100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
+    "width": 280,
+    "height": 128,
+    "hash": "3cad18678254526be66ef162eecd1d23",
     "file": "SkFont_Reference",
     "name": "SkFont::breakText"
 },
@@ -7372,14 +7372,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint_2"
 },
-    "SkPaint_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    int partialBytes = paint.breakText(str, count, 100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
-    "width": 280,
-    "height": 128,
-    "hash": "fd0033470ccbd5c7059670fdbf96cffc",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::breakText"
-},
     "SkPaint_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    #ifndef SkUserConfig_DEFINED\n    #define SkUserConfig_DEFINED\n    #define SkPaintDefaults_Flags      0x01   // always enable antialiasing\n    #define SkPaintDefaults_TextSize   24.f   // double default font size\n    #define SkPaintDefaults_Hinting    3      // use full hinting\n    #define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting\n    #endif\n}",
     "width": 256,
@@ -7443,14 +7435,6 @@
     "hash": "6b9e101f49e9c2c28755c5bdcef64dfb",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextWidths"
-},
-    "SkPaint_glyphsToUnichars": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello[] = \"Hello!\";\n    const int count = sizeof(hello) - 1;\n    SkGlyphID glyphs[count];\n    if (count != paint.textToGlyphs(hello, count, glyphs)) {\n        return;\n    }\n    SkUnichar unichars[count];\n    paint.glyphsToUnichars(glyphs, count, unichars);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "79c550ec6c34054ab60fbcd1b81adc03",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::glyphsToUnichars"
 },
     "SkPaint_isLinearText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"xxxx xxxx\";\n    for (auto linearText : { false, true } ) {\n        paint.setLinearText(linearText);\n        paint.setTextSize(24);\n        canvas->drawString(paint.isLinearText() ? \"linear\" : \"hinted\", 128, 30, paint);\n        for (SkScalar textSize = 8; textSize < 30; textSize *= 1.22f) {\n            paint.setTextSize(textSize);\n            canvas->translate(0, textSize);\n            canvas->drawString(testStr, 10, 0, paint);\n        }\n    }\n}\n",
