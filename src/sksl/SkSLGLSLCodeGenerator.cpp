@@ -756,15 +756,9 @@ void GLSLCodeGenerator::writeFragCoord() {
         this->write("gl_FragCoord");
     } else {
         if (!fSetupFragPositionLocal) {
-            // Accessing the components of gl_FragCoord cause pretty noticeable performance hits on
-            // the Mali400. Reading from the z component of gl_FragCoord or _sktmpCoord, flipping
-            // the y value after assigning to sk_FragCoord, or not using a temp variable are not as
-            // optimal.
             fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
-            fFunctionHeader += "    vec4 _sktmpCoord = gl_FragCoord;\n";
-            fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
-            fFunctionHeader += "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, " SKSL_RTHEIGHT_NAME
-                               " - _sktmpCoord.y, 0.0, _sktmpCoord.w);\n";
+            fFunctionHeader += "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, " SKSL_RTHEIGHT_NAME
+                               " - gl_FragCoord.y, gl_FragCoord.z, gl_FragCoord.w);\n";
             fSetupFragPositionLocal = true;
         }
         this->write("sk_FragCoord");
