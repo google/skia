@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d132c6a_62f0f2d3",
+        "filename": "src/core/SkScan_Path.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T16:15:33Z",
+      "side": 1,
+      "message": "Maybe use something that bakes the return in, so that we can\u0027t accidentally break up a check/return pair, and to make the good returns look a little more different from the bad returns?  E.g.\n\n #define RETURN_IF_NOT(cond) if (!SkAssertResult(cond)) return\n\nor RETURN_IF, whichever way you think the conditions read better?",
+      "revId": "bb1d688fb2669b8e8152246af16e7460166dadbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a940add2_7a73f6c3",
+        "filename": "src/core/SkScan_Path.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T16:15:33Z",
+      "side": 1,
+      "message": "funky indent?",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 1
+      },
+      "revId": "bb1d688fb2669b8e8152246af16e7460166dadbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
