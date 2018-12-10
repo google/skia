@@ -86,9 +86,66 @@ static void nofilter_scale(const SkBitmapProcState& s,
     }
 }
 
-// Clamp/Clamp and Repeat/Repeat have NEON or portable implementations.
-// TODO: switch SkBitmapProcState_matrix.h to templates instead of #defines and multiple includes?
+// Extract the high four fractional bits from fx, the lerp parameter when filtering.
+static unsigned extract_low_bits_clamp(SkFixed fx, int /*max*/) {
+    // If we're already scaled up to by max like clamp/decal,
+    // just grab the high four fractional bits.
+    return (fx >> 12) & 0xf;
+}
+static unsigned extract_low_bits_repeat_mirror(SkFixed fx, int max) {
+    // In repeat or mirror fx is in [0,1], so scale up by max first.
+    // TODO: remove the +1 here and the -1 at the call sites...
+    return extract_low_bits_clamp((fx & 0xffff) * (max+1), max);
+}
 
+template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
+static void filter_scale(const SkBitmapProcState& s,
+                         uint32_t xy[], int count, int x, int y) {
+    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
+                             SkMatrix::kScale_Mask)) == 0);
+    SkASSERT(s.fInvKy == 0);
+
+    auto pack = [](SkFixed f, unsigned max, SkFixed one) {
+        unsigned i = tile(f, max);
+        i = (i << 4) | extract_low_bits(f, max);
+        return (i << 14) | (tile((f + one), max));
+    };
+
+    const unsigned maxX = s.fPixmap.width() - 1;
+    const SkFractionalInt dx = s.fInvSxFractionalInt;
+    SkFractionalInt fx;
+    {
+        const SkBitmapProcStateAutoMapper mapper(s, x, y);
+        const SkFixed fy = mapper.fixedY();
+        const unsigned maxY = s.fPixmap.height() - 1;
+        // compute our two Y values up front
+        *xy++ = pack(fy, maxY, s.fFilterOneY);
+        // now initialize fx
+        fx = mapper.fractionalIntX();
+    }
+
+    // For historical reasons we check both ends are < maxX rather than <= maxX.
+    // TODO: try changing this?  See also can_truncate_to_fixed_for_decal().
+    if (tryDecal &&
+        (unsigned)SkFractionalIntToInt(fx               ) < maxX &&
+        (unsigned)SkFractionalIntToInt(fx + dx*(count-1)) < maxX) {
+        while (count --> 0) {
+            SkFixed fixedFx = SkFractionalIntToFixed(fx);
+            SkASSERT((fixedFx >> (16 + 14)) == 0);
+            *xy++ = (fixedFx >> 12 << 14) | ((fixedFx >> 16) + 1);
+            fx += dx;
+        }
+        return;
+    }
+
+    while (count --> 0) {
+        SkFixed fixedFx = SkFractionalIntToFixed(fx);
+        *xy++ = pack(fixedFx, maxX, s.fFilterOneX);
+        fx += dx;
+    }
+}
+
+// Clamp/Clamp and Repeat/Repeat have NEON or portable implementations.
 #if defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
 
@@ -286,7 +343,7 @@ static void nofilter_scale(const SkBitmapProcState& s,
     #define TILEY_PROCF_NEON8(l, h, max)    sbpsm_clamp_tile8(l, h, max)
     #define TILEX_PROCF_NEON4(fx, max)      sbpsm_clamp_tile4(fx, max)
     #define TILEY_PROCF_NEON4(fy, max)      sbpsm_clamp_tile4(fy, max)
-    #define EXTRACT_LOW_BITS(v, max)        (((v) >> 12) & 0xF)
+    #define EXTRACT_LOW_BITS                extract_low_bits_clamp
     #define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_clamp_tile4_low_bits(v)
     #define CHECK_FOR_DECAL
     #include "SkBitmapProcState_matrix_neon.h"
@@ -298,7 +355,7 @@ static void nofilter_scale(const SkBitmapProcState& s,
     #define TILEY_PROCF_NEON8(l, h, max)    sbpsm_repeat_tile8(l, h, max)
     #define TILEX_PROCF_NEON4(fx, max)      sbpsm_repeat_tile4(fx, max)
     #define TILEY_PROCF_NEON4(fy, max)      sbpsm_repeat_tile4(fy, max)
-    #define EXTRACT_LOW_BITS(v, max)        ((((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+    #define EXTRACT_LOW_BITS                extract_low_bits_repeat_mirror
     #define EXTRACT_LOW_BITS_NEON4(v, max)  sbpsm_repeat_tile4_low_bits(v, max)
     #include "SkBitmapProcState_matrix_neon.h"
 
@@ -307,15 +364,9 @@ static void nofilter_scale(const SkBitmapProcState& s,
         return SkClampMax(fx >> 16, max);
     }
 
-    #define MAKENAME(suffix)         ClampX_ClampY ## suffix
-    #define TILE_PROCF               clamp
-    #define EXTRACT_LOW_BITS(v, max) (((v) >> 12) & 0xF)
-    #define CHECK_FOR_DECAL
-    #include "SkBitmapProcState_matrix.h"  // will create ClampX_ClampY_filter_scale.
-
     static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
         nofilter_scale<clamp, true>,
-        ClampX_ClampY_filter_scale,
+        filter_scale<clamp, extract_low_bits_clamp, true>,
     };
 
 
@@ -324,14 +375,9 @@ static void nofilter_scale(const SkBitmapProcState& s,
         return SK_USHIFT16((unsigned)(fx & 0xFFFF) * (max + 1));
     }
 
-    #define MAKENAME(suffix)         RepeatX_RepeatY ## suffix
-    #define TILE_PROCF               repeat
-    #define EXTRACT_LOW_BITS(v, max) (((v * (max + 1)) >> 12) & 0xF)
-    #include "SkBitmapProcState_matrix.h"  // will create RepeatX_RepeatY_filter_scale.
-
     static const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
         nofilter_scale<repeat, false>,
-        RepeatX_RepeatY_filter_scale,
+        filter_scale<repeat, extract_low_bits_repeat_mirror, false>,
     };
 #endif
 
@@ -344,14 +390,9 @@ static unsigned mirror(SkFixed fx, int max) {
     return SK_USHIFT16( ((fx ^ s) & 0xFFFF) * (max + 1) );
 }
 
-#define MAKENAME(suffix)         MirrorX_MirrorY ## suffix
-#define TILE_PROCF               mirror
-#define EXTRACT_LOW_BITS(v, max) (((v * (max + 1)) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix.h"  // will create MirrorX_MirrorY_filter_scale.
-
 static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
     nofilter_scale<mirror, false>,
-    MirrorX_MirrorY_filter_scale,
+    filter_scale<mirror, extract_low_bits_repeat_mirror, false>,
 };
 
 
