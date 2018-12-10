@@ -46,6 +46,30 @@
       "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c248779_879fc18f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-10T13:41:24Z",
+      "side": 0,
+      "message": "Ah, so we should call it even if SkImage creation fails?",
+      "parentUuid": "932295d1_2bbc6495",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 55
+      },
+      "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
