@@ -1147,9 +1147,8 @@ DEF_TEST(SkSLFragCoord, r) {
          "uniform float u_skRTHeight;\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    vec4 _sktmpCoord = gl_FragCoord;\n"
-         "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, "
-                 "0.0, _sktmpCoord.w);\n"
+         "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, "
+                 "gl_FragCoord.z, gl_FragCoord.w);\n"
          "    sk_FragColor.xy = sk_FragCoord.xy;\n"
          "}\n",
          &inputs);
