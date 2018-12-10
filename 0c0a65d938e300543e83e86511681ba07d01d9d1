@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cfef6db_8378d900",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-10T16:25:46Z",
+      "side": 1,
+      "message": "Do you know why this is BGR instead of RGB? It looks like I introduced it in https://skia-review.googlesource.com/c/skia/+/149483/, though I don\u0027t remember the details.",
+      "range": {
+        "startLine": 608,
+        "startChar": 12,
+        "endLine": 608,
+        "endChar": 51
+      },
+      "revId": "0c0a65d938e300543e83e86511681ba07d01d9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
