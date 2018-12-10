@@ -269,38 +269,18 @@ public:
 
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
-    /**
-     * Returns true if the GrBackendTexture can be used with the supplied SkColorType. If it is
-     * compatible, the passed in GrPixelConfig will be set to a config that matches the backend
-     * format and requested SkColorType.
-     */
-    virtual bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
-                                        GrPixelConfig*) const = 0;
-    virtual bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
-                                             GrPixelConfig*) const = 0;
-
-    // TODO: replace validateBackendTexture and validateBackendRenderTarget with calls to
-    // getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
-    virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                            GrPixelConfig*) const = 0;
+    // Returns kUnknown if a valid config could not be determined.
+    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
+                                                     SkColorType ct) const = 0;
 
     /**
-     * Special method only for YUVA images. Returns true if the format can be used for a
-     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
-     * the backend texture.
+     * Special method only for YUVA images. Returns a config that matches the backend format or
+     * kUnknown if a config could not be determined.
      */
-    virtual bool getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
-                                                 GrPixelConfig*) const = 0;
+    virtual GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const = 0;
 
-    /**
-     * Special method only for YUVA images. Returns true if the format can be used for a
-     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
-     * the backend format.
-     */
-    virtual bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                                GrPixelConfig*) const = 0;
-
+    /** These are used when creating a new texture internally. */
     virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                             GrSRGBEncoded srgbEncoded) const = 0;
     GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;

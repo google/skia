@@ -393,7 +393,12 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (!ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config)) {
+    GrBackendFormat backendFormat;
+    if (!tex.getBackendFormat(&backendFormat)) {
+        return false;
+    }
+    *config = ctx->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, ct);
+    if (*config == kUnknown_GrPixelConfig) {
         return false;
     }
 
@@ -461,7 +466,12 @@ bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget&
         return false;
     }
 
-    if (!ctx->contextPriv().caps()->validateBackendRenderTarget(rt, ct, config)) {
+    GrBackendFormat backendFormat;
+    if (!rt.getBackendFormat(&backendFormat)) {
+        return false;
+    }
+    *config = ctx->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, ct);
+    if (*config == kUnknown_GrPixelConfig) {
         return false;
     }
 

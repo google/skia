@@ -4230,8 +4230,10 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
 #ifdef SK_DEBUG
     SkColorType skColorType = GrColorTypeToSkColorType(colorType);
     if (skColorType != kUnknown_SkColorType) {
-        SkASSERT(this->caps()->validateBackendRenderTarget(
-                beRT, GrColorTypeToSkColorType(colorType), &config));
+        GrBackendFormat backendFormat;
+        SkASSERT(beRT.getBackendFormat(&backendFormat) &&
+                 this->caps()->getConfigFromBackendFormat(backendFormat, skColorType) !=
+                         kUnknown_GrPixelConfig);
     }
 #endif
     return beRT;

@@ -342,6 +342,38 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
+bool GrBackendTexture::getBackendFormat(GrBackendFormat* format) const {
+    if (!this->isValid()) {
+        return false;
+    }
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+            *format = GrBackendFormat::MakeGL(fGLInfo.fFormat, fGLInfo.fTarget);
+            return true;
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan: {
+            auto info = fVkInfo.snapImageInfo();
+            if (info.fYcbcrConversionInfo.isValid()) {
+                *format = GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+            } else {
+                *format = GrBackendFormat::MakeVk(info.fFormat);
+            }
+            return true;
+        }
+#endif
+        case GrBackendApi::kMock:
+            *format = GrBackendFormat::MakeMock(fMockInfo.fConfig);
+            return true;
+#if defined(SK_METAL) && 0  // We don't currently have the format in GrMtlTextureInfo.
+        case GrBackendApi::kMetal:
+            *format = GrBackendFormat::MakeMtl(...);
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
+
 #if GR_TEST_UTILS
 bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBackendTexture& t1) {
     if (!t0.isValid() || !t1.isValid()) {
@@ -567,6 +599,39 @@ bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outI
         return true;
     }
     return false;
+}
+
+bool GrBackendRenderTarget::getBackendFormat(GrBackendFormat* format) const {
+    if (!this->isValid()) {
+        return false;
+    }
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+            // We don't really have a texture target here, use TEXTURE_2D as a stand-in.
+            *format = GrBackendFormat::MakeGL(fGLInfo.fFormat, GR_GL_TEXTURE_2D);
+            return true;
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan: {
+            auto info = fVkInfo.snapImageInfo();
+            if (info.fYcbcrConversionInfo.isValid()) {
+                *format = GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+            } else {
+                *format = GrBackendFormat::MakeVk(info.fFormat);
+            }
+            return true;
+        }
+#endif
+        case GrBackendApi::kMock:
+            *format = GrBackendFormat::MakeMock(fMockInfo.fConfig);
+            return true;
+#if defined(SK_METAL) && 0  // We don't currently have the format in GrMtlTextureInfo.
+        case GrBackendApi::kMetal:
+            *format = GrBackendFormat::MakeMtl(...);
+            return true;
+#endif
+        default:
+            return false;
+    }
 }
 
 #if GR_TEST_UTILS
