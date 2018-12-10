@@ -77,7 +77,7 @@ public:
     }
 
 protected:
-    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
+    GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
 
     enum CntType {
         kRef_CntType,
@@ -95,7 +95,7 @@ protected:
     bool internalHasUniqueRef() const { return fRefCnt == 1; }
 
 private:
-    friend class GrIORefProxy; // needs to forward on wrapped IO calls
+    friend class GrIORefProxy;  // needs to forward on wrapped IO calls
     // This is for a unit test.
     template <typename T>
     friend void testingOnly_getIORefCnts(const T*, int* refCnt, int* readCnt, int* writeCnt);
@@ -133,7 +133,7 @@ private:
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
-    friend class GrResourceCache; // to check IO ref counts.
+    friend class GrResourceCache;  // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;
 };
@@ -143,7 +143,6 @@ private:
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
-
     /**
      * Tests whether a object has been abandoned or released. All objects will
      * be in this state after their creating GrContext is destroyed or has
@@ -275,11 +274,11 @@ protected:
     GrGpu* getGpu() const { return fGpu; }
 
     /** Overridden to free GPU resources in the backend API. */
-    virtual void onRelease() { }
+    virtual void onRelease() {}
     /** Overridden to abandon any internal handles, ptrs, etc to backend API resources.
         This may be called when the underlying 3D context is no longer valid and so no
         backend API calls should be made. */
-    virtual void onAbandon() { }
+    virtual void onAbandon() {}
 
     /**
      * Allows subclasses to add additional backing information to the SkTraceMemoryDump.
@@ -299,7 +298,6 @@ protected:
     void dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump, const SkString& resourceName,
                                   const char* type, size_t size) const;
 
-
 private:
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
@@ -307,7 +305,7 @@ private:
      * resources and populate the scratchKey with the key.
      * By default resources are not recycled as scratch.
      **/
-    virtual void computeScratchKey(GrScratchKey*) const { }
+    virtual void computeScratchKey(GrScratchKey*) const {}
 
     /**
      * Frees the object in the underlying 3D API. Called by CacheAccess.
@@ -352,7 +350,7 @@ private:
     const UniqueID fUniqueID;
 
     typedef GrIORef<GrGpuResource> INHERITED;
-    friend class GrIORef<GrGpuResource>; // to access notifyAllCntsAreZero and notifyRefCntIsZero.
+    friend class GrIORef<GrGpuResource>;  // to access notifyAllCntsAreZero and notifyRefCntIsZero.
 };
 
 #endif

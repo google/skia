@@ -112,8 +112,7 @@ protected:
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
             , fHeight(desc.fHeight)
-            , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {
-    }
+            , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {}
 
     ~GrSurface() override {}
 
