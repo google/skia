@@ -48,8 +48,14 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             }
             case SkEncodedImageFormat::kWEBP: {
                 SkWebpEncoder::Options opts;
-                opts.fCompression = SkWebpEncoder::Compression::kLossy;
-                opts.fQuality = quality;
+                if (quality == 100) {
+                    opts.fCompression = SkWebpEncoder::Compression::kLossless;
+                    // This value matches blink::ImageEncoder::ComputeWebpOptions
+                    opts.fQuality = 75;
+                } else {
+                    opts.fCompression = SkWebpEncoder::Compression::kLossy;
+                    opts.fQuality = quality;
+                }
                 return SkWebpEncoder::Encode(dst, src, opts);
             }
             default:
