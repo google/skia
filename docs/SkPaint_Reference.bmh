@@ -3286,27 +3286,8 @@ void draw(SkCanvas* canvas) {
 #Line # returns text that fits in a width ##
 #Populate
 
-#Example
-    #Description
-    Line under "Breakfast" shows desired width, shorter than available characters.
-    Line under "Bre" shows measured width after breaking text.
-    ##
-    #Height 128
-    #Width 280
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(50);
-            const char str[] = "Breakfast";
-            const int count = sizeof(str) - 1;
-            canvas->drawText(str, count, 25, 50, paint);
-            SkScalar measuredWidth;
-            int partialBytes = paint.breakText(str, count, 100, &measuredWidth);
-            canvas->drawText(str, partialBytes, 25, 100, paint);
-            canvas->drawLine(25, 60, 25 + 100, 60, paint);
-            canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);
-        }
-    ##
+#NoExample
+##
 
 ##
 
