@@ -22,6 +22,30 @@
       "revId": "55836317b8ec0ba1afe42aabc4a5071d790a7347",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a60f5bb_6d51cd93",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T14:31:47Z",
+      "side": 1,
+      "message": "Duh, done.",
+      "parentUuid": "3310ac04_e45e5b75",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "55836317b8ec0ba1afe42aabc4a5071d790a7347",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
