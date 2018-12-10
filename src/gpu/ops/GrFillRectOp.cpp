@@ -168,6 +168,11 @@ public:
         // Then combine the colors of any additional quads (e.g. from MakeSet)
         for (int i = 1; i < fQuads.count(); ++i) {
             quadColors = GrProcessorAnalysisColor::Combine(quadColors, fQuads[i].color());
+            if (quadColors.isUnknown()) {
+                // No point in accumulating additional starting colors, combining cannot make it
+                // less unknown.
+                break;
+            }
         }
         auto result = fHelper.xpRequiresDstTexture(
                 caps, clip, GrProcessorAnalysisCoverage::kSingleChannel, &quadColors);
