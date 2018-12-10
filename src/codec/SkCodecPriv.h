@@ -21,6 +21,10 @@
     #define SkCodecPrintf(...)
 #endif
 
+// Defined in SkCodec.cpp
+bool sk_select_xform_format(SkColorType colorType, bool forColorTable,
+                            skcms_PixelFormat* outFormat);
+
 // FIXME: Consider sharing with dm, nanbench, and tools.
 static inline float get_scale_from_sample_size(int sampleSize) {
     return 1.0f / ((float) sampleSize);
