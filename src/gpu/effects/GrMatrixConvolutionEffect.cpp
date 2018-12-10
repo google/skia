@@ -125,7 +125,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                             const GrFragmentProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
-    GrSurfaceProxy* proxy = conv.textureSampler(0).proxy();
+    GrTextureProxy* proxy = conv.textureSampler(0).proxy();
     GrTexture* texture = proxy->peekTexture();
 
     float imageIncrement[2];
