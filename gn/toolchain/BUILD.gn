@@ -52,6 +52,10 @@ toolchain("msvc") {
   }
 
   cl_m32_flag = ""
+
+  # Use the Microsoft link tools except when clang_win on a non-Windows host.
+  lib = "\"$bin/lib.exe\""
+  link = "\"$bin/link.exe\""
   if (clang_win != "") {
     if (target_cpu == "x86") {
       # cl.exe knows implicitly by the choice of executable that it's targeting
@@ -59,7 +63,13 @@ toolchain("msvc") {
       # platforms. (All our builders are x86-64, so x86 is always non-host.)
       cl_m32_flag = "-m32"
     }
-    cl = "$clang_win/bin/clang-cl.exe"
+    if (host_os == "win") {
+      cl = "$clang_win/bin/clang-cl.exe"
+    } else {
+      cl = "$clang_win/bin/clang-cl"
+      lib = "$clang_win/bin/lld-link /lib"
+      link = "$clang_win/bin/lld-link"
+    }
   } else {
     cl = "$bin/cl.exe"
   }
@@ -105,7 +115,7 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$env_setup \"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    command = "$env_setup $lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -125,7 +135,7 @@ toolchain("msvc") {
     pdbname = "${dllname}.pdb"
     rspfile = "${dllname}.rsp"
 
-    command = "$env_setup \"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    command = "$env_setup $link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
     outputs = [
       dllname,
       libname,
@@ -154,8 +164,7 @@ toolchain("msvc") {
     pdbname = "$exename.pdb"
     rspfile = "$exename.rsp"
 
-    command = "$env_setup \"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
-
+    command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
     outputs = [
