@@ -48,7 +48,7 @@ toolchain("msvc") {
     env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
   } else if (target_cpu == "arm64") {
     # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-    env_setup = "cmd /C \"set PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
+    env_setup = "cmd /C \"set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
   }
 
   cl_m32_flag = ""

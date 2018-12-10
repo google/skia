@@ -13,6 +13,8 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
+#if 0
+
 class AutoLibraryUnload {
 public:
     AutoLibraryUnload(const char* moduleName) {
@@ -57,12 +59,17 @@ static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
     return getter->getProc(name);
 }
 
+#endif
+
 /*
  * Windows makes the GL funcs all be __stdcall instead of __cdecl :(
  * This implementation will only work if GR_GL_FUNCTION_TYPE is __stdcall.
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
+#if 1
+    return nullptr;
+#else
     if (nullptr == wglGetCurrentContext()) {
         return nullptr;
     }
@@ -85,6 +92,7 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
         return GrGLMakeAssembledGLInterface(&getter, win_get_gl_proc);
     }
     return nullptr;
+#endif
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
