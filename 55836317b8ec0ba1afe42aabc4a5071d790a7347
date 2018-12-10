@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3310ac04_e45e5b75",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-10T14:25:18Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "55836317b8ec0ba1afe42aabc4a5071d790a7347",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
