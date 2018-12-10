@@ -77,6 +77,15 @@ public:
     typedef void(*PromiseDoneProc)(TextureContext textureContext);
 
 protected:
+    // Helper for making a lazy proxy for a promise image. The PromiseDoneProc we be called,
+    // if not null, immediately if this function fails. Othwerwise, it is installed in the
+    // proxy along with the TextureFulfillProc and TextureReleaseProc. PromiseDoneProc must not
+    // be null.
+    static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
+            GrContext*, int width, int height, GrSurfaceOrigin, GrPixelConfig, GrBackendFormat,
+            GrMipMapped, SkImage_GpuBase::TextureFulfillProc, SkImage_GpuBase::TextureReleaseProc,
+            SkImage_GpuBase::PromiseDoneProc, SkImage_GpuBase::TextureContext);
+
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                  const sk_sp<GrTextureProxy> proxies[4],
@@ -116,81 +125,6 @@ private:
     mutable sk_sp<GrReleaseProcHelper> fDoneProcHelper;
 
     typedef GrReleaseProcHelper INHERITED;
-};
-
-/**
- * This helper class manages the ref counting for the the ReleaseProc and DoneProc for promise
- * images. It holds a weak ref on the ReleaseProc (hard refs are owned by GrTextures). The weak ref
- * allows us to reuse an outstanding ReleaseProc (because we dropped our GrTexture but the GrTexture
- * isn't done on the GPU) without needing to call FulfillProc again. It also holds a hard ref on the
- * DoneProc. The idea is that after every flush we may call the ReleaseProc so that the client can
- * free up their GPU memory if they want to. The life time of the DoneProc matches that of any
- * outstanding ReleaseProc as well as the PromiseImageHelper. Thus we won't call the DoneProc until
- * all ReleaseProcs are finished and we are finished with the PromiseImageHelper (i.e. won't call
- * FulfillProc again).
- */
-class SkPromiseImageHelper {
-public:
-    SkPromiseImageHelper()
-        : fFulfillProc(nullptr)
-        , fReleaseProc(nullptr)
-        , fContext(nullptr)
-        , fDoneHelper(nullptr) {
-    }
-
-    void set(SkImage_GpuBase::TextureFulfillProc fulfillProc,
-             SkImage_GpuBase::TextureReleaseProc releaseProc,
-             SkImage_GpuBase::PromiseDoneProc doneProc,
-             SkImage_GpuBase::TextureContext context) {
-        fFulfillProc = fulfillProc;
-        fReleaseProc = releaseProc;
-        fContext = context;
-        fDoneHelper.reset(new GrReleaseProcHelper(doneProc, context));
-    }
-
-    SkPromiseImageHelper(SkImage_GpuBase::TextureFulfillProc fulfillProc,
-                         SkImage_GpuBase::TextureReleaseProc releaseProc,
-                         SkImage_GpuBase::PromiseDoneProc doneProc,
-                         SkImage_GpuBase::TextureContext context)
-        : fFulfillProc(fulfillProc)
-        , fReleaseProc(releaseProc)
-        , fContext(context)
-        , fDoneHelper(new GrReleaseProcHelper(doneProc, context)) {
-    }
-
-    bool isValid() { return SkToBool(fDoneHelper); }
-
-    void reset() {
-        this->resetReleaseHelper();
-        fDoneHelper.reset();
-    }
-
-    sk_sp<GrTexture> getTexture(GrResourceProvider* resourceProvider, GrPixelConfig config);
-
-private:
-    // Weak unrefs fReleaseHelper and sets it to null
-    void resetReleaseHelper() {
-        if (fReleaseHelper) {
-            fReleaseHelper->weak_unref();
-            fReleaseHelper = nullptr;
-        }
-    }
-
-    SkImage_GpuBase::TextureFulfillProc fFulfillProc;
-    SkImage_GpuBase::TextureReleaseProc fReleaseProc;
-    SkImage_GpuBase::TextureContext     fContext;
-
-    // We cache the GrBackendTexture so that if we deleted the GrTexture but the the release proc
-    // has yet not been called (this can happen on Vulkan), then we can create a new texture without
-    // needing to call the fulfill proc again.
-    GrBackendTexture           fBackendTex;
-    // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make sure
-    // we are always pairing fulfill and release proc calls correctly.
-    SkPromiseReleaseProcHelper*  fReleaseHelper = nullptr;
-    // We don't want to call the fDoneHelper until we are done with the PromiseImageHelper and all
-    // ReleaseHelpers are finished. Thus we hold a hard ref here and we will pass a hard ref to each
-    // fReleaseHelper we make.
-    sk_sp<GrReleaseProcHelper> fDoneHelper;
 };
 
 #endif
