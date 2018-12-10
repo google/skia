@@ -155,7 +155,7 @@ private:
         SkASSERT(SkIsAlign4(this->internalSize()));
     }
 
-    friend class TestResource; // For unit test to access kMetaDataCnt.
+    friend class TestResource;  // For unit test to access kMetaDataCnt.
 
     // bmp textures require 5 uint32_t values.
     SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
@@ -218,7 +218,7 @@ public:
     class Builder : public INHERITED::Builder {
     public:
         Builder(GrScratchKey* key, ResourceType type, int data32Count)
-            : INHERITED::Builder(key, type, data32Count) {}
+                : INHERITED::Builder(key, type, data32Count) {}
     };
 };
 
@@ -330,7 +330,7 @@ private:
     name##_once(gr_init_static_unique_key_once, &name##_storage); \
     static const GrUniqueKey& name = *reinterpret_cast<GrUniqueKey*>(name##_storage.get())
 
-static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueKey>* keyStorage) {
+static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUniqueKey>* keyStorage) {
     GrUniqueKey* key = new (keyStorage->get()) GrUniqueKey;
     GrUniqueKey::Builder builder(key, GrUniqueKey::GenerateDomain(), 0);
 }
