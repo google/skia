@@ -27,10 +27,6 @@ public:
         GrGLenum fWrapT = GR_GL_REPEAT;
         GrGLfloat fMinLOD = -1000.f;
         GrGLfloat fMaxLOD = 1000.f;
-        // We always want the border color to be transparent black, so no need to store 4 floats.
-        // Just track if it's been invalidated and no longer the default
-        bool fBorderColorInvalid = false;
-
         void invalidate() {
             fMinFilter = ~0U;
             fMagFilter = ~0U;
@@ -38,7 +34,6 @@ public:
             fWrapT = ~0U;
             fMinLOD = SK_ScalarNaN;
             fMaxLOD = SK_ScalarNaN;
-            fBorderColorInvalid = true;
         }
     };
 

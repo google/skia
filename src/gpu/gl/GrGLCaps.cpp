@@ -235,21 +235,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // lacks TexImage2D support and ANGLE lacks GL ES 3.0 support.
     }
 
-    // GrCaps defaults fClampToBorderSupport to true, so disable when unsupported
-    if (kGL_GrGLStandard == standard) {
-        // Clamp to border added in 1.3
-        if (version < GR_GL_VER(1, 3) && !ctxInfo.hasExtension("GL_ARB_texture_border_clamp")) {
-            fClampToBorderSupport = false;
-        }
-    } else if (kGLES_GrGLStandard == standard) {
-        // GLES didn't have clamp to border until 3.2, but provides several alternative extensions
-        if (version < GR_GL_VER(3, 2) && !ctxInfo.hasExtension("GL_EXT_texture_border_clamp") &&
-            !ctxInfo.hasExtension("GL_NV_texture_border_clamp") &&
-            !ctxInfo.hasExtension("GL_OES_texture_border_clamp")) {
-            fClampToBorderSupport = false;
-        }
-    }
-
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3,3) || ctxInfo.hasExtension("GL_ARB_texture_swizzle")) {
             fTextureSwizzleSupport = true;
