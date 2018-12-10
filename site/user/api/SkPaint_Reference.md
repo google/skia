@@ -153,12 +153,6 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
                      <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length,
                         const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
-    int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
-    int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
-                             const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
-    int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[],
-                              <a href='undocumented#SkScalar'>SkScalar</a> constY, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
                               <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const;
@@ -3870,10 +3864,8 @@ Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#
   </tr>
 </table>
 
-### Example
-
-<div><fiddle-embed name="79c550ec6c34054ab60fbcd1b81adc03"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code <a href='SkPoint_Reference#Point'>points</a>.
-</div></fiddle-embed></div>
+<div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code <a href='SkPoint_Reference#Point'>points</a>.
+</div>
 
 <a name='Measure_Text'></a>
 
@@ -3991,12 +3983,6 @@ Does not scale the advance or bounds by  <a href='#Fake_Bold'>fake bold</a> or <
 ### Return Value
 
 bytes of <a href='#SkPaint_breakText_text'>text</a> that fit, always less than or equal to <a href='#SkPaint_breakText_length'>length</a>
-
-### Example
-
-<div><fiddle-embed name="fd0033470ccbd5c7059670fdbf96cffc"><div><a href='undocumented#Line'>Line</a> under "Breakfast" shows desired width, shorter than available characters.
-<a href='undocumented#Line'>Line</a> under "Bre" shows measured width after breaking <a href='#SkPaint_breakText_text'>text</a>.
-</div></fiddle-embed></div>
 
 <a name='SkPaint_getTextWidths'></a>
 
@@ -4126,153 +4112,6 @@ Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array to position <a href='#S
 <a href='#Paint_Text_Intercepts'>Text_Intercepts</a> describe the intersection of drawn <a href='undocumented#Text'>text</a> <a href='undocumented#Glyph'>Glyphs</a> with a pair
 of <a href='undocumented#Line'>lines</a> parallel to the <a href='undocumented#Text'>text</a> advance. <a href='#Paint_Text_Intercepts'>Text_Intercepts</a> permits creating a
 underline that skips Descenders.
-
-<a name='SkPaint_getTextIntercepts'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                      const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
-</pre>
-
-Returns the number of <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getTextIntercepts_bounds'>bounds</a>.
-<a href='#SkPaint_getTextIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getTextIntercepts_text'>text</a> advance.
-The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
-the <a href='undocumented#String'>string</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getTextIntercepts_x'>x</a>, <a href='#SkPaint_getTextIntercepts_y'>y</a> to position <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a>.
-
-Pass nullptr for <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
-
-<a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> are cached to improve performance for multiple calls.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getTextIntercepts_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextIntercepts_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextIntercepts_x'><code><strong>x</strong></code></a></td>
-    <td>x-axis value of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextIntercepts_y'><code><strong>y</strong></code></a></td>
-    <td>y-axis value of the origin of the <a href='#SkPaint_getTextIntercepts_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>lower and upper <a href='undocumented#Line'>line</a> parallel to the advance</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextIntercepts_intervals'><code><strong>intervals</strong></code></a></td>
-    <td>returned intersections; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of intersections; may be zero
-
-<div>Underline uses intercepts to draw on either side of the <a href='undocumented#Glyph'>glyph</a> Descender.
-</div>
-
-<a name='SkPaint_getPosTextIntercepts'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
-                         const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
-</pre>
-
-Returns the number of <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getPosTextIntercepts_bounds'>bounds</a>.
-<a href='#SkPaint_getPosTextIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getPosTextIntercepts_text'>text</a> advance.
-The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
-the <a href='undocumented#String'>string</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getPosTextIntercepts_pos'>pos</a> array to position <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a>.
-
-Pass nullptr for <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
-
-<a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> are cached to improve performance for multiple calls.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getPosTextIntercepts_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextIntercepts_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getPosTextIntercepts_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextIntercepts_pos'><code><strong>pos</strong></code></a></td>
-    <td>positions of each <a href='undocumented#Glyph'>glyph</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>lower and upper <a href='undocumented#Line'>line</a> parallel to the advance</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextIntercepts_intervals'><code><strong>intervals</strong></code></a></td>
-    <td>returned intersections; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of intersections; may be zero
-
-<div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
-</div>
-
-<a name='SkPaint_getPosTextHIntercepts'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> constY,
-                          const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
-</pre>
-
-Returns the number of <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getPosTextHIntercepts_bounds'>bounds</a>.
-<a href='#SkPaint_getPosTextHIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='#SkPaint_getPosTextHIntercepts_text'>text</a> advance.
-The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
-the <a href='undocumented#String'>string</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextHIntercepts_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses <a href='#SkPaint_getPosTextHIntercepts_xpos'>xpos</a> array, <a href='#SkPaint_getPosTextHIntercepts_constY'>constY</a> to position <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a>.
-
-Pass nullptr for <a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
-
-<a href='#SkPaint_getPosTextHIntercepts_intervals'>intervals</a> are cached to improve performance for multiple calls.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getPosTextHIntercepts_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_xpos'><code><strong>xpos</strong></code></a></td>
-    <td>positions of each <a href='undocumented#Glyph'>glyph</a> on x-axis</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_constY'><code><strong>constY</strong></code></a></td>
-    <td>position of each <a href='undocumented#Glyph'>glyph</a> on y-axis</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>lower and upper <a href='undocumented#Line'>line</a> parallel to the advance</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextHIntercepts_intervals'><code><strong>intervals</strong></code></a></td>
-    <td>returned intersections; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of intersections; may be zero
-
-<div><a href='undocumented#Text'>Text</a> intercepts do not take stroke thickness into consideration.
-</div>
 
 <a name='SkPaint_getTextBlobIntercepts'></a>
 
