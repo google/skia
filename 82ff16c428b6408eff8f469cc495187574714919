@@ -16,6 +16,24 @@
       "revId": "82ff16c428b6408eff8f469cc495187574714919",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac059672_1cdb57c1",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-10T15:35:39Z",
+      "side": 1,
+      "message": "Note that fQuality is interpreted completely differently for kLossless (which will always produce the same image) versus kLossy (which can produce different quality of image as a trade-off with compressed size). So this quality cannot really be compared to one we\u0027d pass to the lossy compressor.\n\nI think the new comment makes this clear. PTAL.",
+      "parentUuid": "27f0e9cb_4b92a86f",
+      "revId": "82ff16c428b6408eff8f469cc495187574714919",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
