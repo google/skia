@@ -19,7 +19,7 @@
 
 class GrTexturePriv;
 
-class GrTexture : virtual public GrSurface {
+class SK_API GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
