@@ -39,6 +39,8 @@ public:
 
     void setToUnknownOpaque() { fFlags = kIsOpaque_Flag; }
 
+    bool isUnknown() const { return SkToBool(fFlags == 0); }
+
     bool isOpaque() const { return SkToBool(kIsOpaque_Flag & fFlags); }
 
     bool isConstant(SkPMColor4f* color = nullptr) const {
