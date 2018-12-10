@@ -3210,7 +3210,9 @@ void draw(SkCanvas* canvas) {
 #Line # converts Glyphs into text ##
 #Populate
 
-#Example
+# crashes fiddle, draws missing characters locally ##
+#Bug 8608
+#NoExample
     #Height 64
     #Description
     Convert UTF-8 text to glyphs; then convert glyphs to Unichar code points.

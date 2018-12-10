@@ -1318,6 +1318,9 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
                             SkPath::Convexity expected) {
     SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
     SkPath::Convexity c = copy.getConvexity();
+    if (c != expected) {
+        SkDebugf("");
+    }
     REPORTER_ASSERT(reporter, c == expected);
 }
 
@@ -1360,7 +1363,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
     line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
     line.close();
-    check_convexity(reporter, line, SkPath::kConvex_Convexity);
+    check_convexity(reporter, line, SkPath::kConcave_Convexity);
     check_direction(reporter, line, SkPathPriv::kUnknown_FirstDirection);
 
     SkPath triLeft;
@@ -1541,8 +1544,8 @@ static void test_convexity(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kCW_FirstDirection));
 
     path.reset();
-    path.quadTo(100, 100, 50, 50); // This is a convex path from GM:convexpaths
-    check_convexity(reporter, path, SkPath::kConvex_Convexity);
+    path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
+    check_convexity(reporter, path, SkPath::kConcave_Convexity);
 
     static const struct {
         const char*                 fPathStr;
@@ -1551,7 +1554,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     } gRec[] = {
         { "", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
-        { "0 0 10 10", SkPath::kConvex_Convexity, SkPathPriv::kUnknown_FirstDirection },
+        { "0 0 10 10", SkPath::kConcave_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0 10 10 20 20 0 0 10 10", SkPath::kConcave_Convexity, SkPathPriv::kUnknown_FirstDirection },
         { "0 0 10 10 10 20", SkPath::kConvex_Convexity, SkPathPriv::kCW_FirstDirection },
         { "0 0 10 10 10 0", SkPath::kConvex_Convexity, SkPathPriv::kCCW_FirstDirection },
@@ -5303,3 +5306,17 @@ DEF_TEST(Path_survive_transform, r) {
     survive(&path, x, false, r, [](const SkPath& p) { return true; });
 }
 
+DEF_TEST(tricky_convex, r) {
+
+  SkPath path;
+  path.moveTo(-1,-1);
+  path.lineTo(0, 0);
+  path.lineTo(0, 0.5e-10f);
+  path.lineTo(0.1e-10f, 1.1e-10f);
+  path.lineTo(1.5e-10f, 1.1e-10f);
+  path.lineTo(1.5e-10f, 2.5e-10f);
+  path.lineTo(0.9f, 1);
+  path.lineTo(-1, 1);
+  path.close();
+  REPORTER_ASSERT(r, !path.isConvex());
+}
