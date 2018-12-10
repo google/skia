@@ -216,7 +216,7 @@ GrVkImage::~GrVkImage() {
     SkASSERT(!fResource);
 }
 
-void GrVkImage::releaseImage(const GrVkGpu* gpu) {
+void GrVkImage::releaseImage(GrVkGpu* gpu) {
     if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
         this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
     }
@@ -238,14 +238,14 @@ void GrVkImage::setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
     fResource->setRelease(std::move(releaseHelper));
 }
 
-void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkImage::Resource::freeGPUData(GrVkGpu* gpu) const {
     SkASSERT(!fReleaseHelper);
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
-void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkImage::BorrowedResource::freeGPUData(GrVkGpu* gpu) const {
     this->invokeReleaseProc();
 }
 
