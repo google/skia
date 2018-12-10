@@ -221,6 +221,16 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
         }
     }
 
+    // Clamp to border is supported on Mac 10.12 and higher (gpu family.version >= 1.2). It is not
+    // supported on iOS.
+    if (this->isMac()) {
+        if (fFamilyGroup == 1 && fVersion < 2) {
+            fClampToBorderSupport = false;
+        }
+    } else {
+        fClampToBorderSupport = false;
+    }
+
     // Starting with the assumption that there isn't a reason to not map small buffers.
     fBufferMapThreshold = 0;
 
