@@ -4231,7 +4231,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h
     SkColorType skColorType = GrColorTypeToSkColorType(colorType);
     if (skColorType != kUnknown_SkColorType) {
         SkASSERT(this->caps()->validateBackendRenderTarget(
-                beRT, GrColorTypeToSkColorType(colorType), &config));
+                         beRT, GrColorTypeToSkColorType(colorType)) != kUnknown_GrPixelConfig);
     }
 #endif
     return beRT;

@@ -146,17 +146,11 @@ public:
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc, GrSurfaceOrigin*,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
-    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
-                                GrPixelConfig*) const override;
-    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
-                                     GrPixelConfig*) const override;
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                              SkColorType) const override;
 
-    bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
-                                    GrPixelConfig*) const override;
-    bool getYUVAConfigFromBackendTexture(const GrBackendTexture&,
-                                         GrPixelConfig*) const override;
-    bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
-                                        GrPixelConfig*) const override;
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;

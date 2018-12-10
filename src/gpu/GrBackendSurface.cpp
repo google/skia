@@ -342,6 +342,38 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
+bool GrBackendTexture::getBackendFormat(GrBackendFormat* format) const {
+    if (!this->isValid()) {
+        return false;
+    }
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+            *format = GrBackendFormat::MakeGL(fGLInfo.fFormat, fGLInfo.fTarget);
+            return true;
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan: {
+            auto info = fVkInfo.snapImageInfo();
+            if (info.fYcbcrConversionInfo.isValid()) {
+                *format = GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+            } else {
+                *format = GrBackendFormat::MakeVk(info.fFormat);
+            }
+            return true;
+        }
+#endif
+#ifdef SK_METAL
+        case GrBackendApi::kMetal:
+            *format = GrBackendFormat::MakeMtl(fMtlFormat);
+            return true;
+#endif
+        case GrBackendApi::kMock:
+            *format = GrBackendFormat::MakeMock(fMockInfo.fConfig);
+            return true;
+        default:
+            return false;
+    }
+}
+
 #if GR_TEST_UTILS
 bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBackendTexture& t1) {
     if (!t0.isValid() || !t1.isValid()) {

@@ -184,6 +184,9 @@ public:
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
 #endif
 
+    // Get the GrBackendFormat for this texture.
+    bool getBackendFormat(GrBackendFormat*) const;
+
     // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
     bool getMockTextureInfo(GrMockTextureInfo*) const;

@@ -274,10 +274,9 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     // Get lazy proxies
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        GrPixelConfig config;
-        bool res = context->contextPriv().caps()->getYUVAConfigFromBackendFormat(
-                yuvaFormats[texIdx], &config);
-        if (!res) {
+        GrPixelConfig config =
+                context->contextPriv().caps()->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
+        if (config == kUnknown_GrPixelConfig) {
             return nullptr;
         }
         proxies[texIdx] = MakePromiseImageLazyProxy(
