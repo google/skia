@@ -70,6 +70,30 @@
       "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831a39d5_e87d59a2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-10T13:41:54Z",
+      "side": 0,
+      "message": "Got it",
+      "parentUuid": "3c248779_879fc18f",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 55
+      },
+      "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
