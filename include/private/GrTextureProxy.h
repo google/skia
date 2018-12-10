@@ -40,6 +40,8 @@ public:
     // been instantiated or not.
     GrMipMapped proxyMipMapped() const { return fMipMapped; }
 
+    GrTextureType textureType() const { return this->backendFormat().textureType(); }
+
     /** If true then the texture does not support MIP maps and only supports clamp wrap mode. */
     bool hasRestrictedSampling() const {
         return GrTextureTypeHasRestrictedSampling(this->textureType());

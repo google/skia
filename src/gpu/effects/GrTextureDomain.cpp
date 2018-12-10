@@ -161,7 +161,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
-                                        GrSurfaceProxy* proxy) {
+                                        GrTextureProxy* proxy) {
     GrTexture* tex = proxy->peekTexture();
     SkASSERT(fHasMode && textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
@@ -291,7 +291,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                        const GrFragmentProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
-            GrSurfaceProxy* proxy = tde.textureSampler(0).proxy();
+            GrTextureProxy* proxy = tde.textureSampler(0).proxy();
 
             fGLDomain.setData(pdman, domain, proxy);
         }
@@ -397,7 +397,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            GrSurfaceProxy* proxy = dstdfp.textureSampler(0).proxy();
+            GrTextureProxy* proxy = dstdfp.textureSampler(0).proxy();
             GrTexture* texture = proxy->peekTexture();
 
             fGLDomain.setData(pdman, dstdfp.fTextureDomain, proxy);

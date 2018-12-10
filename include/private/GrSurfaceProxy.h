@@ -267,8 +267,6 @@ public:
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
-    GrTextureType textureType() const { return fFormat.textureType(); }
-
     class UniqueID {
     public:
         static UniqueID InvalidID() {
