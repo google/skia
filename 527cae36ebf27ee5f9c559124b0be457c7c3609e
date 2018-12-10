@@ -16,6 +16,24 @@
       "revId": "527cae36ebf27ee5f9c559124b0be457c7c3609e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dee383c_61aebaeb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-10T17:26:10Z",
+      "side": 1,
+      "message": "I believe so, too. If you\u0027re interested in trying, you can follow the instructions at https://skia.org/dev/testing/xsan to build MSAN and run\n\n./out/msan/fuzz -b \u003c\"Minimized Testcase\" in the \"Detailed report\" linked to by https://bugs.chromium.org/p/oss-fuzz/issues/detail?id\u003d11780\u003e\n\nwithout the fix (and with skia_use_wuffs \u003d true), MSAN will report some issues.\n\nThat said, once it\u0027s submitted, ClusterFuzz will run it again and notice that it\u0027s fixed.",
+      "parentUuid": "e9d6ee55_09a0b945",
+      "revId": "527cae36ebf27ee5f9c559124b0be457c7c3609e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

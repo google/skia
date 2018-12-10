@@ -16,6 +16,24 @@
       "revId": "b46ca2b0b5d7ac784719dce793c46f7aa632c1dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d277118_9df0cd6f",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-10T17:26:10Z",
+      "side": 1,
+      "message": "Thanks. I\u0027m not aware of any downstream users, atm. I uploaded a CL in Chromium, and I haven\u0027t seen anything in the flutter bug.",
+      "parentUuid": "98b1a721_2d147a14",
+      "revId": "b46ca2b0b5d7ac784719dce793c46f7aa632c1dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
