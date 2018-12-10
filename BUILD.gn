@@ -79,6 +79,8 @@ declare_args() {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else if (is_fuchsia) {
     skia_use_vulkan = fuchsia_use_vulkan
+  } else if (is_win && target_cpu == "arm64") {
+    skia_use_vulkan = false
   } else {
     skia_use_vulkan = (defined(skia_vulkan_sdk) && skia_vulkan_sdk != "") ||
                       (defined(skia_moltenvk_path) && skia_moltenvk_path != "")
