@@ -727,21 +727,8 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
     constexpr auto srcFormat = skcms_PixelFormat_RGB_888;
     skcms_PixelFormat dstFormat;
-    switch (dstInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-            dstFormat = skcms_PixelFormat_RGBA_8888;
-            break;
-        case kBGRA_8888_SkColorType:
-            dstFormat = skcms_PixelFormat_BGRA_8888;
-            break;
-        case kRGBA_F16_SkColorType:
-            dstFormat = skcms_PixelFormat_RGBA_hhhh;
-            break;
-        case kRGB_565_SkColorType:
-            dstFormat = skcms_PixelFormat_RGB_565;
-            break;
-        default:
-            return kInvalidConversion;
+    if (!sk_select_xform_format(dstInfo.colorType(), false, &dstFormat)) {
+        return kInvalidConversion;
     }
 
     const skcms_ICCProfile* const srcProfile = this->getEncodedInfo().profile();
@@ -751,7 +738,6 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         cs->toProfile(&dstProfileStorage);
         dstProfile = &dstProfileStorage;
     }
-
 
     for (int i = 0; i < height; ++i) {
         buffer.fArea = dng_rect(i, 0, i + 1, width);
