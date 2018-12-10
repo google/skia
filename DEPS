@@ -31,7 +31,7 @@ deps = {
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@e9e4393b1c5aad7553c05782acefbe32b42644bd",
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@2661e840833165f119862f3a43bc15743ce82cd5",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
-  "third_party/externals/wuffs"           : "https://github.com/google/wuffs.git@b5c47e273f7f8862bcf04976453d0ec81e6e6650",
+  "third_party/externals/wuffs"           : "https://github.com/google/wuffs.git@f51c71b72cfc3ce3515d1196eb78f0a64c9955ff",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
   "third_party/externals/Nima-Cpp"      : "https://github.com/2d-inc/Nima-Cpp.git@4bd02269d7d1d2e650950411325eafa15defb084",
   "third_party/externals/Nima-Math-Cpp" : "https://github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
