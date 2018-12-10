@@ -115,7 +115,7 @@ public:
          * texture domain. The rectangle is automatically adjusted to account for the texture's
          * origin.
          */
-        void setData(const GrGLSLProgramDataManager&, const GrTextureDomain&, GrSurfaceProxy*);
+        void setData(const GrGLSLProgramDataManager&, const GrTextureDomain&, GrTextureProxy*);
 
         enum {
             kDomainKeyBits = 2, // See DomainKey().
