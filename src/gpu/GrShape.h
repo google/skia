@@ -324,7 +324,7 @@ public:
                                                    SkToBool(fArcData.fUseCenter),
                                                    fStyle.isSimpleFill());
             case Type::kLine:
-                return true;
+                return false;
             case Type::kPath:
                 // SkPath.isConvex() really means "is this path convex were it to be closed" and
                 // thus doesn't give the correct answer for stroked paths, hence we also check
