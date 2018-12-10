@@ -61,6 +61,8 @@ public:
 
     // Returns the number of elements (characters or glyphs) in the array.
     static int CountTextElements(const void* text, size_t byteLength, SkTextEncoding);
+
+    static void GlyphsToUnichars(const SkFont&, const uint16_t glyphs[], int count, SkUnichar[]);
 };
 
 class SkAutoToGlyphs {
