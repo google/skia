@@ -15205,7 +15205,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15341,7 +15341,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15477,7 +15477,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15613,7 +15613,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15749,7 +15749,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -15885,7 +15885,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         },
         {
           "name": "skia/bots/opencl_headers",
@@ -16026,7 +16026,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -16162,7 +16162,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -16299,7 +16299,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -16435,7 +16435,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -16571,7 +16571,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -16707,7 +16707,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
