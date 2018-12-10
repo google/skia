@@ -106,8 +106,10 @@ public:
             SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textRatio,
             PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
+    // TODO: Make this the canonical check for Skia.
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
+
 private:
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
