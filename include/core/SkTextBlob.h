@@ -317,6 +317,9 @@ public:
     const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr);
 
+    // Experimental, RunBuffer.pos points to SkRSXforms
+    const RunBuffer& allocRunRSXform(const SkFont& font, int count);
+
 private:
     const RunBuffer& allocRunText(const SkFont& font,
                                   int count,

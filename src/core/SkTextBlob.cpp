@@ -175,15 +175,21 @@ static_assert(sizeof(PositioningAndExtended) == sizeof(int32_t), "");
 } // namespace
 
 enum SkTextBlob::GlyphPositioning : uint8_t {
-        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
-        kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
-        kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
+    kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
+    kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
+    kFull_Positioning         = 2, // Point positioning -- two scalars per glyph.
+    kRSXform_Positioning      = 3, // Point positioning -- two scalars per glyph.
 };
 
 unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
-    // GlyphPositioning values are directly mapped to scalars-per-glyph.
-    SkASSERT(pos <= 2);
-    return pos;
+    const uint8_t gScalarsPerPositioning[] = {
+        0,  // kDefault_Positioning
+        1,  // kHorizontal_Positioning
+        2,  // kFull_Positioning
+        4,  // kRSXform_Positioning
+    };
+    SkASSERT((unsigned)pos <= 3);
+    return gScalarsPerPositioning[pos];
 }
 
 void SkTextBlob::operator delete(void* p) {
@@ -221,6 +227,8 @@ SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() con
                   kHorizontal_Positioning, "");
     static_assert(static_cast<GlyphPositioning>(SkTextBlob::kFull_Positioning) ==
                   kFull_Positioning, "");
+    static_assert(static_cast<GlyphPositioning>(SkTextBlob::kRSXform_Positioning) ==
+                  kRSXform_Positioning, "");
 
     return SkTo<GlyphPositioning>(fCurrentRun->positioning());
 }
@@ -515,6 +523,12 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPosH(const SkFont
 const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunPos(const SkFont& font, int count,
                                                                    const SkRect* bounds) {
     this->allocInternal(font, SkTextBlob::kFull_Positioning, count, 0, {0, 0}, bounds);
+    return fCurrentRunBuffer;
+}
+
+const SkTextBlobBuilder::RunBuffer&
+SkTextBlobBuilder::allocRunRSXform(const SkFont& font, int count) {
+    this->allocInternal(font, SkTextBlob::kRSXform_Positioning, count, 0, {0, 0}, nullptr);
     return fCurrentRunBuffer;
 }
 
