@@ -47,3 +47,24 @@ DEF_TEST(Unicode_textencodings, reporter) {
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs16, count8 * sizeof(uint16_t)));
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs32, count8 * sizeof(uint16_t)));
 }
+
+#include "SkFont.h"
+#include "SkFontPriv.h"
+
+DEF_TEST(glyphs_to_unichars, reporter) {
+    SkFont font;
+
+    const int N = 52;
+    SkUnichar uni[N];
+    for (int i = 0; i < 26; ++i) {
+        uni[i +  0] = i + 'A';
+        uni[i + 26] = i + 'a';
+    }
+    uint16_t glyphs[N];
+    font.textToGlyphs(uni, sizeof(uni), kUTF32_SkTextEncoding, glyphs, N);
+
+    SkUnichar uni2[N];
+    SkFontPriv::GlyphsToUnichars(font, glyphs, N, uni2);
+    REPORTER_ASSERT(reporter, memcmp(uni, uni2, sizeof(uni)) == 0);
+}
+

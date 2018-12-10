@@ -186,7 +186,7 @@ void SkFont::glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar tex
 
     auto typeface = SkFontPriv::GetTypefaceOrDefault(*this);
     const unsigned numGlyphsInTypeface = typeface->countGlyphs();
-    SkAutoTArray<SkUnichar> unichars(count);
+    SkAutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
     typeface->getGlyphToUnicodeMap(unichars.get());
 
     for (int i = 0; i < count; ++i) {
@@ -558,3 +558,7 @@ int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEnc
     return 0;
 }
 
+void SkFontPriv::GlyphsToUnichars(const SkFont& font, const uint16_t glyphs[], int count,
+                                  SkUnichar uni[]) {
+    font.glyphsToUnichars(glyphs, count, uni);
+}
