@@ -670,6 +670,7 @@
 #define GR_GL_REPEAT                         0x2901
 #define GR_GL_CLAMP_TO_EDGE                  0x812F
 #define GR_GL_MIRRORED_REPEAT                0x8370
+#define GR_GL_CLAMP_TO_BORDER                0x812D
 
 /* Texture Swizzle */
 #define GR_GL_TEXTURE_SWIZZLE_R              0x8E42
