@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f164aff5_b97cb236",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T12:26:07Z",
+      "side": 1,
+      "message": "Can we use $clang_win/bin/lld-link.exe and set up some aliases up here to use lib.exe + link.exe or lld-link[.exe]?",
+      "revId": "63c6a6c330bdc2e780600c82ff22186cfff1f257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
