@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e737e68a_bec2d7fe",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T16:38:58Z",
+      "side": 1,
+      "message": "Should probably get an sk- name now that it\u0027s not internal linkage?",
+      "revId": "0c0a65d938e300543e83e86511681ba07d01d9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3cfef6db_8378d900",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 1
@@ -13,6 +30,30 @@
       "writtenOn": "2018-12-10T16:25:46Z",
       "side": 1,
       "message": "Do you know why this is BGR instead of RGB? It looks like I introduced it in https://skia-review.googlesource.com/c/skia/+/149483/, though I don\u0027t remember the details.",
+      "range": {
+        "startLine": 608,
+        "startChar": 12,
+        "endLine": 608,
+        "endChar": 51
+      },
+      "revId": "0c0a65d938e300543e83e86511681ba07d01d9d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b4d37b5_65489900",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-10T16:38:58Z",
+      "side": 1,
+      "message": "Ah, I think it\u0027s just that when you look at the bits in the pixel, the blue bits are the low bits, the green in the middle, and red are high bits.  There\u0027s some contention about whether that should be called BGR_565 or RGB_565... but I think it\u0027s a little more consistent to think of it as BGR_565 by analogy to BGRA_8888, where blue are the low bits, then green, red higher, and alpha highest.\n\nSo basically, yes, kRGB_565_SkColorType \u003d\u003d skcms_PixelFormat_BGR_565.",
+      "parentUuid": "3cfef6db_8378d900",
       "range": {
         "startLine": 608,
         "startChar": 12,
