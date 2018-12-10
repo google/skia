@@ -19,6 +19,7 @@
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
@@ -101,7 +102,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
 
 #endif
 
-bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+bool SkGlyphRunListPainter::ShouldDrawAsPath(
+        const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -112,9 +114,7 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatri
         return true;
     }
 
-    SkMatrix textM;
-    SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+    return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
 void SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
@@ -173,7 +173,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, deviceMatrix)) {
+        if (ShouldDrawAsPath(paint, glyphRun.font(), deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
@@ -755,8 +755,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                     std::move(perEmpty), std::move(perSDF), std::move(perPath),
                     std::move(argbFallback));
             }
-
-        } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
+        } else if (SkGlyphRunListPainter::ShouldDrawAsPath(
+                glyphRunList.paint(), glyphRun.font(), viewMatrix)) {
             // The glyphs are big, so use paths to draw them.
 
             // Ensure the blob is set for bitmaptext
