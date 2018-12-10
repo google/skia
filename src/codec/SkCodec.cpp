@@ -585,8 +585,8 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
     SkSampler::Fill(fillInfo, fillDst, rowBytes, kNo_ZeroInitialized);
 }
 
-static inline bool select_xform_format(SkColorType colorType, bool forColorTable,
-                                       skcms_PixelFormat* outFormat) {
+bool select_xform_format(SkColorType colorType, bool forColorTable,
+                         skcms_PixelFormat* outFormat) {
     SkASSERT(outFormat);
 
     switch (colorType) {
