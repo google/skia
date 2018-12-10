@@ -10,7 +10,7 @@
 #include "GrMtlGpu.h"
 
 static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
-        GrSamplerState::WrapMode wrapMode) {
+        GrSamplerState::WrapMode wrapMode, const GrCaps& caps) {
     switch (wrapMode) {
         case GrSamplerState::WrapMode::kClamp:
             return MTLSamplerAddressModeClampToEdge;
@@ -18,6 +18,16 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
             return MTLSamplerAddressModeRepeat;
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return MTLSamplerAddressModeMirrorRepeat;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            // Must guard the reference to the clamp to border address mode by macro since iOS
+            // builds will fail if it's referenced, even if other code makes sure it's never used.
+#ifdef SK_BUILD_FOR_IOS
+            SkASSERT(false);
+            return MTLSamplerAddressModeClampToEdge;
+#else
+            SkASSERT(caps.clampToBorderSupport());
+            return MTLSamplerAddressModeClampToBorderColor;
+#endif
     }
     SK_ABORT("Unknown wrap mode.");
     return MTLSamplerAddressModeClampToEdge;
@@ -37,8 +47,10 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
 
     auto samplerDesc = [[MTLSamplerDescriptor alloc] init];
     samplerDesc.rAddressMode = MTLSamplerAddressModeClampToEdge;
-    samplerDesc.sAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeX());
-    samplerDesc.tAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeY());
+    samplerDesc.sAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeX(),
+                                                                gpu->mtlCaps());
+    samplerDesc.tAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeY(),
+                                                                gpu->mtlCaps());
     samplerDesc.magFilter = mtlMinMagFilterModes[static_cast<int>(samplerState.filter())];
     samplerDesc.minFilter = mtlMinMagFilterModes[static_cast<int>(samplerState.filter())];
     samplerDesc.mipFilter = MTLSamplerMipFilterLinear;
