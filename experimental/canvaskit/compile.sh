@@ -80,7 +80,17 @@ if [[ $@ == *no_managed_skottie* ]]; then
   WASM_MANAGED_SKOTTIE="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
 
-HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/canvas2d.js"
+HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
+--pre-js $BASE_DIR/htmlcanvas/util.js \
+--pre-js $BASE_DIR/htmlcanvas/color.js \
+--pre-js $BASE_DIR/htmlcanvas/font.js \
+--pre-js $BASE_DIR/htmlcanvas/canvas2dcontext.js \
+--pre-js $BASE_DIR/htmlcanvas/htmlcanvas.js \
+--pre-js $BASE_DIR/htmlcanvas/imagedata.js \
+--pre-js $BASE_DIR/htmlcanvas/lineargradient.js \
+--pre-js $BASE_DIR/htmlcanvas/pattern.js \
+--pre-js $BASE_DIR/htmlcanvas/radialgradient.js \
+--pre-js $BASE_DIR/htmlcanvas/postamble.js "
 if [[ $@ == *no_canvas* ]]; then
   echo "Omitting bindings for HTML Canvas API"
   HTML_CANVAS_API=""
