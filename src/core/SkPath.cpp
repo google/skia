@@ -2290,14 +2290,16 @@ bool SkPath::isValidImpl() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int sign(SkScalar x1, SkScalar x2) { SkASSERT(x1 != x2); return x2 < x1; }
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
 enum DirChange {
+    kUnknown_DirChange,
     kLeft_DirChange,
     kRight_DirChange,
     kStraight_DirChange,
-    kBackwards_DirChange,
+    kConcave_DirChange,   // if cross on diagonal is too small, assume concave
 
     kInvalid_DirChange
 };
@@ -2317,136 +2319,108 @@ static bool almost_equal(SkScalar compA, SkScalar compB) {
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
 
-static bool approximately_zero_when_compared_to(double x, double y) {
-    return x == 0 || fabs(x) < fabs(y * FLT_EPSILON);
+static DirChange same_sign(SkScalar curr, SkScalar last, SkScalar prior) {
+    return sign(curr, last) == sign(last, prior) ? kStraight_DirChange : kConcave_DirChange;
 }
-
 
 // only valid for a single contour
 struct Convexicator {
-    Convexicator()
-    : fPtCount(0)
-    , fConvexity(SkPath::kConvex_Convexity)
-    , fFirstDirection(SkPathPriv::kUnknown_FirstDirection)
-    , fIsFinite(true)
-    , fIsCurve(false)
-    , fBackwards(false) {
-        fExpectedDir = kInvalid_DirChange;
-        // warnings
-        fPriorPt.set(0,0);
-        fLastPt.set(0, 0);
-        fCurrPt.set(0, 0);
-        fLastVec.set(0, 0);
-        fFirstVec.set(0, 0);
-
-        fDx = fDy = 0;
-        fSx = fSy = kValueNeverReturnedBySign;
-    }
-
-    SkPath::Convexity getConvexity() const { return fConvexity; }
 
     /** The direction returned is only valid if the path is determined convex */
     SkPathPriv::FirstDirection getFirstDirection() const { return fFirstDirection; }
 
-    void addPt(const SkPoint& pt) {
-        if (SkPath::kConcave_Convexity == fConvexity || !fIsFinite) {
-            return;
+    void setMovePt(const SkPoint& pt) {
+        fPriorPt = fLastPt = fCurrPt = pt;
+    }
+
+    bool addPt(const SkPoint& pt) {
+        if (fCurrPt == pt) {
+            return true;
         }
+        fCurrPt = pt;
+        if (fPriorPt == fLastPt) {  // should only be true for first non-zero vector
+            fFirstPt = pt;
+            fCurrAligned = pt.fX == fLastPt.fX || pt.fY == fLastPt.fY;
+        } else if (!this->addVec()) {
+            return false;
+        }
+        fPriorPt = fLastPt;
+        fLastPt = fCurrPt;
+        fLastAligned = fCurrAligned;
+        return true;
+    }
 
-        if (0 == fPtCount) {
-            fCurrPt = pt;
-            ++fPtCount;
-        } else {
-            SkVector vec = pt - fCurrPt;
-            SkScalar lengthSqd = SkPointPriv::LengthSqd(vec);
-            if (!SkScalarIsFinite(lengthSqd)) {
-                fIsFinite = false;
-            } else if (lengthSqd) {
-                fPriorPt = fLastPt;
-                fLastPt = fCurrPt;
-                fCurrPt = pt;
-                if (++fPtCount == 2) {
-                    fFirstVec = fLastVec = vec;
-                } else {
-                    SkASSERT(fPtCount > 2);
-                    this->addVec(vec);
+    bool close() {
+        return this->addPt(fFirstPt);
+    }
+
+    DirChange directionChange() {
+        // if both vectors are axis-aligned, don't do cross product
+        fCurrAligned = fCurrPt.fX == fLastPt.fX || fCurrPt.fY == fLastPt.fY;
+        if (fLastAligned && fCurrAligned) {
+            bool noYChange = fCurrPt.fY == fLastPt.fY && fLastPt.fY == fPriorPt.fY;
+            if (fCurrPt.fX == fLastPt.fX && fLastPt.fX == fPriorPt.fX) {
+                if (noYChange) {
+                    return kStraight_DirChange;
                 }
-
-                int sx = sign(vec.fX);
-                int sy = sign(vec.fY);
-                fDx += (sx != fSx);
-                fDy += (sy != fSy);
-                fSx = sx;
-                fSy = sy;
-
-                if (fDx > 3 || fDy > 3) {
-                    fConvexity = SkPath::kConcave_Convexity;
-                }
+                return same_sign(fCurrPt.fY, fLastPt.fY, fPriorPt.fY);
             }
+            if (!noYChange) { // must be turn to left or right
+                bool flip = fCurrPt.fX != fLastPt.fX;
+                SkASSERT(flip ? fCurrPt.fY == fLastPt.fY &&
+                        fLastPt.fY != fPriorPt.fY && fLastPt.fX == fPriorPt.fX :
+                        fCurrPt.fY != fLastPt.fY &&
+                        fLastPt.fY == fPriorPt.fY && fLastPt.fX != fPriorPt.fX);
+                bool product = flip ? (fCurrPt.fX > fLastPt.fX) != (fLastPt.fY > fPriorPt.fY) :
+                        (fCurrPt.fY > fLastPt.fY) == (fLastPt.fX > fPriorPt.fX);
+                SkDEBUGCODE(SkVector lastV = fLastPt - fPriorPt);
+                SkDEBUGCODE(SkVector curV = fCurrPt - fLastPt);
+                SkDEBUGCODE(SkScalar crossV = SkPoint::CrossProduct(lastV, curV));
+                SkDEBUGCODE(int signV = SkScalarSignAsInt(crossV));
+                SkASSERT(signV == (product ? 1 : -1));
+                return product ? kRight_DirChange : kLeft_DirChange;
+            }
+            return same_sign(fCurrPt.fX, fLastPt.fX, fPriorPt.fX);
         }
-    }
-
-    void close() {
-        if (fPtCount > 2) {
-            this->addVec(fFirstVec);
+        // there are no subtractions above this line; axis aligned paths
+        // are robust and can handle arbitrary values
+        SkVector lastVec = fLastPt - fPriorPt;
+        SkVector curVec = fCurrPt - fLastPt;
+        SkScalar cross = SkPoint::CrossProduct(lastVec, curVec);
+        if (!SkScalarIsFinite(cross)) {
+                return kUnknown_DirChange;
         }
-    }
-
-    DirChange directionChange(const SkVector& curVec) {
-        SkScalar cross = SkPoint::CrossProduct(fLastVec, curVec);
-
         SkScalar smallest = SkTMin(fCurrPt.fX, SkTMin(fCurrPt.fY, SkTMin(fLastPt.fX, fLastPt.fY)));
         SkScalar largest = SkTMax(fCurrPt.fX, SkTMax(fCurrPt.fY, SkTMax(fLastPt.fX, fLastPt.fY)));
         largest = SkTMax(largest, -smallest);
 
-        if (!almost_equal(largest, largest + cross)) {
-            int sign = SkScalarSignAsInt(cross);
-            if (sign) {
-                return (1 == sign) ? kRight_DirChange : kLeft_DirChange;
-            }
+        if (almost_equal(largest, largest + cross)) {
+            // straight diagonals are not allowed; they aren't numerically stable
+            return kConcave_DirChange;
         }
-
-        if (cross) {
-            double dLastVecX = SkScalarToDouble(fLastPt.fX) - SkScalarToDouble(fPriorPt.fX);
-            double dLastVecY = SkScalarToDouble(fLastPt.fY) - SkScalarToDouble(fPriorPt.fY);
-            double dCurrVecX = SkScalarToDouble(fCurrPt.fX) - SkScalarToDouble(fLastPt.fX);
-            double dCurrVecY = SkScalarToDouble(fCurrPt.fY) - SkScalarToDouble(fLastPt.fY);
-            double dCross = dLastVecX * dCurrVecY - dLastVecY * dCurrVecX;
-            if (!approximately_zero_when_compared_to(dCross, SkScalarToDouble(largest))) {
-                int sign = SkScalarSignAsInt(SkDoubleToScalar(dCross));
-                if (sign) {
-                    return (1 == sign) ? kRight_DirChange : kLeft_DirChange;
-                }
-            }
+        int sign = SkScalarSignAsInt(cross);
+        if (sign) {
+            return (1 == sign) ? kRight_DirChange : kLeft_DirChange;
         }
-
-        if (!SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec),
+        if (!SkScalarNearlyZero(SkPointPriv::LengthSqd(lastVec),
                                 SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
-            !SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec),
+                !SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec),
                                 SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
-            fLastVec.dot(curVec) < 0.0f) {
-            return kBackwards_DirChange;
+                lastVec.dot(curVec) < 0.0f) {
+            // if vector goes backwards, give up
+            return kConcave_DirChange;
         }
 
         return kStraight_DirChange;
-    }
-
-    bool hasBackwards() const {
-        return fBackwards;
     }
 
     bool isFinite() const {
         return fIsFinite;
     }
 
-    void setCurve(bool isCurve) {
-        fIsCurve = isCurve;
-    }
-
 private:
-    void addVec(const SkVector& vec) {
-        SkASSERT(vec.fX || vec.fY);
-        DirChange dir = this->directionChange(vec);
+    bool addVec() {
+        DirChange dir = this->directionChange();
         switch (dir) {
             case kLeft_DirChange:       // fall through
             case kRight_DirChange:
@@ -2455,42 +2429,33 @@ private:
                     fFirstDirection = (kRight_DirChange == dir) ? SkPathPriv::kCW_FirstDirection
                                                                 : SkPathPriv::kCCW_FirstDirection;
                 } else if (dir != fExpectedDir) {
-                    fConvexity = SkPath::kConcave_Convexity;
                     fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                    return false;
                 }
-                fLastVec = vec;
                 break;
             case kStraight_DirChange:
                 break;
-            case kBackwards_DirChange:
-                if (fIsCurve) {
-                    // If any of the subsequent dir is non-backward, it'll be concave.
-                    // Otherwise, it's still convex.
-                    fExpectedDir = dir;
-                }
-                fLastVec = vec;
-                fBackwards = true;
-                break;
+            case kConcave_DirChange:
+                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                return false;
+            case kUnknown_DirChange:
+                return (fIsFinite = false);
             case kInvalid_DirChange:
                 SK_ABORT("Use of invalid direction change flag");
                 break;
         }
+        return true;
     }
 
-    SkPoint             fPriorPt;
-    SkPoint             fLastPt;
-    SkPoint             fCurrPt;
-    // fLastVec does not necessarily start at fLastPt. We only advance it when the cross product
-    // value with the current vec is deemed to be of a significant value.
-    SkVector            fLastVec, fFirstVec;
-    int                 fPtCount;   // non-degenerate points
-    DirChange           fExpectedDir;
-    SkPath::Convexity   fConvexity;
-    SkPathPriv::FirstDirection   fFirstDirection;
-    int                 fDx, fDy, fSx, fSy;
-    bool                fIsFinite;
-    bool                fIsCurve;
-    bool                fBackwards;
+    SkPoint             fFirstPt {0, 0};
+    SkPoint             fPriorPt {0, 0};
+    SkPoint             fLastPt {0, 0};
+    SkPoint             fCurrPt {0, 0};
+    DirChange           fExpectedDir { kInvalid_DirChange };
+    SkPathPriv::FirstDirection   fFirstDirection { SkPathPriv::kUnknown_FirstDirection };
+    bool                fIsFinite { true };
+    bool                fLastAligned { true };
+    bool                fCurrAligned { true };
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
@@ -2499,78 +2464,116 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     if (c != kUnknown_Convexity) {
         return c;
     }
-
     SkPoint         pts[4];
     SkPath::Verb    verb;
     SkPath::Iter    iter(*this, true);
+    auto setComputedConvexity = [=](Convexity convexity){
+        SkASSERT(kUnknown_Convexity != convexity);
+        this->setConvexity(convexity);
+        return convexity;
+    };
+
+    // Check to see if path changes direction more than three times as quick concave test
+    int pointCount = fLastMoveToIndex > 0 ? fLastMoveToIndex : this->countPoints();
+    if (pointCount > 3) {
+        const SkPoint* points = fPathRef->points();
+        const SkPoint* last = &points[pointCount];
+        SkPoint currPt;
+        // only consider the last of the initial move tos
+        while (SkPath::kMove_Verb == iter.next(pts, false, false)) {
+            currPt = *points++;
+        }
+        SkPoint firstPt = currPt;
+        int dxes = 0;
+        int dyes = 0;
+        int lastSx = kValueNeverReturnedBySign;
+        int lastSy = kValueNeverReturnedBySign;
+        for (int outerLoop = 0; outerLoop < 2; ++outerLoop ) {
+            while (points != last) {
+                SkVector vec = *points - currPt;
+                if (!vec.isZero()) {
+                    // give up if squaring vector will fail later on
+                    if (fabsf(vec.fX) > 1e19f || fabsf(vec.fY) > 1e19f) {
+                        return SkPath::kUnknown_Convexity;
+                    }
+                    int sx = sign(vec.fX);
+                    int sy = sign(vec.fY);
+                    dxes += (sx != lastSx);
+                    dyes += (sy != lastSy);
+                    if (dxes > 3 || dyes > 3) {
+                        return setComputedConvexity(SkPath::kConcave_Convexity);
+                    }
+                    lastSx = sx;
+                    lastSy = sy;
+                }
+                currPt = *points++;
+                if (outerLoop) {
+                    break;
+                }
+            }
+            points = &firstPt;
+        }
+        iter.setPath(*this, true);
+    }
 
     int             contourCount = 0;
     int             count;
     Convexicator    state;
+    auto setFail = [=](){
+        if (!state.isFinite()) {
+            return SkPath::kUnknown_Convexity;
+        }
+        return setComputedConvexity(SkPath::kConcave_Convexity);
+    };
 
-    if (!isFinite()) {
+    if (!this->isFinite()) {
         return kUnknown_Convexity;
     }
     while ((verb = iter.next(pts, false, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
                 if (++contourCount > 1) {
-                    this->setConvexity(kConcave_Convexity);
-                    return kConcave_Convexity;
+                    return setComputedConvexity(kConcave_Convexity);
                 }
-                pts[1] = pts[0];
-                // fall through
+                state.setMovePt(pts[0]);
+                count = 0;
+                break;
             case kLine_Verb:
                 count = 1;
-                state.setCurve(false);
                 break;
             case kQuad_Verb:
                 // fall through
             case kConic_Verb:
-                // fall through
+                count = 2;
+                break;
             case kCubic_Verb:
-                count = 2 + (kCubic_Verb == verb);
-                // As an additional enhancement, this could set curve true only
-                // if the curve is nonlinear
-                state.setCurve(true);
+                count = 3;
                 break;
             case kClose_Verb:
-                state.setCurve(false);
-                state.close();
+                if (!state.close()) {
+                    return setFail();
+                }
                 count = 0;
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
-                this->setConvexity(kConcave_Convexity);
-                return kConcave_Convexity;
+                return setComputedConvexity(kConcave_Convexity);
         }
-
         for (int i = 1; i <= count; i++) {
-            state.addPt(pts[i]);
-        }
-        // early exit
-        if (!state.isFinite()) {
-            return kUnknown_Convexity;
-        }
-        if (kConcave_Convexity == state.getConvexity()) {
-            this->setConvexity(kConcave_Convexity);
-            return kConcave_Convexity;
+            if (!state.addPt(pts[i])) {
+                return setFail();
+            }
         }
     }
-    this->setConvexity(state.getConvexity());
 
-    if (this->getConvexityOrUnknown() == kConvex_Convexity &&
-            this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
-
+    if (this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
         if (state.getFirstDirection() == SkPathPriv::kUnknown_FirstDirection
-                && !this->getBounds().isEmpty()
-                && !state.hasBackwards()) {
-            this->setConvexity(Convexity::kConcave_Convexity);
-        } else {
-            this->setFirstDirection(state.getFirstDirection());
+                && !this->getBounds().isEmpty()) {
+            return setComputedConvexity(kConcave_Convexity);
         }
+        this->setFirstDirection(state.getFirstDirection());
     }
-    return this->getConvexityOrUnknown();
+    return setComputedConvexity(kConvex_Convexity);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
