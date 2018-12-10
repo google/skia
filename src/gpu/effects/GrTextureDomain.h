@@ -45,7 +45,7 @@ public:
 
     static const GrTextureDomain& IgnoredDomain() {
         static const GrTextureDomain gDomain((GrTextureProxy*)nullptr,
-                                             SkRect::MakeEmpty(), kIgnore_Mode);
+                                             SkRect::MakeEmpty(), kIgnore_Mode, kIgnore_Mode);
         return gDomain;
     }
 
@@ -53,12 +53,13 @@ public:
      * @param index     Pass a value >= 0 if using multiple texture domains in the same effect.
      *                  It is used to keep inserted variables from causing name collisions.
      */
-    GrTextureDomain(GrTextureProxy*, const SkRect& domain, Mode, int index = -1);
+    GrTextureDomain(GrTextureProxy*, const SkRect& domain, Mode modeX, Mode modeY, int index = -1);
 
     GrTextureDomain(const GrTextureDomain&) = default;
 
     const SkRect& domain() const { return fDomain; }
-    Mode mode() const { return fMode; }
+    Mode modeX() const { return fModeX; }
+    Mode modeY() const { return fModeY; }
 
     /* Computes a domain that bounds all the texels in texelRect. Note that with bilerp enabled
        texels neighboring the domain may be read. */
@@ -67,14 +68,26 @@ public:
     }
 
     static const SkRect MakeTexelDomainForMode(const SkIRect& texelRect, Mode mode) {
-        // For Clamp mode, inset by half a texel.
-        SkScalar inset = (mode == kClamp_Mode && !texelRect.isEmpty()) ? SK_ScalarHalf : 0;
-        return SkRect::MakeLTRB(texelRect.fLeft + inset, texelRect.fTop + inset,
-                                texelRect.fRight - inset, texelRect.fBottom - inset);
+        return MakeTexelDomainForModes(texelRect, mode, mode);
+    }
+
+    static const SkRect MakeTexelDomainForModes(const SkIRect& texelRect, Mode modeX, Mode modeY) {
+        // For Clamp and decal modes, inset by half a texel.
+        // FIXME does this actually make sense for Decal and the current implementation?
+        SkScalar insetX = ((modeX == kClamp_Mode || modeX == kDecal_Mode) && texelRect.width() > 0)
+                          ? SK_ScalarHalf : 0;
+        SkScalar insetY = ((modeY == kClamp_Mode || modeY == kDecal_Mode) && texelRect.height() > 0)
+                          ? SK_ScalarHalf : 0;
+        return SkRect::MakeLTRB(texelRect.fLeft + insetX, texelRect.fTop + insetY,
+                                texelRect.fRight - insetX, texelRect.fBottom - insetY);
     }
 
     bool operator==(const GrTextureDomain& that) const {
-        return fMode == that.fMode && (kIgnore_Mode == fMode || fDomain == that.fDomain);
+        return fModeX == that.fModeX && fModeY == that.fModeY &&
+               (kIgnore_Mode == fModeX || (fDomain.fLeft == that.fDomain.fLeft &&
+                                           fDomain.fRight == that.fDomain.fRight)) &&
+               (kIgnore_Mode == fModeY || (fDomain.fTop == that.fDomain.fTop &&
+                                           fDomain.fBottom == that.fDomain.fBottom));
     }
 
     /**
@@ -118,7 +131,8 @@ public:
         void setData(const GrGLSLProgramDataManager&, const GrTextureDomain&, GrSurfaceProxy*);
 
         enum {
-            kDomainKeyBits = 2, // See DomainKey().
+            kModeBits = 2, // See DomainKey().
+            kDomainKeyBits = 4
         };
 
         /**
@@ -126,21 +140,25 @@ public:
          * computed key. The returned will be limited to the lower kDomainKeyBits bits.
          */
         static uint32_t DomainKey(const GrTextureDomain& domain) {
-            GR_STATIC_ASSERT(kModeCount <= (1 << kDomainKeyBits));
-            return domain.mode();
+            GR_STATIC_ASSERT(kModeCount <= (1 << kModeBits));
+            return domain.modeX() | (domain.modeY() << kModeBits);
         }
 
     private:
         static const int kPrevDomainCount = 4;
-        SkDEBUGCODE(Mode                        fMode;)
+        SkDEBUGCODE(Mode                        fModeX;)
+        SkDEBUGCODE(Mode                        fModeY;)
         SkDEBUGCODE(bool                        fHasMode = false;)
         GrGLSLProgramDataManager::UniformHandle fDomainUni;
         SkString                                fDomainName;
+        GrGLSLProgramDataManager::UniformHandle fDomainSizeUni;
+        SkString                                fSizeName;
         float                                   fPrevDomain[kPrevDomainCount];
     };
 
 protected:
-    Mode    fMode;
+    Mode    fModeX;
+    Mode    fModeY;
     SkRect  fDomain;
     int     fIndex;
 };
@@ -153,8 +171,15 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
-                                                     GrTextureDomain::Mode,
+                                                     GrTextureDomain::Mode mode,
                                                      GrSamplerState::Filter filterMode);
+
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+                                                     const SkMatrix&,
+                                                     const SkRect& domain,
+                                                     GrTextureDomain::Mode modeX,
+                                                     GrTextureDomain::Mode modeY,
+                                                     const GrSamplerState& sampler);
 
     const char* name() const override { return "TextureDomain"; }
 
@@ -181,12 +206,14 @@ private:
     GrTextureDomainEffect(sk_sp<GrTextureProxy>,
                           const SkMatrix&,
                           const SkRect& domain,
-                          GrTextureDomain::Mode,
-                          GrSamplerState::Filter);
+                          GrTextureDomain::Mode modeX,
+                          GrTextureDomain::Mode modeY,
+                          const GrSamplerState&);
 
     explicit GrTextureDomainEffect(const GrTextureDomainEffect&);
 
-    static OptimizationFlags OptFlags(GrPixelConfig config, GrTextureDomain::Mode mode);
+    static OptimizationFlags OptFlags(GrPixelConfig config, GrTextureDomain::Mode modeX,
+                                      GrTextureDomain::Mode modeY);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

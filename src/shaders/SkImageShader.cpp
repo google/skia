@@ -187,16 +187,19 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     GrSamplerState::WrapMode wrapModes[] = {tile_mode_to_wrap_mode(fTileModeX),
                                             tile_mode_to_wrap_mode(fTileModeY)};
-    if ((wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder ||
-         wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) &&
-        !args.fContext->contextPriv().caps()->clampToBorderSupport()) {
-        // HW clamp to border is unavailable, so fall back to clamp for now
-        // TODO(michaelludwig): If clamp-to-border is selected but is unsupported, the texture
-        // domain effect could be used to emulate the decal effect.
+
+    // If either domainX or domainY are un-ignored, a texture domain effect has to be used to
+    // implement the decal mode (while leaving non-decal axes alone). The wrap mode originally
+    // clamp-to-border is reset to clamp since the hw cannot implement directly it.
+    GrTextureDomain::Mode domainX = GrTextureDomain::kIgnore_Mode;
+    GrTextureDomain::Mode domainY = GrTextureDomain::kIgnore_Mode;
+    if (!args.fContext->contextPriv().caps()->clampToBorderSupport()) {
         if (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder) {
+            domainX = GrTextureDomain::kDecal_Mode;
             wrapModes[0] = GrSamplerState::WrapMode::kClamp;
         }
         if (wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) {
+            domainY = GrTextureDomain::kDecal_Mode;
             wrapModes[1] = GrSamplerState::WrapMode::kClamp;
         }
     }
@@ -223,10 +226,17 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
     std::unique_ptr<GrFragmentProcessor> inner;
+    SkDebugf("bicubic: %d, domainX: %d, domainY: %d\n", doBicubic, domainX, domainY);
     if (doBicubic) {
         inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes);
     } else {
-        inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
+        if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
+            SkRect domain = GrTextureDomain::MakeTexelDomainForModes(SkIRect::MakeWH(proxy->width(), proxy->height()), domainX, domainY);
+            SkDebugf("Making texture domain effect\n");
+            inner = GrTextureDomainEffect::Make(std::move(proxy), lmInverse, domain, domainX, domainY, samplerState);
+        } else {
+            inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
+        }
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(),
                                           fImage->alphaType(),

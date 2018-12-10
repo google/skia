@@ -449,7 +449,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
         , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
-                  GrTextureDomain::kDecal_Mode)
+                  GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode)
         , fColorSampler(color)
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)

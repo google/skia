@@ -156,9 +156,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcPr
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
         , fCoordTransform(srcProxy.get())
-        , fDomain(srcProxy.get(),
-                  GrTextureDomain::MakeTexelDomainForMode(srcBounds, tileMode),
-                  tileMode)
+        , fDomain(srcProxy.get(), GrTextureDomain::MakeTexelDomainForMode(srcBounds, tileMode),
+                  tileMode, tileMode)
         , fTextureSampler(std::move(srcProxy))
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
