@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN)
+#if 0 && defined(SK_BUILD_FOR_WIN)
 
 #include "SkWGL.h"
 
