@@ -311,12 +311,6 @@ public:
      */
     GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const;
 
-    /**
-     * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
-     * GLES 3.2, but is also available in extensions. Vulkan and Metal always have support.
-     */
-    bool clampToBorderSupport() const { return fClampToBorderSupport; }
-
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
 protected:
@@ -353,7 +347,6 @@ protected:
     bool fMustClearUploadedBufferData                : 1;
     bool fSupportsAHardwareBufferImages              : 1;
     bool fHalfFloatVertexAttributeSupport            : 1;
-    bool fClampToBorderSupport                       : 1;
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;

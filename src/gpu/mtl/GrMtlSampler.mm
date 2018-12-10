@@ -18,8 +18,6 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
             return MTLSamplerAddressModeRepeat;
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return MTLSamplerAddressModeMirrorRepeat;
-        case GrSamplerState::WrapMode::kClampToBorder:
-            return MTLSamplerAddressModeClampToBorderColor;
     }
     SK_ABORT("Unknown wrap mode.");
     return MTLSamplerAddressModeClampToEdge;

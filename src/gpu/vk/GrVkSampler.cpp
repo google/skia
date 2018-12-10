@@ -19,8 +19,6 @@ static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
             return VK_SAMPLER_ADDRESS_MODE_REPEAT;
         case GrSamplerState::WrapMode::kMirrorRepeat:
             return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-        case GrSamplerState::WrapMode::kClampToBorder:
-            return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
     }
     SK_ABORT("Unknown wrap mode.");
     return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
