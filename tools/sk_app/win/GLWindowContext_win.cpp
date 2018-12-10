@@ -17,6 +17,18 @@
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
 
+#if defined(_M_ARM64)
+
+namespace sk_app {
+namespace window_context_factory {
+
+WindowContext* NewGLForWin(HWND, const DisplayParams&) { return nullptr; }
+
+}  // namespace window_context_factory
+}  // namespace sk_app
+
+#else
+
 namespace {
 
 class GLWindowContext_win : public GLWindowContext {
@@ -141,3 +153,5 @@ WindowContext* NewGLForWin(HWND wnd, const DisplayParams& params) {
 
 }  // namespace window_context_factory
 }  // namespace sk_app
+
+#endif

@@ -625,7 +625,9 @@ optional("gpu_for_real") {
     sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
   } else if (is_win) {
     sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
-    libs += [ "OpenGL32.lib" ]
+    if (target_cpu != "arm64") {
+      libs += [ "OpenGL32.lib" ]
+    }
   } else {
     sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
   }
@@ -1416,10 +1418,10 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
     } else if (is_win) {
       sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
-      libs += [
-        "Gdi32.lib",
-        "OpenGL32.lib",
-      ]
+      libs += [ "Gdi32.lib" ]
+      if (target_cpu != "arm64") {
+        libs += [ "OpenGL32.lib" ]
+      }
     }
 
     cflags_objcc = [ "-fobjc-arc" ]
