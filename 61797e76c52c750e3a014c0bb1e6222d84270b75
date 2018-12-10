@@ -94,6 +94,30 @@
       "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c6b2307_f0d38893",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-10T13:42:28Z",
+      "side": 0,
+      "message": "Yes. I suppose you can keep this change as is and just manually call done in all the failures cases.",
+      "parentUuid": "3c248779_879fc18f",
+      "range": {
+        "startLine": 336,
+        "startChar": 0,
+        "endLine": 338,
+        "endChar": 55
+      },
+      "revId": "61797e76c52c750e3a014c0bb1e6222d84270b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
