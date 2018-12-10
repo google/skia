@@ -33,12 +33,12 @@ toolchain("msvc") {
 
   if (msvc == 2015) {
     if (target_cpu == "x86") {
-      bin = "$win_vc\\bin"
+      bin = "$win_vc/bin"
     } else {
-      bin = "$win_vc\\bin\\amd64"
+      bin = "$win_vc/bin/amd64"
     }
   } else {
-    bin = "$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\$target_cpu"
+    bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
   }
 
   env_setup = ""
@@ -48,7 +48,7 @@ toolchain("msvc") {
     env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
   } else if (target_cpu == "arm64") {
     # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-    env_setup = "cmd /C \"set PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
+    env_setup = "cmd /C set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
   }
 
   cl_m32_flag = ""
@@ -65,9 +65,9 @@ toolchain("msvc") {
       lib = "\"$clang_win/bin/lld-link.exe\" /lib"
       link = "\"$clang_win/bin/lld-link.exe\""
     } else {
-      cl = "$clang_win/bin/clang-cl"
-      lib = "$clang_win/bin/lld-link /lib"
-      link = "$clang_win/bin/lld-link"
+      cl = "\"$clang_win/bin/clang-cl\""
+      lib = "\"$clang_win/bin/lld-link\" /lib"
+      link = "\"$clang_win/bin/lld-link\""
     }
   } else {
     cl = "\"$bin/cl.exe\""
