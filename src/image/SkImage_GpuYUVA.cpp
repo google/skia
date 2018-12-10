@@ -21,6 +21,7 @@
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
 #include "SkMipMap.h"
+#include "SkScopeExit.h"
 #include "SkYUVASizeInfo.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
@@ -222,21 +223,21 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        TextureReleaseProc textureReleaseProc,
                                                        PromiseDoneProc promiseDoneProc,
                                                        TextureContext textureContexts[]) {
-    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
-    // even if creation of the SkImage fails.
-    if (!promiseDoneProc) {
-        return nullptr;
-    }
-
     int numTextures;
     bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
 
-    // Set up promise helpers
-    SkPromiseImageHelper promiseHelpers[4];
-    for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        promiseHelpers[texIdx].set(textureFulfillProc, textureReleaseProc, promiseDoneProc,
-                                   textureContexts[texIdx]);
+    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
+    // even if creation of the SkImage fails. Once we call MakePromiseImageLazyProxy it takes
+    // responsibility for calling the done proc.
+    if (!promiseDoneProc) {
+        return nullptr;
     }
+    int proxiesCreated = 0;
+    SkScopeExit callDone([promiseDoneProc, textureContexts, numTextures, &proxiesCreated]() {
+        for (int i = proxiesCreated; i < numTextures; ++i) {
+            promiseDoneProc(textureContexts[i]);
+        }
+    });
 
     if (!valid) {
         return nullptr;
@@ -247,10 +248,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     }
 
     if (imageWidth <= 0 || imageWidth <= 0) {
-        return nullptr;
-    }
-
-    if (!textureFulfillProc || !textureReleaseProc) {
         return nullptr;
     }
 
@@ -275,43 +272,19 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     }
 
     // Get lazy proxies
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        // for each proxy we need to fill in
-        struct {
-            GrPixelConfig fConfig;
-            SkPromiseImageHelper fPromiseHelper;
-        } params;
+        GrPixelConfig config;
         bool res = context->contextPriv().caps()->getYUVAConfigFromBackendFormat(
-                       yuvaFormats[texIdx],
-                       &params.fConfig);
+                yuvaFormats[texIdx], &config);
         if (!res) {
             return nullptr;
         }
-        params.fPromiseHelper = promiseHelpers[texIdx];
-
-        GrProxyProvider::LazyInstantiateCallback lazyInstCallback =
-            [params](GrResourceProvider* resourceProvider) mutable {
-            if (!resourceProvider || !params.fPromiseHelper.isValid()) {
-                if (params.fPromiseHelper.isValid()) {
-                    params.fPromiseHelper.reset();
-                }
-                return sk_sp<GrTexture>();
-            }
-
-            return params.fPromiseHelper.getTexture(resourceProvider, params.fConfig);
-        };
-        GrSurfaceDesc desc;
-        desc.fFlags = kNone_GrSurfaceFlags;
-        desc.fWidth = yuvaSizes[texIdx].width();
-        desc.fHeight = yuvaSizes[texIdx].height();
-        desc.fConfig = params.fConfig;
-        desc.fSampleCnt = 1;
-        proxies[texIdx] = proxyProvider->createLazyProxy(
-                std::move(lazyInstCallback), yuvaFormats[texIdx], desc, imageOrigin,
-                GrMipMapped::kNo, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
-                SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+        proxies[texIdx] = MakePromiseImageLazyProxy(
+                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(), imageOrigin, config,
+                yuvaFormats[texIdx], GrMipMapped::kNo, textureFulfillProc, textureReleaseProc,
+                promiseDoneProc, textureContexts[texIdx]);
+        ++proxiesCreated;
         if (!proxies[texIdx]) {
             return nullptr;
         }

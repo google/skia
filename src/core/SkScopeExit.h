@@ -25,6 +25,8 @@ public:
         }
     }
 
+    void clear() { fFn = {}; }
+
     SkScopeExit& operator=(SkScopeExit&& that) {
         fFn = std::move(that.fFn);
         return *this;
