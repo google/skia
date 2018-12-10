@@ -297,6 +297,22 @@ and supports building and running any of them. It also adjusts syntax highlighti
 of inactive code blocks based on preprocessor definitions from the selected
 solution configuration.
 
+Windows ARM64
+-------------
+
+There is early, experimental support for [Windows 10 on ARM](https://docs.microsoft.com/en-us/windows/arm/).
+This currently requires (a recent version of) MSVC, and the `Visual C++ compilers and libraries for ARM64`
+individual component in the Visual Studio Installer.
+
+To use that toolchain, set the `target_cpu` GN argument to `"arm64"`. Note that OpenGL is not supported
+by Windows 10 on ARM, so Skia's GL backends are stubbed out, and will not work. ANGLE is supported:
+
+    bin/gn gen out/win-arm64 --args='target_cpu="arm64" skia_use_angle=true'
+
+This will produce a build of Skia that can use the software or ANGLE backends, in DM. Viewer only works
+when launched with `--backend angle`, because the software backend tries to use OpenGL to display the
+window contents.
+
 CMake
 -----
 
