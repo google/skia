@@ -8,6 +8,16 @@
 
 #include "gl/GLTestContext.h"
 
+#if defined(_M_ARM64)
+
+namespace sk_gpu_test {
+
+GLTestContext* CreatePlatformGLTestContext(GrGLStandard, GLTestContext*) { return nullptr; }
+
+}  // namespace sk_gpu_test
+
+#else
+
 #include <windows.h>
 #include <GL/GL.h>
 #include "win/SkWGL.h"
@@ -220,3 +230,4 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
 }
 }  // namespace sk_gpu_test
 
+#endif
