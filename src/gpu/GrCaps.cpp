@@ -73,7 +73,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fPreferVRAMUseOverFlushes = true;
 
     // Default to true, allow older versions of OpenGL to disable explicitly
-    fClampToBorderSupport = true;
+    fClampToBorderSupport = false;
 
     fDriverBugWorkarounds = options.fDriverBugWorkarounds;
 }

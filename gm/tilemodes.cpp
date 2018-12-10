@@ -276,6 +276,7 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 715, 560) {
     std::function<void(SkPaint*, SkShader::TileMode, SkShader::TileMode)> shader_procs[] = {
         [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
             paint->setShader(img->makeShader(tx, ty));
+            paint->setFilterQuality(kHigh_SkFilterQuality);
         },
         [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
             SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };

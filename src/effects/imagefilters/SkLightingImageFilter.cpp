@@ -1677,7 +1677,7 @@ static GrTextureDomain create_domain(GrTextureProxy* proxy, const SkIRect* srcBo
                                      GrTextureDomain::Mode mode) {
     if (srcBounds) {
         SkRect texelDomain = GrTextureDomain::MakeTexelDomainForMode(*srcBounds, mode);
-        return GrTextureDomain(proxy, texelDomain, mode);
+        return GrTextureDomain(proxy, texelDomain, mode, mode);
     } else {
         return GrTextureDomain::IgnoredDomain();
     }
