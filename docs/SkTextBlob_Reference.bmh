@@ -96,6 +96,47 @@ for (int index = 0; index < 2; ++index) {
 
 # ------------------------------------------------------------------------------
 
+#Method int getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
+                      const SkPaint* paint = nullptr) const;
+#In Utility
+#Line # returns where lines intersect Text_Blob; underlines ##
+#Populate
+
+#Example
+#Height 143
+    void draw(SkCanvas* canvas) {
+        SkFont font;
+        font.setSize(120);
+        SkPoint textPos = { 20, 110 };
+        int len = 3;
+        SkTextBlobBuilder textBlobBuilder;
+        const SkTextBlobBuilder::RunBuffer& run =
+                textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);
+        run.glyphs[0] = 10;
+        run.glyphs[1] = 20;
+        run.glyphs[2] = 30;
+        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+        SkPaint paint;
+        SkScalar bounds[] = { 116, 134 };
+        int count = blob->getIntercepts(bounds, nullptr);
+        std::vector<SkScalar> intervals;
+        intervals.resize(count);
+        (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());
+        canvas->drawTextBlob(blob.get(), 0, 0, paint);
+        paint.setColor(0xFFFF7777);
+        SkScalar x = textPos.fX;
+        for (int i = 0; i < count; i+= 2) {
+            canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);
+            x = intervals[i + 1];
+        }
+        canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);
+    }
+##
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
                                           SkTextEncoding encoding = kUTF8_SkTextEncoding)
 #In Constructors

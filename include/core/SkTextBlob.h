@@ -60,7 +60,7 @@ public:
 
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
-        @param paint      specifies stroking, patheffect that may affect the result; may be nullptr
+        @param paint      specifies stroking, SkPathEffect that affects the result; may be nullptr
         @return           number of intersections; may be zero
      */
     int getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
