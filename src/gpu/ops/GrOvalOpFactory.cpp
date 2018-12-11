@@ -2968,6 +2968,7 @@ GR_DRAW_OP_TEST_DEFINE(CircleOp) {
         if (op) {
             return op;
         }
+        assert_alive(paint);
     } while (true);
 }
 

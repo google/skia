@@ -631,7 +631,7 @@ void Viewer::initSlides() {
                 fSlides.push_back(
                     sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
                                          std::move(dirSlides)));
-                dirSlides.reset();
+                dirSlides.reset();  // NOLINT(bugprone-use-after-move)
             }
         }
     }

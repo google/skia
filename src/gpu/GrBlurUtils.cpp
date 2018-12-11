@@ -285,6 +285,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
         // left to do.
         return;
     }
+    assert_alive(paint);
 
     // If the path is hairline, ignore inverse fill.
     bool inverseFilled = shape->inverseFilled() &&
@@ -421,6 +422,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
                 // This path is completely drawn
                 return;
             }
+            assert_alive(paint);
         }
     }
 
