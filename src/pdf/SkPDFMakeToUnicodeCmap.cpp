@@ -205,7 +205,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
     append_bfrange_section(bfrangeEntries, multiByteGlyphs, cmap);
 }
 
-sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
+std::unique_ptr<SkStreamAsset> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,
         const SkPDFGlyphUse* subset,
         bool multiByteGlyphs,
@@ -216,6 +216,5 @@ sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
     SkPDFAppendCmapSections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
                             firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);
-    return sk_make_sp<SkPDFStream>(
-            std::unique_ptr<SkStreamAsset>(cmap.detachAsStream()));
+    return cmap.detachAsStream();
 }

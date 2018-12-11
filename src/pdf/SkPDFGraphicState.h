@@ -41,9 +41,7 @@ namespace SkPDFGraphicState {
     sk_sp<SkPDFDict> GetSMaskGraphicState(sk_sp<SkPDFObject> sMask,
                                           bool invert,
                                           SkPDFSMaskMode sMaskMode,
-                                          SkPDFCanon* canon);
-
-    sk_sp<SkPDFStream> MakeInvertFunction();
+                                          SkPDFDocument*);
 }
 
 SK_BEGIN_REQUIRE_DENSE
