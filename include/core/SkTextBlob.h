@@ -51,6 +51,21 @@ public:
     */
     uint32_t uniqueID() const { return fUniqueID; }
 
+    /** Returns the number of intervals that intersect bounds.
+        bounds describes a pair of lines parallel to the text advance.
+        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
+        the the blob.
+
+        Pass nullptr for intervals to determine the size of the interval array.
+
+        @param bounds     lower and upper line parallel to the advance
+        @param intervals  returned intersections; may be nullptr
+        @param paint      specifies stroking, patheffect that may affect the result; may be nullptr
+        @return           number of intersections; may be zero
+     */
+    int getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
+                      const SkPaint* paint = nullptr) const;
+
     /** Creates SkTextBlob with a single run.
 
         font contains attributes used to define the run text.

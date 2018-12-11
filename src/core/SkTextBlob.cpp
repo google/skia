@@ -587,6 +587,15 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
+                              const SkPaint* paint) const {
+    SkPaint defaultPaint;
+    if (!paint) {
+        paint = &defaultPaint;
+    }
+    return paint->getTextBlobIntercepts(this, bounds, intervals);
+}
+
 void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
     buffer.writeRect(blob.fBounds);
 
