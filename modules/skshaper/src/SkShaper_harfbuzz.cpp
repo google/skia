@@ -6,6 +6,7 @@
  */
 
 #include "SkFontArguments.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkLoadICU.h"
 #include "SkMalloc.h"
@@ -22,7 +23,6 @@
 #include "SkTFitsIn.h"
 #include "SkTLazy.h"
 #include "SkTemplates.h"
-#include "SkTextBlobPriv.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
@@ -414,22 +414,27 @@ static constexpr bool is_LTR(UBiDiLevel level) {
     return (level & 1) == 0;
 }
 
-static void append(SkTextBlobBuilder* b, const ShapedRun& run, int start, int end, SkPoint* p) {
+static void handle_line(SkShaper::LineHandler* handler, const ShapedRun& run, int start, int end,
+                        SkPoint* p) {
     unsigned len = end - start;
-    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, run.fFont, len,
-            run.fUtf8End - run.fUtf8Start, SkString());
-    memcpy(runBuffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
+
+    static constexpr size_t kInlineStorage = 256;
+    SkSTArray<kInlineStorage, SkGlyphID, true> glyphs;
+    glyphs.reset(len);
+    SkSTArray<kInlineStorage, SkPoint, true> pos;
+    pos.reset(len);
 
     for (unsigned i = 0; i < len; i++) {
         // Glyphs are in logical order, but output ltr since PDF readers seem to expect that.
         const ShapedGlyph& glyph = run.fGlyphs[is_LTR(run.fLevel) ? start + i : end - 1 - i];
-        runBuffer.glyphs[i] = glyph.fID;
-        runBuffer.clusters[i] = glyph.fCluster;
-        reinterpret_cast<SkPoint*>(runBuffer.pos)[i] =
-                SkPoint::Make(p->fX + glyph.fOffset.fX, p->fY - glyph.fOffset.fY);
+        glyphs[i] = glyph.fID;
+           pos[i] = SkPoint::Make(p->fX + glyph.fOffset.fX, p->fY - glyph.fOffset.fY);
+        // runBuffer.clusters[i] = glyph.fCluster;
         p->fX += glyph.fAdvance.fX;
         p->fY += glyph.fAdvance.fY;
     }
+
+    (*handler)(glyphs.data(), len, pos.data());
 }
 
 struct ShapedRunGlyphIterator {
@@ -516,7 +521,7 @@ bool SkShaper::good() const {
            fImpl->fBreakIterator;
 }
 
-SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
+SkPoint SkShaper::shape(LineHandler* handler,
                         const SkFont& srcPaint,
                         const char* utf8,
                         size_t utf8Bytes,
@@ -524,7 +529,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
                         SkPoint point,
                         SkScalar width) const {
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
-    SkASSERT(builder);
+    SkASSERT(handler);
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
     //hb_script_t script = ...
 
@@ -761,7 +766,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             int endGlyphIndex = (logicalIndex == runIndex)
                               ? glyphIndex + 1
                               : runs[logicalIndex].fNumGlyphs;
-            append(builder, runs[logicalIndex], startGlyphIndex, endGlyphIndex, &currentPoint);
+            handle_line(handler, runs[logicalIndex], startGlyphIndex, endGlyphIndex, &currentPoint);
         }
 
         currentPoint.fY += maxDescent + maxLeading;

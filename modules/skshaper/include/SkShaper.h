@@ -17,8 +17,8 @@ class SkFont;
 class SkTextBlobBuilder;
 
 /**
-   Shapes text using HarfBuzz and places the shaped text into a
-   TextBlob.
+   Shapes text using HarfBuzz and passes the shaped text lines to a
+   user-priveded handler.
 
    If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
  */
@@ -27,8 +27,15 @@ public:
     SkShaper(sk_sp<SkTypeface> face);
     ~SkShaper();
 
+    class LineHandler {
+    public:
+        virtual ~LineHandler() = default;
+
+        virtual void operator()(const SkGlyphID glyphs[], int count, const SkPoint pos[]) = 0;
+    };
+
     bool good() const;
-    SkPoint shape(SkTextBlobBuilder* dest,
+    SkPoint shape(LineHandler* dest,
                   const SkFont& srcPaint,
                   const char* utf8text,
                   size_t textBytes,
