@@ -496,6 +496,7 @@ private:
 
     friend class SkCanonicalizeFont;
     friend class SkFontPriv;
+    friend class SkGlyphRunListPainter;
     friend class SkPaint;
     friend class SVGTextBuilder;
 };

@@ -159,29 +159,29 @@ static SkMask create_mask(const SkGlyph& glyph, SkPoint position, const void* im
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         const BitmapDevicePainter* bitmapDevice) {
+    const SkPaint& runPaint = glyphRunList.paint();
+    // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
+    // convert the lcd text into A8 text. The props communicates this to the scaler.
+    auto& props = (kN32_SkColorType == fColorType && runPaint.isSrcOver())
+                  ? fDeviceProps
+                  : fBitmapFallbackProps;
 
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
-        // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
-        // convert the lcd text into A8 text. The props communicates this to the scaler.
-        auto& props = (kN32_SkColorType == fColorType && glyphRunList.paint().isSrcOver())
-                      ? fDeviceProps
-                      : fBitmapFallbackProps;
-
-        SkPaint paint{glyphRunList.paint()};
-        glyphRun.font().LEGACY_applyToPaint(&paint);
+        const SkFont& runFont = glyphRun.font();
         auto runSize = glyphRun.runSize();
         this->ensureBitmapBuffers(runSize);
 
-        if (ShouldDrawAsPath(paint, glyphRun.font(), deviceMatrix)) {
+        if (ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
                     fPositions, glyphRun.positions().data(), runSize);
             // setup our std pathPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(paint);
-            SkScalar textScale = pathPaint.setupForAsPaths();
+            SkPaint pathPaint(runPaint);
+            SkFont  pathFont{runFont};
+            SkScalar textScale = pathFont.setupForAsPaths(&pathPaint);
 
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                SkFont::LEGACY_ExtractFromPaint(pathPaint), pathPaint, props,
+                                pathFont, pathPaint, props,
                                 fScalerContextFlags, SkMatrix::I());
 
             SkTDArray<PathAndPos> pathsAndPositions;
@@ -200,13 +200,19 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                 }
             }
 
+            // The paint we draw paths with must have the same anti-aliasing state as the runFont
+            // allowing the paths to have the same edging as the glyph masks.
+            pathPaint = runPaint;
+            bool isAntiAlias = runFont.getEdging() == SkFont::Edging::kAntiAlias
+                            || runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias;
+            pathPaint.setAntiAlias(isAntiAlias);
+
             bitmapDevice->paintPaths(
                     SkSpan<const PathAndPos>{pathsAndPositions.begin(), pathsAndPositions.size()},
-                    textScale,
-                    paint);
+                    textScale, pathPaint);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                                        SkFont::LEGACY_ExtractFromPaint(paint), paint, props,
+                                        runFont, runPaint, props,
                                         fScalerContextFlags, deviceMatrix);
 
             // Add rounding and origin.
@@ -229,7 +235,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     }
                 }
             }
-            bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, paint);
+            bitmapDevice->paintMasks(SkSpan<const SkMask>{masks.begin(), masks.size()}, runPaint);
         }
     }
 }
