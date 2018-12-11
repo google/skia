@@ -619,6 +619,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
             return;
         }
     }
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(rect, *style));
 }
 
@@ -923,6 +924,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
                                        std::move(paint));
         }
         if (!op) {
+            assert_alive(paint);
             op = GrOvalOpFactory::MakeRRectOp(fContext, std::move(paint), viewMatrix, rrect, stroke,
                                               this->caps()->shaderCaps());
         }
@@ -933,6 +935,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
         }
     }
 
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(*clip, std::move(paint), aa, viewMatrix,
                                      GrShape(rrect, style));
 }
@@ -1175,6 +1178,7 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
                 this->addDrawOp(clip, std::move(op));
                 return true;
             }
+            assert_alive(paint);
         }
     }
 
@@ -1246,6 +1250,7 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     if (this->drawFilledDRRect(clip, std::move(paint), aa, viewMatrix, outer, inner)) {
         return;
     }
+    assert_alive(paint);
 
     SkPath path;
     path.setIsVolatile(true);
@@ -1333,6 +1338,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
                                        std::move(paint));
         }
         if (!op) {
+            assert_alive(paint);
             op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
                                              this->caps()->shaderCaps());
         }
@@ -1342,6 +1348,7 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
         }
     }
 
+    assert_alive(paint);
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,
             GrShape(SkRRect::MakeOval(oval), SkPath::kCW_Direction, 2, false, style));
@@ -1379,6 +1386,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
             this->addDrawOp(clip, std::move(op));
             return;
         }
+        assert_alive(paint);
     }
     this->drawShapeUsingPathRenderer(
             clip, std::move(paint), aa, viewMatrix,

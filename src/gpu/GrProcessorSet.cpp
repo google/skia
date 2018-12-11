@@ -39,6 +39,7 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
         fColorFragmentProcessorCnt = 0;
     }
+    SkDEBUGCODE(paint.fAlive = false;)
 }
 
 GrProcessorSet::GrProcessorSet(SkBlendMode mode)
