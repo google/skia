@@ -107,6 +107,11 @@ sk_sp<SkImage> alpha_image_to_greyscale_image(const SkImage* mask) {
     return SkImage::MakeFromBitmap(greyBitmap);
 }
 
+static int add_resource(SkTHashSet<SkPDFIndirectReference>& resources, SkPDFIndirectReference ref) {
+    resources.add(ref);
+    return ref.fValue;
+}
+
 static void draw_points(SkCanvas::PointMode mode,
                         size_t count,
                         const SkPoint* points,
@@ -497,9 +502,9 @@ void SkPDFDevice::reset() {
     fLinkToURLs = std::vector<RectWithData>();
     fLinkToDestinations = std::vector<RectWithData>();
     fNamedDestinations = std::vector<NamedDestination>();
-    fGraphicStateResources = std::vector<sk_sp<SkPDFObject>>();
-    fXObjectResources = std::vector<sk_sp<SkPDFObject>>();
-    fShaderResources = std::vector<sk_sp<SkPDFObject>>();
+    fGraphicStateResources.reset();
+    fXObjectResources.reset();
+    fShaderResources.reset();
     fFontResources.reset();
     fContent.reset();
     fActiveStackState = GraphicStackState();
@@ -798,14 +803,15 @@ static int find_or_add(std::vector<sk_sp<T>>* vec, sk_sp<U> object) {
 }
 
 void SkPDFDevice::setGraphicState(sk_sp<SkPDFObject> gs, SkDynamicMemoryWStream* content) {
-    SkPDFUtils::ApplyGraphicState(find_or_add(&fGraphicStateResources, std::move(gs)), content);
+    SkPDFUtils::ApplyGraphicState(add_resource(fGraphicStateResources, fDocument->serialize(gs)),
+                                  content);
 }
 
 void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
                                        SkDynamicMemoryWStream* contentStream) {
     this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
-            maskDevice->makeFormXObjectFromDevice(true), false,
-            SkPDFGraphicState::kLuminosity_SMaskMode, this->getCanon()), contentStream);
+            SkPDFObj::Make(maskDevice->makeFormXObjectFromDevice(true)), false,
+            SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), contentStream);
 }
 
 void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream) {
@@ -1240,12 +1246,10 @@ void SkPDFDevice::internalDrawGlyphRun(
                     // Not yet specified font or need to switch font.
                     font = SkPDFFont::GetFontResource(fDocument, glyphCache.get(), typeface, gid);
                     SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
-                    SkPDFIndirectReference ref = font->indirectReference();
-                    fFontResources.add(ref);
-
                     glyphPositioner.flush();
                     glyphPositioner.setWideChars(font->multiByteGlyphs());
-                    SkPDFWriteResourceName(out, SkPDFResourceType::kFont, ref.fValue);
+                    SkPDFWriteResourceName(out, SkPDFResourceType::kFont,
+                                           add_resource(fFontResources, font->indirectReference()));
                     out->writeText(" ");
                     SkPDFUtils::AppendScalar(textSize, out);
                     out->writeText(" Tf\n");
@@ -1277,7 +1281,7 @@ void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int,
 
 void SkPDFDevice::drawFormXObject(sk_sp<SkPDFObject> xObject, SkDynamicMemoryWStream* content) {
     SkPDFWriteResourceName(content, SkPDFResourceType::kXObject,
-                           find_or_add(&fXObjectResources, std::move(xObject)));
+                           add_resource(fXObjectResources, fDocument->serialize(xObject)));
     content->writeText(" Do\n");
 }
 
@@ -1328,25 +1332,27 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
     if (!content.needSource()) {
         return;
     }
-    this->drawFormXObject(pdfDevice->makeFormXObjectFromDevice(), content.stream());
+    this->drawFormXObject(SkPDFObj::Make(pdfDevice->makeFormXObjectFromDevice()), content.stream());
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     return SkSurface::MakeRaster(info, &props);
 }
 
+static std::vector<SkPDFIndirectReference> sort(const SkTHashSet<SkPDFIndirectReference>& src) {
+    std::vector<SkPDFIndirectReference> dst;
+    dst.reserve(src.count());
+    src.foreach([&dst](SkPDFIndirectReference ref) { dst.push_back(ref); } );
+    std::sort(dst.begin(), dst.end(),
+            [](SkPDFIndirectReference a, SkPDFIndirectReference b) { return a.fValue < b.fValue; });
+    return dst;
+}
 
 sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() {
-    std::vector<SkPDFIndirectReference> fonts;
-    fonts.reserve(fFontResources.count());
-    fFontResources.foreach([&fonts](SkPDFIndirectReference ref) { fonts.push_back(ref); } );
-    fFontResources.reset();
-    std::sort(fonts.begin(), fonts.end(),
-            [](SkPDFIndirectReference a, SkPDFIndirectReference b) { return a.fValue < b.fValue; });
-    return SkPDFMakeResourceDict(std::move(fGraphicStateResources),
-                                 std::move(fShaderResources),
-                                 std::move(fXObjectResources),
-                                 std::move(fonts));
+    return SkPDFMakeResourceDict(sort(fGraphicStateResources),
+                                 sort(fShaderResources),
+                                 sort(fXObjectResources),
+                                 sort(fFontResources));
 }
 
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() {
@@ -1472,7 +1478,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     }
 }
 
-sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
+SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();
     if (!fInitialTransform.isIdentity()) {
         if (!fInitialTransform.invert(&inverseTransform)) {
@@ -1482,8 +1488,8 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     }
     const char* colorSpace = alpha ? "DeviceGray" : nullptr;
 
-    sk_sp<SkPDFObject> xobject =
-        SkPDFMakeFormXObject(this->content(),
+    SkPDFIndirectReference xobject =
+        SkPDFMakeFormXObject(fDocument, this->content(),
                              SkPDFMakeArray(0, 0, this->width(), this->height()),
                              this->makeResourceDict(), inverseTransform, colorSpace);
     // We always draw the form xobjects that we create back into the device, so
@@ -1505,7 +1511,7 @@ void SkPDFDevice::drawFormXObjectWithMask(sk_sp<SkPDFObject> xObject,
     }
     this->setGraphicState(SkPDFGraphicState::GetSMaskGraphicState(
             std::move(mask), invertClip, SkPDFGraphicState::kAlpha_SMaskMode,
-            fDocument->canon()), content.stream());
+            fDocument), content.stream());
     this->drawFormXObject(std::move(xObject), content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
@@ -1532,7 +1538,7 @@ SkDynamicMemoryWStream* SkPDFDevice::setUpContentEntry(const SkClipStack* clipSt
     // separately, so make an object of what's already there.
     if (!treat_as_regular_pdf_blend_mode(blendMode) && blendMode != SkBlendMode::kDstOver) {
         if (!isContentEmpty()) {
-            *dst = this->makeFormXObjectFromDevice();
+            *dst = SkPDFObj::Make(this->makeFormXObjectFromDevice());
             SkASSERT(isContentEmpty());
         } else if (blendMode != SkBlendMode::kSrc &&
                    blendMode != SkBlendMode::kSrcOut) {
@@ -1634,7 +1640,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             blendMode = SkBlendMode::kClear;
         }
     } else {
-        srcFormXObject = this->makeFormXObjectFromDevice();
+        srcFormXObject = SkPDFObj::Make(this->makeFormXObjectFromDevice());
     }
 
     // TODO(vandebo) srcFormXObject may contain alpha, but here we want it
@@ -1655,7 +1661,7 @@ void SkPDFDevice::finishContentEntry(const SkClipStack* clipStack,
             SkPDFDevice shapeDev(this->size(), fDocument, fInitialTransform);
             shapeDev.internalDrawPath(clipStack ? *clipStack : empty,
                                       SkMatrix::I(), *shape, filledPaint, true);
-            this->drawFormXObjectWithMask(dst, shapeDev.makeFormXObjectFromDevice(),
+            this->drawFormXObjectWithMask(dst, SkPDFObj::Make(shapeDev.makeFormXObjectFromDevice()),
                                           SkBlendMode::kSrcOver, true);
         } else {
             this->drawFormXObjectWithMask(dst, srcFormXObject, SkBlendMode::kSrcOver, true);
@@ -1763,7 +1769,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
             if (pdfShader) {
                 // pdfShader has been canonicalized so we can directly compare pointers.
-                entry->fShaderIndex = find_or_add(&fShaderResources, std::move(pdfShader));
+                entry->fShaderIndex =
+                    add_resource(fShaderResources, fDocument->serialize(pdfShader));
             }
         }
     }
@@ -1776,7 +1783,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         newPaint.setColor4f(color, nullptr);
         newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), newPaint);
     }
-    entry->fGraphicStateIndex = find_or_add(&fGraphicStateResources, std::move(newGraphicState));
+    entry->fGraphicStateIndex =
+        add_resource(fGraphicStateResources, fDocument->serialize(std::move(newGraphicState)));
 
     if (hasText) {
         entry->fTextScaleX = paint.getTextScaleX();
@@ -1813,15 +1821,6 @@ static bool is_integral(const SkRect& r) {
            is_integer(r.right()) &&
            is_integer(r.bottom());
 }
-
-namespace {
-// This struct will go away when fIndirectReference goes away.
-struct PDFObj final : public SkPDFObject {
-    PDFObj(SkPDFIndirectReference ref) { fIndirectReference = ref; }
-    // emitObject() is never called since the Object already has a indirect ref.
-    void emitObject(SkWStream*) const override { SK_ABORT("DO NOT REACH HERE"); }
-};
-} // namespace
 
 void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                         const SkRect* src,
@@ -2053,7 +2052,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         auto ref = SkPDFSerializeImage(imageSubset.image().get(), fDocument,
                                        fDocument->metadata().fEncodingQuality);
         SkASSERT(ref.fValue > 0);
-        pdfimage = sk_make_sp<PDFObj>(ref);
+        pdfimage = SkPDFObj::Make(ref);
         SkASSERT((key != SkBitmapKey{{0, 0, 0, 0}, 0}));
         fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
     }

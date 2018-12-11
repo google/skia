@@ -8,10 +8,11 @@
 #define SkPDFDocumentPriv_DEFINED
 
 #include "SkCanvas.h"
-#include "SkPDFDocument.h"
 #include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFMetadata.h"
+#include "SkUUID.h"
 
 class SkPDFDevice;
 class SkPDFTag;
@@ -33,7 +34,6 @@ struct SkPDFOffsetMap {
 struct SkPDFObjectSerializer {
     int fNextObjectNumber = 1;
     SkPDFOffsetMap fOffsets;
-    sk_sp<SkPDFObject> fInfoDict;
     size_t fBaseOffset = SIZE_MAX;
 
     SkPDFObjectSerializer();
@@ -45,9 +45,12 @@ struct SkPDFObjectSerializer {
 
     SkWStream* beginObject(SkPDFIndirectReference, SkWStream*);
     void endObject(SkWStream*);
-    void serializeHeader(SkWStream*, const SkPDF::Metadata&);
+    void serializeHeader(SkWStream*);
     void serializeObject(const sk_sp<SkPDFObject>&, SkWStream*);
-    void serializeFooter(SkWStream*, const sk_sp<SkPDFObject>, sk_sp<SkPDFObject>);
+    void serializeFooter(SkWStream*,
+                         SkPDFIndirectReference infoDict,
+                         SkPDFIndirectReference docCatalog,
+                         SkUUID uuid);
     SkPDFFileOffset offset(SkWStream*);
 };
 
@@ -95,8 +98,9 @@ private:
     std::vector<sk_sp<SkPDFDict>> fPages;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
-    sk_sp<SkPDFObject> fID;
-    sk_sp<SkPDFObject> fXMP;
+    SkUUID fUUID;
+    SkPDFIndirectReference fInfoDict;
+    SkPDFIndirectReference fXMP;
     SkPDF::Metadata fMetadata;
     SkScalar fRasterScale = 1;
     SkScalar fInverseRasterScale = 1;
