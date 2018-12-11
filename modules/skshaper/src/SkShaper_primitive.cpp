@@ -7,8 +7,10 @@
 
 #include "SkShaper.h"
 
+#include "SkFont.h"
+#include "SkFontMetrics.h"
 #include "SkStream.h"
-#include "SkTextBlob.h"
+#include "SkTArray.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 
@@ -32,7 +34,7 @@ unsigned utf8_lead_byte_to_count(const char* ptr) {
     return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
 }
 
-SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
+SkPoint SkShaper::shape(LineHandler* handler,
                         const SkFont& srcFont,
                         const char* utf8text,
                         size_t textBytes,
@@ -40,6 +42,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
                         SkPoint point,
                         SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
+    sk_ignore_unused_variable(width);
 
     SkFont font(srcFont);
     font.setTypeface(fImpl->fTypeface);
@@ -47,32 +50,31 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
     if (glyphCount <= 0) {
         return point;
     }
-    SkRect bounds;
-    SkFontMetrics metrics;
-    font.getMetrics(&metrics);
-    point.fY -= metrics.fAscent;
-    (void)font.measureText(utf8text, textBytes, SkTextEncoding::kUTF8, &bounds);
-    const SkTextBlobBuilder::RunBuffer& runBuffer =
-        builder->allocRunTextPosH(font, glyphCount, point.y(), textBytes, SkString(), &bounds);
-    memcpy(runBuffer.utf8text, utf8text, textBytes);
+
+    static constexpr size_t kInlineStorage = 256;
+    SkSTArray<kInlineStorage, SkGlyphID, true> glyphs;
+    glyphs.reset(glyphCount);
+    SkAssertResult(font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8,
+                                     glyphs.data(), glyphCount) == glyphCount);
+
+    SkSTArray<kInlineStorage, SkPoint, true> pos;
+    pos.reset(glyphCount);
+    font.getPos(glyphs.data(), glyphCount, pos.data(), point);
+
+    SkSTArray<kInlineStorage, uint32_t, true> clusters;
+    clusters.reset(glyphCount);
     const char* txtPtr = utf8text;
     for (int i = 0; i < glyphCount; ++i) {
         // Each charater maps to exactly one glyph via SkGlyphCache::unicharToGlyph().
-        runBuffer.clusters[i] = SkToU32(txtPtr - utf8text);
+        clusters[i] = SkToU32(txtPtr - utf8text);
         txtPtr += utf8_lead_byte_to_count(txtPtr);
         SkASSERT(txtPtr <= utf8text + textBytes);
     }
-    (void)font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8,
-                            runBuffer.glyphs, glyphCount);
-    // replace with getPos()?
-    (void)font.getWidths(runBuffer.glyphs, glyphCount, runBuffer.pos);
-    SkScalar x = point.x();
-    for (int i = 0; i < glyphCount; ++i) {
-        SkScalar w = runBuffer.pos[i];
-        runBuffer.pos[i] = x;
-        x += w;
-    }
-    point.fY += metrics.fDescent + metrics.fLeading;
 
-    return point;
+    (*handler)(glyphs.data(), pos.data(), clusters.data(), glyphCount);
+
+    SkFontMetrics metrics;
+    font.getMetrics(&metrics);
+
+    return { point.x(), point.y() - metrics.fAscent + metrics.fDescent + metrics.fLeading };
 }

@@ -139,11 +139,29 @@ public:
     }
 
     void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
-        SkTextBlobBuilder textBlobBuilder;
-        SkPoint endPoint = shaper.shape(&textBlobBuilder, font, text, textBytes, true,
+        class BlobLineHandler final : public SkShaper::LineHandler {
+        public:
+            explicit BlobLineHandler(SkFont font) : fFont(font) {}
+
+            void operator()(const SkGlyphID glyphs[], const SkPoint pos[],
+                            const uint32_t clusters[], int count) override {
+                const auto& run = fBuilder.allocRunPos(fFont, count);
+                memcpy(run.glyphs, glyphs, count * sizeof(SkGlyphID));
+                memcpy(run.pos, pos, count * sizeof(SkPoint));
+            }
+
+            sk_sp<SkTextBlob> makeBlob() { return fBuilder.make(); }
+
+        private:
+            SkFont            fFont;
+            SkTextBlobBuilder fBuilder;
+        };
+
+        BlobLineHandler handler(font);
+        SkPoint endPoint = shaper.shape(&handler, font, text, textBytes, true,
                                         SkPoint{0, 0},
                                         config->page_width.value - 2*config->left_margin.value);
-        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+        sk_sp<const SkTextBlob> blob = handler.makeBlob();
         // If we don't have a page, or if we're not at the start of the page and the blob won't fit
         if (!pageCanvas ||
               (current_y > config->line_spacing_ratio.value * config->font_size.value &&
