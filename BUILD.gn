@@ -1560,7 +1560,6 @@ if (skia_enable_tools) {
       "modules/skottie:tests",
       "modules/sksg:tests",
       "//third_party/libpng",
-      "//third_party/libwebp",
       "//third_party/zlib",
     ]
     public_deps = [

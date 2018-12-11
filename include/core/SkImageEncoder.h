@@ -27,8 +27,7 @@
  * Will always return false if Skia is compiled without image
  * encoders.
  *
- * For SkEncodedImageFormat::kWEBP, if quality is 100, it will use lossless compression. Otherwise
- * it will use lossy.
+ * Note that webp encodes will use webp lossy compression.
  *
  * For examples of encoding an image to a file or to a block of memory,
  * see tools/sk_tool_utils.h.
@@ -57,8 +56,7 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
  * Will always return nullptr if Skia is compiled without image
  * encoders.
  *
- * For SkEncodedImageFormat::kWEBP, if quality is 100, it will use lossless compression. Otherwise
- * it will use lossy.
+ * Note that webp encodes will use webp lossy compression.
  */
 SK_API sk_sp<SkData> SkEncodePixmap(const SkPixmap& src, SkEncodedImageFormat format, int quality);
 
