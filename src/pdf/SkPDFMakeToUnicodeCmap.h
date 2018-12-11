@@ -10,7 +10,7 @@
 #include "SkPDFFont.h"
 #include "SkStream.h"
 
-sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
+std::unique_ptr<SkStreamAsset> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,
         const SkPDFGlyphUse* subset,
         bool multiByteGlyphs,
