@@ -169,9 +169,9 @@ static void test_in_stripes(skiatest::Reporter* r, SkCodec* codec, const SkImage
 }
 
 template<typename Codec>
-static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const SkImageInfo& info,
-        const SkISize& size, SkCodec::Result expectedResult, SkMD5::Digest* digest,
-        const SkMD5::Digest* goodDigest) {
+static void test_codec(skiatest::Reporter* r, const char* path, Codec* codec, SkBitmap& bm,
+        const SkImageInfo& info, const SkISize& size, SkCodec::Result expectedResult,
+        SkMD5::Digest* digest, const SkMD5::Digest* goodDigest) {
 
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
@@ -195,16 +195,21 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
             // This will allow comparison even if the image is incomplete.
             bm565.eraseColor(SK_ColorBLACK);
 
-            REPORTER_ASSERT(r, expectedResult == codec->getPixels(info565,
-                    bm565.getPixels(), bm565.rowBytes()));
+            auto actualResult = codec->getPixels(info565, bm565.getPixels(), bm565.rowBytes());
+            if (actualResult == expectedResult) {
+                SkMD5::Digest digest565;
+                md5(bm565, &digest565);
 
-            SkMD5::Digest digest565;
-            md5(bm565, &digest565);
-
-            // A dumb client's request for non-opaque should also succeed.
-            for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
-                info565 = info565.makeAlphaType(alpha);
-                test_info(r, codec, info565, expectedResult, &digest565);
+                // A request for non-opaque should also succeed.
+                for (auto alpha : { kPremul_SkAlphaType, kUnpremul_SkAlphaType }) {
+                    info565 = info565.makeAlphaType(alpha);
+                    test_info(r, codec, info565, expectedResult, &digest565);
+                }
+            } else {
+                ERRORF(r, "Decoding %s to 565 failed with result \"%s\"\n\t\t\t\texpected:\"%s\"",
+                          path,
+                          SkCodec::ResultToString(actualResult),
+                          SkCodec::ResultToString(expectedResult));
             }
         } else {
             test_info(r, codec, info565, SkCodec::kInvalidConversion, nullptr);
@@ -310,7 +315,7 @@ static void check(skiatest::Reporter* r,
     SkBitmap bm;
     SkCodec::Result expectedResult =
         supportsIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
-    test_codec(r, codec.get(), bm, info, size, expectedResult, &codecDigest, nullptr);
+    test_codec(r, path, codec.get(), bm, info, size, expectedResult, &codecDigest, nullptr);
 
     // Scanline decoding follows.
 
@@ -436,7 +441,7 @@ static void check(skiatest::Reporter* r,
 
         SkBitmap bm;
         SkMD5::Digest androidCodecDigest;
-        test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &androidCodecDigest,
+        test_codec(r, path, androidCodec.get(), bm, info, size, expectedResult, &androidCodecDigest,
                    &codecDigest);
     }
 
