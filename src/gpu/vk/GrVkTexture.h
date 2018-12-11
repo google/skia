@@ -46,6 +46,10 @@ public:
         this->setResourceRelease(std::move(releaseHelper));
     }
 
+    void setPurgeableProc(PurgeableProc proc, void* context) override {
+
+    }
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
                 const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership);

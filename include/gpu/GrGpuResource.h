@@ -316,6 +316,8 @@ private:
 
     virtual size_t onGpuMemorySize() const = 0;
 
+    virtual void becamePurgeable() const {}
+
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
     void removeUniqueKey();

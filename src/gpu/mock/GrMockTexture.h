@@ -48,6 +48,11 @@ public:
         fReleaseHelper = std::move(releaseHelper);
     }
 
+    void setPurgeableProc(PurgeableProc proc, void* context)  override {
+        fPurgeableProc = proc;
+        fPurgeableProcCtx = context;
+    }
+
 protected:
     // constructor for subclasses
     GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
@@ -72,14 +77,21 @@ protected:
 
 private:
     void invokeReleaseProc() {
-        if (fReleaseHelper) {
-            // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
-            // ReleaseProc to be called.
-            fReleaseHelper.reset();
+        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+        // ReleaseProc to be called.
+        fReleaseHelper.reset();
+    }
+
+    void becamePurgeable() const override {
+        if (fPurgeableProc) {
+            fPurgeableProc(fPurgeableProcCtx);
         }
     }
-    GrMockTextureInfo          fInfo;
+
+    GrMockTextureInfo fInfo;
     sk_sp<GrReleaseProcHelper> fReleaseHelper;
+    PurgeableProc* fPurgeableProc;
+    void* fPurgeableProcCtx;
 
     typedef GrTexture INHERITED;
 };

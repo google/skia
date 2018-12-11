@@ -43,15 +43,22 @@ public:
         fReleaseHelper = std::move(releaseHelper);
     }
 
+    void setPurgeableProc(PurgeableProc proc, void* context)  override {
+        fPurgeableProc = proc;
+        fPurgeableProcCtx = context;
+    }
+
 protected:
     GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
 
     GrMtlGpu* getMtlGpu() const;
 
     void onAbandon() override {
+        this->invokeReleaseProc();
         fTexture = nil;
     }
     void onRelease() override {
+        this->invokeReleaseProc();
         fTexture = nil;
     }
 
@@ -61,6 +68,19 @@ protected:
 
 private:
     enum Wrapped { kWrapped };
+
+    void invokeReleaseProc() {
+        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+        // ReleaseProc to be called.
+        fReleaseHelper.reset();
+    }
+
+    void becamePurgeable() const override {
+        if (fPurgeableProc) {
+            fPurgeableProc(fPurgeableProcCtx);
+        }
+    }
+
     GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
                  GrMipMapsStatus);
 
@@ -69,7 +89,7 @@ private:
 
     id<MTLTexture> fTexture;
 
-    sk_sp<GrReleaseProcHelper>        fReleaseHelper;
+    sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };

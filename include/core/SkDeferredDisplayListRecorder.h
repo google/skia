@@ -56,7 +56,7 @@ public:
     // Matches the defines in SkImage_GpuBase.h
     typedef void* TextureContext;
     typedef void (*TextureReleaseProc)(TextureContext textureContext);
-    typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef bool (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
     typedef void (*PromiseDoneProc)(TextureContext textureContext);
 
     /**

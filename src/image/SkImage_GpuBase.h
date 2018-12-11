@@ -73,7 +73,7 @@ public:
     }
 
     typedef ReleaseContext TextureContext;
-    typedef void(*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef bool(*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
     typedef void(*PromiseDoneProc)(TextureContext textureContext);
 
 protected:
@@ -98,33 +98,6 @@ protected:
 
 private:
     typedef SkImage_Base INHERITED;
-};
-
-
-/**
- * This helper holds the normal hard ref for the Release proc as well as a hard ref on the DoneProc.
- * Thus when a GrTexture is being released, it will unref both the ReleaseProc and DoneProc.
- */
-class SkPromiseReleaseProcHelper : public GrReleaseProcHelper {
-public:
-    SkPromiseReleaseProcHelper(SkImage_GpuBase::TextureReleaseProc releaseProc,
-                               SkImage_GpuBase::TextureContext context,
-                               sk_sp<GrReleaseProcHelper> doneHelper)
-        : INHERITED(releaseProc, context)
-        , fDoneProcHelper(std::move(doneHelper)) {
-    }
-
-    void weak_dispose() const override {
-        // Call the inherited weak_dispose first so that we call the ReleaseProc before the DoneProc
-        // if we hold the last ref to the DoneProc.
-        INHERITED::weak_dispose();
-        fDoneProcHelper.reset();
-    }
-
-private:
-    mutable sk_sp<GrReleaseProcHelper> fDoneProcHelper;
-
-    typedef GrReleaseProcHelper INHERITED;
 };
 
 #endif

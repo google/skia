@@ -79,8 +79,10 @@ private:
         void setBackendTexture(const GrBackendTexture& backendTexture) {
             SkASSERT(!fBackendTexture.isValid());
             fBackendTexture = backendTexture;
+            fNewTexture = true;
         }
 
+        void beenFulfilled() { fNewTexture = false; }
         const GrBackendTexture& backendTexture() const { return fBackendTexture; }
 
         const GrCaps* caps() const;
@@ -88,6 +90,7 @@ private:
     private:
         GrContext*       fContext;
         GrBackendTexture fBackendTexture;
+        bool             fNewTexture;
 
         typedef SkRefCnt INHERITED;
     };
@@ -149,6 +152,7 @@ private:
 
         const GrBackendTexture& backendTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
+            fCallbackContexts[index]->beenFulfilled();
             return fCallbackContexts[index]->backendTexture();
         }
 
@@ -194,7 +198,7 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
+    static bool PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
         SkASSERT(callbackContext->backendTexture().isValid());
         *outTexture = callbackContext->backendTexture();

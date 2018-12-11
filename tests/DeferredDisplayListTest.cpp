@@ -739,7 +739,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     params.cleanUpBackEnd(context, backend);
 }
 
-static void dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); }
+static bool dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); return false; }
 static void dummy_release_proc(void*) { SkASSERT(0); }
 static void dummy_done_proc(void*) { }
 

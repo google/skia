@@ -60,6 +60,9 @@ public:
         this->setRelease(std::move(helper));
     }
 
+    using PurgeableProc = void(void*);
+    virtual void setPurgeableProc(PurgeableProc, void* context) = 0;
+
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;

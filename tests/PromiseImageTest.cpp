@@ -25,9 +25,10 @@ struct PromiseTextureChecker {
     int fFulfillCount;
     int fReleaseCount;
     int fDoneCount;
-    static void Fulfill(void* self, GrBackendTexture* outTexture) {
+    static bool Fulfill(void* self, GrBackendTexture* outTexture) {
         static_cast<PromiseTextureChecker*>(self)->fFulfillCount++;
         *outTexture = static_cast<PromiseTextureChecker*>(self)->fTexture;
+        return static_cast<PromiseTextureChecker*>(self)->fFulfillCount > 1;
     }
     static void Release(void* self) {
         static_cast<PromiseTextureChecker*>(self)->fReleaseCount++;

@@ -11,12 +11,11 @@
 #include "GrVkVulkan.h"
 
 #include "GrVkResource.h"
-
+#include "GrTexture.h"
 #include "GrBackendSurface.h"
 #include "GrTypesPriv.h"
 #include "GrVkImageLayout.h"
 #include "SkTypes.h"
-
 #include "vk/GrVkTypes.h"
 
 class GrVkGpu;
@@ -109,6 +108,7 @@ public:
     typedef void (*ReleaseProc)(ReleaseCtx);
 
     void setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper);
+    void setPurgeableProc(GrTexture::PurgeableProc, void* context);
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
@@ -151,8 +151,15 @@ private:
         void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
             fReleaseHelper = std::move(releaseHelper);
         }
+
+        void setPurgeableProc(GrTexture::PurgeableProc proc, void* context) {
+            fPurgeableProc = proc;
+            fPurgeableProcCtx = context;
+        }
     protected:
         mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
+        GrTexture::PurgeableProc* fPurgeableProc;
+        void* fPurgeableProcCtx;
 
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;

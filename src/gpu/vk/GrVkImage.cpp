@@ -238,6 +238,10 @@ void GrVkImage::setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
     fResource->setRelease(std::move(releaseHelper));
 }
 
+void GrVkImage::setPurgeableProc(GrTexture::PurgeableProc proc, void* context) {
+    fResource->setPurgeableProc(proc, context);
+}
+
 void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(!fReleaseHelper);
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));

@@ -16,6 +16,7 @@
 #include "SkBitmapCache.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuBase.h"
+#include "SkRefCnt.h"
 #include "SkReadPixelsRec.h"
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
@@ -426,94 +427,91 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 , fReleaseProc(releaseProc)
                 , fContext(context)
                 , fConfig(config) {
-            fDoneHelper.reset(new GrReleaseProcHelper(doneProc, context));
+            static uint32_t gUniqueID;
+            fUniqueID = ++gUniqueID;
+            fFulfillID = 0;
+            fDoneHelper = sk_make_sp<GrReleaseProcHelper>(doneProc, context);
+            fReleaseContext = sk_make_sp<ReleaseContext>(releaseProc, context);
         }
 
         sk_sp<GrSurface> operator()(GrResourceProvider* resourceProvider) {
             if (!resourceProvider) {
-                this->reset();
+                return nullptr;
+            }
+
+            sk_sp<GrTexture> cachedTexture;
+            SkASSERT(fLastFulfilledKey.isValid() == (fFulfillID > 0));
+            if (fLastFulfilledKey.isValid()) {
+                auto surf = resourceProvider->findByUniqueKey<GrSurface>(fLastFulfilledKey);
+                if (surf) {
+                    cachedTexture.reset(surf->asTexture());
+                    SkASSERT(cachedTexture);
+                }
+            }
+            // If the release context is still shared then the release proc hasn't yet been called
+            // and we can simply use the texture without calling fulfill again.
+            if (cachedTexture && !fReleaseContext->unique()) {
+                return std::move(cachedTexture);
+            }
+            GrBackendTexture backendTexture;
+            bool same = fFulfillProc(fContext, &backendTexture);
+            SkASSERT(!same || fLastFulfilledKey.isValid());
+            if (same && cachedTexture) {
+                return std::move(cachedTexture);
+            }
+            if (cachedTexture) {
+                cachedTexture->resourcePriv().removeUniqueKey();
+            }
+
+            backendTexture.fConfig = fConfig;
+            if (!backendTexture.isValid()) {
+                // Even though the GrBackendTexture is not valid, we must call the release
+                // proc to keep our contract of always calling Fulfill and Release in pairs.
+                fReleaseProc(fContext);
                 return sk_sp<GrTexture>();
             }
 
-            // Releases the promise helper if there are no outstanding hard refs. This means that we
-            // don't have any ReleaseProcs waiting to be called so we will need to do a fulfill.
-            if (fReleaseHelper && fReleaseHelper->weak_expired()) {
-                this->resetReleaseHelper();
+            auto tex = resourceProvider->wrapBackendTexture(backendTexture, kBorrow_GrWrapOwnership,
+                                                            kRead_GrIOType);
+            if (!tex) {
+                // Even though we failed to wrap the backend texture, we must call the release
+                // proc to keep our contract of always calling Fulfill and Release in pairs.
+                fReleaseProc(fContext);
+                return sk_sp<GrTexture>();
             }
-
-            sk_sp<GrTexture> tex;
-            if (!fReleaseHelper) {
-                fFulfillProc(fContext, &fBackendTex);
-                fBackendTex.fConfig = fConfig;
-                if (!fBackendTex.isValid()) {
-                    // Even though the GrBackendTexture is not valid, we must call the release
-                    // proc to keep our contract of always calling Fulfill and Release in pairs.
-                    fReleaseProc(fContext);
-                    return sk_sp<GrTexture>();
-                }
-
-                tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership,
-                                                           kRead_GrIOType);
-                if (!tex) {
-                    // Even though the GrBackendTexture is not valid, we must call the release
-                    // proc to keep our contract of always calling Fulfill and Release in pairs.
-                    fReleaseProc(fContext);
-                    return sk_sp<GrTexture>();
-                }
-                fReleaseHelper =
-                        new SkPromiseReleaseProcHelper(fReleaseProc, fContext, fDoneHelper);
-                // Take a weak ref
-                fReleaseHelper->weak_ref();
-            } else {
-                SkASSERT(fBackendTex.isValid());
-                tex = resourceProvider->wrapBackendTexture(fBackendTex, kBorrow_GrWrapOwnership,
-                                                           kRead_GrIOType);
-                if (!tex) {
-                    // We weren't able to make a texture here, but since we are in this branch
-                    // of the calls (promiseHelper.fReleaseHelper is valid) there is already a
-                    // texture out there which will call the release proc so we don't need to
-                    // call it here.
-                    return sk_sp<GrTexture>();
-                }
-
-                SkAssertResult(fReleaseHelper->try_ref());
-            }
-            SkASSERT(tex);
-            // Pass the hard ref off to the texture
-            tex->setRelease(sk_sp<GrReleaseProcHelper>(fReleaseHelper));
+            tex->setPurgeableProc(ReleaseCallback, fReleaseContext.get());
+            tex->setRelease(fDoneHelper);
+            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+            GrUniqueKey::Builder builder(&fLastFulfilledKey, kDomain, 2, "promise");
+            builder[0] = fUniqueID;
+            builder[1] = ++fFulfillID;
+            builder.finish();
+            tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
             return std::move(tex);
         }
 
     private:
-        void reset() {
-            this->resetReleaseHelper();
-            fDoneHelper.reset();
-        }
-
-        // Weak unrefs fReleaseHelper and sets it to null
-        void resetReleaseHelper() {
-            if (fReleaseHelper) {
-                fReleaseHelper->weak_unref();
-                fReleaseHelper = nullptr;
-            }
+        struct ReleaseContext : public SkNVRefCnt<ReleaseContext> {
+            ReleaseContext(TextureReleaseProc proc, TextureContext context) : fReleaseProc(proc), fTextureContext(context) {}
+            TextureReleaseProc fReleaseProc;
+            TextureContext fTextureContext;
+        };
+        static void ReleaseCallback(void* context) {
+            ReleaseContext* rc = static_cast<ReleaseContext*>(context);
+            rc->fReleaseProc(rc->fTextureContext);
+            rc->unref();
         }
 
         SkImage_GpuBase::TextureFulfillProc fFulfillProc;
         SkImage_GpuBase::TextureReleaseProc fReleaseProc;
         SkImage_GpuBase::TextureContext fContext;
-
         GrPixelConfig fConfig;
-        // We cache the GrBackendTexture so that if we deleted the GrTexture but the the release
-        // proc has yet not been called (this can happen on Vulkan), then we can create a new
-        // texture without needing to call the fulfill proc again.
-        GrBackendTexture fBackendTex;
-        // The fReleaseHelper is used to track a weak ref on the release proc. This helps us make
-        // sure we are always pairing fulfill and release proc calls correctly.
-        SkPromiseReleaseProcHelper* fReleaseHelper = nullptr;
-        // We don't want to call the fDoneHelper until we are done with the PromiseImageHelper and
-        // all ReleaseHelpers are finished. Thus we hold a hard ref here and we will pass a hard ref
-        // to each fReleaseHelper we make.
+        sk_sp<ReleaseContext> fReleaseContext;
         sk_sp<GrReleaseProcHelper> fDoneHelper;
+
+        uint32_t fUniqueID;
+        uint32_t fFulfillID;
+        GrUniqueKey fLastFulfilledKey;
     } callback(fulfillProc, releaseProc, doneProc, textureContext, config);
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
