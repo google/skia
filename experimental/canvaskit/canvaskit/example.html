@@ -60,6 +60,8 @@
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
+  var robotoData = null;
+
   var bonesImageData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
@@ -71,9 +73,9 @@
      // Thus, the setTimeout to run on the next microtask avoids this second loading
      // and the log spew.
     setTimeout(() => {
-      CK.initFonts();
+      //CK.initFonts();
       CanvasKit = CK;
-      DrawingExample(CanvasKit);
+      DrawingExample(CanvasKit, robotoData);
       PathExample(CanvasKit);
       InkExample(CanvasKit);
       // Set bounds to fix the 4:3 resolution of the legos
@@ -136,7 +138,17 @@
     });
   });
 
-  function DrawingExample(CanvasKit) {
+  fetch('./Roboto-Regular.woff').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      robotoData = buffer;
+      DrawingExample(CanvasKit, robotoData)
+    });
+  });
+
+  function DrawingExample(CanvasKit, robotoData) {
+    if (!robotoData || !CanvasKit) {
+      return;
+    }
     const surface = CanvasKit.MakeCanvasSurface('patheffect');
     if (!surface) {
       console.error('Could not make surface');
@@ -148,10 +160,16 @@
 
     const paint = new CanvasKit.SkPaint();
 
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    let roboto = fontMgr.MakeTypefaceFromData(robotoData);
+    console.log('roboto', roboto);
+    fontMgr.dumpFamilies();
+
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.RED);
     textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
+    textPaint.setTypeface(roboto);
 
     let i = 0;
 

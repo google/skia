@@ -43,6 +43,9 @@
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "SkTestFontMgr.h"
+#include "SkTypeface.h"
+#include "SkTypes.h"
+
 #include "SkTrimPathEffect.h"
 #include "SkVertices.h"
 
@@ -435,6 +438,10 @@ namespace emscripten {
         }
 
         template<>
+        void raw_destructor<SkTypeface>(SkTypeface *ptr) {
+        }
+
+        template<>
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
     }
@@ -679,6 +686,31 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
 
+    class_<SkFontMgr>("SkFontMgr")
+        .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
+        .class_function("RefDefault", &SkFontMgr::RefDefault)
+#ifdef SK_DEBUG
+        .function("dumpFamilies", optional_override([](SkFontMgr& self) {
+            int numFam = self.countFamilies();
+            SkDebugf("There are %d font families\n");
+            for (int i = 0 ; i< numFam; i++) {
+                SkString s;
+                self.getFamilyName(i, &s);
+                SkDebugf("\t%s", s.c_str());
+            }
+        }))
+#endif
+        .function("countFamilies", &SkFontMgr::countFamilies)
+        .function("_makeTypefaceFromData", optional_override([](SkFontMgr& self,
+                                                uintptr_t /* uint8_t*  */ fPtr,
+                                                int flen)->sk_sp<SkTypeface> {
+        // See comment above for uintptr_t explanation
+        uint8_t* font = reinterpret_cast<uint8_t*>(fPtr);
+        sk_sp<SkData> fontData = SkData::MakeFromMalloc(font, flen);
+
+        return self.makeFromData(fontData);
+    }), allow_raw_pointers());
+
     class_<SkImage>("SkImage")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
         .function("height", &SkImage::height)
@@ -729,6 +761,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setStrokeMiter", &SkPaint::setStrokeMiter)
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
         .function("setStyle", &SkPaint::setStyle)
+        .function("setTypeface", &SkPaint::setTypeface)
         .function("setTextSize", &SkPaint::setTextSize);
 
     class_<SkPathEffect>("SkPathEffect")
@@ -791,6 +824,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
+
+    class_<SkTypeface>("SkTypeface")
+        .smart_ptr<sk_sp<SkTypeface>>("sk_sp<SkTypeface>");
 
     class_<SkVertices>("SkVertices")
         .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
