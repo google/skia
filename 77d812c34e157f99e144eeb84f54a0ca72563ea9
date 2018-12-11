@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdd9dc52_d79d778a",
+        "filename": "tools/using_skia_and_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-11T21:40:24Z",
+      "side": 1,
+      "message": "This helper is quite repetitive, maybe we can move to SkShaperUtils at some point.",
+      "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
