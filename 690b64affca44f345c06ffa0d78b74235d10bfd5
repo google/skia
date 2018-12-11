@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2528b6eb_e4878d8e",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "This isn\u0027t actually required by the spec, but for our current code this is what we expect so the assert is fine. Lets just add a comment to it saying something like \"The Vulkan spec allows secondary command buffers to be executed on a primary command buffer if the command pools both were created from were created with the same queue family. However, we currently always create them from the same pool.\"",
+      "range": {
+        "startLine": 457,
+        "startChar": 4,
+        "endLine": 457,
+        "endChar": 48
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68d36b35_3293aa9c",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "nit: this can all fit on one line.",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0ebad85_9095fed6",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "should this and abandonGPUData be marked final?",
+      "range": {
+        "startLine": 171,
+        "startChar": 5,
+        "endLine": 171,
+        "endChar": 50
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50767b94_8a7fabbd",
+        "filename": "src/gpu/vk/GrVkCommandPool.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "align the *\u0027s",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 2
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13327112_622aa917",
+        "filename": "src/gpu/vk/GrVkCommandPool.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "Resetting the command pool will reset all of its buffers. So I don\u0027t think we need reset on GrVkCommandBuffer anymore. Lets remove it and instead add a function on GrVkPrimaryCommandBuffer to recycle its secondary command buffers.",
+      "range": {
+        "startLine": 75,
+        "startChar": 4,
+        "endLine": 75,
+        "endChar": 38
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f17549e_9155752d",
+        "filename": "src/gpu/vk/GrVkCommandPool.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "align the *\u0027s",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 2
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4a3df6c_5e06efab",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "is it cleaner to just pass in fCmdPool here? In the ddl world each tread may have its own cmd pool so i think we\u0027d want to pass in the pool we want a buffer from. Maybe this would also allow us to remove the getter on GrVkGpu for cmd pool.\n\nGiven that it makes me start to wonder if I sent us astray forcing us to go through resource provider instead of calls directly on the cmd buffer.",
+      "range": {
+        "startLine": 174,
+        "startChar": 65,
+        "endLine": 174,
+        "endChar": 67
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dd7b007_e3a0a0a3",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "What do we gain by moving the cached GrVkGpuCommandBuffers inside the command pool? Seems like that is something that should live more on GrVkGpu.",
+      "range": {
+        "startLine": 279,
+        "startChar": 11,
+        "endLine": 279,
+        "endChar": 37
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bbe814d_d221452c",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "This should all go in some create method in GrVkCommandPool",
+      "range": {
+        "startLine": 287,
+        "startChar": 8,
+        "endLine": 297,
+        "endChar": 49
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0fafa65_a2ffccf5",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "who calls this",
+      "range": {
+        "startLine": 481,
+        "startChar": 27,
+        "endLine": 481,
+        "endChar": 52
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccc9daf8_e51ed96e",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "if we dont need member delete this",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 29
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9958600_8ca2b676",
+        "filename": "src/gpu/vk/GrVkResourceProvider.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T16:36:28Z",
+      "side": 1,
+      "message": "is this used?",
+      "range": {
+        "startLine": 288,
+        "startChar": 4,
+        "endLine": 288,
+        "endChar": 46
+      },
+      "revId": "690b64affca44f345c06ffa0d78b74235d10bfd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
