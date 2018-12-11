@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb1365d1_3f3aa716",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T20:52:39Z",
+      "side": 1,
+      "message": "Don\u0027t think we need the provider here.",
+      "range": {
+        "startLine": 600,
+        "startChar": 62,
+        "endLine": 600,
+        "endChar": 92
+      },
+      "revId": "7cab8bc5e2c85ca9177b9a40a625ce11ef443693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba69cfee_0ee26278",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 2067,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T20:52:39Z",
+      "side": 1,
+      "message": "nit extra \\n",
+      "revId": "7cab8bc5e2c85ca9177b9a40a625ce11ef443693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bd25ae9_6bb51235",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-11T20:52:39Z",
+      "side": 1,
+      "message": "remove. Not needed anymore.",
+      "range": {
+        "startLine": 309,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 66
+      },
+      "revId": "7cab8bc5e2c85ca9177b9a40a625ce11ef443693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
