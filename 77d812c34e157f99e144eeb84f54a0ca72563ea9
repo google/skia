@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "72c8464c_bf1126e2",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-11T21:54:05Z",
+      "side": 1,
+      "message": "Seems awkward to allocate these here, since the caller will almost always need to make a copy to store them. Perhaps the LineHandler could provide these when passed a size?",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 424,
+        "endChar": 61
+      },
+      "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fdd9dc52_d79d778a",
         "filename": "tools/using_skia_and_harfbuzz.cpp",
         "patchSetId": 4
@@ -13,6 +36,24 @@
       "writtenOn": "2018-12-11T21:40:24Z",
       "side": 1,
       "message": "This helper is quite repetitive, maybe we can move to SkShaperUtils at some point.",
+      "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f868ee3_834cbe31",
+        "filename": "tools/using_skia_and_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-11T21:54:05Z",
+      "side": 1,
+      "message": "Just having a default implementation like this in SkShaper should be fine.",
+      "parentUuid": "fdd9dc52_d79d778a",
       "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

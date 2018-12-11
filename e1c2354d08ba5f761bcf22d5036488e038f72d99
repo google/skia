@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "353756bd_f11ca2d9",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-11T21:54:05Z",
+      "side": 0,
+      "message": "Need to take this into account.",
+      "range": {
+        "startLine": 419,
+        "startChar": 63,
+        "endLine": 419,
+        "endChar": 72
+      },
+      "revId": "e1c2354d08ba5f761bcf22d5036488e038f72d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36542c86_fe9c9639",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-11T21:54:05Z",
+      "side": 0,
+      "message": "I suppose the LineHandler could know this and pass the information along if it wants. The default one (which builds a TextBlob) should pass this information along.",
+      "range": {
+        "startLine": 421,
+        "startChar": 11,
+        "endLine": 421,
+        "endChar": 29
+      },
+      "revId": "e1c2354d08ba5f761bcf22d5036488e038f72d99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
