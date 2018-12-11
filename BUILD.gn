@@ -35,7 +35,7 @@ declare_args() {
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_opencl = false
   skia_use_piex = !is_win
-  skia_use_wuffs = false
+  skia_use_wuffs = true
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
