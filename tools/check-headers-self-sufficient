@@ -30,10 +30,10 @@ public_header_args = [
     '-Iinclude/ports',
     '-Iinclude/private',
     '-Iinclude/svg',
+    '-Iinclude/third_party/vulkan',
     '-Iinclude/utils',
     '-Iinclude/utils/mac',
     '-Iinclude/views',
-    '-Ithird_party/vulkan',
 ]
 
 all_header_args = [
@@ -49,6 +49,7 @@ all_header_args = [
     '-Iinclude/ports',
     '-Iinclude/private',
     '-Iinclude/svg',
+    '-Iinclude/third_party/vulkan',
     '-Iinclude/utils',
     '-Iinclude/utils/mac',
     '-Iinclude/views',
@@ -82,7 +83,6 @@ all_header_args = [
     '-Ithird_party/externals/sfntly/cpp/src',
     '-Ithird_party/externals/zlib',
     '-Ithird_party/gif',
-    '-Ithird_party/vulkan',
 ]
 
 ignore = [
