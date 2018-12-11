@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "4efc8da4_6ca0c20b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-11T21:06:51Z",
+      "side": 1,
+      "message": "Prefix with \"With skia_use_wuffs\u003dtrue, ...\"?",
+      "revId": "943c7525e2f4b6a020f675da4b2ab1b1f2c89557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b223c26_736369b4",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-11T21:06:51Z",
+      "side": 1,
+      "message": "Undo.",
+      "revId": "943c7525e2f4b6a020f675da4b2ab1b1f2c89557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e9752452_99df8494",
         "filename": "tests/CodecPartialTest.cpp",
         "patchSetId": 1
@@ -13,6 +47,30 @@
       "writtenOn": "2018-12-11T20:17:12Z",
       "side": 1,
       "message": "Is this because we have to reset the decoder when we call getFrameCount?",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 38
+      },
+      "revId": "943c7525e2f4b6a020f675da4b2ab1b1f2c89557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24283fb5_4765989a",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-11T21:06:51Z",
+      "side": 1,
+      "message": "That sounds plausible.",
+      "parentUuid": "e9752452_99df8494",
       "range": {
         "startLine": 101,
         "startChar": 0,
