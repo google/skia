@@ -165,6 +165,9 @@ public:
         keys. */
     void purgeAsNeeded();
 
+    /** Cleans up resources whose unique keys have been invalidated. */
+    void processInvalidUniqueKeys();
+
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked() { this->purgeUnlockedResources(false); }
 
@@ -264,7 +267,6 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
-    void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void processFreedGpuResources();
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);

@@ -471,12 +471,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 }
 
 void GrResourceCache::purgeAsNeeded() {
-    SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
-    fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
-    if (invalidKeyMsgs.count()) {
-        this->processInvalidUniqueKeys(invalidKeyMsgs);
-    }
-
+    this->processInvalidUniqueKeys();
     this->processFreedGpuResources();
 
     bool stillOverbudget = this->overBudget();
@@ -582,9 +577,11 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
     }
 }
 
-void GrResourceCache::processInvalidUniqueKeys(
-                                            const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
+void GrResourceCache::processInvalidUniqueKeys() {
     SkASSERT(fProxyProvider); // better have called setProxyProvider
+
+    SkTArray<GrUniqueKeyInvalidatedMessage> msgs;
+    fInvalidUniqueKeyInbox.poll(&msgs);
 
     for (int i = 0; i < msgs.count(); ++i) {
         fProxyProvider->processInvalidProxyUniqueKey(msgs[i].key());
