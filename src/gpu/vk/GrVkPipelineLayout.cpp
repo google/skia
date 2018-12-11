@@ -9,6 +9,6 @@
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
 
-void GrVkPipelineLayout::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkPipelineLayout::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipelineLayout(gpu->device(), fPipelineLayout, nullptr));
 }

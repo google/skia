@@ -29,7 +29,7 @@ private:
     GrVkPipelineLayout(const GrVkPipelineLayout&);
     GrVkPipelineLayout& operator=(const GrVkPipelineLayout&);
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkPipelineLayout  fPipelineLayout;
 
