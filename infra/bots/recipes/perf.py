@@ -183,6 +183,7 @@ def nanobench_flags(api, bot):
     # skia:7322
     match.append('~desk_carsvg.skp_1')
     match.append('~desk_googlehome.skp_1_mpd')
+    match.append('~desk_googlehome.skp_1.1')
     match.append('~desk_tiger8svg.skp_1')
     match.append('~desk_wowwiki.skp')
     match.append('~desk_ynevsvg.skp_1.1')
