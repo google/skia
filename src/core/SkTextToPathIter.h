@@ -13,11 +13,17 @@
 #include "SkStrikeCache.h"
 
 class SkTextBaseIter {
+public:
+    const SkFont&   getFont() const { return fFont; }
+    const SkPaint&  getPaint() const { return fPaint; }
+    SkScalar        getPathScale() const { return fScale; }
+
 protected:
-    SkTextBaseIter(const char text[], size_t length, const SkPaint& paint,
+    SkTextBaseIter(const uint16_t glyphs[], size_t count, const SkFont&, const SkPaint& paint,
                    bool applyStrokeAndPathEffects);
 
     SkExclusiveStrikePtr fCache;
+    SkFont               fFont;
     SkPaint              fPaint;
     SkScalar             fScale;
     SkScalar             fPrevAdvance;
@@ -28,22 +34,6 @@ protected:
     SkScalar        fXPos;      // accumulated xpos, returned in next
 };
 
-class SkTextToPathIter : SkTextBaseIter {
-public:
-    SkTextToPathIter(const char text[], size_t length, const SkPaint& paint,
-                     bool applyStrokeAndPathEffects)
-                     : SkTextBaseIter(text, length, paint, applyStrokeAndPathEffects) {
-    }
-
-    const SkPaint&  getPaint() const { return fPaint; }
-    SkScalar        getPathScale() const { return fScale; }
-
-    /**
-     *  Returns false when all of the text has been consumed
-     */
-    bool next(const SkPath** path, SkScalar* xpos);
-};
-
 class SkTextInterceptsIter : SkTextBaseIter {
 public:
     enum class TextType {
@@ -51,9 +41,10 @@ public:
         kPosText
     };
 
-    SkTextInterceptsIter(const char text[], size_t length, const SkPaint& paint,
-                         const SkScalar bounds[2], SkScalar x, SkScalar y, TextType textType)
-         : SkTextBaseIter(text, length, paint, false)
+    SkTextInterceptsIter(const uint16_t glyphs[], int count, const SkFont& font,
+                         const SkPaint& paint, const SkScalar bounds[2], SkScalar x, SkScalar y,
+                         TextType textType)
+         : SkTextBaseIter(glyphs, count, font, paint, false)
     {
         fBoundsBase[0] = bounds[0];
         fBoundsBase[1] = bounds[1];
