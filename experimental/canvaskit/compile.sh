@@ -191,9 +191,8 @@ ${EMCXX} \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     $HTML_CANVAS_API \
+    $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
     $BASE_DIR/canvaskit_bindings.cpp \
-    tools/fonts/SkTestFontMgr.cpp \
-    tools/fonts/SkTestTypeface.cpp \
     $WASM_SKOTTIE \
     $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
