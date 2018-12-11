@@ -10,6 +10,7 @@
 #include "Resources.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
+#include "SkExecutor.h"
 #include "SkFloatToDecimal.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
@@ -79,20 +80,6 @@ DEF_BENCH(return new PDFScalarBench("PDFScalar_random", next_any);)
 #include "SkPDFUtils.h"
 
 namespace {
-static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
-    // SkDebugWStream wStream;
-    SkNullWStream wStream;
-    SkPDFObjNumMap objNumMap;
-    objNumMap.addObjectRecursively(object.get());
-    for (size_t i = 0; i < objNumMap.objects().size(); ++i) {
-        SkPDFObject* object = objNumMap.objects()[i].get();
-        wStream.writeDecAsText(i + 1);
-        wStream.writeText(" 0 obj\n");
-        object->emitObject(&wStream);
-        wStream.writeText("\nendobj\n");
-    }
-}
-
 class PDFImageBench : public Benchmark {
 public:
     PDFImageBench() {}
@@ -184,11 +171,11 @@ protected:
         SkASSERT(fAsset);
         if (!fAsset) { return; }
         while (loops-- > 0) {
-            sk_sp<SkPDFObject> object =
-                sk_make_sp<SkPDFSharedStream>(
-                        std::unique_ptr<SkStreamAsset>(fAsset->duplicate()));
-            test_pdf_object_serialization(object);
-        }
+            SkNullWStream wStream;
+            SkPDFDocument doc(&wStream, SkPDF::Metadata());
+            doc.beginPage(256, 256);
+            (void)SkPDFStreamOut(nullptr, fAsset->duplicate(), &doc, true);
+       }
     }
 
 private:
@@ -229,8 +216,9 @@ struct PDFShaderBench : public Benchmark {
         while (loops-- > 0) {
             SkNullWStream nullStream;
             SkPDFDocument doc(&nullStream, SkPDF::Metadata());
-            sk_sp<SkPDFObject> shader = SkPDFMakeShader(&doc, fShader.get(), SkMatrix::I(),
-                                                        {0, 0, 400, 400}, SK_ColorBLACK);
+            doc.beginPage(256, 256);
+            (void) SkPDFMakeShader(&doc, fShader.get(), SkMatrix::I(),
+                                   {0, 0, 400, 400}, SK_ColorBLACK);
         }
     }
 };
@@ -262,5 +250,125 @@ DEF_BENCH(return new PDFColorComponentBench;)
 DEF_BENCH(return new PDFShaderBench;)
 DEF_BENCH(return new WritePDFTextBenchmark;)
 
+#if 0
+#include "SkExecutor.h"
+namespace {
+void big_pdf_test(const SkBitmap& background) {
+    static const char* kText[] = {
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+        "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad",
+        "minim veniam, quis nostrud exercitation ullamco laboris nisi ut",
+        "aliquip ex ea commodo consequat. Duis aute irure dolor in",
+        "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla",
+        "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in",
+        "culpa qui officia deserunt mollit anim id est laborum.",
+        "",
+        "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem",
+        "accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae",
+        "ab illo inventore veritatis et quasi architecto beatae vitae dicta",
+        "sunt, explicabo. Nemo enim ipsam voluptatem, quia voluptas sit,",
+        "aspernatur aut odit aut fugit, sed quia consequuntur magni dolores",
+        "eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est,",
+        "qui dolorem ipsum, quia dolor sit amet consectetur adipiscing velit,",
+        "sed quia non numquam do eius modi tempora incididunt, ut labore et",
+        "dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam,",
+        "quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi",
+        "ut aliquid ex ea commodi consequatur? Quis autem vel eum iure",
+        "reprehenderit, qui in ea voluptate velit esse, quam nihil molestiae",
+        "consequatur, vel illum, qui dolorem eum fugiat, quo voluptas nulla",
+        "pariatur?",
+        "",
+        "At vero eos et accusamus et iusto odio dignissimos ducimus, qui",
+        "blanditiis praesentium voluptatum deleniti atque corrupti, quos",
+        "dolores et quas molestias excepturi sint, obcaecati cupiditate non",
+        "provident, similique sunt in culpa, qui officia deserunt mollitia",
+        "animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis",
+        "est et expedita distinctio. Nam libero tempore, cum soluta nobis est",
+        "eligendi optio, cumque nihil impedit, quo minus id, quod maxime",
+        "placeat, facere possimus, omnis voluptas assumenda est, omnis dolor",
+        "repellendus. Temporibus autem quibusdam et aut officiis debitis aut",
+        "rerum necessitatibus saepe eveniet, ut et voluptates repudiandae sint",
+        "et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente",
+        "delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut",
+        "perferendis doloribus asperiores repellat",
+        "",
+        "Sed ut perspiciatis, unde omnis iste natus error sit voluptatem",
+        "accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae",
+        "ab illo inventore veritatis et quasi architecto beatae vitae dicta",
+        "sunt, explicabo. Nemo enim ipsam voluptatem, quia voluptas sit,",
+        "aspernatur aut odit aut fugit, sed quia consequuntur magni dolores",
+        "eos, qui ratione voluptatem sequi nesciunt, neque porro quisquam est,",
+        "qui dolorem ipsum, quia dolor sit amet consectetur adipiscing velit,",
+        "sed quia non numquam do eius modi tempora incididunt, ut labore et",
+        "dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam,",
+        "quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi",
+        "ut aliquid ex ea commodi consequatur? Quis autem vel eum iure",
+        "reprehenderit, qui in ea voluptate velit esse, quam nihil molestiae",
+        "consequatur, vel illum, qui dolorem eum fugiat, quo voluptas nulla",
+        "pariatur?",
+        "",
+    };
+    //SkFILEWStream wStream("/tmp/big_pdf.pdf");
+    SkNullWStream wStream;
+    SkPDF::Metadata metadata;
+    //std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    //metadata.fExecutor = executor.get();
+    sk_sp<SkDocument> doc = SkPDF::MakeDocument(&wStream, metadata);
+
+    SkCanvas* canvas = nullptr;
+    float x = 36;
+    float y = 36;
+    constexpr size_t kLineCount = SK_ARRAY_COUNT(kText);
+    constexpr int kLoopCount = 200;
+    SkPaint paint;
+    paint.setTextEncoding(kUTF8_SkTextEncoding);
+    for (int loop = 0; loop < kLoopCount; ++loop) {
+        for (size_t line = 0; line < kLineCount; ++line) {
+            y += paint.getFontSpacing();
+            if (!canvas || y > 792 - 36) {
+                y = 36 + paint.getFontSpacing();
+                canvas = doc->beginPage(612, 792);
+                background.notifyPixelsChanged();
+                canvas->drawBitmap(background, 0, 0);
+            }
+            canvas->drawText(kText[line], strlen(kText[line]), x, y, paint);
+        }
+    }
+}
+
+SkBitmap make_background() {
+    SkBitmap background;
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(32, 32);
+    bitmap.eraseColor(SK_ColorWHITE);
+    SkCanvas tmp(bitmap);
+    SkPaint gray;
+    gray.setColor(SkColorSetARGB(0xFF, 0xEE, 0xEE, 0xEE));
+    tmp.drawRect({0,0,16,16}, gray);
+    tmp.drawRect({16,16,32,32}, gray);
+    SkPaint shader;
+    shader.setShader(
+            SkShader::MakeBitmapShader(
+                bitmap, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
+    background.allocN32Pixels(612, 792);
+    SkCanvas tmp2(background);
+    tmp2.drawPaint(shader);
+    return background;
+}
+
+struct PDFBigDocBench : public Benchmark {
+    SkBitmap fBackground;
+    void onDelayedSetup() override { fBackground = make_background(); }
+    const char* onGetName() override { return "PDFBigDocBench"; }
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+    void onDraw(int loops, SkCanvas*) override {
+        while (loops-- > 0) { big_pdf_test(fBackground); }
+    }
+};
+}  // namespace
+DEF_BENCH(return new PDFBigDocBench;)
 #endif
 
+#endif // SK_SUPPORT_PDF

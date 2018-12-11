@@ -12,14 +12,17 @@
 #include "SkPDFDevice.h"
 #include "SkPDFTypes.h"
 
+class SkPDFDocument;
+
 /** A form XObject is a self contained description of a graphics
     object.  A form XObject is a page object with slightly different
     syntax, that can be drawn into a page content stream, just like a
     bitmap XObject can be drawn into a page content stream.
 */
-sk_sp<SkPDFObject> SkPDFMakeFormXObject(std::unique_ptr<SkStreamAsset> content,
-                                        sk_sp<SkPDFArray> mediaBox,
-                                        sk_sp<SkPDFDict> resourceDict,
-                                        const SkMatrix& inverseTransform,
-                                        const char* colorSpace);
+SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
+                                            std::unique_ptr<SkStreamAsset> content,
+                                            sk_sp<SkPDFArray> mediaBox,
+                                            sk_sp<SkPDFDict> resourceDict,
+                                            const SkMatrix& inverseTransform,
+                                            const char* colorSpace);
 #endif

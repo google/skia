@@ -37,9 +37,9 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
-static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
-                                            const SkPDFImageShaderKey& key,
-                                            SkImage* image) {
+static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
+                                                const SkPDFImageShaderKey& key,
+                                                SkImage* image) {
     SkASSERT(image);
 
     // The image shader pattern cell will be drawn into a separate device
@@ -52,7 +52,7 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     finalMatrix.preConcat(key.fShaderTransform);
     SkRect deviceBounds = SkRect::Make(key.fBBox);
     if (!SkPDFUtils::InverseTransformBBox(finalMatrix, &deviceBounds)) {
-        return nullptr;
+        return SkPDFIndirectReference();
     }
 
     SkRect bitmapBounds = SkRect::Make(image->bounds());
@@ -244,22 +244,23 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
         }
     }
 
-    auto imageShader = sk_make_sp<SkPDFStream>(patternDevice->content());
+    auto imageShader = patternDevice->content();
     sk_sp<SkPDFDict> resourceDict = patternDevice->makeResourceDict();
-    SkPDFUtils::PopulateTilingPatternDict(imageShader->dict(), patternBBox,
+    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    SkPDFUtils::PopulateTilingPatternDict(dict.get(), patternBBox,
                                           std::move(resourceDict), finalMatrix);
-    return imageShader;
+    return SkPDFStreamOut(std::move(dict), std::move(imageShader), doc);
 }
 
 // Generic fallback for unsupported shaders:
 //  * allocate a surfaceBBox-sized bitmap
 //  * shade the whole area
 //  * use the result as a bitmap shader
-static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
-                                               SkShader* shader,
-                                               const SkMatrix& canvasTransform,
-                                               const SkIRect& surfaceBBox,
-                                               SkColor paintColor) {
+static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
+                                                   SkShader* shader,
+                                                   const SkMatrix& canvasTransform,
+                                                   const SkIRect& surfaceBBox,
+                                                   SkColor paintColor) {
     // TODO(vandebo) This drops SKComposeShader on the floor.  We could
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
@@ -280,7 +281,7 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
     // MakeImageShader's behavior).
     SkRect shaderRect = SkRect::Make(surfaceBBox);
     if (!SkPDFUtils::InverseTransformBBox(canvasTransform, &shaderRect)) {
-        return nullptr;
+        return SkPDFIndirectReference();
     }
     // Clamp the bitmap size to about 1M pixels
     static const SkScalar kMaxBitmapArea = 1024 * 1024;
@@ -324,18 +325,18 @@ static SkColor adjust_color(SkShader* shader, SkColor paintColor) {
     return paintColor & SK_ColorBLACK;
 }
 
-sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
-                                  SkShader* shader,
-                                  const SkMatrix& canvasTransform,
-                                  const SkIRect& surfaceBBox,
-                                  SkColor paintColor) {
+SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
+                                       SkShader* shader,
+                                       const SkMatrix& canvasTransform,
+                                       const SkIRect& surfaceBBox,
+                                       SkColor paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
     if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
         return SkPDFGradientShader::Make(doc, shader, canvasTransform, surfaceBBox);
     }
     if (surfaceBBox.isEmpty()) {
-        return nullptr;
+        return SkPDFIndirectReference();
     }
     SkBitmap image;
     SkPDFImageShaderKey key = {
@@ -350,11 +351,11 @@ sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
     if (SkImage* skimg = shader->isAImage(&key.fShaderTransform, key.fImageTileModes)) {
         key.fBitmapKey = SkBitmapKeyFromImage(skimg);
         SkPDFCanon* canon = doc->canon();
-        sk_sp<SkPDFObject>* shaderPtr = canon->fImageShaderMap.find(key);
+        SkPDFIndirectReference* shaderPtr = canon->fImageShaderMap.find(key);
         if (shaderPtr) {
             return *shaderPtr;
         }
-        sk_sp<SkPDFObject> pdfShader = make_image_shader(doc, key, skimg);
+        SkPDFIndirectReference pdfShader = make_image_shader(doc, key, skimg);
         canon->fImageShaderMap.set(std::move(key), pdfShader);
         return pdfShader;
     }

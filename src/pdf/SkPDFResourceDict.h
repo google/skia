@@ -32,9 +32,9 @@ enum class SkPDFResourceType {
  *
  *  Any arguments can be nullptr.
  */
-sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<sk_sp<SkPDFObject>> graphicStateResources,
-                                       std::vector<sk_sp<SkPDFObject>> shaderResources,
-                                       std::vector<sk_sp<SkPDFObject>> xObjectResources,
+sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<SkPDFIndirectReference> graphicStateResources,
+                                       std::vector<SkPDFIndirectReference> shaderResources,
+                                       std::vector<SkPDFIndirectReference> xObjectResources,
                                        std::vector<SkPDFIndirectReference> fontResources);
 
 /**

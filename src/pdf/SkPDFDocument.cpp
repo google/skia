@@ -47,10 +47,6 @@ SkPDFObjectSerializer::SkPDFObjectSerializer() = default;
 
 SkPDFObjectSerializer::~SkPDFObjectSerializer() = default;
 
-SkPDFObjectSerializer::SkPDFObjectSerializer(SkPDFObjectSerializer&&) = default;
-
-SkPDFObjectSerializer& SkPDFObjectSerializer::operator=(SkPDFObjectSerializer&&) = default;
-
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
 #ifndef SK_BUILD_FOR_WIN
@@ -59,16 +55,13 @@ static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
 static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
 static_assert((SKPDF_MAGIC[3] & 0x7F) == "Skia"[3], "");
 #endif
-void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
-                                            const SkPDF::Metadata& md) {
+void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream) {
     fBaseOffset = wStream->bytesWritten();
     static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
     wStream->writeText(kHeader);
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.
-    fInfoDict = SkPDFMetadata::MakeDocumentInformationDict(md);
-    this->serializeObject(fInfoDict, wStream);
 }
 #undef SKPDF_MAGIC
 
@@ -86,8 +79,7 @@ void SkPDFObjectSerializer::endObject(SkWStream* wStream) {
 
 void SkPDFObjectSerializer::serializeObject(const sk_sp<SkPDFObject>& object,
                                             SkWStream* wStream) {
-    SkPDFObjNumMap objNumMap;
-    objNumMap.fNextObjectNumber = fNextObjectNumber;
+    SkPDFObjNumMap objNumMap(this);
     objNumMap.addObjectRecursively(object.get());
 
     for (const sk_sp<SkPDFObject>& object : objNumMap.fObjects) {
@@ -96,18 +88,18 @@ void SkPDFObjectSerializer::serializeObject(const sk_sp<SkPDFObject>& object,
         this->endObject(wStream);
         object->drop();
     }
-    fNextObjectNumber = objNumMap.fNextObjectNumber; // save for later.
 }
 
 
 // Xref table and footer
 void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
-                                            const sk_sp<SkPDFObject> docCatalog,
-                                            sk_sp<SkPDFObject> id) {
+                                            SkPDFIndirectReference infoDict,
+                                            SkPDFIndirectReference docCatalog,
+                                            SkUUID uuid) {
     int xRefFileOffset = this->offset(wStream).fValue;
     // Include the special zeroth object in the count.
 
-    int objCount = SkToS32(fNextObjectNumber);
+    int objCount = SkToS32(fNextObjectNumber.load());
     wStream->writeText("xref\n0 ");
     wStream->writeDecAsText(objCount);
     wStream->writeText("\n0000000000 65535 f \n");
@@ -118,12 +110,12 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
     }
     SkPDFDict trailerDict;
     trailerDict.insertInt("Size", objCount);
-    SkASSERT(docCatalog);
-    trailerDict.insertObjRef("Root", docCatalog);
-    SkASSERT(fInfoDict);
-    trailerDict.insertObjRef("Info", std::move(fInfoDict));
-    if (id) {
-        trailerDict.insertObject("ID", std::move(id));
+    SkASSERT(docCatalog != SkPDFIndirectReference());
+    trailerDict.insertRef("Root", docCatalog);
+    SkASSERT(infoDict != SkPDFIndirectReference());
+    trailerDict.insertRef("Info", infoDict);
+    if (SkUUID() != uuid) {
+        trailerDict.insertObject("ID", SkPDFMetadata::MakePdfId(uuid, uuid));
     }
     wStream->writeText("trailer\n");
     trailerDict.emitObject(wStream);
@@ -216,6 +208,7 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
     if (fMetadata.fStructureElementTreeRoot) {
         fTagRoot = recursiveBuildTagTree(*fMetadata.fStructureElementTreeRoot, nullptr);
     }
+    fExecutor = metadata.fExecutor;
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -225,28 +218,34 @@ SkPDFDocument::~SkPDFDocument() {
 
 SkPDFIndirectReference SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
     SkASSERT(object);
-    fObjectSerializer.serializeObject(object, this->getStream());
+    if (object->fIndirectReference == SkPDFIndirectReference()) {
+        SkAutoMutexAcquire autoMutexAcquire(fMutex);
+        fObjectSerializer.serializeObject(object, this->getStream());
+    }
+    SkASSERT(object->fIndirectReference != SkPDFIndirectReference());
     return object->fIndirectReference;
 }
 
-SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object){
-    SkPDFIndirectReference ref = this->reserve();
+SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndirectReference ref){
     object.emitObject(this->beginObject(ref));
     this->endObject();
     return ref;
 }
 
-SkPDFIndirectReference SkPDFDocument::reserve() {
+SkPDFIndirectReference SkPDFDocument::reserveRef() {
     ++fOutstandingRefs;
-    return SkPDFIndirectReference{fObjectSerializer.fNextObjectNumber++};
+    return fObjectSerializer.reserve();
 };
 
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) {
-    --fOutstandingRefs;
+    fMutex.acquire();
     return fObjectSerializer.beginObject(ref, this->getStream());
 };
+
 void SkPDFDocument::endObject() {
     fObjectSerializer.endObject(this->getStream());
+    fMutex.release();
+    fSemaphore.signal();
 };
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -256,18 +255,22 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
         // if this is the first page if the document.
-        fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
+        {
+            SkAutoMutexAcquire autoMutexAcquire(fMutex);
+            fObjectSerializer.serializeHeader(this->getStream());
+        }
+
+        fInfoDict = this->serialize(SkPDFMetadata::MakeDocumentInformationDict(fMetadata));
         fDests = sk_make_sp<SkPDFDict>();
         if (fMetadata.fPDFA) {
-            SkPDFMetadata::UUID uuid = SkPDFMetadata::CreateUUID(fMetadata);
+            fUUID = SkPDFMetadata::CreateUUID(fMetadata);
             // We use the same UUID for Document ID and Instance ID since this
             // is the first revision of this document (and Skia does not
             // support revising existing PDF documents).
             // If we are not in PDF/A mode, don't use a UUID since testing
             // works best with reproducible outputs.
-            fID = SkPDFMetadata::MakePdfId(uuid, uuid);
-            fXMP = SkPDFMetadata::MakeXMPObject(fMetadata, uuid, uuid);
-            fObjectSerializer.serializeObject(fXMP, this->getStream());
+            fXMP = this->serialize(
+                SkPDFMetadata::MakeXMPObject(fMetadata, fUUID, fUUID));
         }
     }
     // By scaling the page at the device level, we will create bitmap layer
@@ -295,7 +298,7 @@ void SkPDFDocument::onEndPage() {
     auto page = sk_make_sp<SkPDFDict>("Page");
 
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
-    auto contentObject = sk_make_sp<SkPDFStream>(fPageDevice->content());
+    std::unique_ptr<SkStreamAsset> pageContent = fPageDevice->content();
     auto resourceDict = fPageDevice->makeResourceDict();
     auto annotations = fPageDevice->getAnnotations();
     fPageDevice->appendDestinations(fDests.get(), page.get());
@@ -307,8 +310,7 @@ void SkPDFDocument::onEndPage() {
     if (annotations) {
         page->insertObject("Annots", std::move(annotations));
     }
-    this->serialize(contentObject);
-    page->insertObjRef("Contents", std::move(contentObject));
+    page->insertRef("Contents", SkPDFStreamOut(nullptr, std::move(pageContent), this));
     // The StructParents unique identifier for each page is just its
     // 0-based page index.
     page->insertInt("StructParents", static_cast<int>(fPages.size()));
@@ -320,14 +322,14 @@ void SkPDFDocument::onAbort() {
 }
 
 void SkPDFDocument::reset() {
-    fObjectSerializer = SkPDFObjectSerializer();
+    reset_object(&fObjectSerializer);
     fCanon = SkPDFCanon();
     reset_object(&fCanvas);
     fPages = std::vector<sk_sp<SkPDFDict>>();
     fDests = nullptr;
     fPageDevice = nullptr;
-    fID = nullptr;
-    fXMP = nullptr;
+    fUUID = SkUUID();
+    fXMP = SkPDFIndirectReference();
     fMetadata = SkPDF::Metadata();
     fRasterScale = 1;
     fInverseRasterScale = 1;
@@ -447,14 +449,14 @@ static sk_sp<SkData> SkSrgbIcm() {
     return SkData::MakeWithoutCopy(kProfile, kProfileLength);
 }
 
-static sk_sp<SkPDFStream> make_srgb_color_profile() {
-    sk_sp<SkPDFStream> stream = sk_make_sp<SkPDFStream>(SkSrgbIcm());
-    stream->dict()->insertInt("N", 3);
-    stream->dict()->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
-    return stream;
+static SkPDFIndirectReference make_srgb_color_profile(SkPDFDocument* doc) {
+    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    dict->insertInt("N", 3);
+    dict->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
+    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()), doc, true);
 }
 
-static sk_sp<SkPDFArray> make_srgb_output_intents() {
+static sk_sp<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {
     // sRGB is specified by HTML, CSS, and SVG.
     auto outputIntent = sk_make_sp<SkPDFDict>("OutputIntent");
     outputIntent->insertName("S", "GTS_PDFA1");
@@ -462,8 +464,7 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
     outputIntent->insertString("OutputConditionIdentifier",
                                "Custom");
     outputIntent->insertString("Info","sRGB IEC61966-2.1");
-    outputIntent->insertObjRef("DestOutputProfile",
-                               make_srgb_color_profile());
+    outputIntent->insertRef("DestOutputProfile", make_srgb_color_profile(doc));
     auto intentArray = sk_make_sp<SkPDFArray>();
     intentArray->appendObject(std::move(outputIntent));
     return intentArray;
@@ -533,11 +534,11 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
     if (fMetadata.fPDFA) {
-        SkASSERT(fXMP);
-        docCatalog->insertObjRef("Metadata", fXMP);
+        SkASSERT(fXMP != SkPDFIndirectReference());
+        docCatalog->insertRef("Metadata", fXMP);
         // Don't specify OutputIntents if we are not in PDF/A mode since
         // no one has ever asked for this feature.
-        docCatalog->insertObject("OutputIntents", make_srgb_output_intents());
+        docCatalog->insertObject("OutputIntents", make_srgb_output_intents(this));
     }
 
     sk_sp<SkPDFDict> pageTree = generate_page_tree(fPages);
@@ -593,14 +594,22 @@ void SkPDFDocument::onClose(SkWStream* stream) {
             }
         }
     }
-    fObjectSerializer.serializeObject(docCatalog, this->getStream());
+    auto docCatalogRef = this->serialize(docCatalog);
     for (const SkPDFFont* f : get_fonts(fCanon)) {
         f->emitSubset(this);
     }
-    SkASSERT(fOutstandingRefs == 0);
-    fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
+    while (fOutstandingRefs > 0) {
+        fSemaphore.wait();
+        --fOutstandingRefs;
+    }
+
+    {
+        SkAutoMutexAcquire autoMutexAcquire(fMutex);
+        fObjectSerializer.serializeFooter(this->getStream(), fInfoDict, docCatalogRef, fUUID);
+    }
     this->reset();
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

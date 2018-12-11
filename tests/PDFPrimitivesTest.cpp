@@ -23,6 +23,7 @@
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFFont.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
@@ -77,51 +78,11 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
     assert_eq(reporter, result, string);
 }
 
-static void TestPDFStream(skiatest::Reporter* reporter) {
-    char streamBytes[] = "Test\nFoo\tBar";
-    auto streamData = skstd::make_unique<SkMemoryStream>(
-            streamBytes, strlen(streamBytes), true);
-    auto stream = sk_make_sp<SkPDFStream>(std::move(streamData));
-    assert_emit_eq(reporter,
-                   *stream,
-                   "<</Length 12>> stream\nTest\nFoo\tBar\nendstream");
-    stream->dict()->insertInt("Attribute", 42);
-    assert_emit_eq(reporter,
-                   *stream,
-                   "<</Length 12\n/Attribute 42>> stream\n"
-                   "Test\nFoo\tBar\nendstream");
-
-    {
-        char streamBytes2[] = "This is a longer string, so that compression "
-                              "can do something with it. With shorter strings, "
-                              "the short circuit logic cuts in and we end up "
-                              "with an uncompressed string.";
-        auto stream = sk_make_sp<SkPDFStream>(
-                SkData::MakeWithCopy(streamBytes2, strlen(streamBytes2)));
-
-        SkDynamicMemoryWStream compressedByteStream;
-        SkDeflateWStream deflateWStream(&compressedByteStream);
-        deflateWStream.write(streamBytes2, strlen(streamBytes2));
-        deflateWStream.finalize();
-
-        SkDynamicMemoryWStream expected;
-        expected.writeText("<</Filter /FlateDecode\n/Length 116>> stream\n");
-        compressedByteStream.writeToStream(&expected);
-        compressedByteStream.reset();
-        expected.writeText("\nendstream");
-        sk_sp<SkData> expectedResultData2(expected.detachAsData());
-        SkString result = emit_to_string(*stream);
-        #ifndef SK_PDF_LESS_COMPRESSION
-        assert_eql(reporter,
-                   result,
-                   (const char*)expectedResultData2->data(),
-                   expectedResultData2->size());
-        #endif
-    }
-}
-
 static void TestObjectNumberMap(skiatest::Reporter* reporter) {
-    SkPDFObjNumMap objNumMap;
+    SkPDFObjectSerializer pdfObjectSerializer;
+    SkNullWStream nullstream;
+    pdfObjectSerializer.serializeHeader(&nullstream);
+    SkPDFObjNumMap objNumMap(&pdfObjectSerializer);
     sk_sp<SkPDFArray> a1(new SkPDFArray);
     sk_sp<SkPDFArray> a2(new SkPDFArray);
     sk_sp<SkPDFArray> a3(new SkPDFArray);
@@ -145,7 +106,10 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     sk_sp<SkPDFArray> a2(new SkPDFArray);
     a2->appendObjRef(a1);
 
-    SkPDFObjNumMap catalog;
+    SkPDFObjectSerializer pdfObjectSerializer;
+    SkNullWStream nullstream;
+    pdfObjectSerializer.serializeHeader(&nullstream);
+    SkPDFObjNumMap catalog(&pdfObjectSerializer);
     catalog.addObjectRecursively(a1.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
 
@@ -264,7 +228,10 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
                    "(Another String) [-1]]");
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    SkPDFObjNumMap catalog;
+    SkPDFObjectSerializer pdfObjectSerializer;
+    SkNullWStream nullstream;
+    pdfObjectSerializer.serializeHeader(&nullstream);
+    SkPDFObjNumMap catalog(&pdfObjectSerializer);
     catalog.addObjectRecursively(referencedArray.get());
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
@@ -328,8 +295,12 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     assert_emit_eq(reporter, *dict, "<</Type /DType>>");
 
     sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    SkPDFObjNumMap catalog;
+    SkPDFObjectSerializer pdfObjectSerializer;
+    SkNullWStream nullstream;
+    pdfObjectSerializer.serializeHeader(&nullstream);
+    SkPDFObjNumMap catalog(&pdfObjectSerializer);
     catalog.addObjectRecursively(referencedArray.get());
+
     REPORTER_ASSERT(reporter, catalog.getObjectNumber(
                             referencedArray.get()) == 1);
     dict->insertObjRef("n1", std::move(referencedArray));
@@ -341,7 +312,6 @@ DEF_TEST(SkPDF_Primitives, reporter) {
     TestPDFUnion(reporter);
     TestPDFArray(reporter);
     TestPDFDict(reporter);
-    TestPDFStream(reporter);
     TestObjectNumberMap(reporter);
     TestObjectRef(reporter);
     test_issue1083();

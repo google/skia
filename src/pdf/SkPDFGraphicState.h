@@ -29,7 +29,7 @@ namespace SkPDFGraphicState {
 
     /** Get the graphic state for the passed SkPaint.
      */
-    sk_sp<SkPDFDict> GetGraphicStateForPaint(SkPDFCanon*, const SkPaint&);
+    SkPDFIndirectReference GetGraphicStateForPaint(SkPDFDocument*, const SkPaint&);
 
     /** Make a graphic state that only sets the passed soft mask.
      *  @param sMask     The form xobject to use as a soft mask.
@@ -38,12 +38,10 @@ namespace SkPDFGraphicState {
      *
      *  These are not de-duped.
      */
-    sk_sp<SkPDFDict> GetSMaskGraphicState(sk_sp<SkPDFObject> sMask,
-                                          bool invert,
-                                          SkPDFSMaskMode sMaskMode,
-                                          SkPDFCanon* canon);
-
-    sk_sp<SkPDFStream> MakeInvertFunction();
+    SkPDFIndirectReference GetSMaskGraphicState(SkPDFIndirectReference sMask,
+                                                bool invert,
+                                                SkPDFSMaskMode sMaskMode,
+                                                SkPDFDocument* doc);
 }
 
 SK_BEGIN_REQUIRE_DENSE

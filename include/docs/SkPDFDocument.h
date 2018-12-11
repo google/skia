@@ -9,6 +9,8 @@
 #include "SkString.h"
 #include "SkTime.h"
 
+class SkExecutor;
+
 namespace SkPDF {
 
 /** Table 333 in PDF 32000-1:2008
@@ -141,6 +143,15 @@ struct Metadata {
      *  should retain ownership.
      */
     const StructureElementNode* fStructureElementTreeRoot = nullptr;
+
+    /** Executor to handle threaded work within PDF Backend. If this is nullptr,
+        then all work will be done serially on the main thread. To have worker
+        threads assist with various tasks, set this to a valid SkExecutor
+        instance. Currently used for executing Deflate algorithm in parallel.
+
+        Experimental.
+    */
+    SkExecutor* fExecutor = nullptr;
 };
 
 /** Associate a node ID with subsequent drawing commands in an

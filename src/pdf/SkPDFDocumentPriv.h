@@ -8,13 +8,17 @@
 #define SkPDFDocumentPriv_DEFINED
 
 #include "SkCanvas.h"
-#include "SkPDFDocument.h"
 #include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFMetadata.h"
+#include "SkUUID.h"
+
+#include <atomic>
 
 class SkPDFDevice;
 class SkPDFTag;
+class SkExecutor;
 
 const char* SkPDFGetNodeIdKey();
 
@@ -31,23 +35,26 @@ struct SkPDFOffsetMap {
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
 struct SkPDFObjectSerializer {
-    int fNextObjectNumber = 1;
+    std::atomic<int> fNextObjectNumber = {1};
+    SkPDFIndirectReference reserve() { return SkPDFIndirectReference{fNextObjectNumber++}; }
     SkPDFOffsetMap fOffsets;
-    sk_sp<SkPDFObject> fInfoDict;
     size_t fBaseOffset = SIZE_MAX;
 
     SkPDFObjectSerializer();
     ~SkPDFObjectSerializer();
-    SkPDFObjectSerializer(SkPDFObjectSerializer&&);
-    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&);
+    SkPDFObjectSerializer(SkPDFObjectSerializer&&) = delete;
+    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&) = delete;
     SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
     SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 
     SkWStream* beginObject(SkPDFIndirectReference, SkWStream*);
     void endObject(SkWStream*);
-    void serializeHeader(SkWStream*, const SkPDF::Metadata&);
+    void serializeHeader(SkWStream*);
     void serializeObject(const sk_sp<SkPDFObject>&, SkWStream*);
-    void serializeFooter(SkWStream*, const sk_sp<SkPDFObject>, sk_sp<SkPDFObject>);
+    void serializeFooter(SkWStream*,
+                         SkPDFIndirectReference infoDict,
+                         SkPDFIndirectReference docCatalog,
+                         SkUUID uuid);
     SkPDFFileOffset offset(SkWStream*);
 };
 
@@ -73,7 +80,8 @@ public:
        after calling serialize, since those changes will be too late.
      */
     SkPDFIndirectReference serialize(const sk_sp<SkPDFObject>&);
-    SkPDFIndirectReference emit(const SkPDFObject&);
+    SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
+    SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
     SkPDFCanon* canon() { return &fCanon; }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
@@ -81,9 +89,11 @@ public:
     // Returns -1 if no mark ID.
     int getMarkIdForNodeId(int nodeId);
 
-    SkPDFIndirectReference reserve();
+    SkPDFIndirectReference reserveRef();
     SkWStream* beginObject(SkPDFIndirectReference);
     void endObject();
+
+    SkExecutor* executor() const { return fExecutor; }
 
 private:
     sk_sp<SkPDFTag> recursiveBuildTagTree(const SkPDF::StructureElementNode& node,
@@ -95,11 +105,13 @@ private:
     std::vector<sk_sp<SkPDFDict>> fPages;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
-    sk_sp<SkPDFObject> fID;
-    sk_sp<SkPDFObject> fXMP;
+    SkUUID fUUID;
+    SkPDFIndirectReference fInfoDict;
+    SkPDFIndirectReference fXMP;
     SkPDF::Metadata fMetadata;
     SkScalar fRasterScale = 1;
     SkScalar fInverseRasterScale = 1;
+    SkExecutor* fExecutor = nullptr;
 
     // For tagged PDFs.
 
@@ -110,7 +122,9 @@ private:
     // A mapping from node ID to tag for fast lookup.
     SkTHashMap<int, sk_sp<SkPDFTag>> fNodeIdToTag;
 
-    int fOutstandingRefs = 0;
+    std::atomic<int> fOutstandingRefs = {0};
+    SkMutex fMutex;
+    SkSemaphore fSemaphore;
 
     void reset();
 };

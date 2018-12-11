@@ -17,10 +17,10 @@ struct SkIRect;
 
 namespace SkPDFGradientShader {
 
-sk_sp<SkPDFObject> Make(SkPDFDocument* doc,
-                        SkShader* shader,
-                        const SkMatrix& matrix,
-                        const SkIRect& surfaceBBox);
+SkPDFIndirectReference Make(SkPDFDocument* doc,
+                            SkShader* shader,
+                            const SkMatrix& matrix,
+                            const SkIRect& surfaceBBox);
 
 struct Key {
     SkShader::GradientType fType;
@@ -37,7 +37,7 @@ struct KeyHash {
     uint32_t operator()(const Key& k) const { return k.fHash; }
 };
 
-using HashMap = SkTHashMap<Key, sk_sp<SkPDFObject>, KeyHash>;
+using HashMap = SkTHashMap<Key, SkPDFIndirectReference, KeyHash>;
 
 inline bool operator==(const SkShader::GradientInfo& u, const SkShader::GradientInfo& v) {
     return u.fColorCount    == v.fColorCount
