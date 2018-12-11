@@ -38,7 +38,7 @@ public:
 
     SkPDFGradientShader::HashMap fGradientPatternMap;
 
-    SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
+    SkTHashMap<SkBitmapKey, SkPDFIndirectReference> fPDFBitmapMap;
 
     SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
     SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
@@ -50,7 +50,7 @@ public:
     SkTHashMap<SkPDFStrokeGraphicState, sk_sp<SkPDFDict>> fStrokeGSMap;
     SkTHashMap<SkPDFFillGraphicState, sk_sp<SkPDFDict>> fFillGSMap;
 
-    sk_sp<SkPDFStream> fInvertFunction;
+    SkPDFIndirectReference fInvertFunction;
     sk_sp<SkPDFDict> fNoSmaskGraphicState;
     sk_sp<SkPDFArray> fRangeObject;
 };

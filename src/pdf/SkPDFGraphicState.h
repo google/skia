@@ -38,12 +38,10 @@ namespace SkPDFGraphicState {
      *
      *  These are not de-duped.
      */
-    sk_sp<SkPDFDict> GetSMaskGraphicState(sk_sp<SkPDFObject> sMask,
+    sk_sp<SkPDFDict> GetSMaskGraphicState(SkPDFIndirectReference sMask,
                                           bool invert,
                                           SkPDFSMaskMode sMaskMode,
-                                          SkPDFCanon* canon);
-
-    sk_sp<SkPDFStream> MakeInvertFunction();
+                                          SkPDFDocument* doc);
 }
 
 SK_BEGIN_REQUIRE_DENSE

@@ -33,7 +33,6 @@ class SkPDFDocument;
 class SkPDFDict;
 class SkPDFFont;
 class SkPDFObject;
-class SkPDFStream;
 class SkRRect;
 struct SkPDFIndirectReference;
 
@@ -167,9 +166,9 @@ private:
     std::vector<RectWithData> fLinkToDestinations;
     std::vector<NamedDestination> fNamedDestinations;
 
-    std::vector<sk_sp<SkPDFObject>> fGraphicStateResources;
-    std::vector<sk_sp<SkPDFObject>> fXObjectResources;
-    std::vector<sk_sp<SkPDFObject>> fShaderResources;
+    SkTHashSet<SkPDFIndirectReference> fGraphicStateResources;
+    SkTHashSet<SkPDFIndirectReference> fXObjectResources;
+    SkTHashSet<SkPDFIndirectReference> fShaderResources;
     SkTHashSet<SkPDFIndirectReference> fFontResources;
     int fNodeId;
 
@@ -199,10 +198,10 @@ private:
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Set alpha to true if making a transparency group form x-objects.
-    sk_sp<SkPDFObject> makeFormXObjectFromDevice(bool alpha = false);
+    SkPDFIndirectReference makeFormXObjectFromDevice(bool alpha = false);
 
-    void drawFormXObjectWithMask(sk_sp<SkPDFObject> xObject,
-                                 sk_sp<SkPDFObject> mask,
+    void drawFormXObjectWithMask(SkPDFIndirectReference xObject,
+                                 SkPDFIndirectReference sMask,
                                  SkBlendMode,
                                  bool invertClip);
 
@@ -249,7 +248,7 @@ private:
     void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
     void setGraphicState(sk_sp<SkPDFObject>, SkDynamicMemoryWStream*);
-    void drawFormXObject(sk_sp<SkPDFObject>, SkDynamicMemoryWStream*);
+    void drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemoryWStream*);
 
     bool hasEmptyClip() const { return this->cs().isEmpty(this->bounds()); }
 
