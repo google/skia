@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31c51f26_9dfc34c3",
+        "filename": "experimental/canvaskit/fonts/NotoMono-Regular.ttf.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-12-11T21:18:45Z",
+      "side": 1,
+      "message": "This is a rather large file, is there any way we can make generating this a build step?",
+      "range": {
+        "startLine": 9,
+        "startChar": 32,
+        "endLine": 9,
+        "endChar": 41
+      },
+      "revId": "4c9f362a92ac3520995197c0f7156d16887d0a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
