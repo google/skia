@@ -45,11 +45,11 @@ static void find_intercepts(const char* text, size_t len, SkScalar x, SkScalar y
 
     SkScalar uPos = uWidth;
     SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
-    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
+    int count = blob->getIntercepts(bounds, nullptr, &paint);
     SkASSERT(!(count % 2));
     if (count) {
         intersections->setCount(count);
-        paint.getTextBlobIntercepts(blob.get(), bounds, intersections->begin());
+        blob->getIntercepts(bounds, intersections->begin(), &paint);
         for (int i = 0; i < count; ++i) {
             (*intersections)[i] += x;
         }
@@ -95,11 +95,11 @@ static void find_intercepts(const char* text, size_t len, const SkPoint* pos, co
 
     SkScalar uPos = pos[0].fY + uWidth;
     SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
-    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
+    int count = blob->getIntercepts(bounds, nullptr, &paint);
     SkASSERT(!(count % 2));
     if (count) {
         intersections->setCount(count);
-        paint.getTextBlobIntercepts(blob.get(), bounds, intersections->begin());
+        blob->getIntercepts(bounds, intersections->begin(), &paint);
     }
 }
 
@@ -227,12 +227,12 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
             const SkScalar uPos = uWidth;
             const SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };
-            const int interceptCount = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
+            const int interceptCount = blob->getIntercepts(bounds, nullptr, &paint);
             SkASSERT(!(interceptCount % 2));
 
             SkTDArray<SkScalar> intercepts;
             intercepts.setCount(interceptCount);
-            paint.getTextBlobIntercepts(blob.get(), bounds, intercepts.begin());
+            blob->getIntercepts(bounds, intercepts.begin(), &paint);
 
             const SkScalar start = blob->bounds().left();
             const SkScalar end = blob->bounds().right();
