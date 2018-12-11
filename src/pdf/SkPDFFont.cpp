@@ -225,7 +225,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
         firstNonZeroGlyph = subsetCode;
         lastGlyph = SkToU16(SkTMin<int>((int)lastGlyph, 254 + (int)subsetCode));
     }
-    auto ref = doc->reserve();
+    auto ref = doc->reserveRef();
     return canon->fFontMap.set(
             fontID, SkPDFFont(std::move(typeface), firstNonZeroGlyph, lastGlyph, type, ref));
 }
@@ -321,11 +321,13 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                             stream_to_data(std::move(fontAsset)), font.glyphUsage(),
                             metrics.fFontName.c_str(), ttcIndex);
                     if (subsetFontData) {
-                        size_t len = subsetFontData->size();
-                        sk_sp<SkPDFStream> subsetStream = sk_make_sp<SkPDFStream>(
-                                std::move(subsetFontData));
-                        subsetStream->dict()->insertInt("Length1", SkToInt(len));
-                        descriptor->insertRef("FontFile2", doc->serialize(subsetStream));
+                        sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                        tmp->insertInt("Length1", SkToInt(subsetFontData->size()));
+                        descriptor->insertRef(
+                                "FontFile2",
+                                SkPDFStreamOut(std::move(tmp),
+                                               SkMemoryStream::Make(std::move(subsetFontData)),
+                                               doc, true));
                         break;
                     }
                     // If subsetting fails, fall back to original font data.
@@ -335,15 +337,19 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                     if (!fontAsset || fontAsset->getLength() == 0) { break; }
                 }
                 #endif  // SK_PDF_SUBSET_SUPPORTED
-                auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontAsset));
-                fontStream->dict()->insertInt("Length1", fontSize);
-                descriptor->insertRef("FontFile2", doc->serialize(fontStream));
+                sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                tmp->insertInt("Length1", fontSize);
+                descriptor->insertRef("FontFile2",
+                                      SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
+                                                     doc, true));
                 break;
             }
             case SkAdvancedTypefaceMetrics::kType1CID_Font: {
-                auto fontStream = sk_make_sp<SkPDFSharedStream>(std::move(fontAsset));
-                fontStream->dict()->insertName("Subtype", "CIDFontType0C");
-                descriptor->insertRef("FontFile3", doc->serialize(fontStream));
+                sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                tmp->insertName("Subtype", "CIDFontType0C");
+                descriptor->insertRef("FontFile3",
+                                      SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
+                                                     doc, true));
                 break;
             }
             default:
@@ -398,17 +404,15 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     const std::vector<SkUnichar>& glyphToUnicode =
         SkPDFFont::GetUnicodeMap(font.typeface(), canon);
     SkASSERT(SkToSizeT(font.typeface()->countGlyphs()) == glyphToUnicode.size());
-    fontDict.insertRef("ToUnicode",
-                    doc->serialize(
-                       SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
-                                              &font.glyphUsage(),
-                                              font.multiByteGlyphs(),
-                                              font.firstGlyphID(),
-                                              font.lastGlyphID())));
+    std::unique_ptr<SkStreamAsset> toUnicode =
+            SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
+                                   &font.glyphUsage(),
+                                   font.multiByteGlyphs(),
+                                   font.firstGlyphID(),
+                                   font.lastGlyphID());
+    fontDict.insertRef("ToUnicode", SkPDFStreamOut(nullptr, std::move(toUnicode), doc));
 
-    SkWStream* stream = doc->beginObject(font.indirectReference());
-    fontDict.emitObject(stream);
-    doc->endObject();
+    doc->emit(fontDict, font.indirectReference());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -431,11 +435,13 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
             sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
                                                                  &header, &data, &trailer);
             if (fontData) {
-                SkPDFStream fontStream(std::move(fontData));
-                fontStream.dict()->insertInt("Length1", header);
-                fontStream.dict()->insertInt("Length2", data);
-                fontStream.dict()->insertInt("Length3", trailer);
-                descriptor.insertRef("FontFile", doc->emit(fontStream));
+                sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+                dict->insertInt("Length1", header);
+                dict->insertInt("Length2", data);
+                dict->insertInt("Length3", trailer);
+                auto fontStream = SkMemoryStream::Make(std::move(fontData));
+                descriptor.insertRef("FontFile", SkPDFStreamOut(std::move(dict),
+                                                                std::move(fontStream), doc, true));
             }
         }
     }
@@ -514,9 +520,7 @@ static void emit_subset_type1(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     encoding->insertObject("Differences", std::move(encDiffs));
     font.insertObject("Encoding", std::move(encoding));
 
-    SkWStream* stream = doc->beginObject(pdfFont.indirectReference());
-    font.emitObject(stream);
-    doc->endObject();
+    doc->emit(font, pdfFont.indirectReference());
 }
 
 void SkPDFFont::GetType1GlyphNames(const SkTypeface& face, SkString* dst) {
@@ -717,7 +721,8 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                     content.writeText(" Do\n");
                 }
             }
-            charProcs->insertRef(characterName, doc->emit(SkPDFStream(content.detachAsStream())));
+            charProcs->insertRef(characterName, SkPDFStreamOut(nullptr,
+                                                               content.detachAsStream(), doc));
         }
         encDiffs->appendName(std::move(characterName));
         widthArray->appendScalar(advance);
@@ -750,20 +755,18 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
 
     const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, canon);
     SkASSERT(glyphToUnicode.size() == SkToSizeT(typeface->countGlyphs()));
-    sk_sp<SkPDFStream> toUnicodeCmap = SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
-                                                              &subset,
-                                                              false,
-                                                              firstGlyphID,
-                                                              lastGlyphID);
-    font.insertRef("ToUnicode", doc->serialize(toUnicodeCmap));
+    auto toUnicodeCmap = SkPDFMakeToUnicodeCmap(glyphToUnicode.data(),
+                                                &subset,
+                                                false,
+                                                firstGlyphID,
+                                                lastGlyphID);
+    font.insertRef("ToUnicode", SkPDFStreamOut(nullptr, std::move(toUnicodeCmap), doc));
     font.insertRef("FontDescriptor", type3_descriptor(doc, typeface, cache.get()));
     font.insertObject("Widths", std::move(widthArray));
     font.insertObject("Encoding", std::move(encoding));
     font.insertObject("CharProcs", std::move(charProcs));
 
-    SkWStream* stream = doc->beginObject(pdfFont.indirectReference());
-    font.emitObject(stream);
-    doc->endObject();
+    doc->emit(font, pdfFont.indirectReference());
 }
 
 

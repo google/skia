@@ -9,7 +9,9 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
+#include "SkExecutor.h"
 #include "SkMakeUnique.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -203,6 +205,7 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
             fObject->emitObject(stream);
             return;
         case Type::kRef:
+            SkASSERT(fIntValue >= 0);
             stream->writeDecAsText(fIntValue);
             stream->writeText(" 0 R");  // Generation number is always 0.
             return;
@@ -496,143 +499,71 @@ void SkPDFDict::insertString(const char key[], SkString value) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFSharedStream::SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data)
-    : fAsset(std::move(data)) {
-    SkASSERT(fAsset);
-}
-
-SkPDFSharedStream::~SkPDFSharedStream() { this->drop(); }
-
-void SkPDFSharedStream::drop() {
-    fAsset = nullptr;
-    fDict.drop();
-}
-
-#ifdef SK_PDF_LESS_COMPRESSION
-void SkPDFSharedStream::emitObject(SkWStream* stream) const {
-    SkASSERT(fAsset);
-    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());
-    SkASSERT(dup && dup->hasLength());
-    size_t length = dup->getLength();
-    stream->writeText("<<");
-    fDict.emitAll(stream);
-    stream->writeText("\n");
-    SkPDFUnion::Name("Length").emitObject(stream);
-    stream->writeText(" ");
-    SkPDFUnion::Int(length).emitObject(stream);
-    stream->writeText("\n>>stream\n");
-    SkStreamCopy(stream, dup.get());
-    stream->writeText("\nendstream");
-}
-#else
-void SkPDFSharedStream::emitObject(SkWStream* stream) const {
-    SkASSERT(fAsset);
-    SkDynamicMemoryWStream buffer;
-    SkDeflateWStream deflateWStream(&buffer);
-    // Since emitObject is const, this function doesn't change the dictionary.
-    std::unique_ptr<SkStreamAsset> dup(fAsset->duplicate());  // Cheap copy
-    SkASSERT(dup);
-    SkStreamCopy(&deflateWStream, dup.get());
-    deflateWStream.finalize();
-    size_t length = buffer.bytesWritten();
-    stream->writeText("<<");
-    fDict.emitAll(stream);
-    stream->writeText("\n");
-    SkPDFUnion::Name("Length").emitObject(stream);
-    stream->writeText(" ");
-    SkPDFUnion::Int(length).emitObject(stream);
-    stream->writeText("\n");
-    SkPDFUnion::Name("Filter").emitObject(stream);
-    stream->writeText(" ");
-    SkPDFUnion::Name("FlateDecode").emitObject(stream);
-    stream->writeText(">>");
-    stream->writeText(" stream\n");
-    buffer.writeToAndReset(stream);
-    stream->writeText("\nendstream");
-}
-#endif
-
-void SkPDFSharedStream::addResources(
-        SkPDFObjNumMap* catalog) const {
-    SkASSERT(fAsset);
-    fDict.addResources(catalog);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-SkPDFStream::SkPDFStream(sk_sp<SkData> data) {
-    this->setData(skstd::make_unique<SkMemoryStream>(std::move(data)));
-}
-
-SkPDFStream::SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {
-    this->setData(std::move(stream));
-}
-
-SkPDFStream::SkPDFStream() {}
-
-SkPDFStream::~SkPDFStream() {}
-
-void SkPDFStream::addResources(SkPDFObjNumMap* catalog) const {
-    SkASSERT(fCompressedData);
-    fDict.addResources(catalog);
-}
-
-void SkPDFStream::drop() {
-    fCompressedData.reset(nullptr);
-    fDict.drop();
-}
-
-void SkPDFStream::emitObject(SkWStream* stream) const {
-    SkASSERT(fCompressedData);
-    fDict.emitObject(stream);
-    // duplicate (a cheap operation) preserves const on fCompressedData.
-    std::unique_ptr<SkStreamAsset> dup(fCompressedData->duplicate());
-    SkASSERT(dup);
-    SkASSERT(dup->hasLength());
-    stream->writeText(" stream\n");
-    stream->writeStream(dup.get(), dup->getLength());
-    stream->writeText("\nendstream");
-}
-
-void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
-    SkASSERT(!fCompressedData);  // Only call this function once.
-    SkASSERT(stream);
+static void serialize_stream(const SkPDFDict* origDict,
+                             SkStreamAsset* stream,
+                             bool deflate,
+                             SkPDFDocument* doc,
+                             SkPDFIndirectReference ref) {
     // Code assumes that the stream starts at the beginning.
+    SkASSERT(stream && stream->hasLength());
 
-    #ifdef SK_PDF_LESS_COMPRESSION
-    fCompressedData = std::move(stream);
-    SkASSERT(fCompressedData && fCompressedData->hasLength());
-    fDict.insertInt("Length", fCompressedData->getLength());
-    #else
-
-    SkASSERT(stream->hasLength());
-    SkDynamicMemoryWStream compressedData;
-    SkDeflateWStream deflateWStream(&compressedData);
-    if (stream->getLength() > 0) {
-        SkStreamCopy(&deflateWStream, stream.get());
+    std::unique_ptr<SkStreamAsset> tmp;
+    SkPDFDict dict;
+    static const size_t kMinimumSavings = strlen("/Filter_/FlateDecode_");
+    if (deflate && stream->getLength() > kMinimumSavings) {
+        SkDynamicMemoryWStream compressedData;
+        SkDeflateWStream deflateWStream(&compressedData);
+        SkStreamCopy(&deflateWStream, stream);
+        deflateWStream.finalize();
+        if (stream->getLength() > compressedData.bytesWritten() + kMinimumSavings) {
+            tmp = compressedData.detachAsStream();
+            stream = tmp.get();
+            dict.insertName("Filter", "FlateDecode");
+        } else {
+            SkAssertResult(stream->rewind());
+        }
     }
-    deflateWStream.finalize();
-    size_t compressedLength = compressedData.bytesWritten();
-    size_t originalLength = stream->getLength();
+    dict.insertInt("Length", stream->getLength());
 
-    if (originalLength <= compressedLength + strlen("/Filter_/FlateDecode_")) {
-        SkAssertResult(stream->rewind());
-        fCompressedData = std::move(stream);
-        fDict.insertInt("Length", originalLength);
-        return;
+    SkWStream* dst = doc->beginObject(ref);
+    dst->writeText("<<");
+    if (origDict) {
+        origDict->emitAll(dst);
     }
-    fCompressedData = compressedData.detachAsStream();
-    fDict.insertName("Filter", "FlateDecode");
-    fDict.insertInt("Length", compressedLength);
-    #endif
+    dict.emitAll(dst);
+    dst->writeText(">> stream\n");
+    dst->writeStream(stream, stream->getLength());
+    dst->writeText("\nendstream");
+    doc->endObject();
+}
+
+SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
+                                      std::unique_ptr<SkStreamAsset> content,
+                                      SkPDFDocument* doc,
+                                      bool deflate) {
+    SkPDFIndirectReference ref = doc->reserveRef();
+    if (SkExecutor* executor = doc->executor()) {
+        SkPDFDict* dictPtr = dict.release();
+        SkStreamAsset* contentPtr = content.release();
+        // Pass ownership of both pointers into a std::function, which should
+        // only be executed once.
+        executor->add([dictPtr, contentPtr, deflate, doc, ref]() {
+            serialize_stream(dictPtr, contentPtr, deflate, doc, ref);
+            SkSafeUnref(dictPtr);
+            delete contentPtr;
+        });
+        return ref;
+    }
+    serialize_stream(dict.get(), content.get(), deflate, doc, ref);
+    return ref;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
+    SkASSERT(fIndirectReferenceSource != nullptr);
     if (obj && obj->fIndirectReference.fValue == -1) {
-        obj->fIndirectReference.fValue = fNextObjectNumber++;
+        obj->fIndirectReference = fIndirectReferenceSource->reserve();
         fObjects.emplace_back(sk_ref_sp(obj));
         obj->addResources(this);
     }

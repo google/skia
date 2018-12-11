@@ -38,11 +38,11 @@ struct SkIRect;
  *  @param paintColor  Color+Alpha of the paint.  Color is usually ignored,
  *                     unless it is a alpha shader.
  */
-sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
-                                  SkShader* shader,
-                                  const SkMatrix& ctm,
-                                  const SkIRect& surfaceBBox,
-                                  SkColor paintColor);
+SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
+                                       SkShader* shader,
+                                       const SkMatrix& ctm,
+                                       const SkIRect& surfaceBBox,
+                                       SkColor paintColor);
 
 SK_BEGIN_REQUIRE_DENSE
 struct SkPDFImageShaderKey {
