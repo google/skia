@@ -97,7 +97,7 @@ void GrVkDescriptorSetManager::recycleDescriptorSet(const GrVkDescriptorSet* des
     fFreeSets.push_back(descSet);
 }
 
-void GrVkDescriptorSetManager::release(const GrVkGpu* gpu) {
+void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     fPoolManager.freeGPUResources(gpu);
 
     for (int i = 0; i < fFreeSets.count(); ++i) {
@@ -310,7 +310,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::getNewDescriptorSet(GrVkGp
                                                                    ds));
 }
 
-void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(const GrVkGpu* gpu) {
+void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* gpu) {
     if (fDescLayout) {
         GR_VK_CALL(gpu->vkInterface(), DestroyDescriptorSetLayout(gpu->device(), fDescLayout,
                                                                   nullptr));

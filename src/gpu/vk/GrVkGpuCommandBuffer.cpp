@@ -15,6 +15,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
+#include "GrVkCommandPool.h"
 #include "GrVkGpu.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderPass.h"
