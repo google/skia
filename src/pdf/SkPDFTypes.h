@@ -27,6 +27,7 @@ class SkPDFObject;
 class SkStreamAsset;
 class SkString;
 class SkWStream;
+struct SkPDFObjectSerializer;
 
 #ifdef SK_PDF_IMAGE_STATS
     #include <atomic>
@@ -34,6 +35,7 @@ class SkWStream;
 
 struct SkPDFIndirectReference {
     int fValue = -1;
+    explicit operator bool() { return fValue != -1; }
 };
 
 inline static bool operator==(SkPDFIndirectReference u, SkPDFIndirectReference v) {
@@ -43,6 +45,7 @@ inline static bool operator==(SkPDFIndirectReference u, SkPDFIndirectReference v
 inline static bool operator!=(SkPDFIndirectReference u, SkPDFIndirectReference v) {
     return u.fValue != v.fValue;
 }
+
 
 /** \class SkPDFObject
 
@@ -352,67 +355,16 @@ private:
     SkDEBUGCODE(bool fDumped;)
 };
 
-/** \class SkPDFSharedStream
+#ifdef SK_PDF_LESS_COMPRESSION
+    static constexpr bool kSkPDFDefaultDoDeflate = false;
+#else
+    static constexpr bool kSkPDFDefaultDoDeflate = true;
+#endif
 
-    This class takes an asset and assumes that it is backed by
-    long-lived shared data (for example, an open file
-    descriptor). That is: no memory savings can be made by holding on
-    to a compressed version instead.
- */
-class SkPDFSharedStream final : public SkPDFObject {
-public:
-    SkPDFSharedStream(std::unique_ptr<SkStreamAsset> data);
-    ~SkPDFSharedStream() override;
-    SkPDFDict* dict() { return &fDict; }
-    void emitObject(SkWStream*) const override;
-    void addResources(SkPDFObjNumMap*) const override;
-    void drop() override;
-
-private:
-    std::unique_ptr<SkStreamAsset> fAsset;
-    SkPDFDict fDict;
-    typedef SkPDFObject INHERITED;
-};
-
-/** \class SkPDFStream
-
-    This class takes an asset and assumes that it is the only owner of
-    the asset's data.  It immediately compresses the asset to save
-    memory.
- */
-
-class SkPDFStream final : public SkPDFObject {
-
-public:
-    /** Create a PDF stream. A Length entry is automatically added to the
-     *  stream dictionary.
-     *  @param data   The data part of the stream.
-     *  @param stream The data part of the stream. */
-    explicit SkPDFStream(sk_sp<SkData> data);
-    explicit SkPDFStream(std::unique_ptr<SkStreamAsset> stream);
-    ~SkPDFStream() override;
-
-    SkPDFDict* dict() { return &fDict; }
-
-    // The SkPDFObject interface.
-    void emitObject(SkWStream* stream) const override;
-    void addResources(SkPDFObjNumMap*) const final;
-    void drop() override;
-
-protected:
-    /* Create a PDF stream with no data.  The setData method must be called to
-     * set the data. */
-    SkPDFStream();
-
-    /** Only call this function once. */
-    void setData(std::unique_ptr<SkStreamAsset> stream);
-
-private:
-    std::unique_ptr<SkStreamAsset> fCompressedData;
-    SkPDFDict fDict;
-
-    typedef SkPDFDict INHERITED;
-};
+SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
+                                      std::unique_ptr<SkStreamAsset> stream,
+                                      SkPDFDocument* doc,
+                                      bool deflate = kSkPDFDefaultDoDeflate);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -423,6 +375,8 @@ private:
 */
 class SkPDFObjNumMap : SkNoncopyable {
 public:
+    SkPDFObjNumMap(SkPDFObjectSerializer* s) : fIndirectReferenceSource(s) {}
+
     /** Add the passed object to the catalog, as well as all its dependencies.
      *  @param obj   The object to add.  If nullptr, this is a noop.
      */
@@ -438,8 +392,8 @@ public:
 
 private:
     friend struct SkPDFObjectSerializer;
+    SkPDFObjectSerializer* fIndirectReferenceSource;
     std::vector<sk_sp<SkPDFObject>> fObjects;
-    int fNextObjectNumber = 1;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
