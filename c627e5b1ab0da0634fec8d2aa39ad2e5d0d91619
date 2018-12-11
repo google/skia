@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "57ceb630_eba29cea",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-11T14:31:18Z",
+      "side": 1,
+      "message": "All removed now, with the new one-buffer-per-pool change.",
+      "parentUuid": "253ecdbf_5e955e20",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 47
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96ea3209_ed92df6d",
         "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
         "patchSetId": 20
@@ -45,6 +69,30 @@
       "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bc18064_de2bb307",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-11T14:31:18Z",
+      "side": 1,
+      "message": "As above.",
+      "parentUuid": "96ea3209_ed92df6d",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 71
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "615b09ad_4207b27d",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-11T14:31:18Z",
+      "side": 1,
+      "message": "As above.",
+      "parentUuid": "bd34524c_034bf5b0",
+      "range": {
+        "startLine": 117,
+        "startChar": 4,
+        "endLine": 117,
+        "endChar": 71
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "132295ee_c2833671",
         "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
         "patchSetId": 20
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "97d51725_53d618c5",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-11T14:31:18Z",
+      "side": 1,
+      "message": "As above.",
+      "parentUuid": "132295ee_c2833671",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 64
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25af4961_f590f81a",
         "filename": "src/gpu/vk/GrVkResource.h",
         "patchSetId": 20
@@ -114,6 +210,30 @@
       "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "689e5499_ef27a983",
+        "filename": "src/gpu/vk/GrVkResource.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-12-11T14:31:18Z",
+      "side": 1,
+      "message": "Well, this synchronization has been removed as it is no longer necessary... but weren\u0027t we just doing this in debug mode anyway? I can\u0027t imagine the performance impact of this would be significant enough that it would have actually mattered for debug mode.\n\nMoot point, but just curious.",
+      "parentUuid": "25af4961_f590f81a",
+      "range": {
+        "startLine": 62,
+        "startChar": 12,
+        "endLine": 62,
+        "endChar": 54
+      },
+      "revId": "c627e5b1ab0da0634fec8d2aa39ad2e5d0d91619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
