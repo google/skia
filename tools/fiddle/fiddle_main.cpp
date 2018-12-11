@@ -23,7 +23,6 @@ DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in 
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrRenderTarget.h"
 #include "gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h

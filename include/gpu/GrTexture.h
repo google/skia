@@ -9,12 +9,13 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
-#include "../private/GrSurface.h"
-#include "../private/GrTypesPriv.h"
 #include "GrBackendSurface.h"
+#include "GrSamplerState.h"
+#include "GrSurface.h"
 #include "SkImage.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
+#include "../private/GrTypesPriv.h"
 
 class GrTexturePriv;
 
