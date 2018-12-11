@@ -8,7 +8,6 @@
 #ifndef GrTexturePriv_DEFINED
 #define GrTexturePriv_DEFINED
 
-#include "GrSamplerState.h"
 #include "GrTexture.h"
 
 /** Class that adds methods to GrTexture that are only intended for use internal to Skia.
