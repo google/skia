@@ -11,6 +11,8 @@ class <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> final : public <a
 
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds()</a> const;
     uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const;
+    int getIntercepts(const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a> intervals[],
+                      const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a> = nullptr) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
                                       <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>);
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromString'>MakeFromString</a>(const char* <a href='undocumented#String'>string</a>, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
