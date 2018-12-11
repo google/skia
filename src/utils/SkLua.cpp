@@ -1923,11 +1923,30 @@ static int lsk_newTextBlob(lua_State* L) {
     SkShaper shaper(nullptr);
 
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-    SkTextBlobBuilder builder;
-    SkPoint end = shaper.shape(&builder, font, text, strlen(text), true,
+
+    class BlobLineHandler final : public SkShaper::LineHandler {
+    public:
+        explicit BlobLineHandler(SkFont font) : fFont(font) {}
+
+        void operator()(const SkGlyphID glyphs[], const SkPoint pos[], const uint32_t clusters[],
+                        int count) override {
+            const auto& run = fBuilder.allocRunPos(fFont, count);
+            memcpy(run.glyphs, glyphs, count * sizeof(SkGlyphID));
+            memcpy(run.pos, pos, count * sizeof(SkPoint));
+        }
+
+        sk_sp<SkTextBlob> makeBlob() { return fBuilder.make(); }
+
+    private:
+        SkFont            fFont;
+        SkTextBlobBuilder fBuilder;
+    };
+
+    BlobLineHandler handler(font);
+    SkPoint end = shaper.shape(&handler, font, text, strlen(text), true,
                                { bounds.left(), bounds.top() }, bounds.width());
 
-    push_ref<SkTextBlob>(L, builder.make());
+    push_ref<SkTextBlob>(L, handler.makeBlob());
     SkLua(L).pushScalar(end.fY);
     return 2;
 }
