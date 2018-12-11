@@ -29,7 +29,7 @@ public:
 private:
     GrVkBufferView(VkBufferView bufferView) : INHERITED(), fBufferView(bufferView) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkBufferView  fBufferView;
 
