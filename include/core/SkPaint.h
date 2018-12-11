@@ -1097,7 +1097,8 @@ public:
                         const SkPoint pos[], SkPath* path) const;
 #endif
 
-    /** Returns the number of intervals that intersect bounds.
+    /** DEPRECATED -- call method on SkTextBlob
+        Returns the number of intervals that intersect bounds.
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
         the string.
@@ -1237,13 +1238,6 @@ private:
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
-
-    int getTextIntercepts(const SkFont&, const SkGlyphID[], int count, SkScalar x, SkScalar y,
-                          const SkScalar bounds[2], SkScalar* intervals) const;
-    int getPosTextIntercepts(const SkFont&, const SkGlyphID[], int count, const SkPoint pos[],
-                             const SkScalar bounds[2], SkScalar* intervals) const;
-    int getPosTextHIntercepts(const SkFont&, const SkGlyphID[], int count, const SkScalar xpos[],
-                              SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
 
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
