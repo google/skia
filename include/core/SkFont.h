@@ -373,7 +373,7 @@ public:
         @param count       number of glyphs
         @param widths      returns text advances for each glyph; may be nullptr
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
-        @param paint       optional, specifies stroking, patheffect and maskfilter
+        @param paint       optional, specifies stroking, SkPathEffect and SkMaskFilter
      */
     void getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
                          const SkPaint* paint) const;
@@ -382,12 +382,12 @@ public:
     /** Experimental.
         Retrieves the bounds for each glyph in glyphs.
         bounds must be an array of count entries.
-        If paint is not nullptr, its stroking, patheffect and maskfilter fields will be respected.
+        If paint is not nullptr, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
 
         @param glyphs      array of glyph indices to be measured
         @param count       number of glyphs
         @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
-        @param paint       optional, specifies stroking, patheffect and maskfilter
+        @param paint       optional, specifies stroking, SkPathEffect, and SkMaskFilter
      */
     void getBounds(const uint16_t glyphs[], int count, SkRect bounds[],
                    const SkPaint* paint) const {
