@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71e79f92_814d09f6",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-11T16:52:12Z",
+      "side": 1,
+      "message": "Consider SkSpan\u003cconst SkGlyphID\u003e?",
+      "range": {
+        "startLine": 1241,
+        "startChar": 41,
+        "endLine": 1241,
+        "endChar": 69
+      },
+      "revId": "ba81a90c2514343cdeb4e22b1113c79a700ff7ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55aa52ae_2b93d3fa",
+        "filename": "src/core/SkPaint_text.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-11T16:52:12Z",
+      "side": 1,
+      "message": "Swap font and paint?",
+      "range": {
+        "startLine": 395,
+        "startChar": 22,
+        "endLine": 395,
+        "endChar": 62
+      },
+      "revId": "ba81a90c2514343cdeb4e22b1113c79a700ff7ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
