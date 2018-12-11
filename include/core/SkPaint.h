@@ -1238,11 +1238,11 @@ private:
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
-    int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
+    int getTextIntercepts(const SkFont&, const SkGlyphID[], int count, SkScalar x, SkScalar y,
                           const SkScalar bounds[2], SkScalar* intervals) const;
-    int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
+    int getPosTextIntercepts(const SkFont&, const SkGlyphID[], int count, const SkPoint pos[],
                              const SkScalar bounds[2], SkScalar* intervals) const;
-    int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
+    int getPosTextHIntercepts(const SkFont&, const SkGlyphID[], int count, const SkScalar xpos[],
                               SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
 
     /*
