@@ -308,7 +308,7 @@ std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(std::unique_ptr<Gr
     std::tie(fList, chain) =
             TryConcat(std::move(fList), this->dstProxy(), fAppliedClip, std::move(chain), *dstProxy,
                       appliedClip, caps, pool, auditTrail);
-    if (!chain.empty()) {
+    if (!chain.empty()) {  // NOLINT(bugprone-use-after-move)
         // append failed, give the op back to the caller.
         this->validate();
         return chain.popHead();

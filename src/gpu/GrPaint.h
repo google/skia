@@ -115,6 +115,10 @@ public:
      **/
     bool isTrivial() const { return fTrivial; }
 
+    friend void assert_alive(GrPaint& p) {
+        SkASSERT(p.fAlive);
+    }
+
 private:
     // Since paint copying is expensive if there are fragment processors, we require going through
     // the Clone() method.
@@ -128,6 +132,7 @@ private:
     SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fCoverageFragmentProcessors;
     bool fTrivial = true;
     SkPMColor4f fColor = SK_PMColor4fWHITE;
+    SkDEBUGCODE(bool fAlive = true;)  // Set false after moved from.
 };
 
 #endif

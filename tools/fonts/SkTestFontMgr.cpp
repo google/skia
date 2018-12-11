@@ -79,10 +79,12 @@ public:
                     if (defaultFamily) {
                         fDefaultFamily = family;
                     }
+                    break;
                 }
             }
             if (!found) {
                 fFamilies.emplace_back(sk_make_sp<FontStyleSet>(sub.fFamilyName));
+                // NOLINTNEXTLINE(bugprone-use-after-move)
                 fFamilies.back()->fTypefaces.emplace_back(std::move(typeface), sub.fStyle, sub.fStyleName);
                 if (defaultFamily) {
                     fDefaultFamily = fFamilies.back();

@@ -115,16 +115,19 @@ sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* c
         return nullptr;
     }
 
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
     rtContext->clear(nullptr, SK_PMColor4fTRANSPARENT,
                      GrRenderTargetContext::CanClearFullscreen::kYes);
 
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
+        GrPaint paint;
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+
         SkRect rect = SkRect::Make(iter.rect());
+
         rtContext->drawRect(clip, std::move(paint), GrAA::kNo, inMatrix, rect);
+
         iter.next();
     }
 

@@ -234,7 +234,7 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 0, 0, 1, 0);
     paint.set(std::move(baz));
     check(reporter, 0, 0, 1, 0);
-    REPORTER_ASSERT(reporter, !baz);
+    REPORTER_ASSERT(reporter, !baz);  // NOLINT(bugprone-use-after-move)
     paint.set(nullptr);
     check(reporter, 0, 1, 1, 1);
 

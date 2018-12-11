@@ -137,7 +137,7 @@ DEF_TEST(SkAutoTMallocSelfMove, r) {
     REPORTER_ASSERT(r, foo.get());
 
     foo = std::move(foo);
-    REPORTER_ASSERT(r, foo.get());
+    REPORTER_ASSERT(r, foo.get());  // NOLINT(bugprone-use-after-move)
 
 #if defined(__clang__)
     #pragma clang diagnostic pop
