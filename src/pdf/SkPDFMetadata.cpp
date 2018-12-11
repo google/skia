@@ -150,8 +150,7 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
     return std::move(dict);
 }
 
-SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
-        const SkPDF::Metadata& metadata) {
+SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
     // The main requirement is for the UUID to be unique; the exact
     // format of the data that will be hashed is not important.
     SkMD5 md5;
@@ -177,22 +176,22 @@ SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
     // See RFC 4122, page 6-7.
     digest.data[6] = (digest.data[6] & 0x0F) | 0x30;
     digest.data[8] = (digest.data[6] & 0x3F) | 0x80;
-    static_assert(sizeof(digest) == sizeof(UUID), "uuid_size");
-    SkPDFMetadata::UUID uuid;
+    static_assert(sizeof(digest) == sizeof(SkUUID), "uuid_size");
+    SkUUID uuid;
     memcpy(&uuid, &digest, sizeof(digest));
     return uuid;
 }
 
-sk_sp<SkPDFObject> SkPDFMetadata::MakePdfId(const UUID& doc,
-                                            const UUID& instance) {
+sk_sp<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
+                                            const SkUUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
     auto array = sk_make_sp<SkPDFArray>();
-    static_assert(sizeof(SkPDFMetadata::UUID) == 16, "uuid_size");
+    static_assert(sizeof(SkUUID) == 16, "uuid_size");
     array->appendString(
-            SkString(reinterpret_cast<const char*>(&doc), sizeof(UUID)));
+            SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)));
     array->appendString(
-            SkString(reinterpret_cast<const char*>(&instance), sizeof(UUID)));
+            SkString(reinterpret_cast<const char*>(&instance), sizeof(SkUUID)));
     return std::move(array);
 }
 
@@ -208,7 +207,7 @@ static void hexify(const uint8_t** inputPtr, char** outputPtr, int count) {
     }
 }
 
-static SkString uuid_to_string(const SkPDFMetadata::UUID& uuid) {
+static SkString uuid_to_string(const SkUUID& uuid) {
     //  8-4-4-4-12
     char buffer[36];  // [32 + 4]
     char* ptr = buffer;
@@ -306,8 +305,8 @@ const SkString escape_xml(const SkString& input,
 
 sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
         const SkPDF::Metadata& metadata,
-        const UUID& doc,
-        const UUID& instance) {
+        const SkUUID& doc,
+        const SkUUID& instance) {
     static const char templateString[] =
             "<?xpacket begin=\"\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n"
             "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\"\n"
