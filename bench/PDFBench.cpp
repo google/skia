@@ -79,20 +79,6 @@ DEF_BENCH(return new PDFScalarBench("PDFScalar_random", next_any);)
 #include "SkPDFUtils.h"
 
 namespace {
-static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
-    // SkDebugWStream wStream;
-    SkNullWStream wStream;
-    SkPDFObjNumMap objNumMap;
-    objNumMap.addObjectRecursively(object.get());
-    for (size_t i = 0; i < objNumMap.objects().size(); ++i) {
-        SkPDFObject* object = objNumMap.objects()[i].get();
-        wStream.writeDecAsText(i + 1);
-        wStream.writeText(" 0 obj\n");
-        object->emitObject(&wStream);
-        wStream.writeText("\nendobj\n");
-    }
-}
-
 class PDFImageBench : public Benchmark {
 public:
     PDFImageBench() {}
@@ -184,11 +170,10 @@ protected:
         SkASSERT(fAsset);
         if (!fAsset) { return; }
         while (loops-- > 0) {
-            sk_sp<SkPDFObject> object =
-                sk_make_sp<SkPDFSharedStream>(
-                        std::unique_ptr<SkStreamAsset>(fAsset->duplicate()));
-            test_pdf_object_serialization(object);
-        }
+            SkNullWStream wStream;
+            SkPDFDocument doc(&wStream, SkPDF::Metadata());
+            (void)SkPDFStreamOut(nullptr, fAsset->duplicate(), &doc);
+       }
     }
 
 private:
@@ -229,6 +214,7 @@ struct PDFShaderBench : public Benchmark {
         while (loops-- > 0) {
             SkNullWStream nullStream;
             SkPDFDocument doc(&nullStream, SkPDF::Metadata());
+            doc.beginPage(256, 256);
             sk_sp<SkPDFObject> shader = SkPDFMakeShader(&doc, fShader.get(), SkMatrix::I(),
                                                         {0, 0, 400, 400}, SK_ColorBLACK);
         }
