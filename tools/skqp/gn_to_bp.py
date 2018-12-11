@@ -122,6 +122,7 @@ gn_args = {
   'is_debug':   'false',
   'ndk_api':    '26',
   'skia_skqp_global_error_tolerance': '8',
+  'extra_cflags' : ['-DSK_ENABLE_DUMP_GPU', '-DSK_BUILD_FOR_SKQP'],
 
   # setup vulkan
   'skia_use_vulkan':    'true',
