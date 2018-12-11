@@ -210,9 +210,17 @@ static bool update_edge(SkEdge* edge, int last_y) {
     return true;
 }
 
-static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
-                              SkBlitter* blitter, int start_y, int stop_y,
-                              PrePostProc proc) {
+// Unexpected conditions for which we need to return
+#define ASSERT_RETURN(cond)     \
+    do {                        \
+        if (!(cond)) {          \
+            SkASSERT(false);    \
+            return;             \
+        }                       \
+    } while (0)
+
+// Needs Y to only change once (looser than convex in X)
+static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y, int stop_y) {
     validate_sort(prevHead->fNext);
 
     SkEdge* leftE = prevHead->fNext;
@@ -222,31 +230,29 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
     // our edge choppers for curves can result in the initial edges
     // not lining up, so we take the max.
     int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
-    SkASSERT(local_top >= start_y);
+    ASSERT_RETURN(local_top >= start_y);
 
-    for (;;) {
+    while (local_top < stop_y) {
         SkASSERT(leftE->fFirstY <= stop_y);
         SkASSERT(riteE->fFirstY <= stop_y);
 
-        if (leftE->fX > riteE->fX || (leftE->fX == riteE->fX &&
-                                      leftE->fDX > riteE->fDX)) {
-            using std::swap;
-            swap(leftE, riteE);
-        }
-
         int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);
         local_bot = SkMin32(local_bot, stop_y - 1);
-        SkASSERT(local_top <= local_bot);
+        ASSERT_RETURN(local_top <= local_bot);
 
         SkFixed left = leftE->fX;
         SkFixed dLeft = leftE->fDX;
         SkFixed rite = riteE->fX;
         SkFixed dRite = riteE->fDX;
         int count = local_bot - local_top;
-        SkASSERT(count >= 0);
+        ASSERT_RETURN(count >= 0);
+
         if (0 == (dLeft | dRite)) {
             int L = SkFixedRoundToInt(left);
             int R = SkFixedRoundToInt(rite);
+            if (L > R) {
+                std::swap(L, R);
+            }
             if (L < R) {
                 count += 1;
                 blitter->blitRect(L, local_top, R - L, count);
@@ -256,6 +262,9 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
             do {
                 int L = SkFixedRoundToInt(left);
                 int R = SkFixedRoundToInt(rite);
+                if (L > R) {
+                    std::swap(L, R);
+                }
                 if (L < R) {
                     blitter->blitH(L, local_top, R - L);
                 }
@@ -274,26 +283,19 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
 
         if (!update_edge(leftE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
-                break;
+                return; // we're done
             }
             leftE = currE;
             currE = currE->fNext;
+            ASSERT_RETURN(leftE->fFirstY == local_top);
         }
         if (!update_edge(riteE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
-                break;
+                return; // we're done
             }
             riteE = currE;
             currE = currE->fNext;
-        }
-
-        SkASSERT(leftE);
-        SkASSERT(riteE);
-
-        // check our bottom clip
-        SkASSERT(local_top == local_bot + 1);
-        if (local_top >= stop_y) {
-            break;
+            ASSERT_RETURN(riteE->fFirstY == local_top);
         }
     }
 }
@@ -467,7 +469,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
 
     // count >= 2 is required as the convex walker does not handle missing right edges
     if (path.isConvex() && (nullptr == proc) && count >= 2) {
-        walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
+        walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
         walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
                 shiftedClip.right());
@@ -733,8 +735,7 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     if (clipRect && start_y < clipRect->fTop) {
         start_y = clipRect->fTop;
     }
-    walk_convex_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
-//    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
+    walk_simple_edges(&headEdge, blitter, start_y, stop_y);
 }
 
 void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
