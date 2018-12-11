@@ -189,7 +189,7 @@ config("skia_private") {
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
     if (is_skia_dev_build && skia_use_vulkan) {
-      include_dirs += [ "third_party/vulkan" ]
+      include_dirs += [ "include/third_party/vulkan" ]
       include_dirs += [ "tools/gpu/vk" ]
     }
   }
@@ -1174,7 +1174,7 @@ if (skia_enable_tools) {
 
     # We add this directory to simulate the client already have
     # vulkan/vulkan_core.h on their path.
-    include_dirs = [ "third_party/vulkan" ]
+    include_dirs = [ "include/third_party/vulkan" ]
   }
 
   template("test_lib") {
@@ -1432,7 +1432,7 @@ if (skia_enable_tools) {
       deps += [ "//third_party/angle2" ]
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
-    public_include_dirs += [ "third_party/vulkan" ]
+
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]

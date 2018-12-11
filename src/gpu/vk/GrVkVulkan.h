@@ -14,14 +14,14 @@
 #error "Skia's private vulkan header must be included before any other vulkan header."
 #endif
 
-#include "../../../third_party/vulkan/vulkan/vulkan_core.h"
+#include "../../third_party/vulkan/vulkan/vulkan_core.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #ifdef VULKAN_ANDROID_H_
 #error "Skia's private vulkan android header must be included before any other vulkan header."
 #endif
 // This is needed to get android extensions for external memory
-#include "../../../third_party/vulkan/vulkan/vulkan_android.h"
+#include "../../third_party/vulkan/vulkan/vulkan_android.h"
 #endif
 
 #endif
