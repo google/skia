@@ -9,6 +9,8 @@
 #include "SkString.h"
 #include "SkTime.h"
 
+class SkExecutor;
+
 namespace SkPDF {
 
 /** Table 333 in PDF 32000-1:2008
@@ -141,6 +143,9 @@ struct Metadata {
      *  should retain ownership.
      */
     const StructureElementNode* fStructureElementTreeRoot = nullptr;
+
+    /** experimental */
+    SkExecutor* fExecutor = nullptr;
 };
 
 /** Associate a node ID with subsequent drawing commands in an
