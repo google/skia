@@ -10,6 +10,14 @@
 
 #include "SkPath.h"
 
+#define SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE 0
+
+#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
+    #define COLINEAR_DIAGONAL_CONVEXITY kConcave_Convexity
+#else
+    #define COLINEAR_DIAGONAL_CONVEXITY kConvex_Convexity
+#endif
+
 class SkPathPriv {
 public:
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -158,6 +166,15 @@ public:
     static const SkScalar* ConicWeightData(const SkPath& path) {
         return path.fPathRef->conicWeights();
     }
+
+    /** Returns true if path formed by pts is convex.
+
+        @param pts    SkPoint array of path
+        @param count  number of entries in array
+
+        @return       true if pts represent a convex geometry
+    */
+    static bool IsConvex(const SkPoint pts[], int count);
 
     /** Returns true if the underlying SkPathRef has one single owner. */
     static bool TestingOnly_unique(const SkPath& path) {
