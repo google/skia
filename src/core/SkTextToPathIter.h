@@ -19,7 +19,7 @@ public:
     SkScalar        getPathScale() const { return fScale; }
 
 protected:
-    SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont&, const SkPaint& paint);
+    SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont&, const SkPaint*);
 
     SkExclusiveStrikePtr fCache;
     SkFont               fFont;
@@ -40,7 +40,7 @@ public:
     };
 
     SkTextInterceptsIter(const SkGlyphID glyphs[], int count, const SkFont& font,
-                         const SkPaint& paint, const SkScalar bounds[2], SkScalar x, SkScalar y,
+                         const SkPaint* paint, const SkScalar bounds[2], SkScalar x, SkScalar y,
                          TextType textType)
          : SkTextBaseIter(glyphs, count, font, paint)
     {
