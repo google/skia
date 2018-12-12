@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46c1f453_d5825e6e",
+        "filename": "src/utils/mac/SkUniqueCFRef.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-12T15:18:53Z",
+      "side": 1,
+      "message": "Hey, why is this in an anonymous namespace?",
+      "revId": "7b562291a7acb65e51ff12f69fef2848471d3456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
