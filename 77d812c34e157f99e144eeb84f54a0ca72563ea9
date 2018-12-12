@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "18aadedd_8d852d2e",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-12T15:57:44Z",
+      "side": 1,
+      "message": "Done: refactored along the same lines as SkTextBlobBuilder::RunBuffer.",
+      "parentUuid": "72c8464c_bf1126e2",
+      "range": {
+        "startLine": 422,
+        "startChar": 0,
+        "endLine": 424,
+        "endChar": 61
+      },
+      "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdd9dc52_d79d778a",
         "filename": "tools/using_skia_and_harfbuzz.cpp",
         "patchSetId": 4
@@ -57,6 +81,24 @@
       "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f6f088a_29ccc121",
+        "filename": "tools/using_skia_and_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-12T15:57:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f868ee3_834cbe31",
+      "revId": "77d812c34e157f99e144eeb84f54a0ca72563ea9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
