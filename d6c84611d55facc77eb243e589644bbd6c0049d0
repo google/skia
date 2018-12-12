@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b152e2b_04763f02",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-12T20:33:17Z",
+      "side": 1,
+      "message": "I\u0027m not sure we need this size, but we might to support the color emoji swipe test.",
+      "range": {
+        "startLine": 609,
+        "startChar": 8,
+        "endLine": 609,
+        "endChar": 20
+      },
+      "revId": "d6c84611d55facc77eb243e589644bbd6c0049d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
