@@ -67,7 +67,7 @@ private:
             , fKey(key)
             , fUniqueID(GenID()) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
     void abandonGPUData() const override;
 
     static uint32_t GenID() {

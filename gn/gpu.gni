@@ -584,6 +584,8 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkCaps.h",
   "$_src/gpu/vk/GrVkCommandBuffer.cpp",
   "$_src/gpu/vk/GrVkCommandBuffer.h",
+  "$_src/gpu/vk/GrVkCommandPool.cpp",
+  "$_src/gpu/vk/GrVkCommandPool.h",
   "$_src/gpu/vk/GrVkCopyManager.cpp",
   "$_src/gpu/vk/GrVkCopyManager.h",
   "$_src/gpu/vk/GrVkCopyPipeline.cpp",

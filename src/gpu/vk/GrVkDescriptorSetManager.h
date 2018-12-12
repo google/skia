@@ -37,7 +37,7 @@ public:
     ~GrVkDescriptorSetManager() {}
 
     void abandon();
-    void release(const GrVkGpu* gpu);
+    void release(GrVkGpu* gpu);
 
     VkDescriptorSetLayout layout() const { return fPoolManager.fDescLayout; }
 
@@ -63,7 +63,7 @@ private:
 
         void getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds);
 
-        void freeGPUResources(const GrVkGpu* gpu);
+        void freeGPUResources(GrVkGpu* gpu);
         void abandonGPUResources();
 
         VkDescriptorSetLayout  fDescLayout;

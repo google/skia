@@ -62,7 +62,7 @@ private:
             , fYcbcrConversion(ycbcrConversion)
             , fKey(key) {}
 
-    void freeGPUData(const GrVkGpu* gpu) const override;
+    void freeGPUData(GrVkGpu* gpu) const override;
 
     VkSamplerYcbcrConversion fYcbcrConversion;
     Key                      fKey;

@@ -569,7 +569,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
     return new GrVkPipeline(vkPipeline);
 }
 
-void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
+void GrVkPipeline::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
