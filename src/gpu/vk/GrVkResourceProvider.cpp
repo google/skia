@@ -330,6 +330,11 @@ void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResour
 }
 
 void GrVkResourceProvider::destroyResources(bool deviceLost) {
+    SkTaskGroup* taskGroup = fGpu->getContext()->contextPriv().getTaskGroup();
+    if (taskGroup) {
+        taskGroup->wait();
+    }
+
     // Release all copy pipelines
     for (int i = 0; i < fCopyPipelines.count(); ++i) {
         fCopyPipelines[i]->unref(fGpu);
