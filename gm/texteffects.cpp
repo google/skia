@@ -287,3 +287,116 @@ DEF_SIMPLE_GM(fancyunderlinebars, canvas, 1500, 460) {
         canvas->translate(0, textSize * 1.3f);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkTextBlob> make_text(const SkFont& font, const SkGlyphID glyphs[], int count) {
+    return SkTextBlob::MakeFromText(glyphs, count * sizeof(SkGlyphID), font,
+                                    kGlyphID_SkTextEncoding);
+}
+
+static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[], int count,
+                                   SkScalar spacing) {
+    SkAutoTArray<SkScalar> xpos(count);
+    font.getXPos(glyphs, count, xpos.get());
+    for (int i = 1; i < count; ++i) {
+        xpos[i] += spacing * i;
+    }
+    return SkTextBlob::MakeFromPosTextH(glyphs, count * sizeof(SkGlyphID), xpos.get(), 0, font,
+                                        kGlyphID_SkTextEncoding);
+}
+
+static sk_sp<SkTextBlob> make_pos(const SkFont& font, const SkGlyphID glyphs[], int count,
+                                  SkScalar spacing) {
+    SkAutoTArray<SkPoint> pos(count);
+    font.getPos(glyphs, count, pos.get());
+    for (int i = 1; i < count; ++i) {
+        pos[i].fX += spacing * i;
+    }
+    return SkTextBlob::MakeFromPosText(glyphs, count * sizeof(SkGlyphID), pos.get(), font,
+                                       kGlyphID_SkTextEncoding);
+}
+
+// widen the gaps with a margin (on each side of the gap), elimnating segments that go away
+static int trim_with_halo(SkScalar intervals[], int count, SkScalar margin) {
+    SkASSERT(count > 0 && (count & 1) == 0);
+
+    int n = count;
+    SkScalar* stop = intervals + count;
+    *intervals++ -= margin;
+    while (intervals < stop - 1) {
+        intervals[0] += margin;
+        intervals[1] -= margin;
+        if (intervals[0] >= intervals[1]) { // went away
+            int remaining = stop - intervals - 2;
+            SkASSERT(remaining >= 0 && (remaining & 1) == 1);
+            if (remaining > 0) {
+                memmove(intervals, intervals + 2, remaining * sizeof(SkScalar));
+            }
+            stop -= 2;
+            n -= 2;
+        } else {
+            intervals += 2;
+        }
+    }
+    *intervals += margin;
+    return n;
+}
+
+static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
+    SkPaint paint;
+
+    canvas->drawTextBlob(blob.get(), 0, 0, paint);
+
+    const SkScalar yminmax[] = { 8, 16 };
+    int count = blob->getIntercepts(yminmax, nullptr);
+    if (!count) {
+        return;
+    }
+
+    SkAutoTArray<SkScalar> intervals(count);
+    blob->getIntercepts(yminmax, intervals.get());
+    count = trim_with_halo(intervals.get(), count, SkScalarHalf(yminmax[1] - yminmax[0]) * 1.5f);
+    SkASSERT(count >= 2);
+
+    const SkScalar y = SkScalarAve(yminmax[0], yminmax[1]);
+    SkScalar end = 900;
+    SkPath path;
+    path.moveTo({0, y});
+    for (int i = 0; i < count; i += 2) {
+        path.lineTo(intervals[i], y).moveTo(intervals[i+1], y);
+    }
+    if (intervals[count - 1] < end) {
+        path.lineTo(end, y);
+    }
+
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(yminmax[1] - yminmax[0]);
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
+    const char text[] = "Hyjay {worlp}.";
+    const size_t length = strlen(text);
+    SkFont font;
+    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setSize(100);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+    const int count = font.countText(text, length, kUTF8_SkTextEncoding);
+    SkAutoTArray<SkGlyphID> glyphs(count);
+    font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.get(), count);
+
+    auto b0 = make_text(font, glyphs.get(), count);
+
+    canvas->translate(20, 120);
+    draw_blob_adorned(canvas, b0);
+    for (SkScalar spacing = 0; spacing < 30; spacing += 20) {
+        auto b1 = make_posh(font, glyphs.get(), count, spacing);
+        auto b2 = make_pos( font, glyphs.get(), count, spacing);
+        canvas->translate(0, 150);
+        draw_blob_adorned(canvas, b1);
+        canvas->translate(0, 150);
+        draw_blob_adorned(canvas, b2);
+    }
+}

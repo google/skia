@@ -589,7 +589,7 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
 #include "SkTextToPathIter.h"
 
 template <SkTextInterceptsIter::TextType TextType, typename Func>
-int GetTextIntercepts(const SkFont& font, const SkPaint& paint, const SkGlyphID glyphs[],
+int GetTextIntercepts(const SkFont& font, const SkPaint* paint, const SkGlyphID glyphs[],
                       int glyphCount, const SkScalar bounds[2], SkScalar* array, Func posMaker) {
     SkASSERT(glyphCount == 0 || glyphs != nullptr);
 
@@ -624,7 +624,7 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
             case SkTextBlobRunIterator::kDefault_Positioning: {
                 SkPoint loc = it.offset();
                 count += GetTextIntercepts<SkTextInterceptsIter::TextType::kText>(
-                          font, *paint, glyphs, glyphCount, bounds, runIntervals, [loc] (int) {
+                          font, paint, glyphs, glyphCount, bounds, runIntervals, [loc] (int) {
                     return loc;
                 });
             } break;
@@ -632,14 +632,14 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
                 const SkScalar* xpos = it.pos();
                 const SkScalar constY = it.offset().fY;
                 count += GetTextIntercepts<SkTextInterceptsIter::TextType::kPosText>(
-                 font, *paint, glyphs, glyphCount, bounds, runIntervals, [xpos, constY] (int i) {
+                 font, paint, glyphs, glyphCount, bounds, runIntervals, [xpos, constY] (int i) {
                     return SkPoint::Make(xpos[i], constY);
                 });
             } break;
             case SkTextBlobRunIterator::kFull_Positioning: {
                 const SkPoint* pos = reinterpret_cast<const SkPoint*>(it.pos());
                 count += GetTextIntercepts<SkTextInterceptsIter::TextType::kPosText>(
-                             font, *paint, glyphs, glyphCount, bounds, runIntervals, [pos] (int i) {
+                             font, paint, glyphs, glyphCount, bounds, runIntervals, [pos] (int i) {
                     return pos[i];
                 });
             } break;

@@ -430,12 +430,16 @@ static bool has_thick_frame(const SkPaint& paint) {
 }
 
 SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont& font,
-                               const SkPaint& paint)
-        : fFont(font), fPaint(paint)
+                               const SkPaint* paint)
+        : fFont(font)
 {
     SkAssertResult(count >= 0);
 
     fFont.setLinearMetrics(true);
+
+    if (paint) {
+        fPaint = *paint;
+    }
     fPaint.setMaskFilter(nullptr);   // don't want this affecting our path-cache lookup
 
     // can't use our canonical size if we need to apply patheffects
@@ -453,14 +457,17 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
         fScale = SK_Scalar1;
     }
 
+    SkPaint::Style prevStyle = fPaint.getStyle();
+    auto prevPE = fPaint.refPathEffect();
+    auto prevMF = fPaint.refMaskFilter();
     fPaint.setStyle(SkPaint::kFill_Style);
     fPaint.setPathEffect(nullptr);
 
     fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fFont, fPaint);
 
-    fPaint.setStyle(paint.getStyle());
-    fPaint.setPathEffect(paint.refPathEffect());
-    fPaint.setMaskFilter(paint.refMaskFilter());    // restore
+    fPaint.setStyle(prevStyle);
+    fPaint.setPathEffect(std::move(prevPE));
+    fPaint.setMaskFilter(std::move(prevMF));
 
     // now compute fXOffset if needed
 
