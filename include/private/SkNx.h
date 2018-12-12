@@ -19,7 +19,7 @@
 // Every single SkNx method wants to be fully inlined.  (We know better than MSVC).
 #define AI SK_ALWAYS_INLINE
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 // The default SkNx<N,T> just proxies down to a pair of SkNx<N/2, T>.
 template <int N, typename T>

@@ -21,7 +21,7 @@ namespace SK_OPTS_NS {
 
 #else
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 // Most xfermodes can be done most efficiently 4 pixels at a time in 8 or 16-bit fixed point.
 #define XFERMODE(Xfermode) \

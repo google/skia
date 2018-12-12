@@ -17,7 +17,7 @@
 // in Debug modes the compilers may not inline everything.  So wrap everything in an
 // anonymous namespace to give each includer their own silo of this code (or the linker
 // will probably pick one randomly for us, which is rarely correct).
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px : public Sk16b {

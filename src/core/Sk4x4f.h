@@ -10,7 +10,7 @@
 
 #include "SkNx.h"
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 struct Sk4x4f {
     Sk4f r,g,b,a;

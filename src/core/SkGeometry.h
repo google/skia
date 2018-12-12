@@ -310,7 +310,7 @@ struct SkConic {
 };
 
 // inline helpers are contained in a namespace to avoid external leakage to fragile SkNx members
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 /**
  *  use for : eval(t) == A * t^2 + B * t + C

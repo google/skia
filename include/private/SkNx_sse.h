@@ -21,7 +21,7 @@
 // This file may assume <= SSE2, but must check SK_CPU_SSE_LEVEL for anything more recent.
 // If you do, make sure this is in a static inline function... anywhere else risks violating ODR.
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 // Emulate _mm_floor_ps() with SSE2:
 //   - roundtrip through integers via truncation
