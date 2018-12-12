@@ -75,7 +75,7 @@ GrVkPipelineState::~GrVkPipelineState() {
     SkASSERT(!fPipelineLayout);
 }
 
-void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
+void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
     if (fPipeline) {
         fPipeline->unref(gpu);
         fPipeline = nullptr;

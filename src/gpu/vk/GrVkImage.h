@@ -115,7 +115,7 @@ public:
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
 protected:
-    void releaseImage(GrVkGpu* gpu);
+    void releaseImage(const GrVkGpu* gpu);
     void abandonImage();
 
     void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
@@ -155,7 +155,7 @@ private:
         mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(const GrVkGpu* gpu) const override;
         void abandonGPUData() const override {
             SkASSERT(!fReleaseHelper);
         }
@@ -182,7 +182,7 @@ private:
             }
         }
 
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(const GrVkGpu* gpu) const override;
         void abandonGPUData() const override;
     };
 

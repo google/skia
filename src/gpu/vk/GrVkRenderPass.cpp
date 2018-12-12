@@ -163,7 +163,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     this->init(gpu, colorOp, stencilOp);
 }
 
-void GrVkRenderPass::freeGPUData(GrVkGpu* gpu) const {
+void GrVkRenderPass::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
 }
 

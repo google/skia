@@ -13,7 +13,6 @@
 #include "GrSurface.h"
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
-#include "GrVkCommandPool.h"
 #include "GrVkCopyPipeline.h"
 #include "GrVkDescriptorSet.h"
 #include "GrVkGpu.h"
@@ -352,7 +351,8 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();
     cmdBuffer->beginRenderPass(gpu, renderPass, nullptr, *rt, bounds, true);
 
-    GrVkSecondaryCommandBuffer* secondary = gpu->cmdPool()->findOrCreateSecondaryCommandBuffer(gpu);
+    GrVkSecondaryCommandBuffer* secondary =
+                                       gpu->resourceProvider().findOrCreateSecondaryCommandBuffer();
     if (!secondary) {
         return false;
     }

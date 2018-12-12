@@ -68,7 +68,7 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
 #endif
 }
 
-void GrVkSamplerYcbcrConversion::freeGPUData(GrVkGpu* gpu) const {
+void GrVkSamplerYcbcrConversion::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(fYcbcrConversion);
     GR_VK_CALL(gpu->vkInterface(), DestroySamplerYcbcrConversion(gpu->device(), fYcbcrConversion,
                                                                  nullptr));

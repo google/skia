@@ -7,7 +7,6 @@
 
 #include "GrVkGpu.h"
 
-#include "GrContextPriv.h"
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
@@ -19,7 +18,6 @@
 #include "GrTexturePriv.h"
 #include "GrVkAMDMemoryAllocator.h"
 #include "GrVkCommandBuffer.h"
-#include "GrVkCommandPool.h"
 #include "GrVkGpuCommandBuffer.h"
 #include "GrVkImage.h"
 #include "GrVkIndexBuffer.h"
@@ -170,20 +168,31 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendContext.fPhysicalDevice, &fPhysDevMemProps));
 
-    fCmdPool = fResourceProvider.findOrCreateCommandPool();
-    fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
-    SkASSERT(fCurrentCmdBuffer);
+    const VkCommandPoolCreateInfo cmdPoolInfo = {
+        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,      // sType
+        nullptr,                                         // pNext
+        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
+        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // CmdPoolCreateFlags
+        backendContext.fGraphicsQueueIndex,              // queueFamilyIndex
+    };
+    GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr,
+                                                               &fCmdPool));
+
+    // must call this after creating the CommandPool
     fResourceProvider.init();
+    fCurrentCmdBuffer = fResourceProvider.findOrCreatePrimaryCommandBuffer();
+    SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->begin(this);
 }
 
 void GrVkGpu::destroyResources() {
-    if (fCmdPool) {
-        fCmdPool->getPrimaryCommandBuffer()->end(this);
-        fCmdPool->close();
+    if (fCurrentCmdBuffer) {
+        fCurrentCmdBuffer->end(this);
+        fCurrentCmdBuffer->unref(this);
     }
 
     // wait for all commands to finish
+    fResourceProvider.checkCommandBuffers();
     VkResult res = VK_CALL(QueueWaitIdle(fQueue));
 
     // On windows, sometimes calls to QueueWaitIdle return before actually signalling the fences
@@ -204,11 +213,6 @@ void GrVkGpu::destroyResources() {
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
 
-    if (fCmdPool) {
-        fCmdPool->unref(this);
-        fCmdPool = nullptr;
-    }
-
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref(this);
     }
@@ -224,6 +228,10 @@ void GrVkGpu::destroyResources() {
 
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
+
+    if (fCmdPool != VK_NULL_HANDLE) {
+        VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
+    }
 
     fMemoryAllocator.reset();
 
@@ -246,9 +254,8 @@ void GrVkGpu::disconnect(DisconnectType type) {
         if (DisconnectType::kCleanup == type) {
             this->destroyResources();
         } else {
-            if (fCmdPool) {
-                fCmdPool->unrefAndAbandon();
-                fCmdPool = nullptr;
+            if (fCurrentCmdBuffer) {
+                fCurrentCmdBuffer->unrefAndAbandon();
             }
             for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
                 fSemaphoresToWaitOn[i]->unrefAndAbandon();
@@ -266,6 +273,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
         fCurrentCmdBuffer = nullptr;
+        fCmdPool = VK_NULL_HANDLE;
         fDisconnected = true;
     }
 }
@@ -296,7 +304,7 @@ GrGpuTextureCommandBuffer* GrVkGpu::getCommandBuffer(GrTexture* texture, GrSurfa
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
-    fCmdPool->close();
+
     fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
 
     // We must delete and drawables that have been waitint till submit for us to destroy.
@@ -311,11 +319,13 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     }
     fSemaphoresToSignal.reset();
 
-    // Release old command pool and create a new one
-    fCmdPool->unref(this);
     fResourceProvider.checkCommandBuffers();
-    fCmdPool = fResourceProvider.findOrCreateCommandPool();
-    fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
+
+    // Release old command buffer and create a new one
+    fCurrentCmdBuffer->unref(this);
+    fCurrentCmdBuffer = fResourceProvider.findOrCreatePrimaryCommandBuffer();
+    SkASSERT(fCurrentCmdBuffer);
+
     fCurrentCmdBuffer->begin(this);
 }
 
@@ -1211,7 +1221,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        fCmdPool->vkCommandPool(),                        // commandPool
+        fCmdPool,                                         // commandPool
         VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
         1                                                 // bufferCount
     };
@@ -1280,7 +1290,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         GrVkMemory::FreeImageMemory(this, false, alloc);
         VK_CALL(DestroyImage(fDevice, image, nullptr));
         VK_CALL(EndCommandBuffer(cmdBuffer));
-        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
         return false;
     }
 
@@ -1290,7 +1300,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         VK_CALL(DestroyImage(fDevice, image, nullptr));
         VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
         VK_CALL(EndCommandBuffer(cmdBuffer));
-        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
         return false;
     }
 
@@ -1307,7 +1317,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
             GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
             VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
             VK_CALL(EndCommandBuffer(cmdBuffer));
-            VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+            VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
             return false;
         }
         currentWidth = SkTMax(1, currentWidth / 2);
@@ -1411,7 +1421,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         VK_CALL(DestroyImage(fDevice, image, nullptr));
         GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
         VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
-        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
         VK_CALL(DestroyFence(fDevice, fence, nullptr));
         SkDebugf("Fence failed to signal: %d\n", err);
         SK_ABORT("failing");
@@ -1423,7 +1433,7 @@ bool GrVkGpu::createTestingOnlyVkImage(GrPixelConfig config, int w, int h, bool 
         GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
         VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
     }
-    VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+    VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
     VK_CALL(DestroyFence(fDevice, fence, nullptr));
 
     info->fImage = image;
