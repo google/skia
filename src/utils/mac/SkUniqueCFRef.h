@@ -17,7 +17,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <memory>
 
-namespace {
+// TODO(mtklein): sure seems like this anonymous namespace isn't useful.
+namespace {  // NOLINT(google-build-namespaces)
 template <typename CFRef> using SkUniqueCFRef =
     std::unique_ptr<skstd::remove_pointer_t<CFRef>,
                     SkFunctionWrapper<void, skstd::remove_pointer_t<CFTypeRef>, CFRelease>>;
