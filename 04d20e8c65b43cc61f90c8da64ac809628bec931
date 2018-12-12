@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47b7efd0_298565a2",
+        "filename": "modules/skottie/src/SkottieAdapter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-12T19:48:25Z",
+      "side": 1,
+      "message": "nit: you could fold these as SkFont ctor args.",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 34
+      },
+      "revId": "04d20e8c65b43cc61f90c8da64ac809628bec931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
