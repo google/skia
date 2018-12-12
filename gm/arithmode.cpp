@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <SkFont.h>
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkArithmeticImageFilter.h"
@@ -52,15 +53,15 @@ static sk_sp<SkImage> make_dst() {
 }
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
+    SkFont font(sk_tool_utils::create_portable_typeface(), 24);
+    font.setEdging(SkFont::Edging::kAntiAlias);
     SkPaint paint;
-    paint.setTextSize(SkIntToScalar(24));
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
     for (int i = 0; i < 4; ++i) {
         SkString str;
         str.appendScalar(k[i]);
-        SkScalar width = paint.measureText(str.c_str(), str.size());
-        canvas->drawString(str, x, y + paint.getTextSize(), paint);
+        SkScalar width = font.measureText(str.c_str(), str.size(), kUTF8_SkTextEncoding);
+        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y + font.getSize(), font, paint);
         x += width + SkIntToScalar(10);
     }
 }

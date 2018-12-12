@@ -12,6 +12,7 @@
 #include "SkCodec.h"
 #include "SkColor.h"
 #include "SkCommandLineFlags.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "Resources.h"
@@ -25,10 +26,11 @@ namespace {
         constexpr SkScalar kOffset = 5.0f;
         canvas->drawColor(SK_ColorRED);
         SkPaint paint;
+        SkFont font;
         SkRect bounds;
-        paint.measureText(errorText.c_str(), errorText.size(), &bounds);
-        canvas->drawString(errorText, kOffset, bounds.height() + kOffset,
-                         paint);
+        font.measureText(errorText.c_str(), errorText.size(), kUTF8_SkTextEncoding, &bounds);
+        canvas->drawSimpleText(errorText.c_str(), errorText.size(), kUTF8_SkTextEncoding,
+                               kOffset, bounds.height() + kOffset, font, paint);
     }
 }
 
