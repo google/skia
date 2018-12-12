@@ -257,8 +257,8 @@ The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
 You can then pass the VC and SDK paths to GN by setting your GN args:
 
-    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c\VC"
-    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c\win_sdk"
+    win_vc = "C:\toolchain\VC"
+    win_sdk = "C:\toolchain\win_sdk"
 
 This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
 There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
@@ -302,7 +302,8 @@ Windows ARM64
 
 There is early, experimental support for [Windows 10 on ARM](https://docs.microsoft.com/en-us/windows/arm/).
 This currently requires (a recent version of) MSVC, and the `Visual C++ compilers and libraries for ARM64`
-individual component in the Visual Studio Installer.
+individual component in the Visual Studio Installer. For Googlers, the win_toolchain asset includes the
+ARM64 compiler.
 
 To use that toolchain, set the `target_cpu` GN argument to `"arm64"`. Note that OpenGL is not supported
 by Windows 10 on ARM, so Skia's GL backends are stubbed out, and will not work. ANGLE is supported:

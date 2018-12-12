@@ -56,13 +56,11 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
-  clang_linux        = str(api.vars.slave_dir.join('clang_linux'))
-  linux_vulkan_sdk   = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
-  win_toolchain = str(api.vars.slave_dir.join(
-    't', 'depot_tools', 'win_toolchain', 'vs_files',
-    '5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c'))
-  win_vulkan_sdk = str(api.vars.slave_dir.join('win_vulkan_sdk'))
-  moltenvk = str(api.vars.slave_dir.join('moltenvk'))
+  clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
+  linux_vulkan_sdk = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
+  win_toolchain    = str(api.vars.slave_dir.join('t'))
+  win_vulkan_sdk   = str(api.vars.slave_dir.join('win_vulkan_sdk'))
+  moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx = None, None
   extra_cflags = []
