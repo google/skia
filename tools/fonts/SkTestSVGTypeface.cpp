@@ -628,13 +628,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
     int strikeSizes[3] = { 16, 64, 128 };
 
     SkPaint paint;
-    paint.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    SkFont font;
+    font.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
 
     out->writeText("  <CBDT>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
     for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
-        paint.setTextSize(strikeSizes[strikeIndex]);
+        font.setSize(strikeSizes[strikeIndex]);
         out->writeText("    <strikedata index=\"");
             out->writeDecAsText(strikeIndex);
             out->writeText("\">\n");
@@ -642,7 +642,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
             SkGlyphID gid = i;
             SkScalar advance;
             SkRect bounds;
-            paint.getTextWidths(&gid, sizeof(gid), &advance, &bounds);
+            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;
@@ -654,7 +654,8 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
             canvas->clear(0);
             SkPixmap pix;
             surface->peekPixels(&pix);
-            canvas->drawText(&gid, sizeof(gid), -bounds.fLeft, -bounds.fTop, paint);
+            canvas->drawSimpleText(&gid, sizeof(gid), kGlyphID_SkTextEncoding,
+                                   -bounds.fLeft, -bounds.fTop, font, paint);
             canvas->flush();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
@@ -701,8 +702,8 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
     out->writeText("  <CBLC>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
     for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
-        paint.setTextSize(strikeSizes[strikeIndex]);
-        paint.getFontMetrics(&fm);
+        font.setSize(strikeSizes[strikeIndex]);
+        font.getMetrics(&fm);
         out->writeText("    <strike index=\"");
             out->writeDecAsText(strikeIndex);
             out->writeText("\">\n");
@@ -763,7 +764,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         for (int i = 0; i < fGlyphCount; ++i) {
             SkGlyphID gid = i;
             SkRect bounds;
-            paint.getTextWidths(&gid, sizeof(gid), nullptr, &bounds);
+            font.getBounds(&gid, 1, &bounds, nullptr);
             if (bounds.isEmpty()) {
                 continue;
             }
@@ -796,8 +797,8 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
     this->exportTtxCommon(out, "sbix");
 
     SkPaint paint;
-    paint.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
+    SkFont font;
+    font.setTypeface(sk_ref_sp(const_cast<SkTestSVGTypeface*>(this)));
 
     out->writeText("  <glyf>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
@@ -847,7 +848,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
     out->writeText("    <version value=\"1\"/>\n");
     out->writeText("    <flags value=\"00000000 00000001\"/>\n");
     for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
-        paint.setTextSize(strikeSizes[strikeIndex]);
+        font.setSize(strikeSizes[strikeIndex]);
         out->writeText("    <strike>\n");
         out->writeText("      <ppem value=\"");
             out->writeDecAsText(strikeSizes[strikeIndex]);
@@ -857,7 +858,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
             SkGlyphID gid = i;
             SkScalar advance;
             SkRect bounds;
-            paint.getTextWidths(&gid, sizeof(gid), &advance, &bounds);
+            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;
@@ -869,7 +870,8 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
             canvas->clear(0);
             SkPixmap pix;
             surface->peekPixels(&pix);
-            canvas->drawText(&gid, sizeof(gid), -bounds.fLeft, -bounds.fTop, paint);
+            canvas->drawSimpleText(&gid, sizeof(gid), kGlyphID_SkTextEncoding,
+                                   -bounds.fLeft, -bounds.fTop, font, paint);
             canvas->flush();
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
