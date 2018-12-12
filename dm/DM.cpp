@@ -1318,9 +1318,122 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
     done("unit", "test", "", test.name);
 }
 
+
+
+#include "SkGraphics.h"
+#include <iostream>
+#include "SkSurface.h"
+
+using namespace std;
+
+void renderWithShader(SkCanvas* canvas, sk_sp<SkShader> shader) {
+    for (int i = 0; i < 50; i++) {
+        SkPaint p;
+        canvas->save();
+        p.setAntiAlias(true);
+        p.setStyle(SkPaint::kFill_Style);
+        p.setFilterQuality(kMedium_SkFilterQuality);
+        p.setShader(shader);
+        SkRect rect = SkRect::MakeXYWH(0, 0, 2252, 1689);
+        canvas->drawRect(rect, p);
+        canvas->restore();
+    }
+}
+
+void surfaceVsBitmap() {
+    SkGraphics::Init();
+
+    // Ensure cache limit is unbounded.
+    SkGraphics::SetResourceCacheTotalByteLimit(std::numeric_limits<int>::max());
+
+    // Construct 4K SkImage from raster data
+    SkImageInfo info = SkImageInfo::MakeN32Premul(4000, 4000);
+    size_t rowBytes = info.minRowBytes();
+    sk_sp<SkData> decodedData = SkData::MakeUninitialized(info.computeByteSize(rowBytes));
+    sk_sp<SkImage> imageRD = SkImage::MakeRasterData(info, std::move(decodedData), rowBytes);
+
+    // Construct 4K SkImage from surface.
+    sk_sp<SkSurface> rasterSurface = SkSurface::MakeRasterN32Premul(4000, 4000);
+    sk_sp<SkImage> imageSS = rasterSurface->makeImageSnapshot();
+
+    // Make "immutable" SkBitmap
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(4032, 3024));
+    bitmap.setImmutable();
+
+    // Make SkBitmap
+    SkBitmap bitmapBasic;
+    bitmapBasic.allocPixels(SkImageInfo::MakeN32Premul(4032, 3024));
+
+    //============================================================================
+
+    // Setup - approximate a tile sized surface
+    sk_sp<SkSurface> appSurface = SkSurface::MakeRasterN32Premul(256, 256);
+    SkCanvas* canvas = appSurface->getCanvas();
+    SkMatrix matrix = SkMatrix::MakeScale(0.558f);
+
+    //============================================================================
+
+    // Render scaled SkImage from raster data 50 times over.
+    auto start = std::chrono::steady_clock::now();
+    renderWithShader(canvas, imageRD->makeShader(SkShader::kClamp_TileMode,
+                                                 SkShader::kClamp_TileMode,
+                                                 &matrix));
+    auto end = std::chrono::steady_clock::now();
+    auto diff = end - start;
+    int mcs = std::chrono::duration <double, std::micro>(diff).count();
+    cout << "Results for SkImage::MakeRasterData - " << mcs << " mcs." << "(" << 1000000 / mcs << " fps)" << endl;
+
+    //============================================================================
+
+    // Render scaled SkImage from surface snapshot 50 times over.
+    start = std::chrono::steady_clock::now();
+    renderWithShader(canvas, imageSS->makeShader(SkShader::kClamp_TileMode,
+                                                 SkShader::kClamp_TileMode,
+                                                 &matrix));
+    end = std::chrono::steady_clock::now();
+    diff = end - start;
+    mcs = std::chrono::duration <double, std::micro>(diff).count();
+    cout << "Results for SkImage (makeImageSnapshot) - " << mcs << " mcs." << "(" << 1000000 / mcs << " fps)" << endl;
+
+    //============================================================================
+
+    // Render scaled "immutable" SkBitmap from surface snapshot 50 times over.
+    start = std::chrono::steady_clock::now();
+    renderWithShader(canvas, SkShader::MakeBitmapShader(bitmap,
+                                                        SkShader::kClamp_TileMode,
+                                                        SkShader::kClamp_TileMode,
+                                                        &matrix));
+    end = std::chrono::steady_clock::now();
+    diff = end - start;
+    mcs = std::chrono::duration <double, std::micro>(diff).count();
+    int fps = mcs > 0 ? 1000000 / mcs : 1000000;
+    cout << "Results for Immutable SkBitmap - " << mcs << " mcs." << "(" << fps << " fps)" << endl;
+
+    //============================================================================
+
+    // Render scaled SkBitmap from surface snapshot 50 times over.
+    start = std::chrono::steady_clock::now();
+    renderWithShader(canvas, SkShader::MakeBitmapShader(bitmapBasic,
+                                                        SkShader::kClamp_TileMode,
+                                                        SkShader::kClamp_TileMode,
+                                                        &matrix));
+    end = std::chrono::steady_clock::now();
+    diff = end - start;
+    mcs = std::chrono::duration <double, std::micro>(diff).count();
+    fps = mcs > 0 ? 1000000 / mcs : 1000000;
+    cout << "Results for Normal SkBitmap - " << mcs << " mcs." << "(" << fps << " fps)" << endl;
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
+    surfaceVsBitmap();
+
+    if (true) {
+        return 0;
+    }
+
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
