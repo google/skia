@@ -120,6 +120,12 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
     return textSize / SkPaint::kCanonicalTextSizeForPaths;
 }
 
+bool SkFont::hasSomeAntiAliasing() const {
+    Edging edging = this->getEdging();
+    return edging == SkFont::Edging::kAntiAlias
+        || edging == SkFont::Edging::kSubpixelAntiAlias;
+}
+
 class SkCanonicalizeFont {
 public:
     SkCanonicalizeFont(const SkFont& font) : fFont(&font), fScale(0) {
