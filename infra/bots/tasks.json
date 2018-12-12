@@ -19684,7 +19684,7 @@
         {
           "name": "skia/bots/go_deps",
           "path": "go_deps",
-          "version": "version:89"
+          "version": "version:90"
         }
       ],
       "command": [
@@ -19775,14 +19775,14 @@
       "cipd_packages": [
         {
           "name": "skia/bots/win_toolchain",
-          "path": "t",
+          "path": "win_toolchain",
           "version": "version:9"
         }
       ],
       "command": [
         "/bin/cp",
         "-rL",
-        "t",
+        "win_toolchain",
         "${ISOLATED_OUTDIR}"
       ],
       "dimensions": [
