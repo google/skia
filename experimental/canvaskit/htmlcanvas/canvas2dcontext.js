@@ -1064,7 +1064,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = basePaint.copy();
     shadowPaint.setColor(alphaColor);
     var blurEffect = CanvasKit.MakeBlurMaskFilter(CanvasKit.BlurStyle.Normal,
-      Math.max(1, this._shadowBlur/2), // very little blur when < 1
+      SkBlurRadiusToSigma(this._shadowBlur),
       false);
     shadowPaint.setMaskFilter(blurEffect);
 
@@ -1179,4 +1179,18 @@ function CanvasRenderingContext2D(skcanvas) {
     value: null,
     writable: false
   });
+}
+
+function SkBlurRadiusToSigma(radius) {
+  // Blink (Chrome) does the following, for legacy reasons, even though it
+  // is against the spec. https://bugs.chromium.org/p/chromium/issues/detail?id=179006
+  // This may change in future releases.
+  // This code is staying here in case any clients are interested in using it
+  // to match Blink "exactly".
+  // if (radius <= 0)
+  //   return 0;
+  // return 0.288675 * radius + 0.5;
+  //
+  // This is what the spec says, which is how Firefox and others operate.
+  return radius/2;
 }
