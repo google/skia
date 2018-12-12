@@ -19648,7 +19648,7 @@
       "command": [
         "/bin/cp",
         "-rL",
-        "t",
+        "win_toolchain",
         "${ISOLATED_OUTDIR}"
       ],
       "dimensions": [
