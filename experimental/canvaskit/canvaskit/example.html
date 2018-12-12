@@ -60,6 +60,8 @@
   var onboardingJSON = null;
   var fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
 
+  var robotoData = null;
+
   var bonesImageData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
@@ -71,9 +73,8 @@
      // Thus, the setTimeout to run on the next microtask avoids this second loading
      // and the log spew.
     setTimeout(() => {
-      CK.initFonts();
       CanvasKit = CK;
-      DrawingExample(CanvasKit);
+      DrawingExample(CanvasKit, robotoData);
       PathExample(CanvasKit);
       InkExample(CanvasKit);
       // Set bounds to fix the 4:3 resolution of the legos
@@ -136,7 +137,17 @@
     });
   });
 
-  function DrawingExample(CanvasKit) {
+  fetch('./Roboto-Regular.woff').then((resp) => {
+    resp.arrayBuffer().then((buffer) => {
+      robotoData = buffer;
+      DrawingExample(CanvasKit, robotoData)
+    });
+  });
+
+  function DrawingExample(CanvasKit, robotoData) {
+    if (!robotoData || !CanvasKit) {
+      return;
+    }
     const surface = CanvasKit.MakeCanvasSurface('patheffect');
     if (!surface) {
       console.error('Could not make surface');
@@ -148,10 +159,14 @@
 
     const paint = new CanvasKit.SkPaint();
 
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    let roboto = fontMgr.MakeTypefaceFromData(robotoData);
+
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.RED);
     textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
+    textPaint.setTypeface(roboto);
 
     let i = 0;
 
@@ -554,7 +569,7 @@
       ctx.lineTo(220, 120);
 
       ctx.scale(3.0, 3.0);
-      ctx.font = '6pt Arial';
+      ctx.font = '6pt Noto Mono';
       ctx.fillText('This text should be huge', 10, 80);
       ctx.resetTransform();
 
@@ -623,7 +638,7 @@
       ctx.stroke();
 
       ctx.fillStyle = 'green';
-      ctx.font = '16pt Arial';
+      ctx.font = '16pt Noto Mono';
       ctx.fillText('This should be shadowed', 20, 80);
 
       ctx.beginPath();
@@ -690,7 +705,7 @@
       ctx.lineTo(300, 400);
       ctx.stroke();
 
-      ctx.font = '36pt Arial';
+      ctx.font = '36pt Noto Mono';
       ctx.strokeText('Dashed', 20, 350);
       ctx.fillText('Not Dashed', 20, 400);
 
@@ -849,7 +864,7 @@
 
     for (let canvas of [skcanvas, realCanvas]) {
       let ctx = canvas.getContext('2d');
-      ctx.font = '11px Arial';
+      ctx.font = '11px Noto Mono';
       // Draw some visual aids
       ctx.fillText('path-nonzero', 30, 15);
       ctx.fillText('path-evenodd', 150, 15);
@@ -1025,8 +1040,8 @@
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
-    paint.setTextSize(100);
-    canvas.drawText("Radial", 10, 200, paint);
+    paint.setTextSize(75);
+    canvas.drawText('Radial', 10, 200, paint);
     surface.flush();
   }
 </script>
