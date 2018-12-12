@@ -81,12 +81,12 @@ protected:
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
-            SkTextBlobBuilder builder;
+            SkTextBlobBuilderLineHandler builder;
             paint.setTextSize(SkIntToScalar(i));
             SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
             SkPoint end = shaper.shape(&builder, font, gText, strlen(gText), true,
                                        { margin, margin }, w - margin);
-            canvas->drawTextBlob(builder.make(), 0, 0, paint);
+            canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);
 
             canvas->translate(0, end.y());
         }

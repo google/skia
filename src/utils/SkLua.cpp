@@ -1923,11 +1923,11 @@ static int lsk_newTextBlob(lua_State* L) {
     SkShaper shaper(nullptr);
 
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-    SkTextBlobBuilder builder;
+    SkTextBlobBuilderLineHandler builder;
     SkPoint end = shaper.shape(&builder, font, text, strlen(text), true,
                                { bounds.left(), bounds.top() }, bounds.width());
 
-    push_ref<SkTextBlob>(L, builder.make());
+    push_ref<SkTextBlob>(L, builder.makeBlob());
     SkLua(L).pushScalar(end.fY);
     return 2;
 }
