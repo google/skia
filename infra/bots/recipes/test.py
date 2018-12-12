@@ -427,11 +427,6 @@ def dm_flags(api, bot):
     blacklist('_ test _ SRGBReadWritePixels')
     blacklist('_ test _ SRGBMipMap')
 
-  if api.vars.internal_hardware_label == '5':
-    # skia:8470
-    blacklist('_ test _ SRGBReadWritePixels')
-    blacklist('_ test _ ES2BlendWithNoTexture')
-
   # skia:4095
   bad_serialize_gms = ['bleed_image',
                        'c_gms',
@@ -1177,27 +1172,6 @@ def GenTests(api):
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    gold_hashes_url='https://example.com/hashes.txt',
                    internal_hardware_label='2') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
-  )
-
-  yield (
-    api.test('internal_bot_5') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   gold_hashes_url='https://example.com/hashes.txt',
-                   internal_hardware_label='5') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
