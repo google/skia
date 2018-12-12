@@ -30,7 +30,11 @@ def create_asset(target_dir):
                          BRANCH, REPO + "clang"])
   subprocess.check_call(["git", "clone", "--depth", "1", "-b",
                          BRANCH, REPO + "lld"])
-  os.chdir("../projects")
+  os.chdir("clang/tools")
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "clang-tools-extra", "extra"])
+
+  os.chdir("../../../projects")
   subprocess.check_call(["git", "clone", "--depth", "1", "-b",
                          BRANCH, REPO + "compiler-rt"])
   subprocess.check_call(["git", "clone", "--depth", "1", "-b",
