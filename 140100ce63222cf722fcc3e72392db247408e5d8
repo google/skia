@@ -22,6 +22,30 @@
       "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9c06a95_a76cfc32",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-12T21:50:21Z",
+      "side": 1,
+      "message": "Can we make this function something like this? \n\nsk_sp\u003cSkColorSpace\u003e SkAndroidCodec::computeOutputColorSpace(SkColorType/*In principle should never matter.*/, \n                                                            sk_sp\u003cSkColorSpace\u003e preferred) {\n    if (preferred) {\n        return preferred;\n    }\n\n    if (const skcms_ICCProfile* profile \u003d fCodec-\u003egetEncodedInfo().profile()) {\n        if (auto cs \u003d SkColorSpace::Make(*profile)) {\n            return cs;\n        }\n\n        if (is_wide_gamut(*encodedProfile)) {\n            return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,\n                                         SkColorSpace::kDCIP3_D65_Gamut);\n        }\n    }\n    return SkColorSpace::MakeSRGB();\n}",
+      "parentUuid": "16f36e93_e8db8c5e",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 13
+      },
+      "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
