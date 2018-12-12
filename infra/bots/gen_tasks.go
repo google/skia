@@ -727,7 +727,7 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 	},
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
 		cipdPkg: "win_toolchain",
-		path:    "t",
+		path:    "win_toolchain",
 	},
 	ISOLATE_WIN_VULKAN_SDK_NAME: {
 		cipdPkg: "win_vulkan_sdk",
