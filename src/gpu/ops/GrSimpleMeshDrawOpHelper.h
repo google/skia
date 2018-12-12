@@ -202,9 +202,9 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* con
     } else {
         char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
         char* setMem = mem + sizeof(Op);
+        auto color = paint.getColor4f();
         makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
-
-        return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, paint.getColor4f(),
+        return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, color,
                                                       std::forward<OpArgs>(opArgs)...));
     }
 }
