@@ -71,7 +71,7 @@ protected:
         Type               fType;
 
     private:
-        void freeGPUData(GrVkGpu* gpu) const override;
+        void freeGPUData(const GrVkGpu* gpu) const override;
 
         void onRecycle(GrVkGpu* gpu) const override { this->unref(gpu); }
 

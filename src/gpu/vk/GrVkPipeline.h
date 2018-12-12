@@ -56,7 +56,7 @@ protected:
     VkPipeline  fPipeline;
 
 private:
-    void freeGPUData(GrVkGpu* gpu) const override;
+    void freeGPUData(const GrVkGpu* gpu) const override;
 
     typedef GrVkResource INHERITED;
 };
