@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f65de19_4ad1a617",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "I thought these were suppose to be taller than wide, so should this be {256, 512}?",
+      "range": {
+        "startLine": 605,
+        "startChar": 8,
+        "endLine": 605,
+        "endChar": 19
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03140092_d8edd2c4",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "Instead of dividing here to bias the index after the log, can you just subtract 18 from SkPrevLog2(maxBytes) below?",
+      "range": {
+        "startLine": 613,
+        "startChar": 3,
+        "endLine": 613,
+        "endChar": 25
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c58e92a_ca5136f0",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "Should this be \u003c\u003d kMaxDistanceFieldDim?",
+      "range": {
+        "startLine": 619,
+        "startChar": 13,
+        "endLine": 619,
+        "endChar": 69
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "990209d4_025befb7",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "Include a comment that A8 is used for both mask and SDF, and that it must obey the SDF constraints.",
+      "range": {
+        "startLine": 627,
+        "startChar": 8,
+        "endLine": 627,
+        "endChar": 32
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7fc1562_ae696ed5",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "I think that appealing to intuition here would be better. So something like.\n256x256 reduces the overall work, but sometimes the plots need to be bigger to fit in the maxPlot constraint.\n\nMaybe,\n\nint plotWidth \u003d 256;\nint plotHeight \u003d 256;\nif ((atlasDimensions.width() / plotWidth) * (atlasDimensions.height() / plotHeight) \u003e kMaxPlots) {\n   plotHeight \u003d 512;\n}\nif ((atlasDimensions.width() / plotWidth) * (atlasDimensions.height() / plotHeight) \u003e kMaxPlots) {\n   plotWidth \u003d 512;\n}",
+      "range": {
+        "startLine": 639,
+        "startChar": 7,
+        "endLine": 640,
+        "endChar": 53
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abcdc5d2_34dc6aa9",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 1,
+      "message": "The math does not seem to work out here. 8096 is 2^13. So, there are three bits being used from the coordinates for other information? Also, isn\u0027t this smaller for SDF?",
+      "range": {
+        "startLine": 439,
+        "startChar": 67,
+        "endLine": 439,
+        "endChar": 87
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

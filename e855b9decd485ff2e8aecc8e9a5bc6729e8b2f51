@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "834951f7_9edac2ad",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-12T21:44:32Z",
+      "side": 0,
+      "message": "I don\u0027t think these are still needed. Can they be deleted?",
+      "range": {
+        "startLine": 885,
+        "startChar": 37,
+        "endLine": 885,
+        "endChar": 61
+      },
+      "revId": "e855b9decd485ff2e8aecc8e9a5bc6729e8b2f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
