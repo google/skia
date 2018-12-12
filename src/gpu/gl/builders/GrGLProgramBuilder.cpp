@@ -44,7 +44,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
     GrGLProgramBuilder builder(gpu, pipeline, primProc, primProcProxies, desc);
 
     auto persistentCache = gpu->getContext()->contextPriv().getPersistentCache();
-    if (persistentCache) {
+    if (persistentCache && gpu->glCaps().programBinarySupport()) {
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
         builder.fCached = persistentCache->load(*key);
         // the eventual end goal is to completely skip emitAndInstallProcs on a cache hit, but it's
@@ -169,44 +169,6 @@ void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
     }
 }
 
-void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
-                                            const SkSL::String& glsl) {
-    if (!this->gpu()->getContext()->contextPriv().getPersistentCache()) {
-        return;
-    }
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
-    if (fGpu->glCaps().programBinarySupport()) {
-        // binary cache
-        GrGLsizei length = 0;
-        GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
-        if (length > 0) {
-            GrGLenum binaryFormat;
-            std::unique_ptr<char[]> binary(new char[length]);
-            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
-            size_t dataLength = sizeof(inputs) + sizeof(binaryFormat) + length;
-            std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-            size_t offset = 0;
-            memcpy(data.get() + offset, &inputs, sizeof(inputs));
-            offset += sizeof(inputs);
-            memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
-            offset += sizeof(binaryFormat);
-            memcpy(data.get() + offset, binary.get(), length);
-            this->gpu()->getContext()->contextPriv().getPersistentCache()->store(
-                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
-        }
-    } else {
-        // source cache
-        size_t dataLength = sizeof(inputs) + glsl.length();
-        std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
-        size_t offset = 0;
-        memcpy(data.get() + offset, &inputs, sizeof(inputs));
-        offset += sizeof(inputs);
-        memcpy(data.get() + offset, glsl.data(), glsl.length());
-        this->gpu()->getContext()->contextPriv().getPersistentCache()->store(
-                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
-    }
-}
-
 GrGLProgram* GrGLProgramBuilder::finalize() {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
@@ -234,61 +196,49 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
-    SkSL::String glsl;
-    bool cached = fCached.get() != nullptr;
+    bool cached = fGpu->glCaps().programBinarySupport() && nullptr != fCached.get();
     if (cached) {
+        this->bindProgramResourceLocations(programID);
+        // cache hit, just hand the binary to GL
         const uint8_t* bytes = fCached->bytes();
         size_t offset = 0;
         memcpy(&inputs, bytes + offset, sizeof(inputs));
         offset += sizeof(inputs);
-        if (fGpu->glCaps().programBinarySupport()) {
-            // binary cache hit, just hand the binary to GL
-            this->bindProgramResourceLocations(programID);
-            int binaryFormat;
-            memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
-            offset += sizeof(binaryFormat);
-            GrGLClearErr(this->gpu()->glInterface());
-            GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
-                                  ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
-                                                fCached->size() - offset));
-            if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
-                cached = this->checkLinkStatus(programID);
-                if (cached) {
-                    this->addInputVars(inputs);
-                    this->computeCountsAndStrides(programID, primProc, false);
-                }
-            } else {
-                cached = false;
+        int binaryFormat;
+        memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
+        offset += sizeof(binaryFormat);
+        GrGLClearErr(this->gpu()->glInterface());
+        GR_GL_CALL_NOERRCHECK(this->gpu()->glInterface(),
+                              ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
+                                            fCached->size() - offset));
+        if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
+            cached = this->checkLinkStatus(programID);
+            if (cached) {
+                this->addInputVars(inputs);
+                this->computeCountsAndStrides(programID, primProc, false);
             }
         } else {
-            // source cache hit, we don't need to compile the SkSL->GLSL
-            glsl = SkSL::String(((const char*) bytes) + offset, fCached->size() - offset);
+            cached = false;
         }
     }
-    if (!cached || !fGpu->glCaps().programBinarySupport()) {
-        // either a cache miss, or we can't store binaries in the cache
-        if (glsl == "" || true) {
-            // don't have cached GLSL, need to compile SkSL->GLSL
-            if (fFS.fForceHighPrecision) {
-                settings.fForceHighPrecision = true;
-            }
-            std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
-                                                             GR_GL_FRAGMENT_SHADER,
-                                                             fFS.fCompilerStrings.begin(),
-                                                             fFS.fCompilerStringLengths.begin(),
-                                                             fFS.fCompilerStrings.count(),
-                                                             settings,
-                                                             &glsl);
-            if (!fs) {
-                this->cleanupProgram(programID, shadersToDelete);
-                return nullptr;
-            }
-            inputs = fs->fInputs;
-        } else {
-            // we've pulled GLSL and inputs from the cache, but still need to do some setup
-            this->addInputVars(inputs);
-            this->computeCountsAndStrides(programID, primProc, false);
+    if (!cached) {
+        // cache miss, compile shaders
+        if (fFS.fForceHighPrecision) {
+            settings.fForceHighPrecision = true;
         }
+        SkSL::String glsl;
+        std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
+                                                         GR_GL_FRAGMENT_SHADER,
+                                                         fFS.fCompilerStrings.begin(),
+                                                         fFS.fCompilerStringLengths.begin(),
+                                                         fFS.fCompilerStrings.count(),
+                                                         settings,
+                                                         &glsl);
+        if (!fs) {
+            this->cleanupProgram(programID, shadersToDelete);
+            return nullptr;
+        }
+        inputs = fs->fInputs;
         this->addInputVars(inputs);
         if (!this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
@@ -364,8 +314,27 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->resolveProgramResourceLocations(programID);
 
     this->cleanupShaders(shadersToDelete);
-    if (!cached) {
-        this->storeShaderInCache(inputs, programID, glsl);
+    if (!cached && this->gpu()->getContext()->contextPriv().getPersistentCache() &&
+        fGpu->glCaps().programBinarySupport()) {
+        GrGLsizei length = 0;
+        GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
+        if (length > 0) {
+            // store shader in cache
+            sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
+            GrGLenum binaryFormat;
+            std::unique_ptr<char[]> binary(new char[length]);
+            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
+            size_t dataLength = sizeof(inputs) + sizeof(binaryFormat) + length;
+            std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
+            size_t offset = 0;
+            memcpy(data.get() + offset, &inputs, sizeof(inputs));
+            offset += sizeof(inputs);
+            memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
+            offset += sizeof(binaryFormat);
+            memcpy(data.get() + offset, binary.get(), length);
+            this->gpu()->getContext()->contextPriv().getPersistentCache()->store(
+                                            *key, *SkData::MakeWithoutCopy(data.get(), dataLength));
+        }
     }
     return this->createProgram(programID);
 }
