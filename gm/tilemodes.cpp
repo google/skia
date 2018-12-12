@@ -275,7 +275,19 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 715, 560) {
 
     std::function<void(SkPaint*, SkShader::TileMode, SkShader::TileMode)> shader_procs[] = {
         [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            // Test no filtering with decal mode
             paint->setShader(img->makeShader(tx, ty));
+            paint->setFilterQuality(kNone_SkFilterQuality);
+        },
+        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            // Test bilerp approximation for decal mode (or clamp to border HW)
+            paint->setShader(img->makeShader(tx, ty));
+            paint->setFilterQuality(kLow_SkFilterQuality);
+        },
+        [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
+            // Test bicubic filter with decal mode
+            paint->setShader(img->makeShader(tx, ty));
+            paint->setFilterQuality(kHigh_SkFilterQuality);
         },
         [img](SkPaint* paint, SkShader::TileMode tx, SkShader::TileMode ty) {
             SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
