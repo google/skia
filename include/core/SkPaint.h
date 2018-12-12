@@ -27,7 +27,9 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+#ifndef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
 #define SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
+#endif
 
 class GrTextBlob;
 class SkAutoDescriptor;
