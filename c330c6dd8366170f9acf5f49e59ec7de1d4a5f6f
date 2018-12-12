@@ -16,6 +16,24 @@
       "revId": "c330c6dd8366170f9acf5f49e59ec7de1d4a5f6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0de3790f_e96b2110",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19644,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-12-12T16:23:31Z",
+      "side": 1,
+      "message": "It\u0027s hard-coded here, unfortunately: https://skia.googlesource.com/buildbot/+/master/task_scheduler/go/specs/helpers.go#167",
+      "parentUuid": "450c650a_87380a5c",
+      "revId": "c330c6dd8366170f9acf5f49e59ec7de1d4a5f6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
