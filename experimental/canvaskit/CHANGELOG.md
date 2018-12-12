@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add Canvas2D JS layer. This mirrors the HTML Canvas API. This may be omitted at compile time
     it by adding `no_canvas` to the `compile.sh` invocation.
+- `CanvasKit.FontMgr.DefaultRef()` and `fontmgr.MakeTypefaceFromData` to load fonts.
 
 ### Fixed
 - `SkPath.addRect` now correctly draws counter-clockwise vs clockwise.
@@ -19,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     and `localMatrix` have been exposed.
 - `SkPath.arcTo` now takes `startAngle`, `sweepAngle`, `forceMoveTo` as additional parameters.
 - `SkPath.stroke` has a new option `precision`  It defaults to 1.0.
+- CanvasKit comes with one font (NotoMono) instead of the Skia TestTypeface. Clients are encouraged
+  to use the new `fontmgr.MakeTypefaceFromData` for more font variety.
+
+### Removed
+- `CanvasKit.initFonts()` - no longer needed.
 
 
 
