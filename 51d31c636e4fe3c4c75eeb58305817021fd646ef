@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af6257cb_ad0908b3",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 20050,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-12T20:48:06Z",
+      "side": 1,
+      "message": "idk what this is, I just ran infra/bots make train",
+      "revId": "51d31c636e4fe3c4c75eeb58305817021fd646ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
