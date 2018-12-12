@@ -7,7 +7,7 @@
 
 #include "SkUtils.h"
 
-namespace { // See Sk4px.h
+namespace {  // NOLINT(google-build-namespaces)
 
 static_assert(sizeof(Sk4px) == 16, "This file uses memcpy / sk_memset32, so exact size matters.");
 
