@@ -34,6 +34,24 @@
       "revId": "51d31c636e4fe3c4c75eeb58305817021fd646ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a692466_52b230b4",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 20050,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-12T20:50:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fe7a9ed_f0d8badf",
+      "revId": "51d31c636e4fe3c4c75eeb58305817021fd646ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
