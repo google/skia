@@ -564,7 +564,7 @@ void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int co
 void SkPictureRecord::onDrawTextRSXform(const void* text, size_t byteLength,
                                         const SkRSXform xform[], const SkRect* cull,
                                         const SkPaint& paint) {
-    const int count = paint.countText(text, byteLength);
+    const int count = SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding());
     // [op + paint-index + count + flags + length] + [text] + [xform] + cull
     size_t size = 5 * kUInt32Size + SkAlign4(byteLength) + count * sizeof(SkRSXform);
     uint32_t flags = 0;

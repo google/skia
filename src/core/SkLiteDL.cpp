@@ -587,7 +587,7 @@ void SkLiteDL::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
 
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {
-    int n = paint.countText(text, bytes);
+    int n = SkFont::LEGACY_ExtractFromPaint(paint).countText(text, bytes, paint.getTextEncoding());
     void* pod = this->push<DrawTextRSXform>(bytes+n*sizeof(SkRSXform), bytes, n, cull, paint);
     copy_v(pod, xforms,n, (const char*)text,bytes);
 }

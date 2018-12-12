@@ -268,7 +268,7 @@ void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const Sk
            paint,
            this->copy((const char*)text, byteLength),
            byteLength,
-           this->copy(xform, paint.countText(text, byteLength)),
+           this->copy(xform, SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding())),
            this->copy(cull));
 }
 

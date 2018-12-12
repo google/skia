@@ -208,14 +208,10 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
 }
 
 sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
-    // TODO: convert to SkFont (missing getFontSpacing, measureText).
-    SkPaint font;
-    font.setTypeface(fText.fTypeface);
-    font.setTextSize(fText.fTextSize);
+    SkFont font(fText.fTypeface, fText.fTextSize);
     font.setHinting(kNo_SkFontHinting);
-    font.setSubpixelText(true);
-    font.setAntiAlias(true);
-    font.setTextEncoding(kUTF8_SkTextEncoding);
+    font.setSubpixel(true);
+    font.setEdging(SkFont::Edging::kAntiAlias);
 
     const auto align_fract = [](SkTextUtils::Align align) {
         switch (align) {
@@ -226,8 +222,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
         return 0.0f; // go home, msvc...
     }(fText.fAlign);
 
-    const auto line_spacing = font.getFontSpacing();
-    const auto blob_font    = SkFont::LEGACY_ExtractFromPaint(font);
+    const auto line_spacing = font.getSpacing();
     float y_off             = 0;
     SkSTArray<256, SkGlyphID, true> line_glyph_buffer;
     SkTextBlobBuilder builder;
@@ -235,14 +230,15 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     const auto& push_line = [&](const char* start, const char* end) {
         if (end > start) {
             const auto len   = SkToSizeT(end - start);
-            line_glyph_buffer.reset(font.textToGlyphs(start, len, nullptr));
-            SkAssertResult(font.textToGlyphs(start, len, line_glyph_buffer.data())
+            line_glyph_buffer.reset(font.countText(start, len, kUTF8_SkTextEncoding));
+            SkAssertResult(font.textToGlyphs(start, len, kUTF8_SkTextEncoding, line_glyph_buffer.data(),
+                    line_glyph_buffer.count())
                            == line_glyph_buffer.count());
 
             const auto x_off = align_fract != 0
-                    ? align_fract * font.measureText(start, len)
+                    ? align_fract * font.measureText(start, len, kUTF8_SkTextEncoding)
                     : 0;
-            const auto& buf  = builder.allocRun(blob_font, line_glyph_buffer.count(), x_off, y_off);
+            const auto& buf  = builder.allocRun(font, line_glyph_buffer.count(), x_off, y_off);
             if (!buf.glyphs) {
                 return;
             }

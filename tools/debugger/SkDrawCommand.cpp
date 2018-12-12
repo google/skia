@@ -2059,7 +2059,7 @@ SkDrawTextRSXformCommand::SkDrawTextRSXformCommand(const void* text, size_t byte
                                                    const SkPaint& paint)
     : INHERITED(kDrawTextRSXform_OpType)
     , fText(SkData::MakeWithCopy(text, byteLength))
-    , fXform(xform, paint.countText(text, byteLength))
+    , fXform(xform, SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding()))
     , fCull(cull)
     , fPaint(paint) {}
 
