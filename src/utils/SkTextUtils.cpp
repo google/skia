@@ -6,48 +6,21 @@
  */
 
 #include "SkTextUtils.h"
+#include "SkTextBlob.h"
 
 void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkScalar x, SkScalar y,
-                            const SkPaint& origPaint, Align align) {
-    int count = origPaint.countText(text, size);
-    if (!count) {
-        return;
-    }
+                            const SkPaint& paint, Align align) {
 
-    SkPaint paint(origPaint);
-    SkAutoSTArray<32, uint16_t> glyphStorage;
-    const uint16_t* glyphs;
-
-    if (paint.getTextEncoding() != kGlyphID_SkTextEncoding) {
-        glyphStorage.reset(count);
-        paint.textToGlyphs(text, size, glyphStorage.get());
-        glyphs = glyphStorage.get();
-        paint.setTextEncoding(kGlyphID_SkTextEncoding);
-    } else {
-        glyphs = static_cast<const uint16_t*>(text);
-    }
-
-    SkAutoSTArray<32, SkScalar> widthStorage(count);
-    SkScalar* widths = widthStorage.get();
-    paint.getTextWidths(glyphs, count * sizeof(uint16_t), widths);
+    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
     if (align != kLeft_Align) {
-        SkScalar offset = 0;
-        for (int i = 0; i < count; ++i) {
-            offset += widths[i];
-        }
+        SkScalar width = font.measureText(text, size, paint.getTextEncoding());
         if (align == kCenter_Align) {
-            offset *= 0.5f;
+            width *= 0.5f;
         }
-        x -= offset;
+        x -= width;
     }
 
-    // Turn widths into h-positions
-    for (int i = 0; i < count; ++i) {
-        SkScalar w = widths[i];
-        widths[i] = x;
-        x += w;
-    }
-    canvas->drawPosTextH(glyphs, count * sizeof(uint16_t), widths, y, paint);
+    canvas->drawTextBlob(SkTextBlob::MakeFromText(text, size, font, paint.getTextEncoding()), x, y, paint);
 }
 
