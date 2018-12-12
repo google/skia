@@ -22,6 +22,30 @@
       "revId": "4c9f362a92ac3520995197c0f7156d16887d0a13",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8dfbf53_21ef86d6",
+        "filename": "experimental/canvaskit/fonts/NotoMono-Regular.ttf.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-12-12T12:13:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31c51f26_9dfc34c3",
+      "range": {
+        "startLine": 9,
+        "startChar": 32,
+        "endLine": 9,
+        "endChar": 41
+      },
+      "revId": "4c9f362a92ac3520995197c0f7156d16887d0a13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
