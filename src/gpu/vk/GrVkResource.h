@@ -55,8 +55,14 @@ public:
             });
             SkASSERT(0 == fHashSet.count());
         }
-        void add(const GrVkResource* r) { fHashSet.add(r); }
-        void remove(const GrVkResource* r) { fHashSet.remove(r); }
+
+        void add(const GrVkResource* r) {
+            fHashSet.add(r);
+        }
+
+        void remove(const GrVkResource* r) {
+            fHashSet.remove(r);
+        }
 
     private:
         SkTHashSet<const GrVkResource*, GrVkResource::Hash> fHashSet;
@@ -103,8 +109,9 @@ public:
         Must be balanced by a call to unref() or unrefAndFreeResources().
      */
     void ref() const {
-        SkASSERT(this->getRefCnt() > 0);
-        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);  // No barrier required.
+        // No barrier required.
+        SkDEBUGCODE(int newRefCount = )fRefCnt.fetch_add(+1, std::memory_order_relaxed);
+        SkASSERT(newRefCount >= 1);
     }
 
     /** Decrement the reference count. If the reference count is 1 before the
@@ -112,11 +119,12 @@ public:
         the object needs to have been allocated via new, and not on the stack.
         Any GPU data associated with this resource will be freed before it's deleted.
      */
-    void unref(const GrVkGpu* gpu) const {
-        SkASSERT(this->getRefCnt() > 0);
+    void unref(GrVkGpu* gpu) const {
         SkASSERT(gpu);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+        int newRefCount = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
+        SkASSERT(newRefCount >= 0);
+        if (newRefCount == 1) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose(gpu);
@@ -127,7 +135,9 @@ public:
     void unrefAndAbandon() const {
         SkASSERT(this->getRefCnt() > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+        int newRefCount = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
+        SkASSERT(newRefCount >= 0);
+        if (newRefCount == 1) {
             // Like unique(), the acquire is only needed on success, to make sure
             // code in internal_dispose() doesn't happen before the decrement.
             this->internal_dispose();
@@ -157,7 +167,7 @@ private:
     /** Must be implemented by any subclasses.
      *  Deletes any Vk data associated with this resource
      */
-    virtual void freeGPUData(const GrVkGpu* gpu) const = 0;
+    virtual void freeGPUData(GrVkGpu* gpu) const = 0;
 
     /**
      * Called from unrefAndAbandon. Resources should do any necessary cleanup without freeing
@@ -169,7 +179,7 @@ private:
     /**
      *  Called when the ref count goes to 0. Will free Vk resources.
      */
-    void internal_dispose(const GrVkGpu* gpu) const {
+    void internal_dispose(GrVkGpu* gpu) const {
         this->freeGPUData(gpu);
 #ifdef SK_TRACE_VK_RESOURCES
         GetTrace()->remove(this);

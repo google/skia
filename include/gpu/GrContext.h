@@ -297,6 +297,8 @@ protected:
     sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
 
 private:
+    // TaskGroup must appear before GPU so GPU is destroyed first
+    std::unique_ptr<SkTaskGroup>            fTaskGroup;
     sk_sp<GrGpu>                            fGpu;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
@@ -318,8 +320,6 @@ private:
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
-
-    std::unique_ptr<SkTaskGroup>            fTaskGroup;
 
     const uint32_t                          fUniqueID;
 
