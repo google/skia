@@ -203,9 +203,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             // The paint we draw paths with must have the same anti-aliasing state as the runFont
             // allowing the paths to have the same edging as the glyph masks.
             pathPaint = runPaint;
-            bool isAntiAlias = runFont.getEdging() == SkFont::Edging::kAntiAlias
-                            || runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias;
-            pathPaint.setAntiAlias(isAntiAlias);
+            pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
 
             bitmapDevice->paintPaths(
                     SkSpan<const PathAndPos>{pathsAndPositions.begin(), pathsAndPositions.size()},

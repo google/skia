@@ -491,6 +491,7 @@ private:
     uint8_t     fHinting;
 
     SkScalar setupForAsPaths(SkPaint*);
+    bool hasSomeAntiAliasing() const;
 
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
