@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16f36e93_e8db8c5e",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-12T21:33:27Z",
+      "side": 1,
+      "message": "This behavior matches the 8888 behaviors. I assume this is what we want?",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 13
+      },
+      "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
