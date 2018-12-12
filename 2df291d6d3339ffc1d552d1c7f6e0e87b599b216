@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84d60d92_0ac65e3f",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-12T14:26:44Z",
+      "side": 1,
+      "message": "would this make sense as a static helper on SkEncoder, to somewhat scope it?",
+      "range": {
+        "startLine": 51,
+        "startChar": 5,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "2df291d6d3339ffc1d552d1c7f6e0e87b599b216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
