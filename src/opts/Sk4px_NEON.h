@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-namespace { // See Sk4px.h
+namespace {  // NOLINT(google-build-namespaces)
 
 inline Sk4px Sk4px::DupPMColor(SkPMColor px) { return Sk16b((uint8x16_t)vdupq_n_u32(px)); }
 

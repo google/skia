@@ -17,7 +17,7 @@
 
 // Templates shared by various 4f gradient flavors.
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 enum class ApplyPremul { True, False };
 
