@@ -1064,7 +1064,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var shadowPaint = basePaint.copy();
     shadowPaint.setColor(alphaColor);
     var blurEffect = CanvasKit.MakeBlurMaskFilter(CanvasKit.BlurStyle.Normal,
-      Math.max(1, this._shadowBlur/2), // very little blur when < 1
+      SkBlurRadiusToSigma(this._shadowBlur),
       false);
     shadowPaint.setMaskFilter(blurEffect);
 
@@ -1179,4 +1179,10 @@ function CanvasRenderingContext2D(skcanvas) {
     value: null,
     writable: false
   });
+}
+
+function SkBlurRadiusToSigma(radius) {
+  if (radius <= 0)
+    return 0.;
+  return 0.288675 * radius + 0.5;
 }
