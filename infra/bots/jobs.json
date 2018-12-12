@@ -37,6 +37,7 @@
   "Build-Debian9-Clang-x86_64-Debug-SafeStack",
   "Build-Debian9-Clang-x86_64-Debug-Static",
   "Build-Debian9-Clang-x86_64-Debug-SwiftShader",
+  "Build-Debian9-Clang-x86_64-Debug-Tidy",
   "Build-Debian9-Clang-x86_64-Debug-Vulkan",
   "Build-Debian9-Clang-x86_64-Release",
   "Build-Debian9-Clang-x86_64-Release-ANGLE",
