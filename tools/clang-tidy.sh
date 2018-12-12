@@ -24,7 +24,7 @@ while [ "$1" ]; do
 done
 
 if [ "$src" ]; then
-    clang-tidy -quiet -warnings-as-errors='*' $src -- $args
+    clang-tidy -quiet -header-filter='.*' -warnings-as-errors='*' $src -- $args
 fi
 exec clang++ $args
 
