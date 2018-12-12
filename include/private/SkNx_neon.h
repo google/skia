@@ -10,7 +10,7 @@
 
 #include <arm_neon.h>
 
-namespace {
+namespace {  // NOLINT(google-build-namespaces)
 
 // ARMv8 has vrndm(q)_f32 to floor floats.  Here we emulate it:
 //   - roundtrip through integers via truncation
