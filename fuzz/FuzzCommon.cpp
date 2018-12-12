@@ -214,9 +214,6 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
         }
         SkASSERTF(       path->isValid(),        "path->isValid() failed at op %d, case %d", i, op);
-#ifndef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
-        SkASSERTF(path->pathRefIsValid(), "path->pathRefIsValid() failed at op %d, case %d", i, op);
-#endif
     }
 }
 

@@ -1670,7 +1670,6 @@ public:
     */
     uint32_t getGenerationID() const;
 
-#ifdef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
     /** Returns if SkPath data is consistent. Corrupt SkPath data is detected if
         internal values are out of range or internal storage does not match
         array dimensions.
@@ -1678,14 +1677,6 @@ public:
         @return  true if SkPath data is consistent
     */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
-#else
-    /** Deprecated.
-     */
-    bool isValid() const { return this->isValidImpl(); }
-    /** Deprecated.
-     */
-    bool pathRefIsValid() const { return fPathRef->isValid(); }
-#endif
 
 private:
     sk_sp<SkPathRef>               fPathRef;
