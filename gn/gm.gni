@@ -106,6 +106,7 @@ gm_sources = [
   "$_gm/croppedrects.cpp",
   "$_gm/crosscontextimage.cpp",
   "$_gm/cubicpaths.cpp",
+  "$_gm/daa.cpp",
   "$_gm/dashcircle.cpp",
   "$_gm/dashcubics.cpp",
   "$_gm/dashing.cpp",
