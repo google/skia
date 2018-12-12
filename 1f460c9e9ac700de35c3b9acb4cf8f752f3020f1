@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3dedaf49_ed802685",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-12T15:44:26Z",
+      "side": 1,
+      "message": "Ah, makes sense. Yeah - I\u0027ll try to make that change (separately).",
+      "parentUuid": "58a6a6e8_40673ebe",
+      "range": {
+        "startLine": 20,
+        "startChar": 36,
+        "endLine": 21,
+        "endChar": 51
+      },
+      "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b90fa30_99b516aa",
         "filename": "infra/bots/assets/win_toolchain/create.py",
         "patchSetId": 5
@@ -59,6 +83,30 @@
       "writtenOn": "2018-12-12T15:42:42Z",
       "side": 1,
       "message": "It\u0027ll be consistently whatever who runs the script has installed.  :P\n\nBut seriously, yes.  And the old system also had this risk, just one degree of separation away from us seeing it.",
+      "parentUuid": "3b90fa30_99b516aa",
+      "range": {
+        "startLine": 14,
+        "startChar": 61,
+        "endLine": 15,
+        "endChar": 7
+      },
+      "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee3f874_5327bfc8",
+        "filename": "infra/bots/assets/win_toolchain/create.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-12T15:44:26Z",
+      "side": 1,
+      "message": "Yes. The depot_tools script has a pretty good method for generating a minimal toolchain + SDK (get a fresh Windows VM, run an install from the command line that grabs the latest of everything needed). I didn\u0027t do that - I just used my local copy (which had been updated to latest within the last week).",
       "parentUuid": "3b90fa30_99b516aa",
       "range": {
         "startLine": 14,
