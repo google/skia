@@ -19641,14 +19641,14 @@
       "cipd_packages": [
         {
           "name": "skia/bots/win_toolchain",
-          "path": "t",
+          "path": "win_toolchain",
           "version": "version:9"
         }
       ],
       "command": [
         "/bin/cp",
         "-rL",
-        "t",
+        "win_toolchain",
         "${ISOLATED_OUTDIR}"
       ],
       "dimensions": [
