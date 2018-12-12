@@ -1,2 +1,1 @@
 Checks: '-*,bugprone-use-after-move'
-WarningsAsErrors: '*'
