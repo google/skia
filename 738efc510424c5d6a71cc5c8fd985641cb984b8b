@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97c80adc_8a79e86e",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-12T21:00:04Z",
+      "side": 1,
+      "message": "Lets expand on this comment to say something like, \"fTaskGroup must outlive all possible users of itself. Thus we make sure it is the last thing delete from the GrContexts. All users of fTaskGroup are responsible for waiting on their tasks to finish.\"",
+      "range": {
+        "startLine": 300,
+        "startChar": 2,
+        "endLine": 300,
+        "endChar": 65
+      },
+      "revId": "738efc510424c5d6a71cc5c8fd985641cb984b8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
