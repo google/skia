@@ -186,9 +186,14 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
 
             return SkColorSpace::MakeSRGB();
         }
-        case kRGBA_F16_SkColorType:
-            // Note that |prefColorSpace| is ignored, F16 is always linear sRGB.
+        case kRGBA_F16_SkColorType: {
+            SkColorSpaceTransferFn fn;
+            if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
+                return prefColorSpace;
+            }
+
             return SkColorSpace::MakeSRGBLinear();
+        }
         case kRGB_565_SkColorType:
             // Note that |prefColorSpace| is ignored, 565 is always sRGB.
             return SkColorSpace::MakeSRGB();
