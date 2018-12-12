@@ -27,6 +27,7 @@
 
 #include <cmath>
 #include <utility>
+#include <vector>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
@@ -1319,6 +1320,21 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
     SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
     SkPath::Convexity c = copy.getConvexity();
     REPORTER_ASSERT(reporter, c == expected);
+    // test points-by-array interface
+    SkPath::Iter iter(path, true);
+    int initialMoves = 0;
+    SkPoint pts[4];
+    while (SkPath::kMove_Verb == iter.next(pts, false, false)) {
+        ++initialMoves;
+    }
+    if (initialMoves > 0) {
+        std::vector<SkPoint> points;
+        points.resize(path.getPoints(nullptr, 0));
+        (void) path.getPoints(&points.front(), points.size());
+        int skip = initialMoves - 1;
+        bool isConvex = SkPathPriv::IsConvex(&points.front() + skip, points.size() - skip);
+        REPORTER_ASSERT(reporter, isConvex == (SkPath::kConvex_Convexity == expected));
+    }
 }
 
 static void test_path_crbug389050(skiatest::Reporter* reporter) {
@@ -1329,8 +1345,16 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
     tinyConvexPolygon.getConvexity();
-    check_convexity(reporter, tinyConvexPolygon, SkPath::kConvex_Convexity);
+    check_convexity(reporter, tinyConvexPolygon, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+#if SK_TREAT_COLINEAR_DIAGONAL_POINTS_AS_CONCAVE
+    // colinear diagonal points cause convexicator to give up, so CheapComputeFirstDirection
+    // makes its best guess
     check_direction(reporter, tinyConvexPolygon, SkPathPriv::kCW_FirstDirection);
+#else
+    // lines are close enough to straight that polygon collapses to line that does not
+    // enclose area, so has unknown first direction
+    check_direction(reporter, tinyConvexPolygon, SkPathPriv::kUnknown_FirstDirection);
+#endif
 
     SkPath  platTriangle;
     platTriangle.moveTo(0, 0);
@@ -1458,7 +1482,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, SkPath::kConcave_Convexity);
+    check_convexity(reporter, strokedSin, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
     check_direction(reporter, strokedSin, kDontCheckDir);
 
     // http://crbug.com/412640
@@ -1485,6 +1509,29 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     badFirstVector.lineTo(501.087708f, 319.610352f);
     badFirstVector.close();
     check_convexity(reporter, badFirstVector, SkPath::kConcave_Convexity);
+}
+
+static void test_convexity_doubleback(skiatest::Reporter* reporter) {
+    SkPath doubleback;
+    doubleback.lineTo(1, 1);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
+    doubleback.lineTo(2, 2);
+    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    doubleback.reset();
+    doubleback.lineTo(1, 0);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
+    doubleback.lineTo(2, 0);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
+    doubleback.lineTo(1, 0);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
+    doubleback.reset();
+    doubleback.quadTo(1, 1, 2, 2);
+    check_convexity(reporter, doubleback, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
+    doubleback.reset();
+    doubleback.quadTo(1, 0, 2, 0);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
+    doubleback.quadTo(1, 0, 0, 0);
+    check_convexity(reporter, doubleback, SkPath::kConvex_Convexity);
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
@@ -1541,8 +1588,8 @@ static void test_convexity(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kCW_FirstDirection));
 
     path.reset();
-    path.quadTo(100, 100, 50, 50); // This is a convex path from GM:convexpaths
-    check_convexity(reporter, path, SkPath::kConvex_Convexity);
+    path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
+    check_convexity(reporter, path, SkPath::COLINEAR_DIAGONAL_CONVEXITY);
 
     static const struct {
         const char*                 fPathStr;
@@ -1560,7 +1607,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        SkPath path;
+        path.reset();
         setFromString(&path, gRec[i].fPathStr);
         check_convexity(reporter, path, gRec[i].fExpectedConvexity);
         check_direction(reporter, path, gRec[i].fExpectedDirection);
@@ -1594,61 +1641,101 @@ static void test_convexity(skiatest::Reporter* reporter) {
 
     const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);
 
-    static const SkPoint finitePts[] = {
+    static const SkPoint axisAlignedPts[] = {
         { SK_ScalarMax, 0 },
         { 0, SK_ScalarMax },
-        { SK_ScalarMax, SK_ScalarMax },
         { SK_ScalarMin, 0 },
         { 0, SK_ScalarMin },
-        { SK_ScalarMin, SK_ScalarMin },
     };
 
-    const size_t finitePtsCount = sizeof(finitePts) / sizeof(finitePts[0]);
+    const size_t axisAlignedPtsCount = sizeof(axisAlignedPts) / sizeof(axisAlignedPts[0]);
 
-    for (int index = 0; index < (int) (13 * nonFinitePtsCount * finitePtsCount); ++index) {
+    for (int index = 0; index < (int) (13 * nonFinitePtsCount * axisAlignedPtsCount); ++index) {
         int i = (int) (index % nonFinitePtsCount);
-        int f = (int) (index % finitePtsCount);
-        int g = (int) ((f + 1) % finitePtsCount);
+        int f = (int) (index % axisAlignedPtsCount);
+        int g = (int) ((f + 1) % axisAlignedPtsCount);
         path.reset();
         switch (index % 13) {
             case 0: path.lineTo(nonFinitePts[i]); break;
             case 1: path.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
-            case 2: path.quadTo(nonFinitePts[i], finitePts[f]); break;
-            case 3: path.quadTo(finitePts[f], nonFinitePts[i]); break;
-            case 4: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[f]); break;
-            case 5: path.cubicTo(finitePts[f], nonFinitePts[i], finitePts[f]); break;
-            case 6: path.cubicTo(finitePts[f], finitePts[f], nonFinitePts[i]); break;
-            case 7: path.cubicTo(nonFinitePts[i], nonFinitePts[i], finitePts[f]); break;
-            case 8: path.cubicTo(nonFinitePts[i], finitePts[f], nonFinitePts[i]); break;
-            case 9: path.cubicTo(finitePts[f], nonFinitePts[i], nonFinitePts[i]); break;
+            case 2: path.quadTo(nonFinitePts[i], axisAlignedPts[f]); break;
+            case 3: path.quadTo(axisAlignedPts[f], nonFinitePts[i]); break;
+            case 4: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 5: path.cubicTo(axisAlignedPts[f], nonFinitePts[i], axisAlignedPts[f]); break;
+            case 6: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], nonFinitePts[i]); break;
+            case 7: path.cubicTo(nonFinitePts[i], nonFinitePts[i], axisAlignedPts[f]); break;
+            case 8: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], nonFinitePts[i]); break;
+            case 9: path.cubicTo(axisAlignedPts[f], nonFinitePts[i], nonFinitePts[i]); break;
             case 10: path.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
-            case 11: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[g]); break;
+            case 11: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[g]); break;
             case 12: path.moveTo(nonFinitePts[i]); break;
         }
         check_convexity(reporter, path, SkPath::kUnknown_Convexity);
     }
 
-    for (int index = 0; index < (int) (11 * finitePtsCount); ++index) {
-        int f = (int) (index % finitePtsCount);
-        int g = (int) ((f + 1) % finitePtsCount);
+    for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
+        int f = (int) (index % axisAlignedPtsCount);
+        int g = (int) ((f + 1) % axisAlignedPtsCount);
         path.reset();
         int curveSelect = index % 11;
         switch (curveSelect) {
-            case 0: path.moveTo(finitePts[f]); break;
-            case 1: path.lineTo(finitePts[f]); break;
-            case 2: path.quadTo(finitePts[f], finitePts[f]); break;
-            case 3: path.quadTo(finitePts[f], finitePts[g]); break;
-            case 4: path.quadTo(finitePts[g], finitePts[f]); break;
-            case 5: path.cubicTo(finitePts[f], finitePts[f], finitePts[f]); break;
-            case 6: path.cubicTo(finitePts[f], finitePts[f], finitePts[g]); break;
-            case 7: path.cubicTo(finitePts[f], finitePts[g], finitePts[f]); break;
-            case 8: path.cubicTo(finitePts[f], finitePts[g], finitePts[g]); break;
-            case 9: path.cubicTo(finitePts[g], finitePts[f], finitePts[f]); break;
-            case 10: path.cubicTo(finitePts[g], finitePts[f], finitePts[g]); break;
+            case 0: path.moveTo(axisAlignedPts[f]); break;
+            case 1: path.lineTo(axisAlignedPts[f]); break;
+            case 2: path.quadTo(axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 3: path.quadTo(axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 4: path.quadTo(axisAlignedPts[g], axisAlignedPts[f]); break;
+            case 5: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 6: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 7: path.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[f]); break;
+            case 8: path.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[g]); break;
+            case 9: path.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 10: path.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[g]); break;
         }
-        check_convexity(reporter, path, curveSelect == 0 ? SkPath::kConvex_Convexity
-                : SkPath::kUnknown_Convexity);
+        if (curveSelect == 0 || curveSelect == 1 || curveSelect == 2 || curveSelect == 5) {
+            check_convexity(reporter, path, SkPath::kConvex_Convexity);
+        } else {
+            SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
+            SkPath::Convexity c = copy.getConvexity();
+            REPORTER_ASSERT(reporter, SkPath::kUnknown_Convexity == c
+                    || SkPath::kConcave_Convexity == c);
+        }
     }
+
+    static const SkPoint diagonalPts[] = {
+        { SK_ScalarMax, SK_ScalarMax },
+        { SK_ScalarMin, SK_ScalarMin },
+    };
+
+    const size_t diagonalPtsCount = sizeof(diagonalPts) / sizeof(diagonalPts[0]);
+
+    for (int index = 0; index < (int) (7 * diagonalPtsCount); ++index) {
+        int f = (int) (index % diagonalPtsCount);
+        int g = (int) ((f + 1) % diagonalPtsCount);
+        path.reset();
+        int curveSelect = index % 11;
+        switch (curveSelect) {
+            case 0: path.moveTo(diagonalPts[f]); break;
+            case 1: path.lineTo(diagonalPts[f]); break;
+            case 2: path.quadTo(diagonalPts[f], diagonalPts[f]); break;
+            case 3: path.quadTo(axisAlignedPts[f], diagonalPts[g]); break;
+            case 4: path.quadTo(diagonalPts[g], axisAlignedPts[f]); break;
+            case 5: path.cubicTo(diagonalPts[f], diagonalPts[f], diagonalPts[f]); break;
+            case 6: path.cubicTo(diagonalPts[f], diagonalPts[f], axisAlignedPts[g]); break;
+            case 7: path.cubicTo(diagonalPts[f], axisAlignedPts[g], diagonalPts[f]); break;
+            case 8: path.cubicTo(axisAlignedPts[f], diagonalPts[g], diagonalPts[g]); break;
+            case 9: path.cubicTo(diagonalPts[g], diagonalPts[f], axisAlignedPts[f]); break;
+            case 10: path.cubicTo(diagonalPts[g], axisAlignedPts[f], diagonalPts[g]); break;
+        }
+        if (curveSelect == 0) {
+            check_convexity(reporter, path, SkPath::kConvex_Convexity);
+        } else {
+            SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
+            SkPath::Convexity c = copy.getConvexity();
+            REPORTER_ASSERT(reporter, SkPath::kUnknown_Convexity == c
+                    || SkPath::kConcave_Convexity == c);
+        }
+    }
+
 
     path.reset();
     path.moveTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d));  // -0.284072f, -0.0622362f
@@ -3523,7 +3610,7 @@ static void test_rrect_convexity_is_unknown(skiatest::Reporter* reporter, SkPath
     REPORTER_ASSERT(reporter, path->isConvex());
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(*path, SkPathPriv::AsFirstDirection(dir)));
     path->setConvexity(SkPath::kUnknown_Convexity);
-    REPORTER_ASSERT(reporter, path->getConvexity() == SkPath::kUnknown_Convexity);
+    REPORTER_ASSERT(reporter, path->getConvexity() == SkPath::kConvex_Convexity);
     path->reset();
 }
 
@@ -3619,10 +3706,13 @@ static void test_arc(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p == ccwOval);
     p.reset();
     p.addArc(oval, 1, 180);
-    REPORTER_ASSERT(reporter, p.isConvex());
+    // diagonal colinear points make arc convex
+    // TODO: one way to keep it concave would be to introduce interpolated on curve points
+    // between control points and computing the on curve point at scan conversion time
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathPriv::kCW_FirstDirection));
     p.setConvexity(SkPath::kUnknown_Convexity);
-    REPORTER_ASSERT(reporter, p.isConvex());
+    REPORTER_ASSERT(reporter, p.getConvexity() == SkPath::COLINEAR_DIAGONAL_CONVEXITY);
 }
 
 static inline SkScalar oval_start_index_to_angle(unsigned start) {
@@ -4623,6 +4713,7 @@ DEF_TEST(Paths, reporter) {
     test_direction(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
+    test_convexity_doubleback(reporter);
     test_conservativelyContains(reporter);
     test_close(reporter);
     test_segment_masks(reporter);
@@ -5304,4 +5395,3 @@ DEF_TEST(Path_survive_transform, r) {
     REPORTER_ASSERT(r, path.getConvexity() == SkPath::kConvex_Convexity);
     survive(&path, x, false, r, [](const SkPath& p) { return true; });
 }
-

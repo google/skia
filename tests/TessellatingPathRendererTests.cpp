@@ -340,14 +340,6 @@ static SkPath create_path_21() {
     return path;
 }
 
-// A quad which becomes NaN when interpolated.
-static SkPath create_path_22() {
-    SkPath path;
-    path.moveTo(-5.71889e+13f, 1.36759e+09f);
-    path.quadTo(2.45472e+19f, -3.12406e+15f, -2.19589e+18f, 2.79462e+14f);
-    return path;
-}
-
 // A path which contains out-of-range colinear intersections.
 static SkPath create_path_23() {
     SkPath path;
@@ -713,7 +705,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_19());
     test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_22());
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
     test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
