@@ -1668,7 +1668,10 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                 SkASSERT(MarkType::kMethod == parent->fMarkType);
                 // retrieve parameters, return, description from include
                 Definition* iMethod = fIncludeParser.findMethod(*parent);
-                SkASSERT(iMethod);  // deprecated or 'in progress' functions should not include populate
+                if (!iMethod) {  // deprecated or 'in progress' functions should not include populate
+                    SkDebugf("#Populate found in deprecated or missing method %s\n", def->fName.c_str());
+                    def->fParent->reportError<void>("Remove #Method");
+                }
                 bool wroteParam = false;
                 SkASSERT(fMethod == iMethod);
                 for (auto& entry : iMethod->fTokens) {

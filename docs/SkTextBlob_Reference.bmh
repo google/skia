@@ -96,9 +96,16 @@ for (int index = 0; index < 2; ++index) {
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Text_Intercepts
+#Line # advanced underline, strike through ##
+
+Text_Intercepts describe the intersection of drawn text Glyphs with a pair
+of lines parallel to the text advance. Text_Intercepts permits creating a
+underline that skips Descenders.
+
 #Method int getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
                       const SkPaint* paint = nullptr) const;
-#In Utility
+#In Text_Intercepts
 #Line # returns where lines intersect Text_Blob; underlines ##
 #Populate
 
@@ -134,6 +141,8 @@ for (int index = 0; index < 2; ++index) {
 ##
 
 #Method ##
+
+#Subtopic Text_Intercepts ##
 
 # ------------------------------------------------------------------------------
 
