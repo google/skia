@@ -427,7 +427,9 @@ config("debug_symbols") {
     ]
   } else if (is_win) {
     cflags = [ "/Z7" ]
-    if (!is_clang) {
+    if (is_clang) {
+      ldflags = [ "/DEBUG" ]
+    } else {
       ldflags = [ "/DEBUG:FASTLINK" ]
     }
   } else {
