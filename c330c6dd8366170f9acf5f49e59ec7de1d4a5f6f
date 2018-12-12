@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "450c650a_87380a5c",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19644,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-12T16:16:57Z",
+      "side": 1,
+      "message": "Where does this \"t\" come from? I figured that the change in gen_tasks.go would update here, but \u0027make train\u0027 wants this to still be \"t\".",
+      "revId": "c330c6dd8366170f9acf5f49e59ec7de1d4a5f6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
