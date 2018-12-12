@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58a6a6e8_40673ebe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-12-12T15:39:23Z",
+      "side": 1,
+      "message": "This was originally done to work around the 260-character path length limit on Windows.  Looks like we now have enough headroom to make it more descriptive.",
+      "range": {
+        "startLine": 20,
+        "startChar": 36,
+        "endLine": 21,
+        "endChar": 51
+      },
+      "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b90fa30_99b516aa",
+        "filename": "infra/bots/assets/win_toolchain/create.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-12-12T15:39:23Z",
+      "side": 1,
+      "message": "Is there any risk of getting inconsistent toolchains depending on who runs the script?",
+      "range": {
+        "startLine": 14,
+        "startChar": 61,
+        "endLine": 15,
+        "endChar": 7
+      },
+      "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
