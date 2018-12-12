@@ -66,6 +66,8 @@ private:
                                  SkSL::Program::Inputs* outInputs);
     void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc,
                                  bool bindAttribLocations);
+    void storeShaderInCache(const SkSL::Program::Inputs& inputs, GrGLuint programID,
+                            const SkSL::String& glsl);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
