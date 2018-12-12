@@ -22,6 +22,30 @@
       "revId": "2df291d6d3339ffc1d552d1c7f6e0e87b599b216",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6628ed0_ac454218",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-12T14:37:50Z",
+      "side": 1,
+      "message": "I think that\u0027s probably just us making work for ourselves, but if we keep adding these functions it may make sense to switch it over to be a struct with methods and an embedded enum?\n\nstruct SkEncodedOrigin {\n   enum Enum { \n      kTopLeft \u003d 1,\n      ...\n   } fEnum \u003d kDefault;\n\n   // Some routines that make converting between SkEncodedOrigin\n   // and SkEncodedOrigin::Enum seamless.\n\n   SkMatrix toMatrix(int w, int h) const;\n\n   static bool Parse(const void*, size_t, SkEncodedOrigin*);\n};",
+      "parentUuid": "84d60d92_0ac65e3f",
+      "range": {
+        "startLine": 51,
+        "startChar": 5,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "2df291d6d3339ffc1d552d1c7f6e0e87b599b216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
