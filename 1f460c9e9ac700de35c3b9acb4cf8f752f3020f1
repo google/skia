@@ -45,6 +45,30 @@
       "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8338318b_cbad7602",
+        "filename": "infra/bots/assets/win_toolchain/create.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-12T15:42:42Z",
+      "side": 1,
+      "message": "It\u0027ll be consistently whatever who runs the script has installed.  :P\n\nBut seriously, yes.  And the old system also had this risk, just one degree of separation away from us seeing it.",
+      "parentUuid": "3b90fa30_99b516aa",
+      "range": {
+        "startLine": 14,
+        "startChar": 61,
+        "endLine": 15,
+        "endChar": 7
+      },
+      "revId": "1f460c9e9ac700de35c3b9acb4cf8f752f3020f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
