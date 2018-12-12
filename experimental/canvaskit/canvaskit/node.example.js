@@ -4,11 +4,9 @@ const CanvasKitInit = require('./bin/canvaskit.js');
 const fs = require('fs');
 const path = require('path');
 
-
 CanvasKitInit({
   locateFile: (file) => __dirname + '/bin/'+file,
-}).then((CK) => {
-  CanvasKit = CK;
+}).then((CanvasKit) => {
   let canvas = CanvasKit.MakeCanvas(300, 300);
 
   let img = fs.readFileSync(path.join(__dirname, 'test.png'));
@@ -41,8 +39,7 @@ CanvasKitInit({
   console.log('<img src="' + canvas.toDataURL() + '" />');
 });
 
-function fancyAPI() {
-  CanvasKit.initFonts();
+function fancyAPI(CanvasKit) {
   console.log('loaded');
 
   let surface = CanvasKit.MakeSurface(300, 300);
@@ -50,23 +47,28 @@ function fancyAPI() {
 
   const paint = new CanvasKit.SkPaint();
 
+  const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+  let robotoData = fs.readFileSync(path.join(__dirname, './Roboto-Regular.woff'));
+  const roboto = fontMgr.MakeTypefaceFromData(robotoData);
+
   const textPaint = new CanvasKit.SkPaint();
   textPaint.setColor(CanvasKit.Color(40, 0, 0));
   textPaint.setTextSize(30);
   textPaint.setAntiAlias(true);
+  textPaint.setTypeface(roboto);
 
-  const path = starPath(CanvasKit);
+  const skpath = starPath(CanvasKit);
   const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], 1);
 
   paint.setPathEffect(dpe);
-  paint.setStyle(CanvasKit.PaintStyle.STROKE);
+  paint.setStyle(CanvasKit.PaintStyle.Stroke);
   paint.setStrokeWidth(5.0);
   paint.setAntiAlias(true);
   paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
 
   canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
-  canvas.drawPath(path, paint);
+  canvas.drawPath(skpath, paint);
   canvas.drawText('Try Clicking!', 10, 280, textPaint);
 
   surface.flush();
@@ -87,10 +89,10 @@ function fancyAPI() {
   console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
 
   dpe.delete();
-  path.delete();
-  canvas.delete();
+  skpath.delete();
   textPaint.delete();
   paint.delete();
+  roboto.delete();
 
   surface.dispose();
 }

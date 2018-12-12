@@ -44,7 +44,7 @@ extern "C" SkEmbeddedHeader const NAME;''')
   # Write the resources.
   index = 0
   for f in args.input:
-    out('static const uint8_t resource{0:d}[] SK_STRUCT_ALIGN({1:d}) = {{\n'
+    out('alignas({1:d}) static const uint8_t resource{0:d}[] = {{\n'
         .format(index, args.align))
     bytes_written = 0
     bytes_on_line = 0

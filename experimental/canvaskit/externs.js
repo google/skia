@@ -50,7 +50,6 @@ var CanvasKit = {
 	currentContext: function() {},
 	getColorComponents: function() {},
 	getSkDataBytes: function() {},
-	initFonts: function() {},
 	multiplyByAlpha: function() {},
 	setCurrentContext: function() {},
 
@@ -103,6 +102,15 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkFontMgr: {
+		// public API (from C++ bindings)
+		RefDefault: function() {},
+		countFamilies: function() {},
+
+		// private API
+		_makeTypefaceFromData: function() {},
+	},
+
 	SkImage: {
 		// public API (from C++ bindings)
 		height: function() {},
@@ -148,6 +156,7 @@ var CanvasKit = {
 		setStrokeWidth: function() {},
 		setStyle: function() {},
 		setTextSize: function() {},
+		setTypeface: function() {},
 
 		//private API
 		delete: function() {},
@@ -419,6 +428,8 @@ CanvasKit.SkImage.prototype.encodeToData = function() {};
 /** @return {Uint8Array} */
 CanvasKit.SkCanvas.prototype.readPixels = function() {};
 CanvasKit.SkCanvas.prototype.writePixels = function() {};
+
+CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};

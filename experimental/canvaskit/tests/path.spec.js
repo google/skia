@@ -13,7 +13,6 @@ describe('CanvasKit\'s Path Behavior', function() {
                 locateFile: (file) => '/canvaskit/'+file,
             }).then((_CanvasKit) => {
                 CanvasKit = _CanvasKit;
-                CanvasKit.initFonts();
                 resolve();
             });
         }

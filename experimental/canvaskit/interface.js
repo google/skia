@@ -402,6 +402,29 @@
       return ok;
     }
 
+    // fontData should be an arrayBuffer
+    CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function(fontData) {
+      var data = new Uint8Array(fontData);
+
+      var fptr = CanvasKit._malloc(data.byteLength);
+      CanvasKit.HEAPU8.set(data, fptr);
+      var font = this._makeTypefaceFromData(fptr, data.byteLength);
+      if (!font) {
+        SkDebug('Could not decode font data');
+        // We do not need to free the data since the C++ will do that for us
+        // on a failed decode (at least, it appears to).
+        return null;
+      }
+      // We cannot free this data until after the font stops being used
+      // (otherwise nothing draws)
+      var realDelete = font.delete.bind(font);
+      font.delete = function() {
+        CanvasKit._free(fptr);
+        realDelete();
+      }
+      return font;
+    }
+
     // Run through the JS files that are added at compile time.
     if (CanvasKit._extraInitializations) {
       CanvasKit._extraInitializations.forEach(function(init) {

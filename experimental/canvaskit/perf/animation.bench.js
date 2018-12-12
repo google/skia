@@ -13,7 +13,6 @@ describe('CanvasKit\'s Animation', function() {
                 locateFile: (file) => '/canvaskit/'+file,
             }).then((_CanvasKit) => {
                 CanvasKit = _CanvasKit;
-                CanvasKit.initFonts();
                 resolve();
             });
         }

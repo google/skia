@@ -13,7 +13,6 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 locateFile: (file) => '/canvaskit/'+file,
             }).then((_CanvasKit) => {
                 CanvasKit = _CanvasKit;
-                CanvasKit.initFonts();
                 resolve();
             });
         }
@@ -243,7 +242,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.lineTo(220, 120);
 
                     ctx.scale(3.0, 3.0);
-                    ctx.font = '6pt Arial';
+                    ctx.font = '6pt Noto Mono';
                     ctx.fillText('This text should be huge', 10, 80);
                     ctx.resetTransform();
 
@@ -305,7 +304,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.stroke();
 
                     ctx.fillStyle = 'green';
-                    ctx.font = '16pt Arial';
+                    ctx.font = '16pt Noto Mono';
                     ctx.fillText('This should be shadowed', 20, 80);
 
                     ctx.beginPath();
@@ -368,7 +367,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     ctx.lineTo(300, 400);
                     ctx.stroke();
 
-                    ctx.font = '36pt Arial';
+                    ctx.font = '36pt Noto Mono';
                     ctx.strokeText('Dashed', 20, 350);
                     ctx.fillText('Not Dashed', 20, 400);
                 });
@@ -580,7 +579,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 ];
                 multipleCanvasTest('points_in_path_stroke', done, (canvas) => {
                     let ctx = canvas.getContext('2d');
-                    ctx.font = '20px Arial';
+                    ctx.font = '20px Noto Mono';
                     // Draw some visual aids
                     ctx.fillText('path-nonzero', 60, 30);
                     ctx.fillText('path-evenodd', 300, 30);

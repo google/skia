@@ -1,6 +1,4 @@
 CanvasKit.MakeCanvas = function(width, height) {
-  // TODO(kjlubick) do fonts the "correct" way
-  CanvasKit.initFonts();
   var surf = CanvasKit.MakeSurface(width, height);
   if (surf) {
     return new HTMLCanvas(surf);

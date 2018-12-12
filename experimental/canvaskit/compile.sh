@@ -96,6 +96,19 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
+BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+if [[ $@ == *no_font* ]]; then
+  echo "Omitting the built-in font(s)"
+  BUILTIN_FONT=""
+else
+  # Generate the font's binary file (which is covered by .gitignore)
+  python tools/embed_resources.py \
+      --name SK_EMBEDDED_FONTS \
+      --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
+      --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
+      --align 4
+fi
+
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
 NINJA=`which ninja`
@@ -191,9 +204,8 @@ ${EMCXX} \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
     $HTML_CANVAS_API \
+    $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \
-    tools/fonts/SkTestFontMgr.cpp \
-    tools/fonts/SkTestTypeface.cpp \
     $WASM_SKOTTIE \
     $WASM_MANAGED_SKOTTIE \
     $BUILD_DIR/libskia.a \
