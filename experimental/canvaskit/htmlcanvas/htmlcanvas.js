@@ -21,6 +21,10 @@ function HTMLCanvas(skSurface) {
     return img;
   }
 
+  this.loadFont = function() {
+
+  }
+
   // A normal <canvas> requires that clients call getContext
   this.getContext = function(type) {
     if (type === '2d') {
