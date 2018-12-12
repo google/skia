@@ -1828,7 +1828,9 @@ Definition* IncludeParser::findMethod(const Definition& bmhDef) {
         className = className.substr(subClassPos + 2);
     }
     // match may be constructor; compare strings to see if this is so
-    SkASSERT(string::npos != methodName.find('('));
+    if (string::npos == methodName.find('(')) {
+        return nullptr;
+    }
     auto stripper = [](string s) -> string {
         bool last = false;
         string result;

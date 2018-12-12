@@ -3399,54 +3399,6 @@ Text_Path describes the geometry of Glyphs used to draw text.
 
 #Subtopic Text_Path ##
 # ------------------------------------------------------------------------------
-#Subtopic Text_Intercepts
-#Line # advanced underline, strike through ##
-
-Text_Intercepts describe the intersection of drawn text Glyphs with a pair
-of lines parallel to the text advance. Text_Intercepts permits creating a
-underline that skips Descenders.
-
-#Method int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
-                              SkScalar* intervals) const
-#In Text_Intercepts
-#Line # returns where lines intersect Text_Blob; underlines ##
-#Populate
-
-#Example
-    #Height 143
-        void draw(SkCanvas* canvas) {
-            SkFont font;
-            font.setSize(120);
-            SkPoint textPos = { 20, 110 };
-            int len = 3;
-            SkTextBlobBuilder textBlobBuilder;
-            const SkTextBlobBuilder::RunBuffer& run =
-                    textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);
-            run.glyphs[0] = 10;
-            run.glyphs[1] = 20;
-            run.glyphs[2] = 30;
-            sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
-            SkPaint paint;
-            SkScalar bounds[] = { 116, 134 };
-            int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
-            std::vector<SkScalar> intervals;
-            intervals.resize(count);
-            (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());
-            canvas->drawTextBlob(blob.get(), 0, 0, paint);
-            paint.setColor(0xFFFF7777);
-            SkScalar x = textPos.fX;
-            for (int i = 0; i < count; i+= 2) {
-                canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);
-                x = intervals[i + 1];
-            }
-            canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);
-        }
-    ##
-
-##
-
-#Subtopic Text_Intercepts ##
-# ------------------------------------------------------------------------------
 
 #Method bool nothingToDraw() const
 #In Utility
