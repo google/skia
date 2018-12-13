@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "34a396ff_f29e46d0",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-13T19:04:01Z",
+      "side": 1,
+      "message": "Yes, I would think so.",
+      "parentUuid": "cb9dd684_0c6f79a0",
+      "range": {
+        "startLine": 30,
+        "startChar": 23,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d922ceb2_019d9f1c",
         "filename": "src/gpu/effects/GrTextureDomain.cpp",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "303f5952_2dc71b5e",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-13T19:04:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d922ceb2_019d9f1c",
+      "range": {
+        "startLine": 50,
+        "startChar": 1,
+        "endLine": 50,
+        "endChar": 32
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "103f663d_fbf4c83a",
         "filename": "src/gpu/effects/GrTextureDomain.cpp",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8efbaa73_e20b737c",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-13T19:04:01Z",
+      "side": 1,
+      "message": "The first time sampleTexture() is called, the uniform will be invalid and needs to be initialized, but then the GLDomain of a cached GrGLSLFragmentProcessor would have a valid uniform and can skip the initialization.",
+      "parentUuid": "103f663d_fbf4c83a",
+      "range": {
+        "startLine": 132,
+        "startChar": 29,
+        "endLine": 132,
+        "endChar": 50
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
