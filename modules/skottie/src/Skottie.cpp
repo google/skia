@@ -29,6 +29,7 @@
 #include "SkottiePriv.h"
 #include "SkottieProperty.h"
 #include "SkottieValue.h"
+#include "SkTraceEvent.h"
 
 #include <cmath>
 
@@ -337,6 +338,8 @@ sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
 }
 
 sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
+    TRACE_EVENT0("skottie", TRACE_FUNC);
+
     // Sanitize factory args.
     class NullResourceProvider final : public ResourceProvider {
         sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
@@ -431,6 +434,8 @@ void Animation::setShowInval(bool show) {
 }
 
 void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
+    TRACE_EVENT0("skottie", TRACE_FUNC);
+
     if (!fScene)
         return;
 
@@ -444,6 +449,8 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
 }
 
 void Animation::seek(SkScalar t) {
+    TRACE_EVENT0("skottie", TRACE_FUNC);
+
     if (!fScene)
         return;
 
