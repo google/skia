@@ -20047,7 +20047,7 @@
       "cipd_packages": [
         {
           "name": "skia/bots/win_toolchain",
-          "path": "win_toolchain",
+          "path": "t",
           "version": "version:9"
         }
       ],
