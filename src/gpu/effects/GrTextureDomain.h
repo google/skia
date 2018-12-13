@@ -79,6 +79,24 @@ public:
                                 texelRect.fRight - insetX, texelRect.fBottom - insetY);
     }
 
+    // Convenience to determine if any axis of a texture uses an explicit decal mode or the hardware
+    // clamp to border decal mode.
+    static bool IsDecalSampled(GrSamplerState::WrapMode wrapX, GrSamplerState::WrapMode wrapY,
+                               Mode modeX, Mode modeY) {
+        return wrapX == GrSamplerState::WrapMode::kClampToBorder ||
+               wrapY == GrSamplerState::WrapMode::kClampToBorder ||
+               modeX == kDecal_Mode ||
+               modeY == kDecal_Mode;
+    }
+
+    static bool IsDecalSampled(const GrSamplerState::WrapMode wraps[2], Mode modeX, Mode modeY) {
+        return IsDecalSampled(wraps[0], wraps[1], modeX, modeY);
+    }
+
+    static bool IsDecalSampled(const GrSamplerState& sampler, Mode modeX, Mode modeY) {
+        return IsDecalSampled(sampler.wrapModeX(), sampler.wrapModeY(), modeX, modeY);
+    }
+
     bool operator==(const GrTextureDomain& that) const {
         return fModeX == that.fModeX && fModeY == that.fModeY &&
                (kIgnore_Mode == fModeX || (fDomain.fLeft == that.fDomain.fLeft &&
@@ -212,9 +230,6 @@ private:
                           const GrSamplerState&);
 
     explicit GrTextureDomainEffect(const GrTextureDomainEffect&);
-
-    static OptimizationFlags OptFlags(GrPixelConfig config, GrTextureDomain::Mode modeX,
-                                      GrTextureDomain::Mode modeY);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

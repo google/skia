@@ -309,13 +309,17 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
                                        int radius,
                                        Type type,
                                        const float range[2])
-        : INHERITED(kGrMorphologyEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config()))
+        : INHERITED(kGrMorphologyEffect_ClassID,
+                    ModulateForClampedSamplerOptFlags(proxy->config()))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fDirection(direction)
         , fRadius(radius)
         , fType(type)
         , fUseRange(SkToBool(range)) {
+    // Make sure the sampler's ctor uses the clamp wrap mode
+    SkASSERT(fTextureSampler.samplerState().wrapModeX() == GrSamplerState::WrapMode::kClamp &&
+             fTextureSampler.samplerState().wrapModeY() == GrSamplerState::WrapMode::kClamp);
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
     if (fUseRange) {

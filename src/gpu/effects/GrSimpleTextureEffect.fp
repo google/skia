@@ -46,9 +46,9 @@ in half4x4 matrix;
 }
 
 @optimizationFlags {
-    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-    (GrPixelConfigIsOpaque(image->config()) ? kPreservesOpaqueInput_OptimizationFlag :
-                                              kNone_OptimizationFlags)
+    ModulateForSamplerOptFlags(image->config(),
+            samplerParams.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
+            samplerParams.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder)
 }
 
 void main() {
