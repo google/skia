@@ -186,6 +186,7 @@ def nanobench_flags(api, bot):
     match.append('~desk_tiger8svg.skp_1')
     match.append('~desk_wowwiki.skp')
     match.append('~desk_ynevsvg.skp_1.1')
+    match.append('~desk_nostroke_tiger8svg.skp')
     match.append('~keymobi_booking_com.skp_1')
     match.append('~keymobi_booking_com.skp_1_mpd')
     match.append('~keymobi_cnn_article.skp_1')
