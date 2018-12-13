@@ -538,12 +538,13 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
         return nullptr;
     }
 
-    GrPixelConfig pixelConfig;
     GrBackendFormat backendFormat = get_backend_format(context, fHardwareBuffer,
                                                        context->contextPriv().getBackend(),
                                                        fBufferFormat);
-    if (!context->contextPriv().caps()->getConfigFromBackendFormat(
-            backendFormat, this->getInfo().colorType(), &pixelConfig)) {
+    GrPixelConfig pixelConfig = context->contextPriv().caps()->getConfigFromBackendFormat(
+            backendFormat, this->getInfo().colorType());
+
+    if (pixelConfig == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
