@@ -312,6 +312,10 @@ x += 512;
 #Populate
 
 #Example
+#Description
+textureReleaseProc may be called at some later point in time. In this example,
+textureReleaseProc has no effect on the drawing.
+##
 #Platform gpu
 #Image 4
 GrContext* context = canvas->getGrContext();
@@ -319,15 +323,14 @@ if (!context) {
    return;
 }
 auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {
- // broken
- //   *((int *) releaseContext) += 128;
+   *((int *) releaseContext) += 128;
 };
-int x = 0;
+int x = 0, y = 0;
 for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
     sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,
            origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);
-    canvas->drawImage(image, x, 0);
-    x += 128;
+    canvas->drawImage(image, x, y);
+    y += 128;
 }
 ##
 
