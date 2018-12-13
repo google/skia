@@ -153,8 +153,6 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
                      <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length,
                         const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
-    int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
-                              <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const;
     bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const;
 };
 
@@ -4106,55 +4104,6 @@ Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array to position <a href='#S
 
 <div><fiddle-embed name="7f27c93472aa99a7542fb3493076f072"><div>Simplifies three <a href='undocumented#Glyph'>Glyphs</a> to eliminate overlaps, and strokes the result.
 </div></fiddle-embed></div>
-
-<a name='Text_Intercepts'></a>
-
-<a href='#Paint_Text_Intercepts'>Text_Intercepts</a> describe the intersection of drawn <a href='undocumented#Text'>text</a> <a href='undocumented#Glyph'>Glyphs</a> with a pair
-of <a href='undocumented#Line'>lines</a> parallel to the <a href='undocumented#Text'>text</a> advance. <a href='#Paint_Text_Intercepts'>Text_Intercepts</a> permits creating a
-underline that skips Descenders.
-
-<a name='SkPaint_getTextBlobIntercepts'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a>(const <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>* blob, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals)const
-</pre>
-
-Returns the number of <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getTextBlobIntercepts_bounds'>bounds</a>.
-<a href='#SkPaint_getTextBlobIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='undocumented#Text'>text</a> advance.
-The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
-the <a href='undocumented#String'>string</a>.
-Uses <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-Uses run array to position <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a>.
-
-<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> must be set to <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>.
-
-Pass nullptr for <a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
-
-<a href='#SkPaint_getTextBlobIntercepts_intervals'>intervals</a> are cached to improve performance for multiple calls.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getTextBlobIntercepts_blob'><code><strong>blob</strong></code></a></td>
-    <td><a href='undocumented#Glyph'>glyphs</a>, positions, and <a href='undocumented#Text'>text</a> <a href='SkPaint_Reference#Paint'>paint</a> attributes</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextBlobIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>lower and upper <a href='undocumented#Line'>line</a> parallel to the advance</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextBlobIntercepts_intervals'><code><strong>intervals</strong></code></a></td>
-    <td>returned intersections; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of intersections; may be zero
-
-### Example
-
-<div><fiddle-embed name="728ea9089f233a71a1062e364b8c73fa"></fiddle-embed></div>
 
 <a name='SkPaint_nothingToDraw'></a>
 
