@@ -46,6 +46,30 @@
       "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d73b9364_56ecdfdd",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-13T14:48:20Z",
+      "side": 1,
+      "message": "That would mean the following changes:\n- Gray would no longer always use nullptr. (Android uses kGray when it really wants a Bitmap.Config.ALPHA_8 mask.)\n- 565 would no longer always use sRGB\n- F16 would no longer use SRGBLinear (unless requested)\n\nI don\u0027t have an opinion here. Would these changes be more correct or not meaningful?\n\n(And note to self - since cfa315390f04ebcdfac3569758535aec9f63dc0c isNumericalTransferFn always returns true.)",
+      "parentUuid": "f9c06a95_a76cfc32",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 13
+      },
+      "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
