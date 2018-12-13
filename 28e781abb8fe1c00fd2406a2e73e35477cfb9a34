@@ -45,6 +45,29 @@
       "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "103f663d_fbf4c83a",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-13T18:10:40Z",
+      "side": 1,
+      "message": "Is there any way for this condition not to be true?",
+      "range": {
+        "startLine": 132,
+        "startChar": 29,
+        "endLine": 132,
+        "endChar": 50
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
