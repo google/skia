@@ -333,6 +333,30 @@
     },
     {
       "key": {
+        "uuid": "09a75a4d_fb25c2f0",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T19:11:44Z",
+      "side": 1,
+      "message": "After discussion, it seems clear that 256x256 is an ideal size for color emoji plots, but 512x256 or 512x512 is better for large SDF glyphs, so each atlas type should have a different way of managing plot sizes.",
+      "parentUuid": "30085ffd_c7281a78",
+      "range": {
+        "startLine": 639,
+        "startChar": 7,
+        "endLine": 640,
+        "endChar": 53
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abcdc5d2_34dc6aa9",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 3
