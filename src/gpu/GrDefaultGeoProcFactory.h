@@ -23,6 +23,7 @@ namespace GrDefaultGeoProcFactory {
         enum Type {
             kPremulGrColorUniform_Type,
             kPremulGrColorAttribute_Type,
+            kPremulWideColorAttribute_Type,
             kUnpremulSkColorAttribute_Type,
         };
         explicit Color(const SkPMColor4f& color)
