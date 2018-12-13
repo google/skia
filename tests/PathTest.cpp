@@ -1320,6 +1320,7 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
     SkPath copy(path); // we make a copy so that we don't cache the result on the passed in path.
     SkPath::Convexity c = copy.getConvexity();
     REPORTER_ASSERT(reporter, c == expected);
+#ifndef SK_LEGACY_PATH_CONVEXITY
     // test points-by-array interface
     SkPath::Iter iter(path, true);
     int initialMoves = 0;
@@ -1335,6 +1336,7 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
         bool isConvex = SkPathPriv::IsConvex(&points.front() + skip, points.size() - skip);
         REPORTER_ASSERT(reporter, isConvex == (SkPath::kConvex_Convexity == expected));
     }
+#endif
 }
 
 static void test_path_crbug389050(skiatest::Reporter* reporter) {
