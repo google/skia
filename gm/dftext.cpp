@@ -7,8 +7,10 @@
 
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "gm.h"
@@ -57,7 +59,9 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
+
+        SkFont font;
+        font.setSubpixel(true);
 
         sk_tool_utils::set_portable_typeface(&paint, "serif");
 
@@ -71,8 +75,8 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(x, y);
             canvas->scale(scales[i], scales[i]);
-            paint.setTextSize(textSizes[i]);
-            canvas->drawText(text, textLen, 0, 0, paint);
+            font.setSize(textSizes[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
             y += paint.getFontMetrics(nullptr)*scales[i];
         }
 
@@ -85,14 +89,14 @@ protected:
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
             canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
-                paint.setTextSize(SkIntToScalar(ps));
-                canvas->drawText(text, textLen, rotX, rotY, paint);
+                font.setSize(SkIntToScalar(ps));
+                canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, rotX, rotY, font, paint);
                 rotY += paint.getFontMetrics(nullptr);
             }
         }
 
         // check scaling down
-        paint.setLCDRenderText(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         x = SkIntToScalar(680);
         y = SkIntToScalar(20);
         size_t arraySize = SK_ARRAY_COUNT(textSizes);
@@ -101,9 +105,9 @@ protected:
             canvas->translate(x, y);
             SkScalar scaleFactor = SkScalarInvert(scales[arraySize - i - 1]);
             canvas->scale(scaleFactor, scaleFactor);
-            paint.setTextSize(textSizes[i]);
-            canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(nullptr)*scaleFactor;
+            font.setSize(textSizes[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            y += font.getMetrics(nullptr)*scaleFactor;
         }
 
         // check pos text
@@ -112,20 +116,14 @@ protected:
 
             canvas->scale(2.0f, 2.0f);
 
-            SkAutoTArray<SkPoint>  pos(SkToInt(textLen));
-            SkAutoTArray<SkScalar> widths(SkToInt(textLen));
-            paint.setTextSize(textSizes[0]);
+            SkAutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
+            int count = font.textToGlyphs(text, textLen, kUTF8_SkTextEncoding, glyphs.get(), textLen);
+            SkAutoTArray<SkPoint>  pos(count);
+            font.setSize(textSizes[0]);
+            font.getPos(glyphs.get(), count, pos.get(), {340, 75});
 
-            paint.getTextWidths(text, textLen, &widths[0]);
-
-            SkScalar x = SkIntToScalar(340);
-            SkScalar y = SkIntToScalar(75);
-            for (unsigned int i = 0; i < textLen; ++i) {
-                pos[i].set(x, y);
-                x += widths[i];
-            }
-
-            canvas->drawPosText(text, textLen, &pos[0], paint);
+            auto blob = SkTextBlob::MakeFromPosText(glyphs.get(), count, pos.get(), font, kGlyphID_SkTextEncoding);
+            canvas->drawTextBlob(blob, 0, 0, paint);
         }
 
 
