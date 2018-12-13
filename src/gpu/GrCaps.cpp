@@ -292,11 +292,3 @@ bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) 
 GrBackendFormat GrCaps::getBackendFormatFromColorType(SkColorType ct) const {
     return this->getBackendFormatFromGrColorType(SkColorTypeToGrColorType(ct), GrSRGBEncoded::kNo);
 }
-
-GrBackendFormat GrCaps::createFormatFromBackendTexture(const GrBackendTexture& backendTex) const {
-    if (!backendTex.isValid()) {
-        return GrBackendFormat();
-    }
-    return this->onCreateFormatFromBackendTexture(backendTex);
-}
-
