@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9487fc15_31ba40c1",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-13T18:49:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "56d5f180_642fdf84",
+      "range": {
+        "startLine": 605,
+        "startChar": 8,
+        "endLine": 605,
+        "endChar": 19
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03140092_d8edd2c4",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 3
@@ -93,6 +117,30 @@
       "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5772fb02_4a33bbdd",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-13T18:49:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5e6fc18e_583b12f8",
+      "range": {
+        "startLine": 613,
+        "startChar": 3,
+        "endLine": 613,
+        "endChar": 25
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -143,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "5bd26b35_315512ff",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-13T18:49:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "36a910e8_f325d440",
+      "range": {
+        "startLine": 619,
+        "startChar": 13,
+        "endLine": 619,
+        "endChar": 69
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "990209d4_025befb7",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 3
@@ -163,6 +235,30 @@
       "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ce216b8_74974ecd",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-13T18:49:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "990209d4_025befb7",
+      "range": {
+        "startLine": 627,
+        "startChar": 8,
+        "endLine": 627,
+        "endChar": 32
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -210,6 +306,30 @@
       "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30085ffd_c7281a78",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-13T18:49:57Z",
+      "side": 1,
+      "message": "Just for the record, I discovered that in android emoji fling smaller plots were faster because regenerating the smaller plots from the glyph cache was faster.",
+      "parentUuid": "4b0d14bd_d5956a45",
+      "range": {
+        "startLine": 639,
+        "startChar": 7,
+        "endLine": 640,
+        "endChar": 53
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
