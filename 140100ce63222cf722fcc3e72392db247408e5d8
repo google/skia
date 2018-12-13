@@ -70,6 +70,30 @@
       "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f55ebda6_79832031",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-13T15:28:10Z",
+      "side": 1,
+      "message": "Any SkColorSpace can pair just fine with any SkColorType/SkAlphaType, and there\u0027s really no special affinity for F16 and linear any more (and there never should have been).\n\nThe one thing we might want to explicitly call out here is the way Android (mis)treats kGray... SkColorSpaces do have an effect on gray, but don\u0027t on alpha.  If you want gray to behave like alpha, I\u0027d think you\u0027d want a color space with a linear transfer function, to mirror the way we always treat alpha linearly.\n\nReally though, we\u0027ll all be happier long-term if we get them using kAlpha8_SkColorType for Bitmap.Config.ALPHA_8.",
+      "parentUuid": "d73b9364_56ecdfdd",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 13
+      },
+      "revId": "140100ce63222cf722fcc3e72392db247408e5d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
