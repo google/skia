@@ -69,7 +69,6 @@ public:
         , fMalloc(block)
         , fInfo(info)
         , fRowBytes(rowBytes)
-        , fExternalCounter(kBeforeFirstInstall_ExternalCounter)
     {
         SkASSERT(!(fDM && fMalloc));    // can't have both
 
@@ -79,9 +78,8 @@ public:
     }
 
     ~Rec() override {
-        SkASSERT(0 == fExternalCounter || kBeforeFirstInstall_ExternalCounter == fExternalCounter);
-        if (fDM && kBeforeFirstInstall_ExternalCounter == fExternalCounter) {
-            // we never installed, so we need to unlock before we destroy the DM
+        SkASSERT(0 == fExternalCounter);
+        if (fDM && fDiscardableIsLocked) {
             SkASSERT(fDM->data());
             fDM->unlock();
         }
@@ -115,6 +113,7 @@ public:
             SkASSERT(rec->fMalloc == nullptr);
             if (rec->fExternalCounter == 0) {
                 rec->fDM->unlock();
+                rec->fDiscardableIsLocked = false;
             }
         } else {
             SkASSERT(rec->fMalloc != nullptr);
@@ -124,40 +123,26 @@ public:
     bool install(SkBitmap* bitmap) {
         SkAutoMutexAcquire ama(fMutex);
 
-        // are we still valid
         if (!fDM && !fMalloc) {
             return false;
         }
 
-        /*
-            constructor      fExternalCount < 0     fDM->data()
-            after install    fExternalCount > 0     fDM->data()
-            after Release    fExternalCount == 0    !fDM->data()
-        */
         if (fDM) {
-            if (kBeforeFirstInstall_ExternalCounter == fExternalCounter) {
-                SkASSERT(fDM->data());
-            } else if (fExternalCounter > 0) {
-                SkASSERT(fDM->data());
-            } else {
+            if (!fDiscardableIsLocked) {
                 SkASSERT(fExternalCounter == 0);
                 if (!fDM->lock()) {
                     fDM.reset(nullptr);
                     return false;
                 }
+                fDiscardableIsLocked = true;
             }
             SkASSERT(fDM->data());
         }
 
         bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, ReleaseProc, this);
         SkBitmapCache_setImmutableWithID(bitmap->pixelRef(), fPrUniqueID);
+        fExternalCounter++;
 
-        if (kBeforeFirstInstall_ExternalCounter == fExternalCounter) {
-            fExternalCounter = 1;
-        } else {
-            fExternalCounter += 1;
-        }
-        SkASSERT(fExternalCounter > 0);
         return true;
     }
 
@@ -180,18 +165,10 @@ private:
     size_t      fRowBytes;
     uint32_t    fPrUniqueID;
 
-    // This field counts the number of external pixelrefs we have created. They notify us when
-    // they are destroyed so we can decrement this.
-    //
-    //  > 0     we have outstanding pixelrefs
-    // == 0     we have no outstanding pixelrefs, and can be safely purged
-    //  < 0     we have been created, but not yet "installed" the first time.
-    //
-    int         fExternalCounter;
-
-    enum {
-        kBeforeFirstInstall_ExternalCounter = -1
-    };
+    // This field counts the number of external pixelrefs we have created.
+    // They notify us when they are destroyed so we can decrement this.
+    int  fExternalCounter     = 0;
+    bool fDiscardableIsLocked = true;
 };
 
 void SkBitmapCache::PrivateDeleteRec(Rec* rec) { delete rec; }
