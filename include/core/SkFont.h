@@ -45,7 +45,7 @@ public:
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
 
     // Experimental
-    SkFont(sk_sp<SkTypeface> typeface);
+    explicit SkFont(sk_sp<SkTypeface> typeface);
 
 
     /** Constructs SkFont with default values with SkTypeface and size in points,
