@@ -46,6 +46,30 @@
       "revId": "2df291d6d3339ffc1d552d1c7f6e0e87b599b216",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51324fea_e4a12504",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-13T15:13:45Z",
+      "side": 1,
+      "message": "+1.\n\nThat said, I don\u0027t think a client will ever need to call this, so I\u0027d be fine with putting it somewhere private.",
+      "parentUuid": "e6628ed0_ac454218",
+      "range": {
+        "startLine": 51,
+        "startChar": 5,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "2df291d6d3339ffc1d552d1c7f6e0e87b599b216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
