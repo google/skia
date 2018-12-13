@@ -21,6 +21,7 @@ blurcircles2
 blurimagevmask
 blurs
 bmp_filter_quality_repeat
+bug339297_as_clip
 bug530095
 circles
 circular_arcs_hairline
