@@ -671,7 +671,7 @@
       "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[TMP_BASE]/adb_pull_tmp_1"
+      "[CLEANUP]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -693,7 +693,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[TMP_BASE]/adb_pull_tmp_1",
+      "[CLEANUP]/adb_pull_tmp_1",
       "dm_out/*"
     ],
     "infra_step": true,
@@ -701,8 +701,8 @@
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/1.png@@@",
-      "@@@STEP_LOG_LINE@glob@[TMP_BASE]/adb_pull_tmp_1/2.png@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/1.png@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/adb_pull_tmp_1/2.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -714,7 +714,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/adb_pull_tmp_1/1.png",
+      "[CLEANUP]/adb_pull_tmp_1/1.png",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
@@ -731,7 +731,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[TMP_BASE]/adb_pull_tmp_1/2.png",
+      "[CLEANUP]/adb_pull_tmp_1/2.png",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
@@ -748,10 +748,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[TMP_BASE]/adb_pull_tmp_1"
+      "[CLEANUP]/adb_pull_tmp_1"
     ],
     "infra_step": true,
-    "name": "adb pull.rmtree [TMP_BASE]/adb_pull_tmp_1",
+    "name": "adb pull.rmtree [CLEANUP]/adb_pull_tmp_1",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
