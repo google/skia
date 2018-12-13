@@ -11,7 +11,7 @@ class <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a> final : public <a
 
     const <a href='SkRect_Reference#SkRect'>SkRect</a>& <a href='#SkTextBlob_bounds'>bounds()</a> const;
     uint32_t <a href='#SkTextBlob_uniqueID'>uniqueID</a>() const;
-    int getIntercepts(const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a> intervals[],
+    int <a href='#SkTextBlob_getIntercepts'>getIntercepts</a>(const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a> intervals[],
                       const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a> = nullptr) const;
     static <a href='undocumented#sk_sp'>sk_sp</a><<a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>> <a href='#SkTextBlob_MakeFromText'>MakeFromText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>,
                                       <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding = <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>);
@@ -74,6 +74,48 @@ identifier for <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 ### See Also
 
 <a href='undocumented#SkRefCnt'>SkRefCnt</a>
+
+<a name='Text_Intercepts'></a>
+
+<a href='#Text_Blob_Text_Intercepts'>Text_Intercepts</a> describe the intersection of drawn <a href='undocumented#Text'>text</a> <a href='undocumented#Glyph'>Glyphs</a> with a pair
+of <a href='undocumented#Line'>lines</a> parallel to the <a href='undocumented#Text'>text</a> advance. <a href='#Text_Blob_Text_Intercepts'>Text_Intercepts</a> permits creating a
+underline that skips Descenders.
+
+<a name='SkTextBlob_getIntercepts'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+int <a href='#SkTextBlob_getIntercepts'>getIntercepts</a>(const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a> intervals[], const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a> = nullptr) const;
+</pre>
+
+Returns the number of <a href='#SkTextBlob_getIntercepts_intervals'>intervals</a> that intersect <a href='#SkTextBlob_getIntercepts_bounds'>bounds</a>.
+<a href='#SkTextBlob_getIntercepts_bounds'>bounds</a> describes a pair of <a href='undocumented#Line'>lines</a> parallel to the <a href='undocumented#Text'>text</a> advance.
+The return count is zero or a multiple of two, and is at most twice the number of <a href='undocumented#Glyph'>glyphs</a> in
+the the blob.
+
+Pass nullptr for <a href='#SkTextBlob_getIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkTextBlob_getIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>lower and upper <a href='undocumented#Line'>line</a> parallel to the advance</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlob_getIntercepts_intervals'><code><strong>intervals</strong></code></a></td>
+    <td>returned intersections; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name='SkTextBlob_getIntercepts_paint'><code><strong>paint</strong></code></a></td>
+    <td>specifies stroking, <a href='undocumented#SkPathEffect'>SkPathEffect</a> that affects the result; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+number of intersections; may be zero
+
+### Example
+
+<div><fiddle-embed name="e9d4eb8ece521b1329e7433d4b243fdf"></fiddle-embed></div>
 
 <a name='SkTextBlob_MakeFromText'></a>
 
