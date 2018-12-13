@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb9dd684_0c6f79a0",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-13T18:05:05Z",
+      "side": 1,
+      "message": "can these by \u003c\u003d and \u003e\u003d?",
+      "range": {
+        "startLine": 30,
+        "startChar": 23,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d922ceb2_019d9f1c",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-13T18:05:05Z",
+      "side": 1,
+      "message": "nit lets move this to be above the sampleTexture function who uses it.",
+      "range": {
+        "startLine": 50,
+        "startChar": 1,
+        "endLine": 50,
+        "endChar": 32
+      },
+      "revId": "28e781abb8fe1c00fd2406a2e73e35477cfb9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
