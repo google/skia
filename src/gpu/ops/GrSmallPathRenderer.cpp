@@ -882,7 +882,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                      format,
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                     PLOT_WIDTH, PLOT_HEIGHT,
                                      GrDrawOpAtlas::AllowMultitexturing::kYes,
                                      &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
@@ -971,7 +971,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->contextPriv().proxyProvider(),
                                                  format, kAlpha_8_GrPixelConfig,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                 NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                 PLOT_WIDTH, PLOT_HEIGHT,
                                                  GrDrawOpAtlas::AllowMultitexturing::kYes,
                                                  &PathTestStruct::HandleEviction,
                                                  (void*)&gTestStruct);
