@@ -17,7 +17,7 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* gly
             , fProxyProvider{proxyProvider}
             , fCaps{fProxyProvider->refCaps()}
             , fGlyphCache{glyphCache}
-            , fAtlasConfigs{fCaps->maxTextureSize(), maxTextureBytes} { }
+            , fAtlasConfig{fCaps->maxTextureSize(), maxTextureBytes} { }
 
 GrAtlasManager::~GrAtlasManager() = default;
 
@@ -170,7 +170,7 @@ void GrAtlasManager::setAtlasSizesToMinimum_ForTesting() {
     }
 
     // Set all the atlas sizes to 1x1 plot each.
-    new (&fAtlasConfigs) GrDrawOpAtlasConfig{};
+    new (&fAtlasConfig) GrDrawOpAtlasConfig{};
 }
 
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
@@ -178,14 +178,14 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     if (fAtlases[index] == nullptr) {
         GrPixelConfig config = mask_format_to_pixel_config(format);
         SkColorType colorType = mask_format_to_color_type(format);
-        SkISize atlasDimensions = fAtlasConfigs.atlasDimensions(format);
-        SkISize numPlots = fAtlasConfigs.numPlots(format);
+        SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
+        SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 
         const GrBackendFormat format = fCaps->getBackendFormatFromColorType(colorType);
 
         fAtlases[index] = GrDrawOpAtlas::Make(
                 fProxyProvider, format, config, atlasDimensions.width(), atlasDimensions.height(),
-                numPlots.width(), numPlots.height(), fAllowMultitexturing,
+                plotDimensions.width(), plotDimensions.height(), fAllowMultitexturing,
                 &GrGlyphCache::HandleEviction, fGlyphCache);
         if (!fAtlases[index]) {
             return false;

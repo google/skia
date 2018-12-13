@@ -36,11 +36,11 @@ void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvid
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvider,
                                                    const GrBackendFormat& format,
                                                    GrPixelConfig config, int width,
-                                                   int height, int numPlotsX, int numPlotsY,
+                                                   int height, int plotWidth, int plotHeight,
                                                    AllowMultitexturing allowMultitexturing,
                                                    GrDrawOpAtlas::EvictionFunc func, void* data) {
     std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, config, width,
-                                                           height, numPlotsX, numPlotsY,
+                                                           height, plotWidth, plotHeight,
                                                            allowMultitexturing));
     if (!atlas->getProxies()[0]) {
         return nullptr;
@@ -181,17 +181,19 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
                              GrPixelConfig config, int width, int height,
-                             int numPlotsX, int numPlotsY, AllowMultitexturing allowMultitexturing)
+                             int plotWidth, int plotHeight, AllowMultitexturing allowMultitexturing)
         : fFormat(format)
         , fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
+        , fPlotWidth(plotWidth)
+        , fPlotHeight(plotHeight)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
-    fPlotWidth = fTextureWidth / numPlotsX;
-    fPlotHeight = fTextureHeight / numPlotsY;
+    int numPlotsX = width/plotWidth;
+    int numPlotsY = height/plotHeight;
     SkASSERT(numPlotsX * numPlotsY <= GrDrawOpAtlas::kMaxPlots);
     SkASSERT(fPlotWidth * numPlotsX == fTextureWidth);
     SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
@@ -597,54 +599,49 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
     --fNumActivePages;
 }
 
-GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes)
-        : fPlotsPerLongDimension{PlotsPerLongDimensionForARGB(maxDimension)} {
-    SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
-}
+GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
+    static const SkISize kARGBDimensions[] = {
+        {256, 256},   // maxBytes < 2^19
+        {512, 256},   // 2^19 <= maxBytes < 2^20
+        {512, 512},   // 2^20 <= maxBytes < 2^21
+        {1024, 512},  // 2^21 <= maxBytes < 2^22
+        {1024, 1024}, // 2^22 <= maxBytes < 2^23
+        {2048, 1024}, // 2^23 <= maxBytes
+    };
 
-GrDrawOpAtlasConfig::GrDrawOpAtlasConfig() : fPlotsPerLongDimension{1} {
-    SkASSERT(kPlotSize >= SkGlyphCacheCommon::kSkSideTooBigForAtlas);
-}
+    // Index 0 corresponds to maxBytes of 2^18, so start by dividing it by that
+    maxBytes >>= 18;
+    // Take the floor of the log to get the index
+    int index = maxBytes > 0
+        ? SkTPin<int>(SkPrevLog2(maxBytes), 0, SK_ARRAY_COUNT(kARGBDimensions) - 1)
+        : 0;
 
-SkISize GrDrawOpAtlasConfig::numPlots(GrMaskFormat type) const {
-    switch(type) {
-        case kA8_GrMaskFormat:
-            if (fPlotsPerLongDimension * fPlotsPerLongDimension > GrDrawOpAtlas::kMaxPlots) {
-                return {fPlotsPerLongDimension / 2, fPlotsPerLongDimension / 2};
-            }
-            return {fPlotsPerLongDimension, fPlotsPerLongDimension};
-            // Note: because of the 2048 limit in the longest dimension, the largest atlas can be
-            // 1024 x 2048. The maximum number of plots will be 32 for 256 x 256 so that plot
-            // size is always safe.
-        case kA565_GrMaskFormat:
-        case kARGB_GrMaskFormat: {
-            static_assert((kMaxDistanceFieldDim / kPlotSize)
-                          * (kMaxDistanceFieldDim / kPlotSize) / 2 <= GrDrawOpAtlas::kMaxPlots,
-                          "");
-            int plotsPerWidth = std::max(1, fPlotsPerLongDimension / 2);
-            return {plotsPerWidth, fPlotsPerLongDimension};
-        }
-    }
-
-    // This make some compilers happy.
-    return {1,1};
+    SkASSERT(kARGBDimensions[index].width() < kMaxEffectiveTextureDim);
+    SkASSERT(kARGBDimensions[index].height() < kMaxEffectiveTextureDim);
+    fARGBDimensions.set(SkTMin<int>(kARGBDimensions[index].width(), maxTextureSize),
+                        SkTMin<int>(kARGBDimensions[index].height(), maxTextureSize));
+    fMaxTextureSize = maxTextureSize;
 }
 
 SkISize GrDrawOpAtlasConfig::atlasDimensions(GrMaskFormat type) const {
-    SkISize plots = this->numPlots(type);
-    return {plots.width() * kPlotSize, plots.height() * kPlotSize};
+    if (kA8_GrMaskFormat == type) {
+        int maxAllowedDimension = SkTMin<int>(fMaxTextureSize, kMaxDistanceFieldDim);
+        // A8 is always 2x the ARGB dimensions, clamped by the distance field max and system max
+        return { SkTMin<int>(2 * fARGBDimensions.width(), maxAllowedDimension),
+                 SkTMin<int>(2 * fARGBDimensions.height(), maxAllowedDimension) };
+    } else {
+        return fARGBDimensions;
+    }
 }
 
-int GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(int maxDimension) {
+SkISize GrDrawOpAtlasConfig::plotDimensions(GrMaskFormat type) const {
+    SkISize atlasDimensions = this->atlasDimensions(type);
+    // Plot width and height can be either 256 or 512,
+    // depending on the width and height of the atlas
+    int plotWidth = atlasDimensions.width() >= 1024 ? 512 : 256;
+    int plotHeight = atlasDimensions.height() >= 1024 ? 512 : 256;
 
-    SkASSERT(maxDimension > 0);
-
-    // Must be as large as a plot and small enough for distance fields.
-    int dimension = SkTClamp(maxDimension, kPlotSize, kMaxDistanceFieldDim);
-
-    // Return the number of plots along the longest dimension aligned down to a power of 2.
-    return SkPrevPow2(dimension / kPlotSize);
+    return { plotWidth, plotHeight };
 }
 
 constexpr int GrDrawOpAtlasConfig::kMaxDistanceFieldDim;
-constexpr int GrDrawOpAtlasConfig::kPlotSize;
