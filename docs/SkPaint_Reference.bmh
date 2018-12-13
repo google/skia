@@ -3282,17 +3282,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Method size_t breakText(const void* text, size_t length, SkScalar maxWidth,
-                      SkScalar* measuredWidth = nullptr) const
-#In Measure_Text
-#Line # returns text that fits in a width ##
-#Populate
-
-#NoExample
-##
-
-##
-
 #Method int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = nullptr) const
 #In Measure_Text
