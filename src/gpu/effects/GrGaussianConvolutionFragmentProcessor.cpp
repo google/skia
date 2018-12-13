@@ -216,12 +216,16 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
-                    ModulateByConfigOptimizationFlags(proxy->config()))
+                    ModulateForSamplerOptFlags(proxy->config(),
+                                               mode == GrTextureDomain::kDecal_Mode))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {
+    // Make sure the sampler's ctor uses the clamp wrap mode
+    SkASSERT(fTextureSampler.samplerState().wrapModeX() == GrSamplerState::WrapMode::kClamp &&
+             fTextureSampler.samplerState().wrapModeY() == GrSamplerState::WrapMode::kClamp);
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
     SkASSERT(radius <= kMaxKernelRadius);
