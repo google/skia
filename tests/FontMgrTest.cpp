@@ -20,7 +20,7 @@
 static void test_font(skiatest::Reporter* reporter) {
     SkFont font(nullptr, 24);
 
-    REPORTER_ASSERT(reporter, font.getTypeface());
+    REPORTER_ASSERT(reporter, nullptr == font.getTypeface());
     REPORTER_ASSERT(reporter, 24 == font.getSize());
     REPORTER_ASSERT(reporter, 1 == font.getScaleX());
     REPORTER_ASSERT(reporter, 0 == font.getSkewX());
