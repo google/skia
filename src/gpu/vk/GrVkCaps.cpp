@@ -838,6 +838,9 @@ static bool get_yuva_config(VkFormat vkFormat, GrPixelConfig* config) {
     case VK_FORMAT_B8G8R8A8_UNORM:
         *config = kBGRA_8888_GrPixelConfig;
         break;
+    case VK_FORMAT_A2B10G10R10_UNORM_PACK32:
+        *config = kRGBA_1010102_GrPixelConfig;
+        break;
     default:
         return false;
     }
