@@ -94,7 +94,7 @@ public:
                                                const GrBackendFormat& format,
                                                GrPixelConfig,
                                                int width, int height,
-                                               int numPlotsX, int numPlotsY,
+                                               int plotWidth, int plotHeight,
                                                AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
@@ -245,7 +245,7 @@ public:
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrPixelConfig, int width,
-                  int height, int numPlotsX, int numPlotsY,
+                  int height, int plotWidth, int plotHeight,
                   AllowMultitexturing allowMultitexturing);
 
     /**
@@ -416,31 +416,32 @@ private:
 };
 
 // There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
-// general, the A8 dimensions are NxN and 565 and ARGB are N/2xN with the constraint that an atlas
+// general, the A8 dimensions are 2x the 565 and ARGB dimensions with the constraint that an atlas
 // size will always contain at least one plot. Since the ARGB atlas takes the most space, its
 // dimensions are used to size the other two atlases.
 class GrDrawOpAtlasConfig {
 public:
-    GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes);
+    // The capabilities of the GPU define maxTextureSize. The client provides maxBytes, and this
+    // represents the largest they want a single atlas texture to be. Due to multitexturing, we
+    // may expand temporarily to use more space as needed.
+    GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes);
 
-    // For testing only - make minimum sized atlases -- 1x1 plots wide.
-    GrDrawOpAtlasConfig();
-
-    SkISize numPlots(GrMaskFormat type) const;
+    // For testing only - make minimum sized atlases -- a single plot for ARGB, four for A8
+    GrDrawOpAtlasConfig() : GrDrawOpAtlasConfig(kMaxARGBDim, 0) {}
 
     SkISize atlasDimensions(GrMaskFormat type) const;
-
-    static int PlotsPerLongDimensionForARGB(int maxDimension);
+    SkISize plotDimensions(GrMaskFormat type) const;
 
 private:
     // The distance field text implementation limits the largest atlas dimension to 2048.
-    static constexpr int kMaxDistanceFieldDim = 2048;
+    // A8 is used for both bitmap and SDF and so must fit within this constraint.
+    static constexpr int kMaxA8Dim = 2048;
+    // We store texture coordinates for the atlas in a 16-bit uint, and we steal a bit to
+    // pack the texture index for multitexturing, so the largest size we can texture is 32768.
+    static constexpr int kMaxARGBDim = 1 << 15;
 
-    // The width and height of a plot.
-    static constexpr int kPlotSize = 256;
-
-    // This is the height (longest dimension) of the ARGB atlas divided by the plot size.
-    const int fPlotsPerLongDimension;
+    SkISize fARGBDimensions;
+    int     fMaxTextureSize;
 };
 
 #endif

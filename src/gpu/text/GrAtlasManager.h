@@ -147,7 +147,7 @@ private:
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrGlyphCache* fGlyphCache;
-    GrDrawOpAtlasConfig fAtlasConfigs;
+    GrDrawOpAtlasConfig fAtlasConfig;
 
     typedef GrOnFlushCallbackObject INHERITED;
 };
