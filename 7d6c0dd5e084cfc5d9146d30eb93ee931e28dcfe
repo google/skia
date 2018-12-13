@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "56d5f180_642fdf84",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T16:36:52Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter. The fact that they were tall is historical.",
+      "parentUuid": "7f65de19_4ad1a617",
+      "range": {
+        "startLine": 605,
+        "startChar": 8,
+        "endLine": 605,
+        "endChar": 19
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03140092_d8edd2c4",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "5e6fc18e_583b12f8",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T16:36:52Z",
+      "side": 1,
+      "message": "Changed to shift right by 18 instead.",
+      "parentUuid": "03140092_d8edd2c4",
+      "range": {
+        "startLine": 613,
+        "startChar": 3,
+        "endLine": 613,
+        "endChar": 25
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c58e92a_ca5136f0",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2018-12-12T21:44:32Z",
       "side": 1,
       "message": "Should this be \u003c\u003d kMaxDistanceFieldDim?",
+      "range": {
+        "startLine": 619,
+        "startChar": 13,
+        "endLine": 619,
+        "endChar": 69
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36a910e8_f325d440",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T16:36:52Z",
+      "side": 1,
+      "message": "No, I believe the ARGB texture can be as big as the texture coordinates can handle.",
+      "parentUuid": "7c58e92a_ca5136f0",
       "range": {
         "startLine": 619,
         "startChar": 13,
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "4b0d14bd_d5956a45",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T16:36:52Z",
+      "side": 1,
+      "message": "I don\u0027t believe this is any clearer. We\u0027re not trying to increase the size to keep the number within kMaxPlots, we\u0027re increasing the size to fit more large glyphs into a given plot (for SDF, 9 vs. 1), because as the texture grows we\u0027re expecting larger glyphs. Using the code above we\u0027d only get 512x512 plots at a size of 2048x2048, when we want them at 1024x1024.",
+      "parentUuid": "b7fc1562_ae696ed5",
+      "range": {
+        "startLine": 639,
+        "startChar": 7,
+        "endLine": 640,
+        "endChar": 53
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "abcdc5d2_34dc6aa9",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 3
@@ -137,6 +233,30 @@
       "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e2020e2_e44c737f",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-13T16:36:52Z",
+      "side": 1,
+      "message": "I was thinking they were signed, and was still off by a factor of 2. Fixed, and renamed to make it more clear.",
+      "parentUuid": "abcdc5d2_34dc6aa9",
+      "range": {
+        "startLine": 439,
+        "startChar": 67,
+        "endLine": 439,
+        "endChar": 87
+      },
+      "revId": "7d6c0dd5e084cfc5d9146d30eb93ee931e28dcfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
