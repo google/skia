@@ -212,6 +212,10 @@ public:
     const char* fbFetchColorName() const {
         return nullptr;
     }
+
+    bool combinedTextureShaderSupport() const {
+        return true;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
