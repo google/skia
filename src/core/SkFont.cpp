@@ -28,7 +28,7 @@ static inline SkScalar valid_size(SkScalar size) {
 }
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX)
-    : fTypeface(face ? std::move(face) : SkTypeface::MakeDefault())
+    : fTypeface(std::move(face))
     , fSize(valid_size(size))
     , fScaleX(scaleX)
     , fSkewX(skewX)
