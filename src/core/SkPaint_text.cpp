@@ -346,14 +346,6 @@ int SkPaint::getTextWidths(const void* text, size_t len, SkScalar widths[], SkRe
 
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_BREAKTEXT
-size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
-                          SkScalar* measuredWidth) const {
-    return SkFont::LEGACY_ExtractFromPaint(*this).breakText(textD, length,
-                                                this->getTextEncoding(), maxWidth, measuredWidth);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
