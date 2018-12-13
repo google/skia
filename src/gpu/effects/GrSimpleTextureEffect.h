@@ -48,10 +48,12 @@ private:
     GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix,
                           GrSamplerState samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-                                (GrPixelConfigIsOpaque(image->config())
-                                         ? kPreservesOpaqueInput_OptimizationFlag
-                                         : kNone_OptimizationFlags))
+                        (OptimizationFlags)ModulateForSamplerOptFlags(
+                                image->config(),
+                                samplerParams.wrapModeX() ==
+                                                GrSamplerState::WrapMode::kClampToBorder ||
+                                        samplerParams.wrapModeY() ==
+                                                GrSamplerState::WrapMode::kClampToBorder))
             , fImage(std::move(image), samplerParams)
             , fMatrix(matrix)
             , fImageCoordTransform(matrix, fImage.proxy()) {

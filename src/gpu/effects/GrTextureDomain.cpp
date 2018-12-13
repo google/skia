@@ -249,16 +249,6 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-inline GrFragmentProcessor::OptimizationFlags GrTextureDomainEffect::OptFlags(
-        GrPixelConfig config, GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY) {
-    if (modeX == GrTextureDomain::kDecal_Mode || modeY == GrTextureDomain::kDecal_Mode ||
-        !GrPixelConfigIsOpaque(config)) {
-        return GrFragmentProcessor::kCompatibleWithCoverageAsAlpha_OptimizationFlag;
-    } else {
-        return GrFragmentProcessor::kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-               GrFragmentProcessor::kPreservesOpaqueInput_OptimizationFlag;
-    }
-}
 
 std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::Make(
         sk_sp<GrTextureProxy> proxy,
@@ -291,7 +281,9 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
                                              GrTextureDomain::Mode modeX,
                                              GrTextureDomain::Mode modeY,
                                              const GrSamplerState& sampler)
-        : INHERITED(kGrTextureDomainEffect_ClassID, OptFlags(proxy->config(), modeX, modeY))
+        : INHERITED(kGrTextureDomainEffect_ClassID,
+                    ModulateForSamplerOptFlags(proxy->config(),
+                            GrTextureDomain::IsDecalSampled(sampler, modeX, modeY)))
         , fCoordTransform(matrix, proxy.get())
         , fTextureDomain(proxy.get(), domain, modeX, modeY)
         , fTextureSampler(std::move(proxy), sampler) {
