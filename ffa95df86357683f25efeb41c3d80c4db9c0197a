@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90fa2722_17d2de1f",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-13T13:39:45Z",
+      "side": 1,
+      "message": "Might want to tag this as explicit?  Or is that the feature?",
+      "revId": "ffa95df86357683f25efeb41c3d80c4db9c0197a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
