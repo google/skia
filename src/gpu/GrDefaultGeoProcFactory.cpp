@@ -26,9 +26,10 @@
 enum GPFlag {
     kColorAttribute_GPFlag          = 0x1,
     kColorAttributeIsSkColor_GPFlag = 0x2,
-    kLocalCoordAttribute_GPFlag     = 0x4,
-    kCoverageAttribute_GPFlag       = 0x8,
-    kBonesAttribute_GPFlag          = 0x10,
+    kColorAttributeIsWide_GPFlag    = 0x4,
+    kLocalCoordAttribute_GPFlag     = 0x8,
+    kCoverageAttribute_GPFlag       = 0x10,
+    kBonesAttribute_GPFlag          = 0x20,
 };
 
 static constexpr int kNumVec2sPerBone = 3; // Our bone matrices are 3x2 matrices passed in as
@@ -212,8 +213,8 @@ public:
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= (def.coverage() == 0xff) ? 0x20 : 0;
-            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x40 : 0x0;
+            key |= (def.coverage() == 0xff) ? 0x40 : 0;
+            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x80 : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(def.fColorSpaceXform.get()));
@@ -323,7 +324,8 @@ private:
             , fBoneCount(boneCount) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            fInColor = MakeColorAttribute("inColor",
+                                          SkToBool(fFlags & kColorAttributeIsWide_GPFlag));
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
             fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
@@ -390,6 +392,9 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kColorAttributeIsSkColor_GPFlag;
     }
     if (d->fRandom->nextBool()) {
+        flags |= kColorAttributeIsWide_GPFlag;
+    }
+    if (d->fRandom->nextBool()) {
         flags |= kCoverageAttribute_GPFlag;
     }
     if (d->fRandom->nextBool()) {
@@ -422,6 +427,8 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* sha
         flags |= kColorAttribute_GPFlag;
     } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
+    } else if (Color::kPremulWideColorAttribute_Type == color.fType) {
+        flags |= kColorAttribute_GPFlag | kColorAttributeIsWide_GPFlag;
     }
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
@@ -474,6 +481,8 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const GrShader
         flags |= kColorAttribute_GPFlag;
     } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
+    } else if (Color::kPremulWideColorAttribute_Type == color.fType) {
+        flags |= kColorAttribute_GPFlag | kColorAttributeIsWide_GPFlag;
     }
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
