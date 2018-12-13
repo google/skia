@@ -178,8 +178,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    static OptimizationFlags OptimizationFlags(GrPixelConfig colorConfig);
-
     GrDisplacementMapEffect(const GrDisplacementMapEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -429,13 +427,6 @@ void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLDisplacementMapEffect::GenKey(*this, caps, b);
 }
 
-GrFragmentProcessor::OptimizationFlags GrDisplacementMapEffect::OptimizationFlags(
-        GrPixelConfig colorConfig) {
-    return GrPixelConfigIsOpaque(colorConfig)
-                   ? GrFragmentProcessor::kPreservesOpaqueInput_OptimizationFlag
-                   : GrFragmentProcessor::kNone_OptimizationFlags;
-}
-
 GrDisplacementMapEffect::GrDisplacementMapEffect(
         SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
         SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -444,7 +435,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         const SkMatrix& offsetMatrix,
         sk_sp<GrTextureProxy> color,
         const SkISize& colorDimensions)
-        : INHERITED(kGrDisplacementMapEffect_ClassID, OptimizationFlags(color->config()))
+        : INHERITED(kGrDisplacementMapEffect_ClassID,
+                    GrFragmentProcessor::kNone_OptimizationFlags)
         , fDisplacementTransform(offsetMatrix, displacement.get())
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
@@ -462,8 +454,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
-        : INHERITED(kGrDisplacementMapEffect_ClassID,
-                    OptimizationFlags(that.fColorSampler.proxy()->config()))
+        : INHERITED(kGrDisplacementMapEffect_ClassID, that.optimizationFlags())
         , fDisplacementTransform(that.fDisplacementTransform)
         , fDisplacementSampler(that.fDisplacementSampler)
         , fColorTransform(that.fColorTransform)
