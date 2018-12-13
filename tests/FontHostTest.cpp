@@ -8,6 +8,7 @@
 #include "Resources.h"
 #include "SkAutoMalloc.h"
 #include "SkEndian.h"
+#include "SkFont.h"
 #include "SkFontStream.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
@@ -87,17 +88,17 @@ struct CharsToGlyphs_TestData {
 };
 
 // Test that SkPaint::textToGlyphs agrees with SkTypeface::charsToGlyphs.
-static void test_charsToGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
+static void test_charsToGlyphs(skiatest::Reporter* reporter, sk_sp<SkTypeface> face) {
     uint16_t paintGlyphIds[256];
     uint16_t faceGlyphIds[256];
 
     for (size_t testIndex = 0; testIndex < SK_ARRAY_COUNT(charsToGlyphs_TestData); ++testIndex) {
         CharsToGlyphs_TestData& test = charsToGlyphs_TestData[testIndex];
+        SkTextEncoding encoding = static_cast<SkTextEncoding>(test.typefaceEncoding);
 
-        SkPaint paint;
-        paint.setTypeface(face);
-        paint.setTextEncoding(static_cast<SkTextEncoding>(test.typefaceEncoding));
-        paint.textToGlyphs(test.chars, test.charsByteLength, paintGlyphIds);
+        SkFont font(face);
+        font.textToGlyphs(test.chars, test.charsByteLength, encoding,
+                          paintGlyphIds, SK_ARRAY_COUNT(paintGlyphIds));
 
         face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
 
@@ -154,20 +155,17 @@ static void test_fontstream(skiatest::Reporter* reporter) {
     }
 }
 
+// Exercise this rare cmap format (platform 3, encoding 0)
 static void test_symbolfont(skiatest::Reporter* reporter) {
-    SkUnichar c = 0xf021;
-    uint16_t g;
-    SkPaint paint;
-    paint.setTypeface(MakeResourceAsTypeface("fonts/SpiderSymbol.ttf"));
-    paint.setTextEncoding(kUTF32_SkTextEncoding);
-    paint.textToGlyphs(&c, 4, &g);
-
-    if (!paint.getTypeface()) {
+    auto tf = MakeResourceAsTypeface("fonts/SpiderSymbol.ttf");
+    if (tf) {
+        SkUnichar c = 0xf021;
+        uint16_t g = SkFont(tf).unicharToGlyph(c);
+        REPORTER_ASSERT(reporter, g == 3);
+    } else {
+        // not all platforms support data fonts, so we just note that failure
         SkDebugf("Skipping FontHostTest::test_symbolfont\n");
-        return;
     }
-
-    REPORTER_ASSERT(reporter, g == 3);
 }
 
 static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& face) {
@@ -274,29 +272,29 @@ static void test_advances(skiatest::Reporter* reporter) {
         { SK_Scalar1/2, -SK_Scalar1/4 },
     };
 
-    SkPaint paint;
+    SkFont font;
     char txt[] = "long.text.with.lots.of.dots.";
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
+        font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
-            paint.setHinting(settings[j].hinting);
-            paint.setLinearText((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
-            paint.setSubpixelText((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
+            font.setHinting(settings[j].hinting);
+            font.setLinearMetrics((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
+            font.setSubpixel((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
 
             for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
-                paint.setTextScaleX(gScaleRec[k].fScaleX);
-                paint.setTextSkewX(gScaleRec[k].fSkewX);
+                font.setScaleX(gScaleRec[k].fScaleX);
+                font.setSkewX(gScaleRec[k].fSkewX);
 
                 SkRect bounds;
 
                 // For no hinting and light hinting this should take the
                 // optimized generateAdvance path.
-                SkScalar width1 = paint.measureText(txt, strlen(txt));
+                SkScalar width1 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding);
 
                 // Requesting the bounds forces a generateMetrics call.
-                SkScalar width2 = paint.measureText(txt, strlen(txt), &bounds);
+                SkScalar width2 = font.measureText(txt, strlen(txt), kUTF8_SkTextEncoding, &bounds);
 
                 // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
                 //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
