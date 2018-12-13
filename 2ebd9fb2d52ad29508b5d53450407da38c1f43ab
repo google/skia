@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eea0aa4e_f0748466",
+        "filename": "tests/CopyBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-13T20:50:41Z",
+      "side": 1,
+      "message": "This doesn\u0027t make a difference in whether the test fails, FWIW. We get a slightly different almost white.",
+      "range": {
+        "startLine": 30,
+        "startChar": 62,
+        "endLine": 30,
+        "endChar": 82
+      },
+      "revId": "2ebd9fb2d52ad29508b5d53450407da38c1f43ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
