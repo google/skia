@@ -69,7 +69,9 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
     };
 
     SkPaint paint;
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     char txt[] = "long .text .with .lots .of.dots.";
+#endif
 
     unsigned mask = SkPaint::kAntiAlias_Flag            |
                     SkPaint::kFakeBoldText_Flag         |

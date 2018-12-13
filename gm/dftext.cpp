@@ -7,8 +7,10 @@
 
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "gm.h"
@@ -57,9 +59,9 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
 
-        sk_tool_utils::set_portable_typeface(&paint, "serif");
+        SkFont font(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+        font.setSubpixel(true);
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
@@ -71,9 +73,9 @@ protected:
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(x, y);
             canvas->scale(scales[i], scales[i]);
-            paint.setTextSize(textSizes[i]);
-            canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(nullptr)*scales[i];
+            font.setSize(textSizes[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            y += font.getMetrics(nullptr)*scales[i];
         }
 
         // check rotation
@@ -85,14 +87,14 @@ protected:
             canvas->translate(SkIntToScalar(10 + i * 200), -80);
             canvas->rotate(SkIntToScalar(i * 5), rotX, rotY);
             for (int ps = 6; ps <= 32; ps += 3) {
-                paint.setTextSize(SkIntToScalar(ps));
-                canvas->drawText(text, textLen, rotX, rotY, paint);
-                rotY += paint.getFontMetrics(nullptr);
+                font.setSize(SkIntToScalar(ps));
+                canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, rotX, rotY, font, paint);
+                rotY += font.getMetrics(nullptr);
             }
         }
 
         // check scaling down
-        paint.setLCDRenderText(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         x = SkIntToScalar(680);
         y = SkIntToScalar(20);
         size_t arraySize = SK_ARRAY_COUNT(textSizes);
@@ -101,9 +103,9 @@ protected:
             canvas->translate(x, y);
             SkScalar scaleFactor = SkScalarInvert(scales[arraySize - i - 1]);
             canvas->scale(scaleFactor, scaleFactor);
-            paint.setTextSize(textSizes[i]);
-            canvas->drawText(text, textLen, 0, 0, paint);
-            y += paint.getFontMetrics(nullptr)*scaleFactor;
+            font.setSize(textSizes[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+            y += font.getMetrics(nullptr)*scaleFactor;
         }
 
         // check pos text
@@ -112,20 +114,15 @@ protected:
 
             canvas->scale(2.0f, 2.0f);
 
-            SkAutoTArray<SkPoint>  pos(SkToInt(textLen));
-            SkAutoTArray<SkScalar> widths(SkToInt(textLen));
-            paint.setTextSize(textSizes[0]);
+            SkAutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
+            int count = font.textToGlyphs(text, textLen, kUTF8_SkTextEncoding, glyphs.get(), textLen);
+            SkAutoTArray<SkPoint>  pos(count);
+            font.setSize(textSizes[0]);
+            font.getPos(glyphs.get(), count, pos.get(), {340, 75});
 
-            paint.getTextWidths(text, textLen, &widths[0]);
-
-            SkScalar x = SkIntToScalar(340);
-            SkScalar y = SkIntToScalar(75);
-            for (unsigned int i = 0; i < textLen; ++i) {
-                pos[i].set(x, y);
-                x += widths[i];
-            }
-
-            canvas->drawPosText(text, textLen, &pos[0], paint);
+            auto blob = SkTextBlob::MakeFromPosText(glyphs.get(), count * sizeof(SkGlyphID),
+                                                    pos.get(), font, kGlyphID_SkTextEncoding);
+            canvas->drawTextBlob(blob, 0, 0, paint);
         }
 
 
@@ -143,12 +140,12 @@ protected:
 
         x = SkIntToScalar(680);
         y = SkIntToScalar(235);
-        paint.setTextSize(SkIntToScalar(19));
+        font.setSize(SkIntToScalar(19));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
-            canvas->drawText(text, textLen, x, y, paint);
-            y += paint.getFontMetrics(nullptr);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            y += font.getMetrics(nullptr);
         }
 
         paint.setColor(0xFF181C18);
@@ -157,33 +154,33 @@ protected:
 
         x = SkIntToScalar(830);
         y = SkIntToScalar(235);
-        paint.setTextSize(SkIntToScalar(19));
+        font.setSize(SkIntToScalar(19));
         for (size_t i = 0; i < SK_ARRAY_COUNT(fg); ++i) {
             paint.setColor(fg[i]);
 
-            canvas->drawText(text, textLen, x, y, paint);
-            y += paint.getFontMetrics(nullptr);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            y += font.getMetrics(nullptr);
         }
 
         // check skew
         {
-            paint.setLCDRenderText(false);
+            font.setEdging(SkFont::Edging::kAntiAlias);
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.0f, 0.151515f);
-            paint.setTextSize(SkIntToScalar(32));
-            canvas->drawText(text, textLen, 745, 70, paint);
+            font.setSize(SkIntToScalar(32));
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 745, 70, font, paint);
         }
         {
-            paint.setLCDRenderText(true);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
             SkAutoCanvasRestore acr(canvas, true);
             canvas->skew(0.5f, 0.0f);
-            paint.setTextSize(SkIntToScalar(32));
-            canvas->drawText(text, textLen, 580, 125, paint);
+            font.setSize(SkIntToScalar(32));
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 580, 125, font, paint);
         }
 
         // check perspective
         {
-            paint.setLCDRenderText(false);
+            font.setEdging(SkFont::Edging::kAntiAlias);
             SkAutoCanvasRestore acr(canvas, true);
             SkMatrix persp;
             persp.setAll(0.9839f, 0, 0,
@@ -191,12 +188,12 @@ protected:
                          0.0002352f, -0.0003844f, 1);
             canvas->concat(persp);
             canvas->translate(1100, -295);
-            paint.setTextSize(37.5f);
-            canvas->drawText(text, textLen, 0, 0, paint);
+            font.setSize(37.5f);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
         }
         {
-            paint.setSubpixelText(false);
-            paint.setAntiAlias(false);
+            font.setSubpixel(false);
+            font.setEdging(SkFont::Edging::kAlias);
             SkAutoCanvasRestore acr(canvas, true);
             SkMatrix persp;
             persp.setAll(0.9839f, 0, 0,
@@ -205,18 +202,17 @@ protected:
             canvas->concat(persp);
             canvas->translate(1075, -245);
             canvas->scale(375, 375);
-            paint.setTextSize(0.1f);
-            canvas->drawText(text, textLen, 0, 0, paint);
+            font.setSize(0.1f);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
         }
 
         // check color emoji
         if (fEmojiTypeface) {
-            SkPaint emojiPaint;
-            emojiPaint.setSubpixelText(true);
-            emojiPaint.setAntiAlias(true);
-            emojiPaint.setTypeface(fEmojiTypeface);
-            emojiPaint.setTextSize(SkIntToScalar(19));
-            canvas->drawString(fEmojiText, 670, 90, emojiPaint);
+            SkFont emoiFont;
+            emoiFont.setSubpixel(true);
+            emoiFont.setTypeface(fEmojiTypeface);
+            emoiFont.setSize(SkIntToScalar(19));
+            canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, 670, 90, emoiFont, paint);
         }
 
         // render offscreen buffer
