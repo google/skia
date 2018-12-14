@@ -126,6 +126,13 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
+    if (auto* resource = this->resource()) {
+        // When there is a purgeable proc, sever the back pointer from the resource to us and
+        // allow the resource to call the proc before it is destroyed.
+        resource->removeOwningTexture();
+        fPurgeableProc = nullptr;
+        fPurgeableProcCtx = nullptr;
+    }
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView->unref(this->getVkGpu());
@@ -138,6 +145,14 @@ void GrVkTexture::onRelease() {
 }
 
 void GrVkTexture::onAbandon() {
+    if (auto* resource = this->resource()) {
+        // When there is a purgeable proc, sever the back pointer from the resource to us and
+        // allow the resource to call the proc before it is destroyed.
+        resource->removeOwningTexture();
+        fPurgeableProc = nullptr;
+        fPurgeableProcCtx = nullptr;
+    }
+    // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView->unrefAndAbandon();
         fTextureView = nullptr;
@@ -158,5 +173,33 @@ GrVkGpu* GrVkTexture::getVkGpu() const {
 
 const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView;
+}
+
+void GrVkTexture::setPurgeableProc(PurgeableProc proc, void* context) {
+    fPurgeableProc = proc;
+    fPurgeableProcCtx = context;
+    if (auto* resource = this->resource()) {
+        resource->setPurgeableProc(proc ? this : nullptr, proc, context);
+    }
+}
+
+void GrVkTexture::becamePurgeable() {
+    if (!fPurgeableProc) {
+        return;
+    }
+    // This is called when the GrTexture is purgeable. However, we need to check whether the
+    // Resource is still owned by any command buffers. If it is then it will call the proc.
+    auto* resource = this->resource();
+    if (resource && resource->isOwnedByCommandBuffer()) {
+        return;
+    }
+    if (fPurgeableProc(fPurgeableProcCtx)) {
+        return;
+    }
+    fPurgeableProc = nullptr;
+    fPurgeableProcCtx = nullptr;
+    if (resource) {
+        resource->setPurgeableProc(nullptr, nullptr, nullptr);
+    }
 }
 

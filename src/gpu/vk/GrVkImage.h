@@ -11,15 +11,15 @@
 #include "GrVkVulkan.h"
 
 #include "GrVkResource.h"
-
+#include "GrTexture.h"
 #include "GrBackendSurface.h"
 #include "GrTypesPriv.h"
 #include "GrVkImageLayout.h"
 #include "SkTypes.h"
-
 #include "vk/GrVkTypes.h"
 
 class GrVkGpu;
+class GrVkTexture;
 
 class GrVkImage : SkNoncopyable {
 private:
@@ -151,6 +151,16 @@ private:
         void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
             fReleaseHelper = std::move(releaseHelper);
         }
+
+        void setPurgeableProc(GrVkTexture* owner, GrTexture::PurgeableProc, void* context) const;
+        void removeOwningTexture() const;
+
+        void notifyAddedToCommandBuffer() const override;
+
+        void notifyRemovedFromCommandBuffer() const override;
+
+        bool isOwnedByCommandBuffer() const { return fNumCommandBufferOwners > 0; }
+
     protected:
         mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
@@ -163,6 +173,10 @@ private:
         VkImage        fImage;
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
+        mutable int fNumCommandBufferOwners = 0;
+        mutable GrTexture::PurgeableProc* fPurgeableProc = nullptr;
+        mutable void* fPurgeableProcCtx = nullptr;
+        mutable GrVkTexture* fOwningTexture = nullptr;
 
         typedef GrVkResource INHERITED;
     };
