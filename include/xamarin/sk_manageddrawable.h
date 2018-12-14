@@ -1,0 +1,33 @@
+/*
+ * Copyright 2015 Xamarin Inc.
+ * Copyright 2017 Microsoft Corporation. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef sk_manageddrawable_DEFINED
+#define sk_manageddrawable_DEFINED
+
+#include "sk_xamarin.h"
+
+#include "sk_types.h"
+
+SK_C_PLUS_PLUS_BEGIN_GUARD
+
+
+typedef struct sk_manageddrawable_t sk_manageddrawable_t;
+
+
+typedef void         (*sk_manageddrawable_draw_delegate)               (sk_manageddrawable_t* cmanagedDrawable, sk_canvas_t ccanvas);
+typedef sk_rect_t    (*sk_manageddrawable_getBounds_delegate)          (sk_manageddrawable_t* cmanagedDrawable);
+typedef sk_picture_t (*sk_manageddrawable_newPictureSnapshot_delegate) (sk_manageddrawable_t* cmanagedDrawable);
+
+
+SK_X_API void sk_manageddrawable_set_delegates (const sk_manageddrawable_draw_delegate pDraw,
+                                                const sk_manageddrawable_getBounds_delegate pGetBounds,
+                                                const sk_manageddrawable_newPictureSnapshot_delegate pNewPictureSnapshot);
+
+SK_C_PLUS_PLUS_END_GUARD
+
+#endif
