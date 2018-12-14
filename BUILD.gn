@@ -1693,6 +1693,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("convex") {
+    sources = [
+      "tools/convex/convex.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+    ]
+  }
+
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [
