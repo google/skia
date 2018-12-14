@@ -6,8 +6,10 @@
  */
 
 #include "SkData.h"
-#include "Skottie.h"
+#include "SkFontMgrPriv.h"
 #include "SkStream.h"
+#include "SkTestFontMgr.h"
+#include "Skottie.h"
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);
@@ -20,6 +22,7 @@ void FuzzSkottieJSON(sk_sp<SkData> bytes) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzSkottieJSON(bytes);
     return 0;
