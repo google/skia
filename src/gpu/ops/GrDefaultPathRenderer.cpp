@@ -9,7 +9,6 @@
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
-#include "GrFillRectOp.h"
 #include "GrFixedClip.h"
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
@@ -24,6 +23,7 @@
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
 #include "ops/GrMeshDrawOp.h"
+#include "ops/GrRectOpFactory.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer() {
 }
@@ -611,11 +611,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            // This is a non-coverage aa rect op since we assert aaType != kCoverage at the start
             renderTargetContext->addDrawOp(
                     clip,
-                    GrFillRectOp::MakeWithLocalMatrix(context, std::move(paint), aaType, viewM,
-                                                      localMatrix, bounds, passes[p]));
+                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
+                            context, std::move(paint), viewM, localMatrix,
+                            bounds, aaType, passes[p]));
         } else {
             bool stencilPass = stencilOnly || passCount > 1;
             std::unique_ptr<GrDrawOp> op;

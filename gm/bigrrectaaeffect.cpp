@@ -13,7 +13,7 @@
 #include "SkRRect.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 
@@ -95,8 +95,9 @@ protected:
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
-                                               SkMatrix::I(), bounds));
+                            GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint),
+                                                           SkMatrix::I(),
+                                                           bounds, GrAAType::kNone));
                 }
             canvas->restore();
             x = x + fTestOffsetX;

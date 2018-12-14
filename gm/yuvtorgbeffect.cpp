@@ -19,7 +19,7 @@
 #include "SkGradientShader.h"
 #include "effects/GrYUVtoRGBEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 #define YSIZE 8
 #define USIZE 4
@@ -130,8 +130,8 @@ protected:
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
-                                               viewMatrix, renderRect));
+                            GrRectOpFactory::MakeNonAAFill(context, std::move(grPaint), viewMatrix,
+                                                           renderRect, GrAAType::kNone));
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -251,8 +251,8 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(std::move(fp));
-                std::unique_ptr<GrDrawOp> op(GrFillRectOp::Make(context, std::move(grPaint),
-                        GrAAType::kNone, viewMatrix, renderRect));
+                std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                          context, std::move(grPaint), viewMatrix, renderRect, GrAAType::kNone));
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }

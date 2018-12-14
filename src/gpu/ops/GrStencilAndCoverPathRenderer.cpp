@@ -18,7 +18,7 @@
 #include "GrStencilClip.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"
-#include "ops/GrFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -156,12 +156,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             if (GrAAType::kMixedSamples == coverAAType) {
                 coverAAType = GrAAType::kNone;
             }
-            // This is a non-coverage aa rect operation
-            SkASSERT(coverAAType == GrAAType::kNone || coverAAType == GrAAType::kMSAA);
-            std::unique_ptr<GrDrawOp> op = GrFillRectOp::MakeWithLocalMatrix(
+            std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
                                                          args.fContext, std::move(args.fPaint),
-                                                         coverAAType, coverMatrix, localMatrix,
-                                                         coverBounds, &kInvertedCoverPass);
+                                                         coverMatrix, localMatrix, coverBounds,
+                                                         coverAAType, &kInvertedCoverPass);
 
             args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
         }
