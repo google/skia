@@ -129,6 +129,146 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
     }); // end describe('color string parsing')
 
+    describe('fonts', function() {
+        it('can parse font sizes', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const parseFontString = CanvasKit._testing.parseFontString;
+
+                const tests = [{
+                        'input': '10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': '15pt Arial',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 20,
+                            'family': 'Arial',
+                        }
+                    },
+                    {
+                        'input': '1.5in Arial, san-serif ',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 144,
+                            'family': 'Arial, san-serif',
+                        }
+                    },
+                    {
+                        'input': '1.5em SuperFont',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 24,
+                            'family': 'SuperFont',
+                        }
+                    },
+                ];
+
+                for (let i = 0; i < tests.length; i++) {
+                    expect(parseFontString(tests[i].input)).toEqual(tests[i].output);
+                }
+
+                done();
+            }));
+        });
+
+        it('can parse font attributes', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const parseFontString = CanvasKit._testing.parseFontString;
+
+                const tests = [{
+                        'input': 'bold 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic bold 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic small-caps bold 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': 'small-caps',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'small-caps bold 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': 'small-caps',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'small-caps 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': 'small-caps',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'normal bold 10px monospace',
+                        'output': {
+                            'style': 'normal',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                ];
+
+                for (let i = 0; i < tests.length; i++) {
+                    expect(parseFontString(tests[i].input)).toEqual(tests[i].output);
+                }
+
+                done();
+            }));
+        });
+    });
+
     function multipleCanvasTest(testname, done, test) {
         const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         skcanvas._config = 'software_canvas';
@@ -621,6 +761,52 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
             }));
         });
 
+        it('can load custom fonts', function(done) {
+            let realFontLoaded = new FontFace('BungeeNonSystem', 'url(/assets/Bungee-Regular.ttf)', {
+                'family': 'BungeeNonSystem', //Make sure the canvas does not use the system font
+                'style': 'normal',
+                'weight': '400',
+            }).load().then((font) => {
+                document.fonts.add(font);
+            });
+
+            let fontBuffer = null;
+
+            let skFontLoaded = fetch('/assets/Bungee-Regular.ttf').then(
+                (response) => response.arrayBuffer()).then(
+                (buffer) => {
+                    fontBuffer = buffer;
+                });
+
+            LoadCanvasKit.then(catchException(done, () => {
+                Promise.all([realFontLoaded, skFontLoaded]).then(() => {
+                    multipleCanvasTest('custom_font', done, (canvas) => {
+                        if (canvas.loadFont) {
+                            canvas.loadFont(fontBuffer, {
+                                'family': 'BungeeNonSystem',
+                                'style': 'normal',
+                                'weight': '400',
+                            });
+                        }
+                        let ctx = canvas.getContext('2d');
+
+                        ctx.font = '20px monospace';
+                        ctx.fillText('20 px monospace', 10, 30);
+
+                        ctx.font = '2.0em BungeeNonSystem';
+                        ctx.fillText('2.0em Bungee filled', 10, 80);
+                        ctx.strokeText('2.0em Bungee stroked', 10, 130);
+
+                        ctx.font = '40pt monospace';
+                        ctx.strokeText('40pt monospace', 10, 200);
+
+                        // bold wasn't defined, so should fallback to just the 400 weight
+                        ctx.font = 'bold 45px BungeeNonSystem';
+                        ctx.fillText('45px Bungee filled', 10, 260);
+                    });
+                });
+            }));
+        });
         it('can read default properties', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -630,6 +816,9 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
 
                 const skcontext = skcanvas.getContext('2d');
                 const realContext = realCanvas.getContext('2d');
+                // The skia canvas only comes with a monospace font by default
+                // Set the html canvas to be monospace too.
+                realContext.font = '10px monospace';
 
                 const toTest = ['font', 'lineWidth', 'strokeStyle', 'lineCap',
                                 'lineJoin', 'miterLimit', 'shadowOffsetY',

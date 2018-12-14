@@ -9,7 +9,8 @@ CanvasKit.MakeCanvas = function(width, height) {
 function HTMLCanvas(skSurface) {
   this._surface = skSurface;
   this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
-  this._imgs = [];
+  this._toCleanup = [];
+  this._fontmgr = CanvasKit.SkFontMgr.RefDefault();
 
   // Data is either an ArrayBuffer, a TypedArray, or a Node Buffer
   this.decodeImage = function(data) {
@@ -17,8 +18,18 @@ function HTMLCanvas(skSurface) {
     if (!img) {
       throw 'Invalid input';
     }
-    this._imgs.push(img);
+    this._toCleanup.push(img);
     return img;
+  }
+
+  this.loadFont = function(buffer, descriptors) {
+    var newFont = this._fontmgr.MakeTypefaceFromData(buffer);
+    if (!newFont) {
+      SkDebug('font could not be processed', descriptors);
+      return null;
+    }
+    this._toCleanup.push(newFont);
+    addToFontCache(newFont, descriptors);
   }
 
   // A normal <canvas> requires that clients call getContext
@@ -56,7 +67,7 @@ function HTMLCanvas(skSurface) {
 
   this.dispose = function() {
     this._context._dispose();
-    this._imgs.forEach(function(i) {
+    this._toCleanup.forEach(function(i) {
       i.delete();
     });
     this._surface.dispose();

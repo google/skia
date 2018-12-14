@@ -426,25 +426,43 @@
                           realCanvas._img = bitmap;
                         });
 
+    let realFontLoaded = new FontFace('Bungee', 'url(/tests/assets/Bungee-Regular.ttf)', {
+      'family': 'Bungee',
+      'style': 'normal',
+      'weight': '400',
+    }).load().then((font) => {
+      document.fonts.add(font);
+    });
 
-    Promise.all([realPromise, skPromise]).then(() => {
+    let skFontLoaded = fetch('/tests/assets/Bungee-Regular.ttf').then(
+                             (response) => response.arrayBuffer()).then(
+                             (buffer) => {
+                                // loadFont is synchronous
+                                skcanvas.loadFont(buffer, {
+                                  'family': 'Bungee',
+                                  'style': 'normal',
+                                  'weight': '400',
+                                });
+                              });
+
+    Promise.all([realPromise, skPromise, realFontLoaded, skFontLoaded]).then(() => {
       for (let canvas of [skcanvas, realCanvas]) {
         let ctx = canvas.getContext('2d');
         ctx.fillStyle = '#EEE';
         ctx.fillRect(0, 0, 300, 300);
         ctx.fillStyle = 'black';
-        ctx.font = '30px Impact'
+        ctx.font = '26px Bungee';
         ctx.rotate(.1);
         let text = ctx.measureText('Awesome');
-        ctx.fillText('Awesome ', 50, 100);
-        ctx.strokeText('Groovy!', 60+text.width, 100);
+        ctx.fillText('Awesome ', 25, 100);
+        ctx.strokeText('Groovy!', 35+text.width, 100);
 
         // Draw line under Awesome
         ctx.strokeStyle = 'rgba(125,0,0,0.5)';
         ctx.beginPath();
         ctx.lineWidth = 6;
-        ctx.lineTo(50, 105);
-        ctx.lineTo(50 + text.width, 105);
+        ctx.moveTo(25, 105);
+        ctx.lineTo(25 + text.width, 105);
         ctx.stroke();
 
         // squished vertically

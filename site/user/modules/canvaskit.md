@@ -55,7 +55,7 @@ Samples
   <figure>
     <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/bb98ad306a0c826b6dc8e8b8f709fca75fee95210c529679def945f0be7ed90c"
+      <a href="https://jsfiddle.skia.org/canvaskit/28004d8841e7e497013263598241a3c1edc21dc1cf87a679abba307f39fa5fe6"
           target=_blank rel=noopener>
         Star JSFiddle</a>
     </figcaption>

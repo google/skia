@@ -446,6 +446,7 @@ var HTMLCanvas = {};
 HTMLCanvas.prototype.decodeImage = function() {};
 HTMLCanvas.prototype.dispose = function() {};
 HTMLCanvas.prototype.getContext = function() {};
+HTMLCanvas.prototype.loadFont = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
 
 var CanvasRenderingContext2D = {};
