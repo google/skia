@@ -22,6 +22,30 @@
       "revId": "ddf89b61ae7dd30712306f257b9f7f6e3d445019",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "426581c0_d96ebcff",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-14T14:39:45Z",
+      "side": 1,
+      "message": "Yes, since only the GrTextureDomain::Mode is used to determine the 2nd argument to ModulateForSamplerOptFlags, we have to make sure leaving out sampler wrap modes in that calculation is safe.",
+      "parentUuid": "4707acb1_6967a5fe",
+      "range": {
+        "startLine": 227,
+        "startChar": 2,
+        "endLine": 228,
+        "endChar": 93
+      },
+      "revId": "ddf89b61ae7dd30712306f257b9f7f6e3d445019",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
