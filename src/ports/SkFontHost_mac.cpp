@@ -1334,7 +1334,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     if ((glyph.fMaskFormat == SkMask::kLCD16_Format) ||
         (glyph.fMaskFormat == SkMask::kA8_Format
          && requestSmooth
-         && smooth_behavior() == SmoothBehavior::subpixel))
+         && smooth_behavior() != SmoothBehavior::none))
     {
         const uint8_t* linear = gLinearCoverageFromCGLCDValue.data();
 
