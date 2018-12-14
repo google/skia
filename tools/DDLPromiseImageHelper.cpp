@@ -19,8 +19,8 @@
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     GrGpu* gpu = fContext->contextPriv().getGpu();
 
-    if (fBackendTexture.isValid()) {
-        gpu->deleteTestingOnlyBackendTexture(fBackendTexture);
+    if (fPromiseImageTexture.isValid()) {
+        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture.backendTexture());
     }
 }
 
@@ -111,7 +111,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
                 callbackContext->setBackendTexture(create_yuva_texture(gpu, yuvPixmap,
                                                                        info.yuvaIndices(), j));
-                SkAssertResult(callbackContext->backendTexture().isValid());
+                SkAssertResult(callbackContext->promiseImageTexture().isValid());
 
                 fImageInfo[i].setCallbackContext(j, std::move(callbackContext));
             }
