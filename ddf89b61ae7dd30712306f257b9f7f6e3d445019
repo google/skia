@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4707acb1_6967a5fe",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-14T14:00:10Z",
+      "side": 1,
+      "message": "is this assert needed since you\u0027re not using ModulateForClampedSamplerOptFlags?",
+      "range": {
+        "startLine": 227,
+        "startChar": 2,
+        "endLine": 228,
+        "endChar": 93
+      },
+      "revId": "ddf89b61ae7dd30712306f257b9f7f6e3d445019",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
