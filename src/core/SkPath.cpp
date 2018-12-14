@@ -2803,7 +2803,11 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     };
 
     // Check to see if path changes direction more than three times as quick concave test
-    int pointCount = fLastMoveToIndex > 0 ? fLastMoveToIndex : this->countPoints();
+    int pointCount = this->countPoints();
+    // last moveTo index may exceed point count if data comes from fuzzer (via SkImageFilter)
+    if (0 < fLastMoveToIndex && fLastMoveToIndex < pointCount) {
+        pointCount = fLastMoveToIndex;
+    }
     if (pointCount > 3) {
         const SkPoint* points = fPathRef->points();
         const SkPoint* last = &points[pointCount];
