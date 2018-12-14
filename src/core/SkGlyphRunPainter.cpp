@@ -341,7 +341,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
                 SkScalar largestDimension = std::max(glyph.fWidth, glyph.fHeight);
                 maxFallbackDimension = std::max(maxFallbackDimension, largestDimension);
                 fARGBGlyphsIDs.push_back(glyphID);
-                fARGBPositions.push_back(position);
+                fARGBPositions.push_back(origin + position);
             }
         }
     }
