@@ -1,38 +1,113 @@
 // Functions dealing with parsing/stringifying fonts go here.
+var fontStringRegex = new RegExp(
+  '(italic|oblique|normal|)\\s*' +              // style
+  '(small-caps|normal|)\\s*' +                  // variant
+  '(bold|bolder|lighter|[1-9]00|normal|)\\s*' + // weight
+  '([\\d\\.]+)' +                               // size
+  '(px|pt|pc|in|cm|mm|%|em|ex|ch|rem|q)' +      // unit
+  // line-height is ignored here, as per the spec
+  '(.+)'                                        // family
+  );
 
-var units = 'px|pt|pc|in|cm|mm|%|em|ex|ch|rem|q';
-var fontSizeRegex = new RegExp('([\\d\\.]+)(' + units + ')');
+function stripWhitespace(str) {
+  return str.replace(/^\s+|\s+$/, '');
+}
+
 var defaultHeight = 16;
 // Based off of node-canvas's parseFont
 // returns font size in px, which represents the em width.
-function parseFontSize(fontStr) {
-  // This is naive and doesn't account for line-height yet
-  // (but neither does node-canvas's?)
-  var fontSize = fontSizeRegex.exec(fontStr);
-  if (!fontSize) {
-    SkDebug('Could not parse font size' + fontStr);
-    return 16;
+function parseFontString(fontStr) {
+
+  var font = fontStringRegex.exec(fontStr);
+  if (!font) {
+    SkDebug('Invalid font string ' + fontStr);
+    return null;
   }
-  var size = parseFloat(fontSize[1]);
-  var unit = fontSize[2];
+
+  var size = parseFloat(font[4]);
+  var sizePx = defaultHeight;
+  var unit = font[5];
   switch (unit) {
-    case 'pt':
     case 'em':
     case 'rem':
-      return size * 4/3;
+      sizePx = size * defaultHeight;
+      break;
+    case 'pt':
+      sizePx = size * 4/3;
+      break;
     case 'px':
-      return size;
+      sizePx = size;
+      break;
     case 'pc':
-      return size * 16;
+      sizePx = size * defaultHeight;
+      break;
     case 'in':
-      return size * 96;
+      sizePx = size * 96;
+      break;
     case 'cm':
-      return size * 96.0 / 2.54;
+      sizePx = size * 96.0 / 2.54;
+      break;
     case 'mm':
-      return size * (96.0 / 25.4);
+      sizePx = size * (96.0 / 25.4);
+      break;
     case 'q': // quarter millimeters
-      return size * (96.0 / 25.4 / 4);
+      sizePx = size * (96.0 / 25.4 / 4);
+      break;
     case '%':
-      return size * (defaultHeight / 75);
+      sizePx = size * (defaultHeight / 75);
+      break;
   }
+  return {
+    'style':   font[1],
+    'variant': font[2],
+    'weight':  font[3],
+    'sizePx':  sizePx,
+    'family':  font[6].trim()
+  };
 }
+
+function getTypeface(fontstr) {
+  var descriptors = parseFontString(fontstr);
+  var typeface = getFromFontCache(descriptors);
+  descriptors['typeface'] = typeface;
+  return descriptors;
+}
+
+// null means use the default typeface (which is currently NotoMono)
+var fontCache = {
+  'Noto Mono': {
+    '*': null, // is used if we have this font family, but not the right style/variant/weight
+  },
+  'monospace': {
+    '*': null,
+  }
+};
+
+// descriptors is like https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace
+// The ones currently supported are family, style, variant, weight.
+function addToFontCache(typeface, descriptors) {
+  var key = (descriptors['style']   || 'normal') + '|' +
+            (descriptors['variant'] || 'normal') + '|' +
+            (descriptors['weight']  || 'normal');
+  var fam = descriptors['family'];
+  if (!fontCache[fam]) {
+    // preload with a fallback to this typeface
+    fontCache[fam] = {
+      '*': typeface,
+    };
+  }
+  fontCache[fam][key] = typeface;
+}
+
+function getFromFontCache(descriptors) {
+  var key = (descriptors['style']   || 'normal') + '|' +
+            (descriptors['variant'] || 'normal') + '|' +
+            (descriptors['weight']  || 'normal');
+  var fam = descriptors['family'];
+  if (!fontCache[fam]) {
+    return null;
+  }
+  return fontCache[fam][key] || fontCache[fam]['*'];
+}
+
+CanvasKit._testing['parseFontString'] = parseFontString;
