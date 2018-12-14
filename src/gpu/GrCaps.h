@@ -270,46 +270,29 @@ public:
     bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
     /**
-     * Returns true if the GrBackendTexture can be used with the supplied SkColorType. If it is
-     * compatible, the passed in GrPixelConfig will be set to a config that matches the backend
-     * format and requested SkColorType.
+     * If the GrBackendRenderTarget can be used with the supplied SkColorType the return will be
+     * the config that matches the backend format and requested SkColorType. Otherwise, kUnknown is
+     * returned.
      */
-    virtual bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
-                                        GrPixelConfig*) const = 0;
-    virtual bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
-                                             GrPixelConfig*) const = 0;
+    virtual GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                                      SkColorType) const = 0;
 
-    // TODO: replace validateBackendTexture and validateBackendRenderTarget with calls to
-    // getConfigFromBackendFormat?
+    // TODO: replace validateBackendRenderTarget with calls to getConfigFromBackendFormat?
     // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
-    virtual bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                            GrPixelConfig*) const = 0;
+    // Returns kUnknown if a valid config could not be determined.
+    virtual GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
+                                                     SkColorType ct) const = 0;
 
     /**
-     * Special method only for YUVA images. Returns true if the format can be used for a
-     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
-     * the backend texture.
+     * Special method only for YUVA images. Returns a config that matches the backend format or
+     * kUnknown if a config could not be determined.
      */
-    virtual bool getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
-                                                 GrPixelConfig*) const = 0;
+    virtual GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const = 0;
 
-    /**
-     * Special method only for YUVA images. Returns true if the format can be used for a
-     * YUVA plane, and the passed in GrPixelConfig will be set to a config that matches
-     * the backend format.
-     */
-    virtual bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                                GrPixelConfig*) const = 0;
-
+    /** These are used when creating a new texture internally. */
     virtual GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                             GrSRGBEncoded srgbEncoded) const = 0;
     GrBackendFormat getBackendFormatFromColorType(SkColorType ct) const;
-
-    /**
-     * Creates a GrBackendFormat which matches the backend texture. If the backend texture is
-     * invalid, the function will return the default GrBackendFormat.
-     */
-    GrBackendFormat createFormatFromBackendTexture(const GrBackendTexture&) const;
 
     /**
      * The CLAMP_TO_BORDER wrap mode for texture coordinates was added to desktop GL in 1.3, and
@@ -324,12 +307,6 @@ protected:
         overrides requested by the client. Note that overrides will only reduce the caps never
         expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
-
-    /**
-     * Subclasses implement this to actually create a GrBackendFormat to match backend texture. At
-     * this point, the backend texture has already been validated.
-     */
-    virtual GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const = 0;
 
     sk_sp<GrShaderCaps> fShaderCaps;
 
