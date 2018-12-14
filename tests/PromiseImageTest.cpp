@@ -21,13 +21,19 @@ struct PromiseTextureChecker {
             , fFulfillCount(0)
             , fReleaseCount(0)
             , fDoneCount(0) {}
-    GrBackendTexture fTexture;
+    SkDeferredDisplayListRecorder::PromiseImageTexture fTexture;
     int fFulfillCount;
     int fReleaseCount;
     int fDoneCount;
-    static void Fulfill(void* self, GrBackendTexture* outTexture) {
-        static_cast<PromiseTextureChecker*>(self)->fFulfillCount++;
-        *outTexture = static_cast<PromiseTextureChecker*>(self)->fTexture;
+    GrBackendTexture fLastFulfilledTexture;
+    void setTexture(const GrBackendTexture& tex) {
+        fTexture = SkDeferredDisplayListRecorder::PromiseImageTexture(tex);
+    }
+    static SkDeferredDisplayListRecorder::PromiseImageTexture Fulfill(void* self) {
+        auto checker = static_cast<PromiseTextureChecker*>(self);
+        checker->fFulfillCount++;
+        checker->fLastFulfilledTexture = checker->fTexture.backendTexture();
+        return checker->fTexture;
     }
     static void Release(void* self) {
         static_cast<PromiseTextureChecker*>(self)->fReleaseCount++;
@@ -236,4 +242,110 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
         gpu->deleteTestingOnlyBackendTexture(backendTex);
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->contextPriv().getGpu();
+
+    GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTex1.isValid());
+    REPORTER_ASSERT(reporter, backendTex2.isValid());
+
+    GrBackendFormat backendFormat = backendTex1.getBackendFormat();
+    REPORTER_ASSERT(reporter, backendFormat.isValid());
+    REPORTER_ASSERT(reporter, backendFormat == backendTex2.getBackendFormat());
+
+    PromiseTextureChecker promiseChecker(backendTex1);
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
+    sk_sp<SkImage> refImg(
+            SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
+                                            GrMipMapped::kNo, texOrigin,
+                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                                            nullptr,
+                                            PromiseTextureChecker::Fulfill,
+                                            PromiseTextureChecker::Release,
+                                            PromiseTextureChecker::Done,
+                                            &promiseChecker));
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+
+    int expectedFulfillCnt = 0;
+    int expectedReleaseCnt = 0;
+    int expectedDoneCnt = 0;
+
+    canvas->drawImage(refImg, 0, 0);
+    canvas->drawImage(refImg, 5, 5);
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             true,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+
+    bool isVulkan = GrBackendApi::kVulkan == ctx->contextPriv().getBackend();
+    canvas->flush();
+    expectedFulfillCnt++;
+    expectedReleaseCnt++;
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             !isVulkan,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(promiseChecker.fLastFulfilledTexture, backendTex1));
+
+    gpu->testingOnly_flushGpuAndSync();
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             true,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+    gpu->deleteTestingOnlyBackendTexture(backendTex1);
+    promiseChecker.setTexture(backendTex2);
+
+    canvas->drawImage(refImg, 0, 0);
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             true,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    canvas->flush();
+    expectedFulfillCnt++;
+    expectedReleaseCnt++;
+
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             !isVulkan,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(promiseChecker.fLastFulfilledTexture, backendTex2));
+
+    gpu->testingOnly_flushGpuAndSync();
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             true,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+    gpu->deleteTestingOnlyBackendTexture(backendTex2);
 }

@@ -43,14 +43,17 @@ void GrVkCommandBuffer::invalidateState() {
 void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
+        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedResources[i]->unref(gpu);
     }
 
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
     }
 
     for (int i = 0; i < fTrackedRecordingResources.count(); ++i) {
+        fTrackedRecordingResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedRecordingResources[i]->unref(gpu);
     }
 
@@ -62,15 +65,18 @@ void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
 
 void GrVkCommandBuffer::abandonGPUData() const {
     for (int i = 0; i < fTrackedResources.count(); ++i) {
+        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedResources[i]->unrefAndAbandon();
     }
 
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
         // We don't recycle resources when abandoning them.
         fTrackedRecycledResources[i]->unrefAndAbandon();
     }
 
     for (int i = 0; i < fTrackedRecordingResources.count(); ++i) {
+        fTrackedRecordingResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedRecordingResources[i]->unrefAndAbandon();
     }
 }
@@ -78,13 +84,16 @@ void GrVkCommandBuffer::abandonGPUData() const {
 void GrVkCommandBuffer::reset(GrVkGpu* gpu) {
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
+        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedResources[i]->unref(gpu);
     }
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
+        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
     }
 
     for (int i = 0; i < fTrackedRecordingResources.count(); ++i) {
+        fTrackedRecordingResources[i]->notifyRemovedFromCommandBuffer();
         fTrackedRecordingResources[i]->unref(gpu);
     }
 

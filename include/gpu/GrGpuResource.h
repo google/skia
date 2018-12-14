@@ -58,6 +58,7 @@ public:
     void unref() const {
         this->validate();
 
+        SkASSERT(fRefCnt);
         if (!(--fRefCnt)) {
             if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
                 return;
@@ -84,8 +85,6 @@ protected:
         kPendingRead_CntType,
         kPendingWrite_CntType,
     };
-
-    bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
@@ -301,6 +300,8 @@ protected:
 
 
 private:
+    bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
+
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
      * Resource subclasses should override this if the instances should be recycled as scratch
@@ -315,6 +316,8 @@ private:
     void release();
 
     virtual size_t onGpuMemorySize() const = 0;
+
+    virtual void becamePurgeable() {}
 
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);

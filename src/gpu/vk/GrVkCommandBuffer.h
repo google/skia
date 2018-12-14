@@ -107,6 +107,7 @@ public:
     // execution
     void addResource(const GrVkResource* resource) {
         resource->ref();
+        resource->notifyAddedToCommandBuffer();
         fTrackedResources.append(1, &resource);
     }
 
@@ -114,6 +115,7 @@ public:
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
     void addRecycledResource(const GrVkRecycledResource* resource) {
         resource->ref();
+        resource->notifyAddedToCommandBuffer();
         fTrackedRecycledResources.append(1, &resource);
     }
 
@@ -121,6 +123,7 @@ public:
     // recording.
     void addRecordingResource(const GrVkResource* resource) {
         resource->ref();
+        resource->notifyAddedToCommandBuffer();
         fTrackedRecordingResources.append(1, &resource);
     }
 
