@@ -174,7 +174,9 @@ var CanvasKit = {
 		getFillType: function() {},
 		getPoint: function() {},
 		isEmpty: function() {},
+		isVolatile: function() {},
 		setFillType: function() {},
+		setIsVolatile: function() {},
 		toSVGString: function() {},
 
 		// private API

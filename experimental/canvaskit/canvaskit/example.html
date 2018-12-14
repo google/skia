@@ -175,6 +175,9 @@
 
     function drawFrame() {
       const path = starPath(CanvasKit, X, Y);
+      // Some animations see performance improvements by marking their
+      // paths as volatile.
+      path.setIsVolatile(true);
       CanvasKit.setCurrentContext(context);
       const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], i/5);
       i++;

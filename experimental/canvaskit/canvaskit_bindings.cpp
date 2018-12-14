@@ -779,9 +779,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_cubicTo", &ApplyCubicTo)
         .function("getPoint", &SkPath::getPoint)
         .function("isEmpty",  &SkPath::isEmpty)
+        .function("isVolatile", &SkPath::isVolatile)
         .function("_lineTo", &ApplyLineTo)
         .function("_moveTo", &ApplyMoveTo)
         .function("_quadTo", &ApplyQuadTo)
+        .function("setIsVolatile", &SkPath::setIsVolatile)
         .function("_transform", select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&ApplyTransform))
 
         // PathEffects

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Canvas2D JS layer. This mirrors the HTML Canvas API. This may be omitted at compile time
     it by adding `no_canvas` to the `compile.sh` invocation.
 - `CanvasKit.FontMgr.DefaultRef()` and `fontmgr.MakeTypefaceFromData` to load fonts.
+- Exposed `SkPath.setVolatile`. Some animations see performance improvements by setting
+their paths' volatility to true.
 
 ### Fixed
 - `SkPath.addRect` now correctly draws counter-clockwise vs clockwise.
