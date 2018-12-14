@@ -412,15 +412,8 @@
       if (!font) {
         SkDebug('Could not decode font data');
         // We do not need to free the data since the C++ will do that for us
-        // on a failed decode (at least, it appears to).
+        // when the font is deleted (or fails to decode);
         return null;
-      }
-      // We cannot free this data until after the font stops being used
-      // (otherwise nothing draws)
-      var realDelete = font.delete.bind(font);
-      font.delete = function() {
-        CanvasKit._free(fptr);
-        realDelete();
       }
       return font;
     }
