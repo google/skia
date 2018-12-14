@@ -1676,8 +1676,8 @@ private:
 static GrTextureDomain create_domain(GrTextureProxy* proxy, const SkIRect* srcBounds,
                                      GrTextureDomain::Mode mode) {
     if (srcBounds) {
-        SkRect texelDomain = GrTextureDomain::MakeTexelDomainForMode(*srcBounds, mode);
-        return GrTextureDomain(proxy, texelDomain, mode);
+        SkRect texelDomain = GrTextureDomain::MakeTexelDomainForModes(*srcBounds, mode, mode);
+        return GrTextureDomain(proxy, texelDomain, mode, mode);
     } else {
         return GrTextureDomain::IgnoredDomain();
     }
@@ -1873,6 +1873,10 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
     const char* surfScale = uniformHandler->getUniformCStr(fSurfaceScaleUni);
 
+    SkDebugf("LightingEffect::emitCode, mode x: %d, mode y: %d, key: %u\n",
+             le.domain().modeX(), le.domain().modeY(),
+             GrTextureDomain::GLDomain::DomainKey(le.domain()));
+
     int index = 0;
     for (int dy = 1; dy >= -1; dy--) {
         for (int dx = -1; dx <= 1; dx++) {
@@ -1908,6 +1912,7 @@ void GrGLLightingEffect::GenKey(const GrProcessor& proc,
                                 const GrShaderCaps& caps, GrProcessorKeyBuilder* b) {
     const GrLightingEffect& lighting = proc.cast<GrLightingEffect>();
     b->add32(lighting.boundaryMode() << 2 | lighting.light()->type());
+    SkDebugf("LightingEffect adding domain key: %u\n", GrTextureDomain::GLDomain::DomainKey(lighting.domain()));
     b->add32(GrTextureDomain::GLDomain::DomainKey(lighting.domain()));
 }
 
@@ -1926,7 +1931,10 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set1f(fSurfaceScaleUni, lighting.surfaceScale());
     sk_sp<SkImageFilterLight> transformedLight(
             lighting.light()->transform(lighting.filterMatrix()));
-    fDomain.setData(pdman, lighting.domain(), proxy);
+    SkDebugf("LightingEffect::onSetData, mode x: %d, mode y: %d, key: %u\n",
+             lighting.domain().modeX(), lighting.domain().modeY(),
+             GrTextureDomain::GLDomain::DomainKey(lighting.domain()));
+    fDomain.setData(pdman, lighting.domain(), proxy, lighting.textureSampler(0).samplerState());
     fLight->setData(pdman, transformedLight.get());
 }
 
