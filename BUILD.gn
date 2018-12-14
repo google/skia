@@ -656,7 +656,8 @@ optional("gpu_for_real") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      public_deps += [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
+      public_deps +=
+          [ "//third_party/vulkan_loader_and_validation_layers:vulkan" ]
     }
   }
 
@@ -1909,6 +1910,7 @@ if (skia_enable_tools) {
     include_dirs = [
       "tools",
       "tools/debugger",
+      "tools/fonts",
     ]
     sources = [
       "fuzz/Fuzz.cpp",

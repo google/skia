@@ -73,11 +73,21 @@ if (defined(is_skia_standalone)) {
       testonly = true
 
       configs += [ "../..:skia_private" ]
+      include_dirs = [
+        "../../tools",
+        "../../tools/flags",
+        "../../tools/fonts",
+      ]
       sources = [
+        "../../tools/Resources.cpp",
+        "../../tools/fonts/SkTestFontMgr.cpp",
+        "../../tools/fonts/SkTestSVGTypeface.cpp",
+        "../../tools/fonts/SkTestTypeface.cpp",
         "fuzz/FuzzSkottieJSON.cpp",
       ]
 
       deps = [
+        "../..:experimental_svg_model",
         "../..:skia",
       ]
 

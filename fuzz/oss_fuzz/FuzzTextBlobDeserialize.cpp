@@ -6,9 +6,11 @@
  */
 
 #include "SkCanvas.h"
+#include "SkFontMgrPriv.h"
 #include "SkPaint.h"
 #include "SkReadBuffer.h"
 #include "SkSurface.h"
+#include "SkTestFontMgr.h"
 #include "SkTextBlobPriv.h"
 
 void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
@@ -27,6 +29,7 @@ void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     SkReadBuffer buf(data, size);
     FuzzTextBlobDeserialize(buf);
     return 0;

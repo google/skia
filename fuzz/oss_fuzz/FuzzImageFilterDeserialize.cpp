@@ -9,8 +9,10 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkFontMgrPriv.h"
 #include "SkImageFilter.h"
 #include "SkPaint.h"
+#include "SkTestFontMgr.h"
 
 void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
     const int BitmapSize = 24;
@@ -39,6 +41,7 @@ void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzImageFilterDeserialize(bytes);
     return 0;
