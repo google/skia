@@ -143,7 +143,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                 format,
                                                 kAlpha_8_GrPixelConfig,
                                                 kAtlasSize, kAtlasSize,
-                                                kNumPlots, kNumPlots,
+                                                kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
                                                 EvictionFunc, nullptr);
     check(reporter, atlas.get(), 0, 4, 0);
@@ -233,11 +233,66 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     opMemoryPool->release(std::move(op));
 }
 
+void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,
+                       GrMaskFormat maskFormat, SkISize expectedDimensions,
+                       SkISize expectedPlotDimensions) {
+    GrDrawOpAtlasConfig config(maxTextureSize, maxBytes);
+    REPORTER_ASSERT(reporter, config.atlasDimensions(maskFormat) == expectedDimensions);
+    REPORTER_ASSERT(reporter, config.plotDimensions(maskFormat) == expectedPlotDimensions);
+}
+
 DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options) {
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(   1) == 1);
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB( 256) == 1);
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB( 512) == 2);
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(1024) == 4);
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(2048) == 8);
-    REPORTER_ASSERT(reporter, GrDrawOpAtlasConfig::PlotsPerLongDimensionForARGB(4096) == 8);
+    // 1/4 MB
+    test_atlas_config(reporter, 65536, 256 * 1024, kARGB_GrMaskFormat,
+                      { 256, 256 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 256 * 1024, kA8_GrMaskFormat,
+                      { 512, 512 }, { 256, 256 });
+    // 1/2 MB
+    test_atlas_config(reporter, 65536, 512 * 1024, kARGB_GrMaskFormat,
+                      { 512, 256 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 512 * 1024, kA8_GrMaskFormat,
+                      { 1024, 512 }, { 256, 256 });
+    // 1 MB
+    test_atlas_config(reporter, 65536, 1024 * 1024, kARGB_GrMaskFormat,
+                      { 512, 512 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 1024 * 1024, kA8_GrMaskFormat,
+                      { 1024, 1024 }, { 256, 256 });
+    // 2 MB
+    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 1024, 512 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 2 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 2048, 1024 }, { 512, 256 });
+    // 4 MB
+    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 1024, 1024 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 4 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 2048, 2048 }, { 512, 512 });
+    // 8 MB
+    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 2048, 1024 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 8 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 2048, 2048 }, { 512, 512 });
+    // 16 MB (should be same as 8 MB)
+    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 2048, 1024 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 16 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 2048, 2048 }, { 512, 512 });
+
+    // 4MB, restricted texture size
+    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 1024, 1024 }, { 256, 256 });
+    test_atlas_config(reporter, 1024, 8 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 1024, 1024 }, { 256, 256 });
+
+    // 3 MB (should be same as 2 MB)
+    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, kARGB_GrMaskFormat,
+                      { 1024, 512 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 3 * 1024 * 1024, kA8_GrMaskFormat,
+                      { 2048, 1024 }, { 512, 256 });
+
+    // minimum size
+    test_atlas_config(reporter, 65536, 0, kARGB_GrMaskFormat,
+                      { 256, 256 }, { 256, 256 });
+    test_atlas_config(reporter, 65536, 0, kA8_GrMaskFormat,
+                      { 512, 512 }, { 256, 256 });
 }
