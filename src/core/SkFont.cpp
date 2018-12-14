@@ -304,7 +304,7 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
 }
 
 SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding encoding,
-                             SkRect* bounds) const {
+                             SkRect* bounds, const SkPaint* paint) const {
     if (length == 0) {
         if (bounds) {
             bounds->setEmpty();
@@ -316,7 +316,11 @@ SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding en
     const SkFont& font = canon.getFont();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    SkPaint defaultPaint;
+    if (!paint) {
+        paint = &defaultPaint;
+    }
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, *paint);
 
     const char* text = static_cast<const char*>(textD);
     const char* stop = text + length;
