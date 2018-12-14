@@ -69,6 +69,8 @@ public:
      */
     void removeScratchKey() const { fResource->removeScratchKey();  }
 
+    bool isPurgeable() const { return fResource->isPurgeable(); }
+
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}

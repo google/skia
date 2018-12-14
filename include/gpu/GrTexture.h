@@ -60,6 +60,11 @@ public:
         this->setRelease(std::move(helper));
     }
 
+    // Blah blah. If the proc returns false then the proc and context are cleared. Otherwwise, they
+    // remain on the texture and will be called the next time the texture is purgeable.
+    using PurgeableProc = bool(void*);
+    virtual void setPurgeableProc(PurgeableProc, void* context) = 0;
+
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;

@@ -17,11 +17,26 @@
 #include "SkYUVASizeInfo.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
+    SkASSERT(!fUnreleasedFulfills);
+    SkASSERT(fTotalReleases == fTotalFulfills);
+    SkASSERT(!fTotalFulfills || fDoneCnt);
     GrGpu* gpu = fContext->contextPriv().getGpu();
 
-    if (fBackendTexture.isValid()) {
-        gpu->deleteTestingOnlyBackendTexture(fBackendTexture);
+    if (fPromiseImageTexture.isValid()) {
+        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture.backendTexture());
     }
+}
+
+void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(const GrBackendTexture& backendTexture) {
+    SkASSERT(!fUnreleasedFulfills);
+    if (fPromiseImageTexture.isValid()) {
+        GrGpu* gpu = fContext->contextPriv().getGpu();
+
+        if (fPromiseImageTexture.isValid()) {
+            gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture.backendTexture());
+        }
+    }
+    fPromiseImageTexture = SkDeferredDisplayListRecorder::PromiseImageTexture(backendTexture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +126,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
                 callbackContext->setBackendTexture(create_yuva_texture(gpu, yuvPixmap,
                                                                        info.yuvaIndices(), j));
-                SkAssertResult(callbackContext->backendTexture().isValid());
+                SkAssertResult(callbackContext->promiseImageTexture().isValid());
 
                 fImageInfo[i].setCallbackContext(j, std::move(callbackContext));
             }
@@ -133,7 +148,38 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
             fImageInfo[i].setCallbackContext(0, std::move(callbackContext));
         }
+    }
+}
 
+void DDLPromiseImageHelper::replaceHalfImages(GrContext* context) {
+    GrGpu* gpu = context->contextPriv().getGpu();
+    SkASSERT(gpu);
+
+    for (int i = 0; i < fImageInfo.count(); ++i) {
+        PromiseImageInfo& info = fImageInfo[i];
+
+        // DDL TODO: how can we tell if we need mipmapping!
+        if (info.isYUV()) {
+            int numPixmaps;
+            SkAssertResult(SkYUVAIndex::AreValidIndices(info.yuvaIndices(), &numPixmaps));
+            for (int j = 0; j < numPixmaps; ++j) {
+                const SkPixmap& yuvPixmap = info.yuvPixmap(j);
+                info.callbackContext(j)->setBackendTexture(create_yuva_texture(gpu, yuvPixmap,
+                                                                       info.yuvaIndices(), j));
+                SkAssertResult(info.callbackContext(j)->promiseImageTexture().isValid());
+            }
+        } else {
+            const SkBitmap& bm = info.normalBitmap();
+            info.callbackContext(0)->setBackendTexture(gpu->createTestingOnlyBackendTexture(
+                    bm.getPixels(),
+                    bm.width(),
+                    bm.height(),
+                    bm.colorType(),
+                    false, GrMipMapped::kNo,
+                    bm.rowBytes()));
+            // The GMs sometimes request too large an image
+            //SkAssertResult(callbackContext->backendTexture().isValid());
+        }
     }
 }
 

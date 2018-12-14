@@ -57,13 +57,16 @@ protected:
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
-        SkASSERT(that.isValid());
         if (this != &that) {
-            size_t bytes = that.size();
-            SkASSERT(SkIsAlign4(bytes));
-            fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
-            memcpy(fKey.get(), that.fKey.get(), bytes);
-            this->validate();
+            if (!that.isValid()) {
+                this->reset();
+            } else {
+                size_t bytes = that.size();
+                SkASSERT(SkIsAlign4(bytes));
+                fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
+                memcpy(fKey.get(), that.fKey.get(), bytes);
+                this->validate();
+            }
         }
         return *this;
     }
