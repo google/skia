@@ -448,8 +448,11 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fDisplacementTransform(offsetMatrix, displacement.get())
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
-        , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
-                  GrTextureDomain::kDecal_Mode)
+        , fDomain(color.get(),
+                  GrTextureDomain::MakeTexelDomainForModes(SkIRect::MakeSize(colorDimensions),
+                                                           GrTextureDomain::kDecal_Mode,
+                                                           GrTextureDomain::kDecal_Mode),
+                  GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode)
         , fColorSampler(color)
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
@@ -584,6 +587,9 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppend("-half2(0.5));\t\t");
 
+    SkDebugf("DisplacementMapEffect::emitCode, mode x: %d, mode y: %d, key: %u\n",
+             domain.modeX(), domain.modeY(),
+             GrTextureDomain::GLDomain::DomainKey(displacementMap.domain()));
     fGLDomain.sampleTexture(fragBuilder,
                             args.fUniformHandler,
                             args.fShaderCaps,
@@ -605,7 +611,11 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
                 proxy->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
-    fGLDomain.setData(pdman, displacementMap.domain(), proxy);
+    SkDebugf("DisplacementMapEffect::onSetData, mode x: %d, mode y: %d, key: %u\n",
+             displacementMap.domain().modeX(), displacementMap.domain().modeY(),
+             GrTextureDomain::GLDomain::DomainKey(displacementMap.domain()));
+    fGLDomain.setData(pdman, displacementMap.domain(), proxy,
+                      displacementMap.textureSampler(1).samplerState());
 }
 
 void GrGLDisplacementMapEffect::GenKey(const GrProcessor& proc,

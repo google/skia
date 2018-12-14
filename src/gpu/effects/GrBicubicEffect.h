@@ -34,8 +34,24 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2]) {
+        // Ignore the domain on x and y, since this factory relies solely on the wrap mode of the
+        // sampler to constrain texture coordinates
+        return Make(std::move(proxy), matrix, wrapModes, GrTextureDomain::kIgnore_Mode,
+                    GrTextureDomain::kIgnore_Mode);
+    }
+
+    /**
+     * Create a Mitchell filter effect with specified texture matrix and x/y tile modes. This
+     * supports providing modes for the texture domain explicitly, in the event that it should
+     * override the behavior of the sampler's tile mode (e.g. clamp to border unsupported).
+     */
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     const SkMatrix& matrix,
+                                                     const GrSamplerState::WrapMode wrapModes[2],
+                                                     GrTextureDomain::Mode modeX,
+                                                     GrTextureDomain::Mode modeY) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy), matrix,
-                                                                        wrapModes));
+                                                                        wrapModes, modeX, modeY));
     }
 
     /**
@@ -60,7 +76,8 @@ public:
 
 private:
     GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix,
-                    const GrSamplerState::WrapMode wrapModes[2]);
+                    const GrSamplerState::WrapMode wrapModes[2],
+                    GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY);
     GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix &matrix, const SkRect& domain);
     explicit GrBicubicEffect(const GrBicubicEffect&);
 

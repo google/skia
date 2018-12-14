@@ -68,6 +68,10 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("float2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
     fragBuilder->codeAppend("half4 c;");
 
+
+    SkDebugf("MatrixConvolutionEffect::emitCode, mode x: %d, mode y: %d, key: %u\n",
+             domain.modeX(), domain.modeY(),
+             GrTextureDomain::GLDomain::DomainKey(domain));
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
     for (int y = 0; y < kHeight; y++) {
         for (int x = 0; x < kWidth; x++) {
@@ -119,6 +123,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
     key |= m.convolveAlpha() ? 1U << 31 : 0;
     b->add32(key);
+    SkDebugf("MatrixConvolutionEffect, adding domain key: %u\n", GrTextureDomain::GLDomain::DomainKey(m.domain()));
     b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
 }
 
@@ -140,7 +145,11 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
     pdman.set1f(fGainUni, conv.gain());
     pdman.set1f(fBiasUni, conv.bias());
-    fDomain.setData(pdman, conv.domain(), proxy);
+
+    SkDebugf("MatrixConvolutionEffect::onSetData, mode x: %d, mode y: %d, key: %u\n",
+             conv.domain().modeX(), conv.domain().modeY(),
+             GrTextureDomain::GLDomain::DomainKey(conv.domain()));
+    fDomain.setData(pdman, conv.domain(), proxy, conv.textureSampler(0).samplerState());
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcProxy,
@@ -157,8 +166,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcPr
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
         , fCoordTransform(srcProxy.get())
         , fDomain(srcProxy.get(),
-                  GrTextureDomain::MakeTexelDomainForMode(srcBounds, tileMode),
-                  tileMode)
+                  GrTextureDomain::MakeTexelDomainForModes(srcBounds, tileMode, tileMode),
+                  tileMode, tileMode)
         , fTextureSampler(std::move(srcProxy))
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
