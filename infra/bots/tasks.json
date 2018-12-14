@@ -27616,7 +27616,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -27845,7 +27845,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -28298,7 +28298,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -31533,7 +31533,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -32764,7 +32764,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33110,7 +33110,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33345,7 +33345,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33463,7 +33463,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33692,7 +33692,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -40514,7 +40514,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -40750,7 +40750,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -47045,7 +47045,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47146,7 +47146,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47247,7 +47247,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47348,7 +47348,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47849,7 +47849,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47950,7 +47950,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -50583,7 +50583,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -50812,7 +50812,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -51377,7 +51377,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -52166,7 +52166,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -53799,7 +53799,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -56611,7 +56611,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -56944,7 +56944,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -57832,7 +57832,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58395,7 +58395,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58849,7 +58849,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58970,7 +58970,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59429,7 +59429,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59545,7 +59545,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59666,7 +59666,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59782,7 +59782,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59903,7 +59903,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60247,7 +60247,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60364,7 +60364,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60481,7 +60481,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60708,7 +60708,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60824,7 +60824,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60945,7 +60945,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -61061,7 +61061,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -61182,7 +61182,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -69205,7 +69205,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -69795,7 +69795,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
