@@ -6,6 +6,9 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeMiter(10);
   this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
   this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
+  this._paint.setTextSize(10);
+  this._paint.setTypeface(null);
+  this._fontString = '10px monospace';
 
   this._strokeStyle    = CanvasKit.BLACK;
   this._fillStyle      = CanvasKit.BLACK;
@@ -21,6 +24,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._globalCompositeOperation = CanvasKit.BlendMode.SrcOver;
   this._imageFilterQuality = CanvasKit.FilterQuality.Low;
   this._imageSmoothingEnabled = true;
+
 
   this._paint.setStrokeWidth(this._strokeWidth);
   this._paint.setBlendMode(this._globalCompositeOperation);
@@ -90,14 +94,19 @@ function CanvasRenderingContext2D(skcanvas) {
 
   Object.defineProperty(this, 'font', {
     enumerable: true,
-    get: function(newStyle) {
-      // TODO generate this
-      return '10px sans-serif';
+    get: function() {
+      return this._fontString;
     },
-    set: function(newStyle) {
-      var size = parseFontSize(newStyle);
-      // TODO(kjlubick) styles, font name
-      this._paint.setTextSize(size);
+    set: function(newFont) {
+      var tf = getTypeface(newFont);
+      if (tf) {
+        // tf is a "dict" according to closure, that is, the field
+        // names are not minified. Thus, we need to access it via
+        // bracket notation to tell closure not to minify these names.
+        this._paint.setTextSize(tf['sizePx']);
+        this._paint.setTypeface(tf['typeface']);
+        this._fontString = newFont;
+      }
     }
   });
 
@@ -926,26 +935,25 @@ function CanvasRenderingContext2D(skcanvas) {
       CanvasKit.SkMatrix.invert(newState.ctm)
     );
     this._currentPath.transform(combined);
+    this._paint.delete();
+    this._paint = newState.paint;
 
     this._lineDashList = newState.ldl;
     this._strokeWidth = newState.sw;
-    this._paint.setStrokeWidth(this._strokeWidth);
     this._strokeStyle = newState.ss;
     this._fillStyle = newState.fs;
-    this._paint.setStrokeCap(newState.cap);
-    this._paint.setStrokeJoin(newState.jn);
-    this._paint.setStrokeMiter(newState.mtr);
     this._shadowOffsetX = newState.sox;
     this._shadowOffsetY = newState.soy;
     this._shadowBlur = newState.sb;
     this._shadowColor = newState.shc;
     this._globalAlpha = newState.ga;
     this._globalCompositeOperation = newState.gco;
-    this._paint.setBlendMode(this._globalCompositeOperation);
     this._lineDashOffset = newState.ldo;
     this._imageSmoothingEnabled = newState.ise;
     this._imageFilterQuality = newState.isq;
-    //TODO: font, textAlign, textBaseline, direction
+    this._fontString = newState.fontstr;
+
+    //TODO: textAlign, textBaseline
 
     // restores the clip and ctm
     this._canvas.restore();
@@ -980,24 +988,23 @@ function CanvasRenderingContext2D(skcanvas) {
     }
 
     this._canvasStateStack.push({
-      ctm:  this._currentTransform.slice(),
-      ldl: this._lineDashList.slice(),
-      sw:  this._strokeWidth,
-      ss:  ss,
-      fs:  fs,
-      cap: this._paint.getStrokeCap(),
-      jn:  this._paint.getStrokeJoin(),
-      mtr: this._paint.getStrokeMiter(),
-      sox: this._shadowOffsetX,
-      soy: this._shadowOffsetY,
-      sb:  this._shadowBlur,
-      shc: this._shadowColor,
-      ga:  this._globalAlpha,
-      ldo: this._lineDashOffset,
-      gco: this._globalCompositeOperation,
-      ise: this._imageSmoothingEnabled,
-      isq: this._imageFilterQuality,
-      //TODO: font, textAlign, textBaseline, direction
+      ctm:     this._currentTransform.slice(),
+      ldl:     this._lineDashList.slice(),
+      sw:      this._strokeWidth,
+      ss:      ss,
+      fs:      fs,
+      sox:     this._shadowOffsetX,
+      soy:     this._shadowOffsetY,
+      sb:      this._shadowBlur,
+      shc:     this._shadowColor,
+      ga:      this._globalAlpha,
+      ldo:     this._lineDashOffset,
+      gco:     this._globalCompositeOperation,
+      ise:     this._imageSmoothingEnabled,
+      isq:     this._imageFilterQuality,
+      paint:   this._paint.copy(),
+      fontstr: this._fontString,
+      //TODO: textAlign, textBaseline
     });
     // Saves the clip
     this._canvas.save();
