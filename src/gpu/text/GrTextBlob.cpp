@@ -468,8 +468,9 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
 void GrTextBlob::SubRun::computeTranslation(const SkMatrix& viewMatrix,
                                                 SkScalar x, SkScalar y, SkScalar* transX,
                                                 SkScalar* transY) {
-    calculate_translation(!this->drawAsDistanceFields(), viewMatrix, x, y,
-                          fCurrentViewMatrix, fX, fY, transX, transY);
+    // Don't use the matrix to translate on distance field for fallback subruns.
+    calculate_translation(!this->drawAsDistanceFields() && !this->isFallback(), viewMatrix,
+            x, y, fCurrentViewMatrix, fX, fY, transX, transY);
     fCurrentViewMatrix = viewMatrix;
     fX = x;
     fY = y;

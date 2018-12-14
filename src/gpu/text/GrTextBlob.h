@@ -345,7 +345,8 @@ private:
         bool hasWCoord() const { return fFlags.hasWCoord; }
         void setNeedsTransform(bool needsTransform) { fFlags.needsTransform = needsTransform; }
         bool needsTransform() const { return fFlags.needsTransform; }
-        void setFallback() {fFlags.argbFallback = true;}
+        void setFallback() { fFlags.argbFallback = true; }
+        bool isFallback() { return fFlags.argbFallback; }
 
         const SkDescriptor* desc() const { return fDesc.getDesc(); }
 

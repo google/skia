@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkStream.h"
+#include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 
@@ -94,7 +95,8 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
-        paint.setTypeface(fEmojiFont.fTypeface);
+        SkFont font;
+        font.setTypeface(fEmojiFont.fTypeface);
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes
@@ -103,22 +105,28 @@ protected:
         SkFontMetrics metrics;
         SkScalar y = 0;
         for (SkScalar textSize : { 70, 180, 270, 340 }) {
-            paint.setTextSize(textSize);
-            paint.getFontMetrics(&metrics);
+            font.setSize(textSize);
+            font.getMetrics(&metrics);
             y += -metrics.fAscent;
 
             int len = SkToInt(strlen(text));
-            SkAutoTArray<SkPoint>  pos(len);
-            SkAutoTArray<SkScalar> widths(len);
-            paint.getTextWidths(text, len, &widths[0]);
+            SkAutoTArray<SkScalar>  pos(len);
+            SkAutoTArray<SkGlyphID> glyphs(len);
 
-            SkScalar x = SkIntToScalar(10);
-            for (int i = 0; i < len; ++i) {
-                pos[i].set(x, y);
-                x += widths[i];
-            }
+            // Draw using text blobs!!!!
+            font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.get(), len);
+            font.getXPos(glyphs.get(), len, pos.get());
+            auto blob = SkTextBlob::MakeFromPosTextH(text, len, pos.get(), 0, font);
 
-            canvas->drawPosText(text, len, &pos[0], paint);
+            // Draw with an origin.
+            canvas->drawTextBlob(blob, 10, y, paint);
+
+            // Draw with shifted canvas.
+            canvas->save();
+            canvas->translate(750, 0);
+            canvas->drawTextBlob(blob, 10, y, paint);
+            canvas->restore();
+
             y += metrics.fDescent + metrics.fLeading;
         }
 
