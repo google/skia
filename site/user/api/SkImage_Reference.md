@@ -649,7 +649,9 @@ created <a href='SkImage_Reference#SkImage'>SkImage</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="f40e1ebba6b067714062b81877b22fa1" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="2b1e46354d823dbb53fa6af570135329" gpu="true"><div><a href='#SkImage_MakeFromTexture_2_textureReleaseProc'>textureReleaseProc</a> may be called at some later <a href='SkPoint_Reference#Point'>point</a> in time. In this example,
+<a href='#SkImage_MakeFromTexture_2_textureReleaseProc'>textureReleaseProc</a> has no effect on the drawing.
+</div></fiddle-embed></div>
 
 ### See Also
 
