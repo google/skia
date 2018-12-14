@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkPath.h"
 
 namespace skiagm {
@@ -68,10 +69,7 @@ protected:
         SkPath clipB;
         clipB.addPoly({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, false).close();
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(20);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 20);
 
         constexpr struct {
             SkClipOp fOp;
@@ -137,17 +135,19 @@ protected:
                 canvas->restore();
 
 
+                SkPaint paint;
                 SkScalar txtX = 45;
                 paint.setColor(gClipAColor);
                 const char* aTxt = doInvA ? "InvA " : "A ";
-                canvas->drawString(aTxt, txtX, 220, paint);
-                txtX += paint.measureText(aTxt, strlen(aTxt));
+                canvas->drawSimpleText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding, txtX, 220, font, paint);
+                txtX += font.measureText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawString(gOps[op].fName, txtX, 220, paint);
-                txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
+                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding, txtX, 220,
+                                       font, paint);
+                txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding);
                 paint.setColor(gClipBColor);
                 const char* bTxt = doInvB ? "InvB " : "B ";
-                canvas->drawString(bTxt, txtX, 220, paint);
+                canvas->drawSimpleText(bTxt, strlen(bTxt), kUTF8_SkTextEncoding, txtX, 220, font, paint);
 
                 canvas->translate(250,0);
             }
