@@ -56,7 +56,8 @@ public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
 
-    static constexpr int kMaxPlots = 32;
+    static constexpr int kMaxPlots = 32; // restricted by the fPlotAlreadyUpdated bitfield
+                                         // in BulkUseTokenUpdater
 
     /**
      * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
@@ -94,7 +95,7 @@ public:
                                                const GrBackendFormat& format,
                                                GrPixelConfig,
                                                int width, int height,
-                                               int numPlotsX, int numPlotsY,
+                                               int plotWidth, int plotHeight,
                                                AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
@@ -209,7 +210,8 @@ public:
 
         static constexpr int kMinItems = 4;
         SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
-        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages];
+        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages]; // TODO: increase this to uint64_t
+                                                             //       to allow more plots per page
 
         friend class GrDrawOpAtlas;
     };
@@ -245,7 +247,7 @@ public:
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrPixelConfig, int width,
-                  int height, int numPlotsX, int numPlotsY,
+                  int height, int plotWidth, int plotHeight,
                   AllowMultitexturing allowMultitexturing);
 
     /**
@@ -416,31 +418,31 @@ private:
 };
 
 // There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In
-// general, the A8 dimensions are NxN and 565 and ARGB are N/2xN with the constraint that an atlas
+// general, the A8 dimensions are 2x the 565 and ARGB dimensions with the constraint that an atlas
 // size will always contain at least one plot. Since the ARGB atlas takes the most space, its
 // dimensions are used to size the other two atlases.
 class GrDrawOpAtlasConfig {
 public:
-    GrDrawOpAtlasConfig(int maxDimension, size_t maxBytes);
+    // The capabilities of the GPU define maxTextureSize. The client provides maxBytes, and this
+    // represents the largest they want a single atlas texture to be. Due to multitexturing, we
+    // may expand temporarily to use more space as needed.
+    GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes);
 
-    // For testing only - make minimum sized atlases -- 1x1 plots wide.
-    GrDrawOpAtlasConfig();
-
-    SkISize numPlots(GrMaskFormat type) const;
+    // For testing only - make minimum sized atlases -- a single plot for ARGB, four for A8
+    GrDrawOpAtlasConfig() : GrDrawOpAtlasConfig(kMaxAtlasDim, 0) {}
 
     SkISize atlasDimensions(GrMaskFormat type) const;
-
-    static int PlotsPerLongDimensionForARGB(int maxDimension);
+    SkISize plotDimensions(GrMaskFormat type) const;
 
 private:
-    // The distance field text implementation limits the largest atlas dimension to 2048.
-    static constexpr int kMaxDistanceFieldDim = 2048;
+    // On some systems texture coordinates are represented using half-precision floating point,
+    // which limits the largest atlas dimensions to 2048x2048.
+    // For simplicity we'll use this constraint for all of our atlas textures.
+    // This can be revisited later if we need larger atlases.
+    static constexpr int kMaxAtlasDim = 2048;
 
-    // The width and height of a plot.
-    static constexpr int kPlotSize = 256;
-
-    // This is the height (longest dimension) of the ARGB atlas divided by the plot size.
-    const int fPlotsPerLongDimension;
+    SkISize fARGBDimensions;
+    int     fMaxTextureSize;
 };
 
 #endif
