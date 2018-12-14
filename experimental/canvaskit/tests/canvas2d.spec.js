@@ -129,6 +129,146 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         });
     }); // end describe('color string parsing')
 
+    fdescribe('fonts', function() {
+        it('can parse font sizes', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const parseFontString = CanvasKit._testing.parseFontString;
+
+                const tests = [{
+                        'input': '10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': '15pt Arial',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 20,
+                            'family': 'Arial',
+                        }
+                    },
+                    {
+                        'input': '1.5in Arial, san-serif ',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 144,
+                            'family': 'Arial, san-serif',
+                        }
+                    },
+                    {
+                        'input': '1.5em SuperFont',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 24,
+                            'family': 'SuperFont',
+                        }
+                    },
+                ];
+
+                for (let i = 0; i < tests.length; i++) {
+                    expect(parseFontString(tests[i].input)).toEqual(tests[i].output);
+                }
+
+                done();
+            }));
+        });
+
+        it('can parse font attributes', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                const parseFontString = CanvasKit._testing.parseFontString;
+
+                const tests = [{
+                        'input': 'bold 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic bold 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic small-caps bold 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': 'small-caps',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'small-caps bold 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': 'small-caps',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'italic 10px monospace',
+                        'output': {
+                            'style': 'italic',
+                            'variant': '',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'small-caps 10px monospace',
+                        'output': {
+                            'style': '',
+                            'variant': 'small-caps',
+                            'weight': '',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                    {
+                        'input': 'normal bold 10px monospace',
+                        'output': {
+                            'style': 'normal',
+                            'variant': '',
+                            'weight': 'bold',
+                            'sizePx': 10,
+                            'family': 'monospace',
+                        }
+                    },
+                ];
+
+                for (let i = 0; i < tests.length; i++) {
+                    expect(parseFontString(tests[i].input)).toEqual(tests[i].output);
+                }
+
+                done();
+            }));
+        });
+    });
+
     function multipleCanvasTest(testname, done, test) {
         const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         skcanvas._config = 'software_canvas';
