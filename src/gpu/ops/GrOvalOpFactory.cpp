@@ -1268,7 +1268,9 @@ private:
                 if (fClipPlaneUnion) {
                     vertices.write(circle.fUnionPlane);
                 }
-                SkASSERT(!fRoundCaps);
+                if (fRoundCaps) {
+                    vertices.write(circle.fRoundCapCenters);
+                }
             }
 
             const uint16_t* primIndices = circle_type_to_indices(circle.fStroked);
