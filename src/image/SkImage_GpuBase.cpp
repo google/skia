@@ -370,8 +370,7 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                                                           yuvColorSpace,
-                                                           GrSamplerState::Filter::kNearest));
+                                                           yuvColorSpace));
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 

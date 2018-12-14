@@ -165,8 +165,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
     }
 
     GrPaint paint;
-    auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace,
-                                                    GrSamplerState::Filter::kNearest);
+    auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If the caller expects the pixels in a different color space than the one from the image,
