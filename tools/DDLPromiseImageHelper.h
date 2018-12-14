@@ -10,14 +10,13 @@
 
 #include "SkBitmap.h"
 #include "SkTArray.h"
-
+#include "SkDeferredDisplayListRecorder.h"
 #include "GrBackendSurface.h"
 #include "SkCachedData.h"
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
 class GrContext;
-class SkDeferredDisplayListRecorder;
 class SkImage;
 class SkPicture;
 struct SkYUVAIndex;
@@ -77,15 +76,15 @@ private:
         ~PromiseImageCallbackContext();
 
         void setBackendTexture(const GrBackendTexture& backendTexture) {
-            SkASSERT(!fBackendTexture.isValid());
-            fBackendTexture = backendTexture;
+            SkASSERT(!fPromiseImageTexture.isValid());
+            fPromiseImageTexture = SkDeferredDisplayListRecorder::PromiseImageTexture(backendTexture);
         }
 
-        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+        const SkDeferredDisplayListRecorder::PromiseImageTexture& promiseImageTexture() const { return fPromiseImageTexture; }
 
     private:
         GrContext*       fContext;
-        GrBackendTexture fBackendTexture;
+        SkDeferredDisplayListRecorder::PromiseImageTexture fPromiseImageTexture;
 
         typedef SkRefCnt INHERITED;
     };
@@ -145,7 +144,7 @@ private:
 
         const GrBackendTexture& backendTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
-            return fCallbackContexts[index]->backendTexture();
+            return fCallbackContexts[index]->promiseImageTexture().backendTexture();
         }
 
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
@@ -190,16 +189,16 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
+    static SkDeferredDisplayListRecorder::PromiseImageTexture PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
-        *outTexture = callbackContext->backendTexture();
+        SkASSERT(callbackContext->promiseImageTexture().isValid());
+        return callbackContext->promiseImageTexture();
     }
 
     static void PromiseImageReleaseProc(void* textureContext) {
 #ifdef SK_DEBUG
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
+        SkASSERT(callbackContext->promiseImageTexture().isValid());
 #endif
     }
 

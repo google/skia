@@ -91,7 +91,8 @@ public:
         @param textureFulfillProc  function called to get actual gpu texture
         @param textureReleaseProc  function called when texture can be released
         @param promiseDoneProc     function called when we will no longer call textureFulfillProc
-        @param textureContext      state passed to textureFulfillProc and textureReleaseProc
+        @param textureContexts     per-texture state passed to textureFulfillProc,
+                                   textureReleaseProc, and textureDoneProc
         @return                    created SkImage, or nullptr
      */
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
@@ -103,10 +104,10 @@ public:
                                                  int height,
                                                  GrSurfaceOrigin imageOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace,
-                                                 TextureFulfillProc textureFulfillProc,
-                                                 TextureReleaseProc textureReleaseProc,
-                                                 PromiseDoneProc promiseDoneProc,
-                                                 TextureContext textureContexts[]);
+                                                 PromiseImageTextureFulfillProc textureFulfillProc,
+                                                 PromiseImageTextureReleaseProc textureReleaseProc,
+                                                 PromiseImageTextureDoneProc promiseDoneProc,
+                                                 PromiseImageTextureContext textureContexts[]);
 
 private:
     // This array will usually only be sparsely populated.
