@@ -121,8 +121,7 @@ protected:
 
                 std::unique_ptr<GrFragmentProcessor> fp(
                         GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                                               static_cast<SkYUVColorSpace>(space),
-                                               GrSamplerState::Filter::kNearest));
+                                               static_cast<SkYUVColorSpace>(space)));
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -245,8 +244,7 @@ protected:
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
             auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                                             static_cast<SkYUVColorSpace>(space),
-                                             GrSamplerState::Filter::kNearest);
+                                             static_cast<SkYUVColorSpace>(space));
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
