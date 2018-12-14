@@ -83,8 +83,6 @@ private:
 
         const GrBackendTexture& backendTexture() const { return fBackendTexture; }
 
-        const GrCaps* caps() const;
-
     private:
         GrContext*       fContext;
         GrBackendTexture fBackendTexture;
@@ -144,8 +142,6 @@ private:
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index];
         }
-
-        const GrCaps* caps() const { return fCallbackContexts[0]->caps(); }
 
         const GrBackendTexture& backendTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));

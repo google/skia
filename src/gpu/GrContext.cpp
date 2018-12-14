@@ -204,8 +204,8 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         isMipMapped = false;
     }
 
-    GrPixelConfig config = kUnknown_GrPixelConfig;
-    if (!fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType(), &config)) {
+    GrPixelConfig config = fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    if (config == kUnknown_GrPixelConfig) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 

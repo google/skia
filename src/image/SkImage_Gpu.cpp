@@ -350,9 +350,9 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    GrPixelConfig config = kUnknown_GrPixelConfig;
-    if (!context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType,
-                                                                   &config)) {
+    GrPixelConfig config =
+            context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
+    if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 

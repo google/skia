@@ -62,28 +62,17 @@ public:
         return false;
     }
 
-    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
-                                GrPixelConfig*) const override {
-        return false;
-    }
-    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
-                                     GrPixelConfig*) const override {
-        return false;
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                              SkColorType) const override {
+        return kUnknown_GrPixelConfig;
     }
 
-    bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
-                                    GrPixelConfig*) const override {
-        return false;
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override {
+        return kUnknown_GrPixelConfig;
     }
 
-    bool getYUVAConfigFromBackendTexture(const GrBackendTexture&,
-                                         GrPixelConfig*) const override {
-        return false;
-    }
-
-    bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
-                                        GrPixelConfig*) const override {
-        return false;
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override {
+        return kUnknown_GrPixelConfig;
     }
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
@@ -100,8 +89,6 @@ private:
 
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
-
-    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
 
     void initConfigTable();
 

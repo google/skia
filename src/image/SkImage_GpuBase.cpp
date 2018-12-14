@@ -42,8 +42,12 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
     if (!SkImageInfoIsValid(info)) {
         return false;
     }
-
-    return ctx->contextPriv().caps()->validateBackendTexture(tex, ct, config);
+    GrBackendFormat backendFormat = tex.getBackendFormat();
+    if (!backendFormat.isValid()) {
+        return false;
+    }
+    *config = ctx->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, ct);
+    return *config != kUnknown_GrPixelConfig;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,9 +316,13 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
     GrBackendTexture yuvaTexturesCopy[4];
     for (int textureIndex = 0; textureIndex < numTextures; ++textureIndex) {
         yuvaTexturesCopy[textureIndex] = yuvaTextures[textureIndex];
-        if (!ctx->contextPriv().caps()->getYUVAConfigFromBackendTexture(
-            yuvaTexturesCopy[textureIndex],
-            &yuvaTexturesCopy[textureIndex].fConfig)) {
+        GrBackendFormat backendFormat = yuvaTexturesCopy[textureIndex].getBackendFormat();
+        if (!backendFormat.isValid()) {
+            return false;
+        }
+        yuvaTexturesCopy[textureIndex].fConfig =
+                ctx->contextPriv().caps()->getYUVAConfigFromBackendFormat(backendFormat);
+        if (yuvaTexturesCopy[textureIndex].fConfig == kUnknown_GrPixelConfig) {
             return false;
         }
         SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
@@ -390,6 +398,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     SkASSERT(context);
     SkASSERT(width > 0 && height > 0);
     SkASSERT(doneProc);
+    SkASSERT(config != kUnknown_GrPixelConfig);
 
     if (!fulfillProc || !releaseProc) {
         doneProc(textureContext);

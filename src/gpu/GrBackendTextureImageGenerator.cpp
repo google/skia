@@ -43,8 +43,13 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
-    if (!context->contextPriv().caps()->validateBackendTexture(backendTexture, colorType,
-                                                               &backendTexture.fConfig)) {
+    GrBackendFormat backendFormat = backendTexture.getBackendFormat();
+    if (!backendFormat.isValid()) {
+        return nullptr;
+    }
+    backendTexture.fConfig =
+            context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
+    if (backendTexture.fConfig == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
@@ -133,8 +138,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
 
-    GrBackendFormat format =
-            context->contextPriv().caps()->createFormatFromBackendTexture(backendTexture);
+    GrBackendFormat format = backendTexture.getBackendFormat();
     SkASSERT(format.isValid());
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(

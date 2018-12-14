@@ -24,10 +24,6 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     }
 }
 
-const GrCaps* DDLPromiseImageHelper::PromiseImageCallbackContext::caps() const {
-    return fContext->contextPriv().caps();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DDLPromiseImageHelper::~DDLPromiseImageHelper() {}
@@ -179,8 +175,6 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     }
     SkASSERT(curImage.index() == *indexPtr);
 
-    const GrCaps* caps = curImage.caps();
-
     sk_sp<SkImage> image;
     if (curImage.isYUV()) {
         GrBackendFormat backendFormats[SkYUVASizeInfo::kMaxCount];
@@ -191,8 +185,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
         for (int i = 0; i < textureCount; ++i) {
             const GrBackendTexture& backendTex = curImage.backendTexture(i);
-            backendFormats[i] = caps->createFormatFromBackendTexture(backendTex);
-
+            backendFormats[i] = backendTex.getBackendFormat();
+            SkASSERT(backendFormats[i].isValid());
             contexts[i] = curImage.refCallbackContext(i).release();
             sizes[i].set(curImage.yuvPixmap(i).width(), curImage.yuvPixmap(i).height());
         }
@@ -215,7 +209,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     } else {
         const GrBackendTexture& backendTex = curImage.backendTexture(0);
-        GrBackendFormat backendFormat = caps->createFormatFromBackendTexture(backendTex);
+        GrBackendFormat backendFormat = backendTex.getBackendFormat();
+        SkASSERT(backendFormat.isValid());
 
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.

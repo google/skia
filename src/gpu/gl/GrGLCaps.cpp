@@ -2871,163 +2871,132 @@ int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     return count;
 }
 
-bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* config,
-                           GrGLStandard standard) {
-    *config = kUnknown_GrPixelConfig;
-
+GrPixelConfig validate_sized_format(GrGLenum format, SkColorType ct, GrGLStandard standard) {
     switch (ct) {
         case kUnknown_SkColorType:
-            return false;
+            return kUnknown_GrPixelConfig;
         case kAlpha_8_SkColorType:
             if (GR_GL_ALPHA8 == format) {
-                *config = kAlpha_8_as_Alpha_GrPixelConfig;
+                return kAlpha_8_as_Alpha_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
-                *config = kAlpha_8_as_Red_GrPixelConfig;
+                return kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGB_565_SkColorType:
             if (GR_GL_RGB565 == format) {
-                *config = kRGB_565_GrPixelConfig;
+                return kRGB_565_GrPixelConfig;
             }
             break;
         case kARGB_4444_SkColorType:
             if (GR_GL_RGBA4 == format) {
-                *config = kRGBA_4444_GrPixelConfig;
+                return kRGBA_4444_GrPixelConfig;
             }
             break;
         case kRGBA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
-                *config = kRGBA_8888_GrPixelConfig;
+                return kRGBA_8888_GrPixelConfig;
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
-                *config = kSRGBA_8888_GrPixelConfig;
+                return kSRGBA_8888_GrPixelConfig;
             }
             break;
         case kRGB_888x_SkColorType:
             if (GR_GL_RGB8 == format) {
-                *config = kRGB_888_GrPixelConfig;
+                return kRGB_888_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 if (kGL_GrGLStandard == standard) {
-                    *config = kBGRA_8888_GrPixelConfig;
+                    return kBGRA_8888_GrPixelConfig;
                 }
             } else if (GR_GL_BGRA8 == format) {
                 if (kGLES_GrGLStandard == standard) {
-                    *config = kBGRA_8888_GrPixelConfig;
+                    return kBGRA_8888_GrPixelConfig;
                 }
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
-                *config = kSBGRA_8888_GrPixelConfig;
+                return kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kRGBA_1010102_SkColorType:
             if (GR_GL_RGB10_A2 == format) {
-                *config = kRGBA_1010102_GrPixelConfig;
+                return kRGBA_1010102_GrPixelConfig;
             }
             break;
         case kRGB_101010x_SkColorType:
-            return false;
+            break;
         case kGray_8_SkColorType:
             if (GR_GL_LUMINANCE8 == format) {
-                *config = kGray_8_as_Lum_GrPixelConfig;
+                return kGray_8_as_Lum_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
-                *config = kGray_8_as_Red_GrPixelConfig;
+                return kGray_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:
             if (GR_GL_RGBA16F == format) {
-                *config = kRGBA_half_GrPixelConfig;
+                return kRGBA_half_GrPixelConfig;
             }
             break;
         case kRGBA_F32_SkColorType:
             if (GR_GL_RGBA32F == format) {
-                *config = kRGBA_float_GrPixelConfig;
+                return kRGBA_float_GrPixelConfig;
             }
             break;
     }
 
-    return kUnknown_GrPixelConfig != *config;
+    return kUnknown_GrPixelConfig;
 }
 
-bool GrGLCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
-                                      GrPixelConfig* config) const {
-    GrGLTextureInfo texInfo;
-    if (!tex.getGLTextureInfo(&texInfo)) {
-        return false;
-    }
-    return validate_sized_format(texInfo.fFormat, ct, config, fStandard);
-}
-
-bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
-                                           GrPixelConfig* config) const {
+GrPixelConfig GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt,
+                                                    SkColorType ct) const {
     GrGLFramebufferInfo fbInfo;
     if (!rt.getGLFramebufferInfo(&fbInfo)) {
-        return false;
+        return kUnknown_GrPixelConfig;
     }
-    return validate_sized_format(fbInfo.fFormat, ct, config, fStandard);
+    return validate_sized_format(fbInfo.fFormat, ct, fStandard);
 }
 
-bool GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                          GrPixelConfig* config) const {
+GrPixelConfig GrGLCaps::getConfigFromBackendFormat(const GrBackendFormat& format,
+                                                   SkColorType ct) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
-        return false;
+        return kUnknown_GrPixelConfig;
     }
-    return validate_sized_format(*glFormat, ct, config, fStandard);
+    return validate_sized_format(*glFormat, ct, fStandard);
 }
 
-static bool get_yuva_config(GrGLenum format, GrPixelConfig* config) {
-    *config = kUnknown_GrPixelConfig;
+static GrPixelConfig get_yuva_config(GrGLenum format) {
+    GrPixelConfig config = kUnknown_GrPixelConfig;
 
     switch (format) {
-    case GR_GL_ALPHA8:
-        *config = kAlpha_8_as_Alpha_GrPixelConfig;
-        break;
-    case GR_GL_R8:
-        *config = kAlpha_8_as_Red_GrPixelConfig;
-        break;
-    case GR_GL_RG8:
-        *config = kRG_88_GrPixelConfig;
-        break;
-    case GR_GL_RGBA8:
-        *config = kRGBA_8888_GrPixelConfig;
-        break;
-    case GR_GL_RGB8:
-        *config = kRGB_888_GrPixelConfig;
-        break;
-    case GR_GL_BGRA8:
-        *config = kBGRA_8888_GrPixelConfig;
-        break;
-    default:
-        return false;
+        case GR_GL_ALPHA8:
+            config = kAlpha_8_as_Alpha_GrPixelConfig;
+            break;
+        case GR_GL_R8:
+            config = kAlpha_8_as_Red_GrPixelConfig;
+            break;
+        case GR_GL_RG8:
+            config = kRG_88_GrPixelConfig;
+            break;
+        case GR_GL_RGBA8:
+            config = kRGBA_8888_GrPixelConfig;
+            break;
+        case GR_GL_RGB8:
+            config = kRGB_888_GrPixelConfig;
+            break;
+        case GR_GL_BGRA8:
+            config = kBGRA_8888_GrPixelConfig;
+            break;
     }
 
-    return true;
+    return config;
 }
 
-bool GrGLCaps::getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
-                                               GrPixelConfig* config) const {
-    GrGLTextureInfo texInfo;
-    if (!tex.getGLTextureInfo(&texInfo)) {
-        return false;
-    }
-    return get_yuva_config(texInfo.fFormat, config);
-}
-
-bool GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                              GrPixelConfig* config) const {
+GrPixelConfig GrGLCaps::getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const {
     const GrGLenum* glFormat = format.getGLFormat();
     if (!glFormat) {
-        return false;
+        return kUnknown_GrPixelConfig;
     }
-    return get_yuva_config(*glFormat, config);
-}
-
-GrBackendFormat GrGLCaps::onCreateFormatFromBackendTexture(
-        const GrBackendTexture& backendTex) const {
-    GrGLTextureInfo glInfo;
-    SkAssertResult(backendTex.getGLTextureInfo(&glInfo));
-    return GrBackendFormat::MakeGL(glInfo.fFormat, glInfo.fTarget);
+    return get_yuva_config(*glFormat);
 }
 
 GrBackendFormat GrGLCaps::getBackendFormatFromGrColorType(GrColorType ct,

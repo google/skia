@@ -425,17 +425,11 @@ public:
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
-    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
-                                GrPixelConfig*) const override;
-    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
-                                     GrPixelConfig*) const override;
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                              SkColorType) const override;
 
-    bool getConfigFromBackendFormat(const GrBackendFormat&, SkColorType,
-                                    GrPixelConfig*) const override;
-    bool getYUVAConfigFromBackendTexture(const GrBackendTexture&,
-                                         GrPixelConfig*) const override;
-    bool getYUVAConfigFromBackendFormat(const GrBackendFormat&,
-                                        GrPixelConfig*) const override;
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat&, SkColorType) const override;
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat&) const override;
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
@@ -464,8 +458,6 @@ private:
                                            GrShaderCaps*);
 
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
-
-    GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;
 
     bool onIsWindowRectanglesSupportedForRT(const GrBackendRenderTarget&) const override;
 

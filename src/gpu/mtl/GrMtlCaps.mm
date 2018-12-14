@@ -420,15 +420,6 @@ void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
     fPreferredStencilFormat = StencilFormat{ MTLPixelFormatStencil8, 8, 8, true };
 }
 
-GrBackendFormat GrMtlCaps::onCreateFormatFromBackendTexture(
-        const GrBackendTexture& backendTex) const {
-    GrMtlTextureInfo mtlInfo;
-    SkAssertResult(backendTex.getMtlTextureInfo(&mtlInfo));
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(mtlInfo.fTexture,
-                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
-    return GrBackendFormat::MakeMtl(mtlTexture.pixelFormat);
-}
-
 GrBackendFormat GrMtlCaps::getBackendFormatFromGrColorType(GrColorType ct,
                                                            GrSRGBEncoded srgbEncoded) const {
     GrPixelConfig config = GrColorTypeToPixelConfig(ct, srgbEncoded);

@@ -73,51 +73,26 @@ public:
         return false;
     }
 
-    bool validateBackendTexture(const GrBackendTexture& tex, SkColorType,
-                                GrPixelConfig* config) const override {
-        GrMockTextureInfo texInfo;
-        if (!tex.getMockTextureInfo(&texInfo)) {
-            return false;
-        }
-
-        *config = texInfo.fConfig;
-        return true;
+    GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
+                                              SkColorType) const override {
+        return kUnknown_GrPixelConfig;
     }
 
-    bool validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType,
-                                     GrPixelConfig*) const override {
-        return false;
-    }
-
-    bool getConfigFromBackendFormat(const GrBackendFormat& format, SkColorType ct,
-                                    GrPixelConfig* config) const override {
+    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
+                                             SkColorType ct) const override {
         const GrPixelConfig* mockFormat = format.getMockFormat();
         if (!mockFormat) {
-            return false;
+            return kUnknown_GrPixelConfig;
         }
-        *config = *mockFormat;
-        return true;
+        return *mockFormat;
     }
 
-    bool getYUVAConfigFromBackendTexture(const GrBackendTexture& tex,
-                                         GrPixelConfig* config) const override {
-        GrMockTextureInfo texInfo;
-        if (!tex.getMockTextureInfo(&texInfo)) {
-            return false;
-        }
-
-        *config = texInfo.fConfig;
-        return true;
-    }
-
-    bool getYUVAConfigFromBackendFormat(const GrBackendFormat& format,
-                                        GrPixelConfig* config) const override {
+    GrPixelConfig getYUVAConfigFromBackendFormat(const GrBackendFormat& format) const override {
         const GrPixelConfig* mockFormat = format.getMockFormat();
         if (!mockFormat) {
-            return false;
+            return kUnknown_GrPixelConfig;
         }
-        *config = *mockFormat;
-        return true;
+        return *mockFormat;
     }
 
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
@@ -130,12 +105,6 @@ public:
     }
 
 private:
-    GrBackendFormat onCreateFormatFromBackendTexture(
-            const GrBackendTexture& backendTex) const override {
-        GrMockTextureInfo mockInfo;
-        SkAssertResult(backendTex.getMockTextureInfo(&mockInfo));
-        return GrBackendFormat::MakeMock(mockInfo.fConfig);
-    }
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override {

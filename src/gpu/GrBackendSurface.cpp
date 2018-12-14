@@ -18,6 +18,7 @@
 #endif
 #ifdef SK_METAL
 #include "mtl/GrMtlTypes.h"
+#include "mtl/GrMtlCppUtil.h"
 #endif
 
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
@@ -340,6 +341,37 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
         return true;
     }
     return false;
+}
+
+GrBackendFormat GrBackendTexture::getBackendFormat() const {
+    if (!this->isValid()) {
+        return GrBackendFormat();
+    }
+    switch (fBackend) {
+        case GrBackendApi::kOpenGL:
+            return GrBackendFormat::MakeGL(fGLInfo.fFormat, fGLInfo.fTarget);
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan: {
+            auto info = fVkInfo.snapImageInfo();
+            if (info.fYcbcrConversionInfo.isValid()) {
+                SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+                return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
+            }
+            return GrBackendFormat::MakeVk(info.fFormat);
+        }
+#endif
+#ifdef SK_METAL
+        case GrBackendApi::kMetal: {
+            GrMtlTextureInfo mtlInfo;
+            SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
+            return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlInfo));
+        }
+#endif
+        case GrBackendApi::kMock:
+            return GrBackendFormat::MakeMock(fMockInfo.fConfig);
+        default:
+            return GrBackendFormat();
+    }
 }
 
 #if GR_TEST_UTILS

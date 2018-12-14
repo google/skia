@@ -232,3 +232,13 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface, bool doResolve) {
     }
     return mtlTexture;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+// CPP Utils
+
+GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture,
+                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
+    return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
+}
