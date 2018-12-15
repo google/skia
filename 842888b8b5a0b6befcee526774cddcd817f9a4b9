@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25135476_16b0f2bc",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-12-15T04:23:51Z",
+      "side": 1,
+      "message": "For Wuffs, \"BGRA\" means B first in memory order, regardless of CPU endianness. I think that that\u0027s equivalent to Skia\u0027s kBGRA_Color, given https://groups.google.com/d/msg/skia-discuss/rHqJRr_5Kco/_YrkW37_AwAJ, but you might want to double-check my claim.",
+      "revId": "842888b8b5a0b6befcee526774cddcd817f9a4b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
