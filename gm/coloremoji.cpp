@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -76,8 +77,7 @@ protected:
 
         canvas->drawColor(SK_ColorGRAY);
 
-        SkPaint paint;
-        paint.setTypeface(emojiFont.typeface);
+        SkFont font(emojiFont.typeface);
         const char* text = emojiFont.text;
 
         // draw text at different point sizes
@@ -85,12 +85,12 @@ protected:
         SkFontMetrics metrics;
         SkScalar y = 0;
         for (const bool& fakeBold : { false, true }) {
-            paint.setFakeBoldText(fakeBold);
+            font.setEmbolden(fakeBold);
             for (const SkScalar& textSize : textSizes) {
-                paint.setTextSize(textSize);
-                paint.getFontMetrics(&metrics);
+                font.setSize(textSize);
+                font.getMetrics(&metrics);
                 y += -metrics.fAscent;
-                canvas->drawString(text, 10, y, paint);
+                canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 10, y, font, SkPaint());
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
@@ -103,8 +103,8 @@ protected:
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     for (int makeMode = 0; makeMode < 2; ++makeMode) {
                         for (int alpha = 0; alpha < 2; ++alpha) {
+                            SkFont shaderFont(font.refTypeface());
                             SkPaint shaderPaint;
-                            shaderPaint.setTypeface(sk_ref_sp(paint.getTypeface()));
                             if (SkToBool(makeLinear)) {
                                 shaderPaint.setShader(MakeLinear());
                             }
@@ -124,10 +124,11 @@ protected:
                             if (alpha) {
                                 shaderPaint.setAlpha(0x80);
                             }
-                            shaderPaint.setTextSize(30);
-                            shaderPaint.getFontMetrics(&metrics);
+                            shaderFont.setSize(30);
+                            shaderFont.getMetrics(&metrics);
                             y += -metrics.fAscent;
-                            canvas->drawString(text, 380, y, shaderPaint);
+                            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 380, y,
+                                                   shaderFont, shaderPaint);
                             y += metrics.fDescent + metrics.fLeading;
                         }
                     }
@@ -136,11 +137,11 @@ protected:
         }
         // setup work needed to draw text with different clips
         canvas->translate(10, savedY);
-        paint.setTextSize(40);
+        font.setSize(40);
 
         // compute the bounds of the text
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
 
         const SkScalar boundsHalfWidth = bounds.width() * SK_ScalarHalf;
         const SkScalar boundsHalfHeight = bounds.height() * SK_ScalarHalf;
@@ -160,15 +161,16 @@ protected:
         clipHairline.setColor(SK_ColorWHITE);
         clipHairline.setStyle(SkPaint::kStroke_Style);
 
+        SkPaint paint;
         for (const SkRect& clipRect : clipRects) {
             canvas->translate(0, bounds.height());
             canvas->save();
             canvas->drawRect(clipRect, clipHairline);
             paint.setAlpha(0x20);
-            canvas->drawString(text, 0, 0, paint);
+            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
             canvas->clipRect(clipRect);
             paint.setAlpha(0xFF);
-            canvas->drawString(text, 0, 0, paint);
+            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }

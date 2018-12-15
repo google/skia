@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 
 #include "SkBitmap.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkTLList.h"
@@ -148,12 +149,10 @@ protected:
         canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
 
         constexpr char kTxt[] = "Clip Me!";
+        SkFont font(sk_tool_utils::create_portable_typeface(), 23);
+        SkScalar textW = font.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding);
         SkPaint txtPaint;
-        txtPaint.setTextSize(23.f);
-        txtPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&txtPaint);
         txtPaint.setColor(SK_ColorDKGRAY);
-        SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
 
         SkScalar startX = 0;
         int testLayers = kBench_Mode != this->getMode();
@@ -202,9 +201,8 @@ protected:
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
-                    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
-                                     0, 1.5f * txtPaint.getTextSize(),
-                                     txtPaint);
+                    canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+                                     0, 1.5f * font.getSize(), font, txtPaint);
                     canvas->restore();
                     x += textW + 2 * kMargin;
                 }

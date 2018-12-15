@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include <SkFont.h>
 #include "gm.h"
 #include "Resources.h"
 #include "SkFixed.h"
@@ -32,7 +33,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
         std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
@@ -55,11 +57,11 @@ protected:
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
                 if (j == 0 && distortable) {
-                    paint.setTypeface(sk_sp<SkTypeface>(
+                    font.setTypeface(sk_sp<SkTypeface>(
                         distortable->makeClone(
                             SkFontArguments().setVariationDesignPosition(position))));
                 } else {
-                    paint.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
+                    font.setTypeface(sk_sp<SkTypeface>(fontMgr->makeFromStream(
                         distortableStream->duplicate(),
                         SkFontArguments().setVariationDesignPosition(position))));
                 }
@@ -78,13 +80,13 @@ protected:
                 }
 
                 for (int ps = 6; ps <= 22; ps++) {
-                    paint.setTextSize(SkIntToScalar(ps));
-                    canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(nullptr);
+                    font.setSize(SkIntToScalar(ps));
+                    canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+                    y += font.getMetrics(nullptr);
                 }
             }
             canvas->translate(0, SkIntToScalar(360));
-            paint.setSubpixelText(true);
+            font.setSubpixel(true);
         }
     }
 

@@ -263,14 +263,14 @@ DEF_TEST(Paint_flattening, reporter) {
 // found and fixed for android: not initializing rect for string's of length 0
 DEF_TEST(Paint_regression_measureText, reporter) {
 
-    SkPaint paint;
-    paint.setTextSize(12.0f);
+    SkFont font;
+    font.setSize(12.0f);
 
     SkRect r;
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    paint.measureText("", 0, &r);
+    font.measureText("", 0, kUTF8_SkTextEncoding, &r);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 
