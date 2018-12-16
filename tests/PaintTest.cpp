@@ -355,6 +355,7 @@ DEF_TEST(Paint_nothingToDraw, r) {
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 DEF_TEST(Paint_getwidths, r) {
     SkPaint paint;
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
@@ -389,6 +390,7 @@ DEF_TEST(Paint_getwidths, r) {
         }
     }
 }
+#endif
 
 DEF_TEST(Font_getpos, r) {
     SkFont font;

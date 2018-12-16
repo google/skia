@@ -19,22 +19,23 @@
 #define MAX_FAMILIES    30
 
 static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
-                           SkScalar y, const SkPaint& paint) {
-    canvas->drawString(text, x, y, paint);
-    return x + paint.measureText(text.c_str(), text.size());
+                           SkScalar y, const SkFont& font) {
+    canvas->drawSimpleText(text.c_str(), text.size(), kUTF8_SkTextEncoding, x, y, font, SkPaint());
+    return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
 }
 
 static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
-                              SkScalar y, SkPaint& paint, SkFontMgr* fm,
+                              SkScalar y, const SkFont& origFont, SkFontMgr* fm,
                               const char* fontName, const char* bcp47[], int bcp47Count,
                               const SkFontStyle& fontStyle) {
+    SkFont font = origFont;
     // find typeface containing the requested character and draw it
     SkString ch;
     ch.appendUnichar(character);
     sk_sp<SkTypeface> typeface(fm->matchFamilyStyleCharacter(fontName, fontStyle,
                                                              bcp47, bcp47Count, character));
-    paint.setTypeface(typeface);
-    x = drawString(canvas, ch, x, y, paint) + 20;
+    font.setTypeface(typeface);
+    x = drawString(canvas, ch, x, y, font) + 20;
 
     if (nullptr == typeface) {
         return x;
@@ -45,8 +46,8 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // it expects to get the same glyph when following this pattern.
     SkString familyName;
     typeface->getFamilyName(&familyName);
-    paint.setTypeface(fm->legacyMakeTypeface(familyName.c_str(), typeface->fontStyle()));
-    return drawString(canvas, ch, x, y, paint) + 20;
+    font.setTypeface(fm->legacyMakeTypeface(familyName.c_str(), typeface->fontStyle()));
+    return drawString(canvas, ch, x, y, font) + 20;
 }
 
 static const char* zh = "zh";
@@ -73,11 +74,10 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
-        paint.setSubpixelText(true);
-        paint.setTextSize(17);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSubpixel(true);
+        font.setSize(17);
 
         SkFontMgr* fm = fFM.get();
         int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
@@ -85,8 +85,8 @@ protected:
         for (int i = 0; i < count; ++i) {
             SkString familyName;
             fm->getFamilyName(i, &familyName);
-            paint.setTypeface(nullptr);
-            (void)drawString(canvas, familyName, 20, y, paint);
+            font.setTypeface(nullptr);
+            (void)drawString(canvas, familyName, 20, y, font);
 
             SkScalar x = 220;
 
@@ -97,14 +97,14 @@ protected:
                 set->getStyle(j, &fs, &sname);
                 sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.slant());
 
-                paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
-                x = drawString(canvas, sname, x, y, paint) + 20;
+                font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
+                x = drawString(canvas, sname, x, y, font) + 20;
 
                 // check to see that we get different glyphs in japanese and chinese
-                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &zh, 1, fs);
-                x = drawCharacter(canvas, 0x5203, x, y, paint, fm, familyName.c_str(), &ja, 1, fs);
+                x = drawCharacter(canvas, 0x5203, x, y, font, fm, familyName.c_str(), &zh, 1, fs);
+                x = drawCharacter(canvas, 0x5203, x, y, font, fm, familyName.c_str(), &ja, 1, fs);
                 // check that emoji characters are found
-                x = drawCharacter(canvas, 0x1f601, x, y, paint, fm, familyName.c_str(), nullptr,0, fs);
+                x = drawCharacter(canvas, 0x1f601, x, y, font, fm, familyName.c_str(), nullptr,0, fs);
             }
             y += 24;
         }
@@ -135,9 +135,8 @@ protected:
         return SkISize::Make(640, 1024);
     }
 
-    void iterateFamily(SkCanvas* canvas, const SkPaint& paint,
-                       SkFontStyleSet* fset) {
-        SkPaint p(paint);
+    void iterateFamily(SkCanvas* canvas, const SkFont& font, SkFontStyleSet* fset) {
+        SkFont f(font);
         SkScalar y = 0;
 
         for (int j = 0; j < fset->count(); ++j) {
@@ -147,15 +146,14 @@ protected:
 
             sname.appendf(" [%d %d]", fs.weight(), fs.width());
 
-            p.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
-            (void)drawString(canvas, sname, 0, y, p);
+            f.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
+            (void)drawString(canvas, sname, 0, y, f);
             y += 24;
         }
     }
 
-    void exploreFamily(SkCanvas* canvas, const SkPaint& paint,
-                       SkFontStyleSet* fset) {
-        SkPaint p(paint);
+    void exploreFamily(SkCanvas* canvas, const SkFont& font, SkFontStyleSet* fset) {
+        SkFont f(font);
         SkScalar y = 0;
 
         for (int weight = 100; weight <= 900; weight += 200) {
@@ -165,8 +163,8 @@ protected:
                 if (face) {
                     SkString str;
                     str.printf("request [%d %d]", fs.weight(), fs.width());
-                    p.setTypeface(std::move(face));
-                    (void)drawString(canvas, str, 0, y, p);
+                    f.setTypeface(std::move(face));
+                    (void)drawString(canvas, str, 0, y, f);
                     y += 24;
                 }
             }
@@ -174,11 +172,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
-        paint.setSubpixelText(true);
-        paint.setTextSize(17);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSubpixel(true);
+        font.setSize(17);
 
         const char* gNames[] = {
             "Helvetica Neue", "Arial", "sans"
@@ -196,9 +193,9 @@ protected:
         }
 
         canvas->translate(20, 40);
-        this->exploreFamily(canvas, paint, fset.get());
+        this->exploreFamily(canvas, font, fset.get());
         canvas->translate(150, 0);
-        this->iterateFamily(canvas, paint, fset.get());
+        this->iterateFamily(canvas, font, fset.get());
     }
 
 private:
