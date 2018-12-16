@@ -53,6 +53,16 @@ bool SkFont::operator==(const SkFont& b) const {
             fHinting        == b.fHinting;
 }
 
+void SkFont::dump() const {
+    SkDebugf("typeface %p\n", fTypeface.get());
+    SkDebugf("size %g\n", fSize);
+    SkDebugf("skewx %g\n", fSkewX);
+    SkDebugf("scalex %g\n", fScaleX);
+    SkDebugf("flags 0x%X\n", fFlags);
+    SkDebugf("edging %d\n", (unsigned)fEdging);
+    SkDebugf("hinting %d\n", (unsigned)fHinting);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline uint32_t set_clear_mask(uint32_t bits, bool cond, uint32_t mask) {
@@ -304,7 +314,7 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
 }
 
 SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding encoding,
-                             SkRect* bounds) const {
+                             SkRect* bounds, const SkPaint* paint) const {
     if (length == 0) {
         if (bounds) {
             bounds->setEmpty();
@@ -316,7 +326,12 @@ SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding en
     const SkFont& font = canon.getFont();
     SkScalar scale = canon.getScale();
 
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
+    SkPaint defaultPaint;
+    // if we had to cannonicalize the font, then we need to also reset the paint
+    if (!paint || this != &font) {
+        paint = &defaultPaint;
+    }
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, *paint);
 
     const char* text = static_cast<const char*>(textD);
     const char* stop = text + length;
