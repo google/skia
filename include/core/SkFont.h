@@ -330,7 +330,13 @@ public:
         @return            number of glyphs represented by text of length byteLength
     */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         SkRect* bounds = nullptr) const;
+                         SkRect* bounds = nullptr) const {
+        return this->measureText(text, byteLength, encoding, bounds, nullptr);
+    }
+
+    // Experimental
+    SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkRect* bounds, const SkPaint*) const;
 
     /** DEPRECATED
         Retrieves the advance and bounds for each glyph in glyphs.
@@ -473,6 +479,8 @@ public:
     /** Deprecated.
     */
     static SkFont LEGACY_ExtractFromPaint(const SkPaint& paint);
+
+    void dump() const;
 
 private:
     enum PrivFlags {
