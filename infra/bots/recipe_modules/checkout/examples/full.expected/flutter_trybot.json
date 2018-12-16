@@ -47,7 +47,7 @@
       "--patch_ref",
       "https://skia.googlesource.com/skia.git@refs/changes/89/456789/12",
       "--revision",
-      "src/flutter@origin/skia-master",
+      "src/flutter@origin/master",
       "--revision",
       "src/third_party/skia@abc123"
     ],
@@ -64,7 +64,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src/flutter\": \"origin/skia-master\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"src/flutter\": \"origin/master\", @@@",
       "@@@STEP_LOG_LINE@json.output@    \"src/third_party/skia\": \"abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
