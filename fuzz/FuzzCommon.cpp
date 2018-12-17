@@ -29,7 +29,7 @@ static void fuzz_nice_rect(Fuzz* fuzz, SkRect* r) {
 
 // allows some float values for path points
 void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
-    if (maxOps <= 0) {
+    if (maxOps <= 0 || fuzz->exhausted() || path->countPoints() > 100000) {
         return;
     }
     uint8_t fillType;
@@ -38,8 +38,15 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
     uint8_t numOps;
     fuzz->nextRange(&numOps, 0, maxOps);
     for (uint8_t i = 0; i < numOps; ++i) {
+        // When we start adding the path to itself, the fuzzer can make an
+        // exponentially long path, which causes timeouts.
+        if (path->countPoints() > 100000) {
+            return;
+        }
+        // How many items in the switch statement below.
+        constexpr uint8_t PATH_OPERATIONS = 32;
         uint8_t op;
-        fuzz->nextRange(&op, 0, 32);
+        fuzz->nextRange(&op, 0, PATH_OPERATIONS);
         bool test;
         SkPath p;
         SkMatrix m;
@@ -205,7 +212,7 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 fuzz_nice_float(fuzz, &a, &b);
                 path->setLastPt(a, b);
                 break;
-            case 32:
+            case PATH_OPERATIONS:
                 path->shrinkToFit();
                 break;
 
