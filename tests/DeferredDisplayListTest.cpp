@@ -23,6 +23,7 @@
 #include "SkCanvas.h"
 #include "SkColorSpace.h"
 #include "SkDeferredDisplayList.h"
+#include "SkDeferredDisplayListPriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
 #include "SkImage.h"
@@ -800,6 +801,39 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLFlushWhileRecording, reporter, ctxInfo) {
 
     canvas->flush();
     canvas->getGrContext()->flush();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Ensure that reusing a single DDLRecorder to create multiple DDLs works cleanly
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+
+    SkSurfaceCharacterization characterization;
+    SkAssertResult(s->characterize(&characterization));
+
+    SkDeferredDisplayListRecorder recorder(characterization);
+
+    SkCanvas* canvas1 = recorder.getCanvas();
+
+    canvas1->clear(SK_ColorRED);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl1 = recorder.detach();
+
+    SkCanvas* canvas2 = recorder.getCanvas();
+
+    canvas2->clear(SK_ColorGREEN);
+
+    std::unique_ptr<SkDeferredDisplayList> ddl2 = recorder.detach();
+
+    REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData());
+    REPORTER_ASSERT(reporter, ddl2->priv().lazyProxyData());
+
+    // The lazy proxy data being different ensures that the SkSurface, SkCanvas and backing-
+    // lazy proxy are all different between the two DDLs
+    REPORTER_ASSERT(reporter, ddl1->priv().lazyProxyData() != ddl2->priv().lazyProxyData());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
