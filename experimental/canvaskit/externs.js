@@ -39,6 +39,8 @@ var CanvasKit = {
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
+	MakePathFromOp: function() {},
+	MakePathFromSVGString: function() {},
 	MakeRadialGradientShader: function() {},
 	MakeSWCanvasSurface: function() {},
 	MakeSkDashPathEffect: function() {},
@@ -447,6 +449,7 @@ HTMLCanvas.prototype.decodeImage = function() {};
 HTMLCanvas.prototype.dispose = function() {};
 HTMLCanvas.prototype.getContext = function() {};
 HTMLCanvas.prototype.loadFont = function() {};
+HTMLCanvas.prototype.makePath2D = function() {};
 HTMLCanvas.prototype.toDataURL = function() {};
 
 var CanvasRenderingContext2D = {};
@@ -493,6 +496,18 @@ CanvasRenderingContext2D.prototype.strokeRect = function() {};
 CanvasRenderingContext2D.prototype.strokeText = function() {};
 CanvasRenderingContext2D.prototype.transform = function() {};
 CanvasRenderingContext2D.prototype.translate = function() {};
+
+var Path2D = {};
+Path2D.prototype.addPath = function() {};
+Path2D.prototype.arc = function() {};
+Path2D.prototype.arcTo = function() {};
+Path2D.prototype.bezierCurveTo = function() {};
+Path2D.prototype.closePath = function() {};
+Path2D.prototype.ellipse = function() {};
+Path2D.prototype.lineTo = function() {};
+Path2D.prototype.moveTo = function() {};
+Path2D.prototype.quadraticCurveTo = function() {};
+Path2D.prototype.rect = function() {};
 
 var LinearCanvasGradient = {};
 LinearCanvasGradient.prototype.addColorStop = function() {};

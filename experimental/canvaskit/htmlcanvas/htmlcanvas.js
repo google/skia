@@ -32,6 +32,12 @@ function HTMLCanvas(skSurface) {
     addToFontCache(newFont, descriptors);
   }
 
+  this.makePath2D = function(path) {
+    var p2d = new Path2D(path);
+    this._toCleanup.push(p2d._getPath());
+    return p2d;
+  }
+
   // A normal <canvas> requires that clients call getContext
   this.getContext = function(type) {
     if (type === '2d') {

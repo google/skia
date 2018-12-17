@@ -291,7 +291,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         }).catch(reportError(done));
     }
 
-    describe('Path drawing API', function() {
+    describe('CanvasContext2D API', function() {
         it('supports all the line types', function(done) {
             LoadCanvasKit.then(catchException(done, () => {
                 multipleCanvasTest('all_line_drawing_operations', done, (canvas) => {
@@ -837,7 +837,57 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                 done();
             }));
         });
-    }); // end describe('Path drawing API')
+    }); // end describe('CanvasContext2D API')
+
+    describe('Path2D API', function() {
+        it('supports all the line types', function(done) {
+            LoadCanvasKit.then(catchException(done, () => {
+                multipleCanvasTest('path2d_line_drawing_operations', done, (canvas) => {
+                    let ctx = canvas.getContext('2d');
+                    var clock;
+                    var path;
+                    if (canvas.makePath2D) {
+                        clock = canvas.makePath2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
+                        path = canvas.makePath2D();
+                    } else {
+                        clock = new Path2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z')
+                        path = new Path2D();
+                    }
+                    path.moveTo(20, 5);
+                    path.lineTo(30, 20);
+                    path.lineTo(40, 10);
+                    path.lineTo(50, 20);
+                    path.lineTo(60, 0);
+                    path.lineTo(20, 5);
+
+                    path.moveTo(20, 80);
+                    path.bezierCurveTo(90, 10, 160, 150, 190, 10);
+
+                    path.moveTo(36, 148);
+                    path.quadraticCurveTo(66, 188, 120, 136);
+                    path.lineTo(36, 148);
+
+                    path.rect(5, 170, 20, 25);
+
+                    path.moveTo(150, 180);
+                    path.arcTo(150, 100, 50, 200, 20);
+                    path.lineTo(160, 160);
+
+                    path.moveTo(20, 120);
+                    path.arc(20, 120, 18, 0, 1.75 * Math.PI);
+                    path.lineTo(20, 120);
+
+                    path.moveTo(150, 5);
+                    path.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI)
+
+                    ctx.lineWidth = 2;
+                    ctx.scale(3.0, 3.0);
+                    ctx.stroke(path);
+                    ctx.stroke(clock);
+                });
+            }));
+        });
+    }); // end describe('Path2D API')
 
 
 });
