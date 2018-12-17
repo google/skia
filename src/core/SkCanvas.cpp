@@ -225,6 +225,7 @@ public:
         or a previous one in a lower level.)
     */
     DeviceCM*           fTopLayer;
+    sk_sp<SkSpecialImage> fBackImage;
     SkConservativeClip  fRasterClip;
     SkMatrix            fMatrix;
     int                 fDeferredSaveCount;
@@ -919,6 +920,26 @@ int SkCanvas::saveLayer(const SaveLayerRec& rec) {
     return this->getSaveCount() - 1;
 }
 
+int SkCanvas::saveBehind(const SkRect* bounds) {
+    this->save();
+
+    if (bounds && !this->getLocalClipBounds().intersects(*bounds)) {
+        this->clipRect({0,0,0,0});
+    } else {
+        this->checkForDeferredSave();   // we really need the save, so we can wack the fMCRec
+        if (this->onSaveBehind(bounds)) {
+            SkPaint paint;
+            paint.setBlendMode(SkBlendMode::kClear);
+            if (bounds) {
+                this->drawRect(*bounds, paint);
+            } else {
+                this->drawPaint(paint);
+            }
+        }
+    }
+    return this->getSaveCount() - 1;
+}
+
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                     const SkMatrix& ctm) {
@@ -1090,6 +1111,37 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
     }
 }
 
+bool SkCanvas::onSaveBehind(const SkRect* localBounds) {
+    // this->save() has already been called
+
+    SkIRect devBounds;
+    if (localBounds) {
+        SkRect tmp;
+        fMCRec->fMatrix.mapRect(&tmp, *localBounds);
+        if (!devBounds.intersect(tmp.round(), this->getDeviceClipBounds())) {
+            devBounds.setEmpty();
+        }
+    } else {
+        devBounds = this->getDeviceClipBounds();
+    }
+    if (devBounds.isEmpty()) {
+        return false;
+    }
+
+    SkBaseDevice* device = this->getTopDevice();
+    if (nullptr == device) {   // Do we still need this check???
+        return false;
+    }
+
+    auto back_image = device->snapBackImage(devBounds);
+    if (!back_image) {
+        return false;
+    }
+
+    fMCRec->fBackImage = std::move(back_image);
+    return true;
+}
+
 void SkCanvas::internalRestore() {
     SkASSERT(fMCStack.count() != 0);
 
@@ -1098,6 +1150,9 @@ void SkCanvas::internalRestore() {
     // now detach it from fMCRec so we can pop(). Gets freed after its drawn
     fMCRec->fLayer = nullptr;
 
+    // move this out before we do the actual restore
+    sk_sp<SkSpecialImage> back_image = std::move(fMCRec->fBackImage);
+
     // now do the normal restore()
     fMCRec->~MCRec();       // balanced in save()
     fMCStack.pop_back();
@@ -1105,6 +1160,14 @@ void SkCanvas::internalRestore() {
 
     if (fMCRec) {
         FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+    }
+
+    if (back_image) {
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kDstOver);
+        const int x = back_image->subset().x();
+        const int y = back_image->subset().x();
+        this->getTopDevice()->drawSpecial(back_image.get(), x, y, paint, nullptr, SkMatrix::I());
     }
 
     /*  Time to draw the layer's offscreen. We can't call the public drawSprite,

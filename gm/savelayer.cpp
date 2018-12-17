@@ -277,3 +277,53 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+#include "SkFont.h"
+#include "SkGradientShader.h"
+#include "SkTextBlob.h"
+
+static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h) {
+    SkRect r = SkRect::MakeWH(w, h);
+    SkPaint p;
+    p.setColor(c);
+    canvas->drawRect(r, p);
+
+    const SkScalar margin = 80;
+    r.fLeft = w - margin;
+    canvas->saveBehind(&r);
+
+    p.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, 10, 30, p);
+
+
+    const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
+    const SkColor colors[] = { 0x88000000, 0x0 };
+    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    p.setShader(sh);
+    p.setBlendMode(SkBlendMode::kDstIn);
+    canvas->drawRect(r, p);
+
+    canvas->restore();
+
+    p.reset();
+    p.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(r, p);
+}
+
+DEF_SIMPLE_GM(save_behind, canvas, 400, 300) {
+    SkFont font;
+    font.setSize(30);
+    const char text[] = "This is a very long line of text";
+    auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+
+    SkAutoCanvasRestore acr(canvas, false);
+    canvas->saveLayer({0, 0, 400, 300}, nullptr);
+
+    SkRandom rand;
+    SkScalar w = 400;
+    SkScalar h = 40;
+    for (int i = 0; i < 8; ++i) {
+        SkColor c = rand.nextU() | SK_ColorBLACK;   // ensure we're opaque
+        draw_cell(canvas, blob, c, w, h);
+        canvas->translate(0, h);
+    }
+}
