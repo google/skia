@@ -18077,6 +18077,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18179,6 +18180,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18281,6 +18283,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18383,6 +18386,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18485,6 +18489,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18587,6 +18592,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -18689,6 +18695,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "outputs": [
         "perf"
       ]
@@ -19071,6 +19078,7 @@
       },
       "io_timeout_ns": 7200000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
@@ -19182,6 +19190,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-Nightly-UpdateGoDEPS": {
@@ -19296,6 +19305,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-OnDemand-Presubmit": {
@@ -19417,6 +19427,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "empty.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit": {
@@ -19542,6 +19553,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-Bookmaker": {
@@ -19660,6 +19672,7 @@
       },
       "io_timeout_ns": 7200000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-bookmaker@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-BundleRecipes": {
@@ -19800,6 +19813,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-InfraTests": {
@@ -19926,6 +19940,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-PerCommit-IsolateAndroidNDKLinux": {
@@ -20198,6 +20213,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android": {
@@ -27616,7 +27632,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -27845,7 +27861,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -28298,7 +28314,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -31533,7 +31549,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -32764,7 +32780,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33110,7 +33126,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33345,7 +33361,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33463,7 +33479,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -33692,7 +33708,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -40514,7 +40530,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -40750,7 +40766,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -47045,7 +47061,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47146,7 +47162,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47247,7 +47263,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47348,7 +47364,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47849,7 +47865,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -47950,7 +47966,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -50583,7 +50599,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -50812,7 +50828,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -51377,7 +51393,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -52166,7 +52182,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -53799,7 +53815,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -56611,7 +56627,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -56944,7 +56960,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -57832,7 +57848,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58395,7 +58411,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58849,7 +58865,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -58970,7 +58986,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59429,7 +59445,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59545,7 +59561,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59666,7 +59682,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59782,7 +59798,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -59903,7 +59919,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60247,7 +60263,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60364,7 +60380,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60481,7 +60497,7 @@
       },
       "io_timeout_ns": 32400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60708,7 +60724,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60824,7 +60840,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -60945,7 +60961,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -61061,7 +61077,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -61182,7 +61198,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -69205,7 +69221,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -69795,7 +69811,7 @@
       },
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 2,
+      "max_attempts": 1,
       "outputs": [
         "test"
       ]
@@ -72217,6 +72233,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Build-Debian9-Clang-arm64-Release-Android": {
@@ -72311,6 +72328,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Build-Debian9-Clang-x64-Release-Android": {
@@ -72405,6 +72423,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Build-Debian9-Clang-x86-Release-Android": {
@@ -72499,6 +72518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-binary-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-Clang-arm-Release-Flutter_Android": {
@@ -72598,6 +72618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-EMCC-asmjs-Release-PathKit": {
@@ -72697,6 +72718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-EMCC-wasm-Release-CanvasKit": {
@@ -72796,6 +72818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-EMCC-wasm-Release-CanvasKit_CPU": {
@@ -72895,6 +72918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-BuildStats-Debian9-EMCC-wasm-Release-PathKit": {
@@ -72994,6 +73018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -73093,6 +73118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -73192,6 +73218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-calmbench-upload@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android": {
@@ -73291,6 +73318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android": {
@@ -73390,6 +73418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NoGPUThreads": {
@@ -73489,6 +73518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {
@@ -73588,6 +73618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan": {
@@ -73687,6 +73718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android": {
@@ -73786,6 +73818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android_Vulkan": {
@@ -73885,6 +73918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Release-All-Android": {
@@ -73984,6 +74018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android": {
@@ -74083,6 +74118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android_NoGPUThreads": {
@@ -74182,6 +74218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android": {
@@ -74281,6 +74318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan": {
@@ -74380,6 +74418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan_NoGPUThreads": {
@@ -74479,6 +74518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Release-All-Android": {
@@ -74578,6 +74618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android": {
@@ -74677,6 +74718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android": {
@@ -74776,6 +74818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
@@ -74875,6 +74918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android": {
@@ -74974,6 +75018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan": {
@@ -75073,6 +75118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android": {
@@ -75172,6 +75218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android": {
@@ -75271,6 +75318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
@@ -75370,6 +75418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android": {
@@ -75469,6 +75518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench": {
@@ -75568,6 +75618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench": {
@@ -75667,6 +75718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
@@ -75766,6 +75818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench": {
@@ -75865,6 +75918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android": {
@@ -75964,6 +76018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_CCPR_Skpbench": {
@@ -76063,6 +76118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Skpbench": {
@@ -76162,6 +76218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Vulkan": {
@@ -76261,6 +76318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Vulkan_Skpbench": {
@@ -76360,6 +76418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All": {
@@ -76459,6 +76518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All": {
@@ -76558,6 +76618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm-Release-All": {
@@ -76657,6 +76718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-Pixelbook-GPU-IntelHDGraphics615-x86_64-Release-All": {
@@ -76756,6 +76818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-SamsungChromebook2012-GPU-MaliT604-arm-Release-All": {
@@ -76855,6 +76918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All": {
@@ -76954,6 +77018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All": {
@@ -77053,6 +77118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All": {
@@ -77152,6 +77218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -77251,6 +77318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs": {
@@ -77350,6 +77418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast": {
@@ -77449,6 +77518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER": {
@@ -77548,6 +77618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-GCE-CPU-AVX512-x86_64-Release-All": {
@@ -77647,6 +77718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All": {
@@ -77746,6 +77818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan": {
@@ -77845,6 +77918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
@@ -77944,6 +78018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan": {
@@ -78043,6 +78118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All": {
@@ -78142,6 +78218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All": {
@@ -78241,6 +78318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit": {
@@ -78340,6 +78418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
@@ -78439,6 +78518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit": {
@@ -78538,6 +78618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
@@ -78637,6 +78718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
@@ -78736,6 +78818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer": {
@@ -78835,6 +78918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
@@ -78934,6 +79018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer": {
@@ -79033,6 +79118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
@@ -79132,6 +79218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
@@ -79231,6 +79318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer": {
@@ -79330,6 +79418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
@@ -79429,6 +79518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
@@ -79528,6 +79618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer": {
@@ -79627,6 +79718,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -79726,6 +79818,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -79825,6 +79918,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -79924,6 +80018,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -80023,6 +80118,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All": {
@@ -80127,6 +80223,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE": {
@@ -80231,6 +80328,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan": {
@@ -80335,6 +80433,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All": {
@@ -80439,6 +80538,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All-ANGLE": {
@@ -80543,6 +80643,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -80647,6 +80748,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
@@ -80751,6 +80853,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -80855,6 +80958,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench": {
@@ -80959,6 +81063,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench_DDLRecord_9x9": {
@@ -81063,6 +81168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench_DDLTotal_9x9": {
@@ -81167,6 +81273,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All": {
@@ -81271,6 +81378,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE": {
@@ -81375,6 +81483,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All": {
@@ -81479,6 +81588,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE": {
@@ -81583,6 +81693,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan": {
@@ -81687,6 +81798,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All": {
@@ -81791,6 +81903,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE": {
@@ -81895,6 +82008,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All": {
@@ -81999,6 +82113,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-ANGLE": {
@@ -82103,6 +82218,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan": {
@@ -82207,6 +82323,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All": {
@@ -82311,6 +82428,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-ANGLE": {
@@ -82415,6 +82533,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan": {
@@ -82519,6 +82638,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All": {
@@ -82623,6 +82743,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE": {
@@ -82727,6 +82848,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan": {
@@ -82831,6 +82953,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -82935,6 +83058,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -83039,6 +83163,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -83143,6 +83268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
@@ -83242,6 +83368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
@@ -83341,6 +83468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
@@ -83440,6 +83568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android": {
@@ -83539,6 +83668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android": {
@@ -83638,6 +83768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
@@ -83737,6 +83868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android_NoGPUThreads": {
@@ -83836,6 +83968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android": {
@@ -83935,6 +84068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NativeFonts": {
@@ -84034,6 +84168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Release-All-Android_NoGPUThreads": {
@@ -84133,6 +84268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android": {
@@ -84232,6 +84368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan": {
@@ -84331,6 +84468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {
@@ -84430,6 +84568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan": {
@@ -84529,6 +84668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android": {
@@ -84628,6 +84768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan": {
@@ -84727,6 +84868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android": {
@@ -84826,6 +84968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android_Vulkan": {
@@ -84925,6 +85068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Debug-All-Android": {
@@ -85024,6 +85168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Debug-All-Android_NativeFonts": {
@@ -85123,6 +85268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Release-All-Android": {
@@ -85222,6 +85368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android": {
@@ -85321,6 +85468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_NoGPUThreads": {
@@ -85420,6 +85568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android": {
@@ -85519,6 +85668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android_NoGPUThreads": {
@@ -85618,6 +85768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android": {
@@ -85717,6 +85868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR": {
@@ -85816,6 +85968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_Vulkan": {
@@ -85915,6 +86068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_Vulkan_NoGPUThreads": {
@@ -86014,6 +86168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android": {
@@ -86113,6 +86268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan": {
@@ -86212,6 +86368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-All-Android_Vulkan_NoGPUThreads": {
@@ -86311,6 +86468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Debug-All-Android": {
@@ -86410,6 +86568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5-CPU-Snapdragon800-arm-Release-All-Android": {
@@ -86509,6 +86668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android": {
@@ -86608,6 +86768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android": {
@@ -86707,6 +86868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
@@ -86806,6 +86968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android": {
@@ -86905,6 +87068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
@@ -87004,6 +87168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
@@ -87103,6 +87268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android": {
@@ -87202,6 +87368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android_Vulkan": {
@@ -87301,6 +87468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android": {
@@ -87400,6 +87568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Vulkan": {
@@ -87499,6 +87668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android": {
@@ -87598,6 +87768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android": {
@@ -87697,6 +87868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android": {
@@ -87796,6 +87968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android": {
@@ -87895,6 +88068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-Android": {
@@ -87994,6 +88168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android": {
@@ -88093,6 +88268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
@@ -88192,6 +88368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
@@ -88291,6 +88468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android": {
@@ -88390,6 +88568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
@@ -88489,6 +88668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
@@ -88588,6 +88768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android": {
@@ -88687,6 +88868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
@@ -88786,6 +88968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android": {
@@ -88885,6 +89068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_DDL1_Vulkan": {
@@ -88984,6 +89168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_DDL3_Vulkan": {
@@ -89083,6 +89268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android_Vulkan": {
@@ -89182,6 +89368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android": {
@@ -89281,6 +89468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-Android_Vulkan": {
@@ -89380,6 +89568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All": {
@@ -89479,6 +89668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All": {
@@ -89578,6 +89768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Debug-All": {
@@ -89677,6 +89868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-AcerChromebook13_CB5_311-GPU-TegraK1-arm-Release-All": {
@@ -89776,6 +89968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm-Debug-All": {
@@ -89875,6 +90068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm-Release-All": {
@@ -89974,6 +90168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-Pixelbook-GPU-IntelHDGraphics615-x86_64-Debug-All": {
@@ -90073,6 +90268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-Pixelbook-GPU-IntelHDGraphics615-x86_64-Release-All": {
@@ -90172,6 +90368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-SamsungChromebook2012-GPU-MaliT604-arm-Debug-All": {
@@ -90271,6 +90468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-SamsungChromebook2012-GPU-MaliT604-arm-Release-All": {
@@ -90370,6 +90568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Debug-All": {
@@ -90469,6 +90668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All": {
@@ -90568,6 +90768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All": {
@@ -90667,6 +90868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All": {
@@ -90766,6 +90968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Debug-All": {
@@ -90865,6 +91068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All": {
@@ -90964,6 +91168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All": {
@@ -91063,6 +91268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -91162,6 +91368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs": {
@@ -91261,6 +91468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
@@ -91360,6 +91568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
@@ -91459,6 +91668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
@@ -91558,6 +91768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -91657,6 +91868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs": {
@@ -91756,6 +91968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast": {
@@ -91855,6 +92068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
@@ -91954,6 +92168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE2": {
@@ -92053,6 +92268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE41": {
@@ -92152,6 +92368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER": {
@@ -92251,6 +92468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Debug-All": {
@@ -92350,6 +92568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX512-x86_64-Release-All": {
@@ -92449,6 +92668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader": {
@@ -92548,6 +92768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader": {
@@ -92647,6 +92868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All": {
@@ -92746,6 +92968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan": {
@@ -92845,6 +93068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All": {
@@ -92944,6 +93168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan": {
@@ -93043,6 +93268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All": {
@@ -93142,6 +93368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
@@ -93241,6 +93468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
@@ -93340,6 +93568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan": {
@@ -93439,6 +93668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All": {
@@ -93538,6 +93768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All": {
@@ -93637,6 +93868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug-All": {
@@ -93736,6 +93968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All": {
@@ -93835,6 +94068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit": {
@@ -93934,6 +94168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit": {
@@ -94033,6 +94268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-CanvasKit": {
@@ -94132,6 +94368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit": {
@@ -94231,6 +94468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
@@ -94330,6 +94568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit": {
@@ -94429,6 +94668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-GPU-AVX2-wasm-Debug-All-CanvasKit": {
@@ -94528,6 +94768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
@@ -94627,6 +94868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All": {
@@ -94726,6 +94968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86-Release-All": {
@@ -94825,6 +95068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -94924,6 +95168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -95023,6 +95268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All": {
@@ -95122,6 +95368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer": {
@@ -95221,6 +95468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
@@ -95320,6 +95568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts": {
@@ -95419,6 +95668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All": {
@@ -95518,6 +95768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer": {
@@ -95617,6 +95868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
@@ -95716,6 +95968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All": {
@@ -95815,6 +96068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
@@ -95914,6 +96168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
@@ -96013,6 +96268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All": {
@@ -96112,6 +96368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer": {
@@ -96211,6 +96468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal": {
@@ -96310,6 +96568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-MoltenVK_Vulkan": {
@@ -96409,6 +96668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All": {
@@ -96508,6 +96768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
@@ -96607,6 +96868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-MoltenVK_Vulkan": {
@@ -96706,6 +96968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All": {
@@ -96805,6 +97068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer": {
@@ -96904,6 +97168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
@@ -97003,6 +97268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
@@ -97102,6 +97368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1": {
@@ -97201,6 +97468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan": {
@@ -97300,6 +97568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3": {
@@ -97399,6 +97668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {
@@ -97498,6 +97768,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
@@ -97597,6 +97868,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -97696,6 +97968,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -97795,6 +98068,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -97894,6 +98168,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -97993,6 +98268,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All": {
@@ -98097,6 +98373,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE": {
@@ -98201,6 +98478,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan": {
@@ -98305,6 +98583,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All": {
@@ -98409,6 +98688,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE": {
@@ -98513,6 +98793,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan": {
@@ -98617,6 +98898,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All": {
@@ -98721,6 +99003,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Debug-All-ANGLE": {
@@ -98825,6 +99108,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All": {
@@ -98929,6 +99213,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-GT610-x86_64-Release-All-ANGLE": {
@@ -99033,6 +99318,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
@@ -99137,6 +99423,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
@@ -99241,6 +99528,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs": {
@@ -99345,6 +99633,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
@@ -99449,6 +99738,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_ProcDump": {
@@ -99553,6 +99843,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -99657,6 +99948,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
@@ -99761,6 +100053,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs": {
@@ -99865,6 +100158,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -99969,6 +100263,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump": {
@@ -100073,6 +100368,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts": {
@@ -100177,6 +100473,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All": {
@@ -100281,6 +100578,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE": {
@@ -100385,6 +100683,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All": {
@@ -100489,6 +100788,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE": {
@@ -100593,6 +100893,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All": {
@@ -100697,6 +100998,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE": {
@@ -100801,6 +101103,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan": {
@@ -100905,6 +101208,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All": {
@@ -101009,6 +101313,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE": {
@@ -101113,6 +101418,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-NativeFonts": {
@@ -101217,6 +101523,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan": {
@@ -101321,6 +101628,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All": {
@@ -101425,6 +101733,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All-ANGLE": {
@@ -101529,6 +101838,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All": {
@@ -101633,6 +101943,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE": {
@@ -101737,6 +102048,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All": {
@@ -101841,6 +102153,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-ANGLE": {
@@ -101945,6 +102258,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan": {
@@ -102049,6 +102363,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All": {
@@ -102153,6 +102468,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-ANGLE": {
@@ -102257,6 +102573,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan": {
@@ -102361,6 +102678,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All": {
@@ -102465,6 +102783,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All-ANGLE": {
@@ -102569,6 +102888,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Debug-All-Vulkan": {
@@ -102673,6 +102993,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All": {
@@ -102777,6 +103098,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-ANGLE": {
@@ -102881,6 +103203,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan": {
@@ -102985,6 +103308,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All": {
@@ -103089,6 +103413,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE": {
@@ -103193,6 +103518,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-Vulkan": {
@@ -103297,6 +103623,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All": {
@@ -103401,6 +103728,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE": {
@@ -103505,6 +103833,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-Vulkan": {
@@ -103609,6 +103938,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All": {
@@ -103713,6 +104043,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
@@ -103817,6 +104148,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -103921,6 +104253,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -104025,6 +104358,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
@@ -104129,6 +104463,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
@@ -104233,6 +104568,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -104337,6 +104673,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
@@ -104441,6 +104778,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
@@ -104545,6 +104883,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
@@ -104649,6 +104988,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -104753,6 +105093,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
@@ -104857,6 +105198,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
@@ -104961,6 +105303,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
@@ -105065,6 +105408,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
@@ -105169,6 +105513,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
@@ -105273,6 +105618,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
@@ -105377,6 +105723,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -105481,6 +105828,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -105585,6 +105933,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86-Release-All": {
@@ -105689,6 +106038,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
@@ -105793,6 +106143,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts": {
@@ -105897,6 +106248,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All-NativeFonts_GDI": {
@@ -106001,6 +106353,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All": {
@@ -106105,6 +106458,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -106209,6 +106563,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86-Release-All": {
@@ -106313,6 +106668,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
@@ -106417,6 +106773,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All": {
@@ -106521,6 +106878,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
@@ -106620,6 +106978,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
@@ -106719,6 +107078,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
@@ -106818,6 +107178,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
@@ -106917,6 +107278,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
@@ -107016,6 +107378,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal": {
@@ -107115,6 +107478,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
@@ -107214,6 +107578,7 @@
       },
       "io_timeout_ns": 3600000000000,
       "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     }
   }

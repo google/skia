@@ -318,6 +318,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 			"log_location": logdogAnnotationUrl(),
 		},
 		Isolate:        relpath(isolate),
+		MaxAttempts:    attempts(name),
 		Outputs:        outputs,
 		ServiceAccount: serviceAccount,
 	}
@@ -796,6 +797,24 @@ func timeout(task *specs.TaskSpec, timeout time.Duration) {
 	task.IoTimeout = timeout // With kitchen, step logs don't count toward IoTimeout.
 }
 
+// attempts returns the desired MaxAttempts for this task.
+func attempts(name string) int {
+	if strings.Contains(name, "Android_Framework") {
+		// The reason for this has been lost to time.
+		return 1
+	}
+	if !(strings.HasPrefix(name, "Build-") || strings.HasPrefix(name, "Upload-")) {
+		for _, extraConfig := range []string{"ASAN", "MSAN", "TSAN", "UBSAN", "Valgrind"} {
+			if strings.Contains(name, extraConfig) {
+				// Sanitizers often find non-deterministic issues that retries would hide.
+				return 1
+			}
+		}
+	}
+	// Retry by default to hide random bot/hardware failures.
+	return 2
+}
+
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
@@ -876,8 +895,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
 		}
 	}
-
-	task.MaxAttempts = 2
 
 	// Add the task.
 	b.MustAddTask(name, task)
@@ -971,7 +988,6 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 // should add as a dependency.
 func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "android_compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
-	task.MaxAttempts = 1
 	timeout(task, time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -1026,7 +1042,6 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
-	task.MaxAttempts = 2
 	if parts["cpu_or_gpu_value"] == "QuadroP400" {
 		// Specify "rack" dimension for consistent test results.
 		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
@@ -1122,7 +1137,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		task.Dependencies = append(task.Dependencies, deps...)
 	}
 	task.Expiration = 20 * time.Hour
-	task.MaxAttempts = 2
+
 	timeout(task, 4*time.Hour)
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		timeout(task, 9*time.Hour)
@@ -1171,7 +1186,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	task.Expiration = 20 * time.Hour
-	task.MaxAttempts = 2
 	timeout(task, 4*time.Hour)
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		task.Dependencies = append(task.Dependencies, deps...)
