@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkImage_Base.h"
 #include "SkSurface.h"
 #include "effects/GrTextureDomain.h"
 #include "ops/GrDrawOp.h"
@@ -26,13 +27,20 @@ namespace skiagm {
  */
 class TextureDomainEffect : public GM {
 public:
-    TextureDomainEffect() {
+    TextureDomainEffect(GrSamplerState::Filter filter)
+            : fFilter(filter) {
         this->setBGColor(0xFFFFFFFF);
     }
 
 protected:
     SkString onShortName() override {
-        return SkString("texture_domain_effect");
+        SkString name("texture_domain_effect");
+        if (fFilter == GrSamplerState::Filter::kBilerp) {
+            name.append("_bilerp");
+        } else if (fFilter == GrSamplerState::Filter::kMipMap) {
+            name.append("_mipmap");
+        }
+        return name;
     }
 
     SkISize onISize() override {
@@ -88,8 +96,18 @@ protected:
         }
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+        sk_sp<GrTextureProxy> proxy;
+        if (fFilter == GrSamplerState::Filter::kMipMap) {
+            SkBitmap copy;
+            SkImageInfo info = as_IB(fImage)->onImageInfo().makeColorType(kN32_SkColorType);
+            if (!copy.tryAllocPixels(info) || !fImage->readPixels(copy.pixmap(), 0, 0)) {
+                return;
+            }
+            proxy = proxyProvider->createMipMapProxyFromBitmap(copy);
+        } else {
+            proxy = proxyProvider->createTextureProxy(
                 fImage, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);
+        }
         if (!proxy) {
             return;
         }
@@ -100,11 +118,10 @@ protected:
         textureMatrices.push_back();
         textureMatrices.back().setRotate(45.f, proxy->width() / 2.f, proxy->height() / 2.f);
 
-
         const SkIRect texelDomains[] = {
             fImage->bounds(),
-            SkIRect::MakeXYWH(fImage->width() / 4, fImage->height() / 4,
-                              fImage->width() / 2, fImage->height() / 2),
+            SkIRect::MakeXYWH(fImage->width() / 4 - 1, fImage->height() / 4 - 1,
+                              fImage->width() / 2 + 2, fImage->height() / 2 + 2),
         };
 
         SkRect renderRect = SkRect::Make(fImage->bounds());
@@ -116,12 +133,18 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
+                    if (fFilter != GrSamplerState::Filter::kNearest &&
+                        mode == GrTextureDomain::kRepeat_Mode) {
+                        // Repeat mode doesn't produce correct results with bilerp filtering
+                        continue;
+                    }
+
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     auto fp = GrTextureDomainEffect::Make(
                             proxy, textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode), mode,
-                            GrSamplerState::Filter::kNearest);
+                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
+                            mode, fFilter);
 
                     if (!fp) {
                         continue;
@@ -144,9 +167,13 @@ private:
     static constexpr int      kTargetWidth = 100;
     static constexpr int      kTargetHeight = 100;
     sk_sp<SkImage> fImage;
+    GrSamplerState::Filter fFilter;
 
     typedef GM INHERITED;
 };
 
-DEF_GM(return new TextureDomainEffect;)
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kNearest);)
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kBilerp);)
+DEF_GM(return new TextureDomainEffect(GrSamplerState::Filter::kMipMap);)
+
 }
