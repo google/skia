@@ -16,6 +16,24 @@
       "revId": "eb9497903f2c02ce69987686a3d199765a011710",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "440aa770_2b5c5222",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-17T19:15:56Z",
+      "side": 1,
+      "message": "Or this:\n\n    static sk_sp\u003cSkTextBlob\u003e make_hpos_test_blob_utf8(const char* text, const SkFont\u0026 font) {\n        constexpr SkTextEncoding enc \u003d SkTextEncoding::kUTF8;\n        SkTextBlobBuilder builder;\n        size_t len \u003d strlen(text);    \n        int glyphCount \u003d font.countText(text, len, enc);\n        const auto\u0026 buffer \u003d builder.allocRunPosH(font, glyphCount, 0);\n        (void)font.textToGlyphs(text, len, enc, buffer.glyphs, glyphCount);\n        font.getXPos(buffer.glyphs, glyphCount, buffer.pos);\n        return builder.make();\n    }",
+      "parentUuid": "5d99a4b1_4ed120e9",
+      "revId": "eb9497903f2c02ce69987686a3d199765a011710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
