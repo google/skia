@@ -726,6 +726,12 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
+    /** Experimental
+     *  Saves the current pixels in the current layer, and then clears those pixels to 0.
+     *  Restores the pixels on restore() by drawing them in SkBlendMode::kDstOver.
+     */
+    int saveBehind(const SkRect* conservative_bounds);
+
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
 
@@ -2420,6 +2426,7 @@ protected:
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& ) {
         return kFullLayer_SaveLayerStrategy;
     }
+    virtual void onSaveBehind(const SkRect*);
     virtual void willRestore() {}
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix& ) {}
