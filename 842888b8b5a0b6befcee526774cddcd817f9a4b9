@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "4d9fc3dd_cfe4169a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-17T20:13:49Z",
+      "side": 1,
+      "message": "Specify why? As I recall from our discussion, it does two things:\n- allows Skia to clear to transparent to show a partial image\n- allows Skia to use one step to handle both scaling and color correction (TODO)",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 44
+      },
+      "revId": "842888b8b5a0b6befcee526774cddcd817f9a4b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baafbdcc_0b644ce4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-17T20:13:49Z",
+      "side": 1,
+      "message": "Bug: skia:8235 ?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 10
+      },
+      "revId": "842888b8b5a0b6befcee526774cddcd817f9a4b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "25135476_16b0f2bc",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 1
@@ -16,6 +62,24 @@
       "revId": "842888b8b5a0b6befcee526774cddcd817f9a4b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b2f1ff5_7948f228",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-17T20:13:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "25135476_16b0f2bc",
+      "revId": "842888b8b5a0b6befcee526774cddcd817f9a4b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
