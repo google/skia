@@ -2714,7 +2714,7 @@ private:
                 SkDEBUGCODE(SkVector curV = fCurrPt - fLastPt);
                 SkDEBUGCODE(SkScalar crossV = SkPoint::CrossProduct(lastV, curV));
                 SkDEBUGCODE(int signV = SkScalarSignAsInt(crossV));
-                SkASSERT(signV == (product ? 1 : -1));
+                SkASSERT(!signV || signV == (product ? 1 : -1));
                 return product ? kRight_DirChange : kLeft_DirChange;
             }
             return same_sign(fCurrPt.fX, fLastPt.fX, fPriorPt.fX);
