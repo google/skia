@@ -221,9 +221,10 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
                                      bool needsStencil, GrSurfaceDescFlags descFlags,
                                      GrMipMapped mipMapped, const GrUniqueKey* uniqueKey) {
     SkASSERT(LazyState::kNot == this->lazyInstantiationState());
+    SkASSERT(!uniqueKey || uniqueKey->isValid());
     if (fTarget) {
         if (uniqueKey) {
-            SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
+            SkASSERT(fTarget->getUniqueKey().isValid() && fTarget->getUniqueKey() == *uniqueKey);
         }
         return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget, needsStencil);
     }
@@ -236,7 +237,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
 
     // If there was an invalidation message pending for this key, we might have just processed it,
     // causing the key (stored on this proxy) to become invalid.
-    if (uniqueKey && uniqueKey->isValid()) {
+    if (uniqueKey) {
         resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
 
