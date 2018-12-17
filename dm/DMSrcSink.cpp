@@ -1939,10 +1939,8 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ViaDDL::ViaDDL(int numDivisions, Sink* sink)
-    : Via(sink)
-    , fNumDivisions(numDivisions) {
-}
+ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
+        : Via(sink), fNumReplays(numReplays), fNumDivisions(numDivisions) {}
 
 Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
@@ -1962,42 +1960,49 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     if (!compressedPictureData) {
         return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
     }
+    auto draw = [&](SkCanvas* canvas) -> Error {
+        GrContext* context = canvas->getGrContext();
+        if (!context || !context->contextPriv().getGpu()) {
+            return SkStringPrintf("DDLs are GPU only");
+        }
 
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, size,
-                [&](SkCanvas* canvas) -> Error {
-                    GrContext* context = canvas->getGrContext();
-                    if (!context || !context->contextPriv().getGpu()) {
-                        return SkStringPrintf("DDLs are GPU only");
-                    }
+        // This is here bc this is the first point where we have access to the context
+        promiseImageHelper.uploadAllToGPU(context);
+        // We draw N times, with a clear between.
+        for (int replay = 0; replay < fNumReplays; ++replay) {
+            if (replay > 0) {
+                // Clear the drawing of the previous replay
+                canvas->clear(SK_ColorWHITE);
+            }
+            // First, create all the tiles (including their individual dest surfaces)
+            DDLTileHelper tiles(canvas, viewport, fNumDivisions);
 
-                    // This is here bc this is the first point where we have access to the context
-                    promiseImageHelper.uploadAllToGPU(context);
+            // Second, reinflate the compressed picture individually for each thread
+            tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
-                    // First, create all the tiles (including their individual dest surfaces)
-                    DDLTileHelper tiles(canvas, viewport, fNumDivisions);
+            // Third, create the DDLs in parallel
+            tiles.createDDLsInParallel();
 
-                    // Second, reinflate the compressed picture individually for each thread
-                    tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
+            if (replay == fNumReplays - 1) {
+                // This drops the promiseImageHelper's refs on all the promise images if we're in
+                // the last run.
+                promiseImageHelper.reset();
+            }
 
-                    // Third, create the DDLs in parallel
-                    tiles.createDDLsInParallel();
+            // Fourth, synchronously render the display lists into the dest tiles
+            // TODO: it would be cool to not wait until all the tiles are drawn to begin
+            // drawing to the GPU and composing to the final surface
+            tiles.drawAllTilesAndFlush(context, false);
 
-                    // This drops the promiseImageHelper's refs on all the promise images
-                    promiseImageHelper.reset();
-
-                    // Fourth, synchronously render the display lists into the dest tiles
-                    // TODO: it would be cool to not wait until all the tiles are drawn to begin
-                    // drawing to the GPU and composing to the final surface
-                    tiles.drawAllTilesAndFlush(context, false);
-
-                    // Finally, compose the drawn tiles into the result
-                    // Note: the separation between the tiles and the final composition better
-                    // matches Chrome but costs us a copy
-                    tiles.composeAllTiles(canvas);
-
-                    context->flush();
-                    return "";
-                });
+            // Finally, compose the drawn tiles into the result
+            // Note: the separation between the tiles and the final composition better
+            // matches Chrome but costs us a copy
+            tiles.composeAllTiles(canvas);
+            context->flush();
+        }
+        return "";
+    };
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, draw);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
