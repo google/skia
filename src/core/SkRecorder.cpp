@@ -347,6 +347,11 @@ SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec&
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
+bool SkRecorder::onDoSaveBehind(const SkRect* subset) {
+    this->append<SkRecords::SaveBehind>(this->copy(subset));
+    return false;
+}
+
 void SkRecorder::didRestore() {
     this->append<SkRecords::Restore>(this->getTotalMatrix());
 }
