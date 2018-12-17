@@ -59,10 +59,10 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount, GrColor color) 
 }
 
 SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& paint,
+                                                 const SkFont& font,
                                                  const SkSurfaceProps& props,
                                                  SkScalerContextFlags scalerContextFlags,
                                                  const SkMatrix& viewMatrix) {
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
     // if we have an override descriptor for the run, then we should use that
     SkAutoDescriptor* desc = fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
     SkScalerContextEffects effects;
