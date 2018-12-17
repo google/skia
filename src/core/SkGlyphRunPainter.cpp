@@ -882,11 +882,9 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
 // -- SkTextBlobCacheDiffCanvas::TrackLayerDevice --------------------------------------------------
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRun(
-        const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& paint) {
+        const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
-    SkPaint runPaint{paint};
-    glyphRun.font().LEGACY_applyToPaint(&runPaint);
     const SkMatrix& runMatrix = this->ctm();
 
     // If the matrix has perspective, we fall back to using distance field text or paths.
@@ -895,7 +893,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRun(
         return;
     } else
 #endif
-    if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
+    if (SkGlyphRunListPainter::ShouldDrawAsPath(runPaint, glyphRun.font(), runMatrix)) {
         this->processGlyphRunForPaths(glyphRun, runMatrix, origin, runPaint);
     } else {
         this->processGlyphRunForMask(glyphRun, runMatrix, origin, runPaint);
@@ -909,7 +907,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            runPaint, this->surfaceProps(), runMatrix,
+            runPaint, glyphRun.font(), this->surfaceProps(), runMatrix,
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
     SkASSERT(glyphCacheState);
 
@@ -941,10 +939,12 @@ struct ARGBHelper {
                       SkGlyphRunListPainter::NeedsTransform needsTransform) {
         TRACE_EVENT0("skia", "argbFallback");
 
+        SkFont fallbackFont = SkFont::LEGACY_ExtractFromPaint(fallbackPaint);
+
         SkScalerContextEffects effects;
         auto* fallbackCache =
                 fStrikeServer->getOrCreateCache(
-                        fallbackPaint, fSurfaceProps, fFallbackMatrix,
+                        fallbackPaint, fallbackFont, fSurfaceProps, fFallbackMatrix,
                         SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
         for (auto glyphID : glyphIDs) {
@@ -957,17 +957,22 @@ struct ARGBHelper {
     SkStrikeServer* const fStrikeServer;
 };
 
+SkScalar SkTextBlobCacheDiffCanvas::SetupForPath(SkPaint* paint, SkFont* font) {
+    return font->setupForAsPaths(paint);
+}
+
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
         const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,
         SkPoint origin, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
-    SkPaint pathPaint{runPaint};
 
-    SkScalar textScale = pathPaint.setupForAsPaths();
+    SkPaint pathPaint{runPaint};
+    SkFont pathFont{glyphRun.font()};
+    SkScalar textScale = SetupForPath(&pathPaint, &pathFont);
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            pathPaint, this->surfaceProps(), SkMatrix::I(),
+            pathPaint, pathFont, this->surfaceProps(), SkMatrix::I(),
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
     auto perEmpty = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
@@ -992,11 +997,13 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
         SkPoint origin, const SkPaint& runPaint) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::maybeProcessGlyphRunForDFT");
 
+    const SkFont& runFont = glyphRun.font();
+
     GrTextContext::Options options;
     options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
     options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
     GrTextContext::SanitizeOptions(&options);
-    if (!GrTextContext::CanDrawAsDistanceFields(runPaint, SkFont::LEGACY_ExtractFromPaint(runPaint),
+    if (!GrTextContext::CanDrawAsDistanceFields(runPaint, runFont,
                                                 runMatrix, this->surfaceProps(),
                                                 fSettings.fContextSupportsDistanceFieldText,
                                                 options)) {
@@ -1005,11 +1012,13 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
 
     SkScalar textRatio;
     SkPaint dfPaint(runPaint);
+    runFont.LEGACY_applyToPaint(&dfPaint);
     SkScalerContextFlags flags;
     GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options, &textRatio,
                                           &flags);
     SkScalerContextEffects effects;
-    auto* sdfCache = fStrikeServer->getOrCreateCache(dfPaint, this->surfaceProps(),
+    SkFont dfFont = SkFont::LEGACY_ExtractFromPaint(dfPaint);
+    auto* sdfCache = fStrikeServer->getOrCreateCache(dfPaint, dfFont, this->surfaceProps(),
                                                      SkMatrix::I(), flags, &effects);
 
     ARGBHelper argbFallback{runMatrix, surfaceProps(), fStrikeServer};
