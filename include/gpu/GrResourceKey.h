@@ -90,7 +90,7 @@ protected:
             SkDebugf("domain: %d ", this->domain());
             SkDebugf("size: %dB ", this->internalSize());
             for (size_t i = 0; i < this->internalSize(); ++i) {
-                SkDebugf("%d ", fKey[i]);
+                SkDebugf("%d ", fKey[SkTo<int>(i)]);
             }
             SkDebugf("\n");
         }
