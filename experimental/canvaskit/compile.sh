@@ -90,6 +90,7 @@ HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/htmlcanvas.js \
 --pre-js $BASE_DIR/htmlcanvas/imagedata.js \
 --pre-js $BASE_DIR/htmlcanvas/lineargradient.js \
+--pre-js $BASE_DIR/htmlcanvas/path2d.js \
 --pre-js $BASE_DIR/htmlcanvas/pattern.js \
 --pre-js $BASE_DIR/htmlcanvas/radialgradient.js \
 --pre-js $BASE_DIR/htmlcanvas/postamble.js "
