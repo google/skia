@@ -344,6 +344,14 @@ JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
     return emscripten::val(s.c_str());
 }
 
+SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromSVGString(std::string str) {
+    SkPath path;
+    if (SkParsePath::FromSVGString(str.c_str(), &path)) {
+        return emscripten::val(path);
+    }
+    return emscripten::val::null();
+}
+
 SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
     SkPath out;
     if (Op(pathOne, pathTwo, op, &out)) {
@@ -486,6 +494,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
     function("MakePathFromOp", &MakePathFromOp);
+    function("MakePathFromSVGString", &MakePathFromSVGString);
 
     // These won't be called directly, there's a JS helper to deal with typed arrays.
     function("_MakeSkDashPathEffect", optional_override([](uintptr_t /* float* */ cptr, int count, SkScalar phase)->sk_sp<SkPathEffect> {
