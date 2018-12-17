@@ -74,12 +74,13 @@ public:
     /**
      * Snaps off a GpuDrawHandler to represent the state of the SkDrawable at the time the snap is
      * called. This is used for executing GPU backend specific draws intermixed with normal Skia GPU
-     * draws. The GPU API, which will be used for the draw, as well as the full matrix are passed in
-     * as inputs.
+     * draws. The GPU API, which will be used for the draw, as well as the full matrix and device
+     * clip bounds are passed in as inputs.
      */
     std::unique_ptr<GpuDrawHandler> snapGpuDrawHandler(GrBackendApi backendApi,
-                                                       const SkMatrix& matrix) {
-        return this->onSnapGpuDrawHandler(backendApi, matrix);
+                                                       const SkMatrix& matrix,
+                                                       const SkIRect& clipBounds) {
+        return this->onSnapGpuDrawHandler(backendApi, matrix, clipBounds);
     }
 
     SkPicture* newPictureSnapshot();
@@ -131,6 +132,12 @@ protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
 
+    virtual std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi, const SkMatrix&,
+                                                                 const SkIRect& /*clipBounds*/) {
+        return nullptr;
+    }
+
+    // TODO: Delete this once Android gets updated to take the clipBounds version above.
     virtual std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi, const SkMatrix&) {
         return nullptr;
     }

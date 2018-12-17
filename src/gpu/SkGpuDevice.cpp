@@ -1709,7 +1709,7 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
         const SkMatrix& ctm = canvas->getTotalMatrix();
         const SkMatrix& combinedMatrix = matrix ? SkMatrix::Concat(ctm, *matrix) : ctm;
         std::unique_ptr<SkDrawable::GpuDrawHandler> gpuDraw =
-                drawable->snapGpuDrawHandler(api, combinedMatrix);
+                drawable->snapGpuDrawHandler(api, combinedMatrix, canvas->getDeviceClipBounds());
         if (gpuDraw) {
             fRenderTargetContext->drawDrawable(std::move(gpuDraw), drawable->getBounds());
             return;
