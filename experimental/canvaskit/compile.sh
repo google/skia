@@ -20,17 +20,19 @@ source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js"
-EXTRA_CFLAGS="\"-DSK_RELEASE\""
+RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
+              -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g3 \
-                -DPATHKIT_TESTING -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
+  RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
+                --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
-  RELEASE_CONF="-O3 --source-map-base /node_modules/canvaskit/bin/ --profiling -g4 -DSK_RELEASE --pre-js $BASE_DIR/release.js"
+  RELEASE_CONF="-O3 --source-map-base /node_modules/canvaskit/bin/ --profiling -g4 -DSK_RELEASE \
+                --pre-js $BASE_DIR/release.js -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}

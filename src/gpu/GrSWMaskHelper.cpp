@@ -113,7 +113,16 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
         // have pending IO.
         surfaceFlags |= GrInternalSurfaceFlags::kNoPendingIO;
     }
-
+    auto clearFlag = kNone_GrSurfaceFlags;
+    // In a WASM build on Firefox, we see warnings like
+    // WebGL warning: texSubImage2D: This operation requires zeroing texture data. This is slow.
+    // WebGL warning: texSubImage2D: Texture has not been initialized prior to a partial upload,
+    //                forcing the browser to clear it. This may be slow.
+    // Setting the initial clear seems to make those warnings go away and offers a substantial
+    // boost in performance in Firefox. Chrome sees a more modest increase.
+#if IS_WEBGL==1
+    clearFlag = kPerformInitialClear_GrSurfaceFlag;
+#endif
     return context->contextPriv().proxyProvider()->createTextureProxy(
-            std::move(img), kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, fit, surfaceFlags);
+            std::move(img), clearFlag, 1, SkBudgeted::kYes, fit, surfaceFlags);
 }
