@@ -104,7 +104,8 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
 
 private:
-    void processGlyphRun(const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& paint);
+    void processGlyphRun(
+            const SkPoint& origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint);
 
     void processGlyphRunForMask(
             const SkGlyphRun& glyphRun, const SkMatrix& runMatrix,

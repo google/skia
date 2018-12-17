@@ -515,6 +515,7 @@ private:
     friend class SkFontPriv;
     friend class SkGlyphRunListPainter;
     friend class SkPaint;
+    friend class SkTextBlobCacheDiffCanvas;
     friend class SVGTextBuilder;
 };
 
