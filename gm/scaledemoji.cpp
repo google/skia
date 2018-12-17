@@ -15,6 +15,17 @@
 #include "SkTo.h"
 #include "SkTypeface.h"
 
+static sk_sp<SkTextBlob> make_hpos_test_blob_utf8(const char* text, const SkFont& font) {
+    constexpr SkTextEncoding enc = SkTextEncoding::kUTF8;
+    SkTextBlobBuilder builder;
+    size_t len = strlen(text);
+    int glyphCount = font.countText(text, len, enc);
+    const auto& buffer = builder.allocRunPosH(font, glyphCount, 0);
+    (void)font.textToGlyphs(text, len, enc, buffer.glyphs, glyphCount);
+    font.getXPos(buffer.glyphs, glyphCount, buffer.pos);
+    return builder.make();
+}
+
 namespace skiagm {
 
 class ScaledEmojiGM : public GM {
@@ -109,15 +120,7 @@ protected:
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
 
-            int len = SkToInt(strlen(text));
-            SkAutoTArray<SkScalar>  pos(len);
-            SkAutoTArray<SkGlyphID> glyphs(len);
-
-            // Draw using text blobs!!!!
-            font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.get(), len);
-            font.getXPos(glyphs.get(), len, pos.get());
-            auto blob = SkTextBlob::MakeFromPosTextH(text, len, pos.get(), 0, font);
-
+            sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(text, font);
             // Draw with an origin.
             canvas->drawTextBlob(blob, 10, y, paint);
 
