@@ -436,6 +436,7 @@ private:
                          SkPoint origin, SkScalar textRatio, bool needsTransform);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
+                                        const SkFont& skFont,
                                         const SkSurfaceProps& props,
                                         SkScalerContextFlags scalerContextFlags,
                                         const SkMatrix& viewMatrix);

@@ -678,8 +678,10 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             fBlob->setHasBitmap();
             fRun->setSubRunHasW(glyphCacheMatrix.hasPerspective());
             auto subRun = fRun->initARGBFallback();
+            SkFont font = SkFont::LEGACY_ExtractFromPaint(fallbackPaint);
             SkExclusiveStrikePtr fallbackCache =
-                    fRun->setupCache(fallbackPaint, fProps, fScalerContextFlags, glyphCacheMatrix);
+                    fRun->setupCache(
+                            fallbackPaint, font, fProps, fScalerContextFlags, glyphCacheMatrix);
             sk_sp<GrTextStrike> strike = fGlyphCache->getStrike(fallbackCache.get());
             SkASSERT(strike != nullptr);
             subRun->setStrike(strike);
@@ -730,7 +732,8 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                     hasWCoord);
 
             {
-                auto cache = run->setupCache(distanceFieldPaint, props, flags, SkMatrix::I());
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(distanceFieldPaint);
+                auto cache = run->setupCache(distanceFieldPaint, font, props, flags, SkMatrix::I());
 
                 sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
@@ -797,9 +800,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
 
-            SkPaint cachePaint{runPaint};
-            runFont.LEGACY_applyToPaint(&cachePaint);
-            auto cache = run->setupCache(cachePaint, props, scalerContextFlags, viewMatrix);
+            auto cache = run->setupCache(runPaint, runFont, props, scalerContextFlags, viewMatrix);
 
             sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
 
