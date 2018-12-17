@@ -129,13 +129,14 @@ bool GrTextContext::CanDrawAsDistanceFields(const SkPaint& paint, const SkFont& 
     return true;
 }
 
-void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
-                                           SkPaint* skPaint,
+void GrTextContext::InitDistanceFieldPaint(const SkScalar textSize,
                                            const SkMatrix& viewMatrix,
                                            const Options& options,
+                                           GrTextBlob* blob,
+                                           SkPaint* skPaint,
+                                           SkFont* skFont,
                                            SkScalar* textRatio,
                                            SkScalerContextFlags* flags) {
-    SkScalar textSize = skPaint->getTextSize();
     SkScalar scaledTextSize = textSize;
 
     if (viewMatrix.hasPerspective()) {
@@ -160,17 +161,17 @@ void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
         dfMaskScaleFloor = options.fMinDistanceFieldFontSize;
         dfMaskScaleCeil = kSmallDFFontLimit;
         *textRatio = textSize / kSmallDFFontSize;
-        skPaint->setTextSize(SkIntToScalar(kSmallDFFontSize));
+        skFont->setSize(SkIntToScalar(kSmallDFFontSize));
     } else if (scaledTextSize <= kMediumDFFontLimit) {
         dfMaskScaleFloor = kSmallDFFontLimit;
         dfMaskScaleCeil = kMediumDFFontLimit;
         *textRatio = textSize / kMediumDFFontSize;
-        skPaint->setTextSize(SkIntToScalar(kMediumDFFontSize));
+        skFont->setSize(SkIntToScalar(kMediumDFFontSize));
     } else {
         dfMaskScaleFloor = kMediumDFFontLimit;
         dfMaskScaleCeil = options.fMaxDistanceFieldFontSize;
         *textRatio = textSize / kLargeDFFontSize;
-        skPaint->setTextSize(SkIntToScalar(kLargeDFFontSize));
+        skFont->setSize(SkIntToScalar(kLargeDFFontSize));
     }
 
     // Because there can be multiple runs in the blob, we want the overall maxMinScale, and
@@ -186,11 +187,10 @@ void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
                                 dfMaskScaleCeil / scaledTextSize);
     }
 
-    skPaint->setAntiAlias(true);
-    skPaint->setLCDRenderText(false);
-    skPaint->setAutohinted(false);
-    skPaint->setHinting(kNormal_SkFontHinting);
-    skPaint->setSubpixelText(true);
+    skFont->setEdging(SkFont::Edging::kAntiAlias);
+    skFont->setForceAutoHinting(false);
+    skFont->setHinting(kNormal_SkFontHinting);
+    skFont->setSubpixel(true);
 
     skPaint->setMaskFilter(GrSDFMaskFilter::Make());
 
