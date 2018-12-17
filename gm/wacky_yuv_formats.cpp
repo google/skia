@@ -30,6 +30,9 @@ enum YUVFormat {
     // 4:4:4 formats, 32 bpp
     kAYUV_YUVFormat,  // 8-bit YUVA values all interleaved
 
+    // 4:4:4 formats, 10 bpp
+    kY410_YUVFormat,  // AVYU w/ 10bpp for YUV and 2 for A
+
     // 4:2:0 formats, 12 bpp
     kNV12_YUVFormat, // 8-bit Y plane + 2x2 down sampled interleaved U/V planes
     kNV21_YUVFormat, // same as kNV12 but w/ U/V reversed in the interleaved plane
@@ -151,19 +154,21 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
     return p;
 }
 
-static SkBitmap make_bitmap(const SkPath& path, const SkTDArray<SkRect>& circles, bool opaque) {
+static SkBitmap make_bitmap(SkColorType colorType, const SkPath& path,
+                            const SkTDArray<SkRect>& circles, bool opaque) {
     const SkColor kGreen  = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 178, 240, 104));
     const SkColor kBlue   = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 173, 167, 252));
     const SkColor kYellow = sk_tool_utils::color_to_565(SkColorSetARGB(0xFF, 255, 221, 117));
 
-    SkImageInfo ii = SkImageInfo::MakeN32(kTileWidthHeight, kTileWidthHeight, kPremul_SkAlphaType);
+    SkImageInfo ii = SkImageInfo::Make(kTileWidthHeight, kTileWidthHeight,
+                                       colorType, kPremul_SkAlphaType);
 
     SkBitmap bm;
     bm.allocPixels(ii);
 
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(ii.width(), ii.height(),
-                                                                     (SkPMColor*)bm.getPixels(),
-                                                                     bm.rowBytes());
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(ii,
+                                                                  bm.getPixels(),
+                                                                  bm.rowBytes());
 
     canvas->clear(opaque ? kGreen : SK_ColorTRANSPARENT);
 
@@ -305,6 +310,8 @@ static void extract_planes(const SkBitmap& bm, SkYUVColorSpace yuvColorSpace, Pl
             *planes->fUFull.getAddr8(x, y) = yuva[1];
             *planes->fVFull.getAddr8(x, y) = yuva[2];
             *planes->fAFull.getAddr8(x, y) = yuva[3];
+
+//            *planes->f1010102.getAddr32()
         }
     }
 
@@ -468,7 +475,7 @@ static void create_YUV(const PlaneData& planes, YUVFormat yuvFormat,
 
 }
 
-static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel  channel) {
+static uint8_t look_up(float x1, float y1, const SkBitmap& bm, SkColorChannel channel) {
     uint8_t result;
 
     int x = SkScalarFloorToInt(x1 * bm.width());
@@ -644,7 +651,7 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
-    static const char* kYUVFormatNames[] = { "AYUV", "NV12", "NV21", "I420", "YV12" };
+    static const char* kYUVFormatNames[] = { "AYUV", "Y410", "NV12", "NV21", "I420", "YV12" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
     SkPaint textPaint;
@@ -745,14 +752,18 @@ protected:
             // transparent
             SkTDArray<SkRect> circles;
             SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 5, &circles);
-            fOriginalBMs[0] = make_bitmap(path, circles, false);
+            fOriginal8888BMs[0] = make_bitmap(kN32_SkColorType, path, circles, false);
+
+            fOriginal1010102BMs[0] = make_bitmap(kRGBA_1010102_SkColorType, path, circles, false);
         }
 
         {
             // opaque
             SkTDArray<SkRect> circles;
             SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 7, &circles);
-            fOriginalBMs[1] = make_bitmap(path, circles, true);
+            fOriginal8888BMs[1] = make_bitmap(kN32_SkColorType, path, circles, true);
+
+            fOriginal1010102BMs[0] = make_bitmap(kRGBA_1010102_SkColorType, path, circles, false);
         }
     }
 
@@ -761,12 +772,27 @@ protected:
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
                 PlaneData planes;
-                extract_planes(fOriginalBMs[opaque], (SkYUVColorSpace) cs, &planes);
+                extract_planes(fOriginal8888BMs[opaque], (SkYUVColorSpace) cs, &planes);
 
                 for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     SkBitmap resultBMs[4];
                     SkYUVAIndex yuvaIndices[4];
-                    create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
+
+                    if (kY410_YUVFormat == format) {
+                        // kY410 is a special case and uses the 1010102 bitmaps directly
+                        resultBMs[0] = fOriginal1010102BMs[opaque];
+
+                        yuvaIndices[0].fIndex = 0;
+                        yuvaIndices[0].fChannel = SkColorChannel::kR;
+                        yuvaIndices[1].fIndex = 0;
+                        yuvaIndices[1].fChannel = SkColorChannel::kG;
+                        yuvaIndices[2].fIndex = 0;
+                        yuvaIndices[2].fChannel = SkColorChannel::kB;
+                        yuvaIndices[3].fIndex = 0;
+                        yuvaIndices[3].fChannel = SkColorChannel::kA;
+                    } else {
+                        create_YUV(planes, (YUVFormat) format, resultBMs, yuvaIndices, opaque);
+                    }
                     int numTextures;
                     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
                         continue;
@@ -799,7 +825,7 @@ protected:
                                 (SkYUVColorSpace)cs,
                                 yuvaTextures,
                                 yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                { fOriginal8888BMs[opaque].width(), fOriginal8888BMs[opaque].height() },
                                 kTopLeft_GrSurfaceOrigin);
                             break;
                         case 1:
@@ -808,7 +834,7 @@ protected:
                                 (SkYUVColorSpace)cs,
                                 yuvaTextures,
                                 yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                { fOriginal8888BMs[opaque].width(), fOriginal8888BMs[opaque].height() },
                                 kTopLeft_GrSurfaceOrigin);
                             break;
                         case 2:
@@ -818,14 +844,14 @@ protected:
                                 (SkYUVColorSpace)cs,
                                 yuvaPixmaps,
                                 yuvaIndices,
-                                { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() },
+                                { fOriginal8888BMs[opaque].width(), fOriginal8888BMs[opaque].height() },
                                 kTopLeft_GrSurfaceOrigin, true);
                             break;
                         }
                         ++counter;
                     } else {
                         fImages[opaque][cs][format] = make_yuv_gen_image(
-                                                                fOriginalBMs[opaque].info(),
+                                                                fOriginal8888BMs[opaque].info(),
                                                                 (SkYUVColorSpace) cs,
                                                                 yuvaIndices,
                                                                 resultBMs);
@@ -845,10 +871,10 @@ protected:
 
                 draw_col_label(canvas, x+kTileWidthHeight/2, cs, opaque);
 
-                canvas->drawBitmap(fOriginalBMs[opaque], x, y);
+                canvas->drawBitmap(fOriginal8888BMs[opaque], x, y);
                 y += kTileWidthHeight + kPad;
 
-                for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
+                for (int format = kY410_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
                     canvas->drawImage(fImages[opaque][cs][format], x, y);
 
@@ -861,7 +887,8 @@ protected:
     }
 
 private:
-    SkBitmap       fOriginalBMs[2];
+    SkBitmap       fOriginal8888BMs[2];
+    SkBitmap       fOriginal1010102BMs[2];
     sk_sp<SkImage> fImages[2][kLastEnum_SkYUVColorSpace+1][kLast_YUVFormat+1];
 
     typedef GM INHERITED;
