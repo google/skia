@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d99a4b1_4ed120e9",
+        "filename": "gm/scaledemoji.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-12-17T19:15:21Z",
+      "side": 1,
+      "message": "How about this:\n\n    constexpr SkTextEncoding enc \u003d SkTextEncoding::kUTF8;\n    size_t len \u003d strlen(text);    \n    int glyphCount \u003d font.countText(text, len, enc);\n    SkAutoTArray\u003cSkScalar\u003e  pos(glyphCount);\n    SkAutoTArray\u003cSkGlyphID\u003e glyphs(glyphCount);\n    (void)font.textToGlyphs(text, len, enc, glyphs.get(), glyphCount);\n    font.getXPos(glyphs.get(), glyphCount, pos.get());\n    auto blob \u003d SkTextBlob::MakeFromPosTextH(text, len, pos.get(), 0, font);",
+      "revId": "eb9497903f2c02ce69987686a3d199765a011710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
