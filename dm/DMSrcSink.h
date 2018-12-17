@@ -543,9 +543,10 @@ private:
 
 class ViaDDL : public Via {
 public:
-    ViaDDL(int numDivisions, Sink* sink);
+    ViaDDL(int numReplays, int numDivisions, Sink* sink);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
+    const int fNumReplays;
     const int fNumDivisions;
 };
 
