@@ -30,5 +30,7 @@ adb shell am instrument -w org.skia.skqp | tee "$tmp_file" | fold -s
 
 adb logcat -d TestRunner org.skia.skqp skia DEBUG "*:S"
 
-grep -q '^OK ' "$tmp_file"
+if ! grep -q '^OK ' "$tmp_file"; then
+    echo 'this test failed'
+fi
 
