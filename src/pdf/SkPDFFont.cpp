@@ -601,6 +601,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
             return {nullptr, {0, 0}};
     }
 }
+
 static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
                                                const SkTypeface* typeface,
                                                SkGlyphCache* cache) {
@@ -674,6 +675,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
 
     SkIRect bbox = SkIRect::MakeEmpty();
 
+    std::vector<std::pair<SkGlyphID, SkPDFIndirectReference>> imageGlyphs;
     for (SkGlyphID gID : SingleByteGlyphIdIterator(firstGlyphID, lastGlyphID)) {
         bool skipGlyph = gID != 0 && !subset.has(gID);
         SkString characterName;
@@ -689,25 +691,18 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                                           glyph.fWidth, glyph.fHeight);
             bbox.join(glyphBBox);
             const SkPath* path = cache->findPath(glyph);
+            SkDynamicMemoryWStream content;
             if (path && !path->isEmpty()) {
-                SkDynamicMemoryWStream content;
-                setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
-                                            &content);
+                setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox, &content);
                 SkPDFUtils::EmitPath(*path, SkPaint::kFill_Style, &content);
-                SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(),
-                                      &content);
-                SkPDFStream charProc(std::unique_ptr<SkStreamAsset>(content.detachAsStream()));
-                charProcs->insertRef(characterName, doc->emit(charProc));
+                SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(), &content);
             } else {
                 auto pimg = to_image(gID, cache.get());
                 if (!pimg.fImage) {
-                    SkDynamicMemoryWStream content;
                     setGlyphWidthAndBoundingBox(SkFloatToScalar(glyph.fAdvanceX), glyphBBox,
                                                 &content);
-                    SkPDFStream charProc(std::unique_ptr<SkStreamAsset>(content.detachAsStream()));
-                    charProcs->insertRef(characterName, doc->emit(charProc));
                 } else {
-                    SkDynamicMemoryWStream content;
+                    imageGlyphs.emplace_back(gID, SkPDFSerializeImage(pimg.fImage.get(), doc));
                     SkPDFUtils::AppendScalar(SkFloatToScalar(glyph.fAdvanceX), &content);
                     content.writeText(" 0 d0\n");
                     content.writeDecAsText(pimg.fImage->width());
@@ -717,20 +712,25 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                     content.writeDecAsText(pimg.fOffset.x());
                     content.writeText(" ");
                     content.writeDecAsText(pimg.fImage->height() + pimg.fOffset.y());
-                    content.writeText(" cm\n");
-                    content.writeText("/X Do\n");
-                    SkPDFStream charProc(std::unique_ptr<SkStreamAsset>(content.detachAsStream()));
-                    auto d0 = sk_make_sp<SkPDFDict>();
-                    d0->insertRef("X", SkPDFSerializeImage(pimg.fImage.get(), doc));
-                    auto d1 = sk_make_sp<SkPDFDict>();
-                    d1->insertObject("XObject", std::move(d0));
-                    charProc.dict()->insertObject("Resources", std::move(d1));
-                    charProcs->insertRef(characterName, doc->emit(charProc));
+                    content.writeText(" cm\n/X");
+                    content.write(characterName.c_str(), characterName.size());
+                    content.writeText(" Do\n");
                 }
             }
+            charProcs->insertRef(characterName, doc->emit(SkPDFStream(content.detachAsStream())));
         }
         encDiffs->appendName(std::move(characterName));
         widthArray->appendScalar(advance);
+    }
+
+    if (!imageGlyphs.empty()) {
+        auto d0 = sk_make_sp<SkPDFDict>();
+        for (const auto& pair : imageGlyphs) {
+            d0->insertRef(SkStringPrintf("Xg%X", pair.first), pair.second);
+        }
+        auto d1 = sk_make_sp<SkPDFDict>();
+        d1->insertObject("XObject", std::move(d0));
+        font.insertObject("Resources", std::move(d1));
     }
 
     encoding->insertObject("Differences", std::move(encDiffs));
