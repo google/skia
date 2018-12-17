@@ -114,8 +114,8 @@ protected:
             SkAutoTArray<SkGlyphID> glyphs(len);
 
             // Draw using text blobs!!!!
-            font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.get(), len);
-            font.getXPos(glyphs.get(), len, pos.get());
+            int n = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs.get(), len);
+            font.getXPos(glyphs.get(), n, pos.get());
             auto blob = SkTextBlob::MakeFromPosTextH(text, len, pos.get(), 0, font);
 
             // Draw with an origin.
