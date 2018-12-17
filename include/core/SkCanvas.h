@@ -722,9 +722,19 @@ public:
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
         @param layerRec  layer state
-        @return          depth of save state stack
+        @return          depth of save state stack before this call was made.
     */
     int saveLayer(const SaveLayerRec& layerRec);
+
+    /** Experimental
+     *  Saves the specified subset of the current pixels in the current layer,
+     *  and then clears those pixels to transparent black.
+     *  Restores the pixels on restore() by drawing them in SkBlendMode::kDstOver.
+     *
+     *  @param subset   conservative bounds of the area to be saved / restored.
+     *  @return depth of save state stack before this call was made.
+     */
+    int saveBehind(const SkRect* subset);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
@@ -2420,6 +2430,8 @@ protected:
     virtual SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& ) {
         return kFullLayer_SaveLayerStrategy;
     }
+    // returns true if we should actually perform the saveBehind, or false if we should just save.
+    virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
     virtual void didRestore() {}
     virtual void didConcat(const SkMatrix& ) {}
@@ -2654,6 +2666,7 @@ private:
                                 SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
+    void internalSaveBehind(const SkRect*);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,
                             const SkMatrix& clipMatrix);
 
