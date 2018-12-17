@@ -198,6 +198,10 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
                            new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
 
     fContext->contextPriv().moveOpListsToDDL(ddl.get());
+
+    // We want a new lazy proxy target for each recorded DDL so force the (lazy proxy-backed)
+    // SkSurface to be regenerated for each DDL.
+    fSurface = nullptr;
     return ddl;
 }
 
