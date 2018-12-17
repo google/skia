@@ -448,8 +448,10 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fDisplacementTransform(offsetMatrix, displacement.get())
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
-        , fDomain(color.get(), GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions)),
-                  GrTextureDomain::kDecal_Mode)
+        , fDomain(color.get(),
+                  GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(colorDimensions),
+                                                   GrTextureDomain::kDecal_Mode),
+                  GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode)
         , fColorSampler(color)
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
@@ -605,7 +607,8 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
                 proxy->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
-    fGLDomain.setData(pdman, displacementMap.domain(), proxy);
+    fGLDomain.setData(pdman, displacementMap.domain(), proxy,
+                      displacementMap.textureSampler(1).samplerState());
 }
 
 void GrGLDisplacementMapEffect::GenKey(const GrProcessor& proc,

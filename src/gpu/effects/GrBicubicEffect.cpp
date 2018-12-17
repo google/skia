@@ -113,15 +113,20 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    fDomain.setData(pdman, bicubicEffect.domain(), proxy);
+    fDomain.setData(pdman, bicubicEffect.domain(), proxy,
+                    processor.textureSampler(0).samplerState());
 }
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  const SkMatrix& matrix,
-                                 const GrSamplerState::WrapMode wrapModes[2])
+                                 const GrSamplerState::WrapMode wrapModes[2],
+                                 GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY)
         : INHERITED{kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config())}
         , fCoordTransform(matrix, proxy.get())
-        , fDomain(GrTextureDomain::IgnoredDomain())
+        , fDomain(proxy.get(),
+                  GrTextureDomain::MakeTexelDomain(
+                          SkIRect::MakeWH(proxy->width(), proxy->height()), modeX, modeY),
+                  modeX, modeY)
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest)) {
     this->addCoordTransform(&fCoordTransform);
@@ -133,7 +138,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  const SkRect& domain)
         : INHERITED(kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config()))
         , fCoordTransform(matrix, proxy.get())
-        , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
+        , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode, GrTextureDomain::kClamp_Mode)
         , fTextureSampler(std::move(proxy)) {
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
