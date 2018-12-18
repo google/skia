@@ -12,12 +12,12 @@
 #include "SkPDFDocument.h"
 #include "SkPDFFont.h"
 #include "SkPDFMetadata.h"
+#include "SkPDFTag.h"
 #include "SkUUID.h"
 
 #include <atomic>
 
 class SkPDFDevice;
-class SkPDFTag;
 class SkExecutor;
 
 const char* SkPDFGetNodeIdKey();
@@ -35,27 +35,25 @@ struct SkPDFOffsetMap {
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
 struct SkPDFObjectSerializer {
-    std::atomic<int> fNextObjectNumber = {1};
-    SkPDFIndirectReference reserve() { return SkPDFIndirectReference{fNextObjectNumber++}; }
     SkPDFOffsetMap fOffsets;
     size_t fBaseOffset = SIZE_MAX;
 
     SkPDFObjectSerializer();
     ~SkPDFObjectSerializer();
-    SkPDFObjectSerializer(SkPDFObjectSerializer&&) = delete;
-    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&) = delete;
-    SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
-    SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 
-    SkWStream* beginObject(SkPDFIndirectReference, SkWStream*);
+    void beginObject(SkPDFIndirectReference, SkWStream*);
     void endObject(SkWStream*);
     void serializeHeader(SkWStream*);
-    void serializeObject(const sk_sp<SkPDFObject>&, SkWStream*);
     void serializeFooter(SkWStream*,
                          SkPDFIndirectReference infoDict,
                          SkPDFIndirectReference docCatalog,
                          SkUUID uuid);
     SkPDFFileOffset offset(SkWStream*);
+
+    SkPDFObjectSerializer(SkPDFObjectSerializer&&) = delete;
+    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&) = delete;
+    SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
+    SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 };
 
 /** Concrete implementation of SkDocument that creates PDF files. This
@@ -79,7 +77,7 @@ public:
        It might go without saying that objects should not be changed
        after calling serialize, since those changes will be too late.
      */
-    SkPDFIndirectReference serialize(const sk_sp<SkPDFObject>&);
+//    SkPDFIndirectReference serialize(const sk_sp<SkPDFObject>&);
     SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
     SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
     SkPDFCanon* canon() { return &fCanon; }
@@ -89,7 +87,7 @@ public:
     // Returns -1 if no mark ID.
     int getMarkIdForNodeId(int nodeId);
 
-    SkPDFIndirectReference reserveRef();
+    SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
     SkWStream* beginObject(SkPDFIndirectReference);
     void endObject();
 
@@ -98,9 +96,6 @@ public:
     size_t pageCount() { return fPageRefs.size(); }
 
 private:
-    sk_sp<SkPDFTag> recursiveBuildTagTree(const SkPDF::StructureElementNode& node,
-                                          sk_sp<SkPDFTag> parent);
-
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
@@ -108,6 +103,7 @@ private:
     std::vector<SkPDFIndirectReference> fPageRefs;
     SkPDFDict fDests;
     sk_sp<SkPDFDevice> fPageDevice;
+    std::atomic<int> fNextObjectNumber = {1};
     SkUUID fUUID;
     SkPDFIndirectReference fInfoDict;
     SkPDFIndirectReference fXMP;
@@ -117,15 +113,8 @@ private:
     SkExecutor* fExecutor = nullptr;
 
     // For tagged PDFs.
+    SkPDFTagTree fTagTree;
 
-    // The tag root, which owns its child tags and so on.
-    sk_sp<SkPDFTag> fTagRoot;
-    // Array of page -> array of marks mapping to tags.
-    SkTArray<SkTArray<sk_sp<SkPDFTag>>> fMarksPerPage;
-    // A mapping from node ID to tag for fast lookup.
-    SkTHashMap<int, sk_sp<SkPDFTag>> fNodeIdToTag;
-
-    std::atomic<int> fOutstandingRefs = {0};
     SkMutex fMutex;
     SkSemaphore fSemaphore;
 

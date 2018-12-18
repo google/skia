@@ -744,12 +744,11 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
     pdfShader->insertInt("ShadingType", shadingType);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
 
-    auto pdfFunctionShader = sk_make_sp<SkPDFDict>("Pattern");
-    pdfFunctionShader->insertInt("PatternType", 2);
-    pdfFunctionShader->insertObject("Matrix", SkPDFUtils::MatrixToArray(finalMatrix));
-    pdfFunctionShader->insertObject("Shading", std::move(pdfShader));
-
-    return doc->serialize(pdfFunctionShader);
+    SkPDFDict pdfFunctionShader("Pattern");
+    pdfFunctionShader.insertInt("PatternType", 2);
+    pdfFunctionShader.insertObject("Matrix", SkPDFUtils::MatrixToArray(finalMatrix));
+    pdfFunctionShader.insertObject("Shading", std::move(pdfShader));
+    return doc->emit(pdfFunctionShader);
 }
 
 static SkPDFIndirectReference find_pdf_shader(SkPDFDocument* doc,
