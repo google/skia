@@ -1464,19 +1464,18 @@ sk_sp<SkPDFArray> SkPDFDevice::getAnnotations() {
     return array;
 }
 
-void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
+void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFIndirectReference page) const {
     for (const NamedDestination& dest : fNamedDestinations) {
+        SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
         auto pdfDest = sk_make_sp<SkPDFArray>();
         pdfDest->reserve(5);
-        // TODO(halcanry) reserve an IndirectReference for each page with beginPage()
-        pdfDest->appendObjRef(sk_ref_sp(page));
+        pdfDest->appendRef(page);
         pdfDest->appendName("XYZ");
-        SkPoint p = fInitialTransform.mapXY(dest.point.x(), dest.point.y());
         pdfDest->appendScalar(p.x());
         pdfDest->appendScalar(p.y());
         pdfDest->appendInt(0);  // Leave zoom unchanged
-        SkString name(static_cast<const char*>(dest.nameData->data()));
-        dict->insertObject(name, std::move(pdfDest));
+        dict->insertObject(SkString(static_cast<const char*>(dest.nameData->data())),
+                           std::move(pdfDest));
     }
 }
 

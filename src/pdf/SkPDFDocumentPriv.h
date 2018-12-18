@@ -85,7 +85,7 @@ public:
     SkPDFCanon* canon() { return &fCanon; }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
-    sk_sp<SkPDFDict> getPage(int pageIndex) const;
+    SkPDFIndirectReference getPage(size_t pageIndex) const;
     // Returns -1 if no mark ID.
     int getMarkIdForNodeId(int nodeId);
 
@@ -94,6 +94,8 @@ public:
     void endObject();
 
     SkExecutor* executor() const { return fExecutor; }
+    size_t currentPageIndex() { return fPages.size(); }
+    size_t pageCount() { return fPageRefs.size(); }
 
 private:
     sk_sp<SkPDFTag> recursiveBuildTagTree(const SkPDF::StructureElementNode& node,
@@ -103,7 +105,8 @@ private:
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
     std::vector<sk_sp<SkPDFDict>> fPages;
-    sk_sp<SkPDFDict> fDests;
+    std::vector<SkPDFIndirectReference> fPageRefs;
+    SkPDFDict fDests;
     sk_sp<SkPDFDevice> fPageDevice;
     SkUUID fUUID;
     SkPDFIndirectReference fInfoDict;

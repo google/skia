@@ -32,6 +32,9 @@ public:
 
     void appendChild(sk_sp<SkPDFTag> child);
 
+    static SkPDFIndirectReference MakeStructTree(SkPDFDocument* doc,
+                                                 sk_sp<SkPDFTag> tagRoot,
+                                                 SkTArray<SkTArray<sk_sp<SkPDFTag>>> marksPerPage);
 private:
     friend class SkPDFDocument;
 

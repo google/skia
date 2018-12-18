@@ -153,7 +153,7 @@ bool SkPDFTag::prepareTagTreeToEmit(const SkPDFDocument& document) {
         }
 
         if (allSamePage) {
-            insertObjRef("Pg", document.getPage(firstPageIndex));
+            this->insertRef("Pg", document.getPage(SkToSizeT(firstPageIndex)));
         }
     }
 
@@ -190,7 +190,7 @@ bool SkPDFTag::prepareTagTreeToEmit(const SkPDFDocument& document) {
                 kids->appendInt(fMarkedContent[i].markId);
             } else {
                 auto mcr = sk_make_sp<SkPDFDict>("MCR");
-                mcr->insertObjRef("Pg", document.getPage(fMarkedContent[i].pageIndex));
+                mcr->insertRef("Pg", document.getPage(SkToSizeT(fMarkedContent[i].pageIndex)));
                 mcr->insertInt("MCID", fMarkedContent[i].markId);
                 kids->appendObject(mcr);
             }
@@ -203,4 +203,48 @@ bool SkPDFTag::prepareTagTreeToEmit(const SkPDFDocument& document) {
     // marked content, so return false. This subtree will be omitted
     // from the structure tree.
     return false;
+}
+
+SkPDFIndirectReference SkPDFTag::MakeStructTree(SkPDFDocument* doc,
+                                                sk_sp<SkPDFTag> tagRoot,
+                                                SkTArray<SkTArray<sk_sp<SkPDFTag>>> marksPerPage) {
+
+    // Prepare the tag tree, this automatically skips over any
+    // tags that weren't referenced from any marked content.
+    bool success = tagRoot->prepareTagTreeToEmit(*doc);
+    if (!success) {
+        SkDEBUGFAIL("PDF has tag tree but no marked content.");
+    }
+
+    // The parent of the tag root is the StructTreeRoot.
+    int pageCount = SkToInt(doc->pageCount());;
+
+    // Build the parent tree, which is a mapping from the marked
+    // content IDs on each page to their corressponding tags.
+    auto parentTreeNums = sk_make_sp<SkPDFArray>();
+    for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+        // Exit now if there are no more pages with marked content.
+        if (marksPerPage.count() <= pageIndex) {
+            break;
+        }
+        auto markToTagArray = sk_make_sp<SkPDFArray>();
+
+        for (int i = 0; i < marksPerPage[pageIndex].count(); i++) {
+            markToTagArray->appendObjRef(marksPerPage[pageIndex][i]);
+        }
+        parentTreeNums->appendInt(pageIndex);
+        parentTreeNums->appendObjRef(std::move(markToTagArray));
+    }
+    auto parentTree = sk_make_sp<SkPDFDict>("ParentTree");
+    parentTree->insertObject("Nums", parentTreeNums);
+
+    // Build the StructTreeRoot.
+    auto structTreeRoot = sk_make_sp<SkPDFDict>("StructTreeRoot");
+    structTreeRoot->insertObjRef("K", tagRoot);
+    tagRoot->insertObjRef("P", structTreeRoot);
+
+    structTreeRoot->insertObjRef("ParentTree", std::move(parentTree));
+    structTreeRoot->insertInt("ParentTreeNextKey", pageCount);
+
+    return doc->serialize(structTreeRoot);
 }
