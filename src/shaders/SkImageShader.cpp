@@ -91,9 +91,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
     // legacy shader impl should be able to handle these matrices
     return true;
 }
-#endif
 
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
@@ -106,6 +104,15 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
     if (fTileModeX == kDecal_TileMode || fTileModeY == kDecal_TileMode) {
+        return nullptr;
+    }
+
+    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer,
+    // so it can't handle bitmaps larger than that.
+    //
+    // TODO(mtklein): steal another bit here so we have more room for intermediate math
+    if (fImage-> width() > 65535 ||
+        fImage->height() > 65535) {
         return nullptr;
     }
 
@@ -131,21 +138,11 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
     return const_cast<SkImage*>(fImage.get());
 }
 
-static bool bitmap_is_too_big(int w, int h) {
-    // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
-    // communicates between its matrix-proc and its sampler-proc. Until we can
-    // widen that, we have to reject bitmaps that are larger.
-    //
-    static const int kMaxSize = 65535;
-
-    return w > kMaxSize || h > kMaxSize;
-}
-
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     TileMode tx, TileMode ty,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
-    if (!image || bitmap_is_too_big(image->width(), image->height())) {
+    if (!image) {
         return sk_make_sp<SkEmptyShader>();
     }
     return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };
