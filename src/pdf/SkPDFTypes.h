@@ -57,7 +57,7 @@ inline static bool operator!=(SkPDFIndirectReference u, SkPDFIndirectReference v
     which are common in the PDF format.
 
 */
-class SkPDFObject : public SkRefCnt {
+class SkPDFObject {
 public:
     SkPDFObject() = default;
 
@@ -113,7 +113,7 @@ public:
     void appendName(SkString);
     void appendString(const char[]);
     void appendString(SkString);
-    void appendObject(sk_sp<SkPDFObject>);
+    void appendObject(std::unique_ptr<SkPDFObject>&&);
     void appendRef(SkPDFIndirectReference);
 
 private:
@@ -126,7 +126,7 @@ static inline void SkPDFArray_Append(SkPDFArray* a, int v) { a->appendInt(v); }
 static inline void SkPDFArray_Append(SkPDFArray* a, SkScalar v) { a->appendScalar(v); }
 
 template <typename T, typename... Args>
-inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
+static inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
     SkPDFArray_Append(a, v);
     SkPDFArray_Append(a, args...);
 }
@@ -134,8 +134,8 @@ inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
 static inline void SkPDFArray_Append(SkPDFArray* a) {}
 
 template <typename... Args>
-inline sk_sp<SkPDFArray> SkPDFMakeArray(Args... args) {
-    auto ret = sk_make_sp<SkPDFArray>();
+static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
+    std::unique_ptr<SkPDFArray> ret(new SkPDFArray());
     ret->reserve(sizeof...(Args));
     SkPDFArray_Append(ret.get(), args...);
     return ret;
@@ -145,7 +145,7 @@ inline sk_sp<SkPDFArray> SkPDFMakeArray(Args... args) {
 
     A dictionary object in a PDF.
 */
-class SkPDFDict : public SkPDFObject {
+class SkPDFDict final : public SkPDFObject {
 public:
     /** Create a PDF dictionary.
      *  @param type   The value of the Type entry, nullptr for no type.
@@ -168,8 +168,8 @@ public:
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
      */
-    void insertObject(const char key[], sk_sp<SkPDFObject>);
-    void insertObject(SkString, sk_sp<SkPDFObject>);
+    void insertObject(const char key[], std::unique_ptr<SkPDFObject>&&);
+    void insertObject(SkString, std::unique_ptr<SkPDFObject>&&);
     void insertRef(const char key[], SkPDFIndirectReference);
     void insertRef(SkString, SkPDFIndirectReference);
 
@@ -195,13 +195,17 @@ private:
     std::vector<std::pair<SkPDFUnion, SkPDFUnion>> fRecords;
 };
 
+static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullptr) {
+    return std::unique_ptr<SkPDFDict>(new SkPDFDict(type));
+}
+
 #ifdef SK_PDF_LESS_COMPRESSION
     static constexpr bool kSkPDFDefaultDoDeflate = false;
 #else
     static constexpr bool kSkPDFDefaultDoDeflate = true;
 #endif
 
-SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
+SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
                                       std::unique_ptr<SkStreamAsset> stream,
                                       SkPDFDocument* doc,
                                       bool deflate = kSkPDFDefaultDoDeflate);

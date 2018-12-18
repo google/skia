@@ -77,7 +77,6 @@ public:
        It might go without saying that objects should not be changed
        after calling serialize, since those changes will be too late.
      */
-//    SkPDFIndirectReference serialize(const sk_sp<SkPDFObject>&);
     SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
     SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
     SkPDFCanon* canon() { return &fCanon; }
@@ -99,7 +98,7 @@ private:
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
-    std::vector<sk_sp<SkPDFDict>> fPages;
+    std::vector<std::unique_ptr<SkPDFDict>> fPages;
     std::vector<SkPDFIndirectReference> fPageRefs;
     SkPDFDict fDests;
     sk_sp<SkPDFDevice> fPageDevice;

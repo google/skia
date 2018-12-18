@@ -63,7 +63,7 @@ static void add_subdict(const std::vector<SkPDFIndirectReference>& resourceList,
                         SkPDFResourceType type,
                         SkPDFDict* dst) {
     if (!resourceList.empty()) {
-        auto resources = sk_make_sp<SkPDFDict>();
+        auto resources = SkPDFMakeDict();
         for (SkPDFIndirectReference ref : resourceList) {
             resources->insertRef(resource(type, ref.fValue), ref);
         }
@@ -71,8 +71,8 @@ static void add_subdict(const std::vector<SkPDFIndirectReference>& resourceList,
     }
 }
 
-static sk_sp<SkPDFArray> make_proc_set() {
-    auto procSets = sk_make_sp<SkPDFArray>();
+static std::unique_ptr<SkPDFArray> make_proc_set() {
+    auto procSets = SkPDFMakeArray();
     static const char kProcs[][7] = { "PDF", "Text", "ImageB", "ImageC", "ImageI"};
     procSets->reserve(SK_ARRAY_COUNT(kProcs));
     for (const char* proc : kProcs) {
@@ -81,11 +81,12 @@ static sk_sp<SkPDFArray> make_proc_set() {
     return procSets;
 }
 
-sk_sp<SkPDFDict> SkPDFMakeResourceDict(std::vector<SkPDFIndirectReference> graphicStateResources,
-                                       std::vector<SkPDFIndirectReference> shaderResources,
-                                       std::vector<SkPDFIndirectReference> xObjectResources,
-                                       std::vector<SkPDFIndirectReference> fontResources) {
-    auto dict = sk_make_sp<SkPDFDict>();
+std::unique_ptr<SkPDFDict> SkPDFMakeResourceDict(
+        const std::vector<SkPDFIndirectReference>& graphicStateResources,
+        const std::vector<SkPDFIndirectReference>& shaderResources,
+        const std::vector<SkPDFIndirectReference>& xObjectResources,
+        const std::vector<SkPDFIndirectReference>& fontResources) {
+    auto dict = SkPDFMakeDict();
     dict->insertObject("ProcSets", make_proc_set());
     add_subdict(graphicStateResources, SkPDFResourceType::kExtGState, dict.get());
     add_subdict(shaderResources,       SkPDFResourceType::kPattern,   dict.get());

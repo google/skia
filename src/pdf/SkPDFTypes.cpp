@@ -36,7 +36,7 @@ SkPDFUnion::~SkPDFUnion() {
             return;
         case Type::kObject:
             SkASSERT(fObject);
-            fObject->unref();
+            delete fObject;
             return;
         default:
             return;
@@ -246,7 +246,7 @@ SkPDFUnion SkPDFUnion::Name(SkString s) { return SkPDFUnion(Type::kNameSkS, std:
 
 SkPDFUnion SkPDFUnion::String(SkString s) { return SkPDFUnion(Type::kStringSkS, std::move(s)); }
 
-SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
+SkPDFUnion SkPDFUnion::Object(std::unique_ptr<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObject);
     SkASSERT(objSp.get());
     u.fObject = objSp.release();  // take ownership into union{}
@@ -324,7 +324,7 @@ void SkPDFArray::appendString(const char value[]) {
     this->append(SkPDFUnion::String(value));
 }
 
-void SkPDFArray::appendObject(sk_sp<SkPDFObject> objSp) {
+void SkPDFArray::appendObject(std::unique_ptr<SkPDFObject>&& objSp) {
     this->append(SkPDFUnion::Object(std::move(objSp)));
 }
 
@@ -374,10 +374,10 @@ void SkPDFDict::insertRef(SkString key, SkPDFIndirectReference ref) {
     fRecords.emplace_back(SkPDFUnion::Name(std::move(key)), SkPDFUnion::Ref(ref));
 }
 
-void SkPDFDict::insertObject(const char key[], sk_sp<SkPDFObject> objSp) {
+void SkPDFDict::insertObject(const char key[], std::unique_ptr<SkPDFObject>&& objSp) {
     fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
 }
-void SkPDFDict::insertObject(SkString key, sk_sp<SkPDFObject> objSp) {
+void SkPDFDict::insertObject(SkString key, std::unique_ptr<SkPDFObject>&& objSp) {
     fRecords.emplace_back(SkPDFUnion::Name(std::move(key)),
                           SkPDFUnion::Object(std::move(objSp)));
 }
@@ -474,7 +474,7 @@ static void serialize_stream(const SkPDFDict* origDict,
     doc->endObject();
 }
 
-SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
+SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
                                       std::unique_ptr<SkStreamAsset> content,
                                       SkPDFDocument* doc,
                                       bool deflate) {
@@ -486,7 +486,7 @@ SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
         // only be executed once.
         executor->add([dictPtr, contentPtr, deflate, doc, ref]() {
             serialize_stream(dictPtr, contentPtr, deflate, doc, ref);
-            SkSafeUnref(dictPtr);
+            delete dictPtr;
             delete contentPtr;
         });
         return ref;

@@ -11,11 +11,11 @@
 
 SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkStreamAsset> content,
-                                            sk_sp<SkPDFArray> mediaBox,
-                                            sk_sp<SkPDFDict> resourceDict,
+                                            std::unique_ptr<SkPDFArray> mediaBox,
+                                            std::unique_ptr<SkPDFDict> resourceDict,
                                             const SkMatrix& inverseTransform,
                                             const char* colorSpace) {
-    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertName("Type", "XObject");
     dict->insertName("Subtype", "Form");
     if (!inverseTransform.isIdentity()) {
@@ -28,7 +28,7 @@ SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
     // isolated blending.  Do this conditionally if that changes.
     // TODO(halcanary): Is this comment obsolete, since we use it for
     // alpha masks?
-    auto group = sk_make_sp<SkPDFDict>("Group");
+    auto group = SkPDFMakeDict("Group");
     group->insertName("S", "Transparency");
     if (colorSpace != nullptr) {
         group->insertName("CS", colorSpace);
