@@ -83,26 +83,27 @@ static const struct {
     { "angle_gl_es2_msaa8",    "gpu", "api=angle_gl_es2,samples=8" },
     { "angle_gl_es3_msaa8",    "gpu", "api=angle_gl_es3,samples=8" },
     { "commandbuffer",         "gpu", "api=commandbuffer" },
-    { "mock",                  "gpu", "api=mock" }
+    { "mock",                  "gpu", "api=mock" },
 #ifdef SK_VULKAN
-    ,{ "vk",                   "gpu", "api=vulkan" }
-    ,{ "vknostencils",         "gpu", "api=vulkan,stencils=false" }
-    ,{ "vk1010102",            "gpu", "api=vulkan,color=1010102" }
-    ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
-    ,{ "vkesrgb",              "gpu", "api=vulkan,color=esrgb" }
-    ,{ "vknarrow",             "gpu", "api=vulkan,color=narrow" }
-    ,{ "vkenarrow",            "gpu", "api=vulkan,color=enarrow" }
-    ,{ "vkf16",                "gpu", "api=vulkan,color=f16" }
-    ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
-    ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
-    ,{ "vkbetex",              "gpu", "api=vulkan,surf=betex" }
-    ,{ "vkbert",               "gpu", "api=vulkan,surf=bert" }
+    { "vk",                    "gpu", "api=vulkan" },
+    { "vknostencils",          "gpu", "api=vulkan,stencils=false" },
+    { "vk1010102",             "gpu", "api=vulkan,color=1010102" },
+    { "vksrgb",                "gpu", "api=vulkan,color=srgb" },
+    { "vkesrgb",               "gpu", "api=vulkan,color=esrgb" },
+    { "vknarrow",              "gpu", "api=vulkan,color=narrow" },
+    { "vkenarrow",             "gpu", "api=vulkan,color=enarrow" },
+    { "vkf16",                 "gpu", "api=vulkan,color=f16" },
+    { "vkmsaa4",               "gpu", "api=vulkan,samples=4" },
+    { "vkmsaa8",               "gpu", "api=vulkan,samples=8" },
+    { "vkbetex",               "gpu", "api=vulkan,surf=betex" },
+    { "vkbert",                "gpu", "api=vulkan,surf=bert" },
+    { "vktestpersistentcache", "gpu", "api=vulkan,testPersistentCache=true" },
 #endif
 #ifdef SK_METAL
-    ,{ "mtl",                   "gpu", "api=metal" }
-    ,{ "mtl1010102",            "gpu", "api=metal,color=1010102" }
-    ,{ "mtlmsaa4",              "gpu", "api=metal,samples=4" }
-    ,{ "mtlmsaa8",              "gpu", "api=metal,samples=8" }
+    { "mtl",                   "gpu", "api=metal" },
+    { "mtl1010102",            "gpu", "api=metal,color=1010102" },
+    { "mtlmsaa4",              "gpu", "api=metal,samples=4" },
+    { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
 #endif
 };
 // clang-format on
