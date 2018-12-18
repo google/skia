@@ -5394,3 +5394,21 @@ DEF_TEST(Path_survive_transform, r) {
     REPORTER_ASSERT(r, path.getConvexity() == SkPath::kConvex_Convexity);
     survive(&path, x, false, r, [](const SkPath& p) { return true; });
 }
+
+DEF_TEST(path_last_move_to_index, r) {
+    // Make sure that copyPath is safe after the call to path.offset().
+    // Previously, we would leave its fLastMoveToIndex alone after the copy, but now we should
+    // set it to path's value inside SkPath::transform()
+
+    SkPath path;
+    SkPath copyPath;
+
+    SkPaint paint;
+    paint.getTextPath("hello", 5, 20, 80, &(copyPath)); // <== init copyPath, set fake copyPath.fLastMoveToIndex
+
+    SkScalar radii[] = { 80, 100, 0, 0, 40, 60, 0, 0 };;
+    path.addRoundRect({10, 10, 110, 110}, radii);
+    path.offset(0, 5, &(copyPath));                     // <== change buffer copyPath.fPathRef->fPoints but not reset copyPath.fLastMoveToIndex lead to out of bound
+
+    copyPath.rConicTo(1, 1, 3, 3, 0.707107f);
+}
