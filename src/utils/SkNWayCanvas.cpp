@@ -72,6 +72,15 @@ SkCanvas::SaveLayerStrategy SkNWayCanvas::getSaveLayerStrategy(const SaveLayerRe
     return kNoLayer_SaveLayerStrategy;
 }
 
+bool SkNWayCanvas::onDoSaveBehind(const SkRect* bounds) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->saveBehind(bounds);
+    }
+    this->INHERITED::onDoSaveBehind(bounds);
+    return false;
+}
+
 void SkNWayCanvas::willRestore() {
     Iter iter(fList);
     while (iter.next()) {

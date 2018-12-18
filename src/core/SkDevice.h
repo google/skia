@@ -248,6 +248,8 @@ protected:
 
     bool readPixels(const SkPixmap&, int x, int y);
 
+    virtual sk_sp<SkSpecialImage> snapBackImage(const SkIRect&);    // default returns null
+
     ///////////////////////////////////////////////////////////////////////////
 
     virtual GrContext* context() const { return nullptr; }
