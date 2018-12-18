@@ -26,7 +26,17 @@ docker exec \
     --env=SKQP_OUTPUT_DIR=/OUT \
     --env=SKQP_BUILD_DIR=/BUILD \
     android_em /SRC/tools/skqp/make_universal_apk.py
+docker exec \
+    --env=SKQP_OUTPUT_DIR=/OUT \
+    --env=SKQP_BUILD_DIR=/BUILD \
+    android_em find '/BUILD/.' '!' -name '.' -prune -exec rm -rf '{}' '+'
+if [ -f "$OUT"/skqp-universal-debug.apk ]; then
+    docker exec \
+        --env=SKQP_OUTPUT_DIR=/OUT \
+        --env=SKQP_BUILD_DIR=/BUILD \
+        android_em chmod 0666 /OUT/*.apk
+fi
+
 docker kill android_em
-rm -r "$BUILD"
-chmod -R 0777 "$OUT"
-ls -l "$OUT"/*.apk
+rmdir "$BUILD"
+ls -l "$OUT"/*.apk 2> /dev/null
