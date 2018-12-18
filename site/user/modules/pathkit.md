@@ -40,10 +40,10 @@ The primary features are:
   let s = document.createElement('script');
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported! Using the wasm version of PathKit');
-    window.__pathkit_locate_file = 'https://unpkg.com/experimental-pathkit-wasm@0.3.1/bin/';
+    window.__pathkit_locate_file = 'https://unpkg.com/pathkit-wasm@0.5.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser. Using the asmjs version of PathKit');
-    window.__pathkit_locate_file = 'https://unpkg.com/experimental-pathkit-asmjs@0.3.1/bin/';
+    window.__pathkit_locate_file = 'https://unpkg.com/pathkit-asmjs@0.5.0/bin/';
   }
   s.src = window.__pathkit_locate_file+'pathkit.js';
   s.onload = () => {
