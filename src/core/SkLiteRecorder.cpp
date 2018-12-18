@@ -30,6 +30,10 @@ SkCanvas::SaveLayerStrategy SkLiteRecorder::getSaveLayerStrategy(const SaveLayer
                    rec.fSaveLayerFlags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
+bool SkLiteRecorder::onDoSaveBehind(const SkRect* subset) {
+    fDL->saveBehind(subset);
+    return false;
+}
 void SkLiteRecorder::willRestore() { fDL->restore(); }
 
 void SkLiteRecorder::didConcat   (const SkMatrix& matrix)   { fDL->   concat(matrix); }
