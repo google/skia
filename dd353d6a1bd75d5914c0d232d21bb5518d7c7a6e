@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0b2fe70_48389e32",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "Do we need a sk_tool_utils::color_to_565 here?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ddb506d_9f696665",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "// This struct captures the information required by the SkCanvas::saveBehind call.\n// Upon restore, \u0027fImage\u0027 should be dropped at \u0027fLoc\u0027\n\n?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25987dd6_abd172e0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "// In a world of non-expanding clips, once the saveBehind\u0027s area of interest is clipped out there is no way it can be drawn to - in which case the saveBehind becomes a noop.\n\n??",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f6f9581_d6b57456",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "Should we have a GM for a saveBehind w/ a rotation?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ab1666b_2972ce94",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "backImage ?",
+      "range": {
+        "startLine": 1138,
+        "startChar": 9,
+        "endLine": 1138,
+        "endChar": 19
+      },
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0705670_d53c7560",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "So, in the rotated case we don\u0027t want to drop this with a clip?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8eb9fc82_578f520c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "backImage ?",
+      "range": {
+        "startLine": 1166,
+        "startChar": 9,
+        "endLine": 1166,
+        "endChar": 19
+      },
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "924df19d_d5ac06df",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1182,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:09:31Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
