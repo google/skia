@@ -68,7 +68,6 @@ protected:
             return;
         }
 
-        canvas->clear(SK_ColorLTGRAY);
         this->drawText(canvas);
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
