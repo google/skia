@@ -363,8 +363,11 @@ private:
             }
         }
 
+        // Don't bother packing vertices for now, this version is already past the opportunity
+        // to hit the fast path on certain devices.
         VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
-                              GrQuadType::kRect, /* hasLocal */ true, domain, aaType);
+                              GrQuadType::kRect, /* hasLocal */ true, domain, aaType,
+                              /* pack */ false);
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                      this->filter());

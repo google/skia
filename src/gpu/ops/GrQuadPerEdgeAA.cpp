@@ -100,15 +100,6 @@ static AI void compute_edge_distances(const Sk4f& a, const Sk4f& b, const Sk4f& 
     }
 }
 
-static AI float get_max_coverage(const Sk4f& lengths) {
-    float minWidth = SkMinScalar(lengths[0], lengths[3]);
-    float minHeight = SkMinScalar(lengths[1], lengths[2]);
-    // Calculate approximate area of the quad, pinning dimensions to 1 in case the quad is larger
-    // than a pixel. Sub-pixel quads that are rotated may in fact have a different true maximum
-    // coverage than this calculation, but this will be close and is stable.
-    return SkMinScalar(minWidth, 1.f) * SkMinScalar(minHeight, 1.f);
-}
-
 // This computes the four edge equations for a quad, then outsets them and optionally computes a new
 // quad as the intersection points of the outset edges. 'x' and 'y' contain the original points as
 // input and the outset points as output. In order to be used as a component of perspective edge
@@ -116,9 +107,7 @@ static AI float get_max_coverage(const Sk4f& lengths) {
 // compute_edge_distances to turn these equations into the distances needed by the shader. The
 // values in x, y, u, v, and r are possibly updated if outsetting is needed. r is the local
 // position's w component if it exists.
-//
-// Returns maximum coverage allowed for any given pixel.
-static float compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
+static void compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y,
         Sk4f* a, Sk4f* b, Sk4f* c, Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount, bool outset) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -159,15 +148,13 @@ static float compute_quad_edges_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f*
     } else if (outset) {
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
-
-    return get_max_coverage(invLengths.invert());
 }
 
 // A specialization of the above function that can compute edge distances very quickly when it knows
 // that the edges intersect at right angles, i.e. any transform other than skew and perspective
 // (GrQuadType::kRectilinear). Unlike the above function, this always outsets the corners since it
 // cannot be reused in the perspective case.
-static float compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static void compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y,  Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
     // xdiff and ydiff will comprise the normalized vectors pointing along each quad edge.
@@ -216,14 +203,12 @@ static float compute_rectilinear_dists_and_outset_vertices(GrQuadAAFlags aaFlags
 
         outset_vertices(xdiff, ydiff, invLengths, x, y, u, v, r, uvrChannelCount);
     }
-
-    return get_max_coverage(lengths);
 }
 
 // Generalizes compute_quad_edge_distances_and_outset_vertices to extrapolate local coords such that
 // after perspective division of the device coordinate, the original local coordinate value is at
 // the original un-outset device position. r is the local coordinate's w component.
-static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
+static void compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x,
         Sk4f* y, Sk4f* w, Sk4f edgeDistances[4], Sk4f* u, Sk4f* v, Sk4f* r, int uvrChannelCount) {
     SkASSERT(uvrChannelCount == 0 || uvrChannelCount == 2 || uvrChannelCount == 3);
 
@@ -234,8 +219,8 @@ static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags,
     // Don't compute outset corners in the normalized space, which means u, v, and r don't need
     // to be provided here (outset separately below). Since this is computing distances for a
     // projected quad, there is a very good chance it's not rectilinear so use the general 2D path.
-    float maxProjectedCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d,
-            &a, &b, &c, nullptr, nullptr, nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
+    compute_quad_edges_and_outset_vertices(aaFlags, &x2d, &y2d, &a, &b, &c,
+            nullptr, nullptr, nullptr, /* uvr ct */ 0, /* outsetCorners */ false);
 
     static const float kOutset = 0.5f;
     if ((GrQuadAAFlags::kLeft | GrQuadAAFlags::kRight) & aaFlags) {
@@ -324,8 +309,6 @@ static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags,
     // distance (technically multiplied by w, so that the fragment shader can do perspective
     // interpolation when it multiplies by 1/w later).
     compute_edge_distances(a, b, c, *x, *y, *w, edgeDistances);
-
-    return maxProjectedCoverage;
 }
 
 // Calculate safe edge distances for non-aa quads that have been batched with aa quads. Since the
@@ -335,7 +318,7 @@ static float compute_quad_dists_and_outset_persp_vertices(GrQuadAAFlags aaFlags,
 // actually sees d = (iA*wA + iB*wB + iC*wC) * (iA/wA + iB/wB + iC/wC). Without perspective this
 // simplifies to 1 as necessary, but we must choose something other than w when there is perspective
 // to ensure that d >= 1 and the edge shows as non-aa.
-static float compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
+static void compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edgeDistances[4]) {
     // Let n = min(w1,w2,w3,w4) and m = max(w1,w2,w3,w4) and rewrite
     //   d = (iA*wA + iB*wB + iC*wC) * (iA*wB*wC + iB*wA*wC + iC*wA*wB) / (wA*wB*wC)
     //       |   e=attr from VS    |   |         fragCoord.w = 1/w                 |
@@ -343,23 +326,23 @@ static float compute_nonaa_edge_distances(const Sk4f& w, bool hasPersp, Sk4f edg
     //   n <= (iA*wA + iB*wB + iC*wC) <= m and
     //   n^2 <= (iA*wB*wC + iB*wA*wC + iC*wA*wB) <= m^2 and
     //   n^3 <= wA*wB*wC <= m^3 regardless of the choice of A, B, and C verts in the quad
-    // Thus if we set e = m^3/n^3, it guarantees d >= 1 for any perspective.
+    // Thus if we set e = m^3/n^3, it guarantees d >= 1 for any perspective. However, the vertex
+    // shader that calculates max coverage for a pixel subtracts 1 from the edge distances to
+    // account for the outsetting done for AA quads, thus we return 2*e to make sure it's > 1 after
+    // the subtraction.
     float e;
     if (hasPersp) {
         float m = w.max();
         float n = w.min();
-        e = (m * m * m) / (n * n * n);
+        e = 2.f * (m * m * m) / (n * n * n);
     } else {
-        e = 1.f;
+        e = 2.f;
     }
 
     // All edge distances set to the same
     for (int i = 0; i < 4; ++i) {
         edgeDistances[i] = e;
     }
-
-    // Non-aa, so always use full coverage
-    return 1.f;
 }
 
 } // anonymous namespace
@@ -373,7 +356,12 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
                  GrQuadAAFlags aaFlags) {
     bool deviceHasPerspective = spec.deviceQuadType() == GrQuadType::kPerspective;
     bool localHasPerspective = spec.localQuadType() == GrQuadType::kPerspective;
-    GrVertexColor color(color4f, GrQuadPerEdgeAA::ColorType::kHalf == spec.colorType());
+            // The internals of the packed edge distance shader variant require the color values to
+        // be unpremul'ed on the CPU so that when it modulates alpha and coverage together, the
+        // alpha is not doubly-applied to the RGB components.
+    bool wide = GrQuadPerEdgeAA::ColorType::kHalf == spec.colorType();
+    GrVertexColor color = spec.packEdgeDistances() ? GrVertexColor(color4f.unpremul(), wide) :
+                                                     GrVertexColor(color4f, wide);
 
     // Load position data into Sk4fs (always x, y, and load w to avoid branching down the road)
     Sk4f x = deviceQuad.x4f();
@@ -393,24 +381,23 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
     // Index into array refers to vertex. Index into particular Sk4f refers to edge.
     Sk4f edgeDistances[4];
-    float maxCoverage = 1.f;
     if (spec.usesCoverageAA()) {
         // Must calculate edges and possibly outside the positions
         if (aaFlags == GrQuadAAFlags::kNone) {
             // A non-AA quad that got batched into an AA group, so it should have full coverage
-            maxCoverage = compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
+            compute_nonaa_edge_distances(w, deviceHasPerspective, edgeDistances);
         } else if (deviceHasPerspective) {
             // For simplicity, pointers to u, v, and r are always provided, but the local dim param
             // ensures that only loaded Sk4fs are modified in the compute functions.
-            maxCoverage = compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w,
-                    edgeDistances, &u, &v, &r, spec.localDimensionality());
+            compute_quad_dists_and_outset_persp_vertices(aaFlags, &x, &y, &w, edgeDistances,
+                    &u, &v, &r, spec.localDimensionality());
         } else if (spec.deviceQuadType() <= GrQuadType::kRectilinear) {
-            maxCoverage = compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y,
-                    edgeDistances, &u, &v, &r, spec.localDimensionality());
+            compute_rectilinear_dists_and_outset_vertices(aaFlags, &x, &y, edgeDistances,
+                    &u, &v, &r, spec.localDimensionality());
         } else {
             Sk4f a, b, c;
-            maxCoverage = compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c,
-                    &u, &v, &r, spec.localDimensionality(), /*outset*/ true);
+            compute_quad_edges_and_outset_vertices(aaFlags, &x, &y, &a, &b, &c, &u, &v, &r,
+                                                   spec.localDimensionality(), /*outset*/ true);
             compute_edge_distances(a, b, c, x, y, w, edgeDistances); // w holds 1.f as desired
         }
     }
@@ -418,10 +405,14 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
     // Now rearrange the Sk4fs into the interleaved vertex layout:
     //  i.e. x1x2x3x4 y1y2y3y4 -> x1y1 x2y2 x3y3 x4y
     GrVertexWriter vb{vertices};
+    uint32_t halfDists[2];
     for (int i = 0; i < 4; ++i) {
-        // save position, always send a vec4 because we embed max coverage in the last component.
-        // For 2D quads, we know w holds the correct 1.f, so just write it out without branching
-        vb.write(x[i], y[i], w[i], maxCoverage);
+        // save position
+        if (deviceHasPerspective) {
+            vb.write(x[i], y[i], w[i]);
+        } else {
+            vb.write(x[i], y[i]);
+        }
 
         // save color
         if (spec.hasVertexColors()) {
@@ -444,7 +435,16 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
 
         // save the edges
         if (spec.usesCoverageAA()) {
-            vb.write(edgeDistances[i]);
+            if (spec.packEdgeDistances()) {
+                // 65504 is the smallest of the boundary values that round to infinity, depending
+                // on the round mode. Quads this big should be detected and handled without packed
+                // edge distances.
+                SkASSERT(edgeDistances[i].max() < 65504);
+                SkFloatToHalf_finite_ftz(edgeDistances[i]).store(&halfDists);
+                vb.write(halfDists[0], halfDists[1]);
+            } else {
+                vb.write(edgeDistances[i]);
+            }
         }
     }
 
@@ -464,6 +464,8 @@ int VertexSpec::localDimensionality() const {
 ////////////////// Geometry Processor Implementation
 
 class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
 public:
 
     static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
@@ -488,14 +490,18 @@ public:
         x |= fDomain.isInitialized() ? 0 : 2;
         x |= fSampler.isInitialized() ? 0 : 4;
         // regular position has two options as well
-        x |= fNeedsPerspective ? 0 : 8;
+        x |= kFloat3_GrVertexAttribType == fPosition.cpuType() ? 0 : 8;
         // local coords require 2 bits (3 choices), 00 for none, 01 for 2d, 10 for 3d
         if (fLocalCoord.isInitialized()) {
             x |= kFloat3_GrVertexAttribType == fLocalCoord.cpuType() ? 16 : 32;
         }
         // similar for colors, 00 for none, 01 for bytes, 10 for half-floats
-        if (this->fColor.isInitialized()) {
+        if (fColor.isInitialized()) {
             x |= kUByte4_norm_GrVertexAttribType == fColor.cpuType() ? 64 : 128;
+        }
+        // shaders handle edge distances differently if they are packed
+        if (fAAEdgeDistances.isInitialized()) {
+            x |= kHalf4_GrVertexAttribType == fAAEdgeDistances.cpuType() ? 0 : 256;
         }
 
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
@@ -515,26 +521,123 @@ public:
             }
 
         private:
+            void emitMaxCoverage(const QuadPerEdgeAAGeometryProcessor& gp, EmitArgs& args,
+                                 const char* outputName) {
+                if (gp.fPosition.gpuType() == kFloat3_GrSLType) {
+                    args.fVertBuilder->codeAppendf(
+                            "%s = min(1.0, max(%s.x, %s.w) / %s.z - 1) * "
+                            "min(1.0, max(%s.y, %s.z) / %s.z - 1);",
+                            outputName, gp.fAAEdgeDistances.name(), gp.fAAEdgeDistances.name(),
+                            gp.fPosition.name(), gp.fAAEdgeDistances.name(),
+                            gp.fAAEdgeDistances.name(), gp.fPosition.name());
+                } else {
+                    args.fVertBuilder->codeAppendf(
+                            "%s = min(1.0, max(%s.x, %s.w) - 1) * min(1.0, max(%s.y, %s.z) - 1);",
+                            outputName, gp.fAAEdgeDistances.name(), gp.fAAEdgeDistances.name(),
+                            gp.fAAEdgeDistances.name(), gp.fAAEdgeDistances.name());
+                }
+            }
+
+            void emitFinalCoverage(const QuadPerEdgeAAGeometryProcessor& gp, EmitArgs& args,
+                                   const char* distTypeName, const char* edgeDistName,
+                                   const char* maxCoverageName, const char* outputName,
+                                   bool outputVector) {
+                args.fFragBuilder->codeAppendf("%s minDist = min(min(%s.x, %s.y), min(%s.z, %s.w));",
+                        distTypeName, edgeDistName, edgeDistName, edgeDistName, edgeDistName);
+                if (gp.fPosition.gpuType() == kFloat3_GrSLType) {
+                    // The distance from edge equation e to homogeneous point p=sk_Position is
+                    // e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
+                    // interpolation of this distance. We can do this by multiplying the vertex
+                    // attribute by p.w and then multiplying by sk_FragCoord.w in the FS. So we
+                    // output e.x*p.x + e.y*p.y + e.z * p.w
+                    args.fFragBuilder->codeAppend("minDist *= sk_FragCoord.w;");
+                }
+                args.fFragBuilder->codeAppendf("%s = %s%s(clamp(minDist, 0.0, %s));",
+                        outputName, distTypeName, outputVector ? "4" : "", maxCoverageName);
+            }
+
+            // In the packed version, the edge distances are premultiplied by the color's alpha
+            // and the color's alpha stores max-coverage*alpha, and edge distances are encoded
+            // as halfs instead of floats.
+            void emitPackedAACode(const QuadPerEdgeAAGeometryProcessor& gp, EmitArgs& args) {
+                // First compute the maximum coverage based on the edge distances (include type so
+                // it's a declaration in addition to the assignment emitMaxCoverage writes)
+                this->emitMaxCoverage(gp, args, "half maxCoverage");
+
+                // When using packed coverage, always add a half4 varying, even if color isn't
+                // initialized, since it is also the vehicle by which the max coverage is sent to
+                // the fragment shader.
+                GrGLSLVarying color(kHalf4_GrSLType);
+                // The color itself is flat, but the max coverage calculation stuffed in the
+                // alpha might not be for high perspective rectangles.
+                args.fVaryingHandler->addVarying("color", &color);
+                if (gp.fColor.isInitialized()) {
+                    // Store maxCoverage * real alpha in the color's alpha channel so that coverage
+                    // as alpha is respected when clamped to this value. This assumes that the
+                    // vertex colors have been sent UNpremul.
+                    args.fVertBuilder->codeAppendf("%s = half4(%s.rgb, %s.a * maxCoverage);",
+                                                   color.vsOut(), gp.fColor.name(),
+                                                   gp.fColor.name());
+                } else {
+                    // No color, so set rgb to 1s and alpha to just max coverage
+                    args.fVertBuilder->codeAppendf("%s = half4(1, 1, 1, maxCoverage);",
+                                                   color.vsOut());
+                }
+                // The alpha of the output color will be modified once final coverage is calculated,
+                // and then the UNpremul RGB values will be modulated by the combined alpha and
+                // coverage to be the correct premul RGB with coverage.
+                args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, color.fsIn());
+
+                // Send the edge distances as half floats, modulated by the color's alpha (this is
+                // the major difference from the regular shader flow). By modulating with alpha, the
+                // fragment shader calculates the proper coverage*alpha.
+                GrGLSLVarying edgeDists(kHalf4_GrSLType);
+                args.fVaryingHandler->addVarying("edgeDists", &edgeDists);
+                args.fVertBuilder->codeAppendf("%s = %s.a * %s;", edgeDists.vsOut(),
+                                               gp.fColor.name(), gp.fAAEdgeDistances.name());
+
+                // The maximum coverage is in the alpha channel of the output color, and we want to
+                // store the final coverage back into the output's alpha channel since coverage and
+                // alpha have been merged.
+                SkString coverage(args.fOutputColor);
+                coverage.append(".a");
+                this->emitFinalCoverage(gp, args, "half", edgeDists.fsIn(), coverage.c_str(),
+                                        coverage.c_str(), /* vector output */ false);
+                // Since coverage is baked into the output color's alpha channel, write 1.0 for the
+                // output coverage value and make the RGB premul again (which will properly include
+                // the original alpha and the determined coverage).
+                args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                args.fFragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor,
+                                               args.fOutputColor);
+            }
+
+            // In the normal AA code, the edge distances are passed as float4's, color is not
+            // manipulated and a separate varying is created to hold on to the calculated max
+            // coverage.
+            void emitNormalAACode(const QuadPerEdgeAAGeometryProcessor& gp, EmitArgs& args) {
+                if (gp.fColor.isInitialized()) {
+                    args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor);
+                }
+
+                args.fFragBuilder->codeAppend("float4 edgeDists;");
+                args.fVaryingHandler->addPassThroughAttribute(gp.fAAEdgeDistances, "edgeDists");
+
+                GrGLSLVarying maxCoverage(kFloat_GrSLType);
+                args.fVaryingHandler->addVarying("maxCoverage", &maxCoverage);
+
+                this->emitMaxCoverage(gp, args, maxCoverage.vsOut());
+                this->emitFinalCoverage(gp, args, "float", "edgeDists", maxCoverage.fsIn(),
+                                        args.fOutputCoverage, /* vector output */ true);
+            }
+
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-                using Interpolation = GrGLSLVaryingHandler::Interpolation;
 
                 const auto& gp = args.fGP.cast<QuadPerEdgeAAGeometryProcessor>();
                 fTextureColorSpaceXformHelper.emitCode(args.fUniformHandler,
                                                        gp.fTextureColorSpaceXform.get());
 
                 args.fVaryingHandler->emitAttributes(gp);
-
-                // Extract effective position out of vec4 as a local variable in the vertex shader
-                if (gp.fNeedsPerspective) {
-                    args.fVertBuilder->codeAppendf("float3 position = %s.xyz;",
-                                                   gp.fPositionWithCoverage.name());
-                } else {
-                    args.fVertBuilder->codeAppendf("float2 position = %s.xy;",
-                                                   gp.fPositionWithCoverage.name());
-                }
-                gpArgs->fPositionVar = {"position",
-                                        gp.fNeedsPerspective ? kFloat3_GrSLType : kFloat2_GrSLType,
-                                        GrShaderVar::kNone_TypeModifier};
+                gpArgs->fPositionVar = gp.fPosition.asShaderVar();
 
                 // Handle local coordinates if they exist
                 if (gp.fLocalCoord.isInitialized()) {
@@ -548,10 +651,26 @@ public:
                                          args.fFPCoordTransformHandler);
                 }
 
-                // Solid color before any texturing gets modulated in
-                if (gp.fColor.isInitialized()) {
-                    args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
-                                                                  Interpolation::kCanBeFlat);
+                // Output coverage calculation code and output color code. Because the max coverage
+                // is packed into the color varyings alpha and edge distances are weighted by
+                // the true alpha when the spec requests packing, the coverage and color code is
+                // tightly coupled. Handle it prior to texture modulation, so that that doesn't need
+                // to worry about how the final color was arrived at.
+                if (gp.fAAEdgeDistances.isInitialized()) {
+                    if (gp.fAAEdgeDistances.gpuType() == kHalf4_GrSLType) {
+                        this->emitPackedAACode(gp, args);
+                    } else {
+                        this->emitNormalAACode(gp, args);
+                    }
+                } else {
+                    // Set coverage to 1. Since there's no AA, there's no need for max coverage
+                    // and the output color can be passed through as-is, or hard-coded.
+                    args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                    if (gp.fColor.isInitialized()) {
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor);
+                    } else {
+                        args.fVertBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
+                    }
                 }
 
                 // If there is a texture, must also handle texture coordinates and reading from
@@ -588,37 +707,8 @@ public:
                         &fTextureColorSpaceXformHelper);
                     args.fFragBuilder->codeAppend(";");
                 }
-
-                // And lastly, output the coverage calculation code
-                if (gp.fAAEdgeDistances.isInitialized()) {
-                    GrGLSLVarying maxCoverage(kFloat_GrSLType);
-                    args.fVaryingHandler->addVarying("maxCoverage", &maxCoverage);
-                    args.fVertBuilder->codeAppendf("%s = %s.w;",
-                                                   maxCoverage.vsOut(), gp.fPositionWithCoverage.name());
-
-                    args.fFragBuilder->codeAppend("float4 edgeDists;");
-                    args.fVaryingHandler->addPassThroughAttribute(gp.fAAEdgeDistances, "edgeDists");
-
-                    args.fFragBuilder->codeAppend(
-                            "float minDist = min(min(edgeDists.x, edgeDists.y),"
-                            " min(edgeDists.z, edgeDists.w));");
-                    if (gp.fNeedsPerspective) {
-                        // The distance from edge equation e to homogeneous point p=sk_Position is
-                        // e.x*p.x/p.w + e.y*p.y/p.w + e.z. However, we want screen space
-                        // interpolation of this distance. We can do this by multiplying the vertex
-                        // attribute by p.w and then multiplying by sk_FragCoord.w in the FS. So we
-                        // output e.x*p.x + e.y*p.y + e.z * p.w
-                        args.fFragBuilder->codeAppend("minDist *= sk_FragCoord.w;");
-                    }
-                    // Clamp to max coverage after the perspective divide since perspective quads
-                    // calculated the max coverage in projected space.
-                    args.fFragBuilder->codeAppendf("%s = float4(clamp(minDist, 0.0, %s));",
-                                                   args.fOutputCoverage, maxCoverage.fsIn());
-                } else {
-                    // Set coverage to 1
-                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
-                }
             }
+
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
         };
         return new GLSLProcessor;
@@ -647,8 +737,11 @@ private:
     }
 
     void initializeAttrs(const VertexSpec& spec) {
-        fNeedsPerspective = spec.deviceDimensionality() == 3;
-        fPositionWithCoverage = {"posAndCoverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+        if (spec.deviceDimensionality() == 3) {
+            fPosition = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+        } else {
+            fPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        }
 
         int localDim = spec.localDimensionality();
         if (localDim == 3) {
@@ -668,21 +761,22 @@ private:
         }
 
         if (spec.usesCoverageAA()) {
-            fAAEdgeDistances = {"aaEdgeDist", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+            if (spec.packEdgeDistances()) {
+                fAAEdgeDistances = {"aaEdgeDist", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+            } else {
+                fAAEdgeDistances = {"aaEdgeDist", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+            }
         }
-        this->setVertexAttributes(&fPositionWithCoverage, 5);
+        this->setVertexAttributes(&fPosition, 5);
     }
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
-    Attribute fPositionWithCoverage;
+    Attribute fPosition;
     Attribute fColor;
     Attribute fLocalCoord;
     Attribute fDomain;
     Attribute fAAEdgeDistances;
-
-    // The positions attribute is always a vec4 and can't be used to encode perspectiveness
-    bool fNeedsPerspective;
 
     // Color space will be null and fSampler.isInitialized() returns false when the GP is configured
     // to skip texturing.

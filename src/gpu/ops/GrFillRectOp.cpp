@@ -215,10 +215,18 @@ private:
         using Domain = GrQuadPerEdgeAA::Domain;
         static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
 
+        // In order to pack edge distances, make sure that the bounds are reasonable to fit within
+        // the half-float representation, and make sure that the processors are compatible with
+        // coverage as alpha.
+        static constexpr SkScalar kBoundsPackLimit = 30000.0;
+        bool pack = fHelper.compatibleWithAlphaAsCoverage() &&
+                    this->bounds().width() < kBoundsPackLimit &&
+                    this->bounds().height() < kBoundsPackLimit;
+
         VertexSpec vertexSpec(this->deviceQuadType(),
                               fWideColor ? ColorType::kHalf : ColorType::kByte,
                               this->localQuadType(), fHelper.usesLocalCoords(), Domain::kNo,
-                              fHelper.aaType());
+                              fHelper.aaType(), pack);
 
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
         size_t vertexSize = gp->vertexStride();
