@@ -221,9 +221,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         if (fCaps->usesMixedSamples() && sampleCnt > 1) {
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
-        if (fCaps->maxWindowRectangles() > 0) {
-            surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
-        }
     }
 
     GrSurfaceDesc desc;
@@ -572,9 +569,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
         if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
             SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
         }
-        if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport)) {
-            SkASSERT(fCaps->maxWindowRectangles() > 0);
-        }
     }
 #endif
 
@@ -603,9 +597,6 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
     if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
         SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
     }
-    if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport)) {
-        SkASSERT(fCaps->maxWindowRectangles() > 0);
-    }
 #endif
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
@@ -633,9 +624,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNoPendingIO;
     if (Renderable::kYes == renderable) {
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        if (caps.maxWindowRectangles() > 0) {
-            surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
-        }
     }
     desc.fWidth = -1;
     desc.fHeight = -1;

@@ -78,14 +78,6 @@ protected:
     }
     bool hasMixedSamples() const { return fSurfaceFlags & GrInternalSurfaceFlags::kMixedSampled; }
 
-    void setSupportsWindowRects() {
-        SkASSERT(this->asRenderTarget());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
-    }
-    bool supportsWindowRects() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kWindowRectsSupport;
-    }
-
     void setGLRTFBOIDIs0() {
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;

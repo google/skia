@@ -851,17 +851,10 @@ enum class GrInternalSurfaceFlags {
     //        are supported
     kMixedSampled                   = 1 << 2,
 
-    // For internal resources:
-    //    this is enabled whenever GrCaps reports window rect support
-    // For wrapped resources1
-    //    this is disabled for FBO0
-    //    but, otherwise, is enabled whenever GrCaps reports window rect support
-    kWindowRectsSupport             = 1 << 3,
-
     // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0                   = 1 << 4,
+    kGLRTFBOIDIs0                   = 1 << 3,
 
-    kRenderTargetMask               = kMixedSampled | kWindowRectsSupport | kGLRTFBOIDIs0,
+    kRenderTargetMask               = kMixedSampled | kGLRTFBOIDIs0,
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 

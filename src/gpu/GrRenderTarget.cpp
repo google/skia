@@ -25,7 +25,6 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
         , fStencilAttachment(stencil) {
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     SkASSERT(!this->hasMixedSamples() || fSampleCnt > 1);
-    SkASSERT(!this->supportsWindowRects() || gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect = SkRectPriv::MakeILargestInverted();
 }
 

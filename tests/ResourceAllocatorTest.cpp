@@ -314,9 +314,6 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     auto lazyType = deinstantiate ? GrSurfaceProxy::LazyInstantiationType ::kDeinstantiate
                                   : GrSurfaceProxy::LazyInstantiationType ::kSingleUse;
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    if (p.fIsRT && caps->maxWindowRectangles() > 0) {
-        flags = GrInternalSurfaceFlags::kWindowRectsSupport;
-    }
     return proxyProvider->createLazyProxy(callback, format, desc, p.fOrigin, GrMipMapped::kNo,
                                           flags, p.fFit, SkBudgeted::kNo, lazyType);
 }
