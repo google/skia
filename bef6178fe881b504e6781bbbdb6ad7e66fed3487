@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f91c9af_6215d5b3",
+        "filename": "gm/fontregen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T16:00:19Z",
+      "side": 1,
+      "message": "this should be redundant",
+      "range": {
+        "startLine": 87,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 30
+      },
+      "revId": "bef6178fe881b504e6781bbbdb6ad7e66fed3487",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
