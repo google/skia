@@ -9,6 +9,7 @@
 #define SkPDFMetadata_DEFINED
 
 #include "SkPDFDocument.h"
+#include "SkPDFTypes.h"
 #include "SkUUID.h"
 
 class SkPDFObject;
@@ -20,8 +21,9 @@ SkUUID CreateUUID(const SkPDF::Metadata&);
 
 sk_sp<SkPDFObject> MakePdfId(const SkUUID& doc, const SkUUID& instance);
 
-sk_sp<SkPDFObject> MakeXMPObject(const SkPDF::Metadata&,
-                                 const SkUUID& doc,
-                                 const SkUUID& instance);
+SkPDFIndirectReference MakeXMPObject(const SkPDF::Metadata& metadata,
+                                     const SkUUID& doc,
+                                     const SkUUID& instance,
+                                     SkPDFDocument*);
 }
 #endif  // SkPDFMetadata_DEFINED

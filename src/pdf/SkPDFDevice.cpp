@@ -786,22 +786,6 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     this->clearMaskOnGraphicState(content.stream());
 }
 
-template <typename T,
-          typename U,
-          typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
-static int find_or_add(std::vector<sk_sp<T>>* vec, sk_sp<U> object) {
-    SkASSERT(vec);
-    SkASSERT(object);
-    for (size_t i = 0; i < vec->size(); ++i) {
-        if ((*vec)[i].get() == object.get()) {
-            return SkToInt(i);
-        }
-    }
-    int index = SkToInt(vec->size());
-    vec->push_back(sk_sp<T>(std::move(object)));
-    return index;
-}
-
 void SkPDFDevice::setGraphicState(SkPDFIndirectReference gs, SkDynamicMemoryWStream* content) {
     SkPDFUtils::ApplyGraphicState(add_resource(fGraphicStateResources, gs), content);
 }
