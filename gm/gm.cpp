@@ -32,6 +32,7 @@ void GM::drawContent(SkCanvas* canvas) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();
     }
+    SkAutoCanvasRestore acr(canvas, true);
     this->onDraw(canvas);
 }
 
@@ -41,6 +42,7 @@ void GM::drawBackground(SkCanvas* canvas) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();
     }
+    SkAutoCanvasRestore acr(canvas, true);
     this->onDrawBackground(canvas);
 }
 
