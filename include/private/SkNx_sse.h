@@ -668,6 +668,7 @@ public:
 
     AI SkNx operator + (const SkNx& o) const { return _mm_add_epi8(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_epi8(fVec, o.fVec); }
+    AI SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
 
     AI static SkNx Min(const SkNx& a, const SkNx& b) { return _mm_min_epu8(a.fVec, b.fVec); }
     AI SkNx operator < (const SkNx& o) const {
