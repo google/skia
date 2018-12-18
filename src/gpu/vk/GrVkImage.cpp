@@ -9,6 +9,8 @@
 #include "GrVkImage.h"
 #include "GrVkMemory.h"
 #include "GrVkUtil.h"
+#include "GrGpuResourcePriv.h"
+#include "GrVkTexture.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
@@ -221,6 +223,7 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
         this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
     }
     if (fResource) {
+        fResource->removeOwningTexture();
         fResource->unref(gpu);
         fResource = nullptr;
     }
@@ -228,6 +231,7 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
 
 void GrVkImage::abandonImage() {
     if (fResource) {
+        fResource->removeOwningTexture();
         fResource->unrefAndAbandon();
         fResource = nullptr;
     }
@@ -243,6 +247,40 @@ void GrVkImage::Resource::freeGPUData(GrVkGpu* gpu) const {
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
+}
+
+void GrVkImage::Resource::setPurgeableProc(GrVkTexture* owner, GrTexture::PurgeableProc proc, void* context) const {
+    fOwningTexture = owner;
+    fPurgeableProc = proc;
+    fPurgeableProcCtx = context;
+}
+
+void GrVkImage::Resource::removeOwningTexture() const { fOwningTexture = nullptr; }
+
+void GrVkImage::Resource::notifyAddedToCommandBuffer() const {
+    ++fNumCommandBufferOwners;
+}
+
+void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
+    SkASSERT(fNumCommandBufferOwners);
+    if (--fNumCommandBufferOwners || !fPurgeableProc) {
+        return;
+    }
+    if (fOwningTexture && !fOwningTexture->resourcePriv().isPurgeable()) {
+        return;
+    }
+    if (fPurgeableProc(fPurgeableProcCtx)) {
+        return;
+    }
+    if (fOwningTexture) {
+        fOwningTexture->setPurgeableProc(nullptr, nullptr);
+        // Changing the texture's proc should change ours.
+        SkASSERT(!fPurgeableProc);
+        SkASSERT(!fPurgeableProc);
+    } else {
+        fPurgeableProc = nullptr;
+        fPurgeableProcCtx = nullptr;
+    }
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(GrVkGpu* gpu) const {
