@@ -40,6 +40,9 @@ public:
 
     static SkCanvas::SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
+    static int SaveBehind(SkCanvas* canvas, const SkRect* subset) {
+        return canvas->only_axis_aligned_saveBehind(subset);
+    }
 };
 
 #endif

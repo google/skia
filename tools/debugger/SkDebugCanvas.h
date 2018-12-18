@@ -113,9 +113,8 @@ public:
 
 protected:
     void willSave() override;
-
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec &) override;
-
+    bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
     void didConcat(const SkMatrix &) override;

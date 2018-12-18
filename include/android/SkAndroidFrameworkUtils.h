@@ -37,6 +37,8 @@ public:
     static void SafetyNetLog(const char*);
 
     static sk_sp<SkSurface> getSurfaceFromCanvas(SkCanvas* canvas);
+
+    static int SaveBehind(SkCanvas* canvas, const SkRect* subset);
 };
 
 #endif // SK_BUILD_FOR_ANDROID_ANDROID
