@@ -143,12 +143,7 @@ using GrGLSamplerParameterivFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint sampler, 
 using GrGLScissorFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 // GL_CHROMIUM_bind_uniform_location
 using GrGLBindUniformLocationFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint program, GrGLint location, const char* name);
-
-#if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE
 using GrGLShaderSourceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint shader, GrGLsizei count, const char* const* str, const GrGLint* length);
-#else
-using GrGLShaderSourceFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length);
-#endif
 using GrGLStencilFuncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum func, GrGLint ref, GrGLuint mask);
 using GrGLStencilFuncSeparateFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask);
 using GrGLStencilMaskFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLuint mask);
