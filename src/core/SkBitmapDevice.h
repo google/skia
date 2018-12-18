@@ -113,6 +113,8 @@ protected:
     sk_sp<SkSpecialImage> snapSpecial() override;
     void setImmutable() override { fBitmap.setImmutable(); }
 
+    sk_sp<SkSpecialImage> snapBackImage(const SkIRect&) override;
+
     ///////////////////////////////////////////////////////////////////////////
 
     bool onReadPixels(const SkPixmap&, int x, int y) override;

@@ -108,12 +108,18 @@ public:
         : INHERITED(width, height)
         , fSaveCount(0)
         , fSaveLayerCount(0)
+        , fSaveBehindCount(0)
         , fRestoreCount(0){
     }
 
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
         ++fSaveLayerCount;
         return this->INHERITED::getSaveLayerStrategy(rec);
+    }
+
+    bool onDoSaveBehind(const SkRect* subset) override {
+        ++fSaveBehindCount;
+        return this->INHERITED::onDoSaveBehind(subset);
     }
 
     void willSave() override {
@@ -128,11 +134,13 @@ public:
 
     unsigned int getSaveCount() const { return fSaveCount; }
     unsigned int getSaveLayerCount() const { return fSaveLayerCount; }
+    unsigned int getSaveBehindCount() const { return fSaveBehindCount; }
     unsigned int getRestoreCount() const { return fRestoreCount; }
 
 private:
     unsigned int fSaveCount;
     unsigned int fSaveLayerCount;
+    unsigned int fSaveBehindCount;
     unsigned int fRestoreCount;
 
     typedef SkCanvas INHERITED;

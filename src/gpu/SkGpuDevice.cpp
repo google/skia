@@ -1255,6 +1255,32 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
                                                &this->surfaceProps());
 }
 
+sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
+    GrRenderTargetContext* rtc = this->accessRenderTargetContext();
+    if (!rtc) {
+        return nullptr;
+    }
+
+    GrContext* ctx = this->context();
+    if (!rtc->asSurfaceProxy()) {
+        return nullptr;
+    }
+
+    auto srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), subset,
+                                         rtc->asSurfaceProxy()->isBudgeted());
+    if (!srcProxy) {
+        return nullptr;
+    }
+
+    // Note, can't move srcProxy since we also refer to this in the 2nd parameter
+    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
+                                               SkIRect::MakeSize(srcProxy->isize()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               srcProxy,
+                                               this->imageInfo().refColorSpace(),
+                                               &this->surfaceProps());
+}
+
 void SkGpuDevice::drawDevice(SkBaseDevice* device,
                              int left, int top, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
