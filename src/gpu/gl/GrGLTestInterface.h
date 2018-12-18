@@ -136,11 +136,7 @@ public:
     virtual GrGLvoid samplerParameteriv(GrGLuint sampler, GrGLenum pname, const GrGLint* param) {}
     virtual GrGLvoid scissor(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
     virtual GrGLvoid bindUniformLocation(GrGLuint program, GrGLint location, const char* name) {}
-#if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE
     virtual GrGLvoid shaderSource(GrGLuint shader, GrGLsizei count, const char* const * str, const GrGLint* length) {}
-#else
-    virtual GrGLvoid shaderSource(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length) {}
-#endif
     virtual GrGLvoid stencilFunc(GrGLenum func, GrGLint ref, GrGLuint mask) {}
     virtual GrGLvoid stencilFuncSeparate(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask) {}
     virtual GrGLvoid stencilMask(GrGLuint mask) {}

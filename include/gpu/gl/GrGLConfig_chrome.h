@@ -22,10 +22,6 @@
 // Non-VBO vertices and indices are not allowed in Chromium.
 #define GR_GL_MUST_USE_VBO                          1
 
-// Use updated Khronos signature for glShaderSource
-// (const char* const instead of char**).
-#define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       1
-
 #if !defined(GR_GL_IGNORE_ES3_MSAA)
     #define GR_GL_IGNORE_ES3_MSAA 1
 #endif
