@@ -307,7 +307,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
 static bool is_renderer_angle(const char* rendererString) {
     static constexpr char kHeader[] = "ANGLE ";
     static constexpr size_t kHeaderLength = SK_ARRAY_COUNT(kHeader) - 1;
-    return 0 == strncmp(rendererString, kHeader, kHeaderLength);
+    return rendererString && 0 == strncmp(rendererString, kHeader, kHeaderLength);
 }
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
