@@ -108,7 +108,7 @@ public:
      *  @param dict  Dictionary to add destinations to.
      *  @param page  The PDF object representing the page for this device.
      */
-    void appendDestinations(SkPDFDict* dict, SkPDFObject* page) const;
+    void appendDestinations(SkPDFDict* dict, SkPDFIndirectReference page) const;
 
     /** Returns a SkStream with the page contents.
      */
