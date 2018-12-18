@@ -22,6 +22,30 @@
       "revId": "bef6178fe881b504e6781bbbdb6ad7e66fed3487",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4208b1b0_9b899bc2",
+        "filename": "gm/fontregen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-18T16:05:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f91c9af_6215d5b3",
+      "range": {
+        "startLine": 87,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 30
+      },
+      "revId": "bef6178fe881b504e6781bbbdb6ad7e66fed3487",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
