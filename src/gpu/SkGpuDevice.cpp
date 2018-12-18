@@ -120,6 +120,18 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
                                               info.width(), info.height(), flags));
 }
 
+sk_sp<SkGpuDevice> SkGpuDevice::MakeForVulkanSecondaryCB(
+        GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext) {
+    if (!renderTargetContext || renderTargetContext->wasAbandoned()) {
+        return nullptr;
+    }
+    unsigned flags = kIsForVkSecondaryCB_Flag;
+    int width = renderTargetContext->width();
+    int height = renderTargetContext->height();
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext),
+                                              width, height, flags));
+}
+
 static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool opaque) {
     SkColorType colorType;
     if (!GrPixelConfigToColorType(context->colorSpaceInfo().config(), &colorType)) {

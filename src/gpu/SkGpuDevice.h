@@ -57,6 +57,8 @@ public:
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
                                    GrMipMapped mipMapped, InitContents);
 
+    static sk_sp<SkGpuDevice> MakeForVulkanSecondaryCB(GrContext*, sk_sp<GrRenderTargetContext>);
+
     ~SkGpuDevice() override {}
 
     GrContext* context() const override { return fContext.get(); }
@@ -135,9 +137,12 @@ private:
     SkISize                      fSize;
 
     enum Flags {
-        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
-        kIsOpaque_Flag  = 1 << 1,  //!< Hint from client that rendering to this device will be
-                                   //   opaque even if the config supports alpha.
+        kNeedClear_Flag          = 1 << 0,  //!< Surface requires an initial clear
+        kIsOpaque_Flag           = 1 << 1,  //!< Hint from client that rendering to this device will
+                                            //   be opaque even if the config supports alpha.
+        kIsForVkSecondaryCB_Flag = 1 << 2,  //!< Device is used to draw into an external vulkan
+                                            //   secondary command buffer. This will restrict the
+                                            //   type of draws that can be executed on this device.
     };
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);

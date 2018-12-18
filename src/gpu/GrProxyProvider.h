@@ -131,6 +131,9 @@ public:
                                                            GrSurfaceOrigin origin,
                                                            int sampleCnt);
 
+    sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
+                                                                   const GrVkDrawableInfo&);
+
     using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
 
     enum class Renderable : bool {

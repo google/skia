@@ -252,6 +252,14 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
     return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(backendRT);
 }
 
+sk_sp<GrRenderTarget> GrResourceProvider::wrapVulkanSecondaryCBAsRenderTarget(
+        const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
+    ASSERT_SINGLE_OWNER
+    return this->isAbandoned() ? nullptr : fGpu->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
+                                                                                     vkInfo);
+
+}
+
 void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,
                                                    GrGpuResource* resource) {
     ASSERT_SINGLE_OWNER
