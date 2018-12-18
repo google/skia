@@ -82,7 +82,6 @@ public:
 
     using ARGBFallback =
     std::function<void(const SkPaint& fallbackPaint, // The run paint maybe with a new text size
-                       const SkFont& fallbackFont,
                        SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs
                        SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
                        SkScalar fallbackTextScale,               // Scale factor for glyph
@@ -104,7 +103,7 @@ public:
     template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-            SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textRatio,
+            SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textRatio,
             PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 
     // TODO: Make this the canonical check for Skia.
@@ -114,7 +113,7 @@ private:
     void ensureBitmapBuffers(size_t runSize);
 
     void processARGBFallback(
-            SkScalar maxGlyphDimension, const SkPaint& fallbackPaint, const SkFont& fallbackFont,
+            SkScalar maxGlyphDimension, const SkPaint& runPaint,
             const SkMatrix& viewMatrix, SkScalar textScale, ARGBFallback argbFallback);
 
     // The props as on the actual device.
