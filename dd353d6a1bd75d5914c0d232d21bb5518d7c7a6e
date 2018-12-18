@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3bb98dfa_21a08549",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-18T16:01:46Z",
+      "side": 1,
+      "message": "Not really.  The bots swap in portable typefaces where appropriate now.  You\u0027d only need that if you for some reason want portable typefaces even on bots that usually test native fonts.",
+      "parentUuid": "9c219f39_3a173770",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ddb506d_9f696665",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
