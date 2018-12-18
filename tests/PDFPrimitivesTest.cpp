@@ -27,6 +27,7 @@
 #include "SkPDFFont.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkPDFUnion.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkSpecialImage.h"
@@ -76,47 +77,6 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
                            const char* string) {
     SkString result = emit_to_string(object);
     assert_eq(reporter, result, string);
-}
-
-static void TestObjectNumberMap(skiatest::Reporter* reporter) {
-    SkPDFObjectSerializer pdfObjectSerializer;
-    SkNullWStream nullstream;
-    pdfObjectSerializer.serializeHeader(&nullstream);
-    SkPDFObjNumMap objNumMap(&pdfObjectSerializer);
-    sk_sp<SkPDFArray> a1(new SkPDFArray);
-    sk_sp<SkPDFArray> a2(new SkPDFArray);
-    sk_sp<SkPDFArray> a3(new SkPDFArray);
-
-    objNumMap.addObjectRecursively(a1.get());
-    objNumMap.addObjectRecursively(a2.get());
-    objNumMap.addObjectRecursively(a3.get());
-
-    // The objects should be numbered in the order they are added,
-    // starting with 1.
-    REPORTER_ASSERT(reporter, objNumMap.getObjectNumber(a1.get()) == 1);
-    REPORTER_ASSERT(reporter, objNumMap.getObjectNumber(a2.get()) == 2);
-    REPORTER_ASSERT(reporter, objNumMap.getObjectNumber(a3.get()) == 3);
-    // Assert that repeated calls to get the object number return
-    // consistent result.
-    REPORTER_ASSERT(reporter, objNumMap.getObjectNumber(a1.get()) == 1);
-}
-
-static void TestObjectRef(skiatest::Reporter* reporter) {
-    sk_sp<SkPDFArray> a1(new SkPDFArray);
-    sk_sp<SkPDFArray> a2(new SkPDFArray);
-    a2->appendObjRef(a1);
-
-    SkPDFObjectSerializer pdfObjectSerializer;
-    SkNullWStream nullstream;
-    pdfObjectSerializer.serializeHeader(&nullstream);
-    SkPDFObjNumMap catalog(&pdfObjectSerializer);
-    catalog.addObjectRecursively(a1.get());
-    REPORTER_ASSERT(reporter, catalog.getObjectNumber(a1.get()) == 1);
-
-    SkString result = emit_to_string(*a2);
-    // If appendObjRef misbehaves, then the result would
-    // be [[]], not [1 0 R].
-    assert_eq(reporter, result, "[1 0 R]");
 }
 
 // This test used to assert without the fix submitted for
@@ -226,21 +186,6 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
     assert_emit_eq(reporter, *array,
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String) [-1]]");
-
-    sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    SkPDFObjectSerializer pdfObjectSerializer;
-    SkNullWStream nullstream;
-    pdfObjectSerializer.serializeHeader(&nullstream);
-    SkPDFObjNumMap catalog(&pdfObjectSerializer);
-    catalog.addObjectRecursively(referencedArray.get());
-    REPORTER_ASSERT(reporter, catalog.getObjectNumber(
-                            referencedArray.get()) == 1);
-    array->appendObjRef(std::move(referencedArray));
-
-    SkString result = emit_to_string(*array);
-    assert_eq(reporter, result,
-              "[42 .5 0 true /ThisName /AnotherName (This String) "
-              "(Another String) [-1] 1 0 R]");
 }
 
 static void TestPDFDict(skiatest::Reporter* reporter) {
@@ -293,27 +238,12 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
 
     dict.reset(new SkPDFDict("DType"));
     assert_emit_eq(reporter, *dict, "<</Type /DType>>");
-
-    sk_sp<SkPDFArray> referencedArray(new SkPDFArray);
-    SkPDFObjectSerializer pdfObjectSerializer;
-    SkNullWStream nullstream;
-    pdfObjectSerializer.serializeHeader(&nullstream);
-    SkPDFObjNumMap catalog(&pdfObjectSerializer);
-    catalog.addObjectRecursively(referencedArray.get());
-
-    REPORTER_ASSERT(reporter, catalog.getObjectNumber(
-                            referencedArray.get()) == 1);
-    dict->insertObjRef("n1", std::move(referencedArray));
-    SkString result = emit_to_string(*dict);
-    assert_eq(reporter, result, "<</Type /DType\n/n1 1 0 R>>");
 }
 
 DEF_TEST(SkPDF_Primitives, reporter) {
     TestPDFUnion(reporter);
     TestPDFArray(reporter);
     TestPDFDict(reporter);
-    TestObjectNumberMap(reporter);
-    TestObjectRef(reporter);
     test_issue1083();
 }
 

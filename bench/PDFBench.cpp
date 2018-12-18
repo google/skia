@@ -14,6 +14,7 @@
 #include "SkFloatToDecimal.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkPDFUnion.h"
 #include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkStream.h"
