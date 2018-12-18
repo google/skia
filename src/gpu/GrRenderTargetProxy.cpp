@@ -31,9 +31,6 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
     if (caps.usesMixedSamples() && fSampleCnt > 1) {
         this->setHasMixedSamples();
     }
-    if (caps.maxWindowRectangles() > 0) {
-        this->setSupportsWindowRects();
-    }
 }
 
 // Lazy-callback version
@@ -57,7 +54,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin 
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
-    return this->supportsWindowRects() ? caps.maxWindowRectangles() : 0;
+    return this->glRTFBOIDIs0() ? 0 : caps.maxWindowRectangles();
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {

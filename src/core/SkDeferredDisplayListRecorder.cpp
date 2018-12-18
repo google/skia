@@ -132,10 +132,6 @@ bool SkDeferredDisplayListRecorder::init() {
         // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
-    if (fContext->contextPriv().caps()->maxWindowRectangles() > 0 && !usesGLFBO0) {
-        // In GL, FBO 0 never supports window rectangles
-        surfaceFlags |= GrInternalSurfaceFlags::kWindowRectsSupport;
-    }
     if (usesGLFBO0) {
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
