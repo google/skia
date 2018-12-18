@@ -179,10 +179,21 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         dstSampleCnt = rtProxy->numColorSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            return false;
+        }
         srcSampleCnt = rtProxy->numColorSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
+
+    if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            SkASSERT(dstSampleCnt == 1);
+            return this->canCopyAsDraw(dstConfig, true,
+                                       srcConfig, SkToBool(src->asTextureProxy()));
+        }
+    }
 
     return this->canCopyImage(dstConfig, dstSampleCnt, dstOrigin,
                               srcConfig, srcSampleCnt, srcOrigin) ||

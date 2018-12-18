@@ -1773,6 +1773,12 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect, const SkIPoint& dstPoint,
                             bool canDiscardOutsideDstRect) {
+#ifdef SK_DEBUG
+    if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
+        SkASSERT(!srcRT->isForSecondaryCommandBuffer());
+    }
+#endif
+
     GrPixelConfig dstConfig = dst->config();
     GrPixelConfig srcConfig = src->config();
 
@@ -1787,6 +1793,9 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     if (this->vkCaps().canCopyAsDraw(dstConfig, SkToBool(dst->asRenderTarget()),
                                      srcConfig, SkToBool(src->asTexture()))) {
+        if (GrRenderTarget* srcRT = src->asRenderTarget()) {
+
+        }
         SkAssertResult(fCopyManager.copySurfaceAsDraw(this, dst, dstOrigin, src, srcOrigin, srcRect,
                                                       dstPoint, canDiscardOutsideDstRect));
         auto dstRect = srcRect.makeOffset(dstPoint.fX, dstPoint.fY);
@@ -1799,6 +1808,9 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GrRenderTarget* dstRT = dst->asRenderTarget();
     if (dstRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
+        if (vkRT->isForSecondaryCommandBuffer()) {
+            return false;
+        }
         dstImage = vkRT->numColorSamples() > 1 ? vkRT->msaaImage() : vkRT;
     } else {
         SkASSERT(dst->asTexture());
@@ -1839,6 +1851,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     GrVkImage* image = nullptr;
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget());
     if (rt) {
+        if (rt->isForSecondaryCommandBuffer()) {
+            return false;
+        }
         // resolve the render target if necessary
         switch (rt->getResolveType()) {
             case GrVkRenderTarget::kCantResolve_ResolveType:
@@ -2039,6 +2054,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
                                            const VkClearValue* colorClear,
                                            GrVkRenderTarget* target, GrSurfaceOrigin origin,
                                            const SkIRect& bounds) {
+    SkASSERT (!target->isForSecondaryCommandBuffer());
     const SkIRect* pBounds = &bounds;
     SkIRect flippedBounds;
     if (kBottomLeft_GrSurfaceOrigin == origin) {
