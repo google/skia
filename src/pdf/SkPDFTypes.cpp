@@ -12,6 +12,7 @@
 #include "SkExecutor.h"
 #include "SkMakeUnique.h"
 #include "SkPDFDocumentPriv.h"
+#include "SkPDFUnion.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -33,7 +34,6 @@ SkPDFUnion::~SkPDFUnion() {
         case Type::kStringSkS:
             fSkString.destroy();
             return;
-        case Type::kObjRef:
         case Type::kObject:
             SkASSERT(fObject);
             fObject->unref();
@@ -66,7 +66,6 @@ SkPDFUnion SkPDFUnion::copy() const {
         case Type::kStringSkS:
             u.fSkString.init(fSkString.get());
             return u;
-        case Type::kObjRef:
         case Type::kObject:
             SkRef(u.fObject);
             return u;
@@ -197,10 +196,6 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
         case Type::kStringSkS:
             write_string(stream, fSkString.get().c_str(), fSkString.get().size());
             return;
-        case Type::kObjRef:
-            stream->writeDecAsText(fObject->fIndirectReference.fValue);
-            stream->writeText(" 0 R");  // Generation number is always 0.
-            return;
         case Type::kObject:
             fObject->emitObject(stream);
             return;
@@ -211,30 +206,6 @@ void SkPDFUnion::emitObject(SkWStream* stream) const {
             return;
         default:
             SkDEBUGFAIL("SkPDFUnion::emitObject with bad type");
-    }
-}
-
-void SkPDFUnion::addResources(SkPDFObjNumMap* objNumMap) const {
-    switch (fType) {
-        case Type::kInt:
-        case Type::kColorComponent:
-        case Type::kColorComponentF:
-        case Type::kBool:
-        case Type::kScalar:
-        case Type::kName:
-        case Type::kString:
-        case Type::kNameSkS:
-        case Type::kStringSkS:
-        case Type::kRef:
-            return;  // These have no resources.
-        case Type::kObjRef:
-            objNumMap->addObjectRecursively(fObject);
-            return;
-        case Type::kObject:
-            fObject->addResources(objNumMap);
-            return;
-        default:
-            SkDEBUGFAIL("SkPDFUnion::addResources with bad type");
     }
 }
 
@@ -275,13 +246,6 @@ SkPDFUnion SkPDFUnion::Name(SkString s) { return SkPDFUnion(Type::kNameSkS, std:
 
 SkPDFUnion SkPDFUnion::String(SkString s) { return SkPDFUnion(Type::kStringSkS, std::move(s)); }
 
-SkPDFUnion SkPDFUnion::ObjRef(sk_sp<SkPDFObject> objSp) {
-    SkPDFUnion u(Type::kObjRef);
-    SkASSERT(objSp.get());
-    u.fObject = objSp.release();  // take ownership into union{}
-    return u;
-}
-
 SkPDFUnion SkPDFUnion::Object(sk_sp<SkPDFObject> objSp) {
     SkPDFUnion u(Type::kObject);
     SkASSERT(objSp.get());
@@ -299,21 +263,13 @@ SkPDFUnion SkPDFUnion::Ref(SkPDFIndirectReference ref) {
 void SkPDFAtom::emitObject(SkWStream* stream) const {
     fValue.emitObject(stream);
 }
-void SkPDFAtom::addResources(SkPDFObjNumMap* map) const {
-    fValue.addResources(map);
-}
 #endif  // 0
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFArray::SkPDFArray() { SkDEBUGCODE(fDumped = false;) }
+SkPDFArray::SkPDFArray() {}
 
-SkPDFArray::~SkPDFArray() { this->drop(); }
-
-void SkPDFArray::drop() {
-    fValues = std::vector<SkPDFUnion>();
-    SkDEBUGCODE(fDumped = true;)
-}
+SkPDFArray::~SkPDFArray() {}
 
 size_t SkPDFArray::size() const { return fValues.size(); }
 
@@ -322,7 +278,6 @@ void SkPDFArray::reserve(int length) {
 }
 
 void SkPDFArray::emitObject(SkWStream* stream) const {
-    SkASSERT(!fDumped);
     stream->writeText("[");
     for (size_t i = 0; i < fValues.size(); i++) {
         fValues[i].emitObject(stream);
@@ -331,13 +286,6 @@ void SkPDFArray::emitObject(SkWStream* stream) const {
         }
     }
     stream->writeText("]");
-}
-
-void SkPDFArray::addResources(SkPDFObjNumMap* catalog) const {
-    SkASSERT(!fDumped);
-    for (const SkPDFUnion& value : fValues) {
-        value.addResources(catalog);
-    }
 }
 
 void SkPDFArray::append(SkPDFUnion&& value) {
@@ -380,25 +328,15 @@ void SkPDFArray::appendObject(sk_sp<SkPDFObject> objSp) {
     this->append(SkPDFUnion::Object(std::move(objSp)));
 }
 
-void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
-    this->append(SkPDFUnion::ObjRef(std::move(objSp)));
-}
-
 void SkPDFArray::appendRef(SkPDFIndirectReference ref) {
     this->append(SkPDFUnion::Ref(ref));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPDFDict::~SkPDFDict() { this->drop(); }
-
-void SkPDFDict::drop() {
-    fRecords = std::vector<SkPDFDict::Record>();
-    SkDEBUGCODE(fDumped = true;)
-}
+SkPDFDict::~SkPDFDict() {}
 
 SkPDFDict::SkPDFDict(const char type[]) {
-    SkDEBUGCODE(fDumped = false;)
     if (type) {
         this->insertName("Type", type);
     }
@@ -411,22 +349,14 @@ void SkPDFDict::emitObject(SkWStream* stream) const {
 }
 
 void SkPDFDict::emitAll(SkWStream* stream) const {
-    SkASSERT(!fDumped);
-    for (size_t i = 0; i < fRecords.size(); i++) {
-        fRecords[i].fKey.emitObject(stream);
+    for (size_t i = 0; i < fRecords.size(); ++i) {
+        const std::pair<SkPDFUnion, SkPDFUnion>& record = fRecords[i];
+        record.first.emitObject(stream);
         stream->writeText(" ");
-        fRecords[i].fValue.emitObject(stream);
+        record.second.emitObject(stream);
         if (i + 1 < fRecords.size()) {
             stream->writeText("\n");
         }
-    }
-}
-
-void SkPDFDict::addResources(SkPDFObjNumMap* catalog) const {
-    SkASSERT(!fDumped);
-    for (size_t i = 0; i < fRecords.size(); i++) {
-        fRecords[i].fKey.addResources(catalog);
-        fRecords[i].fValue.addResources(catalog);
     }
 }
 
@@ -437,36 +367,27 @@ void SkPDFDict::reserve(int n) {
 }
 
 void SkPDFDict::insertRef(const char key[], SkPDFIndirectReference ref) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Ref(ref)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Ref(ref));
 }
 
 void SkPDFDict::insertRef(SkString key, SkPDFIndirectReference ref) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(std::move(key)), SkPDFUnion::Ref(ref)});
-}
-
-void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp))});
-}
-
-void SkPDFDict::insertObjRef(SkString key, sk_sp<SkPDFObject> objSp) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(std::move(key)),
-                                 SkPDFUnion::ObjRef(std::move(objSp))});
+    fRecords.emplace_back(SkPDFUnion::Name(std::move(key)), SkPDFUnion::Ref(ref));
 }
 
 void SkPDFDict::insertObject(const char key[], sk_sp<SkPDFObject> objSp) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp))});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Object(std::move(objSp)));
 }
 void SkPDFDict::insertObject(SkString key, sk_sp<SkPDFObject> objSp) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(std::move(key)),
-                                 SkPDFUnion::Object(std::move(objSp))});
+    fRecords.emplace_back(SkPDFUnion::Name(std::move(key)),
+                          SkPDFUnion::Object(std::move(objSp)));
 }
 
 void SkPDFDict::insertBool(const char key[], bool value) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Bool(value)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Bool(value));
 }
 
 void SkPDFDict::insertInt(const char key[], int32_t value) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Int(value)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Int(value));
 }
 
 void SkPDFDict::insertInt(const char key[], size_t value) {
@@ -474,27 +395,27 @@ void SkPDFDict::insertInt(const char key[], size_t value) {
 }
 
 void SkPDFDict::insertColorComponentF(const char key[], SkScalar value) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ColorComponentF(value)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::ColorComponentF(value));
 }
 
 void SkPDFDict::insertScalar(const char key[], SkScalar value) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Scalar(value)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Scalar(value));
 }
 
 void SkPDFDict::insertName(const char key[], const char name[]) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Name(name)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Name(name));
 }
 
 void SkPDFDict::insertName(const char key[], SkString name) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::Name(std::move(name))});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::Name(std::move(name)));
 }
 
 void SkPDFDict::insertString(const char key[], const char value[]) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::String(value)});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(value));
 }
 
 void SkPDFDict::insertString(const char key[], SkString value) {
-    fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::String(std::move(value))});
+    fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::String(std::move(value)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -529,6 +450,7 @@ static void serialize_stream(const SkPDFDict* origDict,
     dst->writeText("<<");
     if (origDict) {
         origDict->emitAll(dst);
+        // dst->writeText("\n"); TODO
     }
     dict.emitAll(dst);
     dst->writeText(">> stream\n");
@@ -559,15 +481,6 @@ SkPDFIndirectReference SkPDFStreamOut(sk_sp<SkPDFDict> dict,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
-    SkASSERT(fIndirectReferenceSource != nullptr);
-    if (obj && obj->fIndirectReference.fValue == -1) {
-        obj->fIndirectReference = fIndirectReferenceSource->reserve();
-        fObjects.emplace_back(sk_ref_sp(obj));
-        obj->addResources(this);
-    }
-}
 
 #ifdef SK_PDF_IMAGE_STATS
 std::atomic<int> gDrawImageCalls(0);
