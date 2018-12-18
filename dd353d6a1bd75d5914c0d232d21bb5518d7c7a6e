@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "05e30b0c_d77d969e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ddb506d_9f696665",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bd009e0_7f4d0055",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
@@ -85,6 +103,24 @@
       "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fe9f48d_9e092e31",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bd009e0_7f4d0055",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "8f42c141_bcf1f314",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25987dd6_abd172e0",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f6f9581_d6b57456",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
@@ -116,6 +170,24 @@
       "writtenOn": "2018-12-18T15:09:31Z",
       "side": 1,
       "message": "Should we have a GM for a saveBehind w/ a rotation?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d0b866e_fcbbda3d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Hacked my current one, and of course, it draws terribly. I will just file this as a bug (that rotation is broken).",
+      "parentUuid": "0f6f9581_d6b57456",
       "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -185,6 +257,30 @@
     },
     {
       "key": {
+        "uuid": "4e5228c1_833238bb",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8eb9fc82_578f520c",
+      "range": {
+        "startLine": 1166,
+        "startChar": 9,
+        "endLine": 1166,
+        "endChar": 19
+      },
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "924df19d_d5ac06df",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
@@ -199,6 +295,24 @@
       "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0446e718_c06782c4",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1182,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "924df19d_d5ac06df",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -248,6 +362,30 @@
       "writtenOn": "2018-12-18T15:24:09Z",
       "side": 1,
       "message": "This always makes an exact-sized texture. Perhaps we should make it take a SkBackingFit. I started typing out code here to do this without updating that function and decided it\u0027d be easier to update that function than have bespoke code here.",
+      "range": {
+        "startLine": 1269,
+        "startChar": 36,
+        "endLine": 1269,
+        "endChar": 40
+      },
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dc26af3_e447668f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-18T21:34:06Z",
+      "side": 1,
+      "message": "so... I should wait for some other change that allows this to take SkBackingFit?",
+      "parentUuid": "8bce7e7a_4a089313",
       "range": {
         "startLine": 1269,
         "startChar": 36,
