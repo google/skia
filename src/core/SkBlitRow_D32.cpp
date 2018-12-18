@@ -316,7 +316,7 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], int count, SkPMC
     invA += invA >> 7;
     SkASSERT(invA < 256);  // We've should have already handled alpha == 0 externally.
 
-    Sk16h colorHighAndRound = Sk4px::DupPMColor(color).widenHi() + Sk16h(128);
+    Sk16h colorHighAndRound = (Sk4px::DupPMColor(color).widen() << 8) + Sk16h(128);
     Sk16b invA_16x(invA);
 
     Sk4px::MapSrc(count, dst, src, [&](const Sk4px& src4) -> Sk4px {
