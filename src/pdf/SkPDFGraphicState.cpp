@@ -108,7 +108,7 @@ static SkPDFIndirectReference make_invert_function(SkPDFDocument* doc) {
     // Do not copy the trailing '\0' into the SkData.
     auto invertFunction = SkData::MakeWithoutCopy(psInvert, strlen(psInvert));
 
-    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertInt("FunctionType", 4);
     dict->insertObject("Domain", SkPDFMakeArray(0, 1));
     dict->insertObject("Range", SkPDFMakeArray(0, 1));
@@ -122,7 +122,7 @@ SkPDFIndirectReference SkPDFGraphicState::GetSMaskGraphicState(SkPDFIndirectRefe
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
     SkPDFCanon* canon = doc->canon();
-    auto sMaskDict = sk_make_sp<SkPDFDict>("Mask");
+    auto sMaskDict = SkPDFMakeDict("Mask");
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
     } else if (sMaskMode == kLuminosity_SMaskMode) {

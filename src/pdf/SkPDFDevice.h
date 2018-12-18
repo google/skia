@@ -14,6 +14,7 @@
 #include "SkClipStackDevice.h"
 #include "SkData.h"
 #include "SkKeyedImage.h"
+#include "SkPDFTypes.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -99,10 +100,10 @@ public:
     // PDF specific methods.
 
     /** Create the resource dictionary for this device. Destructive. */
-    sk_sp<SkPDFDict> makeResourceDict();
+    std::unique_ptr<SkPDFDict> makeResourceDict();
 
     /** return annotations (link to urls and destinations) or nulltpr */
-    sk_sp<SkPDFArray> getAnnotations();
+    std::unique_ptr<SkPDFArray> getAnnotations();
 
     /** Add our named destinations to the supplied dictionary.
      *  @param dict  Dictionary to add destinations to.

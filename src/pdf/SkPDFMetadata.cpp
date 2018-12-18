@@ -126,9 +126,9 @@ static const struct {
 };
 }  // namespace
 
-sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
+std::unique_ptr<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
         const SkPDF::Metadata& metadata) {
-    auto dict = sk_make_sp<SkPDFDict>();
+    auto dict = SkPDFMakeDict();
     for (const auto keyValuePtr : gMetadataKeys) {
         const SkString& value = metadata.*(keyValuePtr.valuePtr);
         if (value.size() > 0) {
@@ -182,11 +182,11 @@ SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
     return uuid;
 }
 
-sk_sp<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
+std::unique_ptr<SkPDFObject> SkPDFMetadata::MakePdfId(const SkUUID& doc,
                                             const SkUUID& instance) {
     // /ID [ <81b14aafa313db63dbd6f981e49f94f4>
     //       <81b14aafa313db63dbd6f981e49f94f4> ]
-    auto array = sk_make_sp<SkPDFArray>();
+    auto array = SkPDFMakeArray();
     static_assert(sizeof(SkUUID) == 16, "uuid_size");
     array->appendString(
             SkString(reinterpret_cast<const char*>(&doc), sizeof(SkUUID)));
@@ -400,7 +400,7 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
             keywords1.c_str(), documentID.c_str(), instanceID.c_str(),
             producer.c_str(), keywords2.c_str());
 
-    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>("Metadata");
+    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict("Metadata");
     dict->insertName("Subtype", "XML");
     return SkPDFStreamOut(std::move(dict),
                           SkMemoryStream::MakeCopy(value.c_str(), value.size()),

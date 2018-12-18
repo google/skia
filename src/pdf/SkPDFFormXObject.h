@@ -21,8 +21,8 @@ class SkPDFDocument;
 */
 SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkStreamAsset> content,
-                                            sk_sp<SkPDFArray> mediaBox,
-                                            sk_sp<SkPDFDict> resourceDict,
+                                            std::unique_ptr<SkPDFArray> mediaBox,
+                                            std::unique_ptr<SkPDFDict> resourceDict,
                                             const SkMatrix& inverseTransform,
                                             const char* colorSpace);
 #endif
