@@ -28,28 +28,33 @@ struct GrGlyph {
         kDistance_MaskStyle
     };
 
-    typedef uint32_t PackedID;
-
-    GrDrawOpAtlas::AtlasID fID;
-    PackedID              fPackedID;
-    GrMaskFormat          fMaskFormat;
-    GrIRect16             fBounds;
-    SkIPoint16            fAtlasLocation;
-
-    void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
-        fID = GrDrawOpAtlas::kInvalidAtlasID;
-        fPackedID = packed;
-        fBounds.set(bounds);
-        fMaskFormat = format;
-        fAtlasLocation.set(0, 0);
+    static GrIRect16 SkIRectToGrIRect16(const SkIRect& rect) {
+        return GrIRect16::MakeXYWH(SkTo<int16_t>(rect.x()),
+                                   SkTo<int16_t>(rect.y()),
+                                   SkTo<uint16_t>(rect.width()),
+                                   SkTo<uint16_t>(rect.height()));
     }
 
-    void reset() { }
+    GrGlyph(SkPackedGlyphID packed,
+            const SkIRect& bounds,
+            GrMaskFormat format,
+            MaskStyle style)
+        : fPackedID{packed}
+        , fBounds{SkIRectToGrIRect16(bounds)}
+        , fMaskFormat{format}
+        , fMaskStyle{style} {}
+
+    const SkPackedGlyphID  fPackedID;
+    const GrIRect16        fBounds;
+    const GrMaskFormat     fMaskFormat:2;
+    const MaskStyle        fMaskStyle:1;
+    GrDrawOpAtlas::AtlasID fID;
+    SkIPoint16             fAtlasLocation;
 
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
     bool isEmpty() const { return fBounds.isEmpty(); }
-    uint16_t glyphID() const { return UnpackID(fPackedID); }
+    SkGlyphID glyphID() const { return fPackedID.code(); }
     uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fID); }
 
     ///////////////////////////////////////////////////////////////////////////
