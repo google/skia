@@ -151,6 +151,7 @@ gm_sources = [
   "$_gm/flippity.cpp",
   "$_gm/fontcache.cpp",
   "$_gm/fontmgr.cpp",
+  "$_gm/fontregen.cpp",
   "$_gm/fontscaler.cpp",
   "$_gm/fontscalerdistortable.cpp",
   "$_gm/fwidth_squircle.cpp",
