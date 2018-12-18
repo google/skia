@@ -108,11 +108,17 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     }
 
     // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer,
-    // so it can't handle bitmaps larger than that.
+    // so it can't handle bitmaps larger than 65535.
     //
-    // TODO(mtklein): steal another bit here so we have more room for intermediate math
-    if (fImage-> width() > 65535 ||
-        fImage->height() > 65535) {
+    // We back off another bit to 32767 to make small amounts of
+    // intermediate math safe, e.g. in
+    //
+    //     SkFixed fx = ...;
+    //     fx = tile(fx + SK_Fixed1);
+    //
+    // we want to make sure (fx + SK_Fixed1) never overflows.
+    if (fImage-> width() > 32767 ||
+        fImage->height() > 32767) {
         return nullptr;
     }
 
