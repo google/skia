@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "9c219f39_3a173770",
+        "filename": "gm/savelayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-18T15:58:13Z",
+      "side": 1,
+      "message": "Do we need a create_portable_typeface here ?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ddb506d_9f696665",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
