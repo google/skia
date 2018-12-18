@@ -8,243 +8,214 @@
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFTag.h"
 
-namespace {
-
 // Table 333 in PDF 32000-1:2008
-const char* tagNameFromType(SkPDF::DocumentStructureType type) {
+static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
     switch (type) {
-        case SkPDF::DocumentStructureType::kDocument:
-            return "Document";
-        case SkPDF::DocumentStructureType::kPart:
-            return "Part";
-        case SkPDF::DocumentStructureType::kArt:
-            return "Art";
-        case SkPDF::DocumentStructureType::kSect:
-            return "Sect";
-        case SkPDF::DocumentStructureType::kDiv:
-            return "Div";
-        case SkPDF::DocumentStructureType::kBlockQuote:
-            return "BlockQuote";
-        case SkPDF::DocumentStructureType::kCaption:
-            return "Caption";
-        case SkPDF::DocumentStructureType::kTOC:
-            return "TOC";
-        case SkPDF::DocumentStructureType::kTOCI:
-            return "TOCI";
-        case SkPDF::DocumentStructureType::kIndex:
-            return "Index";
-        case SkPDF::DocumentStructureType::kNonStruct:
-            return "NonStruct";
-        case SkPDF::DocumentStructureType::kPrivate:
-            return "Private";
-        case SkPDF::DocumentStructureType::kH:
-            return "H";
-        case SkPDF::DocumentStructureType::kH1:
-            return "H1";
-        case SkPDF::DocumentStructureType::kH2:
-            return "H2";
-        case SkPDF::DocumentStructureType::kH3:
-            return "H3";
-        case SkPDF::DocumentStructureType::kH4:
-            return "H4";
-        case SkPDF::DocumentStructureType::kH5:
-            return "H5";
-        case SkPDF::DocumentStructureType::kH6:
-            return "H6";
-        case SkPDF::DocumentStructureType::kP:
-            return "P";
-        case SkPDF::DocumentStructureType::kL:
-            return "L";
-        case SkPDF::DocumentStructureType::kLI:
-            return "LI";
-        case SkPDF::DocumentStructureType::kLbl:
-            return "Lbl";
-        case SkPDF::DocumentStructureType::kLBody:
-            return "LBody";
-        case SkPDF::DocumentStructureType::kTable:
-            return "Table";
-        case SkPDF::DocumentStructureType::kTR:
-            return "TR";
-        case SkPDF::DocumentStructureType::kTH:
-            return "TH";
-        case SkPDF::DocumentStructureType::kTD:
-            return "TD";
-        case SkPDF::DocumentStructureType::kTHead:
-            return "THead";
-        case SkPDF::DocumentStructureType::kTBody:
-            return "TBody";
-        case SkPDF::DocumentStructureType::kTFoot:
-            return "TFoot";
-        case SkPDF::DocumentStructureType::kSpan:
-            return "Span";
-        case SkPDF::DocumentStructureType::kQuote:
-            return "Quote";
-        case SkPDF::DocumentStructureType::kNote:
-            return "Note";
-        case SkPDF::DocumentStructureType::kReference:
-            return "Reference";
-        case SkPDF::DocumentStructureType::kBibEntry:
-            return "BibEntry";
-        case SkPDF::DocumentStructureType::kCode:
-            return "Code";
-        case SkPDF::DocumentStructureType::kLink:
-            return "Link";
-        case SkPDF::DocumentStructureType::kAnnot:
-            return "Annot";
-        case SkPDF::DocumentStructureType::kRuby:
-            return "Ruby";
-        case SkPDF::DocumentStructureType::kWarichu:
-            return "Warichu";
-        case SkPDF::DocumentStructureType::kFigure:
-            return "Figure";
-        case SkPDF::DocumentStructureType::kFormula:
-            return "Formula";
-        case SkPDF::DocumentStructureType::kForm:
-            return "Form";
+        case SkPDF::DocumentStructureType::kDocument:   return "Document";
+        case SkPDF::DocumentStructureType::kPart:       return "Part";
+        case SkPDF::DocumentStructureType::kArt:        return "Art";
+        case SkPDF::DocumentStructureType::kSect:       return "Sect";
+        case SkPDF::DocumentStructureType::kDiv:        return "Div";
+        case SkPDF::DocumentStructureType::kBlockQuote: return "BlockQuote";
+        case SkPDF::DocumentStructureType::kCaption:    return "Caption";
+        case SkPDF::DocumentStructureType::kTOC:        return "TOC";
+        case SkPDF::DocumentStructureType::kTOCI:       return "TOCI";
+        case SkPDF::DocumentStructureType::kIndex:      return "Index";
+        case SkPDF::DocumentStructureType::kNonStruct:  return "NonStruct";
+        case SkPDF::DocumentStructureType::kPrivate:    return "Private";
+        case SkPDF::DocumentStructureType::kH:          return "H";
+        case SkPDF::DocumentStructureType::kH1:         return "H1";
+        case SkPDF::DocumentStructureType::kH2:         return "H2";
+        case SkPDF::DocumentStructureType::kH3:         return "H3";
+        case SkPDF::DocumentStructureType::kH4:         return "H4";
+        case SkPDF::DocumentStructureType::kH5:         return "H5";
+        case SkPDF::DocumentStructureType::kH6:         return "H6";
+        case SkPDF::DocumentStructureType::kP:          return "P";
+        case SkPDF::DocumentStructureType::kL:          return "L";
+        case SkPDF::DocumentStructureType::kLI:         return "LI";
+        case SkPDF::DocumentStructureType::kLbl:        return "Lbl";
+        case SkPDF::DocumentStructureType::kLBody:      return "LBody";
+        case SkPDF::DocumentStructureType::kTable:      return "Table";
+        case SkPDF::DocumentStructureType::kTR:         return "TR";
+        case SkPDF::DocumentStructureType::kTH:         return "TH";
+        case SkPDF::DocumentStructureType::kTD:         return "TD";
+        case SkPDF::DocumentStructureType::kTHead:      return "THead";
+        case SkPDF::DocumentStructureType::kTBody:      return "TBody";
+        case SkPDF::DocumentStructureType::kTFoot:      return "TFoot";
+        case SkPDF::DocumentStructureType::kSpan:       return "Span";
+        case SkPDF::DocumentStructureType::kQuote:      return "Quote";
+        case SkPDF::DocumentStructureType::kNote:       return "Note";
+        case SkPDF::DocumentStructureType::kReference:  return "Reference";
+        case SkPDF::DocumentStructureType::kBibEntry:   return "BibEntry";
+        case SkPDF::DocumentStructureType::kCode:       return "Code";
+        case SkPDF::DocumentStructureType::kLink:       return "Link";
+        case SkPDF::DocumentStructureType::kAnnot:      return "Annot";
+        case SkPDF::DocumentStructureType::kRuby:       return "Ruby";
+        case SkPDF::DocumentStructureType::kWarichu:    return "Warichu";
+        case SkPDF::DocumentStructureType::kFigure:     return "Figure";
+        case SkPDF::DocumentStructureType::kFormula:    return "Formula";
+        case SkPDF::DocumentStructureType::kForm:       return "Form";
     }
-
     SK_ABORT("bad tag");
     return "";
 }
 
-}  // namespace
 
-SkPDFTag::SkPDFTag(int nodeId, SkPDF::DocumentStructureType type, sk_sp<SkPDFTag> parent)
-    : SkPDFDict("StructElem")
-    , fNodeId(nodeId) {
-    insertName("S", tagNameFromType(type));
-    if (parent) {
-        insertObjRef("P", std::move(parent));
+struct SkPDFTagNode {
+    SkPDFTagNode* fChildren = nullptr;
+    size_t fChildCount = 0;
+    struct MarkedContentInfo {
+        unsigned fPageIndex;
+        int fMarkId;
+    };
+    SkTArray<MarkedContentInfo> fMarkedContent;
+    int fNodeId;
+    SkPDF::DocumentStructureType fType;
+    SkPDFIndirectReference fRef;
+    enum State {
+        kUnknown,
+        kYes,
+        kNo,
+    } fCanDiscard = kUnknown;
+};
+
+SkPDFTagTree::SkPDFTagTree() : fArena(4 * sizeof(SkPDFTagNode)) {}
+
+SkPDFTagTree::~SkPDFTagTree() = default;
+
+static void copy(const SkPDF::StructureElementNode& node,
+                 SkPDFTagNode* dst,
+                 SkArenaAlloc* arena,
+                 SkTHashMap<int, SkPDFTagNode*>* nodeMap) {
+    nodeMap->set(node.fNodeId, dst);
+    size_t childCount = node.fChildCount;
+    SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
+    dst->fChildCount = childCount;
+    dst->fNodeId = node.fNodeId;
+    dst->fType = node.fType;
+    dst->fChildren = children;
+    for (size_t i = 0; i < childCount; ++i) {
+        copy(node.fChildren[i], &children[i], arena, nodeMap);
     }
 }
 
-SkPDFTag::~SkPDFTag() {
-}
-
-void SkPDFTag::appendChild(sk_sp<SkPDFTag> child) {
-    fChildren.emplace_back(child);
-}
-
-void SkPDFTag::drop() {
-    // Disconnect the tree so as not to cause reference count loops.
-    fChildren.reset();
-
-    SkPDFDict::drop();
-}
-
-void SkPDFTag::addMarkedContent(int pageIndex, int markId) {
-    MarkedContentInfo mark;
-    mark.pageIndex = pageIndex;
-    mark.markId = markId;
-    fMarkedContent.emplace_back(mark);
-}
-
-bool SkPDFTag::prepareTagTreeToEmit(const SkPDFDocument& document) {
-    // Scan the marked content. If it's all on the page, output a
-    // Pg to the dict. If not, we'll use MCR dicts, below.
-    bool allSamePage = true;
-    if (fMarkedContent.count() > 0) {
-        int firstPageIndex = fMarkedContent[0].pageIndex;
-        for (int i = 1; i < fMarkedContent.count(); i++) {
-            if (fMarkedContent[i].pageIndex != firstPageIndex) {
-                allSamePage = false;
-                break;
-            }
-        }
-
-        if (allSamePage) {
-            this->insertRef("Pg", document.getPage(SkToSizeT(firstPageIndex)));
-        }
+void SkPDFTagTree::init(const SkPDF::StructureElementNode* node) {
+    if (node) {
+        fRoot = fArena.make<SkPDFTagNode>();
+        copy(*node, fRoot, &fArena, &fNodeMap);
     }
+}
 
-    // Recursively prepare all child tags of this node.
-    SkTArray<sk_sp<SkPDFTag>> validChildren;
-    for (int i = 0; i < fChildren.count(); i++) {
-        if (fChildren[i]->prepareTagTreeToEmit(document)) {
-            validChildren.push_back(fChildren[i]);
-        }
+void SkPDFTagTree::reset() {
+    fArena.reset();
+    fNodeMap.reset();
+    fMarksPerPage.reset();
+    fRoot = nullptr;
+}
+
+int SkPDFTagTree::getMarkIdForNodeId(int nodeId, unsigned pageIndex) {
+    if (!fRoot) {
+        return -1;
     }
+    SkPDFTagNode** tagPtr = fNodeMap.find(nodeId);
+    if (!tagPtr) {
+        return -1;
+    }
+    SkPDFTagNode* tag = *tagPtr;
+    SkASSERT(tag);
+    while (fMarksPerPage.size() < pageIndex + 1) {
+        fMarksPerPage.push_back();
+    }
+    SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
+    int markId = pageMarks.count();
+    tag->fMarkedContent.push_back({pageIndex, markId});
+    pageMarks.push_back(tag);
+    return markId;
+}
 
-    // fChildren is no longer needed.
-    fChildren.reset();
-
-    // Now set the kids of this node, which includes both child tags
-    // and marked content IDs.
-    if (validChildren.count() + fMarkedContent.count() == 1) {
-        // If there's just one valid kid, or one marked content,
-        // we can just output the reference directly with no array.
-        if (validChildren.count() == 1) {
-            insertObjRef("K", validChildren[0]);
-        } else {
-            insertInt("K", fMarkedContent[0].markId);
-        }
-        return true;
-    } else if (validChildren.count() + fMarkedContent.count() > 1) {
-        // If there's more than one kid, output them in an array.
-        auto kids = sk_make_sp<SkPDFArray>();
-        for (int i = 0; i < validChildren.count(); i++) {
-            kids->appendObjRef(validChildren[i]);
-        }
-        for (int i = 0; i < fMarkedContent.count(); i++) {
-            if (allSamePage) {
-                kids->appendInt(fMarkedContent[i].markId);
-            } else {
-                auto mcr = sk_make_sp<SkPDFDict>("MCR");
-                mcr->insertRef("Pg", document.getPage(SkToSizeT(fMarkedContent[i].pageIndex)));
-                mcr->insertInt("MCID", fMarkedContent[i].markId);
-                kids->appendObject(mcr);
-            }
-        }
-        insertObject("K", kids);
+static bool can_discard(SkPDFTagNode* node) {
+    if (node->fCanDiscard == SkPDFTagNode::kYes) {
         return true;
     }
-
-    // This tag didn't have any marked content or any children with
-    // marked content, so return false. This subtree will be omitted
-    // from the structure tree.
-    return false;
+    if (node->fCanDiscard == SkPDFTagNode::kNo) {
+        return false;
+    }
+    if (!node->fMarkedContent.empty()) {
+        node->fCanDiscard = SkPDFTagNode::kNo;
+        return false;
+    }
+    for (size_t i = 0; i < node->fChildCount; ++i) {
+        if (!can_discard(&node->fChildren[i])) {
+            node->fCanDiscard = SkPDFTagNode::kNo;
+            return false;
+        }
+    }
+    node->fCanDiscard = SkPDFTagNode::kYes;
+    return true;
 }
 
-SkPDFIndirectReference SkPDFTag::MakeStructTree(SkPDFDocument* doc,
-                                                sk_sp<SkPDFTag> tagRoot,
-                                                SkTArray<SkTArray<sk_sp<SkPDFTag>>> marksPerPage) {
 
-    // Prepare the tag tree, this automatically skips over any
-    // tags that weren't referenced from any marked content.
-    bool success = tagRoot->prepareTagTreeToEmit(*doc);
-    if (!success) {
+SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
+                                                SkPDFTagNode* node,
+                                                SkPDFDocument* doc) {
+    SkPDFIndirectReference ref = doc->reserveRef();
+    sk_sp<SkPDFArray> kids = sk_make_sp<SkPDFArray>();
+    SkPDFTagNode* children = node->fChildren;
+    size_t childCount = node->fChildCount;
+    for (size_t i = 0; i < childCount; ++i) {
+        SkPDFTagNode* child = &children[i];
+        if (!(can_discard(child))) {
+            kids->appendRef(prepare_tag_tree_to_emit(ref, child, doc));
+        }
+    }
+    for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
+        sk_sp<SkPDFDict> mcr = sk_make_sp<SkPDFDict>("MCR");
+        mcr->insertRef("Pg", doc->getPage(info.fPageIndex));
+        mcr->insertInt("MCID", info.fMarkId);
+        kids->appendObject(std::move(mcr));
+    }
+    node->fRef = ref;
+    SkPDFDict dict("StructElem");
+    dict.insertName("S", tag_name_from_type(node->fType));
+    dict.insertRef("P", parent);
+    dict.insertObject("K", std::move(kids));
+    return doc->emit(dict, ref);
+}
+
+SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
+    if (!fRoot) {
+        return SkPDFIndirectReference();
+    }
+    if (can_discard(fRoot)) {
         SkDEBUGFAIL("PDF has tag tree but no marked content.");
     }
+    SkPDFIndirectReference ref = doc->reserveRef();
 
-    // The parent of the tag root is the StructTreeRoot.
-    int pageCount = SkToInt(doc->pageCount());;
+    unsigned pageCount = SkToUInt(doc->pageCount());
+
+    // Build the StructTreeRoot.
+    SkPDFDict structTreeRoot("StructTreeRoot");
+    structTreeRoot.insertRef("K", prepare_tag_tree_to_emit(ref, fRoot, doc));
+    structTreeRoot.insertInt("ParentTreeNextKey", SkToInt(pageCount));
 
     // Build the parent tree, which is a mapping from the marked
     // content IDs on each page to their corressponding tags.
+    SkPDFDict parentTree("ParentTree");
     auto parentTreeNums = sk_make_sp<SkPDFArray>();
-    for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-        // Exit now if there are no more pages with marked content.
-        if (marksPerPage.count() <= pageIndex) {
-            break;
-        }
-        auto markToTagArray = sk_make_sp<SkPDFArray>();
 
-        for (int i = 0; i < marksPerPage[pageIndex].count(); i++) {
-            markToTagArray->appendObjRef(marksPerPage[pageIndex][i]);
+    SkASSERT(fMarksPerPage.size() <= pageCount);
+    for (size_t j = 0; j < fMarksPerPage.size(); ++j) {
+        const SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[j];
+        SkPDFArray markToTagArray;
+        for (SkPDFTagNode* mark : pageMarks) {
+            SkASSERT(mark->fRef);
+            markToTagArray.appendRef(mark->fRef);
         }
-        parentTreeNums->appendInt(pageIndex);
-        parentTreeNums->appendObjRef(std::move(markToTagArray));
+        parentTreeNums->appendInt(j);
+        parentTreeNums->appendRef(doc->emit(markToTagArray));
     }
-    auto parentTree = sk_make_sp<SkPDFDict>("ParentTree");
-    parentTree->insertObject("Nums", parentTreeNums);
-
-    // Build the StructTreeRoot.
-    auto structTreeRoot = sk_make_sp<SkPDFDict>("StructTreeRoot");
-    structTreeRoot->insertObjRef("K", tagRoot);
-    tagRoot->insertObjRef("P", structTreeRoot);
-
-    structTreeRoot->insertObjRef("ParentTree", std::move(parentTree));
-    structTreeRoot->insertInt("ParentTreeNextKey", pageCount);
-
-    return doc->serialize(structTreeRoot);
+    parentTree.insertObject("Nums", parentTreeNums);
+    structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
+    return doc->emit(structTreeRoot, ref);
 }
+

@@ -358,7 +358,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     }
 
     auto newCIDFont = sk_make_sp<SkPDFDict>("Font");
-    newCIDFont->insertRef("FontDescriptor", doc->serialize(descriptor));
+    newCIDFont->insertRef("FontDescriptor", doc->emit(*descriptor));
     newCIDFont->insertName("BaseFont", metrics.fPostScriptName);
 
     switch (type) {
@@ -398,7 +398,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     fontDict.insertName("BaseFont", metrics.fPostScriptName);
     fontDict.insertName("Encoding", "Identity-H");
     auto descendantFonts = sk_make_sp<SkPDFArray>();
-    descendantFonts->appendRef(doc->serialize(newCIDFont));
+    descendantFonts->appendRef(doc->emit(*newCIDFont));
     fontDict.insertObject("DescendantFonts", std::move(descendantFonts));
 
     const std::vector<SkUnichar>& glyphToUnicode =
