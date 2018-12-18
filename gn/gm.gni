@@ -32,6 +32,7 @@ gm_sources = [
   "$_gm/bigblurs.cpp",
   "$_gm/bigmatrix.cpp",
   "$_gm/bigrect.cpp",
+  "$_gm/bigrect_aa.cpp",
   "$_gm/bigrrectaaeffect.cpp",
   "$_gm/bigtext.cpp",
   "$_gm/bigtileimagefilter.cpp",

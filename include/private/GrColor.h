@@ -89,7 +89,8 @@ static inline bool SkPMColor4fFitsInBytes(const SkPMColor4f& color) {
  */
 class GrVertexColor {
 public:
-    explicit GrVertexColor(const SkPMColor4f& color, bool wideColor)
+    template<SkAlphaType kAT>
+    explicit GrVertexColor(const SkRGBA4f<kAT>& color, bool wideColor)
             : fWideColor(wideColor) {
         if (wideColor) {
             SkFloatToHalf_finite_ftz(Sk4f::Load(color.vec())).store(&fColor);
@@ -97,6 +98,15 @@ public:
             fColor[0] = color.toBytes_RGBA();
         }
     }
+
+    /*explicit GrVertexColor(const SkColor4f& color, bool wideColor)
+            : fWideColor(wideColor) {
+        if (wideColor) {
+            SkFloatToHalf_finite_ftz(Sk4f::Load(color.vec())).store(&fColor);
+        } else {
+            fColor[0] = color.toBytes_RGBA();
+        }
+    }*/
 
 private:
     friend struct GrVertexWriter;
