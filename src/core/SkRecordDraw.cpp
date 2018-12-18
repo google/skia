@@ -82,6 +82,7 @@ DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.clipMask.get(),
                                                  r.clipMatrix,
                                                  r.saveLayerFlags)));
+DRAW(SaveBehind, saveBehind(r.subset));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
@@ -244,6 +245,7 @@ private:
     // from the bounds of the ops in the same Save block.
     void trackBounds(const Save&)          { this->pushSaveBlock(nullptr); }
     void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
+    void trackBounds(const SaveBehind&)    { this->pushSaveBlock(nullptr); }
     void trackBounds(const Restore&) { fBounds[fCurrentOp] = this->popSaveBlock(); }
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
