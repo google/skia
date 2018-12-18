@@ -10,6 +10,7 @@
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Gpu.h"
 
 using namespace sk_gpu_test;
