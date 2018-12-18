@@ -1,5 +1,3 @@
-console.log('hello world');
-
 const CanvasKitInit = require('./bin/canvaskit.js');
 const fs = require('fs');
 const path = require('path');
@@ -12,8 +10,15 @@ CanvasKitInit({
   let img = fs.readFileSync(path.join(__dirname, 'test.png'));
   img = canvas.decodeImage(img);
 
+  let fontData = fs.readFileSync(path.join(__dirname, './Roboto-Regular.woff'));
+  canvas.loadFont(fontData, {
+                                'family': 'Roboto',
+                                'style': 'normal',
+                                'weight': '400',
+                              });
+
   let ctx = canvas.getContext('2d');
-  ctx.font = '30px Impact'
+  ctx.font = '30px Roboto';
   ctx.rotate(.1);
   let text = ctx.measureText('Awesome');
   ctx.fillText('Awesome ', 50, 100);
@@ -22,7 +27,7 @@ CanvasKitInit({
   // Draw line under Awesome
   ctx.strokeStyle = 'rgba(125,0,0,0.5)';
   ctx.beginPath();
-  ctx.lineWidth=6;
+  ctx.lineWidth = 6;
   ctx.lineTo(50, 102);
   ctx.lineTo(50 + text.width, 102);
   ctx.stroke();
@@ -35,13 +40,11 @@ CanvasKitInit({
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(img, 100, 150, 400, 350, 10, 200, 150, 100);
 
-  // TODO load an image from file
   console.log('<img src="' + canvas.toDataURL() + '" />');
 });
 
+// Not currently called
 function fancyAPI(CanvasKit) {
-  console.log('loaded');
-
   let surface = CanvasKit.MakeSurface(300, 300);
   const canvas = surface.getCanvas();
 
@@ -88,6 +91,7 @@ function fancyAPI(CanvasKit) {
   let b64encoded = Buffer.from(pngBytes).toString('base64');
   console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
 
+  // These delete calls free up memeory in the C++ WASM memory block.
   dpe.delete();
   skpath.delete();
   textPaint.delete();

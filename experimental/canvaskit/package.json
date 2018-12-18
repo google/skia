@@ -14,8 +14,8 @@
     "requirejs": "~2.3.5"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test-continuous"
   },
   "author": "",
-  "license": "ISC"
+  "license": "BSD-3-Clause"
 }

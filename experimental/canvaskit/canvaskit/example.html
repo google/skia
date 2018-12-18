@@ -751,7 +751,7 @@
     for (let canvas of [skcanvas, realCanvas]) {
       let ctx = canvas.getContext('2d');
 
-      var rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
+      let rgradient = ctx.createRadialGradient(200, 300, 10, 100, 100, 300);
 
       // Add three color stops
       rgradient.addColorStop(0, 'red');
@@ -772,7 +772,7 @@
       ctx.save();
       ctx.clip();
 
-      var lgradient = ctx.createLinearGradient(200, 20, 420, 40);
+      let lgradient = ctx.createLinearGradient(200, 20, 420, 40);
 
       // Add three color stops
       lgradient.addColorStop(0, 'green');
