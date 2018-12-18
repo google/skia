@@ -118,7 +118,7 @@ SkPDFFileOffset SkPDFObjectSerializer::offset(SkWStream* wStream) {
 
 static SkPDFIndirectReference generate_page_tree(
         SkPDFDocument* doc,
-        std::vector<sk_sp<SkPDFDict>> pages,
+        std::vector<std::unique_ptr<SkPDFDict>> pages,
         const std::vector<SkPDFIndirectReference>& pageRefs) {
     // PDF wants a tree describing all the pages in the document.  We arbitrary
     // choose 8 (kNodeSize) as the number of allowed children.  The internal
@@ -129,14 +129,14 @@ static SkPDFIndirectReference generate_page_tree(
     // one child.
     SkASSERT(pages.size() > 0);
     struct PageTreeNode {
-        sk_sp<SkPDFDict> fNode;
+        std::unique_ptr<SkPDFDict> fNode;
         SkPDFIndirectReference fReservedRef;
         int fPageObjectDescendantCount;
 
-        static void Layer(std::vector<PageTreeNode>* vec, SkPDFDocument* doc) {
+        static std::vector<PageTreeNode> Layer(std::vector<PageTreeNode> vec, SkPDFDocument* doc) {
             std::vector<PageTreeNode> result;
             static constexpr size_t kMaxNodeSize = 8;
-            const size_t n = vec->size();
+            const size_t n = vec.size();
             SkASSERT(n >= 1);
             const size_t result_len = (n - 1) / kMaxNodeSize + 1;
             SkASSERT(result_len >= 1);
@@ -145,24 +145,24 @@ static SkPDFIndirectReference generate_page_tree(
             size_t index = 0;
             for (size_t i = 0; i < result_len; ++i) {
                 if (n != 1 && index + 1 == n) {  // No need to create a new node.
-                    result.push_back(std::move((*vec)[index++]));
+                    result.push_back(std::move(vec[index++]));
                     continue;
                 }
                 SkPDFIndirectReference parent = doc->reserveRef();
-                auto kids_list = sk_make_sp<SkPDFArray>();
+                auto kids_list = SkPDFMakeArray();
                 int descendantCount = 0;
                 for (size_t j = 0; j < kMaxNodeSize && index < n; ++j) {
-                    PageTreeNode& node = (*vec)[index++];
+                    PageTreeNode& node = vec[index++];
                     node.fNode->insertRef("Parent", parent);
                     kids_list->appendRef(doc->emit(*node.fNode, node.fReservedRef));
                     descendantCount += node.fPageObjectDescendantCount;
                 }
-                auto next = sk_make_sp<SkPDFDict>("Pages");
+                auto next = SkPDFMakeDict("Pages");
                 next->insertInt("Count", descendantCount);
                 next->insertObject("Kids", std::move(kids_list));
                 result.push_back(PageTreeNode{std::move(next), parent, descendantCount});
             }
-            *vec = result;
+            return result;
         }
     };
     std::vector<PageTreeNode> currentLayer;
@@ -171,9 +171,9 @@ static SkPDFIndirectReference generate_page_tree(
     for (size_t i = 0; i < pages.size(); ++i) {
         currentLayer.push_back(PageTreeNode{std::move(pages[i]), pageRefs[i], 1});
     }
-    PageTreeNode::Layer(&currentLayer, doc);
+    currentLayer = PageTreeNode::Layer(std::move(currentLayer), doc);
     while (currentLayer.size() > 1) {
-        PageTreeNode::Layer(&currentLayer, doc);
+        currentLayer = PageTreeNode::Layer(std::move(currentLayer), doc);
     }
     SkASSERT(currentLayer.size() == 1);
     const PageTreeNode& root = currentLayer[0];
@@ -272,7 +272,7 @@ void SkPDFDocument::onEndPage() {
     reset_object(&fCanvas);
     SkASSERT(fPageDevice);
 
-    auto page = sk_make_sp<SkPDFDict>("Page");
+    auto page = SkPDFMakeDict("Page");
 
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     std::unique_ptr<SkStreamAsset> pageContent = fPageDevice->content();
@@ -282,7 +282,7 @@ void SkPDFDocument::onEndPage() {
     fPageDevice->appendDestinations(&fDests, fPageRefs.back());
     fPageDevice = nullptr;
 
-    page->insertObject("Resources", resourceDict);
+    page->insertObject("Resources", std::move(resourceDict));
     page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
 
     if (annotations) {
@@ -303,7 +303,7 @@ void SkPDFDocument::reset() {
     reset_object(&fObjectSerializer);
     fCanon = SkPDFCanon();
     reset_object(&fCanvas);
-    fPages = std::vector<sk_sp<SkPDFDict>>();
+    fPages = std::vector<std::unique_ptr<SkPDFDict>>();
     fPageRefs = std::vector<SkPDFIndirectReference>();
     reset_object(&fDests);
     fPageDevice = nullptr;
@@ -429,22 +429,22 @@ static sk_sp<SkData> SkSrgbIcm() {
 }
 
 static SkPDFIndirectReference make_srgb_color_profile(SkPDFDocument* doc) {
-    sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+    std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertInt("N", 3);
     dict->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
     return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()), doc, true);
 }
 
-static sk_sp<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {
+static std::unique_ptr<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {
     // sRGB is specified by HTML, CSS, and SVG.
-    auto outputIntent = sk_make_sp<SkPDFDict>("OutputIntent");
+    auto outputIntent = SkPDFMakeDict("OutputIntent");
     outputIntent->insertName("S", "GTS_PDFA1");
     outputIntent->insertString("RegistryName", "http://www.color.org");
     outputIntent->insertString("OutputConditionIdentifier",
                                "Custom");
     outputIntent->insertString("Info","sRGB IEC61966-2.1");
     outputIntent->insertRef("DestOutputProfile", make_srgb_color_profile(doc));
-    auto intentArray = sk_make_sp<SkPDFArray>();
+    auto intentArray = SkPDFMakeArray();
     intentArray->appendObject(std::move(outputIntent));
     return intentArray;
 }
@@ -475,7 +475,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         this->reset();
         return;
     }
-    auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
+    auto docCatalog = SkPDFMakeDict("Catalog");
     if (fMetadata.fPDFA) {
         SkASSERT(fXMP != SkPDFIndirectReference());
         docCatalog->insertRef("Metadata", fXMP);
@@ -494,9 +494,9 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     // Handle tagged PDFs.
     if (SkPDFIndirectReference root = fTagTree.makeStructTreeRoot(this)) {
         // In the document catalog, indicate that this PDF is tagged.
-        auto markInfo = sk_make_sp<SkPDFDict>("MarkInfo");
+        auto markInfo = SkPDFMakeDict("MarkInfo");
         markInfo->insertBool("Marked", true);
-        docCatalog->insertObject("MarkInfo", markInfo);
+        docCatalog->insertObject("MarkInfo", std::move(markInfo));
         docCatalog->insertRef("StructTreeRoot", root);
     }
 

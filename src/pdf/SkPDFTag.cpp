@@ -159,7 +159,7 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
                                                 SkPDFTagNode* node,
                                                 SkPDFDocument* doc) {
     SkPDFIndirectReference ref = doc->reserveRef();
-    sk_sp<SkPDFArray> kids = sk_make_sp<SkPDFArray>();
+    std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
     SkPDFTagNode* children = node->fChildren;
     size_t childCount = node->fChildCount;
     for (size_t i = 0; i < childCount; ++i) {
@@ -169,7 +169,7 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
         }
     }
     for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
-        sk_sp<SkPDFDict> mcr = sk_make_sp<SkPDFDict>("MCR");
+        std::unique_ptr<SkPDFDict> mcr = SkPDFMakeDict("MCR");
         mcr->insertRef("Pg", doc->getPage(info.fPageIndex));
         mcr->insertInt("MCID", info.fMarkId);
         kids->appendObject(std::move(mcr));
@@ -201,7 +201,7 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     // Build the parent tree, which is a mapping from the marked
     // content IDs on each page to their corressponding tags.
     SkPDFDict parentTree("ParentTree");
-    auto parentTreeNums = sk_make_sp<SkPDFArray>();
+    auto parentTreeNums = SkPDFMakeArray();
 
     SkASSERT(fMarksPerPage.size() <= pageCount);
     for (size_t j = 0; j < fMarksPerPage.size(); ++j) {
@@ -214,7 +214,7 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
         parentTreeNums->appendInt(j);
         parentTreeNums->appendRef(doc->emit(markToTagArray));
     }
-    parentTree.insertObject("Nums", parentTreeNums);
+    parentTree.insertObject("Nums", std::move(parentTreeNums));
     structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
     return doc->emit(structTreeRoot, ref);
 }

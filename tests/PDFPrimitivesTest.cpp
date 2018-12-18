@@ -150,7 +150,7 @@ static void TestPDFUnion(skiatest::Reporter* reporter) {
 }
 
 static void TestPDFArray(skiatest::Reporter* reporter) {
-    sk_sp<SkPDFArray> array(new SkPDFArray);
+    std::unique_ptr<SkPDFArray> array(new SkPDFArray);
     assert_emit_eq(reporter, *array, "[]");
 
     array->appendInt(42);
@@ -180,7 +180,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
                    "[42 .5 0 true /ThisName /AnotherName (This String) "
                    "(Another String)]");
 
-    sk_sp<SkPDFArray> innerArray(new SkPDFArray);
+    std::unique_ptr<SkPDFArray> innerArray(new SkPDFArray);
     innerArray->appendInt(-1);
     array->appendObject(std::move(innerArray));
     assert_emit_eq(reporter, *array,
@@ -189,7 +189,7 @@ static void TestPDFArray(skiatest::Reporter* reporter) {
 }
 
 static void TestPDFDict(skiatest::Reporter* reporter) {
-    sk_sp<SkPDFDict> dict(new SkPDFDict);
+    std::unique_ptr<SkPDFDict> dict(new SkPDFDict);
     assert_emit_eq(reporter, *dict, "<<>>");
 
     dict->insertInt("n1", SkToSizeT(42));
@@ -204,7 +204,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     dict->insertScalar("n2", SK_ScalarHalf);
 
     SkString n3("n3");
-    sk_sp<SkPDFArray> innerArray(new SkPDFArray);
+    std::unique_ptr<SkPDFArray> innerArray(new SkPDFArray);
     innerArray->appendInt(-100);
     dict->insertObject(n3, std::move(innerArray));
     assert_emit_eq(reporter, *dict, "<</n1 42\n/n2 .5\n/n3 [-100]>>");

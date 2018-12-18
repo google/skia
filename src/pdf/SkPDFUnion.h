@@ -76,7 +76,7 @@ public:
     /** SkPDFUnion::String will encode the passed string. */
     static SkPDFUnion String(SkString);
 
-    static SkPDFUnion Object(sk_sp<SkPDFObject>);
+    static SkPDFUnion Object(std::unique_ptr<SkPDFObject>);
 
     static SkPDFUnion Ref(SkPDFIndirectReference);
 

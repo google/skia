@@ -15,11 +15,11 @@
 class SkPDFObject;
 
 namespace SkPDFMetadata {
-sk_sp<SkPDFObject> MakeDocumentInformationDict(const SkPDF::Metadata&);
+std::unique_ptr<SkPDFObject> MakeDocumentInformationDict(const SkPDF::Metadata&);
 
 SkUUID CreateUUID(const SkPDF::Metadata&);
 
-sk_sp<SkPDFObject> MakePdfId(const SkUUID& doc, const SkUUID& instance);
+std::unique_ptr<SkPDFObject> MakePdfId(const SkUUID& doc, const SkUUID& instance);
 
 SkPDFIndirectReference MakeXMPObject(const SkPDF::Metadata& metadata,
                                      const SkUUID& doc,

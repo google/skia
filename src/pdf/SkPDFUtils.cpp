@@ -44,11 +44,11 @@ const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
     }
 }
 
-sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
+std::unique_ptr<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
     return SkPDFMakeArray(r.left(), r.top(), r.right(), r.bottom());
 }
 
-sk_sp<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
+std::unique_ptr<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkScalar a[6];
     if (!matrix.asAffine(a)) {
         SkMatrix::SetAffineIdentity(a);
@@ -304,7 +304,7 @@ bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
 
 void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
                                            SkRect& bbox,
-                                           sk_sp<SkPDFDict> resources,
+                                           std::unique_ptr<SkPDFDict> resources,
                                            const SkMatrix& matrix) {
     const int kTiling_PatternType = 1;
     const int kColoredTilingPattern_PaintType = 1;
