@@ -817,6 +817,19 @@ typedef enum {
 typedef struct sk_vertices_t sk_vertices_t;
 
 typedef enum {
+    LINEAR_SK_GAMMA_NAMED,
+    SRGB_SK_GAMMA_NAMED,
+    TWO_DOT_TWO_CURVE_SK_GAMMA_NAMED,
+    NON_STANDARD_SK_GAMMA_NAMED,
+} sk_gamma_named_t;
+
+typedef enum {
+    RGB_SK_COLORSPACE_TYPE,
+    CMYK_SK_COLORSPACE_TYPE,
+    GRAY_SK_COLORSPACE_TYPE,
+} sk_colorspace_type_t;
+
+typedef enum {
     LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,
     SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,
 } sk_colorspace_render_target_gamma_t;
@@ -839,10 +852,14 @@ typedef struct {
 } sk_colorspace_transfer_fn_t;
 
 typedef struct {
-    float fRX, fRY;
-    float fGX, fGY;
-    float fBX, fBY;
-    float fWX, fWY;
+    float fRX;
+    float fRY;
+    float fGX;
+    float fGY;
+    float fBX;
+    float fBY;
+    float fWX;
+    float fWY;
 } sk_colorspaceprimaries_t;
 
 typedef enum {

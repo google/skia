@@ -124,6 +124,7 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                        const SkMatrix44& toXYZD50);
 
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, Gamut gamut);
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     /**

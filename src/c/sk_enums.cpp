@@ -28,6 +28,7 @@
 #include "SkHighContrastFilter.h"
 #include "SkMask.h"
 #include "SkTrimPathEffect.h"
+#include "SkColorSpace.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTypes.h"
@@ -353,6 +354,17 @@ static_assert ((int)SkImage::CachingHint::kDisallow_CachingHint   == (int)DISALL
 // sk_colorspace_render_target_gamma_t
 static_assert ((int)SkColorSpace::RenderTargetGamma::kLinear_RenderTargetGamma   == (int)LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,   ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
 static_assert ((int)SkColorSpace::RenderTargetGamma::kSRGB_RenderTargetGamma     == (int)SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,     ASSERT_MSG(SkColorSpace::RenderTargetGamma, sk_colorspace_render_target_gamma_t));
+
+// sk_gamma_named_t
+static_assert ((int)SkGammaNamed::kLinear_SkGammaNamed        == (int)LINEAR_SK_GAMMA_NAMED,              ASSERT_MSG(SkGammaNamed, sk_gamma_named_t));
+static_assert ((int)SkGammaNamed::kSRGB_SkGammaNamed          == (int)SRGB_SK_GAMMA_NAMED,                ASSERT_MSG(SkGammaNamed, sk_gamma_named_t));
+static_assert ((int)SkGammaNamed::k2Dot2Curve_SkGammaNamed    == (int)TWO_DOT_TWO_CURVE_SK_GAMMA_NAMED,   ASSERT_MSG(SkGammaNamed, sk_gamma_named_t));
+static_assert ((int)SkGammaNamed::kNonStandard_SkGammaNamed   == (int)NON_STANDARD_SK_GAMMA_NAMED,        ASSERT_MSG(SkGammaNamed, sk_gamma_named_t));
+
+// sk_colorspace_type_t
+static_assert ((int)SkColorSpace::Type::kRGB_Type    == (int)RGB_SK_COLORSPACE_TYPE,    ASSERT_MSG(SkColorSpace::Type, sk_colorspace_type_t));
+static_assert ((int)SkColorSpace::Type::kCMYK_Type   == (int)CMYK_SK_COLORSPACE_TYPE,   ASSERT_MSG(SkColorSpace::Type, sk_colorspace_type_t));
+static_assert ((int)SkColorSpace::Type::kGray_Type   == (int)GRAY_SK_COLORSPACE_TYPE,   ASSERT_MSG(SkColorSpace::Type, sk_colorspace_type_t));
 
 // sk_highcontrastconfig_invertstyle_t
 static_assert ((int)SkHighContrastConfig::InvertStyle::kNoInvert           == (int)NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,           ASSERT_MSG(SkHighContrastConfig::InvertStyle, sk_highcontrastconfig_invertstyle_t));

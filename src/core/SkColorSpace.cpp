@@ -172,6 +172,12 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                                     std::move(gammas), toXYZD50, nullptr));
 }
 
+sk_sp<SkColorSpace> SkColorSpace::MakeRGB(SkGammaNamed gammaNamed, Gamut gamut) {
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    to_xyz_d50(&toXYZD50, gamut);
+    return SkColorSpace::MakeRGB(gammaNamed, toXYZD50);
+}
+
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, Gamut gamut) {
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
     to_xyz_d50(&toXYZD50, gamut);
