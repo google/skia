@@ -23,6 +23,14 @@ public:
 #endif
     }
 
+    const SkDeferredDisplayList::LazyProxyData* lazyProxyData() const {
+#if SK_SUPPORT_GPU
+        return fDDL->fLazyProxyData.get();
+#else
+        return nullptr;
+#endif
+    }
+
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
     SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&);            // unimpl
