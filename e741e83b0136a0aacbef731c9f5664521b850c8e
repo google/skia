@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "029400c1_683c55ab",
+        "filename": "src/pdf/SkPDFUnion.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-18T22:13:33Z",
+      "side": 1,
+      "message": "This might not make it through all the compliers",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "e741e83b0136a0aacbef731c9f5664521b850c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
