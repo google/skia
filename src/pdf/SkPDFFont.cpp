@@ -299,7 +299,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     SkTypeface* face = font.typeface();
     SkASSERT(face);
 
-    auto descriptor = sk_make_sp<SkPDFDict>("FontDescriptor");
+    auto descriptor = SkPDFMakeDict("FontDescriptor");
     uint16_t emSize = SkToU16(font.typeface()->getUnitsPerEm());
     add_common_font_descriptor_entries(descriptor.get(), metrics, emSize , 0);
 
@@ -321,7 +321,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                             stream_to_data(std::move(fontAsset)), font.glyphUsage(),
                             metrics.fFontName.c_str(), ttcIndex);
                     if (subsetFontData) {
-                        sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                        std::unique_ptr<SkPDFDict> tmp = SkPDFMakeDict();
                         tmp->insertInt("Length1", SkToInt(subsetFontData->size()));
                         descriptor->insertRef(
                                 "FontFile2",
@@ -337,7 +337,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                     if (!fontAsset || fontAsset->getLength() == 0) { break; }
                 }
                 #endif  // SK_PDF_SUBSET_SUPPORTED
-                sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                std::unique_ptr<SkPDFDict> tmp = SkPDFMakeDict();
                 tmp->insertInt("Length1", fontSize);
                 descriptor->insertRef("FontFile2",
                                       SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
@@ -345,7 +345,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                 break;
             }
             case SkAdvancedTypefaceMetrics::kType1CID_Font: {
-                sk_sp<SkPDFDict> tmp = sk_make_sp<SkPDFDict>();
+                std::unique_ptr<SkPDFDict> tmp = SkPDFMakeDict();
                 tmp->insertName("Subtype", "CIDFontType0C");
                 descriptor->insertRef("FontFile3",
                                       SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
@@ -357,7 +357,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
         }
     }
 
-    auto newCIDFont = sk_make_sp<SkPDFDict>("Font");
+    auto newCIDFont = SkPDFMakeDict("Font");
     newCIDFont->insertRef("FontDescriptor", doc->emit(*descriptor));
     newCIDFont->insertName("BaseFont", metrics.fPostScriptName);
 
@@ -372,7 +372,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
         default:
             SkASSERT(false);
     }
-    auto sysInfo = sk_make_sp<SkPDFDict>();
+    auto sysInfo = SkPDFMakeDict();
     sysInfo->insertString("Registry", "Adobe");
     sysInfo->insertString("Ordering", "Identity");
     sysInfo->insertInt("Supplement", 0);
@@ -382,7 +382,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     {
         int emSize;
         auto glyphCache = SkPDFFont::MakeVectorCache(face, &emSize);
-        sk_sp<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
+        std::unique_ptr<SkPDFArray> widths = SkPDFMakeCIDGlyphWidthsArray(
                 glyphCache.get(), &font.glyphUsage(), SkToS16(emSize), &defaultWidth);
         if (widths && widths->size() > 0) {
             newCIDFont->insertObject("W", std::move(widths));
@@ -397,7 +397,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     fontDict.insertName("Subtype", "Type0");
     fontDict.insertName("BaseFont", metrics.fPostScriptName);
     fontDict.insertName("Encoding", "Identity-H");
-    auto descendantFonts = sk_make_sp<SkPDFArray>();
+    auto descendantFonts = SkPDFMakeArray();
     descendantFonts->appendRef(doc->emit(*newCIDFont));
     fontDict.insertObject("DescendantFonts", std::move(descendantFonts));
 
@@ -435,7 +435,7 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
             sk_sp<SkData> fontData = SkPDFConvertType1FontStream(std::move(rawFontData),
                                                                  &header, &data, &trailer);
             if (fontData) {
-                sk_sp<SkPDFDict> dict = sk_make_sp<SkPDFDict>();
+                std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
                 dict->insertInt("Length1", header);
                 dict->insertInt("Length2", data);
                 dict->insertInt("Length3", trailer);
@@ -496,7 +496,7 @@ static void emit_subset_type1(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     {
         int emSize;
         auto glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
-        auto widths = sk_make_sp<SkPDFArray>();
+        auto widths = SkPDFMakeArray();
         SkScalar advance = glyphCache->getGlyphIDAdvance(0).fAdvanceX;
         widths->appendScalar(from_font_units(advance, SkToU16(emSize)));
         for (unsigned gID = firstGlyphID; gID <= lastGlyphID; gID++) {
@@ -505,7 +505,7 @@ static void emit_subset_type1(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         }
         font.insertObject("Widths", std::move(widths));
     }
-    auto encDiffs = sk_make_sp<SkPDFArray>();
+    auto encDiffs = SkPDFMakeArray();
     encDiffs->reserve(lastGlyphID - firstGlyphID + 3);
     encDiffs->appendInt(0);
 
@@ -516,7 +516,7 @@ static void emit_subset_type1(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         encDiffs->appendName(glyphNames[gID].isEmpty() ? unknown : glyphNames[gID]);
     }
 
-    auto encoding = sk_make_sp<SkPDFDict>("Encoding");
+    auto encoding = SkPDFMakeDict("Encoding");
     encoding->insertObject("Differences", std::move(encDiffs));
     font.insertObject("Encoding", std::move(encoding));
 
@@ -661,10 +661,10 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     fontMatrix.setScale(SkScalarInvert(emSize), -SkScalarInvert(emSize));
     font.insertObject("FontMatrix", SkPDFUtils::MatrixToArray(fontMatrix));
 
-    auto charProcs = sk_make_sp<SkPDFDict>();
-    auto encoding = sk_make_sp<SkPDFDict>("Encoding");
+    auto charProcs = SkPDFMakeDict();
+    auto encoding = SkPDFMakeDict("Encoding");
 
-    auto encDiffs = sk_make_sp<SkPDFArray>();
+    auto encDiffs = SkPDFMakeArray();
     // length(firstGlyphID .. lastGlyphID) ==  lastGlyphID - firstGlyphID + 1
     // plus 1 for glyph 0;
     SkASSERT(firstGlyphID > 0);
@@ -674,7 +674,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     encDiffs->reserve(glyphCount + 1);
     encDiffs->appendInt(0);  // index of first glyph
 
-    auto widthArray = sk_make_sp<SkPDFArray>();
+    auto widthArray = SkPDFMakeArray();
     widthArray->reserve(glyphCount);
 
     SkIRect bbox = SkIRect::MakeEmpty();
@@ -729,11 +729,11 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     }
 
     if (!imageGlyphs.empty()) {
-        auto d0 = sk_make_sp<SkPDFDict>();
+        auto d0 = SkPDFMakeDict();
         for (const auto& pair : imageGlyphs) {
             d0->insertRef(SkStringPrintf("Xg%X", pair.first), pair.second);
         }
-        auto d1 = sk_make_sp<SkPDFDict>();
+        auto d1 = SkPDFMakeDict();
         d1->insertObject("XObject", std::move(d0));
         font.insertObject("Resources", std::move(d1));
     }
