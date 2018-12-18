@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "4bd009e0_7f4d0055",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-18T15:24:09Z",
+      "side": 1,
+      "message": "align fBackImage? Or, better yet, unalign all the others.",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "25987dd6_abd172e0",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 8
@@ -144,6 +161,29 @@
       "writtenOn": "2018-12-18T15:09:31Z",
       "side": 1,
       "message": "\\n ?",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bce7e7a_4a089313",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-18T15:24:09Z",
+      "side": 1,
+      "message": "This always makes an exact-sized texture. Perhaps we should make it take a SkBackingFit. I started typing out code here to do this without updating that function and decided it\u0027d be easier to update that function than have bespoke code here.",
+      "range": {
+        "startLine": 1269,
+        "startChar": 36,
+        "endLine": 1269,
+        "endChar": 40
+      },
       "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
