@@ -38,6 +38,7 @@ public:
 
 protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
+    bool onDoSaveBehind(const SkRect*) override;
 
     // No-op overrides for aborting rasterization earlier than SkNullBlitter.
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override {}

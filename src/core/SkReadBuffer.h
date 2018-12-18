@@ -43,6 +43,7 @@ public:
         kStoreImageBounds_Version          = 63,
         kRemoveOccluderFromBlurMaskFilter  = 64,
         kFloat4PaintColor_Version          = 65,
+        kSaveBehind_Version                = 66,
     };
 
     /**
@@ -245,6 +246,7 @@ public:
         kStoreImageBounds_Version          = 63,
         kRemoveOccluderFromBlurMaskFilter  = 64,
         kFloat4PaintColor_Version          = 65,
+        kSaveBehind_Version                = 66,
     };
 
     bool isVersionLT(Version) const { return false; }

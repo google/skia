@@ -75,6 +75,26 @@ SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLaye
     return kNoLayer_SaveLayerStrategy;
 }
 
+bool SkPictureRecord::onDoSaveBehind(const SkRect* subset) {
+    fRestoreOffsetStack.push_back(-(int32_t)fWriter.bytesWritten());
+
+    size_t size = sizeof(kUInt32Size) + sizeof(uint32_t); // op + flags
+    uint32_t flags = 0;
+    if (subset) {
+        flags |= SAVEBEHIND_HAS_SUBSET;
+        size += sizeof(*subset);
+    }
+
+    size_t initialOffset = this->addDraw(SAVE_BEHIND, &size);
+    this->addInt(flags);
+    if (subset) {
+        this->addRect(*subset);
+    }
+
+    this->validate(initialOffset, size);
+    return false;
+}
+
 void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     // op + flatflags
     size_t size = 2 * kUInt32Size;

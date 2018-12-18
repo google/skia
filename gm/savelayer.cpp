@@ -277,3 +277,74 @@ DEF_SIMPLE_GM(savelayer_coverage, canvas, 500, 500) {
     canvas->restore();
 }
 
+#include "SkFont.h"
+#include "SkGradientShader.h"
+#include "SkTextBlob.h"
+
+static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h) {
+    SkRect r = SkRect::MakeWH(w, h);
+    SkPaint p;
+    p.setColor(c);
+    p.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawRect(r, p);
+    p.setBlendMode(SkBlendMode::kSrcOver);
+
+    const SkScalar margin = 80;
+    r.fLeft = w - margin;
+
+    // save the behind image
+    SkDEBUGCODE(int sc0 =) canvas->getSaveCount();
+    SkDEBUGCODE(int sc1 =) SkCanvasPriv::SaveBehind(canvas, &r);
+    SkDEBUGCODE(int sc2 =) canvas->getSaveCount();
+    SkASSERT(sc0 == sc1);
+    SkASSERT(sc0 + 1 == sc2);
+
+    // draw the foreground (including over the 'behind' section)
+    p.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, 10, 30, p);
+
+    // draw the treatment
+    const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
+    const SkColor colors[] = { 0x88000000, 0x0 };
+    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+    p.setShader(sh);
+    p.setBlendMode(SkBlendMode::kDstIn);
+    canvas->drawRect(r, p);
+
+    // this should restore the behind image
+    canvas->restore();
+    SkDEBUGCODE(int sc3 =) canvas->getSaveCount();
+    SkASSERT(sc3 == sc0);
+
+    // just outline where we expect the treatment to appear
+    p.reset();
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setAlpha(0x40);
+    canvas->drawRect(r, p);
+}
+
+static void draw_list(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
+    SkAutoCanvasRestore acr(canvas, true);
+
+    SkRandom rand;
+    SkScalar w = 400;
+    SkScalar h = 40;
+    for (int i = 0; i < 8; ++i) {
+        SkColor c = rand.nextU();   // ensure we're opaque
+        c = (c & 0xFFFFFF) | 0x80000000;
+        draw_cell(canvas, blob, c, w, h);
+        canvas->translate(0, h);
+    }
+}
+
+DEF_SIMPLE_GM(save_behind, canvas, 400, 670) {
+    SkFont font;
+    font.setSize(30);
+    const char text[] = "This is a very long line of text";
+    auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
+
+    draw_list(canvas, blob);
+    canvas->translate(0, 350);
+    canvas->saveLayer({0, 0, 400, 320}, nullptr);
+    draw_list(canvas, blob);
+}

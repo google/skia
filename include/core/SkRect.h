@@ -142,6 +142,9 @@ struct SK_API SkIRect {
     */
     int32_t y() const { return fTop; }
 
+    // Experimental
+    SkIPoint topLeft() const { return {fLeft, fTop}; }
+
     /** Returns span on the x-axis. This does not check if SkIRect is sorted, or if
         result fits in 32-bit signed integer; result may be negative.
 

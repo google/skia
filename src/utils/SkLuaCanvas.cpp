@@ -100,6 +100,11 @@ SkCanvas::SaveLayerStrategy SkLuaCanvas::getSaveLayerStrategy(const SaveLayerRec
     return kNoLayer_SaveLayerStrategy;
 }
 
+bool SkLuaCanvas::onDoSaveBehind(const SkRect*) {
+    // TODO
+    return false;
+}
+
 void SkLuaCanvas::willRestore() {
     AUTO_LUA("restore");
     this->INHERITED::willRestore();

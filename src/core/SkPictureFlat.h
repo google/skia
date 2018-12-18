@@ -98,7 +98,9 @@ enum DrawType {
     FLUSH,
 
     DRAW_IMAGE_SET,
-    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_SET
+
+    SAVE_BEHIND,
+    LAST_DRAWTYPE_ENUM = SAVE_BEHIND,
 };
 
 enum DrawVertexFlags {
@@ -124,6 +126,10 @@ enum SaveLayerRecFlatFlags {
     SAVELAYERREC_HAS_FLAGS      = 1 << 3,
     SAVELAYERREC_HAS_CLIPMASK   = 1 << 4,
     SAVELAYERREC_HAS_CLIPMATRIX = 1 << 5,
+};
+
+enum SaveBehindFlatFlags {
+    SAVEBEHIND_HAS_SUBSET = 1 << 0,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

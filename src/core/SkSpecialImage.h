@@ -75,6 +75,9 @@ public:
     static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,
                                                 const SkSurfaceProps* = nullptr);
+    static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
+                                                const SkBitmap&,
+                                                const SkSurfaceProps* = nullptr);
 #if SK_SUPPORT_GPU
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrContext*,
                                                      const SkIRect& subset,

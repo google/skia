@@ -43,6 +43,7 @@ namespace SkRecords {
     M(Restore)                                                      \
     M(Save)                                                         \
     M(SaveLayer)                                                    \
+    M(SaveBehind)                                                   \
     M(SetMatrix)                                                    \
     M(Translate)                                                    \
     M(Concat)                                                       \
@@ -176,6 +177,9 @@ RECORD(SaveLayer, kHasPaint_Tag,
        sk_sp<const SkImage> clipMask;
        Optional<SkMatrix> clipMatrix;
        SkCanvas::SaveLayerFlags saveLayerFlags);
+
+RECORD(SaveBehind, 0,
+       Optional<SkRect> subset);
 
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);

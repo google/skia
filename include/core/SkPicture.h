@@ -263,10 +263,12 @@ private:
     // V62: Don't negate size of custom encoded images (don't write origin x,y either)
     // V63: Store image bounds (including origin) instead of just width/height to support subsets
     // V64: Remove occluder feature from blur maskFilter
+    // V65: Float4 paint color
+    // V66: Add saveBehind
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
-    static const uint32_t CURRENT_PICTURE_VERSION = 65;
+    static const uint32_t CURRENT_PICTURE_VERSION = 66;
 
     static_assert(MIN_PICTURE_VERSION <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
 

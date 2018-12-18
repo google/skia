@@ -368,6 +368,10 @@ sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps co
     return nullptr;
 }
 
+sk_sp<SkSpecialImage> SkBaseDevice::snapBackImage(const SkIRect&) {
+    return nullptr;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void SkBaseDevice::LogDrawScaleFactor(const SkMatrix& matrix, SkFilterQuality filterQuality) {
