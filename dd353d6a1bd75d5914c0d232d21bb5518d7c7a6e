@@ -202,6 +202,23 @@
     },
     {
       "key": {
+        "uuid": "899ffe0c_917e64ea",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-12-18T16:44:37Z",
+      "side": 1,
+      "message": "kType is never used",
+      "revId": "dd353d6a1bd75d5914c0d232d21bb5518d7c7a6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8bce7e7a_4a089313",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 8
