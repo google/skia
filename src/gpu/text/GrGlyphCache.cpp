@@ -210,7 +210,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     int rowBytes = width * bytesPerPixel;
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
-    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == glyph->maskStyle();
+    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == glyph->fMaskStyle;
     bool addPad = isScaledGlyph && !isSDFGlyph;
     if (addPad) {
         width += 2;
