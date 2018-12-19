@@ -11,10 +11,6 @@
 // glGetError() forces a sync with gpu process on chrome
 #define GR_GL_CHECK_ERROR_START                     0
 
-// cmd buffer allocates memory and memsets it to zero when it sees glBufferData
-// with NULL.
-#define GR_GL_USE_BUFFER_DATA_NULL_HINT             0
-
 // Check error is even more expensive in chrome (cmd buffer flush). The
 // compositor also doesn't check its allocations.
 #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            0
