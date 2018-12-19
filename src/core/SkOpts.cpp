@@ -75,7 +75,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(hash_fn);
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
-
 #undef DEFINE_DEFAULT
 
 #define M(st) (StageFn)SK_OPTS_NS::st,
@@ -91,6 +90,15 @@ namespace SkOpts {
     void (*start_pipeline_lowp)(size_t,size_t,size_t,size_t,void**)
         = SK_OPTS_NS::lowp::start_pipeline;
 #undef M
+
+    void (*run_pipeline_obs)(size_t,size_t, size_t,size_t,
+                             const SkRasterPipeline::StockStage*, int, void**)
+        = SK_OPTS_NS::run_pipeline_obs;
+    void (*run_pipeline_obs_lowp)(size_t,size_t, size_t,size_t,
+                                  const SkRasterPipeline::StockStage*, int, void**)
+        = SK_OPTS_NS::lowp::run_pipeline_obs;
+    bool (*can_run_pipeline_obs_lowp)(const SkRasterPipeline::StockStage*, int)
+        = SK_OPTS_NS::lowp::can_run_pipeline_obs;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
