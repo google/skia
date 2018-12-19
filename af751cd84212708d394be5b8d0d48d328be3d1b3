@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55bd883b_4cbe7d2c",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "Maybe \"The idle proc will always be called before the texture is destroyed, even in unusual ...\"\n\n?",
+      "range": {
+        "startLine": 67,
+        "startChar": 84,
+        "endLine": 67,
+        "endChar": 86
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb64c316_ebfe4cac",
+        "filename": "src/gpu/GrGpuResourceCacheAccess.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "delete \u0027first\u0027 ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 57,
+        "endLine": 38,
+        "endChar": 63
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7799e016_656d326a",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "do we still want a \"this-\u003e\" here ?",
+      "range": {
+        "startLine": 199,
+        "startChar": 38,
+        "endLine": 199,
+        "endChar": 51
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d6a87d_6a19c8da",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "Maybe some dox here about what is going on ? E.g.:\n\n// For textures the AddedTo/RemovedFrom CommandBuffer calls are use to track when a given\n// textures is actually done being accessed (i.e., Vulkan is done using it to render). This,\n// in turn, will allow the \u0027idleProc\u0027 to be invoked if one exists.\n\n?",
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc8ec095_37391031",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "?? Is something missing here ?",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 10
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1711807_b00cca6c",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T18:30:11Z",
+      "side": 1,
+      "message": "Here too ?",
+      "range": {
+        "startLine": 147,
+        "startChar": 8,
+        "endLine": 147,
+        "endChar": 10
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
