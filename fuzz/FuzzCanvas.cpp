@@ -540,7 +540,7 @@ static sk_sp<SkImageFilter> make_fuzz_lighting_imagefilter(Fuzz* fuzz, int depth
 static void fuzz_paint(Fuzz* fuzz, SkPaint* paint, int depth);
 
 static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
-    if (depth <= 0) {
+    if (depth <= 0 || fuzz->exhausted()) {
         return nullptr;
     }
     uint8_t imageFilterType;
@@ -1530,15 +1530,17 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 canvas->drawPosTextH(text.begin(), SkToSizeT(text.count()), widths.get(), y, paint);
                 break;
             }
+#else
+            case 46:
+            case 47:
+            // fallthrough to break
 #endif
-            case 48: {
+            case 48:
                 // was drawtextonpath
                 break;
-            }
-            case 49: {
+            case 49:
                 // was drawtextonpath
                 break;
-            }
 #ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
             case 50: {
                 fuzz_paint(fuzz, &paint, depth - 1);
@@ -1561,6 +1563,9 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                                         useCullRect ? &cullRect : nullptr, paint);
                 break;
             }
+#else
+            case 50:
+                break;
 #endif
             case 51: {
                 sk_sp<SkTextBlob> blob = make_fuzz_textblob(fuzz);

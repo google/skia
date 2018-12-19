@@ -27,6 +27,10 @@ static void fuzz_nice_rect(Fuzz* fuzz, SkRect* r) {
     r->sort();
 }
 
+// Keep a path bounded in a rect of this big to avoid
+// timeouts
+constexpr int MAX_BOUNDS = 10000000;
+
 // allows some float values for path points
 void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
     if (maxOps <= 0 || fuzz->exhausted() || path->countPoints() > 100000) {
@@ -221,6 +225,13 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
         }
         SkASSERTF(       path->isValid(),        "path->isValid() failed at op %d, case %d", i, op);
+    }
+    // Make sure the path doesn't get too big, which can cause timeouts
+    // when, for example, subdividing cubics.
+    SkRect bounds = path->getBounds();
+    if (bounds.width() > MAX_BOUNDS || bounds.height() > MAX_BOUNDS ||
+        bounds.width() < 0          || bounds.height() < 0) {
+        path->reset();
     }
 }
 
