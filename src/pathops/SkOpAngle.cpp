@@ -578,7 +578,7 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
         }
         double maxWidth = SkTMax(maxX - minX, maxY - minY);
         delta = sk_ieee_double_divide(delta, maxWidth);
-        if (delta > 1e-3 && (useIntersect ^= true)) {  // FIXME: move this magic number
+        if (delta > 4e-3 && (useIntersect ^= true)) {  // FIXME: move this magic number
             sRayLonger = rayLonger;
             sCept = cept;
             sCeptT = smallTs[index];
