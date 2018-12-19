@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f3bdee6d_4a3c1fa6",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-19T20:45:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94ee9e32_c7dd83fc",
+      "range": {
+        "startLine": 124,
+        "startChar": 55,
+        "endLine": 124,
+        "endChar": 59
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96635441_9ac9eb2c",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "ed10adc9_384c2b1f",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-19T20:45:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96635441_9ac9eb2c",
+      "range": {
+        "startLine": 182,
+        "startChar": 38,
+        "endLine": 182,
+        "endChar": 81
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56bfbba6_a67e748a",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
@@ -88,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "ed68f09d_c432951a",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-19T20:45:17Z",
+      "side": 1,
+      "message": "too tricky :)",
+      "parentUuid": "56bfbba6_a67e748a",
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42105071_bbbdc65b",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
@@ -99,6 +165,30 @@
       "writtenOn": "2018-12-19T20:08:17Z",
       "side": 1,
       "message": "Since src is essentially a const SkRect (fontBounds), isn\u0027t this equivalent to SkMatrix::mapRect()?",
+      "range": {
+        "startLine": 303,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 1
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51ac8d6f_6e261f6f",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-19T20:45:17Z",
+      "side": 1,
+      "message": "Yes. I started trying to make something very efficient (e.g. avoid making a matrix for just 4 points), and so stopped at saving the cost of turning the rect into quad (which mapRect has to do). However, all of those are probably premature, so I\u0027ll take your suggestion.",
+      "parentUuid": "42105071_bbbdc65b",
       "range": {
         "startLine": 303,
         "startChar": 0,
