@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "GrVkGpu.h"
 #include "GrVkImage.h"
+#include "GrGpuResourcePriv.h"
+#include "GrVkGpu.h"
 #include "GrVkMemory.h"
+#include "GrVkTexture.h"
 #include "GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -221,6 +223,7 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
         this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
     }
     if (fResource) {
+        fResource->removeOwningTexture();
         fResource->unref(gpu);
         fResource = nullptr;
     }
@@ -228,6 +231,7 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
 
 void GrVkImage::abandonImage() {
     if (fResource) {
+        fResource->removeOwningTexture();
         fResource->unrefAndAbandon();
         fResource = nullptr;
     }
@@ -243,6 +247,37 @@ void GrVkImage::Resource::freeGPUData(GrVkGpu* gpu) const {
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
+}
+
+void GrVkImage::Resource::setIdleProc(GrVkTexture* owner, GrTexture::IdleProc proc,
+                                      void* context) const {
+    fOwningTexture = owner;
+    fIdleProc = proc;
+    fIdleProcContext = context;
+}
+
+void GrVkImage::Resource::removeOwningTexture() const { fOwningTexture = nullptr; }
+
+void GrVkImage::Resource::notifyAddedToCommandBuffer() const { ++fNumCommandBufferOwners; }
+
+void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
+    SkASSERT(fNumCommandBufferOwners);
+    if (--fNumCommandBufferOwners || !fIdleProc) {
+        return;
+    }
+    if (fOwningTexture && !fOwningTexture->resourcePriv().isPurgeable()) {
+        return;
+    }
+    fIdleProc(fIdleProcContext);
+    if (fOwningTexture) {
+        fOwningTexture->setIdleProc(nullptr, nullptr);
+        // Changing the texture's proc should change ours.
+        SkASSERT(!fIdleProc);
+        SkASSERT(!fIdleProc);
+    } else {
+        fIdleProc = nullptr;
+        fIdleProcContext = nullptr;
+    }
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(GrVkGpu* gpu) const {
