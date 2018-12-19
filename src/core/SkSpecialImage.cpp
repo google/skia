@@ -488,9 +488,9 @@ public:
                 return wrap_proxy_in_image(fContext, fTextureProxy, fAlphaType, fColorSpace);
             }
 
-            sk_sp<GrTextureProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fTextureProxy.get(),
-                                                                   GrMipMapped::kNo, *subset,
-                                                                   SkBudgeted::kYes));
+            sk_sp<GrTextureProxy> subsetProxy(
+                    GrSurfaceProxy::Copy(fContext, fTextureProxy.get(), GrMipMapped::kNo, *subset,
+                                         SkBackingFit::kExact, SkBudgeted::kYes));
             if (!subsetProxy) {
                 return nullptr;
             }
