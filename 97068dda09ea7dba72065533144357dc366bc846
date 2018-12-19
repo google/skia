@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c16ef908_10a952e4",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-19T14:40:27Z",
+      "side": 1,
+      "message": "Nit: I feel like typically we\u0027d do if(!GrCompileVkShaderModule(...)) here instead of storing result since result isn\u0027t really used again.",
+      "range": {
+        "startLine": 78,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 18
+      },
+      "revId": "97068dda09ea7dba72065533144357dc366bc846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0e9209b_95c91dc0",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-19T14:40:27Z",
+      "side": 1,
+      "message": "just return true",
+      "range": {
+        "startLine": 91,
+        "startChar": 11,
+        "endLine": 91,
+        "endChar": 17
+      },
+      "revId": "97068dda09ea7dba72065533144357dc366bc846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fc342d3_586cc0c1",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-19T14:40:27Z",
+      "side": 1,
+      "message": "same as above comment",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 15
+      },
+      "revId": "97068dda09ea7dba72065533144357dc366bc846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c0c4193_082b5a41",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-19T14:40:27Z",
+      "side": 1,
+      "message": "can this be deleted now?",
+      "range": {
+        "startLine": 187,
+        "startChar": 22,
+        "endLine": 187,
+        "endChar": 52
+      },
+      "revId": "97068dda09ea7dba72065533144357dc366bc846",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
