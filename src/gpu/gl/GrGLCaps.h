@@ -264,9 +264,6 @@ public:
     /// Is there support for GL_UNPACK_ROW_LENGTH
     bool unpackRowLengthSupport() const { return fUnpackRowLengthSupport; }
 
-    /// Is there support for GL_UNPACK_FLIP_Y
-    bool unpackFlipYSupport() const { return fUnpackFlipYSupport; }
-
     /// Is there support for GL_PACK_ROW_LENGTH
     bool packRowLengthSupport() const { return fPackRowLengthSupport; }
 
@@ -484,7 +481,6 @@ private:
     TransferBufferType  fTransferBufferType;
 
     bool fUnpackRowLengthSupport : 1;
-    bool fUnpackFlipYSupport : 1;
     bool fPackRowLengthSupport : 1;
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;

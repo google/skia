@@ -212,7 +212,6 @@
 #define GR_GL_COLOR_CLEAR_VALUE              0x0C22
 #define GR_GL_COLOR_WRITEMASK                0x0C23
 #define GR_GL_UNPACK_ALIGNMENT               0x0CF5
-#define GR_GL_UNPACK_FLIP_Y                  0x9240
 #define GR_GL_PACK_ALIGNMENT                 0x0D05
 #define GR_GL_PACK_REVERSE_ROW_ORDER         0x93A4
 #define GR_GL_MAX_TEXTURE_SIZE               0x0D33
