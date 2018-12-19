@@ -95,46 +95,6 @@
   },
   {
     "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "version"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/go_deps",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "go version"
-  },
-  {
-    "cmd": [
-      "go",
-      "version"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/go_deps",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "env go version"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "get",
-      "go.skia.org/infra/fiddlek/go/fiddlecli"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/go_deps",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
-    },
-    "name": "go get fiddlecli"
-  },
-  {
-    "cmd": [
       "[START_DIR]/build/bookmaker",
       "-a",
       "docs/status.json",
@@ -146,7 +106,7 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Extract all fiddles out of md files"
   },
@@ -160,13 +120,13 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Output fiddle.json"
   },
   {
     "cmd": [
-      "[START_DIR]/go_deps/bin/fiddlecli",
+      "fiddlecli",
       "--input",
       "[START_DIR]/fiddle.json",
       "--output",
@@ -181,7 +141,7 @@
       "CHROME_HEADLESS": "1",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Force fiddle to compile all examples",
     "~followup_annotations": [
