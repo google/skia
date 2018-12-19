@@ -61,12 +61,30 @@ struct GrGlyph {
         , fMaskStyle{MaskStyleFromSkGlyph(skGlyph)}
         , fBounds{BoundsFromSkGlyph(skGlyph)} {}
 
-    const SkPackedGlyphID  fPackedID;
-    const GrMaskFormat     fMaskFormat;
-    const MaskStyle        fMaskStyle;
-    const GrIRect16        fBounds;
-    SkIPoint16             fAtlasLocation{0, 0};
-    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
+
+    SkRect destRect(SkPoint origin) {
+        return SkRect::MakeXYWH(
+                SkIntToScalar(fBounds.fLeft) + origin.x(),
+                SkIntToScalar(fBounds.fTop)  + origin.y(),
+                SkIntToScalar(fBounds.width()),
+                SkIntToScalar(fBounds.height()));
+    }
+
+    SkRect destRect(SkPoint origin, SkScalar textScale) {
+        if (fMaskStyle == kCoverage_MaskStyle) {
+            return SkRect::MakeXYWH(
+                    SkIntToScalar(fBounds.fLeft)    * textScale + origin.x(),
+                    SkIntToScalar(fBounds.fTop)     * textScale + origin.y(),
+                    SkIntToScalar(fBounds.width())  * textScale,
+                    SkIntToScalar(fBounds.height()) * textScale);
+        } else {
+            return SkRect::MakeXYWH(
+                    (SkIntToScalar(fBounds.fLeft) + SK_DistanceFieldInset) * textScale + origin.x(),
+                    (SkIntToScalar(fBounds.fTop)  + SK_DistanceFieldInset) * textScale + origin.y(),
+                    (SkIntToScalar(fBounds.width())  - 2 * SK_DistanceFieldInset) * textScale,
+                    (SkIntToScalar(fBounds.height()) - 2 * SK_DistanceFieldInset) * textScale);
+        }
+    }
 
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
@@ -81,6 +99,13 @@ struct GrGlyph {
     static uint32_t Hash(SkPackedGlyphID key) {
         return SkChecksum::Mix(key.hash());
     }
+
+    const SkPackedGlyphID  fPackedID;
+    const GrMaskFormat     fMaskFormat;
+    const MaskStyle        fMaskStyle;
+    const GrIRect16        fBounds;
+    SkIPoint16             fAtlasLocation{0, 0};
+    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
 };
 
 #endif
