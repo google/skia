@@ -566,9 +566,11 @@ void GrTextContext::drawGlyphRunList(
                      clip, viewMatrix, origin.x(), origin.y());
 }
 
-void GrTextBlob::SubRun::appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect) {
+void GrTextBlob::SubRun::appendGlyph(GrGlyph* glyph, SkRect dstRect) {
 
     this->joinGlyphBounds(dstRect);
+
+    GrTextBlob* blob = fRun->fBlob;
 
     bool hasW = this->hasWCoord();
     // glyphs drawn in perspective must always have a w coord.
@@ -605,61 +607,49 @@ void GrTextBlob::SubRun::appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect ds
     blob->fGlyphs[fGlyphEndIndex++] = glyph;
 }
 
-static SkRect rect_to_draw(
-        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, bool isDFT) {
+void GrTextBlob::Run::switchSubRunIfNeededAndAppendGlyph(GrGlyph* glyph,
+                                                         const sk_sp<GrTextStrike>& strike,
+                                                         const SkRect& destRect,
+                                                         bool needsTransform) {
+    GrMaskFormat format = glyph->fMaskFormat;
 
-    SkScalar dx = SkIntToScalar(glyph.fLeft);
-    SkScalar dy = SkIntToScalar(glyph.fTop);
-    SkScalar width = SkIntToScalar(glyph.fWidth);
-    SkScalar height = SkIntToScalar(glyph.fHeight);
-
-    if (isDFT) {
-        dx += SK_DistanceFieldInset;
-        dy += SK_DistanceFieldInset;
-        width -= 2 * SK_DistanceFieldInset;
-        height -= 2 * SK_DistanceFieldInset;
+    SubRun* subRun = &fSubRunInfo.back();
+    if (fInitialized && subRun->maskFormat() != format) {
+        subRun = pushBackSubRun(fDescriptor, fColor);
+        subRun->setStrike(strike);
+    } else if (!fInitialized) {
+        subRun->setStrike(strike);
     }
 
-    dx *= textScale;
-    dy *= textScale;
-    width *= textScale;
-    height *= textScale;
-
-    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
+    fInitialized = true;
+    subRun->setMaskFormat(format);
+    subRun->setNeedsTransform(needsTransform);
+    subRun->appendGlyph(glyph, destRect);
 }
 
-void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
-                                  const sk_sp<GrTextStrike>& strike,
-                                  const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                                  SkPoint origin, SkScalar textRatio, bool needsTransform) {
+void GrTextBlob::Run::appendDeviceSpaceGlyph(const sk_sp<GrTextStrike>& strike,
+                                             const SkGlyph& skGlyph, SkPoint origin) {
+    if (GrGlyph* glyph = strike->getGlyph(skGlyph)) {
 
-    GrGlyph* glyph = strike->getGlyph(skGlyph);
-    if (!glyph) {
-        return;
-    }
+        SkRect glyphRect = glyph->destRect(origin);
 
-    SkASSERT(skGlyph.fWidth == glyph->width());
-    SkASSERT(skGlyph.fHeight == glyph->height());
-
-    bool isDFT = maskStyle == GrGlyph::kDistance_MaskStyle;
-
-    SkRect glyphRect = rect_to_draw(skGlyph, origin, textRatio, isDFT);
-    if (!glyphRect.isEmpty()) {
-        GrMaskFormat format = glyph->fMaskFormat;
-
-        SubRun* subRun = &fSubRunInfo.back();
-        if (fInitialized && subRun->maskFormat() != format) {
-            subRun = pushBackSubRun(fDescriptor, fColor);
-            subRun->setStrike(strike);
-        } else if (!fInitialized) {
-            subRun->setStrike(strike);
+        if (!glyphRect.isEmpty()) {
+            this->switchSubRunIfNeededAndAppendGlyph(glyph, strike, glyphRect, false);
         }
+    }
+}
 
-        fInitialized = true;
-        subRun->setMaskFormat(format);
-        subRun->setNeedsTransform(needsTransform);
+void GrTextBlob::Run::appendSourceSpaceGlyph(const sk_sp<GrTextStrike>& strike,
+                                             const SkGlyph& skGlyph,
+                                             SkPoint origin,
+                                             SkScalar textScale) {
+    if (GrGlyph* glyph = strike->getGlyph(skGlyph)) {
 
-        subRun->appendGlyph(blob, glyph, glyphRect);
+        SkRect glyphRect = glyph->destRect(origin, textScale);
+
+        if (!glyphRect.isEmpty()) {
+            this->switchSubRunIfNeededAndAppendGlyph(glyph, strike, glyphRect, true);
+        }
     }
 }
 
@@ -691,12 +681,16 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             SkASSERT(strike != nullptr);
             subRun->setStrike(strike);
             const SkPoint* glyphPos = positions.data();
-            for (auto glyphID : glyphIDs) {
-                const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
-                fRun->appendGlyph(fBlob, strike, glyph,
-                                 GrGlyph::kCoverage_MaskStyle,
-                                 *glyphPos, textScale, needsTransform);
-                glyphPos++;
+            if (needsTransform == SkGlyphRunListPainter::kTransformDone) {
+                for (auto glyphID : glyphIDs) {
+                    const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
+                    fRun->appendDeviceSpaceGlyph(strike, glyph, *glyphPos++);
+                }
+            } else {
+                for (auto glyphID : glyphIDs) {
+                    const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
+                    fRun->appendSourceSpaceGlyph(strike, glyph, *glyphPos++, textScale);
+                }
             }
         }
 
@@ -751,11 +745,9 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
                 auto perSDF =
-                    [this, run, &currStrike, textScale]
+                    [run, &currStrike, textScale]
                     (const SkGlyph& glyph, SkPoint position) {
-                        run->appendGlyph(this, currStrike,
-                                    glyph, GrGlyph::kDistance_MaskStyle, position,
-                                    textScale, true);
+                        run->appendSourceSpaceGlyph(currStrike, glyph, position, textScale);
                     };
 
                 auto perPath =
@@ -818,13 +810,11 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             auto perEmpty = [](const SkGlyph&, SkPoint) {};
 
             auto perGlyph =
-                [this, run, &currStrike]
+                [run, &currStrike]
                 (const SkGlyph& glyph, SkPoint mappedPt) {
                     SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
                                SkScalarFloorToScalar(mappedPt.fY)};
-                    run->appendGlyph(this, currStrike,
-                                     glyph, GrGlyph::kCoverage_MaskStyle, pt,
-                                     SK_Scalar1, false);
+                    run->appendDeviceSpaceGlyph(currStrike, glyph, pt);
                 };
 
             auto perPath =
