@@ -80,7 +80,7 @@ DEF_TEST(GlyphRunBlob, reporter) {
     SkGlyphRunBuilder runBuilder;
     SkPaint legacy_paint;
     font.LEGACY_applyToPaint(&legacy_paint);
-    runBuilder.drawTextBlob(legacy_paint, *blob, SkPoint::Make(0, 0));
+//    runBuilder.drawTextBlob(legacy_paint, *blob, SkPoint::Make(0, 0));
 
     auto runList = runBuilder.useGlyphRunList();
 
