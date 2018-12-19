@@ -57,6 +57,8 @@ public:
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
                                    GrMipMapped mipMapped, InitContents);
 
+    static sk_sp<SkGpuDevice> MakeForVulkanSecondaryCB(GrContext*, sk_sp<GrRenderTargetContext>);
+
     ~SkGpuDevice() override {}
 
     GrContext* context() const override { return fContext.get(); }

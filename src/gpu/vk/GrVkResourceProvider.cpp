@@ -134,6 +134,21 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
     return renderPass;
 }
 
+const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
+        VkRenderPass renderPass, uint32_t colorAttachmentIndex) {
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        if (fExternalRenderPasses[i]->isCompatibleExternalRP(renderPass, colorAttachmentIndex)) {
+            fExternalRenderPasses[i]->ref();
+            return fExternalRenderPasses[i];
+        }
+    }
+
+    const GrVkRenderPass* newRenderPass = new GrVkRenderPass(renderPass, colorAttachmentIndex);
+    fExternalRenderPasses.push_back(newRenderPass);
+    newRenderPass->ref();
+    return newRenderPass;
+}
+
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      const GrVkRenderTarget& target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,

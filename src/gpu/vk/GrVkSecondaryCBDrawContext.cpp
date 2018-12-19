@@ -1,0 +1,58 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "vk/GrVkSecondaryCBDrawContext.h"
+
+#include "GrVkVulkan.h"
+
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrRenderTargetContext.h"
+#include "SkGpuDevice.h"
+#include "SkImageInfo.h"
+#include "SkSurfaceProps.h"
+#include "vk/GrVkTypes.h"
+
+sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ctx,
+                                                                   const SkImageInfo& imageInfo,
+                                                                   const GrVkDrawableInfo& vkInfo,
+                                                                   const SkSurfaceProps* props) {
+    if (!ctx) {
+        return nullptr;
+    }
+
+    if (ctx->contextPriv().getBackend() != GrBackendApi::kVulkan) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> rtc(
+            ctx->contextPriv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::MakeForVulkanSecondaryCB(ctx, std::move(rtc)));
+    if (!device) {
+        return nullptr;
+    }
+
+    return sk_sp<GrVkSecondaryCBDrawContext>(new GrVkSecondaryCBDrawContext(std::move(device)));
+}
+
+GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<SkGpuDevice> device)
+    : fDevice(device) {}
+
+GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {}
+
+SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
+    if (!fCachedCanvas) {
+        fCachedCanvas = std::unique_ptr<SkCanvas>(new SkCanvas(fDevice));
+    }
+    return fCachedCanvas.get();
+}
+
+void GrVkSecondaryCBDrawContext::flush() {
+    fDevice->flush();
+}
+
