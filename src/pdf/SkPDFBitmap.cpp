@@ -82,7 +82,14 @@ static void emit_dict(SkWStream* stream, SkISize size, const char* colorSpace,
         pdfDict.insertRef("SMask", *smask);
     }
     pdfDict.insertInt("BitsPerComponent", 8);
+    #ifdef SK_PDF_BASE85_BINARY
+    auto filters = SkPDFMakeArray();
+    filters->appendName("ASCII85Decode");
+    filters->appendName("FlateDecode");
+    pdfDict.insertObject("Filter", std::move(filters));
+    #else
     pdfDict.insertName("Filter", "FlateDecode");
+    #endif
     pdfDict.insertInt("Length", length);
     pdfDict.emitObject(stream);
 }
@@ -114,6 +121,10 @@ static SkPDFIndirectReference do_deflated_alpha(const SkPixmap& pm, SkPDFDocumen
         deflateWStream.write(byteBuffer, dst - byteBuffer);
     }
     deflateWStream.finalize();
+
+    #ifdef SK_PDF_BASE85_BINARY
+    SkPDFUtils::Base85Encode(&buffer);
+    #endif
     SkWStream* stream = doc->beginObject(ref);
     emit_dict(stream, pm.info().dimensions(), "DeviceGray", nullptr, buffer.bytesWritten());
     emit_stream(&buffer, stream);
@@ -169,6 +180,9 @@ static void  do_deflated_image(const SkPixmap& pm,
             deflateWStream.write(byteBuffer, dst - byteBuffer);
     }
     deflateWStream.finalize();
+    #ifdef SK_PDF_BASE85_BINARY
+    SkPDFUtils::Base85Encode(&buffer);
+    #endif
     SkWStream* stream = doc->beginObject(ref);
     emit_dict(stream, pm.info().dimensions(), colorSpace,
               sMask.fValue != -1 ? &sMask : nullptr,
