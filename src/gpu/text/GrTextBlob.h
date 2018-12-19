@@ -284,7 +284,7 @@ private:
         //SubRun(SkSTArray<1, SubRun>* subRunList)
         //    : fColor{subRunList->fromBack(1).fColor} { }
 
-        void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
+        void appendGlyph(GrGlyph* glyph, SkRect dstRect);
 
         // TODO when this object is more internal, drop the privacy
         void resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -427,6 +427,30 @@ private:
         // Appends a glyph to the blob as a path only.
         void appendPathGlyph(
                 const SkPath& path, SkPoint position, SkScalar scale, bool preTransformed);
+
+        SubRun* subRun(GrGlyph* glyph,
+                       const sk_sp<GrTextStrike>& strike);
+
+        // Used when the glyph in the cache has the CTM already applied, therefore no transform
+        // is needed during rendering.
+        void appendTransformedGlyph(const sk_sp<GrTextStrike>& strike,
+                                    const SkGlyph& skGlyph,
+                                    SkPoint origin);
+
+        // Fallback glyphs can either be transformed in the cache, or need transformation from
+        // the cache to the screen.
+        void appendFallbackGlyph(const sk_sp<GrTextStrike>& strike,
+                                 const SkGlyph& skGlyph,
+                                 SkPoint origin,
+                                 SkScalar textScale,
+                                 SkGlyphRunListPainter::NeedsTransform transformType);
+
+        // Used to append a DFT glyph. These glyphs are transformed from the cache onto the screen.
+        void appendDFTGlyph(const sk_sp<GrTextStrike>& strike,
+                            const SkGlyph& skGlyph,
+                            SkPoint origin,
+                            SkScalar textScale);
+
 
         // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
         // as a path.
