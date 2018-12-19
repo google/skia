@@ -16,6 +16,10 @@ void SkRasterPipeline::reset() {
     fStages      = nullptr;
     fNumStages   = 0;
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
+
+    fStockStages.rewind();
+    fCtxPointers.rewind();
+    fCanUseRunProgramObs = false;   // flip to true to experiment with this feature
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -30,11 +34,20 @@ void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) stage, ctx, false} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
+
+    if (fCanUseRunProgramObs) {
+        fStockStages.push_back(stage);
+        if (ctx) {
+            fCtxPointers.push_back(ctx);
+        }
+    }
 }
 void SkRasterPipeline::append(void* fn, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) fn, ctx, true} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
+
+    fCanUseRunProgramObs = false;
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
@@ -56,40 +69,23 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fStages = &stages[src.fNumStages - 1];
     fNumStages   += src.fNumStages;
     fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
+
+    fStockStages.append(src.fStockStages.count(), src.fStockStages.begin());
+    fCtxPointers.append(src.fCtxPointers.count(), src.fCtxPointers.begin());
 }
 
 void SkRasterPipeline::dump() const {
     SkDebugf("SkRasterPipeline, %d stages\n", fNumStages);
-    std::vector<const char*> stages;
-    for (auto st = fStages; st; st = st->prev) {
-        const char* name = "";
-        switch (st->stage) {
-        #define M(x) case x: name = #x; break;
+
+    for (auto st : fStockStages) {
+        switch (st) {
+        #define M(st) case st: SkDebugf("\t%s\n", #st); break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
         }
-        stages.push_back(name);
-    }
-    std::reverse(stages.begin(), stages.end());
-    for (const char* name : stages) {
-        SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
 }
-
-//#define TRACK_COLOR_HISTOGRAM
-#ifdef TRACK_COLOR_HISTOGRAM
-    static int gBlack;
-    static int gWhite;
-    static int gColor;
-    #define INC_BLACK   gBlack++
-    #define INC_WHITE   gWhite++
-    #define INC_COLOR   gColor++
-#else
-    #define INC_BLACK
-    #define INC_WHITE
-    #define INC_COLOR
-#endif
 
 void SkRasterPipeline::append_set_rgb(SkArenaAlloc* alloc, const float rgb[3]) {
     auto arg = alloc->makeArrayDefault<float>(3);
@@ -114,10 +110,8 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
 
     if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 1) {
         this->append(black_color);
-        INC_BLACK;
     } else if (rgba[0] == 1 && rgba[1] == 1 && rgba[2] == 1 && rgba[3] == 1) {
         this->append(white_color);
-        INC_WHITE;
     } else {
         auto ctx = alloc->make<SkRasterPipeline_UniformColorCtx>();
         Sk4f color = Sk4f::Load(rgba);
@@ -138,32 +132,11 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         } else {
             this->unchecked_append(unbounded_uniform_color, ctx);
         }
-
-        INC_COLOR;
     }
-
-#ifdef TRACK_COLOR_HISTOGRAM
-    SkDebugf("B=%d W=%d C=%d\n", gBlack, gWhite, gColor);
-#endif
 }
-
-#undef INC_BLACK
-#undef INC_WHITE
-#undef INC_COLOR
-
-//static int gCounts[5] = { 0, 0, 0, 0, 0 };
 
 void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
     SkMatrix::TypeMask mt = matrix.getType();
-#if 0
-    if (mt > 4) mt = 4;
-    gCounts[mt] += 1;
-    SkDebugf("matrices: %d %d %d %d %d\n",
-             gCounts[0], gCounts[1], gCounts[2], gCounts[3], gCounts[4]);
-#endif
-
-    // Based on a histogram of skps, we determined the following special cases were common, more
-    // or fewer can be used if client behaviors change.
 
     if (mt == SkMatrix::kIdentity_Mask) {
         return;
@@ -333,6 +306,22 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
         return;
     }
 
+    if (fCanUseRunProgramObs) {
+        const auto& stages = fStockStages;
+        const auto& ctx    = fCtxPointers;
+
+        if (SkOpts::can_run_pipeline_obs_lowp(stages.begin(), stages.count())) {
+            SkOpts::run_pipeline_obs_lowp(x,y, x+w,y+h,
+                                          stages.begin(), stages.count(),
+                                          (void**)ctx.begin());
+        } else {
+            SkOpts::run_pipeline_obs(x,y, x+w,y+h,
+                                     stages.begin(), stages.count(),
+                                     (void**)ctx.begin());
+        }
+        return;
+    }
+
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
@@ -343,6 +332,23 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     if (this->empty()) {
         return [](size_t, size_t, size_t, size_t) {};
+    }
+
+    if (fCanUseRunProgramObs) {
+        const auto& stages = fStockStages;
+        const auto& ctx = fCtxPointers;
+
+        if (SkOpts::can_run_pipeline_obs_lowp(stages.begin(), stages.count())) {
+            return [=](size_t x, size_t y, size_t w, size_t h) {
+                SkOpts::run_pipeline_obs_lowp(x,y, x+w,y+h,
+                                              stages.begin(), stages.count(), (void**)ctx.begin());
+            };
+        } else {
+            return [=](size_t x, size_t y, size_t w, size_t h) {
+                SkOpts::run_pipeline_obs(x,y, x+w,y+h,
+                                         stages.begin(), stages.count(), (void**)ctx.begin());
+            };
+        }
     }
 
     void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
