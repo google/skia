@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c91e9eb6_c50e4a98",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T17:28:15Z",
+      "side": 1,
+      "message": "It looks like this could be kApprox.",
+      "revId": "ced88fdb3e07fb54cefce5100fc65b2cffd89f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0cee43e_a79c4547",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-19T17:28:15Z",
+      "side": 1,
+      "message": "\\n",
+      "revId": "ced88fdb3e07fb54cefce5100fc65b2cffd89f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
