@@ -37,7 +37,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTransferBufferType = kNone_TransferBufferType;
     fMaxFragmentUniformVectors = 0;
     fUnpackRowLengthSupport = false;
-    fUnpackFlipYSupport = false;
     fPackRowLengthSupport = false;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
@@ -107,13 +106,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kGL_GrGLStandard == standard) {
         fUnpackRowLengthSupport = true;
-        fUnpackFlipYSupport = false;
         fPackRowLengthSupport = true;
         fPackFlipYSupport = false;
     } else {
         fUnpackRowLengthSupport = version >= GR_GL_VER(3,0) ||
                                   ctxInfo.hasExtension("GL_EXT_unpack_subimage");
-        fUnpackFlipYSupport = ctxInfo.hasExtension("GL_CHROMIUM_flipy");
         fPackRowLengthSupport = version >= GR_GL_VER(3,0) ||
                                 ctxInfo.hasExtension("GL_NV_pack_subimage");
         fPackFlipYSupport =
@@ -1139,7 +1136,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
     writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
     writer->appendBool("Unpack Row length support", fUnpackRowLengthSupport);
-    writer->appendBool("Unpack Flip Y support", fUnpackFlipYSupport);
     writer->appendBool("Pack Row length support", fPackRowLengthSupport);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
