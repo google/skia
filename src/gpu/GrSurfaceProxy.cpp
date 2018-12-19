@@ -329,6 +329,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
                                            GrSurfaceProxy* src,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
+                                           SkBackingFit fit,
                                            SkBudgeted budgeted) {
     SkASSERT(LazyState::kFully != src->lazyInstantiationState());
     if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
@@ -346,7 +347,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     }
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
-            format, dstDesc, src->origin(), mipMapped, SkBackingFit::kExact, budgeted));
+            format, dstDesc, src->origin(), mipMapped, fit, budgeted));
     if (!dstContext) {
         return nullptr;
     }
@@ -359,9 +360,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* src,
-                                           GrMipMapped mipMapped, SkBudgeted budgeted) {
+                                           GrMipMapped mipMapped, SkBackingFit fit,
+                                           SkBudgeted budgeted) {
     SkASSERT(LazyState::kFully != src->lazyInstantiationState());
-    return Copy(context, src, mipMapped, SkIRect::MakeWH(src->width(), src->height()), budgeted);
+    return Copy(context, src, mipMapped, SkIRect::MakeWH(src->width(), src->height()), fit,
+                budgeted);
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,

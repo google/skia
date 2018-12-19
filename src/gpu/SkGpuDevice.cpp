@@ -1238,6 +1238,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
         proxy = GrSurfaceProxy::Copy(fContext.get(),
                                      this->accessRenderTargetContext()->asSurfaceProxy(),
                                      GrMipMapped::kNo,
+                                     SkBackingFit::kExact,
                                      SkBudgeted::kYes);
         if (!proxy) {
             return nullptr;
@@ -1267,7 +1268,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
     }
 
     auto srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), subset,
-                                         rtc->asSurfaceProxy()->isBudgeted());
+                                         SkBackingFit::kApprox, rtc->asSurfaceProxy()->isBudgeted());
     if (!srcProxy) {
         return nullptr;
     }
