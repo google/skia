@@ -266,6 +266,9 @@ bool GrContext::abandoned() const {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
+    if (this->abandoned()) {
+        return;
+    }
     fProxyProvider->abandon();
     fResourceProvider->abandon();
 

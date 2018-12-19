@@ -144,6 +144,13 @@ public:
         }
     }
 
+    // Called every time this resource is added to a command buffer.
+    virtual void notifyAddedToCommandBuffer() const {}
+    // Called every time this resource is removed from a command buffer (typically because
+    // the command buffer finished execution on the GPU but also when the command buffer
+    // is abandoned.)
+    virtual void notifyRemovedFromCommandBuffer() const {}
+
 #ifdef SK_DEBUG
     void validate() const {
         SkASSERT(this->getRefCnt() > 0);
