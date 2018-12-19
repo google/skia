@@ -19082,6 +19082,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
         }
       ],
       "cipd_packages": [
@@ -19194,6 +19198,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
         }
       ],
       "cipd_packages": [
@@ -19825,6 +19833,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
         }
       ],
       "cipd_packages": [
@@ -20101,6 +20113,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "go_cache",
+          "path": "cache/go_cache"
         }
       ],
       "cipd_packages": [
