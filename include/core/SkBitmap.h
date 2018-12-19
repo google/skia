@@ -780,7 +780,8 @@ public:
     /** Replaces pixel values with c. All pixels contained by bounds() are affected.
         If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
         is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then RGB is ignored.
+        then RGB is ignored. If colorType() is *not* kAlpha_8_SkColorType, c is
+        considered to be in the sRGB SkColorSpace.
 
         @param c  unpremultiplied color
     */
@@ -790,7 +791,8 @@ public:
         All pixels contained by bounds() are affected.
         If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then a
         is ignored; r, g, and b are treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then r, g, and b are ignored.
+        then r, g, and b are ignored. If colorType() is *not* kAlpha_8_SkColorType, r, g, and
+        b are considered to be in the sRGB SkColorSpace.
 
         @param a  amount of alpha, from fully transparent (0) to fully opaque (255)
         @param r  amount of red, from no red (0) to full red (255)
@@ -806,7 +808,8 @@ public:
 
         If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
         is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then RGB is ignored.
+        then RGB is ignored. If colorType() is *not* kAlpha_8_SkColorType, c is
+        considered to be in the sRGB SkColorSpace.
 
         @param c     unpremultiplied color
         @param area  rectangle to fill
