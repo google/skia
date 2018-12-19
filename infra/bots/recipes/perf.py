@@ -205,6 +205,8 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1')
     match.append('~top25desk_ebay.skp_1.1_mpd')
+  if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
+    match.append('~^desk_micrographygirlsvg.skp_1.1$')
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
@@ -368,7 +370,8 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
   'Perf-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
-    'CommandBuffer'),
+   'CommandBuffer'),
+  'Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer',
   ('Perf-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'MoltenVK_Vulkan'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
