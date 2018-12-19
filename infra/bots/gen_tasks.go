@@ -970,8 +970,7 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	task := kitchenTask(name, "bookmaker", "swarm_recipe.isolate", SERVICE_ACCOUNT_BOOKMAKER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	task.Caches = append(task.Caches, CACHES_WORKDIR...)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
-	task.Dependencies = append(task.Dependencies, compileTaskName)
+	task.Dependencies = append(task.Dependencies, compileTaskName, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 	timeout(task, 2*time.Hour)
 	b.MustAddTask(name, task)
 	return name

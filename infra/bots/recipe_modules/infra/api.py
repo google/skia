@@ -29,7 +29,7 @@ class InfraApi(recipe_api.RecipeApi):
     return {
         'GOPATH': self.gopath,
         'GOROOT': self.goroot,
-        'PATH': '%s:%s:%%(PATH)s' % (self.go_bin, self.gopath),
+        'PATH': '%s:%s:%%(PATH)s' % (self.go_bin, self.gopath.join('bin')),
     }
 
   @property
