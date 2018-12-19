@@ -148,6 +148,9 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
                 this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 2, SkPoint::Make(x, y),
                                         runPaint);
                 break;
+            case SkTextBlobRunIterator::kRSXform_Positioning:
+                // TODO_RSXFORM_BLOB
+                break;
         }
     }
 }

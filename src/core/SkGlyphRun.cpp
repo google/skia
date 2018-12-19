@@ -251,6 +251,9 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
                 this->simplifyDrawPosText(
                         it.font(), glyphIDs, (const SkPoint*)it.pos(), text, clusters);
                 break;
+            case SkTextBlobRunIterator::kRSXform_Positioning:
+                SkASSERT(false);    // should have be caught up-stack
+                break;
         }
 
         positions += runSize;

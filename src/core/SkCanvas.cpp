@@ -2438,6 +2438,8 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
+    SkASSERT(false);
+#if 0
     if (cullRect && this->quickReject(*cullRect)) {
         return;
     }
@@ -2454,6 +2456,7 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform x
     }
 
     LOOPER_END
+#endif
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -2530,7 +2533,10 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        const SkTextEncoding encoding = paint.getTextEncoding();
+        this->drawTextBlob(SkTextBlob::MakeFromRSXform(text, byteLength, xform, font, encoding),
+                           0, 0, paint);
     }
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
