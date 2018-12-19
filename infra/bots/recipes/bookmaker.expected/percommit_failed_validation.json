@@ -103,6 +103,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "GOCACHE": "[START_DIR]/cache/go_cache",
       "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
