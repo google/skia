@@ -380,7 +380,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
     // limit this decision to specific GPU families rather than basing it on the vendor alone.
-    if (!GR_GL_MUST_USE_VBO &&
+    if (!kChromium_GrGLDriver == ctxInfo.driver() &&
         !fIsCoreProfile &&
         (kARM_GrGLVendor == ctxInfo.vendor() ||
          kImagination_GrGLVendor == ctxInfo.vendor() ||
