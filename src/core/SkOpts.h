@@ -67,6 +67,12 @@ namespace SkOpts {
 
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
+
+    extern void (*run_pipeline_obs)(size_t,size_t, size_t,size_t,
+                                    const SkRasterPipeline::StockStage*, int, void**);
+    extern void (*run_pipeline_obs_lowp)(size_t,size_t, size_t,size_t,
+                                         const SkRasterPipeline::StockStage*, int, void**);
+    extern bool (*can_run_pipeline_obs_lowp)(const SkRasterPipeline::StockStage*, int);
 #undef M
 }
 
