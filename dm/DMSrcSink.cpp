@@ -1976,7 +1976,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
         for (int replay = 0; replay < fNumReplays; ++replay) {
             if (replay > 0) {
                 // Clear the drawing of the previous replay
-                canvas->clear(SK_ColorWHITE);
+                canvas->clear(SK_ColorTRANSPARENT);
             }
             // First, create all the tiles (including their individual dest surfaces)
             DDLTileHelper tiles(canvas, viewport, fNumDivisions);
