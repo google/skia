@@ -131,6 +131,8 @@ inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
     SkPDFArray_Append(a, args...);
 }
 
+static inline void SkPDFArray_Append(SkPDFArray* a) {}
+
 template <typename... Args>
 inline sk_sp<SkPDFArray> SkPDFMakeArray(Args... args) {
     auto ret = sk_make_sp<SkPDFArray>();

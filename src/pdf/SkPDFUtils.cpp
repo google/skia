@@ -335,3 +335,54 @@ bool SkPDFUtils::ToBitmap(const SkImage* img, SkBitmap* dst) {
     }
     return false;
 }
+
+#ifdef SK_PDF_BASE85_BINARY
+static void base85_fourbytes(uint32_t v, char dst[5]) {
+    for (int n = 4; n > 0; --n) {
+        dst[n] = (v % 85) + '!';
+        v /= 85;
+    }
+    dst[0] = v + '!';
+}
+
+static uint32_t big_end(const uint8_t s[4]) {
+    return ((uint32_t)s[0] << 24) | ((uint32_t)s[1] << 16) | ((uint32_t)s[2] << 8) | s[3];
+}
+
+void SkPDFUtils::Base85Encode(SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
+    std::unique_ptr<SkStreamAsset> stream = dst->detachAsStream();
+    SkASSERT(src);
+    size_t remaining = stream->getLength();
+    dst->writeText("\n");
+    int line = 0;
+    while (remaining > 3) {
+        uint8_t src[4];
+        (void)stream->read(src, 4);
+        remaining -= 4;
+        uint32_t v = big_end(src);
+        if (v != 0) {
+            char buffer[5];
+            base85_fourbytes(v, buffer);
+            dst->write(buffer, 5);
+            line += 5;
+        } else {
+            dst->writeText("z");
+            line += 1;
+        }
+        if (line > 74) {
+            dst->writeText("\n");
+            line = 0;
+        }
+    }
+    if (remaining > 0) {
+        SkASSERT(remaining < 4);
+        uint8_t src[4] = {0, 0, 0, 0};
+        (void)stream->read(src, remaining);
+        char buffer[5];
+        base85_fourbytes(big_end(src), buffer);
+        dst->write(buffer, remaining + 1);
+    }
+    dst->writeText("~>\n");
+}
+#endif //  SK_PDF_BASE85_BINARY
