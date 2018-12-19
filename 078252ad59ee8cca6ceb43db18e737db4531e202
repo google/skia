@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7765b599_acac8e44",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-19T20:00:17Z",
+      "side": 1,
+      "message": "Why mention A8?",
+      "range": {
+        "startLine": 783,
+        "startChar": 29,
+        "endLine": 784,
+        "endChar": 50
+      },
+      "revId": "078252ad59ee8cca6ceb43db18e737db4531e202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e947caad_72f0ce90",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-19T20:00:17Z",
+      "side": 1,
+      "message": "We generally use sk_srgb_singleton() for this sort of thing, so that we don\u0027t have to bounce the ref count.\n\n(Or you can pass nullptr and we\u0027ll handle that all for you.)",
+      "range": {
+        "startLine": 158,
+        "startChar": 28,
+        "endLine": 158,
+        "endChar": 58
+      },
+      "revId": "078252ad59ee8cca6ceb43db18e737db4531e202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
