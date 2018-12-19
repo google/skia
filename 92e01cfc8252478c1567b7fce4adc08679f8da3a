@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "375ba06e_6391a26c",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:51:31Z",
+      "side": 0,
+      "message": "This was added here: https://skia-review.googlesource.com/c/skia/+/111604/\n\nBut AFAICT no one is using it.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 0
+      },
+      "revId": "92e01cfc8252478c1567b7fce4adc08679f8da3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
