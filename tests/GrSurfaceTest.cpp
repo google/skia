@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include <set>
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -15,7 +17,7 @@
 #include "GrTexturePriv.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkMipMap.h"
-#include "SkTypes.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
@@ -326,6 +328,203 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             auto regenResult =
                     context->contextPriv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
+        }
+    }
+}
+
+DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
+    GrContext* context;
+    static const int kS = 10;
+
+    // Helper to delete a backend texture in a GrTexture's release proc.
+    static const auto installBackendTextureReleaseProc = [](GrTexture* texture) {
+        auto backendTexture = texture->getBackendTexture();
+        auto context = texture->getContext();
+        struct ReleaseContext {
+            GrContext* fContext;
+            GrBackendTexture fBackendTexture;
+        };
+        auto release = [](void* rc) {
+            auto releaseContext = static_cast<ReleaseContext*>(rc);
+            if (!releaseContext->fContext->abandoned()) {
+                if (auto gpu = releaseContext->fContext->contextPriv().getGpu()) {
+                    gpu->deleteTestingOnlyBackendTexture(releaseContext->fBackendTexture);
+                }
+            }
+            delete releaseContext;
+        };
+        texture->setRelease(sk_make_sp<GrReleaseProcHelper>(
+                release, new ReleaseContext{context, backendTexture}));
+    };
+
+    // Various ways of making textures.
+    auto makeWrapped = [](GrContext* context) {
+        auto backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+                nullptr, kS, kS, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
+        auto texture = context->contextPriv().resourceProvider()->wrapBackendTexture(
+                backendTexture, kBorrow_GrWrapOwnership, kRW_GrIOType);
+        installBackendTextureReleaseProc(texture.get());
+        return texture;
+    };
+
+    auto makeWrappedRenderable = [](GrContext* context) {
+        auto backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+                nullptr, kS, kS, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+        auto texture = context->contextPriv().resourceProvider()->wrapRenderableBackendTexture(
+                backendTexture, 1, kBorrow_GrWrapOwnership);
+        installBackendTextureReleaseProc(texture.get());
+        return texture;
+    };
+
+    auto makeNormal = [](GrContext* context) {
+        GrSurfaceDesc desc;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fWidth = desc.fHeight = kS;
+        return context->contextPriv().resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    };
+
+    auto makeRenderable = [](GrContext* context) {
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fWidth = desc.fHeight = kS;
+        return context->contextPriv().resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    };
+
+    std::function<sk_sp<GrTexture>(GrContext*)> makers[] = {makeWrapped, makeWrappedRenderable,
+                                                            makeNormal, makeRenderable};
+
+    // Add a unique key, or not.
+    auto addKey = [](GrTexture* texture) {
+        static uint32_t gN = 0;
+        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey key;
+        GrUniqueKey::Builder builder(&key, kDomain, 1);
+        builder[0] = gN++;
+        builder.finish();
+        texture->resourcePriv().setUniqueKey(key);
+    };
+    auto dontAddKey = [](GrTexture* texture) {};
+    std::function<void(GrTexture*)> keyAdders[] = {addKey, dontAddKey};
+
+    for (const auto& m : makers) {
+        for (const auto& keyAdder : keyAdders) {
+            for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
+                sk_gpu_test::GrContextFactory factory;
+                auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
+                context = factory.get(contextType);
+                if (!context) {
+                    continue;
+                }
+
+                // The callback we add simply adds an integer to a set.
+                std::set<int> idleIDs;
+                struct Context {
+                    std::set<int>* fIdleIDs;
+                    int fNum;
+                };
+                auto proc = [](void* context) {
+                    static_cast<Context*>(context)->fIdleIDs->insert(
+                            static_cast<Context*>(context)->fNum);
+                    delete static_cast<Context*>(context);
+                };
+
+                // Makes a texture, possibly adds a key, and sets the callback.
+                auto make = [&m, &keyAdder, &proc, &idleIDs](GrContext* context, int num) {
+                    sk_sp<GrTexture> texture = m(context);
+                    texture->setIdleProc(proc, new Context{&idleIDs, num});
+                    keyAdder(texture.get());
+                    return texture;
+                };
+
+                auto texture = make(context, 1);
+                REPORTER_ASSERT(reporter, idleIDs.find(1) == idleIDs.end());
+                bool isRT = SkToBool(texture->asRenderTarget());
+                auto backendFormat = texture->backendFormat();
+                texture.reset();
+                REPORTER_ASSERT(reporter, idleIDs.find(1) != idleIDs.end());
+
+                texture = make(context, 2);
+                SkImageInfo info =
+                        SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
+                auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+                auto singleUseLazyCB = [&texture](GrResourceProvider* rp) {
+                    return rp ? std::move(texture) : nullptr;
+                };
+                GrSurfaceDesc desc;
+                desc.fWidth = desc.fHeight = kS;
+                desc.fConfig = kRGBA_8888_GrPixelConfig;
+                if (isRT) {
+                    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+                }
+                SkBudgeted budgeted(texture->resourcePriv().isBudgeted());
+                auto proxy = context->contextPriv().proxyProvider()->createLazyProxy(
+                        singleUseLazyCB, backendFormat, desc,
+                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
+                        GrSurfaceProxy::LazyInstantiationType::kSingleUse);
+                rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest, SkPMColor4f(),
+                                 SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
+                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), nullptr);
+                // We still have the proxy, which should remain instantiated, thereby keeping the
+                // texture not purgeable.
+                REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
+                context->flush();
+                REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
+                context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+                REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
+
+                // This time we move the proxy into the draw.
+                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
+                                 SkPMColor4f(), SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
+                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), nullptr);
+                REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
+                context->flush();
+                context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+                // Now that the draw is fully consumed by the GPU, the texture should be idle.
+                REPORTER_ASSERT(reporter, idleIDs.find(2) != idleIDs.end());
+
+                // Make a proxy that should deinstantiate even if we keep a ref on it.
+                auto deinstantiateLazyCB = [&make, &context](GrResourceProvider* rp) {
+                    return rp ? make(context, 3) : nullptr;
+                };
+                proxy = context->contextPriv().proxyProvider()->createLazyProxy(
+                        deinstantiateLazyCB, backendFormat, desc,
+                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                        GrInternalSurfaceFlags ::kNone, SkBackingFit::kExact, budgeted,
+                        GrSurfaceProxy::LazyInstantiationType::kDeinstantiate);
+                rtc->drawTexture(GrNoClip(), std::move(proxy), GrSamplerState::Filter::kNearest,
+                                 SkPMColor4f(), SkRect::MakeWH(kS, kS), SkRect::MakeWH(kS, kS),
+                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
+                                 SkMatrix::I(), nullptr);
+                // At this point the proxy shouldn't even be instantiated, there is no texture with
+                // id 3.
+                REPORTER_ASSERT(reporter, idleIDs.find(3) == idleIDs.end());
+                context->flush();
+                context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+                // Now that the draw is fully consumed, we should have deinstantiated the proxy and
+                // the texture it made should be idle.
+                REPORTER_ASSERT(reporter, idleIDs.find(3) != idleIDs.end());
+
+                // Make sure we make the call during various shutdown scenarios.
+                texture = make(context, 4);
+                context->abandonContext();
+                REPORTER_ASSERT(reporter, idleIDs.find(4) != idleIDs.end());
+                factory.destroyContexts();
+                context = factory.get(contextType);
+
+                texture = make(context, 5);
+                factory.destroyContexts();
+                REPORTER_ASSERT(reporter, idleIDs.find(5) != idleIDs.end());
+                context = factory.get(contextType);
+
+                texture = make(context, 6);
+                factory.releaseResourcesAndAbandonContexts();
+                REPORTER_ASSERT(reporter, idleIDs.find(6) != idleIDs.end());
+            }
         }
     }
 }

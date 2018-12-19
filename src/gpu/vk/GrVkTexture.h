@@ -46,6 +46,8 @@ public:
         this->setResourceRelease(std::move(releaseHelper));
     }
 
+    void setIdleProc(IdleProc, void* context) override;
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
                 const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership);
@@ -68,7 +70,11 @@ private:
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView, GrMipMapsStatus,
                 GrBackendObjectOwnership, GrIOType ioType, bool purgeImmediately);
 
-    const GrVkImageView*     fTextureView;
+    void becamePurgeable() override;
+
+    const GrVkImageView* fTextureView;
+    GrTexture::IdleProc* fIdleProc = nullptr;
+    void* fIdleProcContext = nullptr;
 
     typedef GrTexture INHERITED;
 };
