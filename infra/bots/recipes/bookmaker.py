@@ -25,23 +25,10 @@ DEPS = [
 ]
 
 
-def go_get_fiddlecli(api):
-  env = api.context.env
-  env.update(api.infra.go_env)
-  with api.context(env=env):
-    api.run.with_retry(
-        api.step,
-        'go get fiddlecli',
-        5,  # Update attempts.
-        cmd=[api.infra.go_exe, 'get', 'go.skia.org/infra/fiddlek/go/fiddlecli'])
-
-
 def RunSteps(api):
   api.vars.setup()
   checkout_root = api.checkout.default_checkout_root
   api.checkout.bot_update(checkout_root=checkout_root)
-  api.infra.go_version()
-  go_get_fiddlecli(api)
 
   skia_dir = checkout_root.join('skia')
   with api.context(cwd=skia_dir, env=api.infra.go_env):
@@ -66,7 +53,9 @@ def RunSteps(api):
         raise e
 
     elif 'Nightly' in buildername:
-      fiddlecli_binary = api.path.join(api.infra.gopath, 'bin', 'fiddlecli')
+      # fiddlecli is compiled and bundled into the go_deps asset. With
+      # api.infra.go_env, it is on PATH.
+      fiddlecli_binary = 'fiddlecli'
       fiddlecli_input = api.path.join(api.path['start_dir'], 'fiddle.json')
       fiddlecli_output = api.path.join(api.path['start_dir'], 'fiddleout.json')
 
@@ -133,7 +122,7 @@ def RunSteps(api):
              skia_dir.join('infra', 'bots', 'upload_md.py'),
             '--bookmaker_binary', bookmaker_binary,
              '--fiddlecli_output', fiddlecli_output]
-      with api.context(cwd=skia_dir, env=api.infra.go_env):
+      with api.context(cwd=skia_dir):
         api.run(api.step, 'Generate and Upload Markdown files', cmd=cmd)
 
 
