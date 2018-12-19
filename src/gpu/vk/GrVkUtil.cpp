@@ -184,23 +184,13 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
     return SkSL::Program::kFragment_Kind;
 }
 
-VkShaderStageFlagBits skiasl_kind_to_vk_shader_stage(SkSL::Program::Kind kind) {
-    if (SkSL::Program::kVertex_Kind == kind) {
-        return VK_SHADER_STAGE_VERTEX_BIT;
-    }
-    if (SkSL::Program::kGeometry_Kind == kind) {
-        return VK_SHADER_STAGE_GEOMETRY_BIT;
-    }
-    SkASSERT(SkSL::Program::kFragment_Kind == kind);
-    return VK_SHADER_STAGE_FRAGMENT_BIT;
-}
-
 bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              const char* shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
                              VkPipelineShaderStageCreateInfo* stageInfo,
                              const SkSL::Program::Settings& settings,
+                             SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
                                                               vk_shader_stage_to_skiasl_kind(stage),
@@ -211,19 +201,26 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
         SkASSERT(false);
     }
     *outInputs = program->fInputs;
-    SkSL::String code;
-    if (!gpu->shaderCompiler()->toSPIRV(*program, &code)) {
+    if (!gpu->shaderCompiler()->toSPIRV(*program, outSPIRV)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         return false;
     }
 
+    return GrInstallVkShaderModule(gpu, *outSPIRV, stage, shaderModule, stageInfo);
+}
+
+bool GrInstallVkShaderModule(const GrVkGpu* gpu,
+                             const SkSL::String& spirv,
+                             VkShaderStageFlagBits stage,
+                             VkShaderModule* shaderModule,
+                             VkPipelineShaderStageCreateInfo* stageInfo) {
     VkShaderModuleCreateInfo moduleCreateInfo;
     memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.pNext = nullptr;
     moduleCreateInfo.flags = 0;
-    moduleCreateInfo.codeSize = code.size();
-    moduleCreateInfo.pCode = (const uint32_t*)code.c_str();
+    moduleCreateInfo.codeSize = spirv.size();
+    moduleCreateInfo.pCode = (const uint32_t*)spirv.c_str();
 
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateShaderModule(gpu->device(),
                                                                      &moduleCreateInfo,
@@ -237,7 +234,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
     stageInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     stageInfo->pNext = nullptr;
     stageInfo->flags = 0;
-    stageInfo->stage = skiasl_kind_to_vk_shader_stage(program->fKind);
+    stageInfo->stage = stage;
     stageInfo->module = *shaderModule;
     stageInfo->pName = "main";
     stageInfo->pSpecializationInfo = nullptr;
