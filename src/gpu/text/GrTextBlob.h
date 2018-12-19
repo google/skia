@@ -284,7 +284,7 @@ private:
         //SubRun(SkSTArray<1, SubRun>* subRunList)
         //    : fColor{subRunList->fromBack(1).fColor} { }
 
-        void appendGlyph(GrTextBlob* blob, GrGlyph* glyph, SkRect dstRect);
+        void appendGlyph(GrGlyph* glyph, SkRect dstRect);
 
         // TODO when this object is more internal, drop the privacy
         void resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -428,12 +428,29 @@ private:
         void appendPathGlyph(
                 const SkPath& path, SkPoint position, SkScalar scale, bool preTransformed);
 
-        // Appends a glyph to the blob.  If the glyph is too large, the glyph will be appended
-        // as a path.
-        void appendGlyph(GrTextBlob* blob,
-                         const sk_sp<GrTextStrike>& strike,
-                         const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                         SkPoint origin, SkScalar textRatio, bool needsTransform);
+        //
+        void maybeSwitchSubRunAndAppendGlyph(GrGlyph* glyph,
+                                             const sk_sp<GrTextStrike>& strike,
+                                             const SkRect& destRect,
+                                             bool needsTransform);
+
+        // Used when the glyph in the cache has the CTM already applied, therefore no transform
+        // is needed during rendering.
+        void appendTransformedGlyph(const sk_sp<GrTextStrike>& strike,
+                                    const SkGlyph& skGlyph,
+                                    SkPoint origin);
+
+        // Appends a glyph that needs to be transformed from the cache onto the screen.
+        void appendUprightGlyph(const sk_sp<GrTextStrike>& strike,
+                                const SkGlyph& skGlyph,
+                                SkPoint origin,
+                                SkScalar textScale);
+
+        // Used to append a DFT glyph. These glyphs are transformed from the cache onto the screen.
+        void appendDFTGlyph(const sk_sp<GrTextStrike>& strike,
+                            const SkGlyph& skGlyph,
+                            SkPoint origin,
+                            SkScalar textScale);
 
         SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
                                         const SkFont& skFont,
