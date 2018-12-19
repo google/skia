@@ -18749,11 +18749,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:6"
         }
       ],
       "command": [
@@ -18880,11 +18875,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:6"
         }
       ],
       "command": [
@@ -19479,11 +19469,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "skia/bots/go",
-          "path": "go",
-          "version": "version:6"
         }
       ],
       "command": [

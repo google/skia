@@ -33,7 +33,6 @@ const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_GO_DEPS_NAME        = "Housekeeper-PerCommit-IsolateGoDeps"
-	ISOLATE_GO_LINUX_NAME       = "Housekeeper-PerCommit-IsolateGoLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
@@ -702,10 +701,6 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "go_deps",
 		path:    "go_deps",
 	},
-	ISOLATE_GO_LINUX_NAME: {
-		cipdPkg: "go",
-		path:    "go",
-	},
 	ISOLATE_SKIMAGE_NAME: {
 		cipdPkg: "skimage",
 		path:    "skimage",
@@ -965,7 +960,6 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 func housekeeper(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "housekeeper", "swarm_recipe.isolate", SERVICE_ACCOUNT_HOUSEKEEPER, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	b.MustAddTask(name, task)
 	return name
 }
@@ -1040,7 +1034,6 @@ func getParentRevisionName(compileTaskName string, parts map[string]string) stri
 func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName, compileParentName string) string {
 	task := kitchenTask(name, "calmbench", "calmbench.isolate", "", swarmDimensions(parts), nil, OUTPUT_PERF)
 	usesGit(task, name)
-	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
 	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 	if parts["cpu_or_gpu_value"] == "QuadroP400" {
 		// Specify "rack" dimension for consistent test results.
