@@ -126,6 +126,11 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
+    // When there is an idle proc, the Resource will call the proc in releaseImage() so
+    // we clear it here.
+    fIdleProc = nullptr;
+    fIdleProcContext = nullptr;
+
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView->unref(this->getVkGpu());
@@ -138,6 +143,11 @@ void GrVkTexture::onRelease() {
 }
 
 void GrVkTexture::onAbandon() {
+    // When there is an idle proc, the Resource will call the proc in abandonImage() so
+    // we clear it here.
+    fIdleProc = nullptr;
+    fIdleProcContext = nullptr;
+    // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView->unrefAndAbandon();
         fTextureView = nullptr;
@@ -160,3 +170,27 @@ const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView;
 }
 
+void GrVkTexture::setIdleProc(IdleProc proc, void* context) {
+    fIdleProc = proc;
+    fIdleProcContext = context;
+    if (auto* resource = this->resource()) {
+        resource->setIdleProc(proc ? this : nullptr, proc, context);
+    }
+}
+
+void GrVkTexture::becamePurgeable() {
+    if (!fIdleProc) {
+        return;
+    }
+    // This is called when the GrTexture is purgeable. However, we need to check whether the
+    // Resource is still owned by any command buffers. If it is then it will call the proc.
+    auto* resource = this->resource();
+    SkASSERT(resource);
+    if (resource->isOwnedByCommandBuffer()) {
+        return;
+    }
+    fIdleProc(fIdleProcContext);
+    fIdleProc = nullptr;
+    fIdleProcContext = nullptr;
+    resource->setIdleProc(nullptr, nullptr, nullptr);
+}
