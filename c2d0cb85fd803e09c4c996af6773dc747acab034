@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96635441_9ac9eb2c",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-19T20:08:17Z",
+      "side": 1,
+      "message": "Update comment.",
+      "range": {
+        "startLine": 182,
+        "startChar": 38,
+        "endLine": 182,
+        "endChar": 81
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56bfbba6_a67e748a",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-19T20:08:17Z",
+      "side": 1,
+      "message": "You could make the enum value \u003d\u003d 4, and keep this as a pass-through... but prolly doesn\u0027t matter.",
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42105071_bbbdc65b",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-19T20:08:17Z",
+      "side": 1,
+      "message": "Since src is essentially a const SkRect (fontBounds), isn\u0027t this equivalent to SkMatrix::mapRect()?",
+      "range": {
+        "startLine": 303,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 1
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4968571f_1be7a2b3",
+        "filename": "tests/GlyphRunTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-12-19T20:08:17Z",
+      "side": 1,
+      "message": "Intentional?",
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
