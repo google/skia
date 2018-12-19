@@ -6,13 +6,14 @@
  * found in the LICENSE file.
  */
 
+#define EGL_EGL_PROTOTYPES 1
+
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include "../GLWindowContext.h"
 #include "WindowContextFactory_win.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLDefines.h"
-
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
