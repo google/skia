@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ae89edd2_740fd28b",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-19T20:10:36Z",
+      "side": 1,
+      "message": "Add initialize after here",
+      "range": {
+        "startLine": 299,
+        "startChar": 16,
+        "endLine": 299,
+        "endChar": 35
+      },
+      "revId": "c2d0cb85fd803e09c4c996af6773dc747acab034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96635441_9ac9eb2c",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
