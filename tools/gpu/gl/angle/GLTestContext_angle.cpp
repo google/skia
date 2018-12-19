@@ -7,6 +7,8 @@
 
 #include "GLTestContext_angle.h"
 
+#define EGL_EGL_PROTOTYPES 1
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
