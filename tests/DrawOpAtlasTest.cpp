@@ -266,17 +266,17 @@ DEF_GPUTEST(GrDrawOpAtlasConfig_Basic, reporter, options) {
     test_atlas_config(reporter, 65536, 4 * 1024 * 1024, kARGB_GrMaskFormat,
                       { 1024, 1024 }, { 256, 256 });
     test_atlas_config(reporter, 65536, 4 * 1024 * 1024, kA8_GrMaskFormat,
-                      { 2048, 2048 }, { 512, 512 });
+                      { 2048, 2048 }, { 512, 256 });
     // 8 MB
     test_atlas_config(reporter, 65536, 8 * 1024 * 1024, kARGB_GrMaskFormat,
                       { 2048, 1024 }, { 256, 256 });
     test_atlas_config(reporter, 65536, 8 * 1024 * 1024, kA8_GrMaskFormat,
-                      { 2048, 2048 }, { 512, 512 });
+                      { 2048, 2048 }, { 512, 256 });
     // 16 MB (should be same as 8 MB)
     test_atlas_config(reporter, 65536, 16 * 1024 * 1024, kARGB_GrMaskFormat,
                       { 2048, 1024 }, { 256, 256 });
     test_atlas_config(reporter, 65536, 16 * 1024 * 1024, kA8_GrMaskFormat,
-                      { 2048, 2048 }, { 512, 512 });
+                      { 2048, 2048 }, { 512, 256 });
 
     // 4MB, restricted texture size
     test_atlas_config(reporter, 1024, 8 * 1024 * 1024, kARGB_GrMaskFormat,
