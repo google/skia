@@ -26,6 +26,7 @@
 
 #include <atomic>
 
+struct SkRSXform;
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
@@ -126,6 +127,11 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
                                              const SkPoint pos[], const SkFont& font,
+                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+
+    // Experimental
+    static sk_sp<SkTextBlob> MakeFromRSXform(const void* text, size_t byteLength,
+                                             const SkRSXform xform[], const SkFont& font,
                                              SkTextEncoding encoding = kUTF8_SkTextEncoding);
 
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
@@ -331,6 +337,9 @@ public:
     */
     const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr);
+
+    // Experimental, RunBuffer.pos points to SkRSXforms
+    const RunBuffer& allocRunRSXform(const SkFont& font, int count);
 
 private:
     const RunBuffer& allocRunText(const SkFont& font,
