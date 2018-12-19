@@ -17,6 +17,8 @@ namespace SkOpts {
         memset32 = SK_OPTS_NS::memset32;
         memset64 = SK_OPTS_NS::memset64;
 
+        run_pipeline_obs = SK_OPTS_NS::run_pipeline_obs;
+
     #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
         SK_RASTER_PIPELINE_STAGES(M)
         just_return_highp = (StageFn)SK_OPTS_NS::just_return;

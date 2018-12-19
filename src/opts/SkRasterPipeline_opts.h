@@ -2240,6 +2240,37 @@ STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     }
 }
 
+static void run_pipeline_obs(const size_t x0, const size_t y0,
+                             const size_t x1, const size_t y1,
+                             const SkRasterPipeline::StockStage* stages, int nstages, void** ctx) {
+
+    auto chunk = [=](size_t x, size_t y, size_t tail){
+        void** next_ctx = ctx;
+        F  r = 0,  g = 0,  b = 0,  a = 0,
+          dr = 0, dg = 0, db = 0, da = 0;
+        for (int i = 0; i < nstages; i++) {
+            switch (stages[i]) {
+        #define CASE(st) \
+                case SkRasterPipeline::st: st##_k(Ctx{next_ctx}, x,y,tail, r,g,b,a, dr,dg,db,da); \
+                                           break;
+
+            SK_RASTER_PIPELINE_STAGES(CASE)
+        #undef CASE
+            }
+        }
+    };
+
+    for (size_t y = y0; y < y1; y++) {
+        size_t x = x0;
+        for (; x + N <= x1; x += N) {
+            chunk(x,y, 0);
+        }
+        if (size_t tail = x1 - x) {
+            chunk(x,y, tail);
+        }
+    }
+}
+
 namespace lowp {
 #if defined(JUMPER_IS_SCALAR) || defined(SK_DISABLE_LOWP_RASTER_PIPELINE)
     // If we're not compiled by Clang, or otherwise switched into scalar mode (old Clang, manually),

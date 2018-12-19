@@ -76,6 +76,7 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 
+    DEFINE_DEFAULT(run_pipeline_obs);
 #undef DEFINE_DEFAULT
 
 #define M(st) (StageFn)SK_OPTS_NS::st,
