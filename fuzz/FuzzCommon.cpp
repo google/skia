@@ -222,6 +222,14 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
         }
         SkASSERTF(       path->isValid(),        "path->isValid() failed at op %d, case %d", i, op);
     }
+    // Make sure the path doesn't get too big, which can cause timeouts
+    // when, for example, subdividing cubics.
+    constexpr SkScalar MAX_BOUNDS = 10000000.0f;
+    SkRect bounds = path->getBounds();
+    if (bounds.width() > MAX_BOUNDS || bounds.height() > MAX_BOUNDS ||
+        bounds.width() < 0          || bounds.height() < 0) {
+        path->reset();
+    }
 }
 
 // allows all float values for path points
