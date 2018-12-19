@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8354fc55_649cb614",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-19T15:21:33Z",
+      "side": 1,
+      "message": "Seems simpler to just write \"break;\" ?",
+      "range": {
+        "startLine": 1536,
+        "startChar": 12,
+        "endLine": 1536,
+        "endChar": 35
+      },
+      "revId": "c7fe6d26a56e69e78412bc77506a931afc1c8f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b930f232_5356c197",
+        "filename": "fuzz/FuzzCommon.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-19T15:21:33Z",
+      "side": 1,
+      "message": "Might want to make MAX_BOUNDS an SkScalar so that it logically matches the types you\u0027re comparing against in bounds?\n\nAlso, let\u0027s move the definition of MAX_BOUNDS here so it\u0027s visible when you read this code?",
+      "range": {
+        "startLine": 232,
+        "startChar": 25,
+        "endLine": 232,
+        "endChar": 35
+      },
+      "revId": "c7fe6d26a56e69e78412bc77506a931afc1c8f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
