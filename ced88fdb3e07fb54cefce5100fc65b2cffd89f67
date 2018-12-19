@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5fc2a7a5_ef54375e",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T17:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c91e9eb6_c50e4a98",
+      "revId": "ced88fdb3e07fb54cefce5100fc65b2cffd89f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0cee43e_a79c4547",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "ced88fdb3e07fb54cefce5100fc65b2cffd89f67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "098b76c8_00b18935",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T17:34:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0cee43e_a79c4547",
+      "revId": "ced88fdb3e07fb54cefce5100fc65b2cffd89f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
