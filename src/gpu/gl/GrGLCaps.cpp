@@ -386,7 +386,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // families rather than basing it on the vendor alone.
     // The Chrome command buffer blocks the use of client side buffers (but may emulate VBOs with
     // them). Client side buffers are not allowed in core profiles.
-    if (ctxInfo.driver() != kChromium_GrGLDriver && !fIsCoreProfile &&
+    if (ctxInfo.driver() != kChromium_GrGLDriver && !fIsCoreProfile && !kIsWebGL &&
         (ctxInfo.vendor() == kARM_GrGLVendor || ctxInfo.vendor() == kImagination_GrGLVendor ||
          ctxInfo.vendor() == kQualcomm_GrGLVendor)) {
         fPreferClientSideDynamicBuffers = true;
