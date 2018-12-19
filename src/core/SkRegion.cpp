@@ -1294,7 +1294,7 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
             int32_t ySpanCount, intervalCount;
             if (!buffer.readS32(&ySpanCount) ||
                 !buffer.readS32(&intervalCount) ||
-                buffer.available() < count * sizeof(int32_t)) {
+                buffer.available() / sizeof(int32_t) < (size_t)count) {
                 return 0;
             }
             if (!validate_run((const int32_t*)((const char*)storage + buffer.pos()), count,
