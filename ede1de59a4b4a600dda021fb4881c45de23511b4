@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f106181a_571160a9",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-19T21:51:51Z",
+      "side": 1,
+      "message": "Why not just return a vector?",
+      "range": {
+        "startLine": 136,
+        "startChar": 20,
+        "endLine": 136,
+        "endChar": 25
+      },
+      "revId": "ede1de59a4b4a600dda021fb4881c45de23511b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "422e7641_1f049079",
+        "filename": "src/pdf/SkPDFResourceDict.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-19T21:51:51Z",
+      "side": 1,
+      "message": "Should these be passed by value?",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 85,
+        "endChar": 43
+      },
+      "revId": "ede1de59a4b4a600dda021fb4881c45de23511b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b684fb6a_6f3865fc",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-19T21:51:51Z",
+      "side": 1,
+      "message": "Can this be std::unique_ptr\u003cSkPDFArray\u003e\u0026\u0026, and then you std::move it into place?",
+      "range": {
+        "startLine": 179,
+        "startChar": 40,
+        "endLine": 179,
+        "endChar": 68
+      },
+      "revId": "ede1de59a4b4a600dda021fb4881c45de23511b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
