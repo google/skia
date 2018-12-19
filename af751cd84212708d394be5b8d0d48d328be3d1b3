@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "461725ad_60fd4e7c",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55bd883b_4cbe7d2c",
+      "range": {
+        "startLine": 67,
+        "startChar": 84,
+        "endLine": 67,
+        "endChar": 86
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb64c316_ebfe4cac",
         "filename": "src/gpu/GrGpuResourceCacheAccess.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d07a2977_03c0e607",
+        "filename": "src/gpu/GrGpuResourceCacheAccess.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "Done. Also updated this comment to reflect that it is always called, whether purged immediately or not.",
+      "parentUuid": "eb64c316_ebfe4cac",
+      "range": {
+        "startLine": 38,
+        "startChar": 57,
+        "endLine": 38,
+        "endChar": 63
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7799e016_656d326a",
         "filename": "src/gpu/mock/GrMockTexture.h",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2018-12-19T18:30:11Z",
       "side": 1,
       "message": "do we still want a \"this-\u003e\" here ?",
+      "range": {
+        "startLine": 199,
+        "startChar": 38,
+        "endLine": 199,
+        "endChar": 51
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f573349_e6a538bf",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "I don\u0027t think so. It\u0027s clearly calling a member function.",
+      "parentUuid": "7799e016_656d326a",
       "range": {
         "startLine": 199,
         "startChar": 38,
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "46c0e2f9_37e467d2",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0d6a87d_6a19c8da",
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc8ec095_37391031",
         "filename": "src/gpu/vk/GrVkTexture.cpp",
         "patchSetId": 6
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "9f06ad29_428c5826",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc8ec095_37391031",
+      "range": {
+        "startLine": 130,
+        "startChar": 8,
+        "endLine": 130,
+        "endChar": 10
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1711807_b00cca6c",
         "filename": "src/gpu/vk/GrVkTexture.cpp",
         "patchSetId": 6
@@ -131,6 +245,30 @@
       "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63bb3c26_7f71cc86",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-19T19:13:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1711807_b00cca6c",
+      "range": {
+        "startLine": 147,
+        "startChar": 8,
+        "endLine": 147,
+        "endChar": 10
+      },
+      "revId": "af751cd84212708d394be5b8d0d48d328be3d1b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
