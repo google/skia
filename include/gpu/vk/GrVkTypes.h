@@ -9,6 +9,8 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
+#include "../../src/gpu/vk/GrVkVulkan.h"
+
 #ifdef SK_VULKAN
 #include <vulkan/vulkan_core.h>
 #else
