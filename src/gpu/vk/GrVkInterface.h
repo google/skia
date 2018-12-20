@@ -8,8 +8,6 @@
 #ifndef GrVkInterface_DEFINED
 #define GrVkInterface_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "SkRefCnt.h"
 
 #include "vk/GrVkBackendContext.h"

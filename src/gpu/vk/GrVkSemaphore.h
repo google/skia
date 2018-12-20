@@ -8,13 +8,10 @@
 #ifndef GrVkSemaphore_DEFINED
 #define GrVkSemaphore_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrSemaphore.h"
 
 #include "GrResourceProvider.h"
 #include "GrVkResource.h"
-
 #include "vk/GrVkTypes.h"
 
 class GrBackendSemaphore;

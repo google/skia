@@ -8,8 +8,6 @@
 #ifndef GrVkResourceProvider_DEFINED
 #define GrVkResourceProvider_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrResourceHandle.h"
 #include "GrVkDescriptorPool.h"
 #include "GrVkDescriptorSetManager.h"
@@ -23,6 +21,7 @@
 #include "SkTArray.h"
 #include "SkTDynamicHash.h"
 #include "SkTInternalLList.h"
+#include "vk/GrVkTypes.h"
 
 #include <mutex>
 #include <thread>
