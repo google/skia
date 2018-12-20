@@ -104,11 +104,9 @@ DEF_GM( return new DrawAtlasGM; )
 #include "SkPathMeasure.h"
 
 static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
-                              const SkPoint xy[], const SkPath& path, const SkPaint& paint,
+                              const SkPoint xy[], const SkPath& path, const SkFont& font, const SkPaint& paint,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
-
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 
     int count = font.countText(text, length, kUTF8_SkTextEncoding);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
@@ -122,7 +120,9 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                                 SkTMax(SkScalarAbs(fontb.fTop), SkScalarAbs(fontb.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
-    paint.getTextWidths(text, length, widths);
+    SkAutoTArray<SkGlyphID> glyphs(count);
+    font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.get(), count);
+    font.getWidths(glyphs.get(), count, widths);
 
     for (int i = 0; i < count; ++i) {
         // we want to position each character on the center of its advance
@@ -162,10 +162,12 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
 
+    SkFont font;
+    font.setSize(100);
+
     SkPaint paint;
     paint.setShader(make_shader());
     paint.setAntiAlias(true);
-    paint.setTextSize(100);
     if (doStroke) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(2.25f);
@@ -175,7 +177,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     SkScalar x = 0;
     for (int i = 0; i < N; ++i) {
         pos[i].set(x, 0);
-        x += paint.measureText(&text0[i], 1);
+        x += font.measureText(&text0[i], 1, kUTF8_SkTextEncoding, nullptr, &paint);
     }
 
     SkPath path;
@@ -187,7 +189,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     for (auto d : dirs) {
         path.reset();
         path.addOval(SkRect::MakeXYWH(160, 160, 540, 540), d);
-        draw_text_on_path(canvas, text0, N, pos, path, paint, baseline_offset);
+        draw_text_on_path(canvas, text0, N, pos, path, font, paint, baseline_offset);
     }
 
     paint.reset();
