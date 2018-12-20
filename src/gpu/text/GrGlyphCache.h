@@ -29,7 +29,6 @@ class GrGpu;
 class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
-    ~GrTextStrike();
 
     GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed) {
         GrGlyph* glyph = fCache.find(packed);
