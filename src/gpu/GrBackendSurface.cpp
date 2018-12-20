@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "vk/GrVkVulkan.h"
 
 #include "GrBackendSurface.h"
 

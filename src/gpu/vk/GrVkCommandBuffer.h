@@ -8,12 +8,11 @@
 #ifndef GrVkCommandBuffer_DEFINED
 #define GrVkCommandBuffer_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrVkGpu.h"
 #include "GrVkResource.h"
 #include "GrVkSemaphore.h"
 #include "GrVkUtil.h"
+#include "vk/GrVkTypes.h"
 
 class GrVkBuffer;
 class GrVkFramebuffer;

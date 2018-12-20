@@ -8,8 +8,6 @@
 #ifndef GrVkImage_DEFINED
 #define GrVkImage_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrBackendSurface.h"
 #include "GrTexture.h"
 #include "GrTypesPriv.h"

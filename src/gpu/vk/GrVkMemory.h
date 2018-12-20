@@ -8,8 +8,6 @@
 #ifndef GrVkMemory_DEFINED
 #define GrVkMemory_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrVkBuffer.h"
 #include "SkTArray.h"
 #include "vk/GrVkTypes.h"

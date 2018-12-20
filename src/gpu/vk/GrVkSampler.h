@@ -8,8 +8,6 @@
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrVkResource.h"
 #include "GrVkSamplerYcbcrConversion.h"
 #include "SkOpts.h"

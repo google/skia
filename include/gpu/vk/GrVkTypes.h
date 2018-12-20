@@ -9,11 +9,9 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#ifdef SK_VULKAN
-#include <vulkan/vulkan_core.h>
-#else
-#include "../../third_party/vulkan/vulkan/vulkan_core.h"
-#endif
+#include "SkTypes.h"
+#include "GrVkVulkan.h"
+
 #ifndef VK_VERSION_1_1
 #error Skia requires the use of Vulkan 1.1 headers
 #endif

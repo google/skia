@@ -8,10 +8,9 @@
 #ifndef GrVkPipeline_DEFINED
 #define GrVkPipeline_DEFINED
 
-#include "GrVkVulkan.h"
-
 #include "GrTypesPriv.h"
 #include "GrVkResource.h"
+#include "vk/GrVkTypes.h"
 
 class GrPipeline;
 class GrPrimitiveProcessor;
