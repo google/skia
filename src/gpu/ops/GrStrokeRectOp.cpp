@@ -297,22 +297,18 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
 static sk_sp<GrGeometryProcessor> create_aa_stroke_rect_gp(const GrShaderCaps* shaderCaps,
                                                            bool tweakAlphaForCoverage,
                                                            const SkMatrix& viewMatrix,
-                                                           bool usesLocalCoords) {
+                                                           bool usesLocalCoords,
+                                                           bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
-    Coverage::Type coverageType;
-    if (tweakAlphaForCoverage) {
-        coverageType = Coverage::kSolid_Type;
-    } else {
-        coverageType = Coverage::kAttribute_Type;
-    }
+    Coverage::Type coverageType =
+        tweakAlphaForCoverage ? Coverage::kSolid_Type : Coverage::kAttribute_Type;
     LocalCoords::Type localCoordsType =
-            usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(shaderCaps,
-                              Color::kPremulGrColorAttribute_Type,
-                              coverageType,
-                              localCoordsType,
-                              viewMatrix);
+        usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+    Color::Type colorType =
+        wideColor ? Color::kPremulWideColorAttribute_Type: Color::kPremulGrColorAttribute_Type;
+
+    return MakeForDeviceSpace(shaderCaps, colorType, coverageType, localCoordsType, viewMatrix);
 }
 
 class AAStrokeRectOp final : public GrMeshDrawOp {
@@ -342,6 +338,7 @@ public:
         fRects.emplace_back(RectInfo{color, devOutside, devOutside, devInside, false});
         this->setBounds(devOutside, HasAABloat::kYes, IsZeroArea::kNo);
         fMiterStroke = true;
+        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
@@ -364,6 +361,7 @@ public:
             , fHelper(helperArgs, GrAAType::kCoverage)
             , fViewMatrix(viewMatrix) {
         fMiterStroke = isMiter;
+        fWideColor = !SkPMColor4fFitsInBytes(color);
         RectInfo& info = fRects.push_back();
         compute_aa_rects(&info.fDevOutside, &info.fDevOutsideAssist, &info.fDevInside,
                          &info.fDegenerate, viewMatrix, rect, stroke.getWidth(), isMiter);
@@ -431,7 +429,8 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     void generateAAStrokeRectGeometry(GrVertexWriter& vertices,
-                                      GrColor color,
+                                      const SkPMColor4f& color,
+                                      bool wideColor,
                                       const SkRect& devOutside,
                                       const SkRect& devOutsideAssist,
                                       const SkRect& devInside,
@@ -452,6 +451,7 @@ private:
     SkSTArray<1, RectInfo, true> fRects;
     SkMatrix fViewMatrix;
     bool fMiterStroke;
+    bool fWideColor;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -460,7 +460,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),
                                                            fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
-                                                           fHelper.usesLocalCoords()));
+                                                           fHelper.usesLocalCoords(),
+                                                           fWideColor));
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
         return;
@@ -485,7 +486,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     for (int i = 0; i < instanceCount; i++) {
         const RectInfo& info = fRects[i];
         this->generateAAStrokeRectGeometry(vertices,
-                                           info.fColor.toBytes_RGBA(), // TODO4F
+                                           info.fColor,
+                                           fWideColor,
                                            info.fDevOutside,
                                            info.fDevOutsideAssist,
                                            info.fDevInside,
@@ -610,6 +612,7 @@ GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, const GrCaps& c
     }
 
     fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+    fWideColor |= that->fWideColor;
     return CombineResult::kMerged;
 }
 
@@ -623,7 +626,8 @@ static void setup_scale(int* scale, SkScalar inset) {
 }
 
 void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
-                                                  GrColor color,
+                                                  const SkPMColor4f& color,
+                                                  bool wideColor,
                                                   const SkRect& devOutside,
                                                   const SkRect& devOutsideAssist,
                                                   const SkRect& devInside,
@@ -662,7 +666,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
         return GrVertexWriter::If(!tweakAlphaForCoverage, coverage);
     };
 
-    GrColor outerColor = tweakAlphaForCoverage ? 0 : color;
+    GrVertexColor outerColor(tweakAlphaForCoverage ? SK_PMColor4fTRANSPARENT : color, wideColor);
 
     // Outermost rect
     vertices.writeQuad(inset_fan(devOutside, -SK_ScalarHalf, -SK_ScalarHalf),
@@ -681,8 +685,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
     setup_scale(&scale, inset);
 
     float innerCoverage = GrNormalizeByteToFloat(scale);
-    GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-    GrColor innerColor = tweakAlphaForCoverage ? scaledColor : color;
+    SkPMColor4f scaledColor = color * innerCoverage;
+    GrVertexColor innerColor(tweakAlphaForCoverage ? scaledColor : color, wideColor);
 
     // Inner rect
     vertices.writeQuad(inset_fan(devOutside, inset, inset),
@@ -703,7 +707,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
         // The innermost rect has 0 coverage...
         vertices.writeQuad(inset_fan(devInside, SK_ScalarHalf, SK_ScalarHalf),
-                           (GrColor)0,
+                           GrVertexColor(SK_PMColor4fTRANSPARENT, wideColor),
                            maybe_coverage(0.0f));
     } else {
         // When the interior rect has become degenerate we smoosh to a single point
