@@ -189,21 +189,23 @@ public:
     // determine if it is going to need a texture domain or a full clear.
     static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
 
-    /**
-     * Either the proxy attached to the unique key is being deleted (in which case we
-     * don't want it cluttering up the hash table) or the client has indicated that
-     * it will never refer to the unique key again. In either case, remove the key
-     * from the hash table.
-     * Note: this does not, by itself, alter unique key attached to the underlying GrTexture.
-     */
-    void processInvalidProxyUniqueKey(const GrUniqueKey&);
+    enum class InvalidateGPUResource : bool { kNo = false, kYes = true };
 
-    /**
-     * Same as above, but you must pass in a GrTextureProxy to save having to search for it. The
-     * GrUniqueKey of the proxy must be valid and it must match the passed in key. This function
-     * also gives the option to invalidate the GrUniqueKey on the underlying GrTexture.
+    /*
+     * This method ensures that, if a proxy w/ the supplied unique key exists, it is removed from
+     * the proxy provider's map and its unique key is removed. If 'invalidateSurface' is true, it
+     * will independently ensure that the unique key is removed from any GrGpuResources that may
+     * have it.
+     *
+     * If 'proxy' is provided (as an optimization to stop re-looking it up), its unique key must be
+     * valid and match the provided unique key.
+     *
+     * This method is called if either the proxy attached to the unique key is being deleted
+     * (in which case we don't want it cluttering up the hash table) or the client has indicated
+     * that it will never refer to the unique key again.
      */
-    void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
+    void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*,
+                                 InvalidateGPUResource invalidateGPUResource);
 
     uint32_t contextUniqueID() const { return fContextUniqueID; }
     const GrCaps* caps() const { return fCaps.get(); }

@@ -110,7 +110,7 @@ void GrProxyProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key, GrTexture
         return;
     }
 
-    this->processInvalidProxyUniqueKey(key, proxy, true);
+    this->processInvalidUniqueKey(key, proxy, GrProxyProvider::InvalidateGPUResource::kYes);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& key,
@@ -653,28 +653,38 @@ bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
                               proxy->worstCaseHeight() == proxy->height());
 }
 
-void GrProxyProvider::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
+void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
+                                              InvalidateGPUResource invalidateGPUResource) {
+    if (!proxy) {
+        proxy = fUniquelyKeyedProxies.find(key);
+    }
+
     // Note: this method is called for the whole variety of GrGpuResources so often 'key'
     // will not be in 'fUniquelyKeyedProxies'.
-    GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
     if (proxy) {
-        this->processInvalidProxyUniqueKey(key, proxy, false);
+        SkASSERT(proxy->getUniqueKey().isValid());
+        SkASSERT(proxy->getUniqueKey() == key);
+
+        fUniquelyKeyedProxies.remove(key);
+        proxy->cacheAccess().clearUniqueKey();
     }
-}
 
-void GrProxyProvider::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
-                                                   bool invalidateSurface) {
-    SkASSERT(proxy);
-    SkASSERT(proxy->getUniqueKey().isValid());
-    SkASSERT(proxy->getUniqueKey() == key);
+    if (InvalidateGPUResource::kNo == invalidateGPUResource) {
+        return;
+    }
 
-    fUniquelyKeyedProxies.remove(key);
-    proxy->cacheAccess().clearUniqueKey();
-
-    if (invalidateSurface && proxy->isInstantiated()) {
+    if (proxy && proxy->isInstantiated()) {
         GrSurface* surface = proxy->peekSurface();
         if (surface) {
             surface->resourcePriv().removeUniqueKey();
+            return;
+        }
+    }
+
+    if (fResourceProvider) {
+        sk_sp<GrGpuResource> resource = fResourceProvider->findByUniqueKey<GrGpuResource>(key);
+        if (resource) {
+            resource->resourcePriv().removeUniqueKey();
         }
     }
 }
@@ -693,7 +703,8 @@ void GrProxyProvider::removeAllUniqueKeys() {
     for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
         GrTextureProxy& tmp = *iter;
 
-        this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
+        this->processInvalidUniqueKey(tmp.getUniqueKey(), &tmp,
+                                      GrProxyProvider::InvalidateGPUResource::kNo);
     }
     SkASSERT(!fUniquelyKeyedProxies.count());
 }
