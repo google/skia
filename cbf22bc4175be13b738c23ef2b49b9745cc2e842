@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7363484_e2a0265a",
+        "filename": "src/gpu/GrGlyph.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-20T14:41:49Z",
+      "side": 0,
+      "message": "I don\u0027t understand why you\u0027d want to remove such a useful method. :-P",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 20
+      },
+      "revId": "cbf22bc4175be13b738c23ef2b49b9745cc2e842",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
