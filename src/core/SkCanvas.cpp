@@ -2515,11 +2515,6 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
     LOOPER_END
 }
 
-void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
-                                 const SkRect* cullRect, const SkPaint& paint) {
-    SkASSERT(false);
-}
-
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
     SkRect storage;

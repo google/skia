@@ -68,11 +68,6 @@ public:
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
-    void onDrawTextRSXform(const void* text,
-                           size_t byteLength,
-                           const SkRSXform[],
-                           const SkRect* cull,
-                           const SkPaint& paint) override;
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x,
                         SkScalar y,

@@ -126,7 +126,6 @@ DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
-DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vertices, r.bones, r.boneCount, r.bmode, r.paint));
@@ -435,14 +434,6 @@ private:
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);
-    }
-
-    Bounds bounds(const DrawTextRSXform& op) const {
-        if (op.cull) {
-            return this->adjustAndMap(*op.cull, nullptr);
-        } else {
-            return fCullRect;
-        }
     }
 
     Bounds bounds(const DrawTextBlob& op) const {
