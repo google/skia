@@ -57,13 +57,16 @@ protected:
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
-        SkASSERT(that.isValid());
         if (this != &that) {
-            size_t bytes = that.size();
-            SkASSERT(SkIsAlign4(bytes));
-            fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
-            memcpy(fKey.get(), that.fKey.get(), bytes);
-            this->validate();
+            if (!that.isValid()) {
+                this->reset();
+            } else {
+                size_t bytes = that.size();
+                SkASSERT(SkIsAlign4(bytes));
+                fKey.reset(SkToInt(bytes / sizeof(uint32_t)));
+                memcpy(fKey.get(), that.fKey.get(), bytes);
+                this->validate();
+            }
         }
         return *this;
     }
@@ -149,6 +152,7 @@ private:
     }
 
     void validate() const {
+        SkASSERT(this->isValid());
         SkASSERT(fKey[kHash_MetaDataIdx] ==
                  GrResourceKeyHash(&fKey[kHash_MetaDataIdx] + 1,
                                    this->internalSize() - sizeof(uint32_t)));
@@ -338,6 +342,7 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueK
 // The cache listens for these messages to purge junk resources proactively.
 class GrUniqueKeyInvalidatedMessage {
 public:
+    GrUniqueKeyInvalidatedMessage() = default;
     GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fKey(key), fContextID(contextUniqueID) {
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
@@ -352,7 +357,7 @@ public:
 
 private:
     GrUniqueKey fKey;
-    uint32_t fContextID;
+    uint32_t fContextID = SK_InvalidUniqueID;
 };
 
 static inline bool SkShouldPostMessageToBus(

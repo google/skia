@@ -10,14 +10,14 @@
 
 #include "SkBitmap.h"
 #include "SkTArray.h"
-
+#include "SkDeferredDisplayListRecorder.h"
 #include "GrBackendSurface.h"
 #include "SkCachedData.h"
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
+#include "SkTLazy.h"
 
 class GrContext;
-class SkDeferredDisplayListRecorder;
 class SkImage;
 class SkPicture;
 struct SkYUVAIndex;
@@ -54,6 +54,10 @@ public:
 
     void uploadAllToGPU(GrContext* context);
 
+    // Change the backing store texture for half the images. (Must ensure all fulfilled images are
+    // released before calling this.).
+    void replaceHalfImages(GrContext*);
+
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
                                   SkData* compressedPicture,
@@ -76,16 +80,37 @@ private:
 
         ~PromiseImageCallbackContext();
 
-        void setBackendTexture(const GrBackendTexture& backendTexture) {
-            SkASSERT(!fBackendTexture.isValid());
-            fBackendTexture = backendTexture;
+        void setBackendTexture(const GrBackendTexture& backendTexture);
+
+        void fulfill() {
+            SkASSERT(fUnreleasedFulfills >= 0);
+            ++fUnreleasedFulfills;
+            ++fTotalFulfills;
         }
 
-        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+        void release() {
+            SkASSERT(fUnreleasedFulfills > 0);
+            --fUnreleasedFulfills;
+            ++fTotalReleases;
+        }
+
+        void done() {
+            // We either never should have
+            SkASSERT(!fTotalFulfills || fTotalReleases);
+            ++fDoneCnt;
+        }
+
+        SkDeferredDisplayListRecorder::PromiseImageTexture* promiseImageTexture() {
+            return &fPromiseImageTexture;
+        }
 
     private:
-        GrContext*       fContext;
-        GrBackendTexture fBackendTexture;
+        GrContext* fContext;
+        SkDeferredDisplayListRecorder::PromiseImageTexture fPromiseImageTexture;
+        int fTotalFulfills = 0;
+        int fTotalReleases = 0;
+        int fUnreleasedFulfills = 0;
+        int fDoneCnt = 0;
 
         typedef SkRefCnt INHERITED;
     };
@@ -145,7 +170,7 @@ private:
 
         const GrBackendTexture& backendTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
-            return fCallbackContexts[index]->backendTexture();
+            return fCallbackContexts[index]->promiseImageTexture()->backendTexture();
         }
 
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
@@ -190,21 +215,24 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
+    static SkDeferredDisplayListRecorder::PromiseImageTexture* PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
-        *outTexture = callbackContext->backendTexture();
+        SkASSERT(callbackContext->promiseImageTexture()->isValid());
+        callbackContext->fulfill();
+        return callbackContext->promiseImageTexture();
     }
 
     static void PromiseImageReleaseProc(void* textureContext) {
-#ifdef SK_DEBUG
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->backendTexture().isValid());
+        callbackContext->release();
+#ifdef SK_DEBUG
+        SkASSERT(callbackContext->promiseImageTexture()->isValid());
 #endif
     }
 
     static void PromiseImageDoneProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
+        callbackContext->done();
         callbackContext->unref();
     }
 
@@ -212,6 +240,7 @@ private:
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
+    void uploadImage(GrContext*, PromiseImageInfo*);
 
     // returns -1 if not found
     int findImage(SkImage* image) const;
