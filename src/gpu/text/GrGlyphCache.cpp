@@ -200,7 +200,10 @@ GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID p
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
     GrGlyph* glyph = fPool.make<GrGlyph>();
-    glyph->init(packed, bounds, format);
+    GrGlyph::MaskStyle maskStyle = (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
+                                   ? GrGlyph::MaskStyle::kDistance_MaskStyle
+                                   : GrGlyph::MaskStyle::kCoverage_MaskStyle;
+    glyph->init(packed, bounds, format, maskStyle);
     fCache.add(glyph);
     return glyph;
 }
@@ -237,7 +240,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     int rowBytes = width * bytesPerPixel;
 
     size_t size = glyph->fBounds.area() * bytesPerPixel;
-    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == GrGlyph::UnpackMaskStyle(glyph->fPackedID);
+    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == glyph->maskStyle();
     bool addPad = isScaledGlyph && !isSDFGlyph;
     if (addPad) {
         width += 2;
