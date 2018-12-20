@@ -269,7 +269,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             if (regenGlyphs) {
                 // Get the id from the old glyph, and use the new strike to lookup
                 // the glyph.
-                GrGlyph::PackedID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
+                SkPackedGlyphID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
                 fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fLazyCache->get());
                 SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
             }
