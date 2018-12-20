@@ -25,8 +25,8 @@ public:
     friend class GrYUVAImageTextureMaker;
 
     SkImage_GpuYUVA(sk_sp<GrContext>, int width, int height, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex [4],
-                    GrSurfaceOrigin, sk_sp<SkColorSpace>, SkBudgeted);
+                    sk_sp<GrTextureProxy> proxies[], int numProxies, const SkYUVAIndex[4],
+                    GrSurfaceOrigin, sk_sp<SkColorSpace>);
     ~SkImage_GpuYUVA() override;
 
     SkImageInfo onImageInfo() const override;

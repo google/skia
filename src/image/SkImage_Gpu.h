@@ -23,7 +23,7 @@ struct SkYUVAIndex;
 class SkImage_Gpu : public SkImage_GpuBase {
 public:
     SkImage_Gpu(sk_sp<GrContext>, uint32_t uniqueID, SkAlphaType, sk_sp<GrTextureProxy>,
-                sk_sp<SkColorSpace>, SkBudgeted);
+                sk_sp<SkColorSpace>);
     ~SkImage_Gpu() override;
 
     SkImageInfo onImageInfo() const override;
@@ -94,10 +94,11 @@ public:
                                              PromiseDoneProc promiseDoneProc,
                                              TextureContext textureContext);
 
-    static sk_sp<SkImage> ConvertYUVATexturesToRGB(
-            GrContext*, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],
-            const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
-            SkBudgeted, GrRenderTargetContext*);
+    static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
+                                                   const GrBackendTexture yuvaTextures[],
+                                                   const SkYUVAIndex yuvaIndices[4],
+                                                   SkISize imageSize, GrSurfaceOrigin imageOrigin,
+                                                   GrRenderTargetContext*);
 
 private:
     sk_sp<GrTextureProxy> fProxy;

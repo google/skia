@@ -19,11 +19,10 @@
 #include "SkReadPixelsRec.h"
 
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
-                                 SkAlphaType at, SkBudgeted budgeted, sk_sp<SkColorSpace> cs)
+                                 SkAlphaType at, sk_sp<SkColorSpace> cs)
         : INHERITED(width, height, uniqueID)
         , fContext(std::move(context))
         , fAlphaType(at)
-        , fBudgeted(budgeted)
         , fColorSpace(std::move(cs)) {}
 
 SkImage_GpuBase::~SkImage_GpuBase() {}
@@ -109,8 +108,10 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
         return nullptr;
     }
 
+    // TODO: Should this inherit our proxy's budgeted status?
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
-        format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact, fBudgeted));
+            format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact,
+            proxy->isBudgeted()));
     if (!sContext) {
         return nullptr;
     }
@@ -120,9 +121,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     }
 
     // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, sContext->asTextureProxyRef(),
-                                   fColorSpace, fBudgeted);
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+                                   sContext->asTextureProxyRef(), fColorSpace);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -287,9 +287,8 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) con
     }
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
-                                   std::move(target), fBudgeted);
+    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+                                   renderTargetContext->asTextureProxyRef(), std::move(target));
 }
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
