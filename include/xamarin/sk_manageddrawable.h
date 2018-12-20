@@ -25,7 +25,7 @@ typedef sk_picture_t* (*sk_manageddrawable_newPictureSnapshot_delegate) (sk_mana
 
 
 SK_X_API sk_manageddrawable_t* sk_manageddrawable_new (void);
-SK_X_API void sk_manageddrawable_unref (sk_manageddrawable_t*);
+SK_X_API void sk_manageddrawable_destroy (sk_manageddrawable_t*);
 SK_X_API void sk_manageddrawable_set_delegates (const sk_manageddrawable_draw_delegate pDraw,
                                                 const sk_manageddrawable_getBounds_delegate pGetBounds,
                                                 const sk_manageddrawable_newPictureSnapshot_delegate pNewPictureSnapshot);
