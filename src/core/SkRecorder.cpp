@@ -262,16 +262,6 @@ void SkRecorder::onDrawImageSet(const ImageSetEntry set[], int count, SkFilterQu
     this->append<SkRecords::DrawImageSet>(std::move(setCopy), count, filterQuality, mode);
 }
 
-void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                                   const SkRect* cull, const SkPaint& paint) {
-    this->append<SkRecords::DrawTextRSXform>(
-           paint,
-           this->copy((const char*)text, byteLength),
-           byteLength,
-           this->copy(xform, SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding())),
-           this->copy(cull));
-}
-
 void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) {
     TRY_MINIRECORDER(drawTextBlob, blob, x, y, paint);

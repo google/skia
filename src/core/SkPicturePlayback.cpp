@@ -606,7 +606,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
             // no longer supported, so we draw nothing
         } break;
-        case DRAW_TEXT_RSXFORM: {
+        case DRAW_TEXT_RSXFORM_DEPRECATED_DEC_2018: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             uint32_t count = reader->readUInt();
             uint32_t flags = reader->readUInt();

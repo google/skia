@@ -56,7 +56,6 @@ public:
     void drawDrawable       (SkDrawable*, const SkMatrix*);
     void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*);
 
-    void drawTextRSXform(const void*, size_t, const SkRSXform[], const SkRect*, const SkPaint&);
     void drawTextBlob   (const SkTextBlob*, SkScalar,SkScalar, const SkPaint&);
 
     void drawImage    (sk_sp<const SkImage>, SkScalar,SkScalar,             const SkPaint*);

@@ -55,7 +55,6 @@ public:
         kDrawRegion_OpType,
         kDrawShadow_OpType,
         kDrawTextBlob_OpType,
-        kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
         kDrawAtlas_OpType,
         kDrawDrawable_OpType,
@@ -489,22 +488,6 @@ public:
 private:
     SkRegion fRegion;
     SkPaint  fPaint;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawTextRSXformCommand : public SkDrawCommand {
-public:
-    SkDrawTextRSXformCommand(const void* text, size_t byteLength, const SkRSXform[],
-                             const SkRect*, const SkPaint& paint);
-    void execute(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-
-private:
-    sk_sp<SkData>        fText;
-    SkTDArray<SkRSXform> fXform;
-    SkTLazy<SkRect>      fCull;
-    SkPaint              fPaint;
 
     typedef SkDrawCommand INHERITED;
 };

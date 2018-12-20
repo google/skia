@@ -581,30 +581,6 @@ void SkPictureRecord::onDrawImageSet(const SkCanvas::ImageSetEntry set[], int co
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawTextRSXform(const void* text, size_t byteLength,
-                                        const SkRSXform xform[], const SkRect* cull,
-                                        const SkPaint& paint) {
-    const int count = SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding());
-    // [op + paint-index + count + flags + length] + [text] + [xform] + cull
-    size_t size = 5 * kUInt32Size + SkAlign4(byteLength) + count * sizeof(SkRSXform);
-    uint32_t flags = 0;
-    if (cull) {
-        flags |= DRAW_TEXT_RSXFORM_HAS_CULL;
-        size += sizeof(SkRect);
-    }
-
-    size_t initialOffset = this->addDraw(DRAW_TEXT_RSXFORM, &size);
-    this->addPaint(paint);
-    this->addInt(count);
-    this->addInt(flags);
-    this->addText(text, byteLength);
-    fWriter.write(xform, count * sizeof(SkRSXform));
-    if (cull) {
-        fWriter.write(cull, sizeof(SkRect));
-    }
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                      const SkPaint& paint) {
 

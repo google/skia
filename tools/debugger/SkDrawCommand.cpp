@@ -234,7 +234,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawRegion_OpType: return "DrawRegion";
         case kDrawShadow_OpType: return "DrawShadow";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
-        case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kDrawAtlas_OpType: return "DrawAtlas";
         case kDrawDrawable_OpType: return "DrawDrawable";
@@ -1807,10 +1806,6 @@ Json::Value SkDrawPointsCommand::toJSON(UrlDataManager& urlDataManager) const {
     return result;
 }
 
-static Json::Value make_json_text(sk_sp<SkData> text) {
-    return Json::Value((const char*)text->data(), (const char*)text->data() + text->size());
-}
-
 SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x, SkScalar y,
                                              const SkPaint& paint)
     : INHERITED(kDrawTextBlob_OpType)
@@ -2053,29 +2048,6 @@ SkDrawDrawableCommand::SkDrawDrawableCommand(SkDrawable* drawable, const SkMatri
 
 void SkDrawDrawableCommand::execute(SkCanvas* canvas) const {
     canvas->drawDrawable(fDrawable.get(), fMatrix.getMaybeNull());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkDrawTextRSXformCommand::SkDrawTextRSXformCommand(const void* text, size_t byteLength,
-                                                   const SkRSXform xform[], const SkRect* cull,
-                                                   const SkPaint& paint)
-    : INHERITED(kDrawTextRSXform_OpType)
-    , fText(SkData::MakeWithCopy(text, byteLength))
-    , fXform(xform, SkFont::LEGACY_ExtractFromPaint(paint).countText(text, byteLength, paint.getTextEncoding()))
-    , fCull(cull)
-    , fPaint(paint) {}
-
-void SkDrawTextRSXformCommand::execute(SkCanvas* canvas) const {
-    canvas->drawTextRSXform(fText->data(), fText->size(), fXform.begin(), fCull.getMaybeNull(),
-                            fPaint);
-}
-
-Json::Value SkDrawTextRSXformCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
-    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
-    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
