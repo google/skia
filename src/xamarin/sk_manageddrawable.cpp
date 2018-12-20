@@ -12,7 +12,7 @@
 #include "sk_picture.h"
 #include "sk_types_priv.h"
 
-/* This is a C wrapper araound the C++ class, so that it is possible
+/* This is a C wrapper around the C++ class, so that it is possible
    to access the C++ from C#.                                        */
    
 static sk_manageddrawable_draw_delegate               gDraw;
@@ -34,7 +34,7 @@ static inline const sk_manageddrawable_t* ToManagedDrawable(const SkManagedDrawa
     return reinterpret_cast<const sk_manageddrawable_t*>(drawable);
 }
 
-void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas)
+void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas) 
 {
     gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
 }
@@ -49,8 +49,7 @@ SkPicture* dNewPictureSnapshot(SkManagedDrawable* managedDrawable)
     return AsPicture(gNewPictureSnapshot(ToManagedDrawable(managedDrawable)));
 }
 
-sk_manageddrawable_t* sk_manageddrawable_new()
-{ 
+sk_manageddrawable_t* sk_manageddrawable_new() { 
 	return ToManagedDrawable(new SkManagedDrawable());
 }
 
@@ -68,29 +67,4 @@ void sk_manageddrawable_set_delegates(const sk_manageddrawable_draw_delegate pDr
     gNewPictureSnapshot = pNewPictureSnapshot;
 
     SkManagedDrawable::setDelegates(dDraw, dGetBounds, dNewPictureSnapshot);
-}
-
-uint32_t sk_manageddrawable_get_generation_id(sk_manageddrawable_t* d)
-{ 
-	return AsManagedDrawable(d)->getGenerationID();
-}
-
-void sk_manageddrawable_get_bounds(sk_manageddrawable_t* d, sk_rect_t* rect)
-{ 
-    *rect = ToRect(AsManagedDrawable(d)->getBounds()); 
-}
-
-void sk_manageddrawable_draw(sk_manageddrawable_t* d, sk_canvas_t* c, const sk_matrix_t* matrix)
-{
-    AsManagedDrawable(d)->draw(AsCanvas(c), &AsMatrix(matrix));
-}
-
-sk_picture_t* sk_manageddrawable_new_picture_snapshot(sk_manageddrawable_t* d)
-{ 
-	return ToPicture(AsManagedDrawable(d)->newPictureSnapshot());
-}
-
-void sk_manageddrawable_notify_drawing_changed(sk_manageddrawable_t* d)
-{
-    AsManagedDrawable(d)->notifyDrawingChanged();
 }
