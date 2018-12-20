@@ -362,7 +362,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
-                                   std::move(proxy), std::move(colorSpace), SkBudgeted::kYes);
+                                   std::move(proxy), std::move(colorSpace));
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
@@ -400,7 +400,7 @@ public:
         // to be tightened (if it is deferred).
         sk_sp<SkImage> img = sk_sp<SkImage>(
                 new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()), this->uniqueID(), fAlphaType,
-                                fTextureProxy, fColorSpace, SkBudgeted::kNo));
+                                fTextureProxy, fColorSpace));
 
         canvas->drawImageRect(img, this->subset(),
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
