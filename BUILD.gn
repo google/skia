@@ -189,7 +189,6 @@ config("skia_private") {
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
     if (is_skia_dev_build && skia_use_vulkan) {
-      include_dirs += [ "include/third_party/vulkan" ]
       include_dirs += [ "tools/gpu/vk" ]
     }
   }
@@ -1452,6 +1451,7 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
 
+    public_include_dirs += [ "include/third_party/vulkan" ]
     if (skia_use_vulkan) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
