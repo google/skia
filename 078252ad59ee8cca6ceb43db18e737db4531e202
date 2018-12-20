@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5df1be4_bbdcab65",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-20T20:11:10Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure whether to mention it or not. Just above this, we talk about A8. Don\u0027t we treat alpha as linear, so it doesn\u0027t make sense to specify that A is treated as sRGB?\n\nRemoved in patch set 2.",
+      "parentUuid": "7765b599_acac8e44",
+      "range": {
+        "startLine": 783,
+        "startChar": 29,
+        "endLine": 784,
+        "endChar": 50
+      },
+      "revId": "078252ad59ee8cca6ceb43db18e737db4531e202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e947caad_72f0ce90",
         "filename": "src/core/SkPixmap.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "078252ad59ee8cca6ceb43db18e737db4531e202",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ad88823_dbcc1739",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-12-20T20:11:10Z",
+      "side": 1,
+      "message": "Done with nullptr.",
+      "parentUuid": "e947caad_72f0ce90",
+      "range": {
+        "startLine": 158,
+        "startChar": 28,
+        "endLine": 158,
+        "endChar": 58
+      },
+      "revId": "078252ad59ee8cca6ceb43db18e737db4531e202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
