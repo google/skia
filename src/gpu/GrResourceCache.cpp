@@ -474,7 +474,11 @@ void GrResourceCache::purgeAsNeeded() {
     SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
-        this->processInvalidUniqueKeys(invalidKeyMsgs);
+        SkASSERT(fProxyProvider);
+
+        for (int i = 0; i < invalidKeyMsgs.count(); ++i) {
+            fProxyProvider->processInvalidProxyUniqueKey(invalidKeyMsgs[i].key(), nullptr, true);
+        }
     }
 
     this->processFreedGpuResources();
@@ -579,21 +583,6 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         fMaxBytes = tmpByteBudget;
         this->purgeAsNeeded();
         fMaxBytes = cachedByteCount;
-    }
-}
-
-void GrResourceCache::processInvalidUniqueKeys(
-                                            const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
-    SkASSERT(fProxyProvider); // better have called setProxyProvider
-
-    for (int i = 0; i < msgs.count(); ++i) {
-        fProxyProvider->processInvalidProxyUniqueKey(msgs[i].key());
-
-        GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
-        if (resource) {
-            resource->resourcePriv().removeUniqueKey();
-            resource->unref(); // If this resource is now purgeable, the cache will be notified.
-        }
     }
 }
 
