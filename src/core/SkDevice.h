@@ -235,7 +235,8 @@ protected:
      */
     virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
 
-    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform, const SkPaint& paint);
+    void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
+                             const SkPaint& paint);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
@@ -338,6 +339,7 @@ private:
     // Temporarily friend the SkGlyphRunBuilder until drawPosText is gone.
     friend class SkGlyphRun;
     friend class SkGlyphRunList;
+    friend class SkGlyphRunBuilder;
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to

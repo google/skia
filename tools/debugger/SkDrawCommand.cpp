@@ -1858,6 +1858,9 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
                     break;
                 case SkTextBlobRunIterator::kDefault_Positioning:
                     break;
+                case SkTextBlobRunIterator::kRSXform_Positioning:
+                    // TODO_RSXFORM_BLOB
+                    break;
             }
             jsonGlyphs.append(Json::Value(iterGlyphs[i]));
         }
