@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
 
@@ -30,13 +31,15 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
              invertStr,
              config.fContrast);
 
-    SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(0.05f);
+    SkFont font;
+    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setSize(0.05f);
+    font.setEdging(SkFont::Edging::kAlias);
+
     size_t len = strlen(labelBuffer);
 
-    SkScalar width = paint.measureText(labelBuffer, len);
-    canvas->drawText(labelBuffer, len, 0.5f - width / 2, 0.16f, paint);
+    SkScalar width = font.measureText(labelBuffer, len, kUTF8_SkTextEncoding);
+    canvas->drawSimpleText(labelBuffer, len, kUTF8_SkTextEncoding, 0.5f - width / 2, 0.16f, font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {

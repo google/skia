@@ -7,6 +7,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGeometry.h"
 #include "SkNullCanvas.h"
 #include "SkPaint.h"
@@ -5400,13 +5401,22 @@ DEF_TEST(path_last_move_to_index, r) {
     // Previously, we would leave its fLastMoveToIndex alone after the copy, but now we should
     // set it to path's value inside SkPath::transform()
 
-    SkPath path;
-    SkPath copyPath;
+    const char text[] = "hello";
+    constexpr size_t len = sizeof(text) - 1;
+    SkGlyphID glyphs[len];
 
-    SkPaint paint;
-    paint.getTextPath("hello", 5, 20, 80, &(copyPath)); // <== init copyPath, set fake copyPath.fLastMoveToIndex
+    SkFont font;
+    font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
+
+    SkPath copyPath;
+    SkFont().getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+        if (src) {
+            ((SkPath*)ctx)->addPath(*src, mx);
+        }
+    }, &copyPath);
 
     SkScalar radii[] = { 80, 100, 0, 0, 40, 60, 0, 0 };;
+    SkPath path;
     path.addRoundRect({10, 10, 110, 110}, radii);
     path.offset(0, 5, &(copyPath));                     // <== change buffer copyPath.fPathRef->fPoints but not reset copyPath.fLastMoveToIndex lead to out of bound
 
