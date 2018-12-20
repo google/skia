@@ -32,9 +32,13 @@ public:
 
     void flush();
 
-    // TODO: We will need the client to tell us when it is safe to clean up our resources that we
-    // drew into the secondary command buffer.
-    void cleanup();
+    // This call will release all resources held by the draw context. The client must call release
+    // resources before deleting the drawing context. However, the resources also includes any
+    // Vulkan resources that were created and used for draws. Therefore the client must call
+    // releaseResources after submitting the secondary command buffer, and waiting for it to finish
+    // on the GPU. If it is called earlier than we may delete some vulkan objects before they are
+    // processed by the GPU.
+    void releaseResources();
 
     // TODO: Fill out these calls to support DDL
     bool characterize(SkSurfaceCharacterization* characterization) const;

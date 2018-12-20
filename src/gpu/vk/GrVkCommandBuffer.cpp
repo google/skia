@@ -55,8 +55,10 @@ void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu) const {
         fTrackedRecordingResources[i]->unref(gpu);
     }
 
-    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), fCmdPool->vkCommandPool(), 1,
-                                                      &fCmdBuffer));
+    if (!this->isWrapped()) {
+        GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), fCmdPool->vkCommandPool(),
+                                                          1, &fCmdBuffer));
+    }
 
     this->onFreeGPUData(gpu);
 }
@@ -122,6 +124,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
                                         bool byRegion,
                                         BarrierType barrierType,
                                         void* barrier) const {
+    SkASSERT(!this->isWrapped());
     SkASSERT(fIsActive);
     // For images we can have barriers inside of render passes but they require us to add more
     // support in subpasses which need self dependencies to have barriers inside them. Also, we can
@@ -826,6 +829,7 @@ void GrVkPrimaryCommandBuffer::onAbandonGPUData() const {
 
 GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gpu,
                                                                GrVkCommandPool* cmdPool) {
+    SkASSERT(cmdPool);
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
@@ -844,9 +848,13 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gp
     return new GrVkSecondaryCommandBuffer(cmdBuffer, cmdPool);
 }
 
+GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(VkCommandBuffer cmdBuffer) {
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, nullptr);
+}
 
 void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                                        const GrVkRenderPass* compatibleRenderPass) {
+    SkASSERT(!this->isWrapped());
     SkASSERT(!fIsActive);
     SkASSERT(compatibleRenderPass);
     fActiveRenderPass = compatibleRenderPass;
@@ -876,6 +884,7 @@ void GrVkSecondaryCommandBuffer::begin(const GrVkGpu* gpu, const GrVkFramebuffer
 }
 
 void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
+    SkASSERT(!this->isWrapped());
     SkASSERT(fIsActive);
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), EndCommandBuffer(fCmdBuffer));
     this->invalidateState();

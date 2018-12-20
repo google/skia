@@ -88,6 +88,12 @@ public:
 private:
     void init();
 
+    // Called instead of init when we are drawing to a render target that already wraps a secondary
+    // command buffer.
+    void initWrapped();
+
+    bool wrapsSecondaryCommandBuffer();
+
     GrGpu* gpu() override;
 
     // Bind vertex and index buffers

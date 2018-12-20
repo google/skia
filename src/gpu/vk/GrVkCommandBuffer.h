@@ -142,6 +142,10 @@ protected:
             this->invalidateState();
         }
 
+        bool isWrapped() const {
+            return fCmdPool == nullptr;
+        }
+
         SkTDArray<const GrVkResource*>          fTrackedResources;
         SkTDArray<const GrVkRecycledResource*>  fTrackedRecycledResources;
         SkTDArray<const GrVkResource*>          fTrackedRecordingResources;
@@ -324,6 +328,8 @@ private:
 class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
 public:
     static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
+    // Used for wrapping an external secondary command buffer.
+    static GrVkSecondaryCommandBuffer* Create(VkCommandBuffer externalSecondaryCB);
 
     void begin(const GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
                const GrVkRenderPass* compatibleRenderPass);

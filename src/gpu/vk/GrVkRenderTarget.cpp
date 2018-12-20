@@ -114,7 +114,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    sk_sp<GrVkImageLayout> layout,
                                    VkRenderPass renderPass,
                                    uint32_t colorAttachmentIndex,
-                                   VkCommandBuffer secondaryCommandBuffer)
+                                   GrVkSecondaryCommandBuffer* secondaryCommandBuffer)
     : GrSurface(gpu, desc)
     , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kBorrowed, true)
     , GrRenderTarget(gpu, desc)
@@ -211,10 +211,16 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
 
     sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL));
 
+    GrVkSecondaryCommandBuffer* scb =
+            GrVkSecondaryCommandBuffer::Create(vkInfo.fSecondaryCommandBuffer);
+    if (!scb) {
+        return nullptr;
+    }
+
     GrVkRenderTarget* vkRT = new GrVkRenderTarget(gpu, desc, info, std::move(layout),
                                                   vkInfo.fCompatibleRenderPass,
                                                   vkInfo.fColorAttachmentIndex,
-                                                  vkInfo.fSecondaryCommandBuffer);
+                                                  scb);
 
     return sk_sp<GrVkRenderTarget>(vkRT);
 }
@@ -278,6 +284,7 @@ GrVkRenderTarget::~GrVkRenderTarget() {
     SkASSERT(!fColorAttachmentView);
     SkASSERT(!fFramebuffer);
     SkASSERT(!fCachedSimpleRenderPass);
+    SkASSERT(!fSecondaryCommandBuffer);
 }
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer) const {
@@ -315,6 +322,10 @@ void GrVkRenderTarget::releaseInternalObjects() {
         fCachedSimpleRenderPass->unref(gpu);
         fCachedSimpleRenderPass = nullptr;
     }
+    if (fSecondaryCommandBuffer) {
+        fSecondaryCommandBuffer->unref(gpu);
+        fSecondaryCommandBuffer = nullptr;
+    }
 }
 
 void GrVkRenderTarget::abandonInternalObjects() {
@@ -338,6 +349,10 @@ void GrVkRenderTarget::abandonInternalObjects() {
     if (fCachedSimpleRenderPass) {
         fCachedSimpleRenderPass->unrefAndAbandon();
         fCachedSimpleRenderPass = nullptr;
+    }
+    if (fSecondaryCommandBuffer) {
+        fSecondaryCommandBuffer->unrefAndAbandon();
+        fSecondaryCommandBuffer = nullptr;
     }
 }
 
