@@ -199,11 +199,10 @@ GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID p
 
     GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
 
-    GrGlyph* glyph = fPool.make<GrGlyph>();
     GrGlyph::MaskStyle maskStyle = (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
                                    ? GrGlyph::MaskStyle::kDistance_MaskStyle
                                    : GrGlyph::MaskStyle::kCoverage_MaskStyle;
-    glyph->init(packed, bounds, format, maskStyle);
+    GrGlyph* glyph = fAlloc.make<GrGlyph>(packed, bounds, format, maskStyle);
     fCache.add(glyph);
     return glyph;
 }

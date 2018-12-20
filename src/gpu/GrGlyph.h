@@ -30,20 +30,27 @@ struct GrGlyph {
 
     typedef uint32_t PackedID;
 
-    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
-    PackedID               fPackedID;
-    GrMaskFormat           fMaskFormat;
-    GrIRect16              fBounds;
-    SkIPoint16             fAtlasLocation{0, 0};
-    MaskStyle              fMaskStyle;
-
-    void init(
-            GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format, MaskStyle style) {
-        fPackedID = packed;
-        fBounds.set(bounds);
-        fMaskFormat = format;
-        fMaskStyle = style;
+    static GrIRect16 SkIRectToGrIRect16(const SkIRect& rect) {
+        return GrIRect16::MakeXYWH(SkTo<int16_t>(rect.x()),
+                                   SkTo<int16_t>(rect.y()),
+                                   SkTo<uint16_t>(rect.width()),
+                                   SkTo<uint16_t>(rect.height()));
     }
+
+    GrGlyph(
+            GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format, MaskStyle style)
+        : fPackedID{packed}
+        , fMaskFormat{format}
+        , fMaskStyle{style}
+        , fBounds{SkIRectToGrIRect16(bounds)} {}
+
+    const PackedID         fPackedID;
+    const GrMaskFormat     fMaskFormat;
+    const MaskStyle        fMaskStyle;
+    const GrIRect16        fBounds;
+    SkIPoint16             fAtlasLocation{0, 0};
+    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
+
 
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
