@@ -12,13 +12,16 @@
 #include "SkTypes.h"
 #include "SkDrawable.h"
 
+class SkCanvas;
+class SkPicture;
+struct SkRect;
 
-class SkManagedDrawable;
+class SK_API SkManagedDrawable;
 
 // delegate declarations
-typedef void       (*draw_delegate)               (SkManagedDrawable* managedDrawable, const SkCanvas canvas);
+typedef void       (*draw_delegate)               (SkManagedDrawable* managedDrawable, SkCanvas* canvas);
 typedef SkRect     (*getBounds_delegate)          (SkManagedDrawable* managedDrawable);
-typedef SkPicture  (*newPictureSnapshot_delegate) (SkManagedDrawable* managedDrawable);
+typedef SkPicture* (*newPictureSnapshot_delegate) (SkManagedDrawable* managedDrawable);
 
 
 // managed drawable
@@ -32,7 +35,7 @@ public:
                              const getBounds_delegate pgetBounds,
                              const newPictureSnapshot_delegate pNewPictureSnapshot);
     
-    void onDraw(SkCanvas* canvas) override;
+    void onDraw(SkCanvas*) override;
     SkRect onGetBounds() override;
     SkPicture* onNewPictureSnapshot() override;
     

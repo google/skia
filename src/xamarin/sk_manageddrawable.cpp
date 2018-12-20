@@ -9,6 +9,7 @@
 #include "SkManagedDrawable.h"
 
 #include "sk_manageddrawable.h"
+#include "sk_picture.h"
 #include "sk_types_priv.h"
 
 
@@ -31,24 +32,29 @@ static inline const sk_manageddrawable_t* ToManagedDrawable(const SkManagedDrawa
     return reinterpret_cast<const sk_manageddrawable_t*>(drawable);
 }
 
-void dDraw(SkManagedDrawable* managedDrawable, sk_canvas_t canvas)
+void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas)
 {
-    return gDraw(ToManagedDrawable(managedDrawable), canvas);
+    return gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
 }
 
-sk_rect_t dGetBounds(SkManagedDrawable* managedDrawable) 
+SkRect dGetBounds(SkManagedDrawable* managedDrawable) 
 {
-    gGetBounds(ToManagedDrawable(managedDrawableDrawable));
+    return AsRect(gGetBounds(ToManagedDrawable(managedDrawable)));
 }
 
-sk_picture_t dNewPictureSnapshot(const SkManagedDrawable* managedDrawable) 
+SkPicture* dNewPictureSnapshot(SkManagedDrawable* managedDrawable) 
 {
-    return gNewPictureSnapshot(ToManagedDrawable(managedDrawable));
+    return AsPicture(gNewPictureSnapshot(ToManagedDrawable(managedDrawable)));
 }
 
 sk_manageddrawable_t* sk_manageddrawable_new()
 { 
 	return ToManagedDrawable(new SkManagedDrawable());
+}
+
+void sk_manageddrawable_unref(sk_manageddrawable_t* drawable)
+{ 
+    /* Don't know, what to do here */
 }
 
 void sk_manageddrawable_set_delegates(const sk_manageddrawable_draw_delegate pDraw,
@@ -60,4 +66,29 @@ void sk_manageddrawable_set_delegates(const sk_manageddrawable_draw_delegate pDr
     gNewPictureSnapshot = pNewPictureSnapshot;
 
     SkManagedDrawable::setDelegates(dDraw, dGetBounds, dNewPictureSnapshot);
+}
+
+uint32_t sk_manageddrawable_get_generation_id(sk_manageddrawable_t* d)
+{ 
+	return AsManagedDrawable(d)->getGenerationID();
+}
+
+sk_rect_t sk_manageddrawable_get_bounds(sk_manageddrawable_t* d)
+{ 
+	return ToRect(AsManagedDrawable(d)->getBounds());
+}
+
+void sk_manageddrawable_draw(sk_manageddrawable_t* d, sk_canvas_t* c, const sk_matrix_t* matrix)
+{
+    AsManagedDrawable(d)->draw(AsCanvas(c), &AsMatrix(matrix));
+}
+
+sk_picture_t* sk_manageddrawable_new_picture_snapshot(sk_manageddrawable_t* d)
+{ 
+	return ToPicture(AsManagedDrawable(d)->newPictureSnapshot());
+}
+
+void sk_manageddrawable_notify_drawing_changed(sk_manageddrawable_t* d)
+{
+    AsManagedDrawable(d)->notifyDrawingChanged();
 }

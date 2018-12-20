@@ -36,6 +36,7 @@ SK_C_API void sk_canvas_draw_path(sk_canvas_t*, const sk_path_t*, const sk_paint
 SK_C_API void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*, float x, float y, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_image_rect(sk_canvas_t*, const sk_image_t*, const sk_rect_t* src, const sk_rect_t* dst, const sk_paint_t*);
 SK_C_API void sk_canvas_draw_picture(sk_canvas_t*, const sk_picture_t*, const sk_matrix_t*, const sk_paint_t*);
+SK_C_API void sk_canvas_draw_drawable(sk_canvas_t*, sk_drawable_t*, const sk_matrix_t*);
 SK_C_API void sk_canvas_clear(sk_canvas_t*, sk_color_t);
 SK_C_API void sk_canvas_discard(sk_canvas_t*);
 SK_C_API int sk_canvas_get_save_count(sk_canvas_t*);

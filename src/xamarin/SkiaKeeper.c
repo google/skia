@@ -42,6 +42,7 @@
 
 // Xamarin
 #include "sk_managedstream.h"
+#include "sk_manageddrawable.h"
 
 SK_X_API void** KeepSkiaCSymbols (void);
 
@@ -83,6 +84,7 @@ void** KeepSkiaCSymbols (void)
 
         // Xamarin
         (void*)sk_managedstream_new,
+        (void*)sk_manageddrawable_new,
     };
     return ret;
 }

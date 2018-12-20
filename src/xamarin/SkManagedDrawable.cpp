@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
+#include "SkCanvas.h"
+#include "SkPicture.h"
 #include "SkManagedDrawable.h"
 
 
@@ -30,7 +33,7 @@ void SkManagedDrawable::setDelegates(const draw_delegate pDraw,
     ::fNewPictureSnapshot = (pNewPictureSnapshot);
 }
 
-void SkManagedDrawable::onDraw(const SkCanvas* canvas) {
+void SkManagedDrawable::onDraw(SkCanvas* canvas) {
     ::fDraw(this, canvas);
 }
 
