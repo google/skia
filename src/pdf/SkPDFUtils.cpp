@@ -351,8 +351,12 @@ static uint32_t big_end(const uint8_t s[4]) {
 
 void SkPDFUtils::Base85Encode(SkDynamicMemoryWStream* dst) {
     SkASSERT(dst);
-    std::unique_ptr<SkStreamAsset> stream = dst->detachAsStream();
-    SkASSERT(src);
+    SkPDFUtils::Base85Encode(dst->detachAsStream(), dst);
+}
+
+void SkPDFUtils::Base85Encode(std::unique_ptr<SkStreamAsset> stream,
+                              SkDynamicMemoryWStream* dst) {
+    SkASSERT(dst);
     size_t remaining = stream->getLength();
     dst->writeText("\n");
     int line = 0;
