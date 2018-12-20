@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkFontConfigTypeface_DEFINED
+#define SkFontConfigTypeface_DEFINED
+
 #include "SkFontConfigInterface.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
@@ -78,3 +81,5 @@ protected:
 private:
     typedef SkTypeface_FreeType INHERITED;
 };
+
+#endif  // SkFontConfigTypeface_DEFINED
