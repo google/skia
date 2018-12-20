@@ -22,6 +22,30 @@
       "revId": "0793aa526501e1928ca1af7d5dacf83cbcb68b88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0254f376_95ce0172",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-12-20T21:25:31Z",
+      "side": 1,
+      "message": "Weird, originally our comment would auto-link but after trying b/ and b: in both the Bug tag and in the description, it just disabled all auto-linking. I\u0027ll leave it as b/ in the description since that can be copied into a URL bar at least.",
+      "parentUuid": "1695ec51_57eadf7b",
+      "range": {
+        "startLine": 14,
+        "startChar": 22,
+        "endLine": 14,
+        "endChar": 41
+      },
+      "revId": "0793aa526501e1928ca1af7d5dacf83cbcb68b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
