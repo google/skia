@@ -46,6 +46,30 @@
       "revId": "0793aa526501e1928ca1af7d5dacf83cbcb68b88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3e12a97_28a2c4d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-20T21:45:42Z",
+      "side": 1,
+      "message": "You can also have multiple \"Bug:\"",
+      "parentUuid": "0254f376_95ce0172",
+      "range": {
+        "startLine": 14,
+        "startChar": 22,
+        "endLine": 14,
+        "endChar": 41
+      },
+      "revId": "0793aa526501e1928ca1af7d5dacf83cbcb68b88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
