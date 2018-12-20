@@ -38,7 +38,9 @@ void SkManagedDrawable::onDraw(SkCanvas* canvas) {
 }
 
 SkRect SkManagedDrawable::onGetBounds() {
-    return ::fGetBounds(this);
+    SkRect rect;
+    ::fGetBounds(this, &rect);
+    return rect;
 }
 
 SkPicture* SkManagedDrawable::onNewPictureSnapshot() {

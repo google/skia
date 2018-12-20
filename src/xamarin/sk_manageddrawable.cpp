@@ -12,7 +12,9 @@
 #include "sk_picture.h"
 #include "sk_types_priv.h"
 
-
+/* This is a C wrapper araound the C++ class, so that it is possible
+   to access the C++ from C#.                                        */
+   
 static sk_manageddrawable_draw_delegate               gDraw;
 static sk_manageddrawable_getBounds_delegate          gGetBounds;
 static sk_manageddrawable_newPictureSnapshot_delegate gNewPictureSnapshot;
@@ -34,12 +36,12 @@ static inline const sk_manageddrawable_t* ToManagedDrawable(const SkManagedDrawa
 
 void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas)
 {
-    return gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
+    gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
 }
 
-SkRect dGetBounds(SkManagedDrawable* managedDrawable) 
+void dGetBounds(SkManagedDrawable* managedDrawable, SkRect* rect) 
 {
-    return AsRect(gGetBounds(ToManagedDrawable(managedDrawable)));
+    gGetBounds(ToManagedDrawable(managedDrawable), ToRect(rect));
 }
 
 SkPicture* dNewPictureSnapshot(SkManagedDrawable* managedDrawable) 
@@ -73,9 +75,9 @@ uint32_t sk_manageddrawable_get_generation_id(sk_manageddrawable_t* d)
 	return AsManagedDrawable(d)->getGenerationID();
 }
 
-sk_rect_t sk_manageddrawable_get_bounds(sk_manageddrawable_t* d)
+void sk_manageddrawable_get_bounds(sk_manageddrawable_t* d, sk_rect_t* rect)
 { 
-	return ToRect(AsManagedDrawable(d)->getBounds());
+    *rect = ToRect(AsManagedDrawable(d)->getBounds()); 
 }
 
 void sk_manageddrawable_draw(sk_manageddrawable_t* d, sk_canvas_t* c, const sk_matrix_t* matrix)

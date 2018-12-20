@@ -20,7 +20,7 @@ class SK_API SkManagedDrawable;
 
 // delegate declarations
 typedef void       (*draw_delegate)               (SkManagedDrawable* managedDrawable, SkCanvas* canvas);
-typedef SkRect     (*getBounds_delegate)          (SkManagedDrawable* managedDrawable);
+typedef void       (*getBounds_delegate)          (SkManagedDrawable* managedDrawable, SkRect* rect);
 typedef SkPicture* (*newPictureSnapshot_delegate) (SkManagedDrawable* managedDrawable);
 
 
