@@ -37,8 +37,7 @@ struct GrGlyph {
                                    SkTo<uint16_t>(rect.height()));
     }
 
-    GrGlyph(
-            GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format, MaskStyle style)
+    GrGlyph(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format, MaskStyle style)
         : fPackedID{packed}
         , fMaskFormat{format}
         , fMaskStyle{style}
@@ -51,7 +50,6 @@ struct GrGlyph {
     SkIPoint16             fAtlasLocation{0, 0};
     GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
 
-
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
     bool isEmpty() const { return fBounds.isEmpty(); }
@@ -61,35 +59,47 @@ struct GrGlyph {
 
     ///////////////////////////////////////////////////////////////////////////
 
-    static inline unsigned ExtractSubPixelBitsFromFixed(SkFixed pos) {
+    static unsigned ExtractSubPixelBitsFromFixed(SkFixed pos) {
         // two most significant fraction bits from fixed-point
         return (pos >> 14) & 3;
     }
 
-    static inline PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y, MaskStyle ms) {
+    static PackedID FromSkGlyph(const SkGlyph& skGlyph) {
+        GrGlyph::MaskStyle maskStyle = (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
+                                       ? GrGlyph::MaskStyle::kDistance_MaskStyle
+                                       : GrGlyph::MaskStyle::kCoverage_MaskStyle;
+        SkPackedGlyphID skPackedID = skGlyph.getPackedID();
+        GrGlyph::PackedID packedID = GrGlyph::Pack(skPackedID.code(),
+                                                   skPackedID.getSubXFixed(),
+                                                   skPackedID.getSubYFixed(),
+                                                   maskStyle);
+        return packedID;
+    }
+
+    static PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y, MaskStyle ms) {
         x = ExtractSubPixelBitsFromFixed(x);
         y = ExtractSubPixelBitsFromFixed(y);
         int dfFlag = (ms == kDistance_MaskStyle) ? 0x1 : 0x0;
         return (dfFlag << 20) | (x << 18) | (y << 16) | glyphID;
     }
 
-    static inline SkFixed UnpackFixedX(PackedID packed) {
+    static SkFixed UnpackFixedX(PackedID packed) {
         return ((packed >> 18) & 3) << 14;
     }
 
-    static inline SkFixed UnpackFixedY(PackedID packed) {
+    static SkFixed UnpackFixedY(PackedID packed) {
         return ((packed >> 16) & 3) << 14;
     }
 
-    static inline uint16_t UnpackID(PackedID packed) {
+    static uint16_t UnpackID(PackedID packed) {
         return (uint16_t)packed;
     }
 
-    static inline const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) {
+    static const GrGlyph::PackedID& GetKey(const GrGlyph& glyph) {
         return glyph.fPackedID;
     }
 
-    static inline uint32_t Hash(GrGlyph::PackedID key) {
+    static uint32_t Hash(GrGlyph::PackedID key) {
         return SkChecksum::Mix(key);
     }
 };
