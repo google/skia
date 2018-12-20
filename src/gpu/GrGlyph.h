@@ -44,8 +44,6 @@ struct GrGlyph {
         fAtlasLocation.set(0, 0);
     }
 
-    void reset() { }
-
     int width() const { return fBounds.width(); }
     int height() const { return fBounds.height(); }
     bool isEmpty() const { return fBounds.isEmpty(); }
