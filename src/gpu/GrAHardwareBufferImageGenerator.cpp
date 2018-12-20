@@ -471,6 +471,7 @@ GrBackendFormat get_backend_format(GrContext* context, AHardwareBuffer* hardware
                 return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
         }
     } else if (backend == GrBackendApi::kVulkan) {
+#ifdef SK_VULKAN
         switch (bufferFormat) {
             case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
                 return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
@@ -529,6 +530,9 @@ GrBackendFormat get_backend_format(GrContext* context, AHardwareBuffer* hardware
                 return GrBackendFormat::MakeVk(ycbcrConversion);
             }
         }
+#else
+        return GrBackendFormat();
+#endif
     }
     return GrBackendFormat();
 }
