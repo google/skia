@@ -52,7 +52,6 @@ public:
             // in the atlas and we're going to be doing a texture upload anyways).
             const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
             glyph = this->generateGlyph(skGlyph, packed);
-            glyph->fMaskFormat = expectedMaskFormat;
         }
         return glyph;
     }
@@ -85,7 +84,7 @@ public:
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     SkAutoDescriptor fFontScalerKey;
-    SkArenaAlloc fPool{512};
+    SkArenaAlloc fAlloc{512};
 
     int fAtlasedGlyphs{0};
     bool fIsAbandoned{false};
