@@ -264,7 +264,7 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
-    void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
+    void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage17>&);
     void processFreedGpuResources();
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
@@ -311,7 +311,7 @@ private:
         return res->cacheAccess().accessCacheIndex();
     }
 
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Inbox InvalidUniqueKeyInbox;
     typedef SkMessageBus<GrGpuResourceFreedMessage>::Inbox FreedGpuResourceInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;

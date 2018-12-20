@@ -21,7 +21,7 @@
 #include "SkTo.h"
 #include <atomic>
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage17);
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
 
@@ -471,7 +471,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 }
 
 void GrResourceCache::purgeAsNeeded() {
-    SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
+    SkTArray<GrUniqueKeyInvalidatedMessage17> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
         this->processInvalidUniqueKeys(invalidKeyMsgs);
@@ -583,7 +583,7 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
 }
 
 void GrResourceCache::processInvalidUniqueKeys(
-                                            const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
+                                            const SkTArray<GrUniqueKeyInvalidatedMessage17>& msgs) {
     SkASSERT(fProxyProvider); // better have called setProxyProvider
 
     for (int i = 0; i < msgs.count(); ++i) {
@@ -591,6 +591,7 @@ void GrResourceCache::processInvalidUniqueKeys(
 
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
+            SkDebugf("removing unique key on %d\n", resource->uniqueID().asUInt());
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }

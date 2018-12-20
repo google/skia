@@ -13,6 +13,10 @@
 #include <atomic>
 #include <new>
 
+#if SK_SUPPORT_GPU
+#include "GrContextPriv.h"
+#endif
+
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getDeviceSpaceType()) {
         case DeviceSpaceType::kEmpty:
@@ -37,6 +41,23 @@ SkClipStack::Element::Element(const Element& that) {
     fFiniteBound = that.fFiniteBound;
     fIsIntersectionOfRects = that.fIsIntersectionOfRects;
     fGenID = that.fGenID;
+}
+
+#include "GrContextPriv.h"
+
+SkClipStack::Element::~Element() {
+#if SK_SUPPORT_GPU
+
+
+    for (int i = 0; i < fMessages1.count(); ++i) {
+        GrContext* context = fMessages1[i].fContext;
+
+        context->contextPriv().processInvalidProxyUniqueKey(fMessages1[i].fKey);
+
+        //proxyProvider->removeUniqueKeyFromProxy()
+//         SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(*fMessages1[i]);
+    }
+#endif
 }
 
 bool SkClipStack::Element::operator== (const Element& element) const {

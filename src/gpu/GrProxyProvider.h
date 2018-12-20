@@ -194,7 +194,7 @@ public:
      * don't want it cluttering up the hash table) or the client has indicated that
      * it will never refer to the unique key again. In either case, remove the key
      * from the hash table.
-     * Note: this does not, by itself, alter unique key attached to the underlying GrTexture.
+     * Note: this does not, by itself, alter the unique key attached to the underlying GrTexture.
      */
     void processInvalidProxyUniqueKey(const GrUniqueKey&);
 
