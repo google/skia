@@ -127,7 +127,7 @@ void PopulateTilingPatternDict(SkPDFDict* pattern,
 bool ToBitmap(const SkImage* img, SkBitmap* dst);
 
 #ifdef SK_PDF_BASE85_BINARY
-void Base85Encode(SkDynamicMemoryWStream*);
+void Base85Encode(std::unique_ptr<SkStreamAsset> src, SkDynamicMemoryWStream* dst);
 #endif //  SK_PDF_BASE85_BINARY
 
 }  // namespace SkPDFUtils
