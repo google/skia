@@ -96,6 +96,8 @@ the the blob.
 
 Pass nullptr for <a href='#SkTextBlob_getIntercepts_intervals'>intervals</a> to determine the <a href='undocumented#Size'>size</a> of the interval array.
 
+Runs within the blob that contain <a href='undocumented#SkRSXform'>SkRSXform</a> are ignored when computing intercepts.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkTextBlob_getIntercepts_bounds'><code><strong>bounds</strong></code></a></td>
