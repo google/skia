@@ -30,10 +30,11 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed) {
+    GrGlyph* getGlyph(const SkGlyph& skGlyph) {
+        GrGlyph::PackedID packed = GrGlyph::FromSkGlyph(skGlyph);
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
-            glyph = this->generateGlyph(skGlyph, packed);
+            glyph = this->generateGlyph(skGlyph);
         }
         return glyph;
     }
@@ -43,7 +44,6 @@ public:
     // draw a clear square.
     // skbug:4143 crbug:510931
     GrGlyph* getGlyph(GrGlyph::PackedID packed,
-                      GrMaskFormat expectedMaskFormat,
                       SkGlyphCache* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
@@ -51,7 +51,7 @@ public:
             // potentially little benefit(ie, if the glyph is not in our font cache, then its not
             // in the atlas and we're going to be doing a texture upload anyways).
             const SkGlyph& skGlyph = GrToSkGlyph(cache, packed);
-            glyph = this->generateGlyph(skGlyph, packed);
+            glyph = this->generateGlyph(skGlyph);
         }
         return glyph;
     }
@@ -95,7 +95,7 @@ private:
                                         GrGlyph::UnpackFixedY(id));
     }
 
-    GrGlyph* generateGlyph(const SkGlyph&, GrGlyph::PackedID);
+    GrGlyph* generateGlyph(const SkGlyph&);
 
     friend class GrGlyphCache;
 };
