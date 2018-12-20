@@ -106,7 +106,7 @@ protected:
 
         for (int invBits = 0; invBits < 4; ++invBits) {
             canvas->save();
-            for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+            for (size_t op = 0; op < 3 /*SK_ARRAY_COUNT(gOps)/4*/; ++op) {
                 this->drawHairlines(canvas, path, clipA, clipB);
 
                 bool doInvA = SkToBool(invBits & 1);
@@ -134,7 +134,7 @@ protected:
                     canvas->drawPath(path, pathPaint);
                 canvas->restore();
 
-
+#if 0
                 SkPaint paint;
                 SkScalar txtX = 45;
                 paint.setColor(gClipAColor);
@@ -148,6 +148,7 @@ protected:
                 paint.setColor(gClipBColor);
                 const char* bTxt = doInvB ? "InvB " : "B ";
                 canvas->drawSimpleText(bTxt, strlen(bTxt), kUTF8_SkTextEncoding, txtX, 220, font, paint);
+#endif
 
                 canvas->translate(250,0);
             }
