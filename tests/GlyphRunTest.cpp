@@ -52,6 +52,7 @@ DEF_TEST(GlyphRunBasic, reporter) {
     builder.drawText(paint, glyphs, count, SkPoint::Make(0, 0));
 }
 
+#if 0   // should we revitalize this by consing up a device for drawTextBlob() ?
 DEF_TEST(GlyphRunBlob, reporter) {
     constexpr uint16_t count = 5;
     constexpr int runCount = 2;
@@ -101,3 +102,4 @@ DEF_TEST(GlyphRunBlob, reporter) {
         runIndex += 1;
     }
 }
+#endif

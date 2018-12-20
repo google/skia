@@ -18,6 +18,7 @@
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
+class SkBaseDevice;
 class SkGlyph;
 
 class SkGlyphRun {
@@ -29,10 +30,6 @@ public:
                SkSpan<const char> text,
                SkSpan<const uint32_t> clusters);
     SkGlyphRun(const SkGlyphRun& glyphRun, const SkFont& font);
-
-    // A function that turns an SkGlyphRun into an SkGlyphRun for each glyph.
-    using PerGlyph = std::function<void (const SkGlyphRun&)>;
-    void eachGlyphToGlyphRun(PerGlyph perGlyph);
 
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
@@ -115,14 +112,18 @@ private:
 
 class SkGlyphRunBuilder {
 public:
-    void drawTextAtOrigin(const SkPaint& paint, const void* bytes, size_t byteLength);
     void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
-    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
+    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
     void drawGlyphsWithPositions(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
 
     const SkGlyphRunList& useGlyphRunList();
+
+    bool empty() const { return fGlyphRunListStorage.size() == 0; }
+
+    static void DispatchBlob(SkGlyphRunBuilder* builder, const SkPaint& paint,
+                             const SkTextBlob& blob, SkPoint origin, SkBaseDevice* device);
 
 private:
     void initialize(size_t totalRunSize);
