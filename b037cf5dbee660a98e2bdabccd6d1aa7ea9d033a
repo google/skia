@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5b082338_d8e729e9",
+        "filename": "src/core/SkClipStack.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-20T22:21:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2f83209_034e8024",
+      "range": {
+        "startLine": 219,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 45
+      },
+      "revId": "b037cf5dbee660a98e2bdabccd6d1aa7ea9d033a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e21e194_a071fa58",
         "filename": "src/gpu/GrProxyProvider.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "b037cf5dbee660a98e2bdabccd6d1aa7ea9d033a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b670c3e_073dd2db",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-12-20T22:21:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e21e194_a071fa58",
+      "range": {
+        "startLine": 192,
+        "startChar": 37,
+        "endLine": 192,
+        "endChar": 38
+      },
+      "revId": "b037cf5dbee660a98e2bdabccd6d1aa7ea9d033a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
