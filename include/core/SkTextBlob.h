@@ -59,7 +59,7 @@ public:
 
         Pass nullptr for intervals to determine the size of the interval array.
 
-        Runs within the blob that contain SkRSXforms are ignored when computing intercepts.
+        Runs within the blob that contain SkRSXform are ignored when computing intercepts.
 
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
@@ -340,7 +340,7 @@ public:
     const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr);
 
-    // Experimental, RunBuffer.pos points to SkRSXforms
+    // Experimental, RunBuffer.pos points to SkRSXform array
     const RunBuffer& allocRunRSXform(const SkFont& font, int count);
 
 private:
