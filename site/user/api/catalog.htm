@@ -5805,10 +5805,10 @@
     "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)"
 },
     "SkFont_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    SkFont font;\n    font.setSize(50);\n    int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,\n            100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
+    "width": 280,
+    "height": 128,
+    "hash": "3cad18678254526be66ef162eecd1d23",
     "file": "SkFont_Reference",
     "name": "SkFont::breakText"
 },
@@ -6373,10 +6373,10 @@
     "name": "SkImage::MakeFromTexture"
 },
     "SkImage_MakeFromTexture_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {\n     // broken\n     //   *((int *) releaseContext) += 128;\n    };\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, 0);\n        x += 128;\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {\n       *((int *) releaseContext) += 128;\n    };\n    int x = 0, y = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, y);\n        y += 128;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "f40e1ebba6b067714062b81877b22fa1",
+    "hash": "2b1e46354d823dbb53fa6af570135329",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture_2"
 },
@@ -7372,14 +7372,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint_2"
 },
-    "SkPaint_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    int partialBytes = paint.breakText(str, count, 100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
-    "width": 280,
-    "height": 128,
-    "hash": "fd0033470ccbd5c7059670fdbf96cffc",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::breakText"
-},
     "SkPaint_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    #ifndef SkUserConfig_DEFINED\n    #define SkUserConfig_DEFINED\n    #define SkPaintDefaults_Flags      0x01   // always enable antialiasing\n    #define SkPaintDefaults_TextSize   24.f   // double default font size\n    #define SkPaintDefaults_Hinting    3      // use full hinting\n    #define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting\n    #endif\n}",
     "width": 256,
@@ -7420,14 +7412,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::getPosTextPath"
 },
-    "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
-    "width": 256,
-    "height": 143,
-    "hash": "728ea9089f233a71a1062e364b8c73fa",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getTextBlobIntercepts"
-},
     "SkPaint_getTextPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(80);\n    SkPath path, path2;\n    paint.getTextPath(\"ABC\", 3, 20, 80, &path);\n    path.offset(20, 20, &path2);\n    Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);\n    path.addPath(path2);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
@@ -7443,14 +7427,6 @@
     "hash": "6b9e101f49e9c2c28755c5bdcef64dfb",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextWidths"
-},
-    "SkPaint_glyphsToUnichars": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello[] = \"Hello!\";\n    const int count = sizeof(hello) - 1;\n    SkGlyphID glyphs[count];\n    if (count != paint.textToGlyphs(hello, count, glyphs)) {\n        return;\n    }\n    SkUnichar unichars[count];\n    paint.glyphsToUnichars(glyphs, count, unichars);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "79c550ec6c34054ab60fbcd1b81adc03",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::glyphsToUnichars"
 },
     "SkPaint_isLinearText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"xxxx xxxx\";\n    for (auto linearText : { false, true } ) {\n        paint.setLinearText(linearText);\n        paint.setTextSize(24);\n        canvas->drawString(paint.isLinearText() ? \"linear\" : \"hinted\", 128, 30, paint);\n        for (SkScalar textSize = 8; textSize < 30; textSize *= 1.22f) {\n            paint.setTextSize(textSize);\n            canvas->translate(0, textSize);\n            canvas->drawString(testStr, 10, 0, paint);\n        }\n    }\n}\n",
@@ -9347,6 +9323,14 @@
     "hash": "fb8b2502bbe52d2029aecdf569dd9fdb",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::bounds()"
+},
+    "SkTextBlob_getIntercepts": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = blob->getIntercepts(bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "width": 256,
+    "height": 143,
+    "hash": "e9d4eb8ece521b1329e7433d4b243fdf",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::getIntercepts"
 },
     "SkTextBlob_serialize": {
     "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobFont);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
