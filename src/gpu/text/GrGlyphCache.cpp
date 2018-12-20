@@ -56,26 +56,6 @@ void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     }
 }
 
-static GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
-    SkMask::Format format = static_cast<SkMask::Format>(glyph.fMaskFormat);
-    switch (format) {
-        case SkMask::kBW_Format:
-        case SkMask::kSDF_Format:
-            // fall through to kA8 -- we store BW and SDF glyphs in our 8-bit cache
-        case SkMask::kA8_Format:
-            return kA8_GrMaskFormat;
-        case SkMask::k3D_Format:
-            return kA8_GrMaskFormat; // ignore the mul and add planes, just use the mask
-        case SkMask::kLCD16_Format:
-            return kA565_GrMaskFormat;
-        case SkMask::kARGB32_Format:
-            return kARGB_GrMaskFormat;
-        default:
-            SkDEBUGFAIL("unsupported SkMask::Format");
-            return kA8_GrMaskFormat;
-    }
-}
-
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
 // A8, RGB565, or RGBA8888.
 template <typename INT_TYPE>
@@ -113,7 +93,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
     // Convert if the glyph uses a 565 mask format since it is using LCD text rendering but the
     // expected format is 8888 (will happen on macOS with Metal since that combination does not
     // support 565).
-    if (kA565_GrMaskFormat == get_packed_glyph_mask_format(glyph) &&
+    if (kA565_GrMaskFormat == GrGlyph::FormatFromSkGlyph(glyph) &&
         kARGB_GrMaskFormat == expectedMaskFormat) {
         const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
         const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
@@ -136,7 +116,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
     // crbug:510931
     // Retrieving the image from the cache can actually change the mask format.  This case is very
     // uncommon so for now we just draw a clear box for these glyphs.
-    if (get_packed_glyph_mask_format(glyph) != expectedMaskFormat) {
+    if (GrGlyph::FormatFromSkGlyph(glyph) != expectedMaskFormat) {
         const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
         for (int y = 0; y < height; y++) {
             sk_bzero(dst, width * bpp);
@@ -193,23 +173,13 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
 GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph) {
-    SkIRect bounds;
-
-    bounds.setXYWH(skGlyph.fLeft, skGlyph.fTop, skGlyph.fWidth, skGlyph.fHeight);
-
-    GrMaskFormat format = get_packed_glyph_mask_format(skGlyph);
-
-    GrGlyph::MaskStyle maskStyle = (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
-                                   ? GrGlyph::MaskStyle::kDistance_MaskStyle
-                                   : GrGlyph::MaskStyle::kCoverage_MaskStyle;
-    GrGlyph* glyph = fAlloc.make<GrGlyph>(
-            GrGlyph::FromSkGlyph(skGlyph), bounds, format, maskStyle);
-    fCache.add(glyph);
-    return glyph;
+    GrGlyph* grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+    fCache.add(grGlyph);
+    return grGlyph;
 }
 
 void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
-    SkTDynamicHash<GrGlyph, GrGlyph::PackedID>::Iter iter(&fCache);
+    SkTDynamicHash<GrGlyph, SkPackedGlyphID>::Iter iter(&fCache);
     while (!iter.done()) {
         if (id == (*iter).fID) {
             (*iter).fID = GrDrawOpAtlas::kInvalidAtlasID;
