@@ -30,8 +30,6 @@ protected:
     void onDrawPath(const SkPath& path, const SkPaint& paint) override = 0;
     void onDrawRegion(const SkRegion& region, const SkPaint& paint) override = 0;
 
-    void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                           const SkRect* cullRect, const SkPaint& paint) override = 0;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override = 0;
 
