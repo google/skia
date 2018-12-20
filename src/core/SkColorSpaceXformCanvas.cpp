@@ -108,11 +108,6 @@ public:
         fTarget->drawVertices(vertices, bones, boneCount, mode, fXformer->apply(paint));
     }
 
-    void onDrawTextRSXform(const void* ptr, size_t len,
-                           const SkRSXform* xforms, const SkRect* cull,
-                           const SkPaint& paint) override {
-        fTarget->drawTextRSXform(ptr, len, xforms, cull, fXformer->apply(paint));
-    }
     void onDrawTextBlob(const SkTextBlob* blob,
                         SkScalar x, SkScalar y,
                         const SkPaint& paint) override {
