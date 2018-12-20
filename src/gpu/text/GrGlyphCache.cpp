@@ -192,7 +192,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID packed) {
+GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph) {
     SkIRect bounds;
 
     bounds.setXYWH(skGlyph.fLeft, skGlyph.fTop, skGlyph.fWidth, skGlyph.fHeight);
@@ -202,7 +202,8 @@ GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph, GrGlyph::PackedID p
     GrGlyph::MaskStyle maskStyle = (SkMask::Format)skGlyph.fMaskFormat == SkMask::kSDF_Format
                                    ? GrGlyph::MaskStyle::kDistance_MaskStyle
                                    : GrGlyph::MaskStyle::kCoverage_MaskStyle;
-    GrGlyph* glyph = fAlloc.make<GrGlyph>(packed, bounds, format, maskStyle);
+    GrGlyph* glyph = fAlloc.make<GrGlyph>(
+            GrGlyph::FromSkGlyph(skGlyph), bounds, format, maskStyle);
     fCache.add(glyph);
     return glyph;
 }

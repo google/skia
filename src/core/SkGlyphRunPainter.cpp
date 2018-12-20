@@ -633,11 +633,7 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
                                   const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
                                   SkPoint origin, SkScalar textRatio, bool needsTransform) {
 
-    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
-                                         skGlyph.getSubXFixed(),
-                                         skGlyph.getSubYFixed(),
-                                         maskStyle);
-    GrGlyph* glyph = strike->getGlyph(skGlyph, id);
+    GrGlyph* glyph = strike->getGlyph(skGlyph);
     if (!glyph) {
         return;
     }
@@ -666,7 +662,6 @@ void GrTextBlob::Run::appendGlyph(GrTextBlob* blob,
         subRun->appendGlyph(blob, glyph, glyphRect);
     }
 }
-
 
 void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                                           const GrShaderCaps& shaderCaps,
