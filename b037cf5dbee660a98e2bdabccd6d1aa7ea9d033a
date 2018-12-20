@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2f83209_034e8024",
+        "filename": "src/core/SkClipStack.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-20T21:44:52Z",
+      "side": 1,
+      "message": "Maybe we can have a single proxy provider for all msgs and assert that they\u0027re the same on subsequent calls?",
+      "range": {
+        "startLine": 219,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 45
+      },
+      "revId": "b037cf5dbee660a98e2bdabccd6d1aa7ea9d033a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e21e194_a071fa58",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-12-20T21:44:52Z",
+      "side": 1,
+      "message": "extra space?",
+      "range": {
+        "startLine": 192,
+        "startChar": 37,
+        "endLine": 192,
+        "endChar": 38
+      },
+      "revId": "b037cf5dbee660a98e2bdabccd6d1aa7ea9d033a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
