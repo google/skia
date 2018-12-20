@@ -40,6 +40,10 @@ public:
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
+    void postify(std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) {
+        fContext->postify(std::move(msg));
+    }
+
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
                                                       sk_sp<SkColorSpace> = nullptr,
                                                       const SkSurfaceProps* = nullptr);

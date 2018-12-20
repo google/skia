@@ -60,6 +60,10 @@ protected:
         return nullptr;
     }
 
+    void postify(std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) override {
+
+    }
+
 private:
     typedef GrContext INHERITED;
 };

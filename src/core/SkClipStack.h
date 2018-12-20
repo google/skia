@@ -19,6 +19,8 @@
 #include "SkTLazy.h"
 
 #if SK_SUPPORT_GPU
+class GrContext;
+
 #include "GrResourceKey.h"
 #endif
 
@@ -81,13 +83,7 @@ public:
             this->initPath(0, path, m, op, doAA);
         }
 
-        ~Element() {
-#if SK_SUPPORT_GPU
-            for (int i = 0; i < fMessages.count(); ++i) {
-                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fMessages[i]);
-            }
-#endif
-        }
+        ~Element();
 
         bool operator== (const Element& element) const;
         bool operator!= (const Element& element) const { return !(*this == element); }
@@ -182,8 +178,9 @@ public:
          * the element is destroyed because their key is based on this element's gen ID.
          */
         void addResourceInvalidationMessage(
+                GrContext* context,
                 std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) const {
-            fMessages.emplace_back(std::move(msg));
+            fMessages1.emplace_back(context, std::move(msg));
         }
 #endif
 
@@ -216,7 +213,17 @@ public:
 
         uint32_t fGenID;
 #if SK_SUPPORT_GPU
-        mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
+        struct MsgPair {
+            MsgPair(GrContext* context, std::unique_ptr<GrUniqueKeyInvalidatedMessage> message)
+                    : fContext(context)
+                    , fMessage(std::move(message)) {
+            }
+
+            GrContext* fContext;
+            std::unique_ptr<GrUniqueKeyInvalidatedMessage> fMessage;
+        };
+
+        mutable SkTArray<MsgPair> fMessages1;
 #endif
         Element(int saveCount) {
             this->initCommon(saveCount, kReplace_SkClipOp, false);

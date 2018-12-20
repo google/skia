@@ -21,7 +21,7 @@
 #include "SkTo.h"
 #include <atomic>
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
+//DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
 
@@ -591,6 +591,7 @@ void GrResourceCache::processInvalidUniqueKeys(
 
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
+            SkDebugf("removing unique key on %d\n", resource->uniqueID().asUInt());
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }

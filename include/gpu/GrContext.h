@@ -291,7 +291,9 @@ protected:
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    const GrBackendApi                         fBackend;
+    virtual void postify(std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) = 0;
+
+    const GrBackendApi                      fBackend;
     sk_sp<const GrCaps>                     fCaps;
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
     sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
@@ -426,7 +428,7 @@ private:
 
     sk_sp<const GrCaps>         fCaps;
     const uint32_t              fContextUniqueID;
-    const GrBackendApi             fBackend;
+    const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 
