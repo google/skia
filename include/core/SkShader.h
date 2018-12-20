@@ -40,22 +40,25 @@ class GrFragmentProcessor;
 class SK_API SkShader : public SkFlattenable {
 public:
     enum TileMode {
-        /** replicate the edge color if the shader draws outside of its
-         *  original bounds
+        /**
+         *  Replicate the edge color if the shader draws outside of its
+         *  original bounds.
          */
         kClamp_TileMode,
 
-        /** repeat the shader's image horizontally and vertically */
+        /**
+         *  Repeat the shader's image horizontally and vertically.
+         */
         kRepeat_TileMode,
 
-        /** repeat the shader's image horizontally and vertically, alternating
-         *  mirror images so that adjacent images always seam
+        /**
+         *  Repeat the shader's image horizontally and vertically, alternating
+         *  mirror images so that adjacent images always seam.
          */
         kMirror_TileMode,
 
         /**
          *  Only draw within the original domain, return transparent-black everywhere else.
-         *  EXPERIMENTAL -- DO NOT USE YET
          */
         kDecal_TileMode,
 
