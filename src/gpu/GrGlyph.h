@@ -30,18 +30,19 @@ struct GrGlyph {
 
     typedef uint32_t PackedID;
 
-    GrDrawOpAtlas::AtlasID fID;
-    PackedID              fPackedID;
-    GrMaskFormat          fMaskFormat;
-    GrIRect16             fBounds;
-    SkIPoint16            fAtlasLocation;
+    GrDrawOpAtlas::AtlasID fID{GrDrawOpAtlas::kInvalidAtlasID};
+    PackedID               fPackedID;
+    GrMaskFormat           fMaskFormat;
+    GrIRect16              fBounds;
+    SkIPoint16             fAtlasLocation{0, 0};
+    MaskStyle              fMaskStyle;
 
-    void init(GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format) {
-        fID = GrDrawOpAtlas::kInvalidAtlasID;
+    void init(
+            GrGlyph::PackedID packed, const SkIRect& bounds, GrMaskFormat format, MaskStyle style) {
         fPackedID = packed;
         fBounds.set(bounds);
         fMaskFormat = format;
-        fAtlasLocation.set(0, 0);
+        fMaskStyle = style;
     }
 
     int width() const { return fBounds.width(); }
@@ -49,6 +50,7 @@ struct GrGlyph {
     bool isEmpty() const { return fBounds.isEmpty(); }
     uint16_t glyphID() const { return UnpackID(fPackedID); }
     uint32_t pageIndex() const { return GrDrawOpAtlas::GetPageIndexFromID(fID); }
+    MaskStyle maskStyle() const { return fMaskStyle; }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -70,10 +72,6 @@ struct GrGlyph {
 
     static inline SkFixed UnpackFixedY(PackedID packed) {
         return ((packed >> 16) & 3) << 14;
-    }
-
-    static inline MaskStyle UnpackMaskStyle(PackedID packed) {
-        return ((packed >> 20) & 1) ? kDistance_MaskStyle : kCoverage_MaskStyle;
     }
 
     static inline uint16_t UnpackID(PackedID packed) {
