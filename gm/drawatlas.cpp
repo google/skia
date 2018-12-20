@@ -204,6 +204,36 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
     }
 }
 
+#include "SkTextBlob.h"
+
+// Exercise xform blob and its bounds
+DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
+    SkFont font;
+    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setSize(50);
+
+    const char text[] = "CrazyXform";
+    constexpr size_t len = sizeof(text) - 1;
+
+    SkRSXform xforms[len];
+    SkScalar scale = 1;
+    SkScalar x = 0, y = 0;
+    for (size_t i = 0; i < len; ++i) {
+        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        xforms[i] = SkRSXform::Make(scale, 0, x, y);
+        x += 50 * scale;
+    }
+
+    auto blob = SkTextBlob::MakeFromRSXform(text, len, xforms, font);
+
+    SkPoint offset = { 20, 70 };
+    SkPaint paint;
+    paint.setColor(0xFFCCCCCC);
+    canvas->drawRect(blob->bounds().makeOffset(offset.fX, offset.fY), paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawTextBlob(blob, offset.fX, offset.fY, paint);
+}
+
 #include "Resources.h"
 #include "SkColorFilter.h"
 #include "SkVertices.h"

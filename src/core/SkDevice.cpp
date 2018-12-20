@@ -327,7 +327,8 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 #include "SkUtils.h"
 
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
-                                       const SkRSXform xform[], int count, const SkPaint& paint) {
+                                       const SkRSXform xform[], int count, SkPoint origin,
+                                       const SkPaint& paint) {
     const SkMatrix originalCTM = this->ctm();
     if (!originalCTM.isFinite() || !SkScalarIsFinite(font.getSize()) ||
         !SkScalarIsFinite(font.getScaleX()) ||
@@ -335,11 +336,11 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         return;
     }
 
-    SkPoint origin{0, 0};    // we're at the origin
+    SkPoint sharedPos{0, 0};    // we're at the origin
     SkGlyphID glyphID;
     SkGlyphRun glyphRun{
         font,
-        SkSpan<const SkPoint>{&origin, 1},
+        SkSpan<const SkPoint>{&sharedPos, 1},
         SkSpan<const SkGlyphID>{&glyphID, 1},
         SkSpan<const char>{},
         SkSpan<const uint32_t>{}
@@ -350,7 +351,7 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         // now "glyphRun" is pointing at the current glyphID
 
         SkMatrix ctm;
-        ctm.setRSXform(xform[i]);
+        ctm.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
 
         // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick

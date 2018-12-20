@@ -236,7 +236,7 @@ protected:
     virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
 
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
-                             const SkPaint& paint);
+                             SkPoint origin, const SkPaint& paint);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 

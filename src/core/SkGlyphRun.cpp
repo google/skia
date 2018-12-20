@@ -220,7 +220,7 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
                 }
 
                 device->drawGlyphRunRSXform(it.font(), it.glyphs(), (const SkRSXform*)it.pos(),
-                                            runSize, paint);
+                                            runSize, origin, paint);
 
                 // re-init in case we keep looping and need the builder again
                 this->initialize(totalGlyphs);
