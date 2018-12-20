@@ -26,6 +26,7 @@
 
 #include <atomic>
 
+struct SkRSXform;
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
@@ -57,6 +58,8 @@ public:
         the the blob.
 
         Pass nullptr for intervals to determine the size of the interval array.
+
+        Runs within the blob that contain SkRSXforms are ignored when computing intercepts.
 
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
@@ -126,6 +129,11 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
                                              const SkPoint pos[], const SkFont& font,
+                                             SkTextEncoding encoding = kUTF8_SkTextEncoding);
+
+    // Experimental
+    static sk_sp<SkTextBlob> MakeFromRSXform(const void* text, size_t byteLength,
+                                             const SkRSXform xform[], const SkFont& font,
                                              SkTextEncoding encoding = kUTF8_SkTextEncoding);
 
     /** Writes data to allow later reconstruction of SkTextBlob. memory points to storage
@@ -332,6 +340,9 @@ public:
     const RunBuffer& allocRunPos(const SkFont& font, int count,
                                  const SkRect* bounds = nullptr);
 
+    // Experimental, RunBuffer.pos points to SkRSXforms
+    const RunBuffer& allocRunRSXform(const SkFont& font, int count);
+
 private:
     const RunBuffer& allocRunText(const SkFont& font,
                                   int count,
@@ -346,6 +357,10 @@ private:
     const RunBuffer& allocRunTextPos(const SkFont& font, int count,
                                      int textByteCount, SkString lang,
                                      const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunRSXform(const SkFont& font, int count,
+                                     int textByteCount, SkString lang,
+                                     const SkRect* bounds = nullptr);
+
     void reserve(size_t size);
     void allocInternal(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);

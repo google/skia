@@ -192,7 +192,8 @@ public:
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
-        kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
+        kFull_Positioning         = 2, // Point positioning -- two scalars per glyph.
+        kRSXform_Positioning      = 3, // RSXform positioning -- four scalars per glyph.
     };
 
     bool done() const {

@@ -2517,22 +2517,7 @@ void SkCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattic
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
-    if (cullRect && this->quickReject(*cullRect)) {
-        return;
-    }
-
-    LOOPER_BEGIN(paint, nullptr)
-
-    while (iter.next()) {
-        fScratchGlyphRunBuilder->drawTextAtOrigin(paint, text, len);
-        auto list = fScratchGlyphRunBuilder->useGlyphRunList();
-        if (!list.empty()) {
-            auto glyphRun = list[0];
-            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform, paint);
-        }
-    }
-
-    LOOPER_END
+    SkASSERT(false);
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -2553,8 +2538,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     LOOPER_BEGIN(paint, bounds)
 
     while (iter.next()) {
-        fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, SkPoint::Make(x, y));
-        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder->useGlyphRunList());
+        fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, {x, y}, iter.fDevice);
     }
 
     LOOPER_END
@@ -2609,7 +2593,10 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        const SkTextEncoding encoding = paint.getTextEncoding();
+        this->drawTextBlob(SkTextBlob::MakeFromRSXform(text, byteLength, xform, font, encoding),
+                           0, 0, paint);
     }
 }
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
