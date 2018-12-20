@@ -440,7 +440,7 @@ static void serialize_stream(const SkPDFDict* origDict,
         deflateWStream.finalize();
         #ifdef SK_PDF_BASE85_BINARY
         {
-            SkPDFUtils::Base85Encode(&compressedData);
+            SkPDFUtils::Base85Encode(compressedData.detachAsStream(), &compressedData);
             tmp = compressedData.detachAsStream();
             stream = tmp.get();
             auto filters = SkPDFMakeArray();
