@@ -2035,7 +2035,7 @@ Call <a href='#SkCanvas_restoreToCount'>restoreToCount</a>() with returned value
 
 ### Return Value
 
-depth of save  <a href='#State_Stack'>state stack</a>
+depth of save  <a href='#State_Stack'>state stack</a> before this call was made.
 
 ### Example
 
