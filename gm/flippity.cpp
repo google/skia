@@ -116,7 +116,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
     }
 
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
-                                   std::move(proxy), nullptr, SkBudgeted::kYes);
+                                   std::move(proxy), nullptr);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended

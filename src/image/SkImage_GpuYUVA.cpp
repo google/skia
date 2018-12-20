@@ -28,14 +28,12 @@
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace, sk_sp<GrTextureProxy> proxies[],
                                  int numProxies, const SkYUVAIndex yuvaIndices[4],
-                                 GrSurfaceOrigin origin, sk_sp<SkColorSpace> imageColorSpace,
-                                 SkBudgeted budgeted)
+                                 GrSurfaceOrigin origin, sk_sp<SkColorSpace> imageColorSpace)
         : INHERITED(std::move(context), width, height, uniqueID,
                     // If an alpha channel is present we always switch to kPremul. This is because,
                     // although the planar data is always un-premul, the final interleaved RGB image
                     // is/would-be premul.
-                    GetAlphaTypeFromYUVAIndices(yuvaIndices),
-                    budgeted, imageColorSpace)
+                    GetAlphaTypeFromYUVAIndices(yuvaIndices), imageColorSpace)
         , fNumProxies(numProxies)
         , fYUVColorSpace(colorSpace)
         , fOrigin(origin) {
@@ -143,8 +141,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), imageSize.width(), imageSize.height(),
                                        kNeedNewImageUniqueID, colorSpace, tempTextureProxies,
-                                       numTextures, yuvaIndices, imageOrigin, imageColorSpace,
-                                       SkBudgeted::kYes);
+                                       numTextures, yuvaIndices, imageOrigin, imageColorSpace);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
@@ -204,8 +201,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageSize.width(), imageSize.height(),
                                        kNeedNewImageUniqueID, yuvColorSpace, tempTextureProxies,
-                                       numPixmaps, yuvaIndices, imageOrigin, imageColorSpace,
-                                       SkBudgeted::kYes);
+                                       numPixmaps, yuvaIndices, imageOrigin, imageColorSpace);
 }
 
 
@@ -291,7 +287,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageWidth, imageHeight,
                                        kNeedNewImageUniqueID, yuvColorSpace, proxies, numTextures,
-                                       yuvaIndices, imageOrigin, std::move(imageColorSpace),
-                                       SkBudgeted::kNo);
+                                       yuvaIndices, imageOrigin, std::move(imageColorSpace));
 }
 

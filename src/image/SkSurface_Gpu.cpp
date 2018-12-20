@@ -119,7 +119,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcProxy->priv().isExact());
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, info.alphaType(),
-                                        std::move(srcProxy), info.refColorSpace(), budgeted);
+                                        std::move(srcProxy), info.refColorSpace());
     }
     return image;
 }

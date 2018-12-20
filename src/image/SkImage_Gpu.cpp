@@ -44,10 +44,9 @@
 #include "gl/GrGLTexture.h"
 
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
-                         sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace,
-                         SkBudgeted budgeted)
+                         sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID,
-                    at, budgeted, colorSpace)
+                    at, colorSpace)
         , fProxy(std::move(proxy)) {}
 
 SkImage_Gpu::~SkImage_Gpu() {}
@@ -81,7 +80,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at, std::move(proxy),
-                                   std::move(colorSpace), SkBudgeted::kNo);
+                                   std::move(colorSpace));
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
@@ -115,10 +114,11 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                       kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
-sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
-        GrContext* ctx, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvaTextures[],
-        const SkYUVAIndex yuvaIndices[4], SkISize size, GrSurfaceOrigin origin,
-        SkBudgeted isBudgeted, GrRenderTargetContext* renderTargetContext) {
+sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
+                                                     const GrBackendTexture yuvaTextures[],
+                                                     const SkYUVAIndex yuvaIndices[4], SkISize size,
+                                                     GrSurfaceOrigin origin,
+                                                     GrRenderTargetContext* renderTargetContext) {
     SkASSERT(renderTargetContext);
 
     int numTextures;
@@ -142,8 +142,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at,
                                    renderTargetContext->asTextureProxyRef(),
-                                   renderTargetContext->colorSpaceInfo().refColorSpace(),
-                                   isBudgeted);
+                                   renderTargetContext->colorSpaceInfo().refColorSpace());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
@@ -169,8 +168,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
     }
 
     return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
-                                                 imageSize, imageOrigin, SkBudgeted::kYes,
-                                                 renderTargetContext.get());
+                                                 imageSize, imageOrigin, renderTargetContext.get());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
@@ -202,8 +200,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     }
 
     return SkImage_Gpu::ConvertYUVATexturesToRGB(ctx, yuvColorSpace, yuvaTextures, yuvaIndices,
-                                                 imageSize, imageOrigin, SkBudgeted::kNo,
-                                                 renderTargetContext.get());
+                                                 imageSize, imageOrigin, renderTargetContext.get());
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
@@ -277,7 +274,7 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), id, at, std::move(proxy),
-                                   sk_ref_sp(producer->colorSpace()), SkBudgeted::kNo);
+                                   sk_ref_sp(producer->colorSpace()));
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
@@ -364,7 +361,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
-                                   std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
+                                   std::move(proxy), std::move(colorSpace));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
