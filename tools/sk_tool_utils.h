@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFontStyle.h"
+#include "SkFontTypes.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkRandom.h"
@@ -26,6 +27,7 @@
 
 class SkBitmap;
 class SkCanvas;
+class SkFont;
 class SkFontStyle;
 class SkImage;
 class SkPaint;
@@ -77,6 +79,9 @@ namespace sk_tool_utils {
     static inline sk_sp<SkTypeface> create_portable_typeface() {
         return create_portable_typeface(nullptr, SkFontStyle());
     }
+
+    void get_text_path(const SkFont&, const void* text, size_t length, SkTextEncoding, SkPath*,
+                       const SkPoint* positions = nullptr);
 
     /**
      *  Call writePixels() by using the pixels from bitmap, but with an info that claims
