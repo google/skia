@@ -223,7 +223,6 @@ SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) {
 void SkPDFDocument::endObject() {
     fObjectSerializer.endObject(this->getStream());
     fMutex.release();
-    fSemaphore.signal();
 };
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
@@ -296,6 +295,7 @@ void SkPDFDocument::onEndPage() {
 }
 
 void SkPDFDocument::onAbort() {
+    this->waitForJobs();
     this->reset();
 }
 
@@ -472,6 +472,7 @@ static std::vector<const SkPDFFont*> get_fonts(const SkPDFCanon& canon) {
 void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
+        this->waitForJobs();
         this->reset();
         return;
     }
@@ -505,14 +506,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     for (const SkPDFFont* f : get_fonts(fCanon)) {
         f->emitSubset(this);
     }
-
-    int waits = 0;
-    // fNextObjectNumber can increase while we wait.
-    while (waits + 1 < fNextObjectNumber.load()) {
-        fSemaphore.wait();
-        ++waits;
-    }
-
+    this->waitForJobs();
     {
         SkAutoMutexAcquire autoMutexAcquire(fMutex);
         fObjectSerializer.serializeFooter(this->getStream(), fInfoDict, docCatalogRef, fUUID);
@@ -520,6 +514,17 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     this->reset();
 }
 
+void SkPDFDocument::incrementJobCount() { fJobCount++; }
+
+void SkPDFDocument::signalJobComplete() { fSemaphore.signal(); }
+
+void SkPDFDocument::waitForJobs() {
+     // fJobCount can increase while we wait.
+     while (fJobCount > 0) {
+         fSemaphore.wait();
+         --fJobCount;
+     }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

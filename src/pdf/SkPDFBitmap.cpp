@@ -310,9 +310,11 @@ SkPDFIndirectReference SkPDFSerializeImage(const SkImage* img,
     SkPDFIndirectReference ref = doc->reserveRef();
     if (SkExecutor* executor = doc->executor()) {
         SkRef(img);
+        doc->incrementJobCount();
         executor->add([img, encodingQuality, doc, ref]() {
             serialize_image(img, encodingQuality, doc, ref);
             SkSafeUnref(img);
+            doc->signalJobComplete();
         });
         return ref;
     }
