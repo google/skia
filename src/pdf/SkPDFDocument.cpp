@@ -9,8 +9,12 @@
 #include "SkPDFDocumentPriv.h"
 
 #include "SkMakeUnique.h"
-#include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
+#include "SkPDFFont.h"
+#include "SkPDFGradientShader.h"
+#include "SkPDFGraphicState.h"
+#include "SkPDFShader.h"
 #include "SkPDFTag.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
@@ -290,22 +294,6 @@ void SkPDFDocument::onEndPage() {
 
 void SkPDFDocument::onAbort() {
     this->waitForJobs();
-    this->reset();
-}
-
-void SkPDFDocument::reset() {
-    reset_object(&fOffsetMap);
-    fCanon = SkPDFCanon();
-    reset_object(&fCanvas);
-    fPages = std::vector<std::unique_ptr<SkPDFDict>>();
-    fPageRefs = std::vector<SkPDFIndirectReference>();
-    reset_object(&fDests);
-    fPageDevice = nullptr;
-    fUUID = SkUUID();
-    fXMP = SkPDFIndirectReference();
-    fMetadata = SkPDF::Metadata();
-    fRasterScale = 1;
-    fInverseRasterScale = 1;
 }
 
 static sk_sp<SkData> SkSrgbIcm() {
@@ -452,7 +440,7 @@ int SkPDFDocument::getMarkIdForNodeId(int nodeId) {
     return fTagTree.getMarkIdForNodeId(nodeId, SkToUInt(this->currentPageIndex()));
 }
 
-static std::vector<const SkPDFFont*> get_fonts(const SkPDFCanon& canon) {
+static std::vector<const SkPDFFont*> get_fonts(const SkPDFDocument& canon) {
     std::vector<const SkPDFFont*> fonts;
     fonts.reserve(canon.fFontMap.count());
     // Sort so the output PDF is reproducible.
@@ -467,7 +455,6 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
         this->waitForJobs();
-        this->reset();
         return;
     }
     auto docCatalog = SkPDFMakeDict("Catalog");
@@ -497,7 +484,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
     auto docCatalogRef = this->emit(*docCatalog);
 
-    for (const SkPDFFont* f : get_fonts(fCanon)) {
+    for (const SkPDFFont* f : get_fonts(*this)) {
         f->emitSubset(this);
     }
 
@@ -506,7 +493,6 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         SkAutoMutexAcquire autoMutexAcquire(fMutex);
         serialize_footer(fOffsetMap, this->getStream(), fInfoDict, docCatalogRef, fUUID);
     }
-    this->reset();
 }
 
 void SkPDFDocument::incrementJobCount() { fJobCount++; }

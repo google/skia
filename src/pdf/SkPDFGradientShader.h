@@ -37,8 +37,6 @@ struct KeyHash {
     uint32_t operator()(const Key& k) const { return k.fHash; }
 };
 
-using HashMap = SkTHashMap<Key, SkPDFIndirectReference, KeyHash>;
-
 inline bool operator==(const SkShader::GradientInfo& u, const SkShader::GradientInfo& v) {
     return u.fColorCount    == v.fColorCount
         && u.fPoint[0]      == v.fPoint[0]

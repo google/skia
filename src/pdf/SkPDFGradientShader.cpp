@@ -8,7 +8,7 @@
 #include "SkPDFGradientShader.h"
 
 #include "SkOpts.h"
-#include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -896,7 +896,7 @@ static SkPDFIndirectReference find_pdf_shader(SkPDFDocument* doc,
                                               SkPDFGradientShader::Key key,
                                               bool keyHasAlpha) {
     SkASSERT(gradient_has_alpha(key) == keyHasAlpha);
-    auto& gradientPatternMap = doc->canon()->fGradientPatternMap;
+    auto& gradientPatternMap = doc->fGradientPatternMap;
     if (SkPDFIndirectReference* ptr = gradientPatternMap.find(key)) {
         return *ptr;
     }

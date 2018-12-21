@@ -9,7 +9,7 @@
 #include "SkPDFShader.h"
 
 #include "SkData.h"
-#include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
@@ -350,13 +350,12 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
     SkASSERT(shader->asAGradient(nullptr) == SkShader::kNone_GradientType) ;
     if (SkImage* skimg = shader->isAImage(&key.fShaderTransform, key.fImageTileModes)) {
         key.fBitmapKey = SkBitmapKeyFromImage(skimg);
-        SkPDFCanon* canon = doc->canon();
-        SkPDFIndirectReference* shaderPtr = canon->fImageShaderMap.find(key);
+        SkPDFIndirectReference* shaderPtr = doc->fImageShaderMap.find(key);
         if (shaderPtr) {
             return *shaderPtr;
         }
         SkPDFIndirectReference pdfShader = make_image_shader(doc, key, skimg);
-        canon->fImageShaderMap.set(std::move(key), pdfShader);
+        doc->fImageShaderMap.set(std::move(key), pdfShader);
         return pdfShader;
     }
     // Don't bother to de-dup fallback shader.

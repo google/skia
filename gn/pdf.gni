@@ -20,8 +20,6 @@ skia_pdf_sources = [
   "$_src/pdf/SkKeyedImage.h",
   "$_src/pdf/SkPDFBitmap.cpp",
   "$_src/pdf/SkPDFBitmap.h",
-  "$_src/pdf/SkPDFCanon.cpp",
-  "$_src/pdf/SkPDFCanon.h",
   "$_src/pdf/SkPDFConvertType1FontStream.cpp",
   "$_src/pdf/SkPDFConvertType1FontStream.h",
   "$_src/pdf/SkPDFDevice.cpp",
