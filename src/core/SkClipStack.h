@@ -20,7 +20,7 @@
 
 #if SK_SUPPORT_GPU
 class GrProxyProvider;
-
+a
 #include "GrResourceKey.h"
 #endif
 
