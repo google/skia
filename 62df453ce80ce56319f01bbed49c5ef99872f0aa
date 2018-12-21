@@ -63,6 +63,24 @@
       "revId": "62df453ce80ce56319f01bbed49c5ef99872f0aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "377c2ed5_41b921d5",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-12-21T14:26:47Z",
+      "side": 1,
+      "message": "ooops, didn\u0027t mean to submit this size tracking (was just gathering info locally). will remove.",
+      "parentUuid": "a0f1b629_2b8c68ff",
+      "revId": "62df453ce80ce56319f01bbed49c5ef99872f0aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
