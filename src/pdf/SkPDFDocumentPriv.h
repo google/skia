@@ -22,38 +22,18 @@ class SkExecutor;
 
 const char* SkPDFGetNodeIdKey();
 
-struct SkPDFFileOffset {
-    int fValue;
-};
-
-struct SkPDFOffsetMap {
-    void set(SkPDFIndirectReference, SkPDFFileOffset);
-    SkPDFFileOffset get(SkPDFIndirectReference r);
-    std::vector<SkPDFFileOffset> fOffsets;
-};
-
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
-struct SkPDFObjectSerializer {
-    SkPDFOffsetMap fOffsets;
+class SkPDFOffsetMap {
+public:
+    void markStartOfDocument(const SkWStream*);
+    void markStartOfObject(int referenceNumber, const SkWStream*);
+    int objectCount() const;
+    int emitCrossReferenceTable(SkWStream* s) const;
+private:
+    std::vector<int> fOffsets;
     size_t fBaseOffset = SIZE_MAX;
-
-    SkPDFObjectSerializer();
-    ~SkPDFObjectSerializer();
-
-    void beginObject(SkPDFIndirectReference, SkWStream*);
-    void endObject(SkWStream*);
-    void serializeHeader(SkWStream*);
-    void serializeFooter(SkWStream*,
-                         SkPDFIndirectReference infoDict,
-                         SkPDFIndirectReference docCatalog,
-                         SkUUID uuid);
-    SkPDFFileOffset offset(SkWStream*);
-
-    SkPDFObjectSerializer(SkPDFObjectSerializer&&) = delete;
-    SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&) = delete;
-    SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
-    SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
+    int offset(const SkWStream*) const;
 };
 
 /** Concrete implementation of SkDocument that creates PDF files. This
@@ -95,7 +75,7 @@ public:
     size_t pageCount() { return fPageRefs.size(); }
 
 private:
-    SkPDFObjectSerializer fObjectSerializer;
+    SkPDFOffsetMap fOffsetMap;
     SkPDFCanon fCanon;
     SkCanvas fCanvas;
     std::vector<std::unique_ptr<SkPDFDict>> fPages;
