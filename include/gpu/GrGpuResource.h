@@ -10,7 +10,7 @@
 
 #include "../private/GrTypesPriv.h"
 #include "../private/SkNoncopyable.h"
-#include "GrResourceKey.h"
+#include "../private/GrResourceKey.h"
 
 class GrContext;
 class GrGpu;
