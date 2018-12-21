@@ -197,7 +197,7 @@ public:
     }
 
     static int AllOnOneSide(SkOpAngle& lh, SkOpAngle& rh) {
-        return lh.allOnOneSide(&rh);
+        return lh.lineOnOneSide(&rh, false);
     }
 
     static int ConvexHullOverlaps(SkOpAngle& lh, SkOpAngle& rh) {
