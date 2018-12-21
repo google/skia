@@ -484,10 +484,12 @@ SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
         SkStreamAsset* contentPtr = content.release();
         // Pass ownership of both pointers into a std::function, which should
         // only be executed once.
+        doc->incrementJobCount();
         executor->add([dictPtr, contentPtr, deflate, doc, ref]() {
             serialize_stream(dictPtr, contentPtr, deflate, doc, ref);
             delete dictPtr;
             delete contentPtr;
+            doc->signalJobComplete();
         });
         return ref;
     }
