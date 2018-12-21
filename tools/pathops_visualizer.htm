@@ -1,1026 +1,538 @@
 <html>
 <head>
 <div height="0" hidden="true">
-<div id="crbug_526025">
+<div id="bug8380">
 SkDCubic::ComplexBreak
-{{{360, -2147483648}, {593011648, -2147483520}, {1073742208, -1666752896}, {1073742080, -1073741568}}},
-maxCurvature[0]=0.500000161 {{{-406603233.5424470901, -2998846434.998814106}, {1925104612.000926018, -667136804.5425114632}}},
-seg=1 {{{360, -2147483648}, {593011648, -2147483520}, {1073742208, -1666752896}, {1073742080, -1073741568}}}
-seg=2 {{{1073742080, -1073741568}, {1073742080, -480730560}, {593011840, -135.508026f}, {905.953125f, 255.999786f}}}
-seg=3 {{{905.953125f, 255.999786f}, {815.80835f, 897.304565f}}}
-seg=4 {{{815.80835f, 897.304565f}, {213.229446f, 572.949036f}}}
-seg=5 {{{213.229446f, 572.949036f}, {32, 16}}}
-seg=6 {{{32, 16}, {100, 512}}}
-seg=7 {{{100, 512}, {213.229446f, 572.949036f}}}
-seg=8 {{{213.229446f, 572.949036f}, {360, 1024}}}
-seg=9 {{{360, 1024}, {360, 4140}}}
-seg=10 {{{360, 4140}, {360, -2147483648}}}
-op union
-seg=11 {{{127, 321}, {6840, 270}}}
-seg=12 {{{6840, 270}, {-21474836480, 100000000}}}
-seg=13 {{{-21474836480, 100000000}, {2551, 64}}}
-seg=14 {{{2551, 64}, {127, 321}}}
-debugShowCubicIntersection wtTs[0]=1 {{{360,-2.14748365e+09}, {593011648,-2.14748352e+09}, {1.07374221e+09,-1.6667529e+09}, {1.07374208e+09,-1.07374157e+09}}} {{1.07374208e+09,-1.07374157e+09}} wnTs[0]=0 {{{1.07374208e+09,-1.07374157e+09}, {1.07374208e+09,-480730560}, {593011840,-135.508026}, {905.953125,255.999786}}}
-debugShowCubicLineIntersection wtTs[0]=0 {{{360,-2.14748365e+09}, {593011648,-2.14748352e+09}, {1.07374221e+09,-1.6667529e+09}, {1.07374208e+09,-1.07374157e+09}}} {{360,-2.14748365e+09}} wnTs[0]=1 {{{360,4140}, {360,-2.14748365e+09}}}
-debugShowCubicLineIntersection wtTs[0]=1 {{{1.07374208e+09,-1.07374157e+09}, {1.07374208e+09,-480730560}, {593011840,-135.508026}, {905.953125,255.999786}}} {{905.953125,255.999786}} wnTs[0]=0 {{{905.953125,255.999786}, {815.80835,897.304565}}}
-debugShowLineIntersection wtTs[0]=1 {{{905.953125,255.999786}, {815.80835,897.304565}}} {{815.80835,897.304565}} wnTs[0]=0 {{{815.80835,897.304565}, {213.229446,572.949036}}}
-debugShowLineIntersection wtTs[0]=1 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{213.229446,572.949036}} wnTs[0]=0 {{{213.229446,572.949036}, {32,16}}}
-debugShowLineIntersection wtTs[0]=1 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{213.229446,572.949036}} wnTs[0]=1 {{{100,512}, {213.229446,572.949036}}}
-debugShowLineIntersection wtTs[0]=1 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{213.229446,572.949036}} wnTs[0]=0 {{{213.229446,572.949036}, {360,1024}}}
-debugShowLineIntersection wtTs[0]=0.756429319 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{360,651.952515}} wnTs[0]=1.62425e-06 {{{360,4140}, {360,-2.14748365e+09}}}
-SkOpSegment::addT insert t=0.756429319 segID=4 spanID=29
-SkOpSegment::addT insert t=1.62424554e-06 segID=10 spanID=30
-debugShowLineIntersection wtTs[0]=1 {{{213.229446,572.949036}, {32,16}}} {{32,16}} wnTs[0]=0 {{{32,16}, {100,512}}}
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {32,16}}} {{213.229446,572.949036}} wnTs[0]=1 {{{100,512}, {213.229446,572.949036}}}
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {32,16}}} {{213.229446,572.949036}} wnTs[0]=0 {{{213.229446,572.949036}, {360,1024}}}
-debugShowLineIntersection wtTs[0]=1 {{{32,16}, {100,512}}} {{100,512}} wnTs[0]=0 {{{100,512}, {213.229446,572.949036}}}
-debugShowLineIntersection wtTs[0]=1 {{{100,512}, {213.229446,572.949036}}} {{213.229446,572.949036}} wnTs[0]=0 {{{213.229446,572.949036}, {360,1024}}}
-debugShowLineIntersection wtTs[0]=1 {{{213.229446,572.949036}, {360,1024}}} {{360,1024}} wnTs[0]=0 {{{360,1024}, {360,4140}}}
-debugShowLineIntersection wtTs[0]=1 {{{213.229446,572.949036}, {360,1024}}} {{360,1024}} wnTs[0]=1.451e-06 {{{360,4140}, {360,-2.14748365e+09}}}
-SkOpSegment::addT insert t=1.45099777e-06 segID=10 spanID=31
-debugShowLineIntersection wtTs[0]=0 {{{360,4140}, {360,-2.14748365e+09}}} {{360,4140}} wtTs[1]=1.45099777e-06 {{360,1024}} wnTs[0]=1 {{{360,1024}, {360,4140}}} wnTs[1]=0
-debugShowCubicLineIntersection wtTs[0]=1 {{{1.07374208e+09,-1.07374157e+09}, {1.07374208e+09,-480730560}, {593011840,-135.508026}, {905.953125,255.999786}}} {{905.953125,255.999786}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}}
-SkOpSegment::addT insert t=0.999999923 segID=13 spanID=32
-debugShowCubicLineIntersection no intersect {{{1.07374208e+09,-1.07374157e+09}, {1.07374208e+09,-480730560}, {593011840,-135.508026}, {905.953125,255.999786}}} {{{2551,64}, {127,321}}}
-debugShowLineIntersection wtTs[0]=0.0922268392 {{{905.953125,255.999786}, {815.80835,897.304565}}} {{897.639343,315.145294}} wnTs[0]=0.114798 {{{127,321}, {6840,270}}}
-SkOpSegment::addT insert t=0.0922268392 segID=3 spanID=33
-SkOpSegment::addT insert t=0.114798057 segID=11 spanID=34
-debugShowLineIntersection wtTs[0]=0.0649612467 {{{905.953125,255.999786}, {815.80835,897.304565}}} {{900.097229,297.65976}} wtTs[1]=1 {{815.80835,897.304565}} wnTs[0]=2.76598e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=2.80653133e-07
-SkOpSegment::addT insert t=0.0649612467 segID=3 spanID=35
-SkOpSegment::addT insert t=2.7659819e-07 segID=12 spanID=36
-SkOpSegment::addT insert t=2.80653133e-07 segID=12 spanID=37
-debugShowLineIntersection wtTs[0]=0 {{{905.953125,255.999786}, {815.80835,897.304565}}} {{905.953125,255.999786}} wtTs[1]=1 {{815.80835,897.304565}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999919
-SkOpSegment::addT insert t=0.999999919 segID=13 spanID=38
-debugShowLineIntersection no intersect {{{905.953125,255.999786}, {815.80835,897.304565}}} {{{2551,64}, {127,321}}}
-debugShowLineIntersection wtTs[0]=0 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{815.80835,897.304565}} wtTs[1]=1 {{213.229446,572.949036}} wnTs[0]=2.80653e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=3.08641951e-07
-SkOpSegment::addT insert t=3.08641951e-07 segID=12 spanID=39
-debugShowLineIntersection wtTs[0]=0 {{{815.80835,897.304565}, {213.229446,572.949036}}} {{815.80835,897.304565}} wtTs[1]=1 {{213.229446,572.949036}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999891
-SkOpSegment::addT insert t=0.999999891 segID=13 spanID=40
-debugShowLineIntersection wtTs[0]=0.452431368 {{{213.229446,572.949036}, {32,16}}} {{131.235565,320.967834}} wnTs[0]=0.000630949 {{{127,321}, {6840,270}}}
-SkOpSegment::addT insert t=0.452431368 segID=5 spanID=41
-SkOpSegment::addT insert t=0.000630948916 segID=11 spanID=42
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {32,16}}} {{213.229446,572.949036}} wtTs[1]=0.487798966 {{124.825912,301.269867}} wnTs[0]=3.08642e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=3.12699562e-07
-SkOpSegment::addT insert t=0.487798966 segID=5 spanID=43
-SkOpSegment::addT insert t=3.12699562e-07 segID=12 spanID=44
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {32,16}}} {{213.229446,572.949036}} wtTs[1]=0.892917257 {{51.4065475,75.6396332}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999884
-SkOpSegment::addT insert t=0.892917257 segID=5 spanID=45
-SkOpSegment::addT insert t=0.999999884 segID=13 spanID=46
-debugShowLineIntersection wtTs[0]=0.453154928 {{{213.229446,572.949036}, {32,16}}} {{131.104431,320.56485}} wnTs[0]=0.998307 {{{2551,64}, {127,321}}}
-SkOpSegment::addT insert t=0.453154928 segID=5 spanID=47
-SkOpSegment::addT insert t=0.998306753 segID=14 spanID=48
-debugShowLineIntersection wtTs[0]=0.575644854 {{{32,16}, {100,512}}} {{71.1438522,301.519836}} wtTs[1]=1 {{100,512}} wnTs[0]=3.15199e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=3.13901276e-07
-SkOpSegment::addT insert t=0.575644854 segID=6 spanID=49
-SkOpSegment::addT insert t=3.15199326e-07 segID=12 spanID=50
-SkOpSegment::addT insert t=3.13901276e-07 segID=12 spanID=51
-debugShowLineIntersection wtTs[0]=0.120346555 {{{32,16}, {100,512}}} {{40.183567,75.6918945}} wtTs[1]=1 {{100,512}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999886
-SkOpSegment::addT insert t=0.120346555 segID=6 spanID=52
-SkOpSegment::addT insert t=0.999999883 segID=13 spanID=53
-SkOpSegment::addT insert t=0.999999886 segID=13 spanID=54
-debugShowLineIntersection wtTs[0]=0 {{{100,512}, {213.229446,572.949036}}} {{100,512}} wtTs[1]=1 {{213.229446,572.949036}} wnTs[0]=3.13901e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=3.08641951e-07
-debugShowLineIntersection wtTs[0]=0 {{{100,512}, {213.229446,572.949036}}} {{100,512}} wtTs[1]=1 {{213.229446,572.949036}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999891
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {360,1024}}} {{213.229446,572.949036}} wtTs[1]=1 {{360,1024}} wnTs[0]=3.08642e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=3.01905369e-07
-SkOpSegment::addT insert t=3.01905369e-07 segID=12 spanID=55
-debugShowLineIntersection wtTs[0]=0 {{{213.229446,572.949036}, {360,1024}}} {{213.229446,572.949036}} wtTs[1]=1 {{360,1024}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} wnTs[1]=0.999999898
-SkOpSegment::addT insert t=0.999999898 segID=13 spanID=56
-debugShowLineIntersection wtTs[0]=3.01905369e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} {{360,1024}} wnTs[0]=0 {{{360,1024}, {360,4140}}}
-debugShowLineIntersection wtTs[0]=0.999999897 {{{-2.14748365e+10,100000000}, {2551,64}}} {{360,4140}} wnTs[0]=1 {{{360,1024}, {360,4140}}}
-SkOpSegment::addT insert t=0.999999897 segID=13 spanID=57
-debugShowLineIntersection wtTs[0]=0.034708774 {{{127,321}, {6840,270}}} {{360,319.229858}} wnTs[0]=1.77918e-06 {{{360,4140}, {360,-2.14748365e+09}}}
-SkOpSegment::addT insert t=1.77918132e-06 segID=10 spanID=58
-SkOpSegment::addT insert t=0.034708774 segID=11 spanID=59
-debugShowLineIntersection wtTs[0]=3.02581027e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} {{360,4140}} wnTs[0]=0 {{{360,4140}, {360,-2.14748365e+09}}}
-SkOpSegment::addT insert t=3.02581027e-07 segID=12 spanID=60
-debugShowLineIntersection wtTs[0]=0.999999897 {{{-2.14748365e+10,100000000}, {2551,64}}} {{360,4140}} wnTs[0]=0 {{{360,4140}, {360,-2.14748365e+09}}}
-debugShowLineIntersection wtTs[0]=0.903877888 {{{2551,64}, {127,321}}} {{360,296.296631}} wnTs[0]=1.78986e-06 {{{360,4140}, {360,-2.14748365e+09}}}
-SkOpSegment::addT insert t=1.78986041e-06 segID=10 spanID=61
-SkOpSegment::addT insert t=0.903877888 segID=14 spanID=62
-debugShowLineIntersection wtTs[0]=0 {{{127,321}, {6840,270}}} {{127,321}} wtTs[1]=1 {{6840,270}} wnTs[0]=3.12603e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} wnTs[1]=0
-SkOpSegment::addT insert t=3.12602603e-07 segID=12 spanID=63
-debugShowLineIntersection wtTs[0]=0 {{{127,321}, {6840,270}}} {{127,321}} wnTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}}
-SkOpSegment::addT insert t=0.999999887 segID=13 spanID=64
-debugShowLineIntersection wtTs[0]=0 {{{127,321}, {6840,270}}} {{127,321}} wnTs[0]=1 {{{2551,64}, {127,321}}}
-debugShowLineIntersection wtTs[0]=1 {{{6840,270}, {-2.14748365e+10,100000000}}} {{-2.14748365e+10,100000000}} wnTs[0]=0 {{{-2.14748365e+10,100000000}, {2551,64}}}
-debugShowLineIntersection wtTs[0]=3.03529974e-07 {{{6840,270}, {-2.14748365e+10,100000000}}} {{321.741364,300.352905}} wnTs[0]=0.919661 {{{2551,64}, {127,321}}}
-SkOpSegment::addT insert t=3.03529974e-07 segID=12 spanID=65
-SkOpSegment::addT insert t=0.919661149 segID=14 spanID=66
-debugShowLineIntersection wtTs[0]=1 {{{-2.14748365e+10,100000000}, {2551,64}}} {{2551,64}} wnTs[0]=0 {{{2551,64}, {127,321}}}
---x---x----------xx-xxxx----------x--- addExpanded
-00:  seg/base=13/38 coinSeg/Span/PtT=13/54/54 MergeMatches
-01:  seg/base=12/37 coinSeg/Span/PtT=12/51/51 MergeMatches
-02:  seg/base=13/38 coinSeg/Span/PtT=13/54/54 MergeMatches
-03:  seg/base=12/37 coinSeg/Span/PtT=12/51/51 MergeMatches
-04:  seg/base=13/38 coinSeg/Span/PtT=13/54/54 MergeMatches
-05:  seg/base=12/37 coinSeg/Span/PtT=12/51/51 MergeMatches
-06:  seg/base=13/38 coinSeg/Span/PtT=13/54/54 MergeMatches
-07:  seg/base=12/37 coinSeg/Span/PtT=12/51/51 MergeMatches
-08:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-09:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-10:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-11:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-12:  seg/base=13/40 coinSeg/Span/PtT=13/54/54 MergeMatches
-13:  seg/base=12/39 coinSeg/Span/PtT=12/51/51 MergeMatches
-14:  segment=7 MergeMatches
-15:  seg/base=13/40 coinSeg/Span/PtT=13/54/54 MergeMatches
-16:  seg/base=12/39 coinSeg/Span/PtT=12/51/51 MergeMatches
-17:  segment=7 MergeMatches
-18:  seg/base=13/54 coinSeg/Span/PtT=13/64/64 MergeMatches
-19:  seg/base=12/51 coinSeg/Span/PtT=12/63/63 MergeMatches
-20:  seg/base=13/54 coinSeg/Span/PtT=13/64/64 MergeMatches
-21:  seg/base=12/51 coinSeg/Span/PtT=12/63/63 MergeMatches
-22:  seg/base=13/54 coinSeg/Span/PtT=13/53/53 MergeMatches
-23:  seg/base=6/52 coinSeg/Span/PtT=6/12/12 MergeMatches
-24:  seg/base=13/54 coinSeg/Span/PtT=13/53/53 MergeMatches
-25:  seg/base=6/52 coinSeg/Span/PtT=6/12/12 MergeMatches
-26:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-27:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-28:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-29:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-30:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-31:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-32:  seg/base=13/40 coinSeg/Span/PtT=13/46/46 MergeMatches
-33:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-34:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-35:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-36:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-37:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-38:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-39:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-40:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-41:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-42:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-43:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-44:  segment=9 MergeMatches
-45:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-46:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-47:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-48:  segment=9 MergeMatches
-49:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-50:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=9/18/18 oppEndSpan=17 MissingCoin
-51:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=9/17/17 oppEndSpan=18 MissingCoin
-52:  seg/base=13/57 coinSeg/Span/PtT=13/54/54 MergeMatches
-53:  seg/base=12/60 coinSeg/Span/PtT=12/51/51 MergeMatches
-54:  seg/base=13/57 coinSeg/Span/PtT=13/54/54 MergeMatches
-55:  seg/base=12/60 coinSeg/Span/PtT=12/51/51 MergeMatches
-56:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-57:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-58:  seg/base=13/56 coinSeg/Span/PtT=13/54/54 MergeMatches
-59:  seg/base=12/55 coinSeg/Span/PtT=12/51/51 MergeMatches
-60:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=10/19/19 oppEndSpan=31 MissingCoin
-61:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=10/31/31 oppEndSpan=19 MissingCoin
-62:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=9/18/18 oppEndSpan=17 MissingCoin
-63:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=9/17/17 oppEndSpan=18 MissingCoin
-64:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=10/19/19 oppEndSpan=31 MissingCoin
-65:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=10/31/31 oppEndSpan=19 MissingCoin
-66:  seg/base=13/64 coinSeg/Span/PtT=13/54/54 MergeMatches
-67:  seg/base=12/63 coinSeg/Span/PtT=12/51/51 MergeMatches
-68:  seg/base=13/64 coinSeg/Span/PtT=13/54/54 MergeMatches
-69:  seg/base=12/63 coinSeg/Span/PtT=12/51/51 MergeMatches
-70:  seg/base=13/56 coinSeg/Span/PtT=13/57/57 MergeMatches
-71:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-72:  seg/base=12/55 coinSeg/Span/PtT=12/60/60 MergeMatches
-73:  segment=9 MergeMatches
-74:  seg/base=13/56 coinSeg/Span/PtT=13/57/57 MergeMatches
-75:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-76:  seg/base=12/55 coinSeg/Span/PtT=12/60/60 MergeMatches
-77:  segment=9 MergeMatches
-78:  coinSeg/Span/PtT=13/25/25 endSpan=54 oppSeg/Span/PtT=12/24/24 oppEndSpan=51 MissingCoin
-79:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-80:  segment=9 MergeMatches
-81:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-82:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-83:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-84:  segment=9 MergeMatches
-85:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-86:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-87:  coinSeg/Span/PtT=12/51/51 endSpan=24 oppSeg/Span/PtT=13/54/54 oppEndSpan=25 MissingCoin
-88:  coinSeg/Span/PtT=13/64/64 endSpan=26 oppSeg/Span/PtT=14/28/28 oppEndSpan=27 MissingCoin
-89:  coinSeg/Span/PtT=12/65/65 endSpan=63 oppSeg/Span/PtT=14/66/66 oppEndSpan=28 MissingCoin
-90:  coinSeg/Span/PtT=13/25/25 endSpan=54 oppSeg/Span/PtT=12/24/24 oppEndSpan=51 MissingCoin
-91:  coinSeg/Span/PtT=12/51/51 endSpan=24 oppSeg/Span/PtT=13/54/54 oppEndSpan=25 MissingCoin
-92:  coinSeg/Span/PtT=13/64/64 endSpan=26 oppSeg/Span/PtT=14/28/28 oppEndSpan=27 MissingCoin
-93:  coinSeg/Span/PtT=12/65/65 endSpan=63 oppSeg/Span/PtT=14/66/66 oppEndSpan=28 MissingCoin
-94:  segment=11 ReturnFalse
-95:  seg/base=11/21 Fail
-96:  seg/base=11/42 Fail
-97:  seg/base=11/21 Fail
-98:  seg/base=11/42 Fail
-99:  seg/base=8/15 Fail
-100:  segment=11 ReturnFalse
-101:  segment=11 startT=0.0126699 endT=0.0342199 segment=8 oppStartT=0 oppEndT=1 AddMissingCoin
-102:  segment=11 ReturnFalse
-103:  seg/base=7/13 Fail
-104:  seg/base=11/21 Fail
-105:  seg/base=11/42 Fail
-106:  seg/base=7/13 Fail
-107:  segment=11 ReturnFalse
-108:  segment=11 startT=0 endT=0.0126699 segment=7 oppStartT=0.246928 oppEndT=1 AddMissingCoin
-109:  segment=11 ReturnFalse
-110:  seg/base=5/9 Fail
-111:  seg/base=5/41 Fail
-112:  seg/base=5/47 Fail
-113:  seg/base=11/21 Fail
-114:  seg/base=11/42 Fail
-115:  segment=11 ReturnFalse
-116:  segment=11 startT=0 endT=0.0126699 segment=5 oppStartT=0.476143 oppEndT=0 AddMissingCoin
-117:  segment=11 ReturnFalse
-118:  seg/base=11/21 Fail
-119:  seg/base=11/42 Fail
-120:  seg/base=4/7 Fail
-121:  seg/base=4/29 Fail
-122:  seg/base=11/21 Fail
-123:  seg/base=11/42 Fail
-124:  seg/base=11/59 Fail
-125:  segment=11 ReturnFalse
-126:  segment=11 startT=0.0126699 endT=0.102205 segment=4 oppStartT=1 oppEndT=0 AddMissingCoin
-127:  segment=11 ReturnFalse
-128:  seg/base=11/21 Fail
-129:  seg/base=11/42 Fail
-130:  seg/base=11/59 Fail
-131:  seg/base=3/5 Fail
-132:  seg/base=3/35 Fail
-133:  seg/base=3/33 Fail
-134:  seg/base=11/21 Fail
-135:  seg/base=11/42 Fail
-136:  seg/base=11/59 Fail
-137:  seg/base=11/34 Fail
-138:  seg/base=3/5 Fail
-139:  segment=11 ReturnFalse
-140:  segment=11 startT=0.102205 endT=0.115176 segment=3 oppStartT=1 oppEndT=0.0649612 AddMissingCoin
-141:  segment=13 ReturnFalse
-142:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.08642e-07 oppEndT=3.01905e-07 AddMissingCoin
-143:  segment=8 ReturnFalse
-144:  seg/base=8/15 Fail
-145:  seg/base=4/7 Fail
-146:  seg/base=4/29 Fail
-147:  segment=8 ReturnFalse
-148:  segment=8 startT=0 endT=1 segment=4 oppStartT=1 oppEndT=0.759312 AddMissingCoin
-149:  segment=8 ReturnFalse
-150:  seg/base=8/15 Fail
-151:  seg/base=4/7 Fail
-152:  seg/base=4/29 Fail
-153:  segment=8 ReturnFalse
-154:  segment=8 startT=0 endT=1 segment=4 oppStartT=1 oppEndT=0.759312 AddMissingCoin
-155:  segment=13 ReturnFalse
-156:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.13901e-07 oppEndT=3.08642e-07 AddMissingCoin
-157:  segment=7 ReturnFalse
-158:  seg/base=5/9 Fail
-159:  seg/base=5/41 Fail
-160:  seg/base=5/47 Fail
-161:  seg/base=5/43 Fail
-162:  segment=7 ReturnFalse
-163:  segment=7 startT=0 endT=1 segment=5 oppStartT=0.632267 oppEndT=0 AddMissingCoin
-164:  segment=7 ReturnFalse
-165:  seg/base=7/13 Fail
-166:  seg/base=5/9 Fail
-167:  seg/base=5/41 Fail
-168:  seg/base=5/47 Fail
-169:  segment=7 ReturnFalse
-170:  segment=7 startT=0.228492 endT=1 segment=5 oppStartT=0.487799 oppEndT=0 AddMissingCoin
-171:  segment=13 ReturnFalse
-172:  seg/base=13/25 Fail
-173:  seg/base=13/53 Fail
-174:  seg/base=13/46 Fail
-175:  seg/base=12/23 Fail
-176:  seg/base=12/36 Fail
-177:  seg/base=12/37 Fail
-178:  seg/base=12/55 Fail
-179:  seg/base=12/60 Fail
-180:  seg/base=12/65 Fail
-181:  seg/base=12/39 Fail
-182:  seg/base=12/63 Fail
-183:  seg/base=12/44 Fail
-184:  seg/base=12/51 Fail
-185:  segment=13 ReturnFalse
-186:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.15199e-07 oppEndT=3.13901e-07 AddMissingCoin
-187:  segment=6 ReturnFalse
-188:  seg/base=6/11 Fail
-189:  seg/base=6/52 Fail
-190:  seg/base=5/9 Fail
-191:  seg/base=5/41 Fail
-192:  seg/base=5/47 Fail
-193:  seg/base=5/43 Fail
-194:  seg/base=6/11 Fail
-195:  seg/base=6/52 Fail
-196:  seg/base=6/49 Fail
-197:  seg/base=5/9 Fail
-198:  seg/base=5/41 Fail
-199:  seg/base=5/47 Fail
-200:  seg/base=5/43 Fail
-201:  segment=6 ReturnFalse
-202:  segment=6 startT=0.291197 endT=1 segment=5 oppStartT=0.892917 oppEndT=0.632267 AddMissingCoin
-203:  segment=13 ReturnFalse
-204:  seg/base=13/25 Fail
-205:  seg/base=13/53 Fail
-206:  seg/base=13/46 Fail
-207:  seg/base=13/54 Fail
-208:  seg/base=12/23 Fail
-209:  seg/base=12/36 Fail
-210:  seg/base=12/37 Fail
-211:  seg/base=12/55 Fail
-212:  seg/base=12/60 Fail
-213:  seg/base=12/65 Fail
-214:  seg/base=12/39 Fail
-215:  seg/base=12/63 Fail
-216:  segment=13 ReturnFalse
-217:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.127e-07 oppEndT=3.08642e-07 AddMissingCoin
-218:  segment=13 ReturnFalse
-219:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.08642e-07 oppEndT=2.80653e-07 AddMissingCoin
-220:  segment=13 ReturnFalse
-221:  seg/base=13/25 Fail
-222:  seg/base=13/53 Fail
-223:  seg/base=13/46 Fail
-224:  seg/base=13/54 Fail
-225:  seg/base=13/64 Fail
-226:  seg/base=13/40 Fail
-227:  seg/base=13/57 Fail
-228:  seg/base=13/56 Fail
-229:  seg/base=13/38 Fail
-230:  seg/base=12/23 Fail
-231:  segment=13 ReturnFalse
-232:  segment=13 startT=1 endT=1 segment=12 oppStartT=2.80653e-07 oppEndT=2.76598e-07 AddMissingCoin
-233:  seg/base=11/42 startT=3.12405e-07 AddExpandedCoin
-234:  seg/base=12/65 startT=0.0300077 AddExpandedCoin
-235:  seg/base=12/60 startT=0.0665796 AddExpandedCoin
-236:  seg/base=12/55 startT=0.146093 AddExpandedCoin
-237:  seg/base=12/37 startT=0.208476 AddExpandedCoin
-238:  seg/base=12/36 startT=0.228359 AddExpandedCoin
-239:  seg/base=13/57 startT=0.899703 AddExpandedCoin
-240:  seg/base=12/65 startT=0.758838 AddExpandedCoin
-241:  seg/base=12/60 startT=3.73071 AddExpandedCoin
-242:  seg/base=13/64 startT=0.246928 AddExpandedCoin
-243:  seg/base=12/44 startT=0.228492 AddExpandedCoin
-244:  seg/base=12/63 startT=0.320059 AddExpandedCoin
-245:  seg/base=13/46 startT=0.291197 AddExpandedCoin
-246:  seg/base=13/54 startT=0.632267 AddExpandedCoin
-247:  seg/base=13/64 startT=0.367348 AddExpandedCoin
-248:  seg/base=5/41 startT=1 AddExpandedCoin
-249:  seg/base=5/41 startT=3.12405e-07 AddExpandedCoin
-250:  seg/base=5/47 startT=3.12605e-07 AddExpandedCoin
-251:  seg/base=13/57 startT=0.783452 AddExpandedCoin
-252:  seg/base=13/56 startT=0.733122 AddExpandedCoin
-253:  seg/base=4/29 startT=3.01825e-07 AddExpandedCoin
-254:  seg/base=12/60 startT=1.54926 AddExpandedCoin
-255:  seg/base=12/65 startT=1.67578 AddExpandedCoin
-256:  seg/base=3/33 startT=1 AddExpandedCoin
-257:  seg/base=3/35 startT=1 AddExpandedCoin
-258:  seg/base=3/33 startT=2.76716e-07 AddExpandedCoin
-259:  seg/base=11/21 seg/base=12/23 MarkCoinStart
-260:  seg/base=11/22 seg/base=12/63 MarkCoinEnd
-261:  coinSeg/Span/PtT=11/21/21 endSpan=22 Fail
-262:  seg/base=11/42 segment=12 MarkCoinMissing
-263:  seg/base=11/59 segment=12 MarkCoinMissing
-264:  seg/base=11/34 segment=12 MarkCoinMissing
-265:  seg/base=12/36 segment=11 MarkCoinMissing
-266:  seg/base=12/37 segment=11 MarkCoinMissing
-267:  seg/base=12/55 segment=11 MarkCoinMissing
-268:  seg/base=12/60 segment=11 MarkCoinMissing
-269:  seg/base=12/65 segment=11 MarkCoinMissing
-270:  seg/base=12/39 segment=11 MarkCoinMissing
-271:  seg/base=13/40 seg/base=8/15 MarkCoinStart
-272:  seg/base=13/56 seg/base=8/16 MarkCoinEnd
-273:  coinSeg/Span/PtT=13/40/40 endSpan=56 Fail
-274:  seg/base=13/57 segment=8 MarkCoinMissing
-275:  seg/base=8/15 seg/base=12/55 MarkCoinStart
-276:  seg/base=8/16 seg/base=12/39 MarkCoinEnd
-277:  seg/base=12/60 segment=8 MarkCoinMissing
-278:  seg/base=12/65 segment=8 MarkCoinMissing
-279:  seg/base=13/54 seg/base=7/13 MarkCoinStart
-280:  seg/base=13/40 seg/base=7/14 MarkCoinEnd
-281:  coinSeg/Span/PtT=13/54/54 endSpan=40 Fail
-282:  seg/base=13/64 segment=7 MarkCoinMissing
-283:  seg/base=7/13 seg/base=12/39 MarkCoinStart
-284:  seg/base=7/14 seg/base=12/51 MarkCoinEnd
-285:  seg/base=12/63 segment=7 MarkCoinMissing
-286:  seg/base=12/44 segment=7 MarkCoinMissing
-287:  seg/base=13/53 seg/base=6/52 MarkCoinStart
-288:  seg/base=13/54 seg/base=6/12 MarkCoinEnd
-289:  coinSeg/Span/PtT=13/53/53 endSpan=54 Fail
-290:  seg/base=13/46 segment=6 MarkCoinMissing
-291:  seg/base=6/49 segment=13 MarkCoinMissing
-292:  seg/base=6/49 seg/base=12/51 MarkCoinStart
-293:  seg/base=6/12 seg/base=12/50 MarkCoinEnd
-294:  seg/base=13/46 seg/base=5/9 MarkCoinStart
-295:  seg/base=13/40 seg/base=5/45 MarkCoinEnd
-296:  coinSeg/Span/PtT=13/46/46 endSpan=40 Fail
-297:  seg/base=13/54 segment=5 MarkCoinMissing
-298:  seg/base=13/64 segment=5 MarkCoinMissing
-299:  seg/base=5/41 segment=13 MarkCoinMissing
-300:  seg/base=5/47 segment=13 MarkCoinMissing
-301:  seg/base=5/43 segment=13 MarkCoinMissing
-302:  seg/base=5/9 seg/base=12/39 MarkCoinStart
-303:  seg/base=5/43 seg/base=12/44 MarkCoinEnd
-304:  coinSeg/Span/PtT=5/9/9 endSpan=43 Fail
-305:  seg/base=5/41 segment=12 MarkCoinMissing
-306:  seg/base=5/47 segment=12 MarkCoinMissing
-307:  seg/base=12/63 segment=5 MarkCoinMissing
-308:  seg/base=13/40 seg/base=4/7 MarkCoinStart
-309:  seg/base=13/38 seg/base=4/8 MarkCoinEnd
-310:  coinSeg/Span/PtT=13/40/40 endSpan=38 Fail
-311:  seg/base=13/57 segment=4 MarkCoinMissing
-312:  seg/base=13/56 segment=4 MarkCoinMissing
-313:  seg/base=4/29 segment=13 MarkCoinMissing
-314:  seg/base=4/7 seg/base=12/37 MarkCoinStart
-315:  seg/base=4/8 seg/base=12/39 MarkCoinEnd
-316:  coinSeg/Span/PtT=4/7/7 endSpan=8 Fail
-317:  seg/base=4/29 segment=12 MarkCoinMissing
-318:  seg/base=12/55 segment=4 MarkCoinMissing
-319:  seg/base=12/60 segment=4 MarkCoinMissing
-320:  seg/base=12/65 segment=4 MarkCoinMissing
-321:  seg/base=13/38 seg/base=3/5 MarkCoinStart
-322:  seg/base=13/32 seg/base=3/6 MarkCoinEnd
-323:  seg/base=3/35 segment=13 MarkCoinMissing
-324:  seg/base=3/33 segment=13 MarkCoinMissing
-325:  seg/base=3/35 seg/base=12/36 MarkCoinStart
-326:  seg/base=3/6 seg/base=12/37 MarkCoinEnd
-327:  coinSeg/Span/PtT=3/35/35 endSpan=6 Fail
-328:  seg/base=3/33 segment=12 MarkCoinMissing
-329:  seg/base=9/17 seg/base=10/19 MarkCoinStart
-330:  seg/base=9/18 seg/base=10/31 MarkCoinEnd
-SkOpSegment::debugShowActiveSpans id=1 (360,-2.14748365e+09 593011648,-2.14748352e+09 1.07374221e+09,-1.6667529e+09 1.07374208e+09,-1.07374157e+09) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=2 (1.07374208e+09,-1.07374157e+09 1.07374208e+09,-480730560 593011840,-135.508026 905.953125,255.999786) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (905.953125,255.999786 900.097229,297.65976) t=0 tEnd=0.0649612467 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (900.097229,297.65976 897.639343,315.145294) t=0.0649612467 tEnd=0.0922268392 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (897.639343,315.145294 815.80835,897.304565) t=0.0922268392 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (815.80835,897.304565 360,651.952515) t=0 tEnd=0.756429319 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (360,651.952515 213.229446,572.949036) t=0.756429319 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (213.229446,572.949036 131.235565,320.967834) t=0 tEnd=0.452431368 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (131.235565,320.967834 131.104431,320.56485) t=0.452431368 tEnd=0.453154928 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (131.104431,320.56485 124.825912,301.269867) t=0.453154928 tEnd=0.487798966 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (124.825912,301.269867 51.4065475,75.6396332) t=0.487798966 tEnd=0.892917257 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (51.4065475,75.6396332 32,16) t=0.892917257 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (32,16 40.183567,75.6918945) t=0 tEnd=0.120346555 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (40.183567,75.6918945 71.1438522,301.519836) t=0.120346555 tEnd=0.575644854 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (71.1438522,301.519836 100,512) t=0.575644854 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (100,512 213.229446,572.949036) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=8 (213.229446,572.949036 360,1024) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=9 (360,1024 360,4140) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,4140 360,1024) t=0 tEnd=1.45099777e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,1024 360,651.952515) t=1.45099777e-06 tEnd=1.62424554e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,651.952515 360,319.229858) t=1.62424554e-06 tEnd=1.77918132e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,319.229858 360,296.296631) t=1.77918132e-06 tEnd=1.78986041e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,296.296631 360,-2.14748365e+09) t=1.78986041e-06 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (127,321 131.235565,320.967834) t=0 tEnd=0.000630948916 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (131.235565,320.967834 360,319.229858) t=0.000630948916 tEnd=0.034708774 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (360,319.229858 897.639343,315.145294) t=0.034708774 tEnd=0.114798057 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (897.639343,315.145294 6840,270) t=0.114798057 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (6840,270 900.097229,297.65976) t=0 tEnd=2.7659819e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (900.097229,297.65976 813.017944,298.065247) t=2.7659819e-07 tEnd=2.80653133e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (813.017944,298.065247 360,1024) t=2.80653133e-07 tEnd=3.01905369e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (360,1024 360,4140) t=3.01905369e-07 tEnd=3.02581027e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (360,4140 321.741364,300.352905) t=3.02581027e-07 tEnd=3.03529974e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (321.741364,300.352905 211.962463,300.864105) t=3.03529974e-07 tEnd=3.08641951e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (211.962463,300.864105 127,321) t=3.08641951e-07 tEnd=3.12602603e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (127,321 124.825912,301.269867) t=3.12602603e-07 tEnd=3.12699562e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (124.825912,301.269867 100,512) t=3.12699562e-07 tEnd=3.13901276e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (100,512 71.1438522,301.519836) t=3.13901276e-07 tEnd=3.15199326e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (71.1438522,301.519836 -2.14748365e+10,100000000) t=3.15199326e-07 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (-2.14748365e+10,100000000 40.183567,75.6918945) t=0 tEnd=0.999999883 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (40.183567,75.6918945 51.4065437,75.6396332) t=0.999999883 tEnd=0.999999884 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (51.4065437,75.6396332 100,512) t=0.999999884 tEnd=0.999999886 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (100,512 127,321) t=0.999999886 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (127,321 210.910217,74.8968811) t=0.999999887 tEnd=0.999999891 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (210.910217,74.8968811 360,4140) t=0.999999891 tEnd=0.999999897 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (360,4140 360,1024) t=0.999999897 tEnd=0.999999898 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (360,1024 811.965698,72.0980072) t=0.999999898 tEnd=0.999999919 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (811.965698,72.0980072 905.094727,71.6643372) t=0.999999919 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (905.094727,71.6643372 2551,64) t=0.999999923 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (2551,64 360,296.296631) t=0 tEnd=0.903877888 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (360,296.296631 321.741364,300.352905) t=0.903877888 tEnd=0.919661149 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (321.741364,300.352905 131.104431,320.56485) t=0.919661149 tEnd=0.998306753 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (131.104431,320.56485 127,321) t=0.998306753 tEnd=1 windSum=? windValue=1
-SkOpSegment::addT insert t=3.12405367e-07 segID=12 spanID=67
-SkOpSegment::addT insert t=0.0126699258 segID=11 spanID=68
-SkOpSegment::addT insert t=0.0290228849 segID=11 spanID=69
-SkOpSegment::addT insert t=0.0320585186 segID=11 spanID=70
-SkOpSegment::addT insert t=0.0342199142 segID=11 spanID=71
-SkOpSegment::addT insert t=3.0175255e-07 segID=12 spanID=72
-SkOpSegment::addT insert t=0.102204746 segID=11 spanID=73
-SkOpSegment::addT insert t=2.76716432e-07 segID=12 spanID=74
-SkOpSegment::addT insert t=0.115176306 segID=11 spanID=75
-SkOpSegment::addT insert t=0.899702926 segID=8 spanID=76
-SkOpSegment::addT insert t=0.758838213 segID=8 spanID=77
-SkOpSegment::addT insert t=0.246927782 segID=7 spanID=78
-SkOpSegment::addT insert t=0.228492228 segID=7 spanID=79
-SkOpSegment::addT insert t=0.284429982 segID=7 spanID=80
-SkOpSegment::addT insert t=0.291197031 segID=6 spanID=81
-SkOpSegment::addT insert t=0.999999884 segID=13 spanID=82
-SkOpSegment::addT insert t=0.788316424 segID=5 spanID=83
-SkOpSegment::addT insert t=0.632267074 segID=5 spanID=84
-SkOpSegment::addT insert t=0.999999887 segID=13 spanID=85
-SkOpSegment::addT insert t=0.476142764 segID=5 spanID=86
-SkOpSegment::addT insert t=0.999999887 segID=13 spanID=87
-SkOpSegment::addT insert t=0.999999887 segID=13 spanID=88
-SkOpSegment::addT insert t=3.12411385e-07 segID=12 spanID=89
-SkOpSegment::addT insert t=0.783451987 segID=4 spanID=90
-SkOpSegment::addT insert t=0.759311649 segID=4 spanID=91
-SkOpSegment::addT insert t=0.999999898 segID=13 spanID=92
-SkOpSegment::addT insert t=0.753851653 segID=4 spanID=93
-SkOpSegment::addT insert t=3.01824696e-07 segID=12 spanID=94
-SkOpSegment::addT insert t=0.817356482 segID=4 spanID=95
-SkOpSegment::addT insert t=0.999999923 segID=13 spanID=96
-SkOpSegment::addT insert t=0.999999923 segID=13 spanID=97
---x---x----------xxxxxxx----------x--- move_multiples
-00:  seg/base=13/38 coinSeg/Span/PtT=13/85/85 MergeMatches
-01:  seg/base=12/37 coinSeg/Span/PtT=12/44/44 MergeMatches
-02:  seg/base=13/38 coinSeg/Span/PtT=13/85/85 MergeMatches
-03:  seg/base=12/37 coinSeg/Span/PtT=12/44/44 MergeMatches
-04:  seg/base=13/38 coinSeg/Span/PtT=13/85/85 MergeMatches
-05:  seg/base=12/37 coinSeg/Span/PtT=12/44/44 MergeMatches
-06:  seg/base=13/38 coinSeg/Span/PtT=13/85/85 MergeMatches
-07:  seg/base=12/37 coinSeg/Span/PtT=12/44/44 MergeMatches
-08:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-09:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-10:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-11:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-12:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-13:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-14:  seg/base=13/40 coinSeg/Span/PtT=13/85/85 MergeMatches
-15:  seg/base=12/39 coinSeg/Span/PtT=12/44/44 MergeMatches
-16:  seg/base=7/79 coinSeg/Span/PtT=7/14/14 MergeMatches
-17:  seg/base=5/43 coinSeg/Span/PtT=5/9/9 MergeMatches
-18:  seg/base=13/40 coinSeg/Span/PtT=13/85/85 MergeMatches
-19:  seg/base=12/39 coinSeg/Span/PtT=12/44/44 MergeMatches
-20:  seg/base=7/79 coinSeg/Span/PtT=7/14/14 MergeMatches
-21:  seg/base=5/43 coinSeg/Span/PtT=5/9/9 MergeMatches
-22:  seg/base=13/54 coinSeg/Span/PtT=13/82/82 MergeMatches
-23:  seg/base=5/84 coinSeg/Span/PtT=5/83/83 MergeMatches
-24:  seg/base=12/51 coinSeg/Span/PtT=12/50/50 MergeMatches
-25:  seg/base=6/49 coinSeg/Span/PtT=6/12/12 MergeMatches
-26:  seg/base=13/54 coinSeg/Span/PtT=13/82/82 MergeMatches
-27:  seg/base=5/84 coinSeg/Span/PtT=5/83/83 MergeMatches
-28:  seg/base=12/51 coinSeg/Span/PtT=12/50/50 MergeMatches
-29:  seg/base=6/49 coinSeg/Span/PtT=6/12/12 MergeMatches
-30:  seg/base=13/54 coinSeg/Span/PtT=13/53/53 MergeMatches
-31:  seg/base=6/52 coinSeg/Span/PtT=6/12/12 MergeMatches
-32:  seg/base=13/54 coinSeg/Span/PtT=13/53/53 MergeMatches
-33:  seg/base=6/52 coinSeg/Span/PtT=6/12/12 MergeMatches
-34:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-35:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-36:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-37:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-38:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-39:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-40:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-41:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-42:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-43:  seg/base=13/40 coinSeg/Span/PtT=13/82/82 MergeMatches
-44:  seg/base=5/83 coinSeg/Span/PtT=5/9/9 MergeMatches
-45:  seg/base=12/39 coinSeg/Span/PtT=12/50/50 MergeMatches
-46:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-47:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-48:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-49:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-50:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-51:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-52:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-53:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-54:  seg/base=10/30 coinSeg/Span/PtT=10/19/19 MergeMatches
-55:  seg/base=4/90 coinSeg/Span/PtT=4/29/29 MergeMatches
-56:  seg/base=12/60 coinSeg/Span/PtT=12/94/94 MergeMatches
-57:  seg/base=13/57 coinSeg/Span/PtT=13/92/92 MergeMatches
-58:  seg/base=10/30 coinSeg/Span/PtT=10/19/19 MergeMatches
-59:  seg/base=4/90 coinSeg/Span/PtT=4/29/29 MergeMatches
-60:  seg/base=12/60 coinSeg/Span/PtT=12/94/94 MergeMatches
-61:  seg/base=13/57 coinSeg/Span/PtT=13/92/92 MergeMatches
-62:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=9/18/18 oppEndSpan=17 MissingCoin
-63:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=9/17/17 oppEndSpan=18 MissingCoin
-64:  seg/base=12/60 coinSeg/Span/PtT=12/23/23 MergeMatches
-65:  seg/base=11/70 coinSeg/Span/PtT=11/22/22 MergeMatches
-66:  seg/base=12/60 coinSeg/Span/PtT=12/23/23 MergeMatches
-67:  seg/base=11/70 coinSeg/Span/PtT=11/22/22 MergeMatches
-68:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-69:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-70:  seg/base=13/56 coinSeg/Span/PtT=13/85/85 MergeMatches
-71:  seg/base=12/55 coinSeg/Span/PtT=12/44/44 MergeMatches
-72:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=10/19/19 oppEndSpan=31 MissingCoin
-73:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=10/31/31 oppEndSpan=19 MissingCoin
-74:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=9/18/18 oppEndSpan=17 MissingCoin
-75:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=9/17/17 oppEndSpan=18 MissingCoin
-76:  coinSeg/Span/PtT=13/57/57 endSpan=56 oppSeg/Span/PtT=10/19/19 oppEndSpan=31 MissingCoin
-77:  coinSeg/Span/PtT=12/55/55 endSpan=60 oppSeg/Span/PtT=10/31/31 oppEndSpan=19 MissingCoin
-78:  seg/base=13/64 coinSeg/Span/PtT=13/82/82 MergeMatches
-79:  seg/base=5/86 coinSeg/Span/PtT=5/83/83 MergeMatches
-80:  seg/base=12/63 coinSeg/Span/PtT=12/50/50 MergeMatches
-81:  seg/base=13/64 coinSeg/Span/PtT=13/82/82 MergeMatches
-82:  seg/base=5/86 coinSeg/Span/PtT=5/83/83 MergeMatches
-83:  seg/base=12/63 coinSeg/Span/PtT=12/50/50 MergeMatches
-84:  seg/base=13/56 coinSeg/Span/PtT=13/88/88 MergeMatches
-85:  seg/base=11/71 coinSeg/Span/PtT=11/42/42 MergeMatches
-86:  seg/base=12/55 coinSeg/Span/PtT=12/67/67 MergeMatches
-87:  seg/base=13/56 coinSeg/Span/PtT=13/88/88 MergeMatches
-88:  seg/base=11/71 coinSeg/Span/PtT=11/42/42 MergeMatches
-89:  seg/base=12/55 coinSeg/Span/PtT=12/67/67 MergeMatches
-90:  coinSeg/Span/PtT=13/25/25 endSpan=82 oppSeg/Span/PtT=12/24/24 oppEndSpan=50 MissingCoin
-91:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-92:  segment=9 MergeMatches
-93:  seg/base=8/76 coinSeg/Span/PtT=8/16/16 MergeMatches
-94:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-95:  seg/base=4/90 coinSeg/Span/PtT=4/91/91 MergeMatches
-96:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-97:  seg/base=11/70 coinSeg/Span/PtT=11/71/71 MergeMatches
-98:  seg/base=10/31 coinSeg/Span/PtT=10/19/19 MergeMatches
-99:  segment=9 MergeMatches
-100:  seg/base=8/76 coinSeg/Span/PtT=8/16/16 MergeMatches
-101:  seg/base=13/57 coinSeg/Span/PtT=13/56/56 MergeMatches
-102:  seg/base=4/90 coinSeg/Span/PtT=4/91/91 MergeMatches
-103:  seg/base=12/60 coinSeg/Span/PtT=12/55/55 MergeMatches
-104:  seg/base=11/70 coinSeg/Span/PtT=11/71/71 MergeMatches
-105:  coinSeg/Span/PtT=12/50/50 endSpan=24 oppSeg/Span/PtT=13/82/82 oppEndSpan=25 MissingCoin
-106:  coinSeg/Span/PtT=13/25/25 endSpan=82 oppSeg/Span/PtT=12/24/24 oppEndSpan=50 MissingCoin
-107:  coinSeg/Span/PtT=12/50/50 endSpan=24 oppSeg/Span/PtT=13/82/82 oppEndSpan=25 MissingCoin
-108:  segment=11 ReturnFalse
-109:  segment=11 startT=0.0126699 endT=0.0342199 segment=8 oppStartT=0 oppEndT=1 AddMissingCoin
-110:  segment=11 ReturnFalse
-111:  segment=11 startT=0 endT=0.0126699 segment=7 oppStartT=0.246928 oppEndT=1 AddMissingCoin
-112:  segment=11 ReturnFalse
-113:  segment=11 startT=0 endT=0.0126699 segment=5 oppStartT=0.476143 oppEndT=0 AddMissingCoin
-114:  segment=11 ReturnFalse
-115:  segment=11 startT=0.0126699 endT=0.102205 segment=4 oppStartT=1 oppEndT=0 AddMissingCoin
-116:  segment=11 ReturnFalse
-117:  segment=11 startT=0.102205 endT=0.115176 segment=3 oppStartT=1 oppEndT=0.0649612 AddMissingCoin
-118:  segment=13 ReturnFalse
-119:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.08642e-07 oppEndT=3.01905e-07 AddMissingCoin
-120:  segment=8 ReturnFalse
-121:  segment=8 startT=0 endT=1 segment=4 oppStartT=1 oppEndT=0.759312 AddMissingCoin
-122:  segment=8 ReturnFalse
-123:  segment=8 startT=0 endT=1 segment=4 oppStartT=1 oppEndT=0.759312 AddMissingCoin
-124:  segment=13 ReturnFalse
-125:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.13901e-07 oppEndT=3.08642e-07 AddMissingCoin
-126:  segment=7 ReturnFalse
-127:  segment=7 startT=0 endT=1 segment=5 oppStartT=0.632267 oppEndT=0 AddMissingCoin
-128:  segment=7 ReturnFalse
-129:  segment=7 startT=0.228492 endT=1 segment=5 oppStartT=0.487799 oppEndT=0 AddMissingCoin
-130:  segment=13 ReturnFalse
-131:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.15199e-07 oppEndT=3.13901e-07 AddMissingCoin
-132:  segment=6 ReturnFalse
-133:  segment=6 startT=0.291197 endT=1 segment=5 oppStartT=0.892917 oppEndT=0.632267 AddMissingCoin
-134:  segment=13 ReturnFalse
-135:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.127e-07 oppEndT=3.08642e-07 AddMissingCoin
-136:  segment=13 ReturnFalse
-137:  segment=13 startT=1 endT=1 segment=12 oppStartT=3.08642e-07 oppEndT=2.80653e-07 AddMissingCoin
-138:  segment=13 ReturnFalse
-139:  segment=13 startT=1 endT=1 segment=12 oppStartT=2.80653e-07 oppEndT=2.76598e-07 AddMissingCoin
-140:  seg/base=12/89 startT=0.000611695 AddExpandedCoin
-141:  seg/base=12/94 startT=0.0689388 AddExpandedCoin
-142:  seg/base=8/77 startT=1 AddExpandedCoin
-143:  seg/base=13/87 startT=0.283286 AddExpandedCoin
-144:  seg/base=12/89 startT=0.530213 AddExpandedCoin
-145:  seg/base=4/95 startT=1 AddExpandedCoin
-146:  seg/base=4/93 startT=1 AddExpandedCoin
-147:  seg/base=11/21 seg/base=12/23 MarkCoinStart
-148:  seg/base=11/22 seg/base=12/63 MarkCoinEnd
-149:  seg/base=12/39 MarkCoinInsert
-150:  seg/base=12/65 MarkCoinInsert
-151:  seg/base=12/60 MarkCoinInsert
-152:  seg/base=12/55 MarkCoinInsert
-153:  seg/base=12/94 MarkCoinInsert
-154:  seg/base=12/37 MarkCoinInsert
-155:  seg/base=12/74 MarkCoinInsert
-156:  seg/base=12/36 MarkCoinInsert
-157:  seg/base=12/23 MarkCoinInsert
-158:  seg/base=11/34 MarkCoinInsert
-159:  seg/base=11/73 MarkCoinInsert
-160:  seg/base=11/59 MarkCoinInsert
-161:  seg/base=11/71 MarkCoinInsert
-162:  seg/base=12/94 segment=11 MarkCoinMissing
-163:  seg/base=11/70 MarkCoinInsert
-164:  seg/base=11/69 MarkCoinInsert
-165:  seg/base=11/68 MarkCoinInsert
-166:  seg/base=11/42 MarkCoinInsert
-167:  seg/base=11/21 MarkCoinInsert
-168:  seg/base=12/89 segment=11 MarkCoinMissing
-169:  seg/base=13/40 seg/base=8/15 MarkCoinStart
-170:  seg/base=13/56 seg/base=8/16 MarkCoinEnd
-171:  seg/base=8/76 MarkCoinInsert
-172:  seg/base=8/77 segment=13 MarkCoinMissing
-173:  seg/base=13/57 MarkCoinInsert
-174:  seg/base=8/15 seg/base=12/55 MarkCoinStart
-175:  seg/base=8/16 seg/base=12/39 MarkCoinEnd
-176:  seg/base=12/60 MarkCoinInsert
-177:  seg/base=12/55 MarkCoinInsert
-178:  seg/base=8/77 MarkCoinInsert
-179:  seg/base=8/15 MarkCoinInsert
-180:  seg/base=13/54 seg/base=7/13 MarkCoinStart
-181:  seg/base=13/40 seg/base=7/14 MarkCoinEnd
-182:  coinSeg/Span/PtT=13/54/54 endSpan=40 Fail
-183:  seg/base=7/79 MarkCoinInsert
-184:  seg/base=7/78 MarkCoinInsert
-185:  seg/base=13/87 segment=7 MarkCoinMissing
-186:  seg/base=7/80 MarkCoinInsert
-187:  seg/base=13/85 MarkCoinInsert
-188:  seg/base=13/64 MarkCoinInsert
-189:  seg/base=13/88 MarkCoinInsert
-190:  seg/base=7/13 seg/base=12/39 MarkCoinStart
-191:  seg/base=7/14 seg/base=12/51 MarkCoinEnd
-192:  seg/base=12/63 MarkCoinInsert
-193:  seg/base=12/89 MarkCoinInsert
-194:  seg/base=12/39 MarkCoinInsert
-195:  seg/base=7/78 MarkCoinInsert
-196:  seg/base=12/89 segment=7 MarkCoinMissing
-197:  seg/base=7/79 MarkCoinInsert
-198:  seg/base=7/13 MarkCoinInsert
-199:  seg/base=13/53 seg/base=6/52 MarkCoinStart
-200:  seg/base=13/54 seg/base=6/12 MarkCoinEnd
-201:  seg/base=6/81 MarkCoinInsert
-202:  seg/base=6/49 MarkCoinInsert
-203:  seg/base=13/46 MarkCoinInsert
-204:  seg/base=13/82 MarkCoinInsert
-205:  seg/base=6/49 seg/base=12/51 MarkCoinStart
-206:  seg/base=6/12 seg/base=12/50 MarkCoinEnd
-207:  seg/base=13/46 seg/base=5/9 MarkCoinStart
-208:  seg/base=13/40 seg/base=5/45 MarkCoinEnd
-209:  seg/base=5/84 MarkCoinInsert
-210:  seg/base=5/43 MarkCoinInsert
-211:  seg/base=5/86 MarkCoinInsert
-212:  seg/base=5/47 MarkCoinInsert
-213:  seg/base=5/41 MarkCoinInsert
-214:  seg/base=5/9 MarkCoinInsert
-215:  seg/base=13/87 MarkCoinInsert
-216:  seg/base=13/64 MarkCoinInsert
-217:  seg/base=13/85 MarkCoinInsert
-218:  seg/base=13/54 MarkCoinInsert
-219:  seg/base=13/82 MarkCoinInsert
-220:  seg/base=13/46 MarkCoinInsert
-221:  seg/base=5/9 seg/base=12/39 MarkCoinStart
-222:  seg/base=5/43 seg/base=12/44 MarkCoinEnd
-223:  seg/base=12/67 MarkCoinInsert
-224:  seg/base=12/89 MarkCoinInsert
-225:  seg/base=12/63 MarkCoinInsert
-226:  seg/base=5/41 MarkCoinInsert
-227:  seg/base=5/47 MarkCoinInsert
-228:  seg/base=5/86 MarkCoinInsert
-229:  seg/base=13/40 seg/base=4/7 MarkCoinStart
-230:  seg/base=13/38 seg/base=4/8 MarkCoinEnd
-231:  seg/base=4/91 MarkCoinInsert
-232:  seg/base=4/29 MarkCoinInsert
-233:  seg/base=4/93 MarkCoinInsert
-234:  seg/base=4/93 segment=13 MarkCoinMissing
-235:  seg/base=13/56 MarkCoinInsert
-236:  seg/base=13/57 MarkCoinInsert
-237:  seg/base=13/40 MarkCoinInsert
-238:  seg/base=4/95 segment=13 MarkCoinMissing
-239:  seg/base=4/7 seg/base=12/37 MarkCoinStart
-240:  seg/base=4/8 seg/base=12/39 MarkCoinEnd
-241:  seg/base=12/72 MarkCoinInsert
-242:  seg/base=12/94 MarkCoinInsert
-243:  seg/base=12/55 MarkCoinInsert
-244:  seg/base=12/60 MarkCoinInsert
-245:  seg/base=12/65 MarkCoinInsert
-246:  seg/base=4/93 MarkCoinInsert
-247:  seg/base=4/29 MarkCoinInsert
-248:  seg/base=4/91 MarkCoinInsert
-249:  seg/base=4/90 MarkCoinInsert
-250:  seg/base=4/95 MarkCoinInsert
-251:  seg/base=13/38 seg/base=3/5 MarkCoinStart
-252:  seg/base=13/32 seg/base=3/6 MarkCoinEnd
-253:  seg/base=3/35 MarkCoinInsert
-254:  seg/base=3/5 MarkCoinInsert
-255:  seg/base=13/96 MarkCoinInsert
-256:  seg/base=13/38 MarkCoinInsert
-257:  seg/base=3/35 seg/base=12/36 MarkCoinStart
-258:  seg/base=3/6 seg/base=12/37 MarkCoinEnd
-259:  seg/base=12/74 MarkCoinInsert
-260:  seg/base=3/33 MarkCoinInsert
-261:  seg/base=9/17 seg/base=10/19 MarkCoinStart
-262:  seg/base=9/18 seg/base=10/31 MarkCoinEnd
-SkOpSegment::debugShowActiveSpans id=1 (360,-2.14748365e+09 593011648,-2.14748352e+09 1.07374221e+09,-1.6667529e+09 1.07374208e+09,-1.07374157e+09) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=2 (1.07374208e+09,-1.07374157e+09 1.07374208e+09,-480730560 593011840,-135.508026 905.953125,255.999786) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (905.953125,255.999786 900.097229,297.65976) t=0 tEnd=0.0649612467 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (900.097229,297.65976 897.639343,315.145294) t=0.0649612467 tEnd=0.0922268392 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (897.639343,315.145294 815.80835,897.304565) t=0.0922268392 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (815.80835,897.304565 361.553253,652.788635) t=0 tEnd=0.753851653 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (361.553253,652.788635 360,651.952515) t=0.753851653 tEnd=0.756429319 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (360,651.952515 358.263184,651.017639) t=0.756429319 tEnd=0.759311649 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (358.263184,651.017639 343.716705,643.187561) t=0.759311649 tEnd=0.783451987 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (343.716705,643.187561 323.286591,632.190491) t=0.783451987 tEnd=0.817356482 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=4 (323.286591,632.190491 213.229446,572.949036) t=0.817356482 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (213.229446,572.949036 131.235565,320.967834) t=0 tEnd=0.452431368 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (131.235565,320.967834 131.104431,320.56485) t=0.452431368 tEnd=0.453154928 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (131.104431,320.56485 126.938354,307.76178) t=0.453154928 tEnd=0.476142764 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (126.938354,307.76178 124.825912,301.269867) t=0.476142764 tEnd=0.487798966 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (124.825912,301.269867 98.6440353,220.808502) t=0.487798966 tEnd=0.632267074 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (98.6440353,220.808502 70.3632965,133.896957) t=0.632267074 tEnd=0.788316424 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (70.3632965,133.896957 51.4065475,75.6396332) t=0.788316424 tEnd=0.892917257 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (51.4065475,75.6396332 32,16) t=0.892917257 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (32,16 40.183567,75.6918945) t=0 tEnd=0.120346555 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (40.183567,75.6918945 51.8013992,160.433731) t=0.120346555 tEnd=0.291197031 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (51.8013992,160.433731 71.1438522,301.519836) t=0.291197031 tEnd=0.575644854 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (71.1438522,301.519836 100,512) t=0.575644854 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (100,512 125.872047,525.926392) t=0 tEnd=0.228492228 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (125.872047,525.926392 127.959496,527.049988) t=0.228492228 tEnd=0.246927782 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (127.959496,527.049988 132.205856,529.335754) t=0.246927782 tEnd=0.284429982 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=7 (132.205856,529.335754 213.229446,572.949036) t=0.284429982 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=8 (213.229446,572.949036 324.604553,915.223755) t=0 tEnd=0.758838213 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=8 (324.604553,915.223755 345.279358,978.760925) t=0.758838213 tEnd=0.899702926 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=8 (345.279358,978.760925 360,1024) t=0.899702926 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=9 (360,1024 360,4140) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,4140 360,1024) t=0 tEnd=1.45099777e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,1024 360,651.952515) t=1.45099777e-06 tEnd=1.62424554e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,651.952515 360,319.229858) t=1.62424554e-06 tEnd=1.77918132e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,319.229858 360,296.296631) t=1.77918132e-06 tEnd=1.78986041e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,296.296631 360,-2.14748365e+09) t=1.78986041e-06 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (127,321 131.235565,320.967834) t=0 tEnd=0.000630948916 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (131.235565,320.967834 212.053207,320.353821) t=0.000630948916 tEnd=0.0126699258 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (212.053207,320.353821 321.830627,319.519836) t=0.0126699258 tEnd=0.0290228849 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (321.830627,319.519836 342.208832,319.365021) t=0.0290228849 tEnd=0.0320585186 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (342.208832,319.365021 356.718292,319.254791) t=0.0320585186 tEnd=0.0342199142 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (356.718292,319.254791 360,319.229858) t=0.0342199142 tEnd=0.034708774 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (360,319.229858 813.100464,315.787567) t=0.034708774 tEnd=0.102204746 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (813.100464,315.787567 897.639343,315.145294) t=0.102204746 tEnd=0.114798057 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (897.639343,315.145294 900.178528,315.126007) t=0.114798057 tEnd=0.115176306 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (900.178528,315.126007 6840,270) t=0.115176306 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (6840,270 900.097229,297.65976) t=0 tEnd=2.7659819e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (900.097229,297.65976 897.557983,297.67157) t=2.7659819e-07 tEnd=2.76716432e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (897.557983,297.67157 813.017944,298.065247) t=2.76716432e-07 tEnd=2.80653133e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (813.017944,298.065247 359.911255,300.175171) t=2.80653133e-07 tEnd=3.0175255e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (359.911255,300.175171 358.361938,300.182373) t=3.0175255e-07 tEnd=3.01824696e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (358.361938,300.182373 360,1024) t=3.01824696e-07 tEnd=3.01905369e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (360,1024 360,4140) t=3.01905369e-07 tEnd=3.02581027e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (360,4140 321.741364,300.352905) t=3.02581027e-07 tEnd=3.03529974e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (321.741364,300.352905 211.962463,300.864105) t=3.03529974e-07 tEnd=3.08641951e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (211.962463,300.864105 131.143692,301.240448) t=3.08641951e-07 tEnd=3.12405367e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (131.143692,301.240448 131.01445,301.241058) t=3.12405367e-07 tEnd=3.12411385e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (131.01445,301.241058 127,321) t=3.12411385e-07 tEnd=3.12602603e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (127,321 124.825912,301.269867) t=3.12602603e-07 tEnd=3.12699562e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (124.825912,301.269867 100,512) t=3.12699562e-07 tEnd=3.13901276e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (100,512 71.1438522,301.519836) t=3.13901276e-07 tEnd=3.15199326e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (71.1438522,301.519836 -2.14748365e+10,100000000) t=3.15199326e-07 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (-2.14748365e+10,100000000 40.183567,75.6918945) t=0 tEnd=0.999999883 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (40.183567,75.6918945 51.4065437,75.6396332) t=0.999999883 tEnd=0.999999884 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (51.4065437,75.6396332 70.0916061,75.5526199) t=0.999999884 tEnd=0.999999884 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (70.0916061,75.5526199 100,512) t=0.999999884 tEnd=0.999999886 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (100,512 123.773666,75.3026428) t=0.999999886 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (123.773666,75.3026428 127,321) t=0.999999887 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (127,321 129.962204,75.2738266) t=0.999999887 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (129.962204,75.2738266 130.091461,75.2732239) t=0.999999887 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (130.091461,75.2732239 210.910217,74.8968811) t=0.999999887 tEnd=0.999999891 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (210.910217,74.8968811 360,4140) t=0.999999891 tEnd=0.999999897 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (360,4140 360,1024) t=0.999999897 tEnd=0.999999898 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (360,1024 357.309692,74.2151566) t=0.999999898 tEnd=0.999999898 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (357.309692,74.2151566 811.965698,72.0980072) t=0.999999898 tEnd=0.999999919 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (811.965698,72.0980072 896.505737,71.7043304) t=0.999999919 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (896.505737,71.7043304 899.044983,71.6925125) t=0.999999923 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (899.044983,71.6925125 905.094727,71.6643372) t=0.999999923 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (905.094727,71.6643372 2551,64) t=0.999999923 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (2551,64 360,296.296631) t=0 tEnd=0.903877888 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (360,296.296631 321.741364,300.352905) t=0.903877888 tEnd=0.919661149 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (321.741364,300.352905 131.104431,320.56485) t=0.919661149 tEnd=0.998306753 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (131.104431,320.56485 127,321) t=0.998306753 tEnd=1 windSum=? windValue=1
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0 [7] (815.80835,897.304565) tEnd=0.753851653 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0.753851653 [93] (361.553253,652.788635) tEnd=0.756429319 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0.756429319 [29] (360,651.952515) tEnd=0.759311649 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0.759311649 [91] (358.263184,651.017639) tEnd=0.783451987 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0.783451987 [90] (343.716705,643.187561) tEnd=0.817356482 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=4 (815.80835,897.304565 213.229446,572.949036) t=0.817356482 [95] (323.286591,632.190491) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=7 (100,512 213.229446,572.949036) t=0 [13] (100,512) tEnd=0.246927782 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=7 (100,512 213.229446,572.949036) t=0.246927782 [78] (127.959496,527.049988) tEnd=0.284429982 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=7 (100,512 213.229446,572.949036) t=0.284429982 [80] (132.205856,529.335754) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=8 (213.229446,572.949036 360,1024) t=0 [15] (213.229446,572.949036) tEnd=0.758838213 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=8 (213.229446,572.949036 360,1024) t=0.758838213 [77] (324.604553,915.223755) tEnd=0.899702926 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=8 (213.229446,572.949036 360,1024) t=0.899702926 [76] (345.279358,978.760925) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-SkOpSegment::markDone id=9 (360,1024 360,4140) t=0 [17] (360,1024) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=1 oppValue=0
-------------------xx-xxx----x--x------ move_nearby
-00:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-01:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-02:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-03:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-04:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-05:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-06:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-07:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-08:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-09:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-10:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-11:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-12:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-13:  seg/base=13/96 coinSeg/Span/PtT=13/87/87 MergeMatches
-14:  segment=11 MergeMatches
-15:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-16:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-17:  seg/base=13/96 coinSeg/Span/PtT=13/87/87 MergeMatches
-18:  segment=11 MergeMatches
-19:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-20:  seg/base=4/90 coinSeg/Span/PtT=4/7/7 MoveNearbyRelease
-21:  seg/base=4/29 coinSeg/Span/PtT=4/7/7 MoveNearbyRelease
-22:  seg/base=4/91 coinSeg/Span/PtT=4/7/7 MoveNearbyRelease
-23:  seg/base=4/91 coinSeg/Span/PtT=4/29/29 MoveNearbyRelease
-24:  seg/base=4/90 coinSeg/Span/PtT=4/29/29 MoveNearbyRelease
-25:  seg/base=4/90 coinSeg/Span/PtT=4/91/91 MoveNearbyRelease
-26:  seg/base=4/29 coinSeg/Span/PtT=4/91/91 MoveNearbyRelease
-27:  seg/base=4/29 coinSeg/Span/PtT=4/90/90 MoveNearbyRelease
-28:  seg/base=4/91 coinSeg/Span/PtT=4/90/90 MoveNearbyRelease
-29:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-30:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-31:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-32:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-33:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-34:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-35:  seg/base=13/96 coinSeg/Span/PtT=13/87/87 MergeMatches
-36:  segment=11 MergeMatches
-37:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-38:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-39:  seg/base=13/96 coinSeg/Span/PtT=13/87/87 MergeMatches
-40:  segment=11 MergeMatches
-41:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-42:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-43:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-44:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-45:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-46:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-47:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-48:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-49:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-50:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-51:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-52:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-53:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-54:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-55:  seg/base=7/80 coinSeg/Span/PtT=7/13/13 MoveNearbyRelease
-56:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-57:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-58:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-59:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-60:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-61:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-62:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-63:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-64:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-65:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-66:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-67:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-68:  seg/base=8/76 coinSeg/Span/PtT=8/15/15 MoveNearbyRelease
-69:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-70:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-71:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-72:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-73:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-74:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-75:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-76:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-77:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-78:  seg/base=13/96 coinSeg/Span/PtT=13/46/46 MergeMatches
-79:  seg/base=6/81 coinSeg/Span/PtT=6/12/12 MergeMatches
-80:  seg/base=5/45 coinSeg/Span/PtT=5/9/9 MergeMatches
-81:  segment=9 MoveNearbyClearAll2
-82:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-83:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-84:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-85:  seg/base=12/72 coinSeg/Span/PtT=12/23/23 MergeMatches
-86:  seg/base=10/58 coinSeg/Span/PtT=10/19/19 MergeMatches
-87:  seg/base=11/59 coinSeg/Span/PtT=11/22/22 MergeMatches
-88:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-89:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-90:  segment=11 MergeMatches
-91:  seg/base=13/87 coinSeg/Span/PtT=13/96/96 MergeMatches
-92:  seg/base=12/89 coinSeg/Span/PtT=12/23/23 MergeMatches
-93:  seg/base=5/47 coinSeg/Span/PtT=5/9/9 MergeMatches
-94:  segment=11 MergeMatches
-95:  seg/base=13/87 coinSeg/Span/PtT=13/96/96 MergeMatches
-96:  coinSeg/Span/PtT=13/25/25 endSpan=87 oppSeg/Span/PtT=12/24/24 oppEndSpan=89 MissingCoin
-97:  coinSeg/Span/PtT=12/89/89 endSpan=24 oppSeg/Span/PtT=13/87/87 oppEndSpan=25 MissingCoin
-98:  coinSeg/Span/PtT=13/25/25 endSpan=87 oppSeg/Span/PtT=12/24/24 oppEndSpan=89 MissingCoin
-99:  coinSeg/Span/PtT=12/89/89 endSpan=24 oppSeg/Span/PtT=13/87/87 oppEndSpan=25 MissingCoin
-100:  seg/base=11/21 seg/base=12/23 MarkCoinStart
-101:  seg/base=11/22 seg/base=12/89 MarkCoinEnd
-102:  seg/base=12/72 MarkCoinInsert
-103:  seg/base=12/23 MarkCoinInsert
-104:  seg/base=11/69 MarkCoinInsert
-105:  seg/base=11/21 MarkCoinInsert
-106:  seg/base=13/46 seg/base=5/9 MarkCoinStart
-107:  seg/base=13/96 seg/base=5/45 MarkCoinEnd
-108:  seg/base=5/9 MarkCoinInsert
-109:  seg/base=13/46 MarkCoinInsert
-110:  seg/base=13/96 seg/base=3/5 MarkCoinStart
-111:  seg/base=13/32 seg/base=3/6 MarkCoinEnd
-SkOpSegment::debugShowActiveSpans id=1 (360,-2.14748365e+09 593011648,-2.14748352e+09 1.07374221e+09,-1.6667529e+09 1.07374208e+09,-1.07374157e+09) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=2 (1.07374208e+09,-1.07374157e+09 1.07374208e+09,-480730560 593011840,-135.508026 905.953125,255.999786) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=3 (905.953125,255.999786 815.80835,897.304565) t=0 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (213.229446,572.949036 131.104431,320.56485) t=0 tEnd=0.453154928 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (131.104431,320.56485 51.4065475,75.6396332) t=0.453154928 tEnd=0.892917257 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=5 (51.4065475,75.6396332 32,16) t=0.892917257 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (32,16 51.8013992,160.433731) t=0 tEnd=0.291197031 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=6 (51.8013992,160.433731 100,512) t=0.291197031 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,4140 360,319.229858) t=0 tEnd=1.77918132e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,319.229858 360,296.296631) t=1.77918132e-06 tEnd=1.78986041e-06 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=10 (360,296.296631 360,-2.14748365e+09) t=1.78986041e-06 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (127,321 321.830627,319.519836) t=0 tEnd=0.0290228849 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (321.830627,319.519836 360,319.229858) t=0.0290228849 tEnd=0.034708774 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=11 (360,319.229858 6840,270) t=0.034708774 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (6840,270 359.911255,300.175171) t=0 tEnd=3.0175255e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (359.911255,300.175171 321.741364,300.352905) t=3.0175255e-07 tEnd=3.03529974e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (321.741364,300.352905 131.01445,301.241058) t=3.03529974e-07 tEnd=3.12411385e-07 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=12 (131.01445,301.241058 -2.14748365e+10,100000000) t=3.12411385e-07 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (-2.14748365e+10,100000000 51.4065437,75.6396332) t=0 tEnd=0.999999884 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (51.4065437,75.6396332 129.962204,75.2738266) t=0.999999884 tEnd=0.999999887 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (129.962204,75.2738266 896.505737,71.7043304) t=0.999999887 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (896.505737,71.7043304 905.094727,71.6643372) t=0.999999923 tEnd=0.999999923 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=13 (905.094727,71.6643372 2551,64) t=0.999999923 tEnd=1 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (2551,64 360,296.296631) t=0 tEnd=0.903877888 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (360,296.296631 321.741364,300.352905) t=0.903877888 tEnd=0.919661149 windSum=? windValue=1
-SkOpSegment::debugShowActiveSpans id=14 (321.741364,300.352905 127,321) t=0.919661149 tEnd=1 windSum=? windValue=1
-c:\skia\src\pathops\skopsegment.cpp(1358): fatal error: "assert((this->globalState() && (this->globalState()->debugCheckHealth() || this->globalState()->debugSkipAssert())) || (!SkDPoint::ApproximatelyEqual(dBugRef->fPt, dBugCheck->fPt)))"
-pathops_unittest.exe has triggered a breakpoint.
-        </div>
+{{{126, 9.396100044250488281}, {125.6320571899414063, 9.295844078063964844}, {125.1227340698242188, 9.337338447570800781}, {124.6031646728515625, 9.379667282104492188}}},
+inflectionsTs[0]=0.999997776 {{{126.1618761931709827, 9.252680507258252973}, {123.04446008475567, 9.506653492188940291}}},
+SkDCubic::ComplexBreak
+{{{124.6031646728515625, 9.379667282104492188}, {124.1427383422851563, 9.417178153991699219}, {123.6742630004882813, 9.45534515380859375}, {123.28900146484375, 9.396100044250488281}}},
+inflectionsTs[0]=4.14921088e-06 {{{125.984438133710114, 9.267135117035042668}, {123.2218797495565639, 9.492200381017113386}}},
+maxCurvature[0]=0.0817322831 {{{125.8735553329735666, 9.277935394706121386}, {123.1067608854740314, 9.499713475347833835}}},
+SkDCubic::ComplexBreak
+{{{126, 9.396200180053710938}, {125.305999755859375, 9.206999778747558594}, {124.1090011596679688, 9.522199630737304688}, {123.28900146484375, 9.396200180053710938}}},
+inflectionsTs[0]=0.530286644 {{{127.5428560571536707, 9.140180090182106198}, {121.6628069847287179, 9.619260454379688241}}},
+maxCurvature[0]=0.568563182 {{{127.4346914043237859, 9.15278490094694952}, {121.5456828946143446, 9.624913158409162506}}},
+seg=1 {{{0, 353.891998f}, {126, 9.39610004f}}}
+seg=2 {{{126, 9.39610004f}, {125.632057f, 9.29584408f}, {125.122734f, 9.33733845f}, {124.603165f, 9.37966728f}}}
+seg=3 {{{124.603165f, 9.37966728f}, {124.142731f, 9.41717815f}, {123.674263f, 9.45534515f}, {123.289001f, 9.39610004f}}}
+seg=4 {{{123.289001f, 9.39610004f}, {118.119003f, 8.07219982f}}}
+seg=5 {{{118.119003f, 8.07219982f}, {8.17210007f, 104.212997f}}}
+seg=6 {{{8.17210007f, 104.212997f}, {0, 259.298737f}}}
+seg=7 {{{0, 259.298737f}, {0, 353.891998f}}}
+op sect
+seg=8 {{{8.17210007f, 104.212997f}, {-5.82350016f, 369.813995f}}}
+seg=9 {{{-5.82350016f, 369.813995f}, {126, 9.39620018f}}}
+seg=10 {{{126, 9.39620018f}, {125.631981f, 9.29586983f}, {125.12252f, 9.3373785f}, {124.602829f, 9.37972069f}}}
+seg=11 {{{124.602829f, 9.37972069f}, {124.142509f, 9.41722488f}, {123.674164f, 9.45538425f}, {123.289001f, 9.39620018f}}}
+seg=12 {{{123.289001f, 9.39620018f}, {118.119003f, 8.07219982f}}}
+seg=13 {{{118.119003f, 8.07219982f}, {8.17210007f, 104.212997f}}}
+debugShowLineIntersection wtTs[0]=1 {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{-5.82350016,369.813995}} wnTs[0]=0 {{{-5.82350016,369.813995}, {126,9.39620018}}}
+debugShowLineIntersection wtTs[0]=0 {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{8.17210007,104.212997}} wnTs[0]=1 {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowCubicLineIntersection wtTs[0]=0 {{{126,9.39620018}, {125.631981,9.29586983}, {125.12252,9.3373785}, {124.602829,9.37972069}}} {{126,9.39620018}} wnTs[0]=1 {{{-5.82350016,369.813995}, {126,9.39620018}}}
+debugShowCubicLineIntersection no intersect {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}} {{{-5.82350016,369.813995}, {126,9.39620018}}}
+debugShowLineIntersection no intersect {{{-5.82350016,369.813995}, {126,9.39620018}}} {{{123.289001,9.39620018}, {118.119003,8.07219982}}}
+debugShowLineIntersection no intersect {{{-5.82350016,369.813995}, {126,9.39620018}}} {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowCubicIntersection wtTs[0]=1 {{{126,9.39620018}, {125.631981,9.29586983}, {125.12252,9.3373785}, {124.602829,9.37972069}}} {{124.602829,9.37972069}} wnTs[0]=0 {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}}
+debugShowCubicLineIntersection wtTs[0]=1 {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}} {{123.289001,9.39620018}} wnTs[0]=0 {{{123.289001,9.39620018}, {118.119003,8.07219982}}}
+debugShowLineIntersection wtTs[0]=1 {{{123.289001,9.39620018}, {118.119003,8.07219982}}} {{118.119003,8.07219982}} wnTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection no intersect {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{{0,353.891998}, {126,9.39610004}}}
+debugShowLineIntersection wtTs[0]=0 {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{8.17210007,104.212997}} wnTs[0]=1 {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection wtTs[0]=0 {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{8.17210007,104.212997}} wtTs[1]=0.583904956 {{0,259.298737}} wnTs[0]=0 {{{8.17210007,104.212997}, {0,259.298737}}} wnTs[1]=1
+SkOpSegment::addT insert t=0.583904956 segID=8 spanID=27
+debugShowLineIntersection wtTs[0]=0.583904956 {{{8.17210007,104.212997}, {-5.82350016,369.813995}}} {{0,259.298737}} wnTs[0]=0 {{{0,259.298737}, {0,353.891998}}}
+debugShowLineIntersection wtTs[0]=0.0441765002 {{{-5.82350016,369.813995}, {126,9.39620018}}} {{0,353.891998}} wtTs[1]=1 {{126,9.39620018}} wnTs[0]=0 {{{0,353.891998}, {126,9.39610004}}} wnTs[1]=0.999999744
+SkOpSegment::addT insert t=0.0441765002 segID=9 spanID=28
+debugShowCubicLineIntersection no intersect {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}} {{{-5.82350016,369.813995}, {126,9.39620018}}}
+debugShowLineIntersection no intersect {{{-5.82350016,369.813995}, {126,9.39620018}}} {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection no intersect {{{-5.82350016,369.813995}, {126,9.39620018}}} {{{8.17210007,104.212997}, {0,259.298737}}}
+debugShowLineIntersection wtTs[0]=0.0441765002 {{{-5.82350016,369.813995}, {126,9.39620018}}} {{0,353.891998}} wnTs[0]=1 {{{0,259.298737}, {0,353.891998}}}
+debugShowCubicLineIntersection wtTs[0]=0 {{{126,9.39620018}, {125.631981,9.29586983}, {125.12252,9.3373785}, {124.602829,9.37972069}}} {{126,9.39620018}} wnTs[0]=1 {{{0,353.891998}, {126,9.39610004}}}
+-1=(0.375,0.5) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.5,0.625) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.625,0.75) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.75,0.8125) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.8125,0.875) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.875,0.9375) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+SkTSect::addForPerp priorSpan=-1 t=0.937702598 opp=-1
+-1=(0.9375,1) []
+SkTSect::addForPerp addBounded span=-1 opp=-1
+debugShowCubicIntersection wtTs[0]=0.307128906 {{{126,9.39620018}, {125.631981,9.29586983}, {125.12252,9.3373785}, {124.602829,9.37972069}}} {{125.624687,9.33981037}} wtTs[1]=0.9375 {{124.700119,9.37182617}} wnTs[0]=0.307191 {{{126,9.39610004}, {125.632057,9.29584408}, {125.122734,9.33733845}, {124.603165,9.37966728}}} wnTs[1]=0.937702598
+SkOpSegment::addT insert t=0.307128906 segID=10 spanID=29
+SkOpSegment::addT insert t=0.307190555 segID=2 spanID=30
+SkOpSegment::addT insert t=0.9375 segID=10 spanID=31
+SkOpSegment::addT insert t=0.937702598 segID=2 spanID=32
+debugShowCubicIntersection no intersect {{{126,9.39620018}, {125.631981,9.29586983}, {125.12252,9.3373785}, {124.602829,9.37972069}}} {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}}
+debugShowCubicLineIntersection no intersect {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}} {{{0,353.891998}, {126,9.39610004}}}
+-1=(0.125,0.1875) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.1875,0.25) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.25,0.375) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.375,0.5) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.5,0.625) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+-1=(0.625,0.75) [-1]
+SkTSect::addForPerp addBounded span=-1 opp=-1
+debugShowCubicIntersection wtTs[0]=0.0625 {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}} {{124.516449,9.38673687}} wtTs[1]=0.625 {{123.752594,9.4268837}} wnTs[0]=0.0627287 {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}} wnTs[1]=0.625091708
+SkOpSegment::addT insert t=0.0625 segID=11 spanID=33
+SkOpSegment::addT insert t=0.0627286673 segID=3 spanID=34
+SkOpSegment::addT insert t=0.625 segID=11 spanID=35
+SkOpSegment::addT insert t=0.625091708 segID=3 spanID=36
+debugShowCubicLineIntersection no intersect {{{124.602829,9.37972069}, {124.142509,9.41722488}, {123.674164,9.45538425}, {123.289001,9.39620018}}} {{{123.289001,9.39610004}, {118.119003,8.07219982}}}
+debugShowLineIntersection no intersect {{{123.289001,9.39620018}, {118.119003,8.07219982}}} {{{0,353.891998}, {126,9.39610004}}}
+debugShowCubicLineIntersection wtTs[0]=0.999978653 {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}} {{123.289001,9.39620018}} wnTs[0]=0 {{{123.289001,9.39620018}, {118.119003,8.07219982}}}
+debugShowLineIntersection wtTs[0]=4.65488731e-06 {{{123.289001,9.39620018}, {118.119003,8.07219982}}} {{123.289001,9.39610004}} wtTs[1]=1 {{118.119003,8.07219982}} wnTs[0]=0 {{{123.289001,9.39610004}, {118.119003,8.07219982}}} wnTs[1]=1
+debugShowLineIntersection wtTs[0]=1 {{{123.289001,9.39620018}, {118.119003,8.07219982}}} {{118.119003,8.07219982}} wnTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection no intersect {{{118.119003,8.07219982}, {8.17210007,104.212997}}} {{{0,353.891998}, {126,9.39610004}}}
+debugShowLineIntersection wtTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}} {{118.119003,8.07219982}} wnTs[0]=1 {{{123.289001,9.39610004}, {118.119003,8.07219982}}}
+debugShowLineIntersection wtTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}} {{118.119003,8.07219982}} wtTs[1]=1 {{8.17210007,104.212997}} wnTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}} wnTs[1]=1
+debugShowLineIntersection wtTs[0]=1 {{{118.119003,8.07219982}, {8.17210007,104.212997}}} {{8.17210007,104.212997}} wnTs[0]=0 {{{8.17210007,104.212997}, {0,259.298737}}}
+debugShowCubicLineIntersection wtTs[0]=0 {{{126,9.39610004}, {125.632057,9.29584408}, {125.122734,9.33733845}, {124.603165,9.37966728}}} {{126,9.39610004}} wnTs[0]=1 {{{0,353.891998}, {126,9.39610004}}}
+debugShowCubicLineIntersection no intersect {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}} {{{0,353.891998}, {126,9.39610004}}}
+debugShowLineIntersection no intersect {{{0,353.891998}, {126,9.39610004}}} {{{123.289001,9.39610004}, {118.119003,8.07219982}}}
+debugShowLineIntersection no intersect {{{0,353.891998}, {126,9.39610004}}} {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection no intersect {{{0,353.891998}, {126,9.39610004}}} {{{8.17210007,104.212997}, {0,259.298737}}}
+debugShowLineIntersection wtTs[0]=0 {{{0,353.891998}, {126,9.39610004}}} {{0,353.891998}} wnTs[0]=1 {{{0,259.298737}, {0,353.891998}}}
+debugShowCubicIntersection wtTs[0]=1 {{{126,9.39610004}, {125.632057,9.29584408}, {125.122734,9.33733845}, {124.603165,9.37966728}}} {{124.603165,9.37966728}} wnTs[0]=0 {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}}
+debugShowCubicLineIntersection wtTs[0]=1 {{{124.603165,9.37966728}, {124.142731,9.41717815}, {123.674263,9.45534515}, {123.289001,9.39610004}}} {{123.289001,9.39610004}} wnTs[0]=0 {{{123.289001,9.39610004}, {118.119003,8.07219982}}}
+debugShowLineIntersection wtTs[0]=1 {{{123.289001,9.39610004}, {118.119003,8.07219982}}} {{118.119003,8.07219982}} wnTs[0]=0 {{{118.119003,8.07219982}, {8.17210007,104.212997}}}
+debugShowLineIntersection wtTs[0]=1 {{{118.119003,8.07219982}, {8.17210007,104.212997}}} {{8.17210007,104.212997}} wnTs[0]=0 {{{8.17210007,104.212997}, {0,259.298737}}}
+debugShowLineIntersection wtTs[0]=1 {{{8.17210007,104.212997}, {0,259.298737}}} {{0,259.298737}} wnTs[0]=0 {{{0,259.298737}, {0,353.891998}}}
+----------------x-x--x-x-------------- addExpanded
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+SkOpSegment::debugShowActiveSpans id=8 (8.17210007,104.212997 -2.71619996e-07,259.298737) t=0 tEnd=0.583904956 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=8 (-2.71619996e-07,259.298737 -5.82350016,369.813995) t=0.583904956 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=9 (-5.82350016,369.813995 7.26031715e-07,353.891998) t=0 tEnd=0.0441765002 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=9 (7.26031715e-07,353.891998 126,9.39620018) t=0.0441765002 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=10 (126,9.39620018 125.886971,9.36538583 125.760599,9.34795095 125.624687,9.33981037) t=0 tEnd=0.307128906 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=10 (125.624687,9.33981037 125.345733,9.32310212 125.026588,9.34554777 124.700119,9.37182617) t=0.307128906 tEnd=0.9375 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=10 (124.700119,9.37182617 124.66775,9.37443162 124.63531,9.3770743 124.602829,9.37972069) t=0.9375 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=11 (124.602829,9.37972069 124.574059,9.3820647 124.545259,9.38441166 124.516449,9.38673687) t=0 tEnd=0.0625 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=11 (124.516449,9.38673687 124.257155,9.40766372 123.997126,9.42685982 123.752594,9.4268837) t=0.0625 tEnd=0.625 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=11 (123.752594,9.4268837 123.589573,9.42689962 123.433437,9.41839421 123.289001,9.39620018) t=0.625 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=12 (123.289001,9.39620018 118.119003,8.07219982) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=13 (118.119003,8.07219982 8.17210007,104.212997) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=1 (0,353.891998 126,9.39610004) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=2 (126,9.39610004 125.886971,9.36530236 125.760605,9.34788101 125.624695,9.33975124) t=0 tEnd=0.307190555 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=2 (125.624695,9.33975124 125.345738,9.3230648 125.026588,9.34552196 124.700119,9.37180042) t=0.307190555 tEnd=0.937702598 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=2 (124.700119,9.37180042 124.667862,9.37439685 124.635532,9.37703031 124.603165,9.37966728) t=0.937702598 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=3 (124.603165,9.37966728 124.574282,9.38202029 124.545364,9.3843762 124.516441,9.38671017) t=0 tEnd=0.0627286673 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=3 (124.516441,9.38671017 124.257145,9.40763418 123.997124,9.42681973 123.752594,9.42682648) t=0.0627286673 tEnd=0.625091708 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=3 (123.752594,9.42682648 123.589574,9.42683098 123.433439,9.41831153 123.289001,9.39610004) t=0.625091708 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=4 (123.289001,9.39610004 118.119003,8.07219982) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=5 (118.119003,8.07219982 8.17210007,104.212997) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=6 (8.17210007,104.212997 0,259.298737) t=0 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=7 (0,259.298737 0,353.891998) t=0 tEnd=1 windSum=? windValue=1
+----------------x-x--x-x-------------- move_multiples
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+----------------x-x--x-x-------------- move_nearby
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+----------------x-x--x-x-------------- correctEnds
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+----------------x-x--x-x-------------- addEndMovedSpans
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+----------------x-x--x-x-------------- expand
+00:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+01:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+02:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+03:  coinSeg/Span/PtT=2/3/3 endSpan=30 oppSeg/Span/PtT=10/19/19 oppEndSpan=29 MissingCoin
+04:  coinSeg/Span/PtT=3/36/36 endSpan=6 oppSeg/Span/PtT=11/35/35 oppEndSpan=22 MissingCoin
+05:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+06:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+07:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+08:  coinSeg/Span/PtT=10/19/19 endSpan=29 oppSeg/Span/PtT=2/3/3 oppEndSpan=30 MissingCoin
+09:  coinSeg/Span/PtT=11/35/35 endSpan=22 oppSeg/Span/PtT=3/36/36 oppEndSpan=6 MissingCoin
+10:  coinSeg/Span/PtT=11/33/33 endSpan=6 oppSeg/Span/PtT=11/22/22 oppEndSpan=6 ExpandCoin
+11:  coinSeg/Span/PtT=2/30/30 endSpan=19 oppSeg/Span/PtT=2/3/3 oppEndSpan=19 ExpandCoin
+12:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+13:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+14:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+15:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+16:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+17:  seg/base=11/35 seg/base=3/36 MarkCoinEnd
+18:  seg/base=2/30 seg/base=10/29 MarkCoinStart
+19:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+20:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+21:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+22:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+23:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+------------------xx-x-x-------------- addExpanded
+00:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+01:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+02:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+03:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+04:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+05:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+06:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+07:  seg/base=11/22 seg/base=3/6 MarkCoinEnd
+08:  seg/base=3/36 MarkCoinInsert
+09:  seg/base=11/35 MarkCoinInsert
+10:  seg/base=2/3 seg/base=10/19 MarkCoinStart
+11:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+12:  seg/base=10/29 MarkCoinInsert
+13:  seg/base=2/30 MarkCoinInsert
+14:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+15:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+16:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+17:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+------------------xx-x-x-------------- move_multiples
+00:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+01:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+02:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+03:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+04:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+05:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+06:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+07:  seg/base=11/22 seg/base=3/6 MarkCoinEnd
+08:  seg/base=3/36 MarkCoinInsert
+09:  seg/base=11/35 MarkCoinInsert
+10:  seg/base=2/3 seg/base=10/19 MarkCoinStart
+11:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+12:  seg/base=10/29 MarkCoinInsert
+13:  seg/base=2/30 MarkCoinInsert
+14:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+15:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+16:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+17:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+------------------xx-x-x-------------- move_nearby
+00:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+01:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+02:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+03:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+04:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+05:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+06:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+07:  seg/base=11/22 seg/base=3/6 MarkCoinEnd
+08:  seg/base=3/36 MarkCoinInsert
+09:  seg/base=11/35 MarkCoinInsert
+10:  seg/base=2/3 seg/base=10/19 MarkCoinStart
+11:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+12:  seg/base=10/29 MarkCoinInsert
+13:  seg/base=2/30 MarkCoinInsert
+14:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+15:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+16:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+17:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+------------------xx-x-x-------------- addExpanded
+00:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+01:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+02:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+03:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+04:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+05:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+06:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+07:  seg/base=11/22 seg/base=3/6 MarkCoinEnd
+08:  seg/base=3/36 MarkCoinInsert
+09:  seg/base=11/35 MarkCoinInsert
+10:  seg/base=2/3 seg/base=10/19 MarkCoinStart
+11:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+12:  seg/base=10/29 MarkCoinInsert
+13:  seg/base=2/30 MarkCoinInsert
+14:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+15:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+16:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+17:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+------------------xx-x-x-------------- mark
+00:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+01:  coinSeg/Span/PtT=5/9/9 endSpan=10 oppSeg/Span/PtT=13/25/25 oppEndSpan=26 MissingCoin
+02:  seg/base=13/25 seg/base=5/9 MarkCoinStart
+03:  seg/base=13/26 seg/base=5/10 MarkCoinEnd
+04:  seg/base=4/7 seg/base=12/23 MarkCoinStart
+05:  seg/base=4/8 seg/base=12/24 MarkCoinEnd
+06:  seg/base=11/33 seg/base=3/34 MarkCoinStart
+07:  seg/base=11/22 seg/base=3/6 MarkCoinEnd
+08:  seg/base=3/36 MarkCoinInsert
+09:  seg/base=11/35 MarkCoinInsert
+10:  seg/base=2/3 seg/base=10/19 MarkCoinStart
+11:  seg/base=2/32 seg/base=10/31 MarkCoinEnd
+12:  seg/base=10/29 MarkCoinInsert
+13:  seg/base=2/30 MarkCoinInsert
+14:  seg/base=9/28 seg/base=1/1 MarkCoinStart
+15:  seg/base=9/18 seg/base=1/2 MarkCoinEnd
+16:  seg/base=8/15 seg/base=6/11 MarkCoinStart
+17:  seg/base=8/27 seg/base=6/12 MarkCoinEnd
+-------------------------------------- missing_coincidence
+-------------------------------------- expand
+-------------------------------------- expand
+-------------------------------------- apply
+SkOpSegment::markDone id=5 (118.119003,8.07219982 8.17210007,104.212997) t=0 [9] (118.119003,8.07219982) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=12 (123.289001,9.39620018 118.119003,8.07219982) t=0 [23] (123.289001,9.39620018) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=3 (124.603165,9.37966728 124.142731,9.41717815 123.674263,9.45534515 123.289001,9.39610004) t=0.0627286673 [34] (124.516441,9.38671017) tEnd=0.625091708 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=3 (124.603165,9.37966728 124.142731,9.41717815 123.674263,9.45534515 123.289001,9.39610004) t=0.625091708 [36] (123.752594,9.42682648) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=10 (126,9.39620018 125.631981,9.29586983 125.12252,9.3373785 124.602829,9.37972069) t=0 [19] (126,9.39620018) tEnd=0.307128906 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=10 (126,9.39620018 125.631981,9.29586983 125.12252,9.3373785 124.602829,9.37972069) t=0.307128906 [29] (125.624687,9.33981037) tEnd=0.9375 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=1 (0,353.891998 126,9.39610004) t=0 [1] (0,353.891998) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+SkOpSegment::markDone id=6 (8.17210007,104.212997 0,259.298737) t=0 [11] (8.17210007,104.212997) tEnd=1 newWindSum=? newOppSum=? oppSum=? windSum=? windValue=0 oppValue=0
+-------------------------------------- findOverlaps
+SkOpSegment::debugShowActiveSpans id=8 (8.17210007,104.212997 -2.71619996e-07,259.298737) t=0 tEnd=0.583904956 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=8 (-2.71619996e-07,259.298737 -5.82350016,369.813995) t=0.583904956 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=9 (-5.82350016,369.813995 7.26031715e-07,353.891998) t=0 tEnd=0.0441765002 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=9 (7.26031715e-07,353.891998 126,9.39620018) t=0.0441765002 tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=10 (124.700119,9.37182617 124.66775,9.37443162 124.63531,9.3770743 124.602829,9.37972069) t=0.9375 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=11 (124.602829,9.37972069 124.574059,9.3820647 124.545259,9.38441166 124.516449,9.38673687) t=0 tEnd=0.0625 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=11 (124.516449,9.38673687 124.257155,9.40766372 123.997126,9.42685982 123.752594,9.4268837) t=0.0625 tEnd=0.625 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=11 (123.752594,9.4268837 123.589573,9.42689962 123.433437,9.41839421 123.289001,9.39620018) t=0.625 tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=13 (118.119003,8.07219982 8.17210007,104.212997) t=0 tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=2 (126,9.39610004 125.886971,9.36530236 125.760605,9.34788101 125.624695,9.33975124) t=0 tEnd=0.307190555 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=2 (125.624695,9.33975124 125.345738,9.3230648 125.026588,9.34552196 124.700119,9.37180042) t=0.307190555 tEnd=0.937702598 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=2 (124.700119,9.37180042 124.667862,9.37439685 124.635532,9.37703031 124.603165,9.37966728) t=0.937702598 tEnd=1 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=3 (124.603165,9.37966728 124.574282,9.38202029 124.545364,9.3843762 124.516441,9.38671017) t=0 tEnd=0.0627286673 windSum=? windValue=1
+SkOpSegment::debugShowActiveSpans id=4 (123.289001,9.39610004 118.119003,8.07219982) t=0 tEnd=1 windSum=? oppSum=? windValue=1 oppValue=1
+SkOpSegment::debugShowActiveSpans id=7 (0,259.298737 0,353.891998) t=0 tEnd=1 windSum=? windValue=1
+-------------------------------------- calc_angles
+SkOpSegment::sortAngles [8] tStart=0 [15]
+SkOpSegment::sortAngles [8] tStart=0.583904956 [27]
+SkOpAngle::after [8/2] 5/5 tStart=0.583904956 tEnd=0 < [7/23] 23/23 tStart=0 tEnd=1 < [8/3] 21/21 tStart=0.583904956 tEnd=1  F 4
+SkOpAngle::afterPart {{{0,259.298737}, {8.17210034,104.212997}}} id=8
+SkOpAngle::afterPart {{{0,259.298737}, {0,353.891998}}} id=7
+SkOpAngle::afterPart {{{0,259.298737}, {-5.82349988,369.813995}}} id=8
+SkOpSegment::sortAngles [9] tStart=0.0441765002 [28]
+SkOpAngle::after [9/4] 21/21 tStart=0.0441765002 tEnd=0 < [7/24] 7/7 tStart=1 tEnd=0 < [9/5] 5/5 tStart=0.0441765002 tEnd=1  F 4
+SkOpAngle::afterPart {{{0,353.891998}, {-5.82350088,369.813995}}} id=9
+SkOpAngle::afterPart {{{0,353.891998}, {0,259.298737}}} id=7
+SkOpAngle::afterPart {{{0,353.891998}, {125.999999,9.39620018}}} id=9
+SkOpSegment::sortAngles [9] tStart=1 [18]
+SkOpSegment::sortAngles [10] tStart=0.9375 [31]
+SkOpAngle::after [10/7] 17/17 tStart=0.9375 tEnd=1 < [2/19] 17/17 tStart=0.937702598 tEnd=1 < [2/18] 1/1 tStart=0.937702598 tEnd=0.307190555  T 12
+SkOpAngle::afterPart {{{124.700119,9.37180042}, {124.66775,9.37440587}, {124.63531,9.37704855}, {124.602829,9.37969494}}} id=10
+SkOpAngle::afterPart {{{124.700119,9.37180042}, {124.667862,9.37439685}, {124.635532,9.37703031}, {124.603165,9.37966728}}} id=2
+SkOpAngle::afterPart {{{124.700119,9.37180042}, {125.026588,9.34552196}, {125.345738,9.3230648}, {125.624695,9.33975124}}} id=2
+SkOpSegment::sortAngles [11] tStart=0.0625 [33]
+SkOpAngle::after [11/8] 1/1 tStart=0.0625 tEnd=0 < [3/20] 1/1 tStart=0.0627286673 tEnd=0 < [11/9] 17/17 tStart=0.0625 tEnd=0.625  T 12
+SkOpAngle::afterPart {{{124.516441,9.38671017}, {124.545252,9.38438496}, {124.574051,9.382038}, {124.602821,9.37969398}}} id=11
+SkOpAngle::afterPart {{{124.516441,9.38671017}, {124.545364,9.3843762}, {124.574282,9.38202029}, {124.603165,9.37966728}}} id=3
+SkOpAngle::afterPart {{{124.516441,9.38671017}, {124.257148,9.40763702}, {123.997118,9.42683311}, {123.752586,9.42685699}}} id=11
+SkOpSegment::sortAngles [11] tStart=0.625 [35]
+SkOpSegment::sortAngles [11] tStart=1 [22]
+SkOpSegment::sortAngles [13] tStart=0 [25]
+SkOpSegment::sortAngles [13] tStart=1 [26]
+SkOpSegment::sortAngles [2] tStart=0 [3]
+SkOpSegment::sortAngles [2] tStart=0.307190555 [30]
+SkOpSegment::sortAngles [2] tStart=0.937702598 [32]
+SkOpSegment::sortAngles [3] tStart=0.0627286673 [34]
+SkOpSegment::sortAngles [4] tStart=0 [7]
+SkOpSegment::sortAngles [4] tStart=1 [8]
+SkOpSegment::sortAngles [7] tStart=0 [13]
+SkOpSegment::sortAngles [7] tStart=1 [14]
+coinSpan - id=13 t=0 tEnd=1
+coinSpan + id=5 t=0 tEnd=1
+coinSpan - id=4 t=0 tEnd=1
+coinSpan + id=12 t=0 tEnd=1
+coinSpan - id=11 t=0.0625 tEnd=1
+coinSpan + id=3 t=0.0627286673 tEnd=1
+coinSpan - id=2 t=0 tEnd=0.937702598
+coinSpan + id=10 t=0 tEnd=0.9375
+coinSpan - id=9 t=0.0441765002 tEnd=1
+coinSpan + id=1 t=0 tEnd=1
+coinSpan - id=8 t=0 tEnd=0.583904956
+coinSpan + id=6 t=0 tEnd=1
+SkOpSpan::sortableTop dir=kLeft seg=8 t=0.291952478 pt=(4.08605003,181.755859)
+SkOpSpan::sortableTop [0] valid=1 operand=1 span=15 ccw=0 seg=8 {{{8.17210007f, 104.212997f}, {-5.82350016f, 369.813995f}}} t=0.291952478 pt=(4.08605003,181.755859) slope=(-13.9956002,265.600998)
+SkOpSegment::markWinding id=8 (8.17210007,104.212997 -5.82350016,369.813995) t=0 [15] (8.17210007,104.212997) tEnd=0.583904956 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+SkOpSegment::markWinding id=8 (8.17210007,104.212997 -5.82350016,369.813995) t=0 [15] (8.17210007,104.212997) tEnd=0.583904956 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+SkOpSegment::markWinding id=13 (118.119003,8.07219982 8.17210007,104.212997) t=0 [25] (118.119003,8.07219982) tEnd=1 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markWinding id=4 (123.289001,9.39610004 118.119003,8.07219982) t=0 [7] (123.289001,9.39610004) tEnd=1 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markWinding id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0.625 [35] (123.752594,9.4268837) tEnd=1 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markWinding id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0.0625 [33] (124.516449,9.38673687) tEnd=0.625 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::activeOp id=8 t=0.583904956 tEnd=0 op=sect miFrom=1 miTo=0 suFrom=1 suTo=0 result=1
+SkOpSegment::findNextOp simple
+SkOpSegment::markDone id=8 (8.17210007,104.212997 -5.82350016,369.813995) t=0 [15] (8.17210007,104.212997) tEnd=0.583904956 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+bridgeOp current id=8 from=(-2.71619996e-07,259.298737) to=(8.17210007,104.212997)
+SkOpSegment::findNextOp simple
+SkOpSegment::markDone id=13 (118.119003,8.07219982 8.17210007,104.212997) t=0 [25] (118.119003,8.07219982) tEnd=1 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+bridgeOp current id=13 from=(8.17210007,104.212997) to=(118.119003,8.07219982)
+path.moveTo(-2.71619996e-07,259.298737);
+path.lineTo(8.17210007,104.212997);
+SkOpSegment::findNextOp simple
+SkOpSegment::markDone id=4 (123.289001,9.39610004 118.119003,8.07219982) t=0 [7] (123.289001,9.39610004) tEnd=1 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+bridgeOp current id=4 from=(118.119003,8.07219982) to=(123.289001,9.39610004)
+path.lineTo(118.119003,8.07219982);
+SkOpSegment::findNextOp simple
+SkOpSegment::markDone id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0.625 [35] (123.752594,9.4268837) tEnd=1 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+bridgeOp current id=11 from=(123.289001,9.39620018) to=(123.752594,9.4268837)
+path.lineTo(123.289001,9.39610004);
+path.cubicTo(123.433441,9.41839409, 123.589569,9.42689991, 123.752594,9.4268837);
+SkOpSegment::markWinding id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0 [21] (124.602829,9.37972069) tEnd=0.0625 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=10 (126,9.39620018 125.631981,9.29586983 125.12252,9.3373785 124.602829,9.37972069) t=0.9375 [31] (124.700119,9.37182617) tEnd=1 newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markAngle last segment=10 span=31 windSum=1
+SkOpSegment::markWinding id=3 (124.603165,9.37966728 124.142731,9.41717815 123.674263,9.45534515 123.289001,9.39610004) t=0 [5] (124.603165,9.37966728) tEnd=0.0627286673 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0.937702598 [32] (124.700119,9.37180042) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markAngle last segment=2 span=32 windSum=1
+SkOpSegment::findNextOp
+SkOpAngle::dumpOne [11/9] next=11/8 sect=17/17  s=0.0625 [33] e=0.625 [35] sgn=-1 windVal=1 windSum=1 oppVal=1 oppSum=1 operand
+SkOpAngle::dumpOne [11/8] next=3/20 sect=1/1  s=0.0625 [33] e=0 [21] sgn=1 windVal=1 windSum=1 oppVal=0 oppSum=1 operand
+SkOpAngle::dumpOne [3/20] next=11/9 sect=1/1  s=0.0627286673 [34] e=0 [5] sgn=1 windVal=1 windSum=1 oppVal=0 oppSum=0
+SkOpSegment::activeOp id=11 t=0.0625 tEnd=0 op=sect miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+SkOpSegment::findNextOp chase.append segment=10 span=31 windSum=1
+SkOpSegment::activeOp id=3 t=0.0627286673 tEnd=0 op=sect miFrom=1 miTo=0 suFrom=0 suTo=0 result=0
+SkOpSegment::markDone id=3 (124.603165,9.37966728 124.142731,9.41717815 123.674263,9.45534515 123.289001,9.39610004) t=0 [5] (124.603165,9.37966728) tEnd=0.0627286673 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+SkOpSegment::markDone id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0.937702598 [32] (124.700119,9.37180042) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+SkOpSegment::findNextOp chase.append segment=2 span=32 windSum=1
+SkOpSegment::markDone id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0.0625 [33] (124.516449,9.38673687) tEnd=0.625 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=1
+SkOpSegment::findNextOp from:[11] to:[11] start=-1132576784 end=-1353716568
+bridgeOp current id=11 from=(123.752594,9.4268837) to=(124.516449,9.38673687)
+path.cubicTo(123.997124,9.42685986, 124.257156,9.40766335, 124.516449,9.38673687);
+SkOpSegment::findNextOp simple
+SkOpSegment::markDone id=11 (124.602829,9.37972069 124.142509,9.41722488 123.674164,9.45538425 123.289001,9.39620018) t=0 [21] (124.602829,9.37972069) tEnd=0.0625 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=0
+bridgeOp current id=11 from=(124.516449,9.38673687) to=(124.602829,9.37972069)
+path.cubicTo(124.545258,9.38441181, 124.574059,9.38206482, 124.602829,9.37972069);
+SkOpSegment::markWinding id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0.307190555 [30] (125.624695,9.33975124) tEnd=0.937702598 newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markWinding id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0 [3] (126,9.39610004) tEnd=0.307190555 newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markWinding id=9 (-5.82350016,369.813995 126,9.39620018) t=0.0441765002 [28] (7.26031715e-07,353.891998) tEnd=1 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1 oppValue=1
+SkOpSegment::markAngle last segment=9 span=28 windSum=-1
+SkOpSegment::findNextOp
+SkOpAngle::dumpOne [10/7] next=2/19 sect=17/17  s=0.9375 [31] e=1 [20] sgn=-1 windVal=1 windSum=1 oppVal=0 oppSum=1 operand
+SkOpAngle::dumpOne [2/19] next=2/18 sect=17/17  s=0.937702598 [32] e=1 [4] sgn=-1 windVal=1 windSum=1 oppVal=0 oppSum=0 done
+SkOpAngle::dumpOne [2/18] next=10/7 sect=1/1  s=0.937702598 [32] e=0.307190555 [30] sgn=1 windVal=1 windSum=1 oppVal=1 oppSum=-1
+SkOpSegment::activeOp id=2 t=0.937702598 tEnd=1 op=sect = result=1
+SkOpSegment::activeOp id=2 t=0.937702598 tEnd=0.307190555 op=sect miFrom=0 miTo=1 suFrom=1 suTo=0 result=0
+SkOpSegment::markDone id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0.307190555 [30] (125.624695,9.33975124) tEnd=0.937702598 newWindSum=1 newOppSum=-1 oppSum=-1 windSum=1 windValue=1 oppValue=1
+SkOpSegment::markDone id=2 (126,9.39610004 125.632057,9.29584408 125.122734,9.33733845 124.603165,9.37966728) t=0 [3] (126,9.39610004) tEnd=0.307190555 newWindSum=1 newOppSum=-1 oppSum=-1 windSum=1 windValue=1 oppValue=1
+SkOpSegment::markDone id=9 (-5.82350016,369.813995 126,9.39620018) t=0.0441765002 [28] (7.26031715e-07,353.891998) tEnd=1 newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1 oppValue=1
+SkOpSegment::findNextOp chase.append segment=9 span=28 windSum=-1
+SkOpSegment::markDone id=10 (126,9.39620018 125.631981,9.29586983 125.12252,9.3373785 124.602829,9.37972069) t=0.9375 [31] (124.700119,9.37182617) tEnd=1 newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1 oppValue=0
+SkOpSegment::findNextOp from:[10] to:[2] start=-1132576976 end=-1353719496
+bridgeOp current id=10 from=(124.602829,9.37972069) to=(124.700119,9.37182617)
+path.cubicTo(124.635307,9.37707424, 124.667747,9.37443161, 124.700119,9.37182617);
+SkOpSegment::markWinding id=7 (0,259.298737 0,353.891998) t=0 [13] (0,259.298737) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=9 (-5.82350016,369.813995 126,9.39620018) t=0 [17] (-5.82350016,369.813995) tEnd=0.0441765002 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::markWinding id=8 (8.17210007,104.212997 -5.82350016,369.813995) t=0.583904956 [27] (-2.71619996e-07,259.298737) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=8 (-2.71619996e-07,259.298737 -5.82350016,369.813995) t=0.583904956 tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=9 (-5.82350016,369.813995 7.26031715e-07,353.891998) t=0 tEnd=0.0441765002 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=7 (0,259.298737 0,353.891998) t=0 tEnd=1 windSum=1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::activeOp id=7 t=1 tEnd=0 op=sect miFrom=1 miTo=0 suFrom=0 suTo=0 result=0
+SkOpSegment::markDone id=7 (0,259.298737 0,353.891998) t=0 [13] (0,259.298737) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1 oppValue=0
+bridgeOp chase.append id=7 windSum=1
+SkOpSegment::debugShowActiveSpans id=8 (-2.71619996e-07,259.298737 -5.82350016,369.813995) t=0.583904956 tEnd=1 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::debugShowActiveSpans id=9 (-5.82350016,369.813995 7.26031715e-07,353.891998) t=0 tEnd=0.0441765002 windSum=-1 oppSum=0 windValue=1 oppValue=0
+SkOpSegment::activeOp id=8 t=0.583904956 tEnd=1 op=sect miFrom=0 miTo=0 suFrom=1 suTo=0 result=0
+SkOpSegment::markDone id=8 (8.17210007,104.212997 -5.82350016,369.813995) t=0.583904956 [27] (-2.71619996e-07,259.298737) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+SkOpSegment::markDone id=9 (-5.82350016,369.813995 126,9.39620018) t=0 [17] (-5.82350016,369.813995) tEnd=0.0441765002 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1 oppValue=0
+</div>
 
 
 
@@ -1029,7 +541,7 @@ pathops_unittest.exe has triggered a breakpoint.
 <script type="text/javascript">
 
     var testDivs = [
-        crbug_526025,
+        bug8380,
     ];
 
 var decimal_places = 3; // make this 3 to show more precision
