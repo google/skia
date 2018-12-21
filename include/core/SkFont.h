@@ -495,7 +495,7 @@ private:
         kEmbolden_PrivFlag              = 1 << 4,
     };
 
-    static constexpr unsigned kAllFlags = 0x07F;
+    static constexpr unsigned kAllFlags = 0x1F;
 
     sk_sp<SkTypeface> fTypeface;
     SkScalar    fSize;

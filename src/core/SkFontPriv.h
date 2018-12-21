@@ -12,6 +12,9 @@
 #include "SkMatrix.h"
 #include "SkTypeface.h"
 
+class SkReadBuffer;
+class SkWriteBuffer;
+
 class SkFontPriv {
 public:
     /**
@@ -63,6 +66,9 @@ public:
     static int CountTextElements(const void* text, size_t byteLength, SkTextEncoding);
 
     static void GlyphsToUnichars(const SkFont&, const uint16_t glyphs[], int count, SkUnichar[]);
+
+    static void Flatten(const SkFont&, SkWriteBuffer& buffer);
+    static bool Unflatten(SkFont*, SkReadBuffer& buffer);
 };
 
 class SkAutoToGlyphs {
