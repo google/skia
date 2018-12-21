@@ -24,13 +24,15 @@
 
 #include <vector>
 
+class SkPDFDocument;
+using SkPDFDocument = SkPDFDocument;
+
 class SkGlyphRunList;
 class SkKeyedImage;
 class SkPath;
 class SkPDFArray;
-class SkPDFCanon;
+
 class SkPDFDevice;
-class SkPDFDocument;
 class SkPDFDict;
 class SkPDFFont;
 class SkPDFObject;
@@ -50,7 +52,7 @@ public:
      *         1 point == 127/360 mm == 1/72 inch
      *  @param document  A non-null pointer back to the
      *         PDFDocument object.  The document is repsonsible for
-     *         de-duplicating across pages (via the SkPDFCanon) and
+     *         de-duplicating across pages (via the SkPDFDocument) and
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).
      *  @param initialTransform Transform to be applied to the entire page.
@@ -114,8 +116,6 @@ public:
     /** Returns a SkStream with the page contents.
      */
     std::unique_ptr<SkStreamAsset> content();
-
-    SkPDFCanon* getCanon() const;
 
     SkISize size() const { return this->imageInfo().dimensions(); }
     SkIRect bounds() const { return this->imageInfo().bounds(); }
