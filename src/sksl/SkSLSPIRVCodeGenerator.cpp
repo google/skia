@@ -2512,12 +2512,12 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     fVariableBuffer.reset();
     SpvId result = this->writeFunctionStart(f.fDeclaration, out);
     this->writeLabel(this->nextId(), out);
-    if (f.fDeclaration.fName == "main") {
-        write_stringstream(fGlobalInitializersBuffer, out);
-    }
     StringStream bodyBuffer;
     this->writeBlock((Block&) *f.fBody, bodyBuffer);
     write_stringstream(fVariableBuffer, out);
+    if (f.fDeclaration.fName == "main") {
+        write_stringstream(fGlobalInitializersBuffer, out);
+    }
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
         if (f.fDeclaration.fReturnType == *fContext.fVoid_Type) {
