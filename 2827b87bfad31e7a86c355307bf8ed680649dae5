@@ -93,6 +93,30 @@
       "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4eb3b95_26a25d96",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-21T15:57:05Z",
+      "side": 1,
+      "message": "Okay. How about renaming them to appendDeviceSpaceGlyph and appendLocalSpaceGlyph? Or appendPostCTMGlyph and appendPreCTMGlyph? \"Upright\" isn\u0027t clear to me and I believe sometimes it can be scaled from the original text size (and hence is also in a sense transformed).",
+      "parentUuid": "ee2e99e6_c0c35988",
+      "range": {
+        "startLine": 630,
+        "startChar": 22,
+        "endLine": 630,
+        "endChar": 44
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
