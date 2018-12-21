@@ -265,10 +265,11 @@ private:
     // V64: Remove occluder feature from blur maskFilter
     // V65: Float4 paint color
     // V66: Add saveBehind
+    // V67: Blobs serialize fonts instead of paints
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
-    static const uint32_t CURRENT_PICTURE_VERSION = 66;
+    static const uint32_t CURRENT_PICTURE_VERSION = 67;
 
     static_assert(MIN_PICTURE_VERSION <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
 
