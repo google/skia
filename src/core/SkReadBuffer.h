@@ -44,6 +44,7 @@ public:
         kRemoveOccluderFromBlurMaskFilter  = 64,
         kFloat4PaintColor_Version          = 65,
         kSaveBehind_Version                = 66,
+        kSerializeFonts_Version            = 67,
     };
 
     /**
@@ -247,6 +248,7 @@ public:
         kRemoveOccluderFromBlurMaskFilter  = 64,
         kFloat4PaintColor_Version          = 65,
         kSaveBehind_Version                = 66,
+        kSerializeFonts_Version            = 67,
     };
 
     bool isVersionLT(Version) const { return false; }
