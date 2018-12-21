@@ -24,29 +24,43 @@ const char* SkPDFGetNodeIdKey() {
     return key;
 }
 
-void SkPDFOffsetMap::set(SkPDFIndirectReference iRef, SkPDFFileOffset offset) {
-    SkASSERT(iRef.fValue > 0);
-    size_t index = SkToSizeT(iRef.fValue - 1);
-    if (index == fOffsets.size()) {
-        fOffsets.push_back(offset);
-    } else if (index < fOffsets.size()) {
-        fOffsets[index] = offset;
-    } else {
+////////////////////////////////////////////////////////////////////////////////
+
+void SkPDFOffsetMap::markStartOfDocument(const SkWStream* s) { fBaseOffset = s->bytesWritten(); }
+
+int SkPDFOffsetMap::offset(const SkWStream* s) const {
+    size_t currentPos = s->bytesWritten();
+    SkASSERT(currentPos > fBaseOffset);
+    return SkToInt(currentPos - fBaseOffset);
+}
+
+void SkPDFOffsetMap::markStartOfObject(int referenceNumber, const SkWStream* s) {
+    SkASSERT(referenceNumber > 0);
+    size_t index = SkToSizeT(referenceNumber - 1);
+    if (index >= fOffsets.size()) {
         fOffsets.resize(index + 1);
-        fOffsets[index] = offset;
     }
+    fOffsets[index] = this->offset(s);
 }
 
-SkPDFFileOffset SkPDFOffsetMap::get(SkPDFIndirectReference r) {
-    return SkASSERT(r.fValue > 0),
-           SkASSERT(r.fValue <= (int)fOffsets.size()),
-           fOffsets[r.fValue - 1];
+int SkPDFOffsetMap::objectCount() const {
+    return SkToInt(fOffsets.size() + 1); // Include the special zeroth object in the count.
 }
 
-SkPDFObjectSerializer::SkPDFObjectSerializer() = default;
-
-SkPDFObjectSerializer::~SkPDFObjectSerializer() = default;
-
+int SkPDFOffsetMap::emitCrossReferenceTable(SkWStream* s) const {
+    int xRefFileOffset = this->offset(s);
+    s->writeText("xref\n0 ");
+    s->writeDecAsText(this->objectCount());
+    s->writeText("\n0000000000 65535 f \n");
+    for (int offset : fOffsets) {
+        SkASSERT(offset > 0);  // Offset was set.
+        s->writeBigDecAsText(offset, 10);
+        s->writeText(" 00000 n \n");
+    }
+    return xRefFileOffset;
+}
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
 #ifndef SK_BUILD_FOR_WIN
@@ -55,46 +69,34 @@ static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
 static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
 static_assert((SKPDF_MAGIC[3] & 0x7F) == "Skia"[3], "");
 #endif
-void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream) {
-    fBaseOffset = wStream->bytesWritten();
-    static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
-    wStream->writeText(kHeader);
+static void serializeHeader(SkPDFOffsetMap* offsetMap, SkWStream* wStream) {
+    offsetMap->markStartOfDocument(wStream);
+    wStream->writeText("%PDF-1.4\n%" SKPDF_MAGIC "\n");
     // The PDF spec recommends including a comment with four
     // bytes, all with their high bits set.  "\xD3\xEB\xE9\xE1" is
     // "Skia" with the high bits set.
 }
 #undef SKPDF_MAGIC
 
-void SkPDFObjectSerializer::beginObject(SkPDFIndirectReference ref, SkWStream* wStream) {
-    SkASSERT(ref.fValue > 0);
-    fOffsets.set(ref, this->offset(wStream));
-    wStream->writeDecAsText(ref.fValue);
-    wStream->writeText(" 0 obj\n");  // Generation number is always 0.
+static void begin_indirect_object(SkPDFOffsetMap* offsetMap,
+                                  SkPDFIndirectReference ref,
+                                  SkWStream* s) {
+    offsetMap->markStartOfObject(ref.fValue, s);
+    s->writeDecAsText(ref.fValue);
+    s->writeText(" 0 obj\n");  // Generation number is always 0.
 }
 
-void SkPDFObjectSerializer::endObject(SkWStream* wStream) {
-    wStream->writeText("\nendobj\n");
-}
+static void end_indirect_object(SkWStream* s) { s->writeText("\nendobj\n"); }
 
 // Xref table and footer
-void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
-                                            SkPDFIndirectReference infoDict,
-                                            SkPDFIndirectReference docCatalog,
-                                            SkUUID uuid) {
-    int xRefFileOffset = this->offset(wStream).fValue;
-    // Include the special zeroth object in the count.
-
-    int objCount = SkToInt(fOffsets.fOffsets.size() + 1);
-    wStream->writeText("xref\n0 ");
-    wStream->writeDecAsText(objCount);
-    wStream->writeText("\n0000000000 65535 f \n");
-    for (int i = 1; i < objCount; ++i) {
-        SkASSERT(fOffsets.get(SkPDFIndirectReference{i}).fValue > 0);
-        wStream->writeBigDecAsText(fOffsets.get(SkPDFIndirectReference{i}).fValue, 10);
-        wStream->writeText(" 00000 n \n");
-    }
+static void serialize_footer(const SkPDFOffsetMap& offsetMap,
+                             SkWStream* wStream,
+                             SkPDFIndirectReference infoDict,
+                             SkPDFIndirectReference docCatalog,
+                             SkUUID uuid) {
+    int xRefFileOffset = offsetMap.emitCrossReferenceTable(wStream);
     SkPDFDict trailerDict;
-    trailerDict.insertInt("Size", objCount);
+    trailerDict.insertInt("Size", offsetMap.objectCount());
     SkASSERT(docCatalog != SkPDFIndirectReference());
     trailerDict.insertRef("Root", docCatalog);
     SkASSERT(infoDict != SkPDFIndirectReference());
@@ -107,13 +109,6 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
     wStream->writeText("\nstartxref\n");
     wStream->writeBigDecAsText(xRefFileOffset);
     wStream->writeText("\n%%EOF");
-}
-
-SkPDFFileOffset SkPDFObjectSerializer::offset(SkWStream* wStream) {
-    size_t offset = wStream->bytesWritten();
-    SkASSERT(fBaseOffset != SIZE_MAX);
-    SkASSERT(offset > fBaseOffset);
-    return SkPDFFileOffset{SkToInt(offset - fBaseOffset)};
 }
 
 static SkPDFIndirectReference generate_page_tree(
@@ -216,12 +211,12 @@ SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndir
 
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) {
     fMutex.acquire();
-    fObjectSerializer.beginObject(ref, this->getStream());
+    begin_indirect_object(&fOffsetMap, ref, this->getStream());
     return this->getStream();
 };
 
 void SkPDFDocument::endObject() {
-    fObjectSerializer.endObject(this->getStream());
+    end_indirect_object(this->getStream());
     fMutex.release();
     fSemaphore.signal();
 };
@@ -235,7 +230,8 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
         // if this is the first page if the document.
         {
             SkAutoMutexAcquire autoMutexAcquire(fMutex);
-            fObjectSerializer.serializeHeader(this->getStream());
+            serializeHeader(&fOffsetMap, this->getStream());
+
         }
 
         fInfoDict = this->emit(*SkPDFMetadata::MakeDocumentInformationDict(fMetadata));
@@ -300,7 +296,7 @@ void SkPDFDocument::onAbort() {
 }
 
 void SkPDFDocument::reset() {
-    reset_object(&fObjectSerializer);
+    reset_object(&fOffsetMap);
     fCanon = SkPDFCanon();
     reset_object(&fCanvas);
     fPages = std::vector<std::unique_ptr<SkPDFDict>>();
@@ -512,10 +508,10 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         fSemaphore.wait();
         ++waits;
     }
-
+    SkASSERT(fNextObjectNumber.load() == fOffsetMap.objectCount());
     {
         SkAutoMutexAcquire autoMutexAcquire(fMutex);
-        fObjectSerializer.serializeFooter(this->getStream(), fInfoDict, docCatalogRef, fUUID);
+        serialize_footer(fOffsetMap, this->getStream(), fInfoDict, docCatalogRef, fUUID);
     }
     this->reset();
 }
