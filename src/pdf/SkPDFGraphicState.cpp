@@ -8,7 +8,7 @@
 #include "SkPDFGraphicState.h"
 
 #include "SkData.h"
-#include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFUtils.h"
@@ -55,11 +55,10 @@ static uint8_t pdf_blend_mode(SkBlendMode mode) {
 
 SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument* doc,
                                                                   const SkPaint& p) {
-    SkPDFCanon* canon = doc->canon();
-    SkASSERT(canon);
+    SkASSERT(doc);
     if (SkPaint::kFill_Style == p.getStyle()) {
         SkPDFFillGraphicState fillKey = {p.getColor4f().fA, pdf_blend_mode(p.getBlendMode())};
-        auto& fillMap = canon->fFillGSMap;
+        auto& fillMap = doc->fFillGSMap;
         if (SkPDFIndirectReference* statePtr = fillMap.find(fillKey)) {
             return *statePtr;
         }
@@ -79,7 +78,7 @@ SkPDFIndirectReference SkPDFGraphicState::GetGraphicStateForPaint(SkPDFDocument*
             SkToU8(p.getStrokeJoin()),
             pdf_blend_mode(p.getBlendMode())
         };
-        auto& sMap = canon->fStrokeGSMap;
+        auto& sMap = doc->fStrokeGSMap;
         if (SkPDFIndirectReference* statePtr = sMap.find(strokeKey)) {
             return *statePtr;
         }
@@ -121,7 +120,6 @@ SkPDFIndirectReference SkPDFGraphicState::GetSMaskGraphicState(SkPDFIndirectRefe
                                                                SkPDFDocument* doc) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    SkPDFCanon* canon = doc->canon();
     auto sMaskDict = SkPDFMakeDict("Mask");
     if (sMaskMode == kAlpha_SMaskMode) {
         sMaskDict->insertName("S", "Alpha");
@@ -130,11 +128,11 @@ SkPDFIndirectReference SkPDFGraphicState::GetSMaskGraphicState(SkPDFIndirectRefe
     }
     sMaskDict->insertRef("G", sMask);
     if (invert) {
-        // let the canon deduplicate this object.
-        if (canon->fInvertFunction == SkPDFIndirectReference()) {
-            canon->fInvertFunction = make_invert_function(doc);
+        // let the doc deduplicate this object.
+        if (doc->fInvertFunction == SkPDFIndirectReference()) {
+            doc->fInvertFunction = make_invert_function(doc);
         }
-        sMaskDict->insertRef("TR", canon->fInvertFunction);
+        sMaskDict->insertRef("TR", doc->fInvertFunction);
     }
     SkPDFDict result("ExtGState");
     result.insertObject("SMask", std::move(sMaskDict));
