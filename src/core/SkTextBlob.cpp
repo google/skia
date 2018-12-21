@@ -696,9 +696,6 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
-    buffer.writeRect(blob.fBounds);
-
-    SkPaint runPaint;
     SkTextBlobRunIterator it(&blob);
     while (!it.done()) {
         SkASSERT(it.glyphCount() > 0);
@@ -716,9 +713,8 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
             buffer.write32(textSize);
         }
         buffer.writePoint(it.offset());
-        // This should go away when switching to SkFont
-        it.applyFontToPaint(&runPaint);
-        buffer.writePaint(runPaint);
+
+        SkFontPriv::Flatten(it.font(), buffer);
 
         buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
         buffer.writeByteArray(it.pos(),
@@ -738,8 +734,13 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
 }
 
 sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
-    SkRect bounds;
-    reader.readRect(&bounds);
+    size_t start_offset = reader.offset();
+
+    if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
+        SkRect bounds;
+        reader.readRect(&bounds);
+        // ignored
+    }
 
     SkTextBlobBuilder blobBuilder;
     SkSafeMath safe;
@@ -763,9 +764,14 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkPaint paint;
-        reader.readPaint(&paint);
-        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        SkFont font;
+        if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
+            SkPaint paint;
+            reader.readPaint(&paint);
+            font = SkFont::LEGACY_ExtractFromPaint(paint);
+        } else {
+            SkFontPriv::Unflatten(&font, reader);
+        }
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.
@@ -785,17 +791,17 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
         switch (pos) {
             case SkTextBlob::kDefault_Positioning:
                 buf = &blobBuilder.allocRunText(font, glyphCount, offset.x(), offset.y(),
-                                                textSize, SkString(), &bounds);
+                                                textSize, SkString(), nullptr);
                 break;
             case SkTextBlob::kHorizontal_Positioning:
                 buf = &blobBuilder.allocRunTextPosH(font, glyphCount, offset.y(),
-                                                    textSize, SkString(), &bounds);
+                                                    textSize, SkString(), nullptr);
                 break;
             case SkTextBlob::kFull_Positioning:
-                buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, SkString(), &bounds);
+                buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, SkString(), nullptr);
                 break;
             case SkTextBlob::kRSXform_Positioning:
-                buf = &blobBuilder.allocRunRSXform(font, glyphCount, textSize, SkString(), &bounds);
+                buf = &blobBuilder.allocRunRSXform(font, glyphCount, textSize, SkString(), nullptr);
                 break;
         }
 
@@ -817,6 +823,11 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
             }
         }
     }
+
+    static size_t total_size;
+    size_t actual_size = reader.offset() - start_offset;
+    total_size += actual_size;
+    SkDebugf("blob size %zu %zu\n", actual_size, total_size);
 
     return blobBuilder.make();
 }
