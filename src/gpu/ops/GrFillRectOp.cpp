@@ -218,7 +218,7 @@ private:
         VertexSpec vertexSpec(this->deviceQuadType(),
                               fWideColor ? ColorType::kHalf : ColorType::kByte,
                               this->localQuadType(), fHelper.usesLocalCoords(), Domain::kNo,
-                              fHelper.aaType());
+                              fHelper.aaType(), fHelper.compatibleWithAlphaAsCoverage());
 
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
         size_t vertexSize = gp->vertexStride();
@@ -227,8 +227,9 @@ private:
         int vertexOffsetInBuffer = 0;
 
         // Fill the allocated vertex data
-        void* vdata = target->makeVertexSpace(vertexSize, fQuads.count() * 4, &vbuffer,
-                                              &vertexOffsetInBuffer);
+        void* vdata = target->makeVertexSpace(
+                vertexSize, fQuads.count() * vertexSpec.verticesPerQuad(),
+                &vbuffer, &vertexOffsetInBuffer);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -243,19 +244,10 @@ private:
         }
 
         // Configure the mesh for the vertex data
-        GrMesh* mesh;
-        if (fQuads.count() > 1) {
-            mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
-            if (!ibuffer) {
-                SkDebugf("Could not allocate quad indices\n");
-                return;
-            }
-            mesh->setIndexedPatterned(ibuffer.get(), 6, 4, fQuads.count(),
-                                      GrResourceProvider::QuadCountOfQuadBuffer());
-        } else {
-            mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
-            mesh->setNonIndexedNonInstanced(4);
+        GrMesh* mesh = target->allocMeshes(1);
+        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, fQuads.count())) {
+            SkDebugf("Could not allocate indices\n");
+            return;
         }
         mesh->setVertexData(vbuffer, vertexOffsetInBuffer);
 
@@ -266,6 +258,13 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         const auto* that = t->cast<FillRectOp>();
+
+        if ((fHelper.aaType() == GrAAType::kCoverage ||
+             that->fHelper.aaType() == GrAAType::kCoverage) &&
+            fQuads.count() + that->fQuads.count() > GrQuadPerEdgeAA::kNumAAQuadsInIndexBuffer) {
+            // This limit on batch size seems to help on Adreno devices
+            return CombineResult::kCannotCombine;
+        }
 
         // Unlike most users of the draw op helper, this op can merge none-aa and coverage-aa
         // draw ops together, so pass true as the last argument.

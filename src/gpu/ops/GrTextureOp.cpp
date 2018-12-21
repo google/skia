@@ -364,7 +364,8 @@ private:
         }
 
         VertexSpec vertexSpec(quadType, wideColor ? ColorType::kHalf : ColorType::kByte,
-                              GrQuadType::kRect, /* hasLocal */ true, domain, aaType);
+                              GrQuadType::kRect, /* hasLocal */ true, domain, aaType,
+                              /* alpha as coverage */ true);
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                      this->filter());
@@ -406,7 +407,7 @@ private:
         GrMesh* meshes = target->allocMeshes(numProxies);
         const GrBuffer* vbuffer;
         int vertexOffsetInBuffer = 0;
-        int numQuadVerticesLeft = numTotalQuads * 4;
+        int numQuadVerticesLeft = numTotalQuads * vertexSpec.verticesPerQuad();
         int numAllocatedVertices = 0;
         void* vdata = nullptr;
 
@@ -416,7 +417,7 @@ private:
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 int quadCnt = op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                int meshVertexCnt = quadCnt * 4;
+                int meshVertexCnt = quadCnt * vertexSpec.verticesPerQuad();
                 if (numAllocatedVertices < meshVertexCnt) {
                     vdata = target->makeVertexSpaceAtLeast(
                             vertexSize, meshVertexCnt, numQuadVerticesLeft, &vbuffer,
@@ -431,19 +432,10 @@ private:
 
                 op.tess(vdata, vertexSpec, proxy, q, quadCnt);
 
-                if (quadCnt > 1) {
-                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangles);
-                    sk_sp<const GrBuffer> ibuffer =
-                            target->resourceProvider()->refQuadIndexBuffer();
-                    if (!ibuffer) {
-                        SkDebugf("Could not allocate quad indices\n");
-                        return;
-                    }
-                    meshes[m].setIndexedPatterned(ibuffer.get(), 6, 4, quadCnt,
-                                                  GrResourceProvider::QuadCountOfQuadBuffer());
-                } else {
-                    meshes[m].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
-                    meshes[m].setNonIndexedNonInstanced(4);
+                if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[m]), vertexSpec,
+                                                           quadCnt)) {
+                    SkDebugf("Could not allocate indices");
+                    return;
                 }
                 meshes[m].setVertexData(vbuffer, vertexOffsetInBuffer);
                 if (dynamicStateArrays) {
