@@ -696,9 +696,10 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
-    buffer.writeRect(blob.fBounds);
+    // seems like we could skip this, and just recompute bounds in unflatten, but
+    // some cc_unittests fail if we remove this...
+    buffer.writeRect(blob.bounds());
 
-    SkPaint runPaint;
     SkTextBlobRunIterator it(&blob);
     while (!it.done()) {
         SkASSERT(it.glyphCount() > 0);
@@ -716,9 +717,8 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
             buffer.write32(textSize);
         }
         buffer.writePoint(it.offset());
-        // This should go away when switching to SkFont
-        it.applyFontToPaint(&runPaint);
-        buffer.writePaint(runPaint);
+
+        SkFontPriv::Flatten(it.font(), buffer);
 
         buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
         buffer.writeByteArray(it.pos(),
@@ -763,9 +763,14 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkPaint paint;
-        reader.readPaint(&paint);
-        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        SkFont font;
+        if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
+            SkPaint paint;
+            reader.readPaint(&paint);
+            font = SkFont::LEGACY_ExtractFromPaint(paint);
+        } else {
+            SkFontPriv::Unflatten(&font, reader);
+        }
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.
