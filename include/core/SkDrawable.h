@@ -17,6 +17,7 @@ class SkMatrix;
 class SkPicture;
 enum class GrBackendApi : unsigned;
 struct SkRect;
+struct SkIRect;
 
 /**
  *  Base-class for objects that draw into SkCanvas.

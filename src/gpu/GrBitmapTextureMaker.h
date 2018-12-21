@@ -9,6 +9,7 @@
 #define GrBitmapTextureMaker_DEFINED
 
 #include "GrTextureMaker.h"
+#include "GrTextureProxy.h"
 #include "SkBitmap.h"
 
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is

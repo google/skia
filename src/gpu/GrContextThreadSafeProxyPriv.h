@@ -8,6 +8,7 @@
 #ifndef GrContextThreadSafeProxyPriv_DEFINED
 #define GrContextThreadSafeProxyPriv_DEFINED
 
+#include "GrCaps.h"
 #include "GrContext.h"
 
 /**

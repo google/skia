@@ -9,6 +9,7 @@
 #define GrTextureMaker_DEFINED
 
 #include "GrTextureProducer.h"
+#include "GrTextureProxy.h"
 
 /**
  * Base class for sources that start out as something other than a texture (encoded image,

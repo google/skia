@@ -8,8 +8,10 @@
 #ifndef GrVertexWriter_DEFINED
 #define GrVertexWriter_DEFINED
 
+#include "GrColor.h"
 #include "GrQuad.h"
 #include "SkTemplates.h"
+
 #include <type_traits>
 
 /**

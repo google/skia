@@ -11,7 +11,9 @@
 #include "SkTypes.h"
 #include "SkCodecAnimation.h"
 #include "SkCodecAnimationPriv.h"
+#include "SkNoncopyable.h"
 #include "SkRect.h"
+#include "SkEncodedInfo.h"
 
 /**
  *  Base class for a single frame of an animated image.

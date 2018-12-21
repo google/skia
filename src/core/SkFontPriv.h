@@ -12,6 +12,9 @@
 #include "SkMatrix.h"
 #include "SkTypeface.h"
 
+class SkGlyph;
+class SkGlyphCache;
+
 class SkFontPriv {
 public:
     /**

@@ -10,6 +10,7 @@
 
 #include "GrResourceKey.h"
 #include "GrSamplerState.h"
+#include "GrTextureProxy.h"
 #include "SkImageInfo.h"
 #include "SkNoncopyable.h"
 

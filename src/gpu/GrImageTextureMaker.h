@@ -9,6 +9,7 @@
 #define GrImageTextureMaker_DEFINED
 
 #include "GrTextureMaker.h"
+#include "GrTextureProxy.h"
 #include "SkImage.h"
 
 class SkImage_Lazy;

@@ -9,6 +9,7 @@
 #define SkWritePixelsRec_DEFINED
 
 #include "SkImageInfo.h"
+#include "SkPixmap.h"
 
 /**
  *  Helper class to package and trim the parameters passed to writePixels()
