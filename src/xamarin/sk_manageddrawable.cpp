@@ -55,7 +55,7 @@ sk_manageddrawable_t* sk_manageddrawable_new() {
 
 void sk_manageddrawable_destroy(sk_manageddrawable_t* drawable)
 { 
-    delete AsManagedDrawable(drawable);
+    SkSafeUnref(AsManagedDrawable(drawable));
 }
 
 void sk_manageddrawable_set_delegates(const sk_manageddrawable_draw_delegate pDraw,
