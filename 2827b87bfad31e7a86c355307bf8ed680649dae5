@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe23232c_a68c2b6b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-21T15:06:45Z",
+      "side": 1,
+      "message": "I\u0027m not crazy about this name -- \"maybe\" doesn\u0027t give much sense of when it would happen. Perhaps switchSubRunIfNeededAndAppendGlyph. Or appendGlyphToMatchingSubRun.",
+      "range": {
+        "startLine": 610,
+        "startChar": 22,
+        "endLine": 610,
+        "endChar": 53
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e79fe08_9bbfd190",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-12-21T15:06:45Z",
+      "side": 1,
+      "message": "We used to have appendBMGlyph and appendDFGlyph and we merged them because they were basically the same except for textScale and needsTransform. So I don\u0027t see the point of splitting it up again. We could make an enum NeedsTransform {kYes, kNo} if the bool needs to be clearer.",
+      "range": {
+        "startLine": 630,
+        "startChar": 22,
+        "endLine": 630,
+        "endChar": 44
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
