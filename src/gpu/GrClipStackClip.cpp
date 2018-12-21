@@ -319,6 +319,7 @@ static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int 
 static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t clipGenID,
                                           const GrUniqueKey& clipMaskKey,
                                           uint32_t contextUniqueID) {
+    return;
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     while (const Element* element = iter.prev()) {
         if (element->getGenID() == clipGenID) {
