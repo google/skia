@@ -91,6 +91,8 @@ public:
     void endObject();
 
     SkExecutor* executor() const { return fExecutor; }
+    void incrementJobCount();
+    void signalJobComplete();
     size_t currentPageIndex() { return fPages.size(); }
     size_t pageCount() { return fPageRefs.size(); }
 
@@ -103,6 +105,7 @@ private:
     SkPDFDict fDests;
     sk_sp<SkPDFDevice> fPageDevice;
     std::atomic<int> fNextObjectNumber = {1};
+    std::atomic<int> fJobCount = {0};
     SkUUID fUUID;
     SkPDFIndirectReference fInfoDict;
     SkPDFIndirectReference fXMP;
@@ -118,6 +121,7 @@ private:
     SkSemaphore fSemaphore;
 
     void reset();
+    void waitForJobs();
 };
 
 #endif  // SkPDFDocumentPriv_DEFINED
