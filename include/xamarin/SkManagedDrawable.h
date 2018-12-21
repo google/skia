@@ -35,6 +35,7 @@ public:
                              const getBounds_delegate pgetBounds,
                              const newPictureSnapshot_delegate pNewPictureSnapshot);
     
+protected:
     void onDraw(SkCanvas*) override;
     SkRect onGetBounds() override;
     SkPicture* onNewPictureSnapshot() override;
