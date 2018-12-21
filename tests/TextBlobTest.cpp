@@ -415,8 +415,8 @@ DEF_TEST(TextBlob_serialize, reporter) {
         sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
 
         SkTextBlobBuilder builder;
-        add_run(&builder, "Hello", 10, 20, nullptr);    // we don't flatten this in the paint
-        add_run(&builder, "World", 10, 40, tf);         // we will flatten this in the paint
+        add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface
+        add_run(&builder, "World", 10, 40, tf);         // do flatten this typeface
         return builder.make();
     }();
 
@@ -425,7 +425,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
     serializeProcs.fTypefaceProc = &SerializeTypeface;
     serializeProcs.fTypefaceCtx = (void*) &array;
     sk_sp<SkData> data = blob0->serialize(serializeProcs);
-    REPORTER_ASSERT(reporter, array.count() == 2);
+    REPORTER_ASSERT(reporter, array.count() == 1);
     SkDeserialProcs deserializeProcs;
     deserializeProcs.fTypefaceProc = &DeserializeTypeface;
     deserializeProcs.fTypefaceCtx = (void*) &array;
