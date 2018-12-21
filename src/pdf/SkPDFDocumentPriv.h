@@ -7,22 +7,33 @@
 #ifndef SkPDFDocumentPriv_DEFINED
 #define SkPDFDocumentPriv_DEFINED
 
+#include "SkBitmapKey.h"
 #include "SkCanvas.h"
-#include "SkPDFCanon.h"
+#include "SkMacros.h"
 #include "SkPDFDocument.h"
 #include "SkPDFFont.h"
+#include "SkPDFGradientShader.h"
+#include "SkPDFGraphicState.h"
 #include "SkPDFMetadata.h"
+#include "SkPDFShader.h"
 #include "SkPDFTag.h"
+#include "SkString.h"
+#include "SkTHash.h"
+#include "SkTypeface.h"
 #include "SkUUID.h"
 
+class SkPDFFont;
+struct SkAdvancedTypefaceMetrics;
+
 #include <atomic>
+#include <vector>
 
 class SkPDFDevice;
 class SkExecutor;
 
 const char* SkPDFGetNodeIdKey();
 
-// Logically part of SkPDFDocument (like SkPDFCanon), but separate to
+// Logically part of SkPDFDocument (like SkPDFDocument), but separate to
 // keep similar functionality together.
 class SkPDFOffsetMap {
 public:
@@ -59,7 +70,6 @@ public:
      */
     SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
     SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
-    SkPDFCanon* canon() { return &fCanon; }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
     SkPDFIndirectReference getPage(size_t pageIndex) const;
@@ -76,9 +86,23 @@ public:
     size_t currentPageIndex() { return fPages.size(); }
     size_t pageCount() { return fPageRefs.size(); }
 
+    // Canonicalized objects
+    SkTHashMap<SkPDFImageShaderKey, SkPDFIndirectReference> fImageShaderMap;
+    SkPDFGradientShader::HashMap fGradientPatternMap;
+    SkTHashMap<SkBitmapKey, SkPDFIndirectReference> fPDFBitmapMap;
+    SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
+    SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
+    SkTHashMap<uint32_t, SkPDFIndirectReference> fFontDescriptors;
+    SkTHashMap<uint32_t, SkPDFIndirectReference> fType3FontDescriptors;
+    SkTHashMap<uint64_t, SkPDFFont> fFontMap;
+    SkTHashMap<SkPDFStrokeGraphicState, SkPDFIndirectReference> fStrokeGSMap;
+    SkTHashMap<SkPDFFillGraphicState, SkPDFIndirectReference> fFillGSMap;
+    SkPDFIndirectReference fInvertFunction;
+    SkPDFIndirectReference fNoSmaskGraphicState;
+
 private:
     SkPDFOffsetMap fOffsetMap;
-    SkPDFCanon fCanon;
     SkCanvas fCanvas;
     std::vector<std::unique_ptr<SkPDFDict>> fPages;
     std::vector<SkPDFIndirectReference> fPageRefs;
@@ -100,7 +124,6 @@ private:
     SkMutex fMutex;
     SkSemaphore fSemaphore;
 
-    void reset();
     void waitForJobs();
 };
 

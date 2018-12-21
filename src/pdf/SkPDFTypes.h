@@ -23,7 +23,7 @@
 
 class SkData;
 class SkPDFArray;
-class SkPDFCanon;
+
 class SkPDFDict;
 class SkPDFDocument;
 class SkPDFObject;

@@ -14,7 +14,7 @@
 #include "SkPDFTypes.h"
 
 class SkPaint;
-class SkPDFCanon;
+
 
 /** \class SkPDFGraphicState
     SkPaint objects roughly correspond to graphic state dictionaries that can
