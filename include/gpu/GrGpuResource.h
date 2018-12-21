@@ -8,9 +8,9 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
+#include "../private/GrResourceKey.h"
 #include "../private/GrTypesPriv.h"
 #include "../private/SkNoncopyable.h"
-#include "GrResourceKey.h"
 
 class GrContext;
 class GrGpu;
