@@ -91,7 +91,7 @@ PDFs.
     210399  % Byte offset to the start of the table of contents.
     %%EOF
 
-The class SkPDFObjNumMap and the virtual class SkPDFObject are used to
+The the virtual class SkPDFObject are used to
 manage the needs of the file format. Any object that will represent a
 PDF object must inherit from SkPDFObject and implement the methods to
 generate the binary representation and report any other SkPDFObjects
@@ -99,6 +99,10 @@ used as resources. SkPDFTypes.h defines most of the basic PDF object
 types: bool, int, scalar, string, name, array, dictionary, and stream.
 (A stream is a dictionary containing at least a Length entry followed
 by the data of the stream.)
+
+Streams are now handled in a slightly different way.  The SkPDFStreamOut()
+function compresses and serializes the binary data immediately instead of
+creating a new object.
 
 All of these PDF object types except the stream type can be used in
 both a direct and an indirect fashion, i.e. an array can have an int
@@ -128,23 +132,15 @@ have an object number assigned.
     ...stream contents can be arbitrary, including binary...  
     endstream`
 
-The PDF backend requires all indirect objects used in a PDF to be
-added to the SkPDFObjNumMap of the SkPDFDocument. The catalog is
-responsible for assigning object numbers and generating the table of
-contents required at the end of PDF files. In some sense, generating a
-PDF is a three step process. In the first step all the objects and
-references among them are created (mostly done by SkPDFDevice). In the
-second step, SkPDFObjNumMap assigns and remembers object numbers.
-Finally, in the third
-step, the header is printed, each object is printed, and then the
-table of contents and trailer are printed. SkPDFDocument takes care of
-collecting all the objects from the various SkPDFDevice instances,
-adding them to an SkPDFObjNumMap, iterating through the objects once to
-set their file positions, and iterating again to generate the final
-PDF.
+Indirect objects are either:
 
-As an optimization, many leaf nodes in the direct graph of indirect
-objects can be assigned object numbers and serialized early.
+  - Serialized as soon as they are needed, and a new SkPDFIndirectReference is
+    returned, or
+
+  - Serialized later, but reserve a document-unique SkPDFIndirectReference to
+    allow other objects to refer to it.
+
+Example document:
 
     %PDF-1.4
     2 0 obj <<
@@ -232,17 +228,9 @@ stream.
 
 There are a number of high level PDF objects (like fonts, graphic
 states, etc) that are likely to be referenced multiple times in a
-single PDF. To ensure that there is only one copy of each object
-instance these objects an implemented with an
-[interning pattern](http://en.wikipedia.org/wiki/String_interning).
-As such, the classes representing these objects (like
-SkPDFGraphicState) have private constructors and static methods to
-retrieve an instance of the class.
-
-The SkPDFCanon object owns the interned objects.  For obvious reasons,
-the returned instance should not be modified. A mechanism to ensure
-that interned classes are immutable is needed.  See [issue
-2683](https://bug.skia.org/2683).
+single PDF. To ensure that there is only one copy of each object,
+the SkPDFDocument holds on to a mapping from type-specific keys onto the
+SkPDFIndirectReference for these objects.
 
 <span id="Graphic_States">Graphic States</span>
 -----------------------------------------------
@@ -508,10 +496,6 @@ a mask.
 <span id="Known_issues">Known issues</span>
 -------------------------------------------
 
-*   [issue 237](https://bug.skia.org/237)
-    SkMaskFilter is not supported.
-*   [issue 238](https://bug.skia.org/238)
-    SkColorFilter is not supported.
 *   [issue 249](https://bug.skia.org/249)
     SrcAtop Xor, and Plus xfer modes are not supported.
 *   [issue 240](https://bug.skia.org/240)
