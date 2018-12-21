@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98d8ab08_157ebd35",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-21T13:57:28Z",
+      "side": 1,
+      "message": "size_as_byte?",
+      "range": {
+        "startLine": 595,
+        "startChar": 19,
+        "endLine": 595,
+        "endChar": 32
+      },
+      "revId": "62df453ce80ce56319f01bbed49c5ef99872f0aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
