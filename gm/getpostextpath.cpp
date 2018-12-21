@@ -9,52 +9,57 @@
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
+#include "SkFontPriv.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkTemplates.h"
-#include "SkTo.h"
+#include "SkTextBlob.h"
 
 static void strokePath(SkCanvas* canvas, const SkPath& path) {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawPath(path, paint);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawPath(path, paint);
 }
 DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
-        // explicitly add spaces, to test a prev. bug
-        const char* text = "Ham bur ge fons";
-        int len = SkToInt(strlen(text));
-        SkPath path;
+    // explicitly add spaces, to test a prev. bug
+    const char* text = "Ham bur ge fons";
+    size_t len = strlen(text);
+    SkPath path;
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(48));
+    SkFont font;
+    font.setTypeface(sk_tool_utils::create_portable_typeface());
+    font.setSize(48);
 
-        canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
+    SkPaint paint;
+    paint.setAntiAlias(true);
 
-        canvas->drawText(text, len, 0, 0, paint);
-        paint.getTextPath(text, len, 0, 0, &path);
-        strokePath(canvas, path);
-        path.reset();
+    canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
 
-        SkAutoTArray<SkPoint>  pos(len);
-        SkAutoTArray<SkScalar> widths(len);
-        paint.getTextWidths(text, len, &widths[0]);
+    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 0, 0, font, paint);
+    sk_tool_utils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, nullptr);
+    strokePath(canvas, path);
+    path.reset();
 
-        SkRandom rand;
-        SkScalar x = SkIntToScalar(20);
-        SkScalar y = SkIntToScalar(100);
-        for (int i = 0; i < len; ++i) {
-            pos[i].set(x, y + rand.nextSScalar1() * 24);
-            x += widths[i];
-        }
+    SkAutoToGlyphs atg(font, text, len, kUTF8_SkTextEncoding);
+    const int count = atg.count();
+    SkAutoTArray<SkPoint>  pos(count);
+    SkAutoTArray<SkScalar> widths(count);
+    font.getWidths(atg.glyphs(), count, &widths[0]);
 
-        canvas->translate(0, SkIntToScalar(64));
+    SkRandom rand;
+    SkScalar x = SkIntToScalar(20);
+    SkScalar y = SkIntToScalar(100);
+    for (int i = 0; i < count; ++i) {
+        pos[i].set(x, y + rand.nextSScalar1() * 24);
+        x += widths[i];
+    }
 
-        canvas->drawPosText(text, len, &pos[0], paint);
-        paint.getPosTextPath(text, len, &pos[0], &path);
-        strokePath(canvas, path);
+    canvas->translate(0, SkIntToScalar(64));
+
+    canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, &pos[0], font), 0, 0, paint);
+    sk_tool_utils::get_text_path(font, text, len, kUTF8_SkTextEncoding, &path, &pos[0]);
+    strokePath(canvas, path);
 }
