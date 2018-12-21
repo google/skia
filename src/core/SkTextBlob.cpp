@@ -698,7 +698,6 @@ int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
 void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
     buffer.writeRect(blob.fBounds);
 
-    SkPaint runPaint;
     SkTextBlobRunIterator it(&blob);
     while (!it.done()) {
         SkASSERT(it.glyphCount() > 0);
@@ -716,9 +715,14 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
             buffer.write32(textSize);
         }
         buffer.writePoint(it.offset());
-        // This should go away when switching to SkFont
-        it.applyFontToPaint(&runPaint);
-        buffer.writePaint(runPaint);
+
+        if (0) {
+            SkPaint runPaint;
+            it.applyFontToPaint(&runPaint);
+            buffer.writePaint(runPaint);
+        } else {
+            SkFontPriv::Flatten(it.font(), buffer);
+        }
 
         buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
         buffer.writeByteArray(it.pos(),
@@ -738,6 +742,8 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
 }
 
 sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
+    size_t start_offset = reader.offset();
+
     SkRect bounds;
     reader.readRect(&bounds);
 
@@ -763,9 +769,14 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         SkPoint offset;
         reader.readPoint(&offset);
-        SkPaint paint;
-        reader.readPaint(&paint);
-        SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        SkFont font;
+        if (0) {
+            SkPaint paint;
+            reader.readPaint(&paint);
+            font = SkFont::LEGACY_ExtractFromPaint(paint);
+        } else {
+            SkFontPriv::Unflatten(&font, reader);
+        }
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.
@@ -817,6 +828,11 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
             }
         }
     }
+
+    static size_t total_size;
+    size_t actual_size = reader.offset() - start_offset;
+    total_size += actual_size;
+    SkDebugf("blob size %zu %zu\n", actual_size, total_size);
 
     return blobBuilder.make();
 }

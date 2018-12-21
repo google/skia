@@ -585,3 +585,84 @@ void SkFontPriv::GlyphsToUnichars(const SkFont& font, const uint16_t glyphs[], i
                                   SkUnichar uni[]) {
     font.glyphsToUnichars(glyphs, count, uni);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+
+enum {
+    kHas_Typeface_Bit   = 1 << 31,
+    kHas_ScaleX_Bit     = 1 << 30,
+    kHas_SkewX_Bit      = 1 << 29,
+
+    kMask_For_Flags     = 0xFFFF,
+
+    kShift_For_Edging   = 16,
+    kMask_For_Edging    = 0x3,
+
+    kShift_For_Hinting  = 18,
+    kMask_For_Hinting   = 0x3
+};
+
+void SkFontPriv::Flatten(const SkFont& font, SkWriteBuffer& buffer) {
+    SkASSERT((font.fFlags & ~kMask_For_Flags) == 0);
+    SkASSERT((font.fEdging & ~kMask_For_Edging) == 0);
+    SkASSERT((font.fHinting & ~kMask_For_Hinting) == 0);
+
+    uint32_t packed = font.fFlags;
+    packed |= font.fEdging << kShift_For_Edging;
+    packed |= font.fHinting << kShift_For_Hinting;
+
+    if (font.fTypeface) {
+        packed |= kHas_Typeface_Bit;
+    }
+    if (font.fScaleX != 1) {
+        packed |= kHas_ScaleX_Bit;
+    }
+    if (font.fSkewX != 0) {
+        packed |= kHas_SkewX_Bit;
+    }
+
+    buffer.write32(packed);
+    buffer.writeScalar(font.fSize);
+    if (packed & kHas_ScaleX_Bit) {
+        buffer.writeScalar(font.fScaleX);
+    }
+    if (packed & kHas_SkewX_Bit) {
+        buffer.writeScalar(font.fSkewX);
+    }
+    if (packed & kHas_Typeface_Bit) {
+        buffer.writeTypeface(font.fTypeface.get());
+    }
+}
+
+bool SkFontPriv::Unflatten(SkFont* font, SkReadBuffer& buffer) {
+    const uint32_t packed = buffer.read32();
+    font->fSize = buffer.readScalar();
+    if (packed & kHas_ScaleX_Bit) {
+        font->fScaleX = buffer.readScalar();
+    }
+    if (packed & kHas_SkewX_Bit) {
+        font->fSkewX = buffer.readScalar();
+    }
+    if (packed & kHas_Typeface_Bit) {
+        font->fTypeface = buffer.readTypeface();
+    }
+
+    SkASSERT(SkFont::kAllFlags <= kMask_For_Flags);
+    font->fFlags = SkToU8(packed & SkFont::kAllFlags);
+
+    unsigned edging = (packed >> kShift_For_Edging) && kMask_For_Edging;
+    if (edging > (unsigned)SkFont::Edging::kSubpixelAntiAlias) {
+        edging = 0;
+    }
+    font->fEdging = SkToU8(edging);
+
+    unsigned hinting = (packed >> kShift_For_Hinting) & kMask_For_Hinting;
+    if (hinting > (unsigned)kFull_SkFontHinting) {
+        hinting = 0;
+    }
+    font->fHinting = SkToU8(hinting);
+
+    return buffer.isValid();
+}
