@@ -8,6 +8,7 @@
 
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkExecutor.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPDFDocument.h"
@@ -239,3 +240,19 @@ DEF_TEST(SkPDF_multiple_pages, r) {
                 SkColorSetARGB(0xFF, 0x00, (uint8_t)(255.0f * i / (n - 1)), 0x00));
     }
 }
+
+// Test to make sure that jobs launched by PDF backend don't cause a segfault
+// after calling abort().
+DEF_TEST(SkPDF_abort_jobs, rep) {
+    SkBitmap b;
+    b.allocN32Pixels(612, 792);
+    b.eraseColor(0x4F9643A0);
+    SkPDF::Metadata metadata;
+    std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
+    metadata.fExecutor = executor.get();
+    SkNullWStream dst;
+    sk_sp<SkDocument> doc = SkPDF::MakeDocument(&dst, metadata);
+    doc->beginPage(612, 792)->drawBitmap(b, 0, 0);
+    doc->abort();
+}
+
