@@ -117,6 +117,30 @@
       "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da3d6e05_1b057ae9",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-21T16:11:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4eb3b95_26a25d96",
+      "range": {
+        "startLine": 630,
+        "startChar": 22,
+        "endLine": 630,
+        "endChar": 44
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
