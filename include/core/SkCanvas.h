@@ -2443,8 +2443,6 @@ protected:
     virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
     virtual void onDrawRegion(const SkRegion& region, const SkPaint& paint);
 
-    virtual void onDrawTextRSXform(const void*, size_t, const SkRSXform[],
-                                   const SkRect*, const SkPaint&) {}
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint);
 
