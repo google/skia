@@ -260,7 +260,9 @@ def dm_flags(api, bot):
     if 'DDL3' in bot:
       # This bot generates the ddl-gl and ddl-vk images for the
       # large skps and the gms
-      configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
+      ddl_configs = ['ddl-' + c for c in configs if c == 'gl' or c == 'vk']
+      ddl2_configs = ['ddl2-' + c for c in configs if c == 'gl' or c == 'vk']
+      configs = ddl_configs + ddl2_configs
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
 
