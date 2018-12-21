@@ -50,10 +50,9 @@ protected:
     }
 
     bool operator==(const GrResourceKey& that) const {
-        return this->hash() == that.hash() &&
-                0 == memcmp(&fKey[kHash_MetaDataIdx + 1],
-                            &that.fKey[kHash_MetaDataIdx + 1],
-                            this->internalSize() - sizeof(uint32_t));
+        return this->hash() == that.hash() && 0 == memcmp(&fKey[kHash_MetaDataIdx + 1],
+                                                          &that.fKey[kHash_MetaDataIdx + 1],
+                                                          this->internalSize() - sizeof(uint32_t));
     }
 
     GrResourceKey& operator=(const GrResourceKey& that) {
@@ -144,9 +143,7 @@ private:
     };
     static const uint32_t kMetaDataCnt = kLastMetaDataIdx + 1;
 
-    size_t internalSize() const {
-        return fKey[kDomainAndSize_MetaDataIdx] >> 16;
-    }
+    size_t internalSize() const { return fKey[kDomainAndSize_MetaDataIdx] >> 16; }
 
     void validate() const {
         SkASSERT(fKey[kHash_MetaDataIdx] ==
@@ -155,7 +152,7 @@ private:
         SkASSERT(SkIsAlign4(this->internalSize()));
     }
 
-    friend class TestResource; // For unit test to access kMetaDataCnt.
+    friend class TestResource;  // For unit test to access kMetaDataCnt.
 
     // bmp textures require 5 uint32_t values.
     SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
@@ -210,15 +207,13 @@ public:
         return *this;
     }
 
-    bool operator==(const GrScratchKey& that) const {
-        return this->INHERITED::operator==(that);
-    }
+    bool operator==(const GrScratchKey& that) const { return this->INHERITED::operator==(that); }
     bool operator!=(const GrScratchKey& that) const { return !(*this == that); }
 
     class Builder : public INHERITED::Builder {
     public:
         Builder(GrScratchKey* key, ResourceType type, int data32Count)
-            : INHERITED::Builder(key, type, data32Count) {}
+                : INHERITED::Builder(key, type, data32Count) {}
     };
 };
 
@@ -262,17 +257,11 @@ public:
         return *this;
     }
 
-    bool operator==(const GrUniqueKey& that) const {
-        return this->INHERITED::operator==(that);
-    }
+    bool operator==(const GrUniqueKey& that) const { return this->INHERITED::operator==(that); }
     bool operator!=(const GrUniqueKey& that) const { return !(*this == that); }
 
-    void setCustomData(sk_sp<SkData> data) {
-        fData = std::move(data);
-    }
-    SkData* getCustomData() const {
-        return fData.get();
-    }
+    void setCustomData(sk_sp<SkData> data) { fData = std::move(data); }
+    SkData* getCustomData() const { return fData.get(); }
 
     const char* tag() const { return fTag; }
 
@@ -330,7 +319,7 @@ private:
     name##_once(gr_init_static_unique_key_once, &name##_storage); \
     static const GrUniqueKey& name = *reinterpret_cast<GrUniqueKey*>(name##_storage.get())
 
-static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueKey>* keyStorage) {
+static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUniqueKey>* keyStorage) {
     GrUniqueKey* key = new (keyStorage->get()) GrUniqueKey;
     GrUniqueKey::Builder builder(key, GrUniqueKey::GenerateDomain(), 0);
 }
@@ -355,8 +344,8 @@ private:
     uint32_t fContextID;
 };
 
-static inline bool SkShouldPostMessageToBus(
-        const GrUniqueKeyInvalidatedMessage& msg, uint32_t msgBusUniqueID) {
+static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
+                                            uint32_t msgBusUniqueID) {
     return msg.contextID() == msgBusUniqueID;
 }
 
