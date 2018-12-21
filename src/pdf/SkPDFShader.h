@@ -14,7 +14,7 @@
 #include "SkPDFTypes.h"
 #include "SkShader.h"
 
-class SkPDFCanon;
+
 class SkPDFDocument;
 class SkMatrix;
 struct SkIRect;

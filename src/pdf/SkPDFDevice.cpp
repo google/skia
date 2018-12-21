@@ -25,7 +25,7 @@
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
 #include "SkPDFBitmap.h"
-#include "SkPDFCanon.h"
+#include "SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
@@ -389,8 +389,6 @@ SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     }
     return new SkPDFDevice(cinfo.fInfo.dimensions(), fDocument);
 }
-
-SkPDFCanon* SkPDFDevice::getCanon() const { return fDocument->canon(); }
 
 // A helper class to automatically finish a ContentEntry at the end of a
 // drawing method and maintain the state needed between set up and finish.
@@ -787,7 +785,7 @@ void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
 
 void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream) {
     // The no-softmask graphic state is used to "turn off" the mask for later draw calls.
-    SkPDFIndirectReference& noSMaskGS = this->getCanon()->fNoSmaskGraphicState;
+    SkPDFIndirectReference& noSMaskGS = fDocument->fNoSmaskGraphicState;
     if (!noSMaskGS) {
         SkPDFDict tmp("ExtGState");
         tmp.insertName("SMask", "None");
@@ -1093,14 +1091,13 @@ void SkPDFDevice::internalDrawGlyphRun(
         return;
     }
 
-    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, fDocument->canon());
+    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, fDocument);
     if (!metrics) {
         return;
     }
     SkAdvancedTypefaceMetrics::FontType fontType = SkPDFFont::FontType(*metrics);
 
-    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(
-        typeface, fDocument->canon());
+    const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, fDocument);
 
     SkClusterator clusterator(glyphRun);
 
@@ -2017,14 +2014,14 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
 
     SkBitmapKey key = imageSubset.key();
-    SkPDFIndirectReference* pdfimagePtr = fDocument->canon()->fPDFBitmapMap.find(key);
+    SkPDFIndirectReference* pdfimagePtr = fDocument->fPDFBitmapMap.find(key);
     SkPDFIndirectReference pdfimage = pdfimagePtr ? *pdfimagePtr : SkPDFIndirectReference();
     if (!pdfimagePtr) {
         SkASSERT(imageSubset);
         pdfimage = SkPDFSerializeImage(imageSubset.image().get(), fDocument,
                                        fDocument->metadata().fEncodingQuality);
         SkASSERT((key != SkBitmapKey{{0, 0, 0, 0}, 0}));
-        fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
+        fDocument->fPDFBitmapMap.set(key, pdfimage);
     }
     SkASSERT(pdfimage != SkPDFIndirectReference());
     this->drawFormXObject(pdfimage, content.stream());

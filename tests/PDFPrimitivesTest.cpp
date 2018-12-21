@@ -20,14 +20,12 @@
 #include "SkImageFilterPriv.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
-#include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
 #include "SkPDFDocumentPriv.h"
 #include "SkPDFFont.h"
 #include "SkPDFTypes.h"
-#include "SkPDFUtils.h"
 #include "SkPDFUnion.h"
+#include "SkPDFUtils.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkSpecialImage.h"
@@ -307,18 +305,19 @@ DEF_TEST(SkPDF_ImageFilter, reporter) {
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
 DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
-    SkPDFCanon canon;
+    SkNullWStream nullWStream;
+    SkPDFDocument doc(&nullWStream, SkPDF::Metadata());
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
     sk_sp<SkTypeface> noEmbedTypeface(MakeResourceAsTypeface(resource));
     if (noEmbedTypeface) {
         REPORTER_ASSERT(reporter,
-                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));
+                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
     }
     sk_sp<SkTypeface> portableTypeface(
             sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter,
-                    SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &canon));
+                    SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
 }
 
 
