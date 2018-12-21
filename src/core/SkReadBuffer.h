@@ -25,6 +25,8 @@
 class SkData;
 class SkImage;
 
+#ifndef SK_DISABLE_READBUFFER
+
 class SkReadBuffer {
 public:
     SkReadBuffer();
@@ -44,8 +46,6 @@ public:
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
     };
-
-#ifndef SK_DISABLE_READBUFFER
 
     /**
      *  Returns true IFF the version is older than the specified version.
@@ -227,8 +227,29 @@ private:
     }
 
     bool fError = false;
+};
 
 #else // #ifndef SK_DISABLE_READBUFFER
+
+class SkReadBuffer {
+public:
+    SkReadBuffer() {}
+    SkReadBuffer(const void*, size_t) {}
+
+    enum Version {
+        kTileModeInBlurImageFilter_Version = 56,
+        kTileInfoInSweepGradient_Version   = 57,
+        k2PtConicalNoFlip_Version          = 58,
+        kRemovePictureImageFilterLocalSpace = 59,
+        kRemoveHeaderFlags_Version         = 60,
+        kTwoColorDrawShadow_Version        = 61,
+        kDontNegateImageSize_Version       = 62,
+        kStoreImageBounds_Version          = 63,
+        kRemoveOccluderFromBlurMaskFilter  = 64,
+        kFloat4PaintColor_Version          = 65,
+        kSaveBehind_Version                = 66,
+        kSerializeFonts_Version            = 67,
+    };
 
     bool isVersionLT(Version) const { return false; }
     uint32_t getVersion() const { return 0xffffffff; }
@@ -311,7 +332,8 @@ private:
         static const SkDeserialProcs procs;
         return procs;
     }
-#endif
 };
+
+#endif // #ifndef SK_DISABLE_READBUFFER
 
 #endif // SkReadBuffer_DEFINED
