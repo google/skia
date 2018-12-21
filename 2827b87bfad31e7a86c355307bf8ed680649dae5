@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "adbb9045_e6e44a48",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-21T15:50:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe23232c_a68c2b6b",
+      "range": {
+        "startLine": 610,
+        "startChar": 22,
+        "endLine": 610,
+        "endChar": 53
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e79fe08_9bbfd190",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee2e99e6_c0c35988",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-12-21T15:50:59Z",
+      "side": 1,
+      "message": "Having the two calls, helps me keep the invariants straight when coding. If I combine them, then I always have to pass a transform and a textScale, which is confusing. Also, the appendTransformedGlyph, is by far the most common case, and now does not have any overhead from combining the two cases.",
+      "parentUuid": "7e79fe08_9bbfd190",
+      "range": {
+        "startLine": 630,
+        "startChar": 22,
+        "endLine": 630,
+        "endChar": 44
+      },
+      "revId": "2827b87bfad31e7a86c355307bf8ed680649dae5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
