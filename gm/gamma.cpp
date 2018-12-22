@@ -49,10 +49,11 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     mipmapPixels[0] = mipmapPixels[3] = SkPackARGB32(0xFF, s25, s25, s25);
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
+    SkFont font(sk_tool_utils::create_portable_typeface());
+
     SkPaint textPaint;
     textPaint.setAntiAlias(true);
     textPaint.setColor(SK_ColorWHITE);
-    sk_tool_utils::set_portable_typeface(&textPaint);
 
     // Helpers:
     auto advance = [&]() {
@@ -60,19 +61,22 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
         p.reset();
     };
 
+    auto drawString = [&](const char str[], SkScalar x, SkScalar y) {
+        canvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, textPaint);
+    };
+
     auto nextRect = [&](const char* label, const char* label2) {
         canvas->drawRect(r, p);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        drawString(label, 0, sz + font.getSpacing());
         if (label2) {
-            canvas->drawString(label2, 0, sz + 2 * textPaint.getFontSpacing(),
-                             textPaint);
+            drawString(label2, 0, sz + 2 * font.getSpacing());
         }
         advance();
     };
 
     auto nextBitmap = [&](const SkBitmap& bmp, const char* label) {
         canvas->drawBitmap(bmp, 0, 0);
-        canvas->drawString(label, 0, sz + textPaint.getFontSpacing(), textPaint);
+        drawString(label, 0, sz + font.getSpacing());
         advance();
     };
 
@@ -85,13 +89,10 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
         SkString dstText = SkStringPrintf("%08X", dstColor);
-        canvas->drawString(srcText, 0, sz + textPaint.getFontSpacing(),
-                         textPaint);
+        drawString(srcText.c_str(), 0, sz + font.getSpacing());
         const char* modeName = SkBlendMode_Name(mode);
-        canvas->drawString(modeName, 0, sz + 2 * textPaint.getFontSpacing(),
-                         textPaint);
-        canvas->drawString(dstText, 0, sz + 3 * textPaint.getFontSpacing(),
-                         textPaint);
+        drawString(modeName, 0, sz + 2 * font.getSpacing());
+        drawString(dstText.c_str(), 0, sz + 3 * font.getSpacing());
         advance();
     };
 

@@ -48,16 +48,15 @@ protected:
 
         // make textblob
         // Text so large we draw as paths
-        SkPaint paint;
-        paint.setTextSize(385);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 385);
+        font.setEdging(SkFont::Edging::kAlias);
         const char* text = "O";
-        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
 
         SkScalar yOffset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, yOffset);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, 10, yOffset);
         SkScalar corruptedAx = bounds.width();
         SkScalar corruptedAy = yOffset;
 
@@ -68,33 +67,31 @@ protected:
         yOffset = boundsHalfHeight;
 
         // LCD
-        paint.setTextSize(32);
+        font.setSize(32);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSubpixel(true);
         text = "LCD!!!!!";
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        paint.measureText(text, strlen(text), &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.25f,
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset - bounds.width() * 0.25f,
                                         yOffset - bounds.height() * 0.5f);
         yOffset += bounds.height();
 
         // color emoji
         if (fEmojiTypeface) {
-            paint.setAntiAlias(false);
-            paint.setSubpixelText(false);
-            paint.setLCDRenderText(false);
-            paint.setTypeface(fEmojiTypeface);
+            font.setEdging(SkFont::Edging::kAlias);
+            font.setSubpixel(false);
+            font.setTypeface(fEmojiTypeface);
             text = fEmojiText;
-            paint.measureText(text, strlen(text), &bounds);
-            sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset - bounds.width() * 0.3f,
+            font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+            sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset - bounds.width() * 0.3f,
                                             yOffset);
         }
 
         // Corrupted font
-        paint.setTextSize(12);
+        font.setSize(12);
         text = "aA";
-        paint.setTypeface(fReallyBigATypeface);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, corruptedAx, corruptedAy);
+        font.setTypeface(fReallyBigATypeface);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, corruptedAx, corruptedAy);
         fBlob = builder.make();
     }
 

@@ -11,6 +11,7 @@
 #include "SkColor.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
+#include "SkFont.h"
 #include "SkFontStyle.h"
 #include "SkFontTypes.h"
 #include "SkImageEncoder.h"
@@ -27,7 +28,6 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkFont;
 class SkFontStyle;
 class SkImage;
 class SkPaint;
@@ -126,11 +126,16 @@ namespace sk_tool_utils {
     sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);
 
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
-    void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
-                                const SkPaint& origPaint, SkScalar x, SkScalar y);
+    void add_to_text_blob_w_len(SkTextBlobBuilder*, const char* text, size_t len, SkTextEncoding,
+                                const SkFont&, SkScalar x, SkScalar y);
 
-    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
-                          const SkPaint& origPaint, SkScalar x, SkScalar y);
+    void add_to_text_blob(SkTextBlobBuilder*, const char* text, const SkFont&,
+                          SkScalar x, SkScalar y);
+
+    static inline void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
+                                        const SkPaint& paint, SkScalar x, SkScalar y) {
+        add_to_text_blob(builder, text, SkFont::LEGACY_ExtractFromPaint(paint), x, y);
+    }
 
     // Constructs a star by walking a 'numPts'-sided regular polygon with even/odd fill:
     //
