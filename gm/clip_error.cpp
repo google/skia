@@ -41,13 +41,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kFill_Style);
 
-        const char text[] = "hambur";
-
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(256);
-        paint.setAntiAlias(true);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 256);
 
         // setup up maskfilter
         const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(50));
@@ -55,11 +50,8 @@ protected:
         SkPaint blurPaint(paint);
         blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
-        SkTextBlobBuilder builder;
-
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
-
-        sk_sp<SkTextBlob> blob(builder.make());
+        const char text[] = "hambur";
+        auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
 
         SkPaint clearPaint(paint);
         clearPaint.setColor(SK_ColorWHITE);
