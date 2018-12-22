@@ -24,11 +24,10 @@
 SkRandom gRand;
 
 static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkScalar x, SkScalar y,
-                        const SkPaint& paint) {
-    SkPaint p(paint);
-
-    p.setSubpixelText(true);
-    canvas->drawText(text, length, x, y, p);
+                        const SkFont& font, const SkPaint& paint) {
+    SkFont f(font);
+    f.setSubpixel(true);
+    canvas->drawSimpleText(text, length, kUTF8_SkTextEncoding, x, y, f, paint);
 }
 
 // This sample demonstrates the cache behavior of bitmap vs. distance field text
@@ -69,8 +68,9 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        SkFont font(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
+
         SkPaint paint;
-        paint.setTypeface(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
         paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
 
@@ -118,15 +118,16 @@ protected:
 
         SkScalar y = SkIntToScalar(0);
         for (int i = 12; i <= 26; i++) {
-            paint.setTextSize(SkIntToScalar(i*fSizeScale));
-            y += paint.getFontSpacing();
-            DrawTheText(canvas, text, length, SkIntToScalar(110), y, paint);
+            font.setSize(SkIntToScalar(i*fSizeScale));
+            y += font.getSpacing();
+            DrawTheText(canvas, text, length, SkIntToScalar(110), y, font, paint);
         }
         canvas->restore();
 
-        paint.setTextSize(16);
+        font.setSize(16);
 //        canvas->drawString(outString, 512.f, 540.f, paint);
-        canvas->drawString(modeString, 768.f, 540.f, paint);
+        canvas->drawSimpleText(modeString.c_str(), modeString.size(), kUTF8_SkTextEncoding,
+                               768.f, 540.f, font, paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

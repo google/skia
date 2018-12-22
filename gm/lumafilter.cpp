@@ -19,13 +19,14 @@ static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
 
 static void draw_label(SkCanvas* canvas, const char* label,
                        const SkPoint& offset) {
-    SkPaint paint;
-    sk_tool_utils::set_portable_typeface(&paint);
+    SkFont font(sk_tool_utils::create_portable_typeface());
+    font.setEdging(SkFont::Edging::kAlias);
+
     size_t len = strlen(label);
 
-    SkScalar width = paint.measureText(label, len);
-    canvas->drawText(label, len, offset.x() - width / 2, offset.y(),
-                     paint);
+    SkScalar width = font.measureText(label, len, kUTF8_SkTextEncoding);
+    canvas->drawSimpleText(label, len, kUTF8_SkTextEncoding, offset.x() - width / 2, offset.y(),
+                           font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkBlendMode mode,
