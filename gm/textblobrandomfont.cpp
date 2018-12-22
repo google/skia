@@ -32,50 +32,52 @@ protected:
 
         const char* text = "The quick brown fox jumps over the lazy dog.";
 
-        // make textbloben
         SkPaint paint;
-        paint.setTextSize(32);
         paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
+        paint.setColor(SK_ColorMAGENTA);
+
+        // make textbloben
+        SkFont font;
+        font.setSize(32);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
         // Setup our random scaler context
         auto typeface = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         if (!typeface) {
             typeface = SkTypeface::MakeDefault();
         }
-        paint.setColor(SK_ColorMAGENTA);
-        paint.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
+        font.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 
         SkScalar y = 0;
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, y);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, y);
         y += bounds.fBottom;
 
         // A8
         const char* bigtext1 = "The quick brown fox";
         const char* bigtext2 = "jumps over the lazy dog.";
-        paint.setTextSize(160);
-        paint.setSubpixelText(false);
-        paint.setLCDRenderText(false);
-        paint.measureText(bigtext1, strlen(bigtext1), &bounds);
+        font.setSize(160);
+        font.setSubpixel(false);
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.measureText(bigtext1, strlen(bigtext1), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, bigtext1, paint, 0, y);
+        sk_tool_utils::add_to_text_blob(&builder, bigtext1, font, 0, y);
         y += bounds.fBottom;
 
-        paint.measureText(bigtext2, strlen(bigtext2), &bounds);
+        font.measureText(bigtext2, strlen(bigtext2), kUTF8_SkTextEncoding, &bounds);
         y -= bounds.fTop;
-        sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, y);
+        sk_tool_utils::add_to_text_blob(&builder, bigtext2, font, 0, y);
         y += bounds.fBottom;
 
         // color emoji
         if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
-            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
+            font.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             const char* emojiText = sk_tool_utils::emoji_sample_text();
-            paint.measureText(emojiText, strlen(emojiText), &bounds);
+            font.measureText(emojiText, strlen(emojiText), kUTF8_SkTextEncoding, &bounds);
             y -= bounds.fTop;
-            sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, y);
+            sk_tool_utils::add_to_text_blob(&builder, emojiText, font, 0, y);
             y += bounds.fBottom;
         }
 
