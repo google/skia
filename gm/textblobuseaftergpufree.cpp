@@ -37,27 +37,19 @@ protected:
 
         const char text[] = "Hamburgefons";
 
-        SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setAntiAlias(true);
-        paint.setTextSize(20);
-
-        SkTextBlobBuilder builder;
-
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, 10);
-
-        sk_sp<SkTextBlob> blob(builder.make());
+        SkFont font(sk_tool_utils::create_portable_typeface(), 20);
+        auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
 
         // draw textblob
         SkRect rect = SkRect::MakeLTRB(0.f, 0.f, SkIntToScalar(kWidth), kHeight / 2.f);
         SkPaint rectPaint;
         rectPaint.setColor(0xffffffff);
         canvas->drawRect(rect, rectPaint);
-        canvas->drawTextBlob(blob, 10, 50, paint);
+        canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
         canvas->getGrContext()->freeGpuResources();
-        canvas->drawTextBlob(blob, 10, 150, paint);
+        canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
 
 private:
