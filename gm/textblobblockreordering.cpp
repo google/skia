@@ -24,16 +24,15 @@ protected:
 
         // make textblob
         // Large text is used to trigger atlas eviction
-        SkPaint paint;
-        paint.setTextSize(56);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 56);
+        font.setEdging(SkFont::Edging::kAlias);
         const char* text = "AB";
-        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
 
         SkScalar yOffset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 30);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, yOffset - 30);
 
         // build
         fBlob = builder.make();

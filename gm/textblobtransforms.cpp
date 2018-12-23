@@ -26,28 +26,27 @@ protected:
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkPaint paint;
-        paint.setTextSize(162);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 162);
+        font.setEdging(SkFont::Edging::kAlias);
         const char* text = "A";
-        sk_tool_utils::set_portable_typeface(&paint);
 
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, 0);
 
         // Medium
         SkScalar xOffset = bounds.width() + 5;
-        paint.setTextSize(72);
+        font.setSize(72);
         text = "B";
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, 0);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset, 0);
 
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         SkScalar yOffset = bounds.height();
 
         // Small
-        paint.setTextSize(32);
+        font.setSize(32);
         text = "C";
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, -yOffset - 10);
+        sk_tool_utils::add_to_text_blob(&builder, text, font, xOffset, -yOffset - 10);
 
         // build
         fBlob = builder.make();

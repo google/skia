@@ -37,14 +37,12 @@ protected:
         // build text blob
         SkTextBlobBuilder builder;
 
-        SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(32);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 32);
         const char* text = "able was I ere I saw elba";
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        // If we use SkTextBlob::MakeFromText, we get very different positioning ... why?
+        sk_tool_utils::add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
     }
 
