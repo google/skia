@@ -34,18 +34,11 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        // build text blob
-        SkTextBlobBuilder builder;
-
-        SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(32);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 32);
         const char* text = "able was I ere I saw elba";
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(true);
-        paint.setLCDRenderText(true);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
-        fBlob = builder.make();
+        font.setSubpixel(true);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        fBlob = SkTextBlob::MakeFromText(text, strlen(text), font);
     }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
