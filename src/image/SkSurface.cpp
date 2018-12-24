@@ -173,11 +173,7 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
         return nullptr;
     }
     SkASSERT(!bounds.isEmpty());
-    if (bounds == surfBounds) {
-        return this->makeImageSnapshot();
-    } else {
-        return asSB(this)->onNewImageSnapshot(&bounds);
-    }
+    return asSB(this)->onNewImageSnapshot(&bounds);
 }
 
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
