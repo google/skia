@@ -6,6 +6,7 @@
  */
 
 #include "Resources.h"
+#include "SkTextBlob.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "gm.h"
@@ -13,48 +14,44 @@
 static void excercise_draw_pos_text(SkCanvas* canvas,
                                     const char* text,
                                     SkScalar x, SkScalar y,
+                                    const SkFont& font,
                                     const SkPaint& paint) {
-    size_t textLen = strlen(text);
-    SkAutoTArray<SkScalar> widths(SkToInt(textLen));
-    paint.getTextWidths(text, textLen, &widths[0]);
-    SkAutoTArray<SkPoint> pos(SkToInt(textLen));
-    for (int i = 0; i < SkToInt(textLen); ++i) {
-        pos[i].set(x, y);
-        x += widths[i];
-    }
-    canvas->drawPosText(text, textLen, &pos[0], paint);
+    const int count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
+    SkTextBlobBuilder builder;
+    auto rec = builder.allocRunPos(font, count);
+    font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, rec.glyphs, count);
+    font.getPos(rec.glyphs, count, (SkPoint*)rec.pos);
+    canvas->drawTextBlob(builder.make(), x, y, paint);
 }
 
 DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
     SkPaint p;
-    p.setTextSize(60);
-    p.setTypeface(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"));
-    p.setAntiAlias(true);
 
-    if (!p.getTypeface()) {
+    SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
+    if (!font.getTypeface()) {
         return;
     }
 
     const char text[] = "HELLO, WORLD!";
 
     canvas->drawColor(SK_ColorWHITE);
-    excercise_draw_pos_text(canvas, text, 30, 90, p);
+    excercise_draw_pos_text(canvas, text, 30, 90, font, p);
 
     canvas->save();
     canvas->rotate(45.0f);
     p.setColor(0xF0800000);
-    excercise_draw_pos_text(canvas, text, 30, 45, p);
+    excercise_draw_pos_text(canvas, text, 30, 45, font, p);
     canvas->restore();
 
     canvas->save();
     canvas->scale(1, 4.0);
     p.setColor(0xF0008000);
-    excercise_draw_pos_text(canvas, text, 15, 70, p);
+    excercise_draw_pos_text(canvas, text, 15, 70, font, p);
     canvas->restore();
 
     canvas->scale(1.0, 0.5);
     p.setColor(0xF0000080);
-    canvas->drawString(text, 30, 700, p);
+    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 30, 700, font, p);
 }
 
 
@@ -67,4 +64,3 @@ DEF_SIMPLE_GM(pdf_crbug_772685, canvas, 612, 792) {
     canvas->translate(0, -816);
     canvas->drawRect({0, 0, 1224, 1500}, SkPaint());
 }
-
