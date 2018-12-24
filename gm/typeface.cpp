@@ -14,16 +14,15 @@
 #include "SkMaskFilter.h"
 #include "SkString.h"
 #include "SkSurfaceProps.h"
+#include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
 
-static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
+static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
-    SkASSERT(kGlyphID_SkTextEncoding == paint.getTextEncoding());
-
     SkAutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
-    paint.getTextWidths(glyphs, count * sizeof(uint16_t), widths);
+    font.getWidths(glyphs, count, widths);
 
     for (int i = 0; i < count; ++i) {
         pos[i].set(x, y);
@@ -32,8 +31,8 @@ static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
 }
 
 static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
-                         const SkPaint& paint) {
-    SkScalar scale = paint.getTextSize() / paint.getTypeface()->getUnitsPerEm();
+                         const SkFont& font) {
+    SkScalar scale = font.getSize() / font.getTypeface()->getUnitsPerEm();
 
     SkScalar globalAdj = 0;
     for (int i = 0; i < count - 1; ++i) {
@@ -43,16 +42,16 @@ static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
 }
 
 static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
-                         SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkTypeface* face = paint.getTypeface();
+                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
+    SkTypeface* face = font.getTypeface();
     if (!face) {
-        canvas->drawText(text, len, x, y, paint);
+        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
         return;
     }
 
     SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
     uint16_t* glyphs = glyphStorage.get();
-    int glyphCount = paint.textToGlyphs(text, len, glyphs);
+    int glyphCount = font.textToGlyphs(text, len, kUTF8_SkTextEncoding, glyphs, len);
     if (glyphCount < 1) {
         return;
     }
@@ -60,19 +59,18 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     SkAutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
     int32_t* adjustments = adjustmentStorage.get();
     if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
-        canvas->drawText(text, len, x, y, paint);
+        canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
         return;
     }
 
-    SkPaint glyphPaint(paint);
-    glyphPaint.setTextEncoding(kGlyphID_SkTextEncoding);
 
-    SkAutoSTMalloc<128, SkPoint> posStorage(glyphCount);
-    SkPoint* pos = posStorage.get();
-    getGlyphPositions(glyphPaint, glyphs, glyphCount, x, y, pos);
+    SkTextBlobBuilder builder;
+    auto rec = builder.allocRunPos(font, glyphCount);
+    memcpy(rec.glyphs, glyphs, glyphCount * sizeof(SkGlyphID));
+    getGlyphPositions(font, glyphs, glyphCount, x, y, (SkPoint*)rec.pos);
+    applyKerning((SkPoint*)rec.pos, adjustments, glyphCount, font);
 
-    applyKerning(pos, adjustments, glyphCount, glyphPaint);
-    canvas->drawPosText(glyphs, glyphCount * sizeof(uint16_t), pos, glyphPaint);
+    canvas->drawTextBlob(builder.make(), 0, 0, paint);
 }
 
 static constexpr SkFontStyle gStyles[] = {
@@ -112,27 +110,28 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(30));
+        SkFont font;
+        font.setSize(30);
 
         const char* text = fApplyKerning ? "Type AWAY" : "Hamburgefons";
         const size_t textLen = strlen(text);
 
         SkScalar x = SkIntToScalar(10);
-        SkScalar dy = paint.getFontMetrics(nullptr);
+        SkScalar dy = font.getMetrics(nullptr);
         SkScalar y = dy;
 
         if (fApplyKerning) {
-            paint.setSubpixelText(true);
+            font.setSubpixel(true);
         } else {
-            paint.setLinearText(true);
+            font.setLinearMetrics(true);
         }
+
+        SkPaint paint;
         for (int i = 0; i < gStylesCount; i++) {
-            paint.setTypeface(fFaces[i]);
-            canvas->drawText(text, textLen, x, y, paint);
+            font.setTypeface(fFaces[i]);
+            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
             if (fApplyKerning) {
-                drawKernText(canvas, text, textLen, x + 240, y, paint);
+                drawKernText(canvas, text, textLen, x + 240, y, font, paint);
             }
             y += dy;
         }
