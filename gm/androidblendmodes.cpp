@@ -65,9 +65,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint textPaint;
-        textPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textPaint);
+        SkFont font(sk_tool_utils::create_portable_typeface());
 
         sk_tool_utils::draw_checkerboard(canvas,
                                          kWhite,
@@ -97,7 +95,7 @@ protected:
             SkTextUtils::DrawString(canvas, SkBlendMode_Name(mode),
                                xOffset + kBitmapSize/2.0f,
                                yOffset + kBitmapSize,
-                               textPaint, SkTextUtils::kCenter_Align);
+                               font, SkPaint(), SkTextUtils::kCenter_Align);
 
             xOffset += 256;
             if (xOffset >= 1024) {

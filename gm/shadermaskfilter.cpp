@@ -109,9 +109,8 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    SkPaint labelP;
-    labelP.setAntiAlias(true);
-    labelP.setTextSize(20);
+    SkFont font;
+    font.setSize(20);
 
     const SkRect r2 = r.makeOutset(1.5f, 1.5f);
     SkPaint strokePaint;
@@ -142,7 +141,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     canvas->translate(10, 10 + 20);
     canvas->save();
     for (int i = 0; i < 5; ++i) {
-        SkTextUtils::DrawString(canvas, gCoverageName[i], r.width()*0.5f, -10, labelP,
+        SkTextUtils::DrawString(canvas, gCoverageName[i], r.width()*0.5f, -10, font, SkPaint(),
                                        SkTextUtils::kCenter_Align);
 
         SkCoverageMode cmode = static_cast<SkCoverageMode>(i);
