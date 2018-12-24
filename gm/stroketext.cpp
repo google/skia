@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
+#include "SkTextBlob.h"
 
 static void test_nulldev(SkCanvas* canvas) {
     SkBitmap bm;
@@ -25,31 +26,32 @@ static void test_nulldev(SkCanvas* canvas) {
     c.writePixels(src, 0, 0);
 }
 
-static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar strokeWidth) {
+static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFont& font,
+                              SkScalar strokeWidth) {
     SkPaint p(paint);
     SkPoint loc = { 20, 435 };
 
     if (strokeWidth > 0) {
         p.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("P", loc.fX, loc.fY - 225, p);
-        canvas->drawPosText("P", 1, &loc, p);
+        canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);
+        canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
     }
 
     p.setColor(SK_ColorRED);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(strokeWidth);
 
-    canvas->drawString("P", loc.fX, loc.fY - 225, p);
-    canvas->drawPosText("P", 1, &loc, p);
+    canvas->drawSimpleText("P", 1, kUTF8_SkTextEncoding, loc.fX, loc.fY - 225, font, p);
+    canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
 }
 
-static void draw_text_set(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_text_set(SkCanvas* canvas, const SkPaint& paint, const SkFont& font) {
     SkAutoCanvasRestore acr(canvas, true);
 
-    draw_text_stroked(canvas, paint, 10);
+    draw_text_stroked(canvas, paint, font, 10);
 
     canvas->translate(200, 0);
-    draw_text_stroked(canvas, paint, 0);
+    draw_text_stroked(canvas, paint, font, 0);
 
     const SkScalar intervals[] = { 20, 10, 5, 10 };
     const SkScalar phase = 0;
@@ -57,7 +59,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint) {
     canvas->translate(200, 0);
     SkPaint p(paint);
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), phase));
-    draw_text_stroked(canvas, p, 10);
+    draw_text_stroked(canvas, p, font, 10);
 }
 
 namespace {
@@ -68,15 +70,15 @@ namespace {
 }
 
 DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
-        if (true) { test_nulldev(canvas); }
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
+    if (true) { test_nulldev(canvas); }
 
-        paint.setTextSize(kBelowThreshold_TextSize);
-        draw_text_set(canvas, paint);
+    SkPaint paint;
+    paint.setAntiAlias(true);
 
-        canvas->translate(600, 0);
-        paint.setTextSize(kAboveThreshold_TextSize);
-        draw_text_set(canvas, paint);
+    SkFont font(sk_tool_utils::create_portable_typeface(), kBelowThreshold_TextSize);
+    draw_text_set(canvas, paint, font);
+
+    canvas->translate(600, 0);
+    font.setSize(kAboveThreshold_TextSize);
+    draw_text_set(canvas, paint, font);
 }
