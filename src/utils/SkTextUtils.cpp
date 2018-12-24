@@ -8,11 +8,9 @@
 #include "SkTextUtils.h"
 #include "SkTextBlob.h"
 
-void SkTextUtils::DrawText(SkCanvas* canvas, const void* text, size_t size, SkScalar x, SkScalar y,
-                            const SkPaint& paint, Align align) {
-
-    SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-
+void SkTextUtils::Draw(SkCanvas* canvas, const void* text, size_t size, SkTextEncoding encoding,
+                       SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint,
+                       Align align) {
     if (align != kLeft_Align) {
         SkScalar width = font.measureText(text, size, paint.getTextEncoding());
         if (align == kCenter_Align) {
