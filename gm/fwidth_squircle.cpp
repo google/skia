@@ -175,12 +175,9 @@ void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
     }
 
     if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(15);
-        sk_tool_utils::set_portable_typeface(&paint);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         SkTextUtils::DrawString(canvas, "Shader derivatives not supported.", 150,
-                                150 - 8, paint, SkTextUtils::kCenter_Align);
+                                150 - 8, font, SkPaint(), SkTextUtils::kCenter_Align);
         return;
     }
 

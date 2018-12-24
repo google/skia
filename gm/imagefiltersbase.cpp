@@ -127,10 +127,8 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     SkPaint paint;
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(r.height()/2);
-    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), paint,
+    SkFont font(sk_tool_utils::create_portable_typeface(), r.height()/2);
+    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint,
                             SkTextUtils::kCenter_Align);
 }
 
