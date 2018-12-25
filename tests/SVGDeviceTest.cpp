@@ -114,12 +114,14 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
 
     SkDOM dom;
     SkPaint paint;
+    SkFont font;
     SkPoint offset = SkPoint::Make(10, 20);
 
     {
         SkXMLParserWriter writer(dom.beginParsing());
         std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
-        svgCanvas->drawText(txt, len, offset.x(), offset.y(), paint);
+        svgCanvas->drawSimpleText(txt, len, kUTF8_SkTextEncoding, offset.x(), offset.y(),
+                                  font, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, expected);
 
@@ -131,7 +133,8 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
 
         SkXMLParserWriter writer(dom.beginParsing());
         std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
-        svgCanvas->drawPosTextH(txt, len, xpos, offset.y(), paint);
+        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, &xpos[0], offset.y(), font);
+        svgCanvas->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, expected);
 
@@ -142,8 +145,8 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
         }
 
         SkXMLParserWriter writer(dom.beginParsing());
-        std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
-        svgCanvas->drawPosText(txt, len, pos, paint);
+        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, &pos[0], font);
+        svgCanvas->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, expected);
 }
