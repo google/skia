@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkFont.h"
 #include "SkFontDescriptor.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
@@ -65,9 +66,8 @@ DEF_TEST(FontHostStream, reporter) {
     {
         SkPaint paint;
         paint.setColor(SK_ColorGRAY);
-        paint.setTextSize(SkIntToScalar(30));
 
-        paint.setTypeface(SkTypeface::MakeFromName("Georgia", SkFontStyle()));
+        SkFont font(SkTypeface::MakeFromName("Georgia", SkFontStyle()), 30);
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);
         SkBitmap origBitmap;
@@ -83,7 +83,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         // Test: origTypeface and streamTypeface from orig data draw the same
         drawBG(&origCanvas);
-        origCanvas.drawString("A", point.fX, point.fY, paint);
+        origCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
 
         sk_sp<SkTypeface> typeface = SkPaintPriv::RefTypefaceOrDefault(paint);
         int ttcIndex;
@@ -103,7 +103,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         paint.setTypeface(streamTypeface);
         drawBG(&streamCanvas);
-        streamCanvas.drawPosText("A", 1, &point, paint);
+        streamCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
 
         REPORTER_ASSERT(reporter,
                         compare(origBitmap, origRect, streamBitmap, streamRect));

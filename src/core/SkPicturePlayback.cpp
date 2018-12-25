@@ -459,7 +459,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && text.text()) {
-                canvas->drawPosText(text.text(), text.length(), pos, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromPosText(text.text(), text.length(), pos, font,
+                                                        paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_POS_TEXT_TOP_BOTTOM: {
@@ -474,7 +477,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             SkRect clip = canvas->getLocalClipBounds();
             if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
-                canvas->drawPosText(text.text(), text.length(), pos, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromPosText(text.text(), text.length(), pos, font,
+                                                        paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_POS_TEXT_H: {
@@ -487,7 +493,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && text.text()) {
-                canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromPosTextH(text.text(), text.length(), xpos, constY,
+                                                         font, paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_POS_TEXT_H_TOP_BOTTOM: {
@@ -504,7 +513,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkScalar constY = *xpos++;
             SkRect clip = canvas->getLocalClipBounds();
             if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
-                canvas->drawPosTextH(text.text(), text.length(), xpos, constY, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromPosTextH(text.text(), text.length(), xpos, constY,
+                                                         font, paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_RECT: {
