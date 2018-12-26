@@ -340,14 +340,6 @@ static bool get_segments(const SkPath& path,
     }
 }
 
-struct QuadVertex {
-    SkPoint  fPos;
-    GrColor  fColor;
-    SkPoint  fUV;
-    SkScalar fD0;
-    SkScalar fD1;
-};
-
 struct Draw {
     Draw() : fVertexCnt(0), fIndexCnt(0) {}
     int fVertexCnt;
@@ -360,8 +352,9 @@ static void create_vertices(const SegmentArray& segments,
                             const SkPoint& fanPt,
                             GrColor color,
                             DrawArray* draws,
-                            QuadVertex* verts,
-                            uint16_t* idxs) {
+                            GrVertexWriter& verts,
+                            uint16_t* idxs,
+                            size_t vertexStride) {
     Draw* draw = &draws->push_back();
     // alias just to make vert/index assignments easier to read.
     int* v = &draw->fVertexCnt;
@@ -382,30 +375,21 @@ static void create_vertices(const SegmentArray& segments,
             vCount += 6;
         }
         if (draw->fVertexCnt + vCount > (1 << 16)) {
-            verts += *v;
             idxs += *i;
             draw = &draws->push_back();
             v = &draw->fVertexCnt;
             i = &draw->fIndexCnt;
         }
 
+        const SkScalar negOneDists[2] = { -SK_Scalar1, -SK_Scalar1 };
+
         // FIXME: These tris are inset in the 1 unit arc around the corner
-        verts[*v + 0].fPos = sega.endPt();
-        verts[*v + 1].fPos = verts[*v + 0].fPos + sega.endNorm();
-        verts[*v + 2].fPos = verts[*v + 0].fPos + segb.fMid;
-        verts[*v + 3].fPos = verts[*v + 0].fPos + segb.fNorms[0];
-        verts[*v + 0].fColor = color;
-        verts[*v + 1].fColor = color;
-        verts[*v + 2].fColor = color;
-        verts[*v + 3].fColor = color;
-        verts[*v + 0].fUV.set(0,0);
-        verts[*v + 1].fUV.set(0,-SK_Scalar1);
-        verts[*v + 2].fUV.set(0,-SK_Scalar1);
-        verts[*v + 3].fUV.set(0,-SK_Scalar1);
-        verts[*v + 0].fD0 = verts[*v + 0].fD1 = -SK_Scalar1;
-        verts[*v + 1].fD0 = verts[*v + 1].fD1 = -SK_Scalar1;
-        verts[*v + 2].fD0 = verts[*v + 2].fD1 = -SK_Scalar1;
-        verts[*v + 3].fD0 = verts[*v + 3].fD1 = -SK_Scalar1;
+        SkPoint p0 = sega.endPt();
+        // Position, Color, UV, D0, D1
+        verts.write(p0,                  color, SkPoint{0, 0},           negOneDists);
+        verts.write(p0 + sega.endNorm(), color, SkPoint{0, -SK_Scalar1}, negOneDists);
+        verts.write(p0 + segb.fMid,      color, SkPoint{0, -SK_Scalar1}, negOneDists);
+        verts.write(p0 + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
 
         idxs[*i + 0] = *v + 0;
         idxs[*i + 1] = *v + 2;
@@ -418,34 +402,17 @@ static void create_vertices(const SegmentArray& segments,
         *i += 6;
 
         if (Segment::kLine == segb.fType) {
-            verts[*v + 0].fPos = fanPt;
-            verts[*v + 1].fPos = sega.endPt();
-            verts[*v + 2].fPos = segb.fPts[0];
-
-            verts[*v + 3].fPos = verts[*v + 1].fPos + segb.fNorms[0];
-            verts[*v + 4].fPos = verts[*v + 2].fPos + segb.fNorms[0];
-
-            verts[*v + 0].fColor = color;
-            verts[*v + 1].fColor = color;
-            verts[*v + 2].fColor = color;
-            verts[*v + 3].fColor = color;
-            verts[*v + 4].fColor = color;
-
             // we draw the line edge as a degenerate quad (u is 0, v is the
             // signed distance to the edge)
-            SkScalar dist = SkPointPriv::DistanceToLineBetween(fanPt, verts[*v + 1].fPos,
-                                                               verts[*v + 2].fPos);
-            verts[*v + 0].fUV.set(0, dist);
-            verts[*v + 1].fUV.set(0, 0);
-            verts[*v + 2].fUV.set(0, 0);
-            verts[*v + 3].fUV.set(0, -SK_Scalar1);
-            verts[*v + 4].fUV.set(0, -SK_Scalar1);
+            SkPoint v1Pos = sega.endPt();
+            SkPoint v2Pos = segb.fPts[0];
+            SkScalar dist = SkPointPriv::DistanceToLineBetween(fanPt, v1Pos, v2Pos);
 
-            verts[*v + 0].fD0 = verts[*v + 0].fD1 = -SK_Scalar1;
-            verts[*v + 1].fD0 = verts[*v + 1].fD1 = -SK_Scalar1;
-            verts[*v + 2].fD0 = verts[*v + 2].fD1 = -SK_Scalar1;
-            verts[*v + 3].fD0 = verts[*v + 3].fD1 = -SK_Scalar1;
-            verts[*v + 4].fD0 = verts[*v + 4].fD1 = -SK_Scalar1;
+            verts.write(fanPt,                  color, SkPoint{0, dist},        negOneDists);
+            verts.write(v1Pos,                  color, SkPoint{0, 0},           negOneDists);
+            verts.write(v2Pos,                  color, SkPoint{0, 0},           negOneDists);
+            verts.write(v1Pos + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
+            verts.write(v2Pos + segb.fNorms[0], color, SkPoint{0, -SK_Scalar1}, negOneDists);
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;
@@ -470,43 +437,49 @@ static void create_vertices(const SegmentArray& segments,
 
             *v += 5;
         } else {
+            void* quadVertsBegin = verts.fPtr;
+
             SkPoint qpts[] = {sega.endPt(), segb.fPts[0], segb.fPts[1]};
+
+            SkScalar c0 = segb.fNorms[0].dot(qpts[0]);
+            SkScalar c1 = segb.fNorms[1].dot(qpts[2]);
+            GrVertexWriter::Skip<SkPoint> skipUVs;
+
+            verts.write(fanPt,
+                        color, skipUVs,
+                        -segb.fNorms[0].dot(fanPt) + c0,
+                        -segb.fNorms[1].dot(fanPt) + c1);
+
+            verts.write(qpts[0],
+                        color, skipUVs,
+                        0.0f,
+                        -segb.fNorms[1].dot(qpts[0]) + c1);
+
+            verts.write(qpts[2],
+                        color, skipUVs,
+                        -segb.fNorms[0].dot(qpts[2]) + c0,
+                        0.0f);
+
+            verts.write(qpts[0] + segb.fNorms[0],
+                        color, skipUVs,
+                        -SK_ScalarMax/100,
+                        -SK_ScalarMax/100);
+
+            verts.write(qpts[2] + segb.fNorms[1],
+                        color, skipUVs,
+                        -SK_ScalarMax/100,
+                        -SK_ScalarMax/100);
 
             SkVector midVec = segb.fNorms[0] + segb.fNorms[1];
             midVec.normalize();
 
-            verts[*v + 0].fPos = fanPt;
-            verts[*v + 1].fPos = qpts[0];
-            verts[*v + 2].fPos = qpts[2];
-            verts[*v + 3].fPos = qpts[0] + segb.fNorms[0];
-            verts[*v + 4].fPos = qpts[2] + segb.fNorms[1];
-            verts[*v + 5].fPos = qpts[1] + midVec;
-
-            verts[*v + 0].fColor = color;
-            verts[*v + 1].fColor = color;
-            verts[*v + 2].fColor = color;
-            verts[*v + 3].fColor = color;
-            verts[*v + 4].fColor = color;
-            verts[*v + 5].fColor = color;
-
-            SkScalar c = segb.fNorms[0].dot(qpts[0]);
-            verts[*v + 0].fD0 =  -segb.fNorms[0].dot(fanPt) + c;
-            verts[*v + 1].fD0 =  0.f;
-            verts[*v + 2].fD0 =  -segb.fNorms[0].dot(qpts[2]) + c;
-            verts[*v + 3].fD0 = -SK_ScalarMax/100;
-            verts[*v + 4].fD0 = -SK_ScalarMax/100;
-            verts[*v + 5].fD0 = -SK_ScalarMax/100;
-
-            c = segb.fNorms[1].dot(qpts[2]);
-            verts[*v + 0].fD1 =  -segb.fNorms[1].dot(fanPt) + c;
-            verts[*v + 1].fD1 =  -segb.fNorms[1].dot(qpts[0]) + c;
-            verts[*v + 2].fD1 =  0.f;
-            verts[*v + 3].fD1 = -SK_ScalarMax/100;
-            verts[*v + 4].fD1 = -SK_ScalarMax/100;
-            verts[*v + 5].fD1 = -SK_ScalarMax/100;
+            verts.write(qpts[1] + midVec,
+                        color, skipUVs,
+                        -SK_ScalarMax/100,
+                        -SK_ScalarMax/100);
 
             GrPathUtils::QuadUVMatrix toUV(qpts);
-            toUV.apply(verts + *v, 6, sizeof(QuadVertex), offsetof(QuadVertex, fUV));
+            toUV.apply(quadVertsBegin, 6, vertexStride, sizeof(SkPoint) + sizeof(GrColor));
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;
@@ -785,11 +758,11 @@ private:
             const GrBuffer* vertexBuffer;
             int firstVertex;
 
-            SkASSERT(sizeof(QuadVertex) == quadProcessor->vertexStride());
-            QuadVertex* verts = reinterpret_cast<QuadVertex*>(target->makeVertexSpace(
-                    sizeof(QuadVertex), vertexCount, &vertexBuffer, &firstVertex));
+            const size_t kVertexStride = quadProcessor->vertexStride();
+            GrVertexWriter verts{target->makeVertexSpace(kVertexStride, vertexCount,
+                                                         &vertexBuffer, &firstVertex)};
 
-            if (!verts) {
+            if (!verts.fPtr) {
                 SkDebugf("Could not allocate vertices\n");
                 return;
             }
@@ -805,7 +778,8 @@ private:
 
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             // TODO4F: Preserve float colors
-            create_vertices(segments, fanPt, args.fColor.toBytes_RGBA(), &draws, verts, idxs);
+            create_vertices(segments, fanPt, args.fColor.toBytes_RGBA(), &draws, verts, idxs,
+                            kVertexStride);
 
             GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {

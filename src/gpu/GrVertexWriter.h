@@ -41,6 +41,9 @@ struct GrVertexWriter {
         return Conditional<T>(condition, value);
     }
 
+    template <typename T>
+    struct Skip {};
+
     template <typename T, typename... Args>
     void write(const T& val, const Args&... remainder) {
         static_assert(std::is_pod<T>::value, "");
@@ -76,6 +79,12 @@ struct GrVertexWriter {
         if (val.fCondition) {
             this->write(val.fValue);
         }
+        this->write(remainder...);
+    }
+
+    template <typename T, typename... Args>
+    void write(const Skip<T>& val, const Args&... remainder) {
+        fPtr = SkTAddOffset<void>(fPtr, sizeof(T));
         this->write(remainder...);
     }
 
