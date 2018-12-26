@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkFontPriv.h"
 #include "SkGradientShader.h"
 #include "SkImageGenerator.h"
 #include "SkPaint.h"
@@ -16,6 +17,29 @@
 #include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+
+static void get_text_path(const void* text, size_t length, SkTextEncoding encoding,
+                          SkScalar x, SkScalar y, const SkFont& font, SkPath* path) {
+    SkAutoToGlyphs ag(font, text, length, encoding);
+    SkAutoTArray<SkPoint> pos(ag.count());
+    font.getPos(ag.glyphs(), ag.count(), &pos[0], {x, y});
+
+    struct Rec {
+        SkPath* fDst;
+        const SkPoint* fPos;
+    } rec = { path, &pos[0] };
+
+    path->reset();
+    font.getPaths(ag.glyphs(), ag.count(), [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+        Rec* rec = (Rec*)ctx;
+        if (src) {
+            SkMatrix m(mx);
+            m.postTranslate(rec->fPos->fX, rec->fPos->fY);
+            rec->fDst->addPath(*src, m);
+        }
+        rec->fPos += 1;
+    }, &rec);
+}
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     constexpr char kSkiaStr[] = "SKIA";
@@ -25,20 +49,21 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setSubpixelText(true);
-    paint.setFakeBoldText(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+
+    SkFont font(sk_tool_utils::create_portable_typeface());
+    font.setSubpixel(true);
+    font.setEmbolden(true);
 
     SkPath path;
     SkRect iBox, skiBox, skiaBox;
-    paint.getTextPath("SKI", 3, 0, 0, &path);
+    get_text_path("SKI", 3, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &skiBox);
-    paint.getTextPath("I", 1, 0, 0, &path);
+    get_text_path("I", 1, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &iBox);
     iBox.offsetTo(skiBox.fRight - iBox.width(), iBox.fTop);
 
     const size_t textLen = strlen(kSkiaStr);
-    paint.getTextPath(kSkiaStr, textLen, 0, 0, &path);
+    get_text_path(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &skiaBox);
     skiaBox.outset(0, 2 * iBox.width() * (kVerticalSpacing + 1));
 
