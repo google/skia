@@ -29,11 +29,6 @@ static inline sk_manageddrawable_t* ToManagedDrawable(SkManagedDrawable* drawabl
     return reinterpret_cast<sk_manageddrawable_t*>(drawable);
 }
 
-static inline const sk_manageddrawable_t* ToManagedDrawable(const SkManagedDrawable* drawable) 
-{
-    return reinterpret_cast<const sk_manageddrawable_t*>(drawable);
-}
-
 void dDraw(SkManagedDrawable* managedDrawable, SkCanvas* canvas) 
 {
     gDraw(ToManagedDrawable(managedDrawable), ToCanvas(canvas));
@@ -50,7 +45,7 @@ SkPicture* dNewPictureSnapshot(SkManagedDrawable* managedDrawable)
 }
 
 sk_manageddrawable_t* sk_manageddrawable_new() { 
-	return ToManagedDrawable(new SkManagedDrawable());
+    return ToManagedDrawable(new SkManagedDrawable());
 }
 
 void sk_manageddrawable_destroy(sk_manageddrawable_t* drawable)
