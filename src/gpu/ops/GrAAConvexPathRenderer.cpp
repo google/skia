@@ -506,7 +506,7 @@ static void create_vertices(const SegmentArray& segments,
             verts[*v + 5].fD1 = -SK_ScalarMax/100;
 
             GrPathUtils::QuadUVMatrix toUV(qpts);
-            toUV.apply<6, sizeof(QuadVertex), offsetof(QuadVertex, fUV)>(verts + *v);
+            toUV.apply(verts + *v, 6, sizeof(QuadVertex), offsetof(QuadVertex, fUV));
 
             idxs[*i + 0] = *v + 3;
             idxs[*i + 1] = *v + 1;

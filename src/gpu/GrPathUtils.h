@@ -59,34 +59,29 @@ namespace GrPathUtils {
         void set(const SkPoint controlPts[3]);
 
         /**
-         * Applies the matrix to vertex positions to compute UV coords. This
-         * has been templated so that the compiler can easliy unroll the loop
-         * and reorder to avoid stalling for loads. The assumption is that a
-         * path renderer will have a small fixed number of vertices that it
-         * uploads for each quad.
+         * Applies the matrix to vertex positions to compute UV coords.
          *
-         * N is the number of vertices.
-         * STRIDE is the size of each vertex.
-         * UV_OFFSET is the offset of the UV values within each vertex.
          * vertices is a pointer to the first vertex.
+         * vertexCount is the number of vertices.
+         * stride is the size of each vertex.
+         * uvOffset is the offset of the UV values within each vertex.
          */
-        template <int N, size_t STRIDE, size_t UV_OFFSET>
-        void apply(const void* vertices) const {
+        void apply(void* vertices, int vertexCount, size_t stride, size_t uvOffset) const {
             intptr_t xyPtr = reinterpret_cast<intptr_t>(vertices);
-            intptr_t uvPtr = reinterpret_cast<intptr_t>(vertices) + UV_OFFSET;
+            intptr_t uvPtr = reinterpret_cast<intptr_t>(vertices) + uvOffset;
             float sx = fM[0];
             float kx = fM[1];
             float tx = fM[2];
             float ky = fM[3];
             float sy = fM[4];
             float ty = fM[5];
-            for (int i = 0; i < N; ++i) {
+            for (int i = 0; i < vertexCount; ++i) {
                 const SkPoint* xy = reinterpret_cast<const SkPoint*>(xyPtr);
                 SkPoint* uv = reinterpret_cast<SkPoint*>(uvPtr);
                 uv->fX = sx * xy->fX + kx * xy->fY + tx;
                 uv->fY = ky * xy->fX + sy * xy->fY + ty;
-                xyPtr += STRIDE;
-                uvPtr += STRIDE;
+                xyPtr += stride;
+                uvPtr += stride;
             }
         }
     private:
