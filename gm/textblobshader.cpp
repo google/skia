@@ -20,11 +20,10 @@
 class TextBlobShaderGM : public skiagm::GM {
 public:
     TextBlobShaderGM(const char* txt) {
-        SkPaint p;
-        sk_tool_utils::set_portable_typeface(&p);
+        SkFont font(sk_tool_utils::create_portable_typeface());
         size_t txtLen = strlen(txt);
-        fGlyphs.append(p.textToGlyphs(txt, txtLen, nullptr));
-        p.textToGlyphs(txt, txtLen, fGlyphs.begin());
+        fGlyphs.append(font.countText(txt, txtLen, kUTF8_SkTextEncoding));
+        font.textToGlyphs(txt, txtLen, kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
     }
 
 protected:

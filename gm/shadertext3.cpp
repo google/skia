@@ -103,15 +103,16 @@ protected:
 
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&fillPaint);
-                fillPaint.setTextSize(SkIntToScalar(kPointSize));
                 fillPaint.setFilterQuality(kLow_SkFilterQuality);
                 fillPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTileModes[tm0],
                                                                kTileModes[tm1], &localM));
 
-                canvas->drawText(kText, kTextLen, 0, 0, fillPaint);
-                canvas->drawText(kText, kTextLen, 0, 0, outlinePaint);
-                SkScalar w = fillPaint.measureText(kText, kTextLen);
+                SkFont font(sk_tool_utils::create_portable_typeface(), kPointSize);
+
+                canvas->drawSimpleText(kText, kTextLen, kUTF8_SkTextEncoding, 0, 0, font, fillPaint);
+                canvas->drawSimpleText(kText, kTextLen, kUTF8_SkTextEncoding, 0, 0, font,
+                                       outlinePaint);
+                SkScalar w = font.measureText(kText, kTextLen, kUTF8_SkTextEncoding);
                 canvas->translate(w + 10.f, 0.f);
                 ++i;
                 if (!(i % 2)) {

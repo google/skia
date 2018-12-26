@@ -85,13 +85,12 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         fTypeface = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
-        SkPaint p;
-        p.setTypeface(fTypeface);
+        SkFont font(fTypeface);
         size_t txtLen = strlen(fText);
-        int glyphCount = p.textToGlyphs(fText, txtLen, nullptr);
+        int glyphCount = font.countText(fText, txtLen, kUTF8_SkTextEncoding);
 
         fGlyphs.append(glyphCount);
-        p.textToGlyphs(fText, txtLen, fGlyphs.begin());
+        font.textToGlyphs(fText, txtLen, kUTF8_SkTextEncoding, fGlyphs.begin(), glyphCount);
     }
 
     SkString onShortName() override {
