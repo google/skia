@@ -337,5 +337,25 @@ private:
 };
 DEF_GM( return new LatticeGM2; )
 
+// Code paths that incorporate the paint color when drawing the lattice (using an alpha image)
+DEF_SIMPLE_GM_BG(lattice_alpha, canvas, 120, 120, SK_ColorWHITE) {
+    auto surface = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeA8(100, 100));
+    surface->getCanvas()->clear(0);
+    surface->getCanvas()->drawCircle(50, 50, 50, SkPaint());
+    auto image = surface->makeImageSnapshot();
 
+    int divs[] = { 20, 40, 60, 80 };
 
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = 4;
+    lattice.fXDivs = divs;
+    lattice.fYCount = 4;
+    lattice.fYDivs = divs;
+    lattice.fRectTypes = nullptr;
+    lattice.fColors = nullptr;
+    lattice.fBounds = nullptr;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorMAGENTA);
+    canvas->drawImageLattice(image.get(), lattice, SkRect::MakeWH(120, 120), &paint);
+}
