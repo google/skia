@@ -241,7 +241,7 @@ static float compute_quad_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y
 
         // Compute t in homogeneous space from s using similar triangles so that we can produce
         // homogeneous outset vertices for perspective-correct interpolation.
-        Sk4f s = get_projected_interpolant(len, outset, &maxProjectedCoverage);;
+        Sk4f s = get_projected_interpolant(len, outset, &maxProjectedCoverage);
         Sk4f sOpW = s * opW;
         Sk4f t = sOpW / (sOpW + (1.f - s) * (*w));
         // mask is used to make the t values be 1 when the left/right side is not antialiased.
@@ -283,7 +283,7 @@ static float compute_quad_persp_vertices(GrQuadAAFlags aaFlags, Sk4f* x, Sk4f* y
         Sk2f vy = SkNx_shuffle<1, 3>(y2d) - SkNx_shuffle<0, 2>(y2d);
         Sk4f len = SkNx_shuffle<0, 0, 1, 1>(SkNx_fma(vx, vx, vy * vy).sqrt());
 
-        Sk4f s = get_projected_interpolant(len, outset, &maxProjectedCoverage);;
+        Sk4f s = get_projected_interpolant(len, outset, &maxProjectedCoverage);
         Sk4f sOpW = s * opW;
         Sk4f t = sOpW / (sOpW + (1.f - s) * (*w));
 
