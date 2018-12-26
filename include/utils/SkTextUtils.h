@@ -13,6 +13,8 @@
 #include "SkPaint.h"
 #include "SkString.h"
 
+class SkPath;
+
 class SkTextUtils {
 public:
     enum Align {
@@ -49,6 +51,9 @@ public:
         DrawText(canvas, str.c_str(), str.size(), x, y, paint, align);
     }
 #endif
+
+    static void GetPath(const void* text, size_t length, SkTextEncoding, SkScalar x, SkScalar y,
+                        const SkFont&, SkPath*);
 };
 
 #endif

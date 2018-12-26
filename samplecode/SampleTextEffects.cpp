@@ -16,6 +16,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkStrokeRec.h"
+#include "SkTextUtils.h"
 #include "SkTypeface.h"
 
 #include "SkGradientShader.h"
@@ -128,13 +129,13 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
     }
 
-    void drawdots(SkCanvas* canvas, SkString s, SkScalar x, SkScalar y, const SkPaint& p) {
+    void drawdots(SkCanvas* canvas, SkString s, SkScalar x, SkScalar y, const SkFont& font) {
         SkTDArray<SkPoint> pts;
         auto pe = makepe(fInterp, &pts);
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
         SkPath path, dstPath;
-        p.getTextPath(s.c_str(), s.size(), x, y, &path);
+        SkTextUtils::GetPath(s.c_str(), s.size(), kUTF8_SkTextEncoding, x, y, font, &path);
         pe->filterPath(&dstPath, path, &rec, nullptr);
 
         SkPaint paint;
@@ -150,16 +151,13 @@ protected:
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(300);
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(240));
-        paint.setTypeface(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()));
-        paint.setTypeface(fFace);
+        SkFont font(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()), 240);
 
         SkString str("9");
 
-        canvas->drawString(str, x, y, paint);
-        drawdots(canvas, str, x, y, paint);
+        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
+                               x, y, font, SkPaint());
+        drawdots(canvas, str, x, y, font);
 
         if (false) {
             fInterp += fDx;

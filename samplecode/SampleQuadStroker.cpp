@@ -676,10 +676,10 @@ protected:
 
         if (fTextButton.fEnabled) {
             path.reset();
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(fTextSize);
-            paint.getTextPath(fText.c_str(), fText.size(), 0, fTextSize, &path);
+            SkFont font;
+            font.setSize(fTextSize);
+            SkTextUtils::GetPath(fText.c_str(), fText.size(), kUTF8_SkTextEncoding,
+                                 0, fTextSize, font, &path);
             setForText();
             draw_stroke(canvas, path, width * fWidthScale / fTextSize, fTextSize, true);
         }
