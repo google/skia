@@ -18,6 +18,7 @@
 #include "sk_colortable.h"
 #include "sk_data.h"
 #include "sk_document.h"
+#include "sk_drawable.h"
 #include "sk_image.h"
 #include "sk_imagefilter.h"
 #include "sk_mask.h"
@@ -42,6 +43,7 @@
 
 // Xamarin
 #include "sk_managedstream.h"
+#include "sk_manageddrawable.h"
 
 SK_X_API void** KeepSkiaCSymbols (void);
 
@@ -59,6 +61,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_colortable_unref,
         (void*)sk_data_new_empty,
         (void*)sk_document_unref,
+        (void*)sk_drawable_unref,
         (void*)sk_image_ref,
         (void*)sk_imagefilter_croprect_new,
         (void*)sk_mask_alloc_image,
@@ -83,6 +86,7 @@ void** KeepSkiaCSymbols (void)
 
         // Xamarin
         (void*)sk_managedstream_new,
+        (void*)sk_manageddrawable_new,
     };
     return ret;
 }

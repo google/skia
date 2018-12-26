@@ -9,6 +9,7 @@
 
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkDrawable.h"
 
 #include "sk_picture.h"
 
@@ -28,6 +29,10 @@ sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t* crec, co
 
 sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
     return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
+}
+
+sk_drawable_t* sk_picture_recorder_end_recording_as_drawable(sk_picture_recorder_t* crec) {
+    return ToDrawable(AsPictureRecorder(crec)->finishRecordingAsDrawable().release());
 }
 
 sk_canvas_t* sk_picture_get_recording_canvas(sk_picture_recorder_t* crec) {

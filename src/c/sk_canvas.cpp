@@ -210,6 +210,14 @@ void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture, 
     AsCanvas(ccanvas)->drawPicture(AsPicture(cpicture), cmatrix ? &m : nullptr, AsPaint(cpaint));
 }
 
+void sk_canvas_draw_drawable(sk_canvas_t* ccanvas, sk_drawable_t* cdrawable, const sk_matrix_t* cmatrix) {
+    SkMatrix m;
+    if (cmatrix) {
+        m = AsMatrix(cmatrix);
+    }
+    AsCanvas(ccanvas)->drawDrawable(AsDrawable(cdrawable), cmatrix ? &m : nullptr);
+}
+
 void sk_canvas_flush(sk_canvas_t* ccanvas) {
     AsCanvas(ccanvas)->flush();
 }
