@@ -330,7 +330,7 @@ private:
         }
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
-        fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
+        fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
         auto pipe = this->makePipeline(target);
         helper.recordDraw(target, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
