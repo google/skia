@@ -18,7 +18,7 @@ typedef struct sk_drawable_t sk_drawable_t;
 SK_C_API void sk_drawable_unref (sk_drawable_t*);
 SK_C_API uint32_t sk_drawable_get_generation_id (sk_drawable_t*);
 SK_C_API void sk_drawable_get_bounds (sk_drawable_t*, sk_rect_t*);
-SK_C_API void sk_drawable_draw (sk_drawable_t*, sk_canvas_t*, const sk_matrix_t*);
+SK_C_API void sk_drawable_draw (sk_drawable_t*, sk_canvas_t*, sk_matrix_t*);
 SK_C_API sk_picture_t* sk_drawable_new_picture_snapshot(sk_drawable_t*);
 SK_C_API void sk_drawable_notify_drawing_changed (sk_drawable_t*);
 

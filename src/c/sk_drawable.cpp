@@ -28,7 +28,7 @@ void sk_drawable_get_bounds(sk_drawable_t* d, sk_rect_t* rect)
     *rect = ToRect(AsDrawable(d)->getBounds()); 
 }
 
-void sk_drawable_draw(sk_drawable_t* d, sk_canvas_t* c, const sk_matrix_t* matrix)
+void sk_drawable_draw(sk_drawable_t* d, sk_canvas_t* c, sk_matrix_t* matrix)
 {
     AsDrawable(d)->draw(AsCanvas(c), &AsMatrix(matrix));
 }
