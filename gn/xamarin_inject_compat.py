@@ -18,8 +18,11 @@ files = [
 ]
 
 for f in files:
-    # read the file
     af = os.path.join(root, f)
+    # some targets don't have all the dependencies
+    if not os.path.isfile(af):
+        continue
+    # read the file
     with file(af, 'r') as original:
         data = original.read()
     # create the include
