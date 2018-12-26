@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkFontPriv.h"
 #include "SkGradientShader.h"
 #include "SkImageGenerator.h"
 #include "SkPaint.h"
@@ -16,6 +17,7 @@
 #include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkTextUtils.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     constexpr char kSkiaStr[] = "SKIA";
@@ -25,20 +27,21 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setSubpixelText(true);
-    paint.setFakeBoldText(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+
+    SkFont font(sk_tool_utils::create_portable_typeface());
+    font.setSubpixel(true);
+    font.setEmbolden(true);
 
     SkPath path;
     SkRect iBox, skiBox, skiaBox;
-    paint.getTextPath("SKI", 3, 0, 0, &path);
+    SkTextUtils::GetPath("SKI", 3, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &skiBox);
-    paint.getTextPath("I", 1, 0, 0, &path);
+    SkTextUtils::GetPath("I", 1, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &iBox);
     iBox.offsetTo(skiBox.fRight - iBox.width(), iBox.fTop);
 
     const size_t textLen = strlen(kSkiaStr);
-    paint.getTextPath(kSkiaStr, textLen, 0, 0, &path);
+    SkTextUtils::GetPath(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &skiaBox);
     skiaBox.outset(0, 2 * iBox.width() * (kVerticalSpacing + 1));
 
@@ -90,7 +93,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
     paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
                                                  SkShader::kClamp_TileMode));
-    canvas->drawText(kSkiaStr, textLen, 0, 0, paint);
+    canvas->drawSimpleText(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
 }
 
 // This GM exercises SkPictureImageGenerator features

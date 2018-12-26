@@ -56,7 +56,9 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
-        paint.setTypeface(fEmojiFont.fTypeface);
+        SkFont font(fEmojiFont.fTypeface);
+        font.setEdging(SkFont::Edging::kAlias);
+
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes
@@ -65,10 +67,10 @@ protected:
         SkFontMetrics metrics;
         SkScalar y = 0;
         for (SkScalar textSize : { 70, 180, 270, 340 }) {
-            paint.setTextSize(textSize);
-            paint.getFontMetrics(&metrics);
+            font.setSize(textSize);
+            font.getMetrics(&metrics);
             y += -metrics.fAscent;
-            canvas->drawString(text, 10, y, paint);
+            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
 

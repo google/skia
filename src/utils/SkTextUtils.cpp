@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkFontPriv.h"
+#include "SkPath.h"
 #include "SkTextUtils.h"
 #include "SkTextBlob.h"
 
@@ -20,5 +22,28 @@ void SkTextUtils::Draw(SkCanvas* canvas, const void* text, size_t size, SkTextEn
     }
 
     canvas->drawTextBlob(SkTextBlob::MakeFromText(text, size, font, encoding), x, y, paint);
+}
+
+void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encoding,
+                          SkScalar x, SkScalar y, const SkFont& font, SkPath* path) {
+    SkAutoToGlyphs ag(font, text, length, encoding);
+    SkAutoTArray<SkPoint> pos(ag.count());
+    font.getPos(ag.glyphs(), ag.count(), &pos[0], {x, y});
+
+    struct Rec {
+        SkPath* fDst;
+        const SkPoint* fPos;
+    } rec = { path, &pos[0] };
+
+    path->reset();
+    font.getPaths(ag.glyphs(), ag.count(), [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+        Rec* rec = (Rec*)ctx;
+        if (src) {
+            SkMatrix m(mx);
+            m.postTranslate(rec->fPos->fX, rec->fPos->fY);
+            rec->fDst->addPath(*src, m);
+        }
+        rec->fPos += 1;
+    }, &rec);
 }
 

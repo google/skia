@@ -12,6 +12,8 @@
 #include "SkMatrix.h"
 #include "SkTypeface.h"
 
+class SkGlyph;
+class SkGlyphCache;
 class SkReadBuffer;
 class SkWriteBuffer;
 
