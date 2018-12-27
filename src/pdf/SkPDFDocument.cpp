@@ -28,10 +28,8 @@ const char* SkPDFGetNodeIdKey() {
 
 void SkPDFOffsetMap::markStartOfDocument(const SkWStream* s) { fBaseOffset = s->bytesWritten(); }
 
-int SkPDFOffsetMap::offset(const SkWStream* s) const {
-    size_t currentPos = s->bytesWritten();
-    SkASSERT(currentPos > fBaseOffset);
-    return SkToInt(currentPos - fBaseOffset);
+static size_t difference(size_t minuend, size_t subtrahend) {
+    return SkASSERT(minuend >= subtrahend), minuend - subtrahend;
 }
 
 void SkPDFOffsetMap::markStartOfObject(int referenceNumber, const SkWStream* s) {
@@ -40,7 +38,7 @@ void SkPDFOffsetMap::markStartOfObject(int referenceNumber, const SkWStream* s) 
     if (index >= fOffsets.size()) {
         fOffsets.resize(index + 1);
     }
-    fOffsets[index] = this->offset(s);
+    fOffsets[index] = SkToInt(difference(s->bytesWritten(), fBaseOffset));
 }
 
 int SkPDFOffsetMap::objectCount() const {
@@ -48,7 +46,7 @@ int SkPDFOffsetMap::objectCount() const {
 }
 
 int SkPDFOffsetMap::emitCrossReferenceTable(SkWStream* s) const {
-    int xRefFileOffset = this->offset(s);
+    int xRefFileOffset = SkToInt(difference(s->bytesWritten(), fBaseOffset));
     s->writeText("xref\n0 ");
     s->writeDecAsText(this->objectCount());
     s->writeText("\n0000000000 65535 f \n");
