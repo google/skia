@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 
+class GrCCCachedAtlas;
 class GrOnFlushResourceProvider;
 class GrRenderTargetContext;
 class GrTextureProxy;
@@ -45,7 +46,12 @@ public:
         void accountForSpace(int width, int height);
     };
 
-    GrCCAtlas(GrPixelConfig, const Specs&, const GrCaps&);
+    enum class CoverageType : bool {
+        kFP16_CoverageCount,
+        kA8_LiteralCoverage
+    };
+
+    GrCCAtlas(CoverageType, const Specs&, const GrCaps&);
     ~GrCCAtlas();
 
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
@@ -64,23 +70,7 @@ public:
     void setStrokeBatchID(int id);
     int getStrokeBatchID() const { return fStrokeBatchID; }
 
-    // Manages a unique resource cache key that gets assigned to the atlas texture. The unique key
-    // does not get assigned to the texture proxy until it is instantiated.
-    const GrUniqueKey& getOrAssignUniqueKey(GrOnFlushResourceProvider*);
-    const GrUniqueKey& uniqueKey() const { return fUniqueKey; }
-
-    // An object for simple bookkeeping on the atlas texture once it has a unique key. In practice,
-    // we use it to track the percentage of the original atlas pixels that could still ever
-    // potentially be reused (i.e., those which still represent an extant path). When the percentage
-    // of useful pixels drops below 50%, the entire texture is purged from the resource cache.
-    struct CachedAtlasInfo : public GrNonAtomicRef<CachedAtlasInfo> {
-        CachedAtlasInfo(uint32_t contextUniqueID) : fContextUniqueID(contextUniqueID) {}
-        const uint32_t fContextUniqueID;
-        int fNumPathPixels = 0;
-        int fNumInvalidatedPathPixels = 0;
-        bool fIsPurgedFromResourceCache = false;
-    };
-    sk_sp<CachedAtlasInfo> refOrMakeCachedAtlasInfo(uint32_t contextUniqueID);
+    sk_sp<GrCCCachedAtlas> refOrMakeCachedAtlas(GrOnFlushResourceProvider*);
 
     // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
     // that the caller may use to render the content. After this call, it is no longer valid to call
@@ -97,6 +87,7 @@ private:
 
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
+    const CoverageType fCoverageType;
     const int fMaxTextureSize;
     int fWidth, fHeight;
     std::unique_ptr<Node> fTopNode;
@@ -105,11 +96,7 @@ private:
     int fFillBatchID;
     int fStrokeBatchID;
 
-    // Not every atlas will have a unique key -- a mainline CCPR one won't if we don't stash any
-    // paths, and only the first atlas in the stack is eligible to be stashed.
-    GrUniqueKey fUniqueKey;
-
-    sk_sp<CachedAtlasInfo> fCachedAtlasInfo;
+    sk_sp<GrCCCachedAtlas> fCachedAtlas;
     sk_sp<GrTextureProxy> fTextureProxy;
     sk_sp<GrTexture> fBackingTexture;
 };
@@ -120,8 +107,10 @@ private:
  */
 class GrCCAtlasStack {
 public:
-    GrCCAtlasStack(GrPixelConfig pixelConfig, const GrCCAtlas::Specs& specs, const GrCaps* caps)
-            : fPixelConfig(pixelConfig), fSpecs(specs), fCaps(caps) {}
+    using CoverageType = GrCCAtlas::CoverageType;
+
+    GrCCAtlasStack(CoverageType coverageType, const GrCCAtlas::Specs& specs, const GrCaps* caps)
+            : fCoverageType(coverageType), fSpecs(specs), fCaps(caps) {}
 
     bool empty() const { return fAtlases.empty(); }
     const GrCCAtlas& front() const { SkASSERT(!this->empty()); return fAtlases.front(); }
@@ -147,7 +136,7 @@ public:
     GrCCAtlas* addRect(const SkIRect& devIBounds, SkIVector* devToAtlasOffset);
 
 private:
-    const GrPixelConfig fPixelConfig;
+    const CoverageType fCoverageType;
     const GrCCAtlas::Specs fSpecs;
     const GrCaps* const fCaps;
     GrSTAllocator<4, GrCCAtlas> fAtlases;
