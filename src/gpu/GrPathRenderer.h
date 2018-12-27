@@ -80,8 +80,9 @@ public:
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         GrAAType                    fAAType;
+        bool                        fTargetIsWrappedVkSecondaryCB;
 
-        // These next two are only used by GrStencilAndCoverPathRenderer
+        // This is only used by GrStencilAndCoverPathRenderer
         bool                        fHasUserStencilSettings;
 
 #ifdef SK_DEBUG

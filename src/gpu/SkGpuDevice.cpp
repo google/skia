@@ -1783,6 +1783,10 @@ bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphor
 SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     ASSERT_SINGLE_OWNER
 
+    if (fRenderTargetContext->wrapsVkSecondaryCB()) {
+        return nullptr;
+    }
+
     SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
 
     // layers are never drawn in repeat modes, so we can request an approx
