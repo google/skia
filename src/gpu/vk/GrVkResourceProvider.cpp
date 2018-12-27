@@ -31,6 +31,7 @@ GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
 
 GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fRenderPassArray.count());
+    SkASSERT(0 == fExternalRenderPasses.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
 }
@@ -361,6 +362,11 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     }
     fRenderPassArray.reset();
 
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        fExternalRenderPasses[i]->unref(fGpu);
+    }
+    fExternalRenderPasses.reset();
+
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
     SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
@@ -428,6 +434,11 @@ void GrVkResourceProvider::abandonResources() {
         fRenderPassArray[i].abandonResources();
     }
     fRenderPassArray.reset();
+
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        fExternalRenderPasses[i]->unrefAndAbandon();
+    }
+    fExternalRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
     SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);

@@ -164,7 +164,9 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
 }
 
 void GrVkRenderPass::freeGPUData(GrVkGpu* gpu) const {
-    GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
+    if (!(fAttachmentFlags & kExternal_AttachmentFlag)) {
+        GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
+    }
 }
 
 bool GrVkRenderPass::colorAttachmentIndex(uint32_t* index) const {

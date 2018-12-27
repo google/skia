@@ -43,7 +43,10 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
 GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<SkGpuDevice> device)
     : fDevice(device) {}
 
-GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {}
+GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {
+    SkASSERT(!fDevice);
+    SkASSERT(!fCachedCanvas.get());
+}
 
 SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
     if (!fCachedCanvas) {
@@ -54,5 +57,10 @@ SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
 
 void GrVkSecondaryCBDrawContext::flush() {
     fDevice->flush();
+}
+
+void GrVkSecondaryCBDrawContext::releaseResources() {
+    fCachedCanvas.reset();
+    fDevice.reset();
 }
 
