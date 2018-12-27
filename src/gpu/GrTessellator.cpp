@@ -176,7 +176,6 @@ struct Vertex {
 /***************************************************************************************/
 
 struct AAParams {
-    bool fTweakAlpha;
     GrColor fColor;
 };
 
@@ -204,11 +203,7 @@ inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     verts.write(v->fPoint);
 
     if (aaParams) {
-        if (aaParams->fTweakAlpha) {
-            verts.write(SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha)));
-        } else {
-            verts.write(aaParams->fColor, GrNormalizeByteToFloat(v->fAlpha));
-        }
+        verts.write(aaParams->fColor, GrNormalizeByteToFloat(v->fAlpha));
     }
     return verts.fPtr;
 }
@@ -2241,7 +2236,7 @@ namespace GrTessellator {
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator* vertexAllocator, bool antialias, const GrColor& color,
-                    bool canTweakAlphaForCoverage, bool* isLinear) {
+                    bool* isLinear) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
@@ -2269,7 +2264,6 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
     LOG("emitting %d verts\n", count);
     AAParams aaParams;
-    aaParams.fTweakAlpha = canTweakAlphaForCoverage;
     aaParams.fColor = color;
 
     void* end = polys_to_triangles(polys, fillType, antialias ? &aaParams : nullptr, verts);
