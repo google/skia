@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "3667049d_11825e3b",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-27T18:31:04Z",
+      "side": 1,
+      "message": "From the benchmarking I did, fp32x4 attributes are quite a bit more expensive than fp16x4 (which are slightly more expensive than the unormx4). Especially if we only need to do the packing once per path - which would be the case if we weren\u0027t folding in coverage here.\n\nI\u0027ll investigate, I think I\u0027d have to add some extra logic to the default GP (flag that says to combine the coverage in the vertex shader even when it\u0027s supplied as an attribute).",
+      "parentUuid": "95a84b96_484fb26a",
+      "range": {
+        "startLine": 94,
+        "startChar": 39,
+        "endLine": 94,
+        "endChar": 93
+      },
+      "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20e6213f_27aa0b89",
         "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
         "patchSetId": 1
@@ -60,6 +84,30 @@
       "writtenOn": "2018-12-27T17:47:49Z",
       "side": 1,
       "message": "nit: What was the motivation to not use the boolean \"||\" (this is just personal preference I suppose, since these are bools. Not a strong opinion.)",
+      "range": {
+        "startLine": 319,
+        "startChar": 9,
+        "endLine": 319,
+        "endChar": 13
+      },
+      "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45d874f5_2066a4d0",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-27T18:31:04Z",
+      "side": 1,
+      "message": "I started writing it this way after seeing other ops do the same thing for other boolean parameters. It is a little strange, but I suspect it was originally done because there\u0027s no ||\u003d operator?",
+      "parentUuid": "20e6213f_27aa0b89",
       "range": {
         "startLine": 319,
         "startChar": 9,
