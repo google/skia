@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0bca4e6_b2cef4b6",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-27T16:00:33Z",
+      "side": 1,
+      "message": "I\u0027m not thrilled with the performance implications of this. Looking back, we were doing one float-to-byte per vertex before, plus a conditional integer scaling trick to fold it into the color.\n\nNow we\u0027re doing floating point scaling, with a conditional packing to bytes or half-floats.\n\nIt really seems like we\u0027d be better off doing the folding of coverage into color in the vertex shader, at the cost of the coverage attribute?",
+      "range": {
+        "startLine": 94,
+        "startChar": 39,
+        "endLine": 94,
+        "endChar": 93
+      },
+      "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
