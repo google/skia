@@ -48,7 +48,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator*, bool antialias, const GrColor& color,
-                    bool canTweakAlphaForCoverage, bool *isLinear);
+                    bool *isLinear);
 }
 
 #endif

@@ -278,7 +278,7 @@ private:
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(vertexStride, rp, canMapVB);
         int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
-                                                   false, GrColor(), false, &isLinear);
+                                                   false, GrColor(), &isLinear);
         if (count == 0) {
             return;
         }
@@ -305,8 +305,7 @@ private:
         // TODO4F: Preserve float colors
         int count =
                 GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-                                               fColor.toBytes_RGBA(),
-                                               fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
+                                               fColor.toBytes_RGBA(), &isLinear);
         if (count == 0) {
             return;
         }
@@ -327,7 +326,7 @@ private:
             if (fAntiAlias) {
                 color = Color(Color::kPremulGrColorAttribute_Type);
                 if (fHelper.compatibleWithAlphaAsCoverage()) {
-                    coverageType = Coverage::kSolid_Type;
+                    coverageType = Coverage::kAttributeTweakAlpha_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;
                 }
