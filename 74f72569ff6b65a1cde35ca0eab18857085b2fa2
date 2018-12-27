@@ -22,6 +22,30 @@
       "revId": "74f72569ff6b65a1cde35ca0eab18857085b2fa2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a38f4795_bf32081f",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-12-27T13:53:41Z",
+      "side": 1,
+      "message": "I\u0027d sure like to. :)\n\nI know the theory is that SkScalar might not be float, but in that case, all of this code is wrong - we should never be using SkScalar in vertex structs, only concrete specific types. Fixing that everywhere is probably a huge undertaking, though.",
+      "parentUuid": "4dceee0d_7dfcd77f",
+      "range": {
+        "startLine": 390,
+        "startChar": 59,
+        "endLine": 390,
+        "endChar": 70
+      },
+      "revId": "74f72569ff6b65a1cde35ca0eab18857085b2fa2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
