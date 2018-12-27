@@ -22,6 +22,53 @@
       "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95a84b96_484fb26a",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-12-27T17:47:49Z",
+      "side": 1,
+      "message": "I agree. Any work we can push to the vertex shader is probably an improvement.\n\nAlso, could we skip packing to half floats? We could send full fp32 color values to the vertex shader instead, and the GPU could do the conversion to fp16 when passing color through to the varying.",
+      "parentUuid": "e0bca4e6_b2cef4b6",
+      "range": {
+        "startLine": 94,
+        "startChar": 39,
+        "endLine": 94,
+        "endChar": 93
+      },
+      "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20e6213f_27aa0b89",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-12-27T17:47:49Z",
+      "side": 1,
+      "message": "nit: What was the motivation to not use the boolean \"||\" (this is just personal preference I suppose, since these are bools. Not a strong opinion.)",
+      "range": {
+        "startLine": 319,
+        "startChar": 9,
+        "endLine": 319,
+        "endChar": 13
+      },
+      "revId": "6413d15209a0724c1b6851eaeb6e6849fc556194",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
