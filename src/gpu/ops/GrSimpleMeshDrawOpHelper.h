@@ -81,6 +81,10 @@ public:
                                                       GrProcessorAnalysisCoverage geometryCoverage,
                                                       SkPMColor4f* geometryColor);
 
+    bool isTrivial() const {
+      return fProcessors == nullptr;
+    }
+
     bool usesLocalCoords() const {
         SkASSERT(fDidAnalysis);
         return fUsesLocalCoords;
@@ -166,6 +170,9 @@ public:
 
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags() const;
 
+    using GrSimpleMeshDrawOpHelper::aaType;
+    using GrSimpleMeshDrawOpHelper::setAAType;
+    using GrSimpleMeshDrawOpHelper::isTrivial;
     using GrSimpleMeshDrawOpHelper::xpRequiresDstTexture;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
     using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
@@ -180,8 +187,6 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const;
 #endif
-    GrAAType aaType() const { return INHERITED::aaType(); }
-    void setAAType(GrAAType aaType) { INHERITED::setAAType(aaType); }
 
 private:
     const GrUserStencilSettings* fStencilSettings;
