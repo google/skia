@@ -21,6 +21,14 @@ class GrVkRenderPass : public GrVkResource {
 public:
     GrVkRenderPass() : INHERITED(), fRenderPass(VK_NULL_HANDLE), fClearValueCount(0) {}
 
+    // Used what importing an external render pass.
+    explicit GrVkRenderPass(VkRenderPass renderPass, uint32_t colorAttachmentIndex)
+            : INHERITED()
+            , fRenderPass(renderPass)
+            , fAttachmentFlags(kExternal_AttachmentFlag)
+            , fClearValueCount(0)
+            , fColorAttachmentIndex(colorAttachmentIndex) {}
+
     struct LoadStoreOps {
         VkAttachmentLoadOp  fLoadOp;
         VkAttachmentStoreOp fStoreOp;
@@ -79,6 +87,9 @@ public:
     enum AttachmentFlags {
         kColor_AttachmentFlag = 0x1,
         kStencil_AttachmentFlag = 0x2,
+        // The external attachment flag singles that this render pass is imported from an external
+        // client and we do not know what attachments it has.
+        kExternal_AttachmentFlag = 0x4,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
 
@@ -95,6 +106,8 @@ public:
     bool isCompatible(const GrVkRenderTarget& target) const;
 
     bool isCompatible(const GrVkRenderPass& renderPass) const;
+
+    bool isCompatibleExternalRP(VkRenderPass, uint32_t colorAttachmentIndex) const;
 
     bool equalLoadStoreOps(const LoadStoreOps& colorOps,
                            const LoadStoreOps& stencilOps) const;
@@ -132,6 +145,8 @@ private:
     AttachmentsDescriptor fAttachmentsDescriptor;
     VkExtent2D            fGranularity;
     uint32_t              fClearValueCount;
+    // For internally created render passes we assume the color attachment index is always 0.
+    uint32_t              fColorAttachmentIndex = 0;
 
     typedef GrVkResource INHERITED;
 };

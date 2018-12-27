@@ -54,6 +54,8 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
+    bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB; }
+
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
 
@@ -84,7 +86,7 @@ protected:
                         SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
+    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin, bool wrapsVkSecondaryCB = false);
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
@@ -115,6 +117,7 @@ private:
 
     int                 fSampleCnt;
     bool                fNeedsStencil;
+    bool                fWrapsVkSecondaryCB;
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
