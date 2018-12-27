@@ -83,7 +83,8 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 // mipmapped version. The texture backing the unmipped version will remain in the
                 // resource cache until the last texture proxy referencing it is deleted at which
                 // time it too will be deleted or recycled.
-                proxyProvider->removeUniqueKeyFromProxy(fOriginalKey, proxy.get());
+                SkASSERT(proxy->getUniqueKey() == fOriginalKey);
+                proxyProvider->removeUniqueKeyFromProxy(proxy.get());
                 proxyProvider->assignUniqueKeyToProxy(fOriginalKey, mippedProxy.get());
                 GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, proxyProvider->contextUniqueID(),
                                                     fBitmap.pixelRef());
