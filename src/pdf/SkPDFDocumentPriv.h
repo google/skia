@@ -33,7 +33,6 @@ public:
 private:
     std::vector<int> fOffsets;
     size_t fBaseOffset = SIZE_MAX;
-    int offset(const SkWStream*) const;
 };
 
 /** Concrete implementation of SkDocument that creates PDF files. This
