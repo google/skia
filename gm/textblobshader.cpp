@@ -19,16 +19,18 @@
 // This GM exercises drawTextBlob offset vs. shader space behavior.
 class TextBlobShaderGM : public skiagm::GM {
 public:
-    TextBlobShaderGM(const char* txt) {
-        SkFont font(sk_tool_utils::create_portable_typeface());
-        size_t txtLen = strlen(txt);
-        fGlyphs.append(font.countText(txt, txtLen, kUTF8_SkTextEncoding));
-        font.textToGlyphs(txt, txtLen, kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
-    }
+    TextBlobShaderGM() {}
 
-protected:
-
+private:
     void onOnceBeforeDraw() override {
+        {
+            SkFont font(sk_tool_utils::create_portable_typeface());
+            const char* txt = "Blobber";
+            size_t txtLen = strlen(txt);
+            fGlyphs.append(font.countText(txt, txtLen, kUTF8_SkTextEncoding));
+            font.textToGlyphs(txt, txtLen, kUTF8_SkTextEncoding, fGlyphs.begin(), fGlyphs.count());
+        }
+
         SkFont font;
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kAntiAlias);
@@ -101,7 +103,6 @@ protected:
         }
     }
 
-private:
     SkTDArray<uint16_t> fGlyphs;
     sk_sp<SkTextBlob>   fBlob;
     sk_sp<SkShader>     fShader;
@@ -109,4 +110,4 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM(return new TextBlobShaderGM("Blobber");)
+DEF_GM(return new TextBlobShaderGM;)
