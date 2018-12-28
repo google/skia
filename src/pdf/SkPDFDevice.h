@@ -213,16 +213,10 @@ private:
     SkDynamicMemoryWStream* setUpContentEntry(const SkClipStack* clipStack,
                                               const SkMatrix& matrix,
                                               const SkPaint& paint,
-                                              bool hasText,
+                                              SkScalar,
                                               SkPDFIndirectReference* dst);
     void finishContentEntry(const SkClipStack*, SkBlendMode, SkPDFIndirectReference, SkPath*);
     bool isContentEmpty();
-
-    void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
-                                            const SkClipStack* clipStack,
-                                            const SkPaint& paint,
-                                            bool hasText,
-                                            GraphicStateEntry* entry);
 
     void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
     void drawGlyphRunAsPath(const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint);
