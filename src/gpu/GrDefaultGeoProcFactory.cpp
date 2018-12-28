@@ -29,7 +29,8 @@ enum GPFlag {
     kColorAttributeIsWide_GPFlag    = 0x4,
     kLocalCoordAttribute_GPFlag     = 0x8,
     kCoverageAttribute_GPFlag       = 0x10,
-    kBonesAttribute_GPFlag          = 0x20,
+    kCoverageAttributeTweak_GPFlag  = 0x20,
+    kBonesAttribute_GPFlag          = 0x40,
 };
 
 static constexpr int kNumVec2sPerBone = 3; // Our bone matrices are 3x2 matrices passed in as
@@ -83,13 +84,26 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(gp);
 
+            bool tweakAlpha = SkToBool(gp.fFlags & kCoverageAttributeTweak_GPFlag);
+            SkASSERT(!tweakAlpha || gp.hasVertexCoverage());
+
             // Setup pass through color
-            if (gp.hasVertexColor()) {
+            if (gp.hasVertexColor() || tweakAlpha) {
                 GrGLSLVarying varying(kHalf4_GrSLType);
                 varyingHandler->addVarying("color", &varying);
 
-                // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
+                // There are several optional steps to process the color. Start with the attribute,
+                // or with uniform color (in the case of folding coverage into a uniform color):
+                if (gp.hasVertexColor()) {
+                    vertBuilder->codeAppendf("half4 color = %s;", gp.fInColor.name());
+                } else {
+                    const char* colorUniformName;
+                    fColorUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
+                                                               kHalf4_GrSLType,
+                                                               "Color",
+                                                               &colorUniformName);
+                    vertBuilder->codeAppendf("half4 color = %s;", colorUniformName);
+                }
 
                 // For SkColor, do a red/blue swap, possible color space conversion, and premul
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
@@ -107,6 +121,10 @@ public:
                     vertBuilder->codeAppend("color = half4(color.rgb * color.a, color.a);");
                 }
 
+                // Optionally fold coverage into alpha (color).
+                if (tweakAlpha) {
+                    vertBuilder->codeAppendf("color = color * %s;", gp.fInCoverage.name());
+                }
                 vertBuilder->codeAppendf("%s = color;\n", varying.vsOut());
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
             } else {
@@ -192,7 +210,7 @@ public:
             }
 
             // Setup coverage as pass through
-            if (gp.hasVertexCoverage()) {
+            if (gp.hasVertexCoverage() && !tweakAlpha) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
                 varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
                 fragBuilder->codeAppendf("%s = half4(alpha);", args.fOutputCoverage);
@@ -213,8 +231,8 @@ public:
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= (def.coverage() == 0xff) ? 0x40 : 0;
-            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x80 : 0x0;
+            key |= (def.coverage() == 0xff) ? 0x80 : 0;
+            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x100 : 0;
             key |= ComputePosKey(def.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(def.fColorSpaceXform.get()));
@@ -396,6 +414,9 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     }
     if (d->fRandom->nextBool()) {
         flags |= kCoverageAttribute_GPFlag;
+        if (d->fRandom->nextBool()) {
+            flags |= kCoverageAttributeTweak_GPFlag;
+        }
     }
     if (d->fRandom->nextBool()) {
         flags |= kLocalCoordAttribute_GPFlag;
@@ -430,7 +451,11 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* sha
     } else if (Color::kPremulWideColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsWide_GPFlag;
     }
-    flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
+    if (Coverage::kAttribute_Type == coverage.fType) {
+        flags |= kCoverageAttribute_GPFlag;
+    } else if (Coverage::kAttributeTweakAlpha_Type == coverage.fType) {
+        flags |= kCoverageAttribute_GPFlag | kCoverageAttributeTweak_GPFlag;
+    }
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
 
     uint8_t inCoverage = coverage.fCoverage;
@@ -484,7 +509,11 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const GrShader
     } else if (Color::kPremulWideColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsWide_GPFlag;
     }
-    flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
+    if (Coverage::kAttribute_Type == coverage.fType) {
+        flags |= kCoverageAttribute_GPFlag;
+    } else if (Coverage::kAttributeTweakAlpha_Type == coverage.fType) {
+        flags |= kCoverageAttribute_GPFlag | kCoverageAttributeTweak_GPFlag;
+    }
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
     flags |= kBonesAttribute_GPFlag;
 
