@@ -57,6 +57,13 @@ public:
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
                                    GrMipMapped mipMapped, InitContents);
 
+    /**
+     * Makes a new device that wraps an external vulkan secondary command buffer. The device limits
+     * which draws are support since we cannot stop and start render passes. See
+     * GrVkSecondaryCBDrawContext for more specific details.
+     */
+    static sk_sp<SkGpuDevice> MakeForVulkanSecondaryCB(GrContext*, sk_sp<GrRenderTargetContext>);
+
     ~SkGpuDevice() override {}
 
     GrContext* context() const override { return fContext.get(); }

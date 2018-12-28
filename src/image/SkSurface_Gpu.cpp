@@ -191,7 +191,9 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
-                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0), this->props());
+                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
+                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                          this->props());
 
     return true;
 }
