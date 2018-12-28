@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5cf5030_dc9aa4c7",
+        "filename": "src/gpu/ops/GrAAConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-12-28T15:04:42Z",
+      "side": 1,
+      "message": "Might be easier to read with uvOffset defined nearby, or just sizeof(SkPoint) + color.size() inlined?",
+      "range": {
+        "startLine": 483,
+        "startChar": 56,
+        "endLine": 483,
+        "endChar": 64
+      },
+      "revId": "90b2ad61ced5a0eca9c672135eab9f5bcb541afc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
