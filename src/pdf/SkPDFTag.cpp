@@ -11,55 +11,61 @@
 // Table 333 in PDF 32000-1:2008
 static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
     switch (type) {
-        case SkPDF::DocumentStructureType::kDocument:   return "Document";
-        case SkPDF::DocumentStructureType::kPart:       return "Part";
-        case SkPDF::DocumentStructureType::kArt:        return "Art";
-        case SkPDF::DocumentStructureType::kSect:       return "Sect";
-        case SkPDF::DocumentStructureType::kDiv:        return "Div";
-        case SkPDF::DocumentStructureType::kBlockQuote: return "BlockQuote";
-        case SkPDF::DocumentStructureType::kCaption:    return "Caption";
-        case SkPDF::DocumentStructureType::kTOC:        return "TOC";
-        case SkPDF::DocumentStructureType::kTOCI:       return "TOCI";
-        case SkPDF::DocumentStructureType::kIndex:      return "Index";
-        case SkPDF::DocumentStructureType::kNonStruct:  return "NonStruct";
-        case SkPDF::DocumentStructureType::kPrivate:    return "Private";
-        case SkPDF::DocumentStructureType::kH:          return "H";
-        case SkPDF::DocumentStructureType::kH1:         return "H1";
-        case SkPDF::DocumentStructureType::kH2:         return "H2";
-        case SkPDF::DocumentStructureType::kH3:         return "H3";
-        case SkPDF::DocumentStructureType::kH4:         return "H4";
-        case SkPDF::DocumentStructureType::kH5:         return "H5";
-        case SkPDF::DocumentStructureType::kH6:         return "H6";
-        case SkPDF::DocumentStructureType::kP:          return "P";
-        case SkPDF::DocumentStructureType::kL:          return "L";
-        case SkPDF::DocumentStructureType::kLI:         return "LI";
-        case SkPDF::DocumentStructureType::kLbl:        return "Lbl";
-        case SkPDF::DocumentStructureType::kLBody:      return "LBody";
-        case SkPDF::DocumentStructureType::kTable:      return "Table";
-        case SkPDF::DocumentStructureType::kTR:         return "TR";
-        case SkPDF::DocumentStructureType::kTH:         return "TH";
-        case SkPDF::DocumentStructureType::kTD:         return "TD";
-        case SkPDF::DocumentStructureType::kTHead:      return "THead";
-        case SkPDF::DocumentStructureType::kTBody:      return "TBody";
-        case SkPDF::DocumentStructureType::kTFoot:      return "TFoot";
-        case SkPDF::DocumentStructureType::kSpan:       return "Span";
-        case SkPDF::DocumentStructureType::kQuote:      return "Quote";
-        case SkPDF::DocumentStructureType::kNote:       return "Note";
-        case SkPDF::DocumentStructureType::kReference:  return "Reference";
-        case SkPDF::DocumentStructureType::kBibEntry:   return "BibEntry";
-        case SkPDF::DocumentStructureType::kCode:       return "Code";
-        case SkPDF::DocumentStructureType::kLink:       return "Link";
-        case SkPDF::DocumentStructureType::kAnnot:      return "Annot";
-        case SkPDF::DocumentStructureType::kRuby:       return "Ruby";
-        case SkPDF::DocumentStructureType::kWarichu:    return "Warichu";
-        case SkPDF::DocumentStructureType::kFigure:     return "Figure";
-        case SkPDF::DocumentStructureType::kFormula:    return "Formula";
-        case SkPDF::DocumentStructureType::kForm:       return "Form";
+        #define M(X) case SkPDF::DocumentStructureType::k ## X: return #X
+        M(Document);
+        M(Part);
+        M(Art);
+        M(Sect);
+        M(Div);
+        M(BlockQuote);
+        M(Caption);
+        M(TOC);
+        M(TOCI);
+        M(Index);
+        M(NonStruct);
+        M(Private);
+        M(H);
+        M(H1);
+        M(H2);
+        M(H3);
+        M(H4);
+        M(H5);
+        M(H6);
+        M(P);
+        M(L);
+        M(LI);
+        M(Lbl);
+        M(LBody);
+        M(Table);
+        M(TR);
+        M(TH);
+        M(TD);
+        M(THead);
+        M(TBody);
+        M(TFoot);
+        M(Span);
+        M(Quote);
+        M(Note);
+        M(Reference);
+        M(BibEntry);
+        M(Code);
+        M(Link);
+        M(Annot);
+        M(Ruby);
+        M(RB);
+        M(RT);
+        M(RP);
+        M(Warichu);
+        M(WT);
+        M(WP);
+        M(Figure);
+        M(Formula);
+        M(Form);
+        #undef M
     }
     SK_ABORT("bad tag");
     return "";
 }
-
 
 struct SkPDFTagNode {
     SkPDFTagNode* fChildren = nullptr;
