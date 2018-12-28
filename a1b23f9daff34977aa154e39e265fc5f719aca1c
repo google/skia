@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37fe27cb_dd2443cf",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-12-28T18:57:54Z",
+      "side": 1,
+      "message": "make sure I don\u0027t delete the render pass",
+      "range": {
+        "startLine": 25,
+        "startChar": 14,
+        "endLine": 25,
+        "endChar": 33
+      },
+      "revId": "a1b23f9daff34977aa154e39e265fc5f719aca1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
