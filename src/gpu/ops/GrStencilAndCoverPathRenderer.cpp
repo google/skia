@@ -35,6 +35,7 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
 
 GrPathRenderer::CanDrawPath
 GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    SkASSERT(!args.fTargetIsWrappedVkSecondaryCB);
     // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
     // path.
     if (args.fShape->style().strokeRec().isHairlineStyle() ||
