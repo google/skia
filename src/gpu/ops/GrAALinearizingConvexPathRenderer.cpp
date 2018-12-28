@@ -83,21 +83,12 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 static void extract_verts(const GrAAConvexTessellator& tess,
                           void* vertData,
                           size_t vertexStride,
-                          const SkPMColor4f& origColor,
-                          bool wideColor,
+                          const GrVertexColor& color,
                           uint16_t firstIndex,
-                          uint16_t* idxs,
-                          bool tweakAlphaForCoverage) {
+                          uint16_t* idxs) {
     GrVertexWriter verts{vertData};
-    if (tweakAlphaForCoverage) {
-        for (int i = 0; i < tess.numPts(); ++i) {
-            verts.write(tess.point(i), GrVertexColor(origColor * tess.coverage(i), wideColor));
-        }
-    } else {
-        GrVertexColor color(origColor, wideColor);
-        for (int i = 0; i < tess.numPts(); ++i) {
-            verts.write(tess.point(i), color, tess.coverage(i));
-        }
+    for (int i = 0; i < tess.numPts(); ++i) {
+        verts.write(tess.point(i), color, tess.coverage(i));
     }
 
     for (int i = 0; i < tess.numIndices(); ++i) {
@@ -113,7 +104,7 @@ static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shade
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
-        tweakAlphaForCoverage ? Coverage::kSolid_Type : Coverage::kAttribute_Type;
+        tweakAlphaForCoverage ? Coverage::kAttributeTweakAlpha_Type : Coverage::kAttribute_Type;
     LocalCoords::Type localCoordsType =
         usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
     Color::Type colorType =
@@ -295,8 +286,8 @@ private:
             }
 
             extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride,
-                          args.fColor, fWideColor, vertexCount, indices + indexCount,
-                          fHelper.compatibleWithAlphaAsCoverage());
+                          GrVertexColor(args.fColor, fWideColor), vertexCount,
+                          indices + indexCount);
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
