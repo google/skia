@@ -185,7 +185,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
-    , fColorSpaceTransferFn(g2Dot2_TransferFn)
+    , fColorSpaceTransferFn(SkNamedTransferFn::k2Dot2)
     , fZoomLevel(0.0f)
     , fRotation(0.0f)
     , fOffset{0.5f, 0.5f}

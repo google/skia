@@ -228,23 +228,23 @@ static bool nearly_equal(const float u[9], const float v[9]) {
 // Return nullptr if the color profile doen't have a special name.
 const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
                                           const float toXYZD50[9]) {
-    bool srgb_xfer = nearly_equal(fn, gSRGB_TransferFn);
-    bool srgb_gamut = nearly_equal(toXYZD50, gSRGB_toXYZD50);
+    bool srgb_xfer = nearly_equal(fn, SkNamedTransferFn::kSRGB);
+    bool srgb_gamut = nearly_equal(toXYZD50, SkNamedGamut::kSRGB);
     if (srgb_xfer && srgb_gamut) {
         return "sRGB";
     }
-    bool line_xfer = nearly_equal(fn, gLinear_TransferFn);
+    bool line_xfer = nearly_equal(fn, SkNamedTransferFn::kLinear);
     if (line_xfer && srgb_gamut) {
         return "Linear Transfer with sRGB Gamut";
     }
-    bool twoDotTwo = nearly_equal(fn, g2Dot2_TransferFn);
+    bool twoDotTwo = nearly_equal(fn, SkNamedTransferFn::k2Dot2);
     if (twoDotTwo && srgb_gamut) {
         return "2.2 Transfer with sRGB Gamut";
     }
-    if (twoDotTwo && nearly_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+    if (twoDotTwo && nearly_equal(toXYZD50, SkNamedGamut::kAdobeRGB)) {
         return "AdobeRGB";
     }
-    bool dcip3_gamut = nearly_equal(toXYZD50, gDCIP3_toXYZD50);
+    bool dcip3_gamut = nearly_equal(toXYZD50, SkNamedGamut::kDCIP3);
     if (srgb_xfer || line_xfer) {
         if (srgb_xfer && dcip3_gamut) {
             return "sRGB Transfer with DCI-P3 Gamut";
@@ -252,7 +252,7 @@ const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
         if (line_xfer && dcip3_gamut) {
             return "Linear Transfer with DCI-P3 Gamut";
         }
-        bool rec2020 = nearly_equal(toXYZD50, gRec2020_toXYZD50);
+        bool rec2020 = nearly_equal(toXYZD50, SkNamedGamut::kRec2020);
         if (srgb_xfer && rec2020) {
             return "sRGB Transfer with Rec-BT-2020 Gamut";
         }
@@ -260,7 +260,7 @@ const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
             return "Linear Transfer with Rec-BT-2020 Gamut";
         }
     }
-    if (dcip3_gamut && nearly_equal(fn, gDCIP3_TransferFn)) {
+    if (dcip3_gamut && nearly_equal(fn, SkNamedTransferFn::kDCIP3)) {
         return "DCI-P3";
     }
     return nullptr;

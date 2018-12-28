@@ -115,8 +115,8 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
     // Create an sRGB color space by value
     SkMatrix44 srgbToxyzD50;
     srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
-    sk_sp<SkColorSpace> rgbColorSpace =
-            SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                              srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
     SkColorSpaceTransferFn srgbFn;
@@ -132,8 +132,8 @@ DEF_TEST(ColorSpaceSRGBCompare, r) {
 
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
-    sk_sp<SkColorSpace> strangeColorSpace =
-            SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, srgbToxyzD50);
+    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                                  srgbToxyzD50);
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
@@ -149,8 +149,8 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     // Create a linear sRGB color space by value
     SkMatrix44 srgbToxyzD50;
     srgbToxyzD50.set3x3RowMajorf(g_sRGB_XYZ);
-    sk_sp<SkColorSpace> rgbColorSpace =
-        SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
+    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear,
+                                                              srgbToxyzD50);
     REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
 
     SkColorSpaceTransferFn linearExpFn;
@@ -177,8 +177,8 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
 
     // Change a single value from the sRGB matrix
     srgbToxyzD50.set(2, 2, 0.5f);
-    sk_sp<SkColorSpace> strangeColorSpace =
-        SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, srgbToxyzD50);
+    sk_sp<SkColorSpace> strangeColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear,
+                                                                  srgbToxyzD50);
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
@@ -315,8 +315,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     bool result = srgb.toXYZD50(&srgbToXYZ);
     REPORTER_ASSERT(r, result);
 
-    sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                                      srgbToXYZ);
+    sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, srgbToXYZ);
     REPORTER_ASSERT(r, SkColorSpace::MakeSRGB() == space);
 
     // ProPhoto (D50)
@@ -361,8 +360,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     p3.fBY = 0.060f;
     p3.fWX = 0.3127f;
     p3.fWY = 0.3290f;
-    space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                  SkColorSpace::kDCIP3_D65_Gamut);
+    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
     SkMatrix44 reference;
     SkAssertResult(space->toXYZD50(&reference));
     check_primaries(r, p3, reference);
@@ -377,8 +375,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     rec2020.fBY = 0.046f;
     rec2020.fWX = 0.3127f;
     rec2020.fWY = 0.3290f;
-    space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                  SkColorSpace::kRec2020_Gamut);
+    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
     SkAssertResult(space->toXYZD50(&reference));
     check_primaries(r, rec2020, reference);
 }
@@ -395,9 +392,7 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
     fn.fF = 0.0f;
     fn.fG = 3.0f;
 
-    SkMatrix44 srgbMat;
-    srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
-    sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
+    sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
 
     REPORTER_ASSERT(r, srgb->toXYZD50Hash() == strange->toXYZD50Hash());
 }
@@ -413,7 +408,7 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
     fn.fE = 0.0f;
     fn.fF = 0.0f;
     fn.fG = 2.2f;
-    sk_sp<SkColorSpace> twoDotTwo = SkColorSpace::MakeRGB(fn, SkColorSpace::kSRGB_Gamut);
+    sk_sp<SkColorSpace> twoDotTwo = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
 
     REPORTER_ASSERT(r, srgb0->isSRGB());
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());

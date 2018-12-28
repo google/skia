@@ -26,8 +26,7 @@ DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
     canvas->drawBitmapRect(bmp, SkRect::MakeXYWH(10, 10, 50, 50), nullptr);
 
     auto srgb = SkColorSpace::MakeSRGB();
-    auto rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                         SkColorSpace::kRec2020_Gamut);
+    auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // NarrowGamut RGB (an artifically smaller than sRGB gamut)
     SkColorSpacePrimaries narrowPrimaries = {
@@ -38,8 +37,7 @@ DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
     };
     SkMatrix44 narrowGamutRGBMatrix;
     narrowPrimaries.toXYZD50(&narrowGamutRGBMatrix);
-    auto narrow = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                        narrowGamutRGBMatrix);
+    auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, narrowGamutRGBMatrix);
 
     SkPaint paint;
 

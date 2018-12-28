@@ -16,7 +16,7 @@
 #include "../third_party/skcms/skcms.h"
 
 DEF_TEST(WriteICCProfile, r) {
-    auto adobeRGB = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut);
+    auto adobeRGB = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB);
 
     struct {
         SkColorSpaceTransferFn fn;
@@ -24,8 +24,8 @@ DEF_TEST(WriteICCProfile, r) {
         const char*            desc;
         sk_sp<SkColorSpace>    want;
     } tests[] = {
-        {g2Dot2_TransferFn, gAdobeRGB_toXYZD50, "AdobeRGB", adobeRGB},
-        { gSRGB_TransferFn,     gSRGB_toXYZD50,     "sRGB", SkColorSpace::MakeSRGB()},
+        {SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB, "AdobeRGB", adobeRGB},
+        { SkNamedTransferFn::kSRGB,     SkNamedGamut::kSRGB,     "sRGB", SkColorSpace::MakeSRGB()},
     };
 
     for (auto test : tests) {
@@ -64,7 +64,7 @@ DEF_TEST(AdobeRGB, r) {
         REPORTER_ASSERT(r, skcms_Parse(profile->data(), profile->size(), &parsed));
 
         auto got  = SkColorSpace::Make(parsed);
-        auto want = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut);
+        auto want = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB);
         REPORTER_ASSERT(r, SkColorSpace::Equals(got.get(), want.get()));
     }
 }
