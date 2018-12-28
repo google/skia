@@ -1751,7 +1751,6 @@ if (skia_enable_tools) {
         "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",
       ]
-      include_dirs = [ "tests" ]
       deps = [
         ":common_flags",
         ":experimental_svg_model",
