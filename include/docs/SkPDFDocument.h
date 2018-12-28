@@ -13,60 +13,65 @@ class SkExecutor;
 
 namespace SkPDF {
 
-/** Table 333 in PDF 32000-1:2008
+/** Table 333 in PDF 32000-1:2008 §14.8.4.2
 */
 enum class DocumentStructureType {
-    kDocument,
-    kPart,
-    kArt,         // Article
-    kSect,        // Section
-    kDiv,
-    kBlockQuote,
-    kCaption,
-    kTOC,         // Table of Contents
-    kTOCI,        // Table of Contents Item
-    kIndex,
-    kNonStruct,
-    kPrivate,
-    kH,           // Heading
-    kH1,          // Heading level 1
-    kH2,
-    kH3,
-    kH4,
-    kH5,
-    kH6,          // Heading level 6
-    kP,           // Paragraph
-    kL,           // List
-    kLI,          // List item
-    kLbl,         // List item label
-    kLBody,       // List item body
-    kTable,
-    kTR,
-    kTH,
-    kTD,
-    kTHead,
-    kTBody,
-    kTFoot,
-    kSpan,
-    kQuote,
-    kNote,
-    kReference,
-    kBibEntry,
-    kCode,
-    kLink,
-    kAnnot,
-    kRuby,
-    kWarichu,
-    kFigure,
-    kFormula,
-    kForm,        // Form control (not like an HTML FORM element)
+    kDocument,    //!< Document
+    kPart,        //!< Part
+    kArt,         //!< Article
+    kSect,        //!< Section
+    kDiv,         //!< Division
+    kBlockQuote,  //!< Block quotation
+    kCaption,     //!< Caption
+    kTOC,         //!< Table of Contents
+    kTOCI,        //!< Table of Contents Item
+    kIndex,       //!< Index
+    kNonStruct,   //!< Nonstructural element
+    kPrivate,     //!< Private element
+    kH,           //!< Heading
+    kH1,          //!< Heading level 1
+    kH2,          //!< Heading level 2
+    kH3,          //!< Heading level 3
+    kH4,          //!< Heading level 4
+    kH5,          //!< Heading level 5
+    kH6,          //!< Heading level 6
+    kP,           //!< Paragraph
+    kL,           //!< List
+    kLI,          //!< List item
+    kLbl,         //!< List item label
+    kLBody,       //!< List item body
+    kTable,       //!< Table
+    kTR,          //!< Table row
+    kTH,          //!< Table header cell
+    kTD,          //!< Table data cell
+    kTHead,       //!< Table header row group
+    kTBody,       //!< Table body row group
+    kTFoot,       //!< table footer row group
+    kSpan,        //!< Span
+    kQuote,       //!< Quotation
+    kNote,        //!< Note
+    kReference,   //!< Reference
+    kBibEntry,    //!< Bibliography entry
+    kCode,        //!< Code
+    kLink,        //!< Link
+    kAnnot,       //!< Annotation
+    kRuby,        //!< Ruby annotation
+    kRB,          //!< Ruby base text
+    kRT,          //!< Ruby annotation text
+    kRP,          //!< Ruby punctuation
+    kWarichu,     //!< Warichu annotation
+    kWT,          //!< Warichu text
+    kWP,          //!< Warichu punctuation
+    kFigure,      //!< Figure
+    kFormula,     //!< Formula
+    kForm,        //!< Form control (not like an HTML FORM element)
 };
 
-/**
- *  A node in a PDF structure tree, giving a semantic representation
- *  of the content.  Each node ID is associated with content
- *  by passing the SkCanvas and node ID to SkPDF::SetNodeId() when drawing.
- */
+/** A node in a PDF structure tree, giving a semantic representation
+    of the content.  Each node ID is associated with content
+    by passing the SkCanvas and node ID to SkPDF::SetNodeId() when drawing.
+    NodeIDs should be unique within each tree.
+*/
 struct StructureElementNode {
     const StructureElementNode* fChildren = nullptr;
     size_t fChildCount;
@@ -137,17 +142,19 @@ struct Metadata {
     */
     int fEncodingQuality = 101;
 
-    /**
-     *  An optional tree of structured document tags that provide
-     *  a semantic representation of the content. The caller
-     *  should retain ownership.
-     */
+    /** An optional tree of structured document tags that provide
+        a semantic representation of the content. The caller
+        should retain ownership.
+    */
     const StructureElementNode* fStructureElementTreeRoot = nullptr;
 
     /** Executor to handle threaded work within PDF Backend. If this is nullptr,
         then all work will be done serially on the main thread. To have worker
         threads assist with various tasks, set this to a valid SkExecutor
         instance. Currently used for executing Deflate algorithm in parallel.
+
+        If set, the PDF output will be non-reproducible in the order and
+        internal numbering of objects, but should render the same.
 
         Experimental.
     */
