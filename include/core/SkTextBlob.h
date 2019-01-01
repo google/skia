@@ -267,6 +267,9 @@ public:
         SkScalar*  pos;      //!< storage for positions in run
         char*      utf8text; //!< reserved for future use
         uint32_t*  clusters; //!< reserved for future use
+
+        SkPoint*    points() const { return reinterpret_cast<SkPoint*>(pos); }
+        SkRSXform*  xforms() const { return reinterpret_cast<SkRSXform*>(pos); }
     };
 
     /** Returns run with storage for glyphs. Caller must write count glyphs to

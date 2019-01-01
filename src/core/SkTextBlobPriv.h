@@ -119,10 +119,23 @@ public:
         return reinterpret_cast<uint16_t*>(const_cast<RunRecord*>(this) + 1);
     }
 
+    // can be aliased with pointBuffer() or xformBuffer()
     SkScalar* posBuffer() const {
         // Position scalars follow the (aligned) glyph buffer.
         return reinterpret_cast<SkScalar*>(reinterpret_cast<uint8_t*>(this->glyphBuffer()) +
                                            SkAlign4(fCount * sizeof(uint16_t)));
+    }
+
+    // alias for posBuffer()
+    SkPoint* pointBuffer() const {
+        SkASSERT(this->positioning() == (GlyphPositioning)2);
+        return reinterpret_cast<SkPoint*>(this->posBuffer());
+    }
+
+    // alias for posBuffer()
+    SkRSXform* xformBuffer() const {
+        SkASSERT(this->positioning() == (GlyphPositioning)3);
+        return reinterpret_cast<SkRSXform*>(this->posBuffer());
     }
 
     uint32_t textSize() const { return isExtended() ? *this->textSizePtr() : 0; }
@@ -212,6 +225,14 @@ public:
     const SkScalar* pos() const {
         SkASSERT(!this->done());
         return fCurrentRun->posBuffer();
+    }
+    // alias for pos()
+    const SkPoint* points() const {
+        return fCurrentRun->pointBuffer();
+    }
+    // alias for pos()
+    const SkRSXform* xforms() const {
+        return fCurrentRun->xformBuffer();
     }
     const SkPoint& offset() const {
         SkASSERT(!this->done());

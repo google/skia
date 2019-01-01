@@ -335,13 +335,13 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
         bounds.setLTRB(minX, 0, maxX, 0);
     } break;
     case SkTextBlob::kFull_Positioning: {
-        const SkPoint* glyphPosPts = reinterpret_cast<const SkPoint*>(run.posBuffer());
+        const SkPoint* glyphPosPts = run.pointBuffer();
         SkASSERT((void*)(glyphPosPts + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
 
         bounds.setBounds(glyphPosPts, run.glyphCount());
     } break;
     case SkTextBlob::kRSXform_Positioning: {
-        const SkRSXform* xform = reinterpret_cast<const SkRSXform*>(run.posBuffer());
+        const SkRSXform* xform = run.xformBuffer();
         SkASSERT((void*)(xform + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
         bounds = map_quad_to_rect(xform[0], fontBounds);
         for (unsigned i = 1; i < run.glyphCount(); ++i) {
@@ -834,7 +834,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPos(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
-    font.getPos(buffer.glyphs, count, reinterpret_cast<SkPoint*>(buffer.pos), {0, 0});
+    font.getPos(buffer.glyphs, count, buffer.points(), {0, 0});
     return builder.make();
 }
 
@@ -845,7 +845,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromPosText(const void* text, size_t byteLengt
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPos(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
-    memcpy(buffer.pos, pos, count * sizeof(SkPoint));
+    memcpy(buffer.points(), pos, count * sizeof(SkPoint));
     return builder.make();
 }
 
@@ -867,7 +867,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromRSXform(const void* text, size_t byteLengt
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunRSXform(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
-    memcpy(buffer.pos, xform, count * sizeof(SkRSXform));
+    memcpy(buffer.xforms(), xform, count * sizeof(SkRSXform));
     return builder.make();
 }
 

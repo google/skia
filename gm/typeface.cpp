@@ -67,8 +67,8 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPos(font, glyphCount);
     memcpy(rec.glyphs, glyphs, glyphCount * sizeof(SkGlyphID));
-    getGlyphPositions(font, glyphs, glyphCount, x, y, (SkPoint*)rec.pos);
-    applyKerning((SkPoint*)rec.pos, adjustments, glyphCount, font);
+    getGlyphPositions(font, glyphs, glyphCount, x, y, rec.points());
+    applyKerning(rec.points(), adjustments, glyphCount, font);
 
     canvas->drawTextBlob(builder.make(), 0, 0, paint);
 }
