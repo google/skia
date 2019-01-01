@@ -632,7 +632,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (text.text()) {
-                canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromRSXform(text.text(), text.length(), xform, font,
+                                                        paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_VERTICES_OBJECT: {
