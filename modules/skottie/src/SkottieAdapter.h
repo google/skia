@@ -85,9 +85,10 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-class TransformAdapter final : public SkRefCnt {
+class TransformAdapter2D final : public SkNVRefCnt<TransformAdapter2D> {
 public:
-    explicit TransformAdapter(sk_sp<sksg::Matrix>);
+    explicit TransformAdapter2D(sk_sp<sksg::Matrix>);
+    ~TransformAdapter2D();
 
     ADAPTER_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
     ADAPTER_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
@@ -103,7 +104,38 @@ private:
 
     sk_sp<sksg::Matrix> fMatrixNode;
 
-    using INHERITED = SkRefCnt;
+    using INHERITED = SkNVRefCnt<TransformAdapter2D>;
+};
+
+class TransformAdapter3D final : public SkNVRefCnt<TransformAdapter3D> {
+public:
+    explicit TransformAdapter3D(sk_sp<sksg::Matrix>);
+    ~TransformAdapter3D();
+
+    struct Vec3 {
+        float fX, fY, fZ;
+
+        explicit Vec3(const VectorValue&);
+
+        bool operator==(const Vec3& other) const {
+            return fX == other.fX && fY == other.fY && fZ == other.fZ;
+        }
+        bool operator!=(const Vec3& other) const { return !(*this == other); }
+    };
+
+    ADAPTER_PROPERTY(AnchorPoint, Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Position   , Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
+
+    SkMatrix totalMatrix() const;
+
+private:
+    void apply();
+
+    sk_sp<sksg::Matrix> fMatrixNode;
+
+    using INHERITED = SkNVRefCnt<TransformAdapter3D>;
 };
 
 class GradientAdapter : public SkRefCnt {
