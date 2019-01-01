@@ -1921,6 +1921,7 @@ public:
     */
     void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint);
 
+#ifdef SK_SUPPORT_LEGACY_DRAWPOSTTEXT
     /** Draws each glyph in text with the origin in pos array, using clip, SkMatrix, and
         SkPaint paint. The number of entries in pos array must match the number of glyphs
         described by byteLength of text.
@@ -1993,6 +1994,7 @@ public:
     */
     void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                          const SkRect* cullRect, const SkPaint& paint);
+#endif
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 
