@@ -624,15 +624,18 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             uint32_t flags = reader->readUInt();
             TextContainer text(reader, paint);
             const SkRSXform* xform = (const SkRSXform*)reader->skip(count, sizeof(SkRSXform));
-            const SkRect* cull = nullptr;
             if (flags & DRAW_TEXT_RSXFORM_HAS_CULL) {
-                cull = (const SkRect*)reader->skip(sizeof(SkRect));
+                // skip past cull rect
+                (void)reader->skip(sizeof(SkRect));
             }
             reader->validate(count == text.count());
             BREAK_ON_READ_ERROR(reader);
 
             if (text.text()) {
-                canvas->drawTextRSXform(text.text(), text.length(), xform, cull, *paint);
+                SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
+                auto blob = SkTextBlob::MakeFromRSXform(text.text(), text.length(), xform, font,
+                                                        paint->getTextEncoding());
+                canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
         case DRAW_VERTICES_OBJECT: {

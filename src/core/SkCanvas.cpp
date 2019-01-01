@@ -2562,6 +2562,7 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
         this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
+#ifdef SK_SUPPORT_LEGACY_DRAWPOSTTEXT
 void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                            const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2594,6 +2595,7 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
                            0, 0, paint);
     }
 }
+#endif
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
