@@ -15,7 +15,7 @@ SkShaper::LineHandler::Buffer SkTextBlobBuilderLineHandler::newLineBuffer(const 
     const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, font, glyphCount,
                                                                    textCount, SkString());
     return { runBuffer.glyphs,
-             reinterpret_cast<SkPoint*>(runBuffer.pos),
+             runBuffer.points(),
              runBuffer.utf8text,
              runBuffer.clusters };
 }
