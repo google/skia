@@ -62,11 +62,11 @@ private:
     const sk_sp<NodeT> fNode;
 };
 
-class TransformAdapter;
+class TransformAdapter2D;
 
 using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue    , sksg::Color         >;
 using OpacityPropertyHandle   = PropertyHandle<OpacityPropertyValue  , sksg::OpacityEffect >;
-using TransformPropertyHandle = PropertyHandle<TransformPropertyValue, TransformAdapter    >;
+using TransformPropertyHandle = PropertyHandle<TransformPropertyValue, TransformAdapter2D  >;
 
 /**
  * A PropertyObserver can be used to track and manipulate certain properties of "interesting"
