@@ -8,13 +8,14 @@
 #ifndef SkColorSpace_DEFINED
 #define SkColorSpace_DEFINED
 
+#include "../private/SkFixed.h"
 #include "../private/SkOnce.h"
+#include "../../third_party/skcms/skcms.h"
 #include "SkMatrix44.h"
 #include "SkRefCnt.h"
 #include <memory>
 
 class SkData;
-struct skcms_ICCProfile;
 
 enum SkGammaNamed {
     kLinear_SkGammaNamed,
@@ -62,6 +63,54 @@ struct SK_API SkColorSpaceTransferFn {
     float fF;
 };
 
+namespace SkNamedTransferFn {
+
+// Like SkNamedGamut::kSRGB, keeping this bitwise exactly the same as skcms makes things fastest.
+static constexpr skcms_TransferFunction kSRGB =
+    { 2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0.0f, 0.0f };
+
+static constexpr skcms_TransferFunction k2Dot2 =
+    { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+static constexpr skcms_TransferFunction kLinear =
+    { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+}
+
+namespace SkNamedGamut {
+
+static constexpr skcms_Matrix3x3 kSRGB = {{
+    // These are taken from skcms, and there originally from 16-bit fixed point.
+    // For best results, please keep them exactly in sync with skcms.
+    { 0.436065674f, 0.385147095f, 0.143066406f },
+    { 0.222488403f, 0.716873169f, 0.060607910f },
+    { 0.013916016f, 0.097076416f, 0.714096069f },
+}};
+
+static constexpr skcms_Matrix3x3 kAdobeRGB = {{
+    // ICC fixed-point (16.16) repesentation of:
+    // 0.60974, 0.20528, 0.14919,
+    // 0.31111, 0.62567, 0.06322,
+    // 0.01947, 0.06087, 0.74457,
+    { SkFixedToFloat(0x9c18), SkFixedToFloat(0x348d), SkFixedToFloat(0x2631) },
+    { SkFixedToFloat(0x4fa5), SkFixedToFloat(0xa02c), SkFixedToFloat(0x102f) },
+    { SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c) },
+}};
+
+static constexpr skcms_Matrix3x3 kDCIP3 = {{
+    {  0.515102f,   0.291965f,  0.157153f  },
+    {  0.241182f,   0.692236f,  0.0665819f },
+    { -0.00104941f, 0.0418818f, 0.784378f  },
+}};
+
+static constexpr skcms_Matrix3x3 kRec2020 = {{
+    {  0.673459f,   0.165661f,  0.125100f, },
+    {  0.279033f,   0.675338f,  0.0456288f },
+    { -0.00193139f, 0.0299794f, 0.797162f  },
+}};
+
+}
+
 class SK_API SkColorSpace : public SkNVRefCnt<SkColorSpace> {
 public:
     /**
@@ -105,6 +154,12 @@ public:
                                        const SkMatrix44& toXYZD50);
 
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+
+    /**
+     *  Create an SkColorSpace from a transfer function and a row-major 3x3 transformation to XYZ.
+     */
+    static sk_sp<SkColorSpace> MakeRGB(const skcms_TransferFunction& transferFn,
+                                       const skcms_Matrix3x3& toXYZ);
 
     /**
      *  Create an SkColorSpace from a parsed (skcms) ICC profile.

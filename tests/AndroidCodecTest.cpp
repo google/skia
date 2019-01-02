@@ -157,8 +157,7 @@ DEF_TEST(AndroidCodec_wide, r) {
         return;
     }
 
-    auto expected = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                          SkColorSpace::kDCIP3_D65_Gamut);
+    auto expected = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
     REPORTER_ASSERT(r, SkColorSpace::Equals(cs.get(), expected.get()));
 }
 
