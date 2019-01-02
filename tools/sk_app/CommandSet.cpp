@@ -8,6 +8,7 @@
 #include "CommandSet.h"
 
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkTSort.h"
 
 namespace sk_app {
@@ -101,17 +102,21 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     SkTQSort(fCommands.begin(), fCommands.end() - 1,
              kAlphabetical_HelpMode == fHelpMode ? compareCommandKey : compareCommandGroup);
 
+    SkFont font;
+    font.setSize(16);
+
+    SkFont groupFont;
+    groupFont.setSize(18);
+
     SkPaint bgPaint;
     bgPaint.setColor(0xC0000000);
     canvas->drawPaint(bgPaint);
 
     SkPaint paint;
-    paint.setTextSize(16);
     paint.setAntiAlias(true);
     paint.setColor(0xFFFFFFFF);
 
     SkPaint groupPaint;
-    groupPaint.setTextSize(18);
     groupPaint.setAntiAlias(true);
     groupPaint.setColor(0xFFFFFFFF);
 
@@ -122,14 +127,15 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     SkScalar keyWidth = 0;
     for (Command& cmd : fCommands) {
         keyWidth = SkMaxScalar(keyWidth,
-                               paint.measureText(cmd.fKeyName.c_str(), cmd.fKeyName.size()));
+                               font.measureText(cmd.fKeyName.c_str(), cmd.fKeyName.size(),
+                                                kUTF8_SkTextEncoding));
     }
-    keyWidth += paint.measureText(" ", 1);
+    keyWidth += font.measureText(" ", 1, kUTF8_SkTextEncoding);
 
     // If we're grouping by category, we'll be adding text height on every new group (including the
     // first), so no need to do that here. Otherwise, skip down so the first line is where we want.
     if (kGrouped_HelpMode != fHelpMode) {
-        y += paint.getTextSize();
+        y += font.getSize();
     }
 
     // Print everything:
@@ -137,16 +143,19 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
     for (Command& cmd : fCommands) {
         if (kGrouped_HelpMode == fHelpMode && lastGroup != cmd.fGroup) {
             // Group change. Advance and print header:
-            y += paint.getTextSize();
-            canvas->drawString(cmd.fGroup, x, y, groupPaint);
-            y += groupPaint.getTextSize() + 2;
+            y += font.getSize();
+            canvas->drawSimpleText(cmd.fGroup.c_str(), cmd.fGroup.size(), kUTF8_SkTextEncoding,
+                                   x, y, groupFont, groupPaint);
+            y += groupFont.getSize() + 2;
             lastGroup = cmd.fGroup;
         }
 
-        canvas->drawString(cmd.fKeyName, x, y, paint);
+        canvas->drawSimpleText(cmd.fKeyName.c_str(), cmd.fKeyName.size(), kUTF8_SkTextEncoding,
+                               x, y, font, paint);
         SkString text = SkStringPrintf(": %s", cmd.fDescription.c_str());
-        canvas->drawString(text, x + keyWidth, y, paint);
-        y += paint.getTextSize() + 2;
+        canvas->drawSimpleText(text.c_str(), text.size(), kUTF8_SkTextEncoding,
+                               x + keyWidth, y, font, paint);
+        y += font.getSize() + 2;
     }
 }
 

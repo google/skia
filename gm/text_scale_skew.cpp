@@ -11,16 +11,17 @@
 // http://bug.skia.org/7315
 DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {
     SkPaint p;
-    p.setTextSize(18.0f);
     p.setAntiAlias(true);
+    SkFont font;
+    font.setSize(18.0f);
     float y = 10.0f;
     for (float scale : { 0.5f, 0.71f, 1.0f, 1.41f, 2.0f }) {
-        p.setTextScaleX(scale);
-        y += p.getFontSpacing();
+        font.setScaleX(scale);
+        y += font.getSpacing();
         float x = 50.0f;
         for (float skew : { -0.5f, 0.0f, 0.5f }) {
-            p.setTextSkewX(skew);
-            SkTextUtils::DrawString(canvas, "Skia", x, y, p, SkTextUtils::kCenter_Align);
+            font.setSkewX(skew);
+            SkTextUtils::DrawString(canvas, "Skia", x, y, font, p, SkTextUtils::kCenter_Align);
             x += 78.0f;
         }
     }
