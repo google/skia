@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c27d69c2_3cff23e9",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edff1238_36bfa440",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4dc85fe_085a52fd",
         "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
         "patchSetId": 4
@@ -39,6 +57,30 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96c7e7f6_33183695",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4dc85fe_085a52fd",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "539b4a5b_5f9db758",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6651099b_f9327b5d",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "473b040f_0122d6f6",
         "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
         "patchSetId": 4
@@ -85,6 +151,30 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8664de98_0f3bf8f1",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "473b040f_0122d6f6",
+      "range": {
+        "startLine": 68,
+        "startChar": 50,
+        "endLine": 68,
+        "endChar": 54
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "062bedae_f4a215a5",
+        "filename": "include/private/GrRenderTargetProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "210542ce_d8df0b8a",
+      "range": {
+        "startLine": 89,
+        "startChar": 59,
+        "endLine": 89,
+        "endChar": 90
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1039f227_06af33b3",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 4
@@ -125,6 +239,24 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c57669b_37976234",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1039f227_06af33b3",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -151,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "1f64075a_99f053b7",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "069d0a38_d07c2684",
+      "range": {
+        "startLine": 548,
+        "startChar": 88,
+        "endLine": 548,
+        "endChar": 92
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a98bfaf_c36219f6",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
@@ -165,6 +321,24 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5f2619f_5646337c",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a98bfaf_c36219f6",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -191,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "d4aeed76_56317495",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "848b50d3_4c7570b0",
+      "range": {
+        "startLine": 1015,
+        "startChar": 74,
+        "endLine": 1015,
+        "endChar": 75
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d92248e_6ac0c026",
         "filename": "src/gpu/vk/GrVkRenderPass.cpp",
         "patchSetId": 4
@@ -202,6 +400,24 @@
       "writtenOn": "2019-01-02T16:56:57Z",
       "side": 1,
       "message": "// ??\n\nIt seems like we could make this work for external attachments. Is there some reason we\u0027ll never check this in that case ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71476aae_bb7598e6",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "In the places we check for the compatible external render pass we don\u0027t really have a whole AttachmentsDescriptor so we would have to cons up one and then not even look at it. IMO I think it is just easier to have the external ones have their own compatible check to keep it simple.",
+      "parentUuid": "0d92248e_6ac0c026",
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -242,6 +458,24 @@
     },
     {
       "key": {
+        "uuid": "1c39d61c_68672a26",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Is the suggestion to have it there instead of hear? This basically is checking that we never have external with any other flag.",
+      "parentUuid": "90d2d7cc_c095ccdc",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f722f486_72a25bf5",
         "filename": "src/gpu/vk/GrVkRenderPass.cpp",
         "patchSetId": 4
@@ -253,6 +487,24 @@
       "writtenOn": "2019-01-02T16:56:57Z",
       "side": 1,
       "message": "Not the fColorAttachmentIndex too ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fabc8ba8_7f726a96",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "If we rely on the handle to be a good enough key (discussed offline about how to handle this better), then the color attachment index is just inherently covered by the handle. Given that I\u0027ve removed the color attachment index from the compatible check as well.",
+      "parentUuid": "f722f486_72a25bf5",
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -273,6 +525,24 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7afcc18_b5afbfdb",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e23f9dd_d2de6791",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -299,6 +569,30 @@
     },
     {
       "key": {
+        "uuid": "19bed00e_e8434fc9",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26cc65e4_42f6cdf1",
+      "range": {
+        "startLine": 89,
+        "startChar": 40,
+        "endLine": 89,
+        "endChar": 47
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2be9e9_2d167292",
         "filename": "src/gpu/vk/GrVkRenderPass.h",
         "patchSetId": 4
@@ -316,6 +610,24 @@
     },
     {
       "key": {
+        "uuid": "231b4cc1_2b9f6059",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2be9e9_2d167292",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "106ec868_0fd574d7",
         "filename": "src/gpu/vk/GrVkRenderTarget.h",
         "patchSetId": 4
@@ -330,6 +642,24 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1382ebb5_06d96f47",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "106ec868_0fd574d7",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -356,6 +686,30 @@
     },
     {
       "key": {
+        "uuid": "cd61fbc0_527fc373",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3bdde314_efd28115",
+      "range": {
+        "startLine": 168,
+        "startChar": 38,
+        "endLine": 168,
+        "endChar": 39
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da0e3d50_7de12e33",
         "filename": "src/gpu/vk/GrVkRenderTarget.h",
         "patchSetId": 4
@@ -379,6 +733,30 @@
     },
     {
       "key": {
+        "uuid": "ec9f4b16_9be23758",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da0e3d50_7de12e33",
+      "range": {
+        "startLine": 170,
+        "startChar": 15,
+        "endLine": 170,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41de9a5d_4cbe44a4",
         "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
         "patchSetId": 4
@@ -399,6 +777,30 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5d289e5_93545173",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:53:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41de9a5d_4cbe44a4",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
