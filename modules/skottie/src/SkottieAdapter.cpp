@@ -34,6 +34,8 @@ namespace skottie {
 RRectAdapter::RRectAdapter(sk_sp<sksg::RRect> wrapped_node)
     : fRRectNode(std::move(wrapped_node)) {}
 
+RRectAdapter::~RRectAdapter() = default;
+
 void RRectAdapter::apply() {
     // BM "position" == "center position"
     auto rr = SkRRect::MakeRectXY(SkRect::MakeXYWH(fPosition.x() - fSize.width() / 2,
@@ -46,6 +48,8 @@ void RRectAdapter::apply() {
 
 TransformAdapter::TransformAdapter(sk_sp<sksg::Matrix> matrix)
     : fMatrixNode(std::move(matrix)) {}
+
+TransformAdapter::~TransformAdapter() = default;
 
 SkMatrix TransformAdapter::totalMatrix() const {
     SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x(), -fAnchorPoint.y());
@@ -65,6 +69,8 @@ void TransformAdapter::apply() {
 PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
     : fPathNode(std::move(wrapped_node))
     , fType(t) {}
+
+PolyStarAdapter::~PolyStarAdapter() = default;
 
 void PolyStarAdapter::apply() {
     static constexpr int kMaxPointCount = 100000;
@@ -152,6 +158,8 @@ TrimEffectAdapter::TrimEffectAdapter(sk_sp<sksg::TrimEffect> trimEffect)
     SkASSERT(fTrimEffect);
 }
 
+TrimEffectAdapter::~TrimEffectAdapter() = default;
+
 void TrimEffectAdapter::apply() {
     // BM semantics: start/end are percentages, offset is "degrees" (?!).
     const auto  start = fStart  / 100,
@@ -206,6 +214,8 @@ TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
     fStrokeColor->setAntiAlias(true);
     fStrokeColor->setStyle(SkPaint::kStroke_Style);
 }
+
+TextAdapter::~TextAdapter() = default;
 
 sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     SkFont font(fText.fTypeface, fText.fTextSize);
