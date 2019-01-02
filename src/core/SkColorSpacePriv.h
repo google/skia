@@ -65,9 +65,6 @@ static constexpr SkColorSpaceTransferFn g2Dot2_TransferFn =
 static constexpr SkColorSpaceTransferFn gLinear_TransferFn =
         { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-static constexpr SkColorSpaceTransferFn gDCIP3_TransferFn =
-    { 2.399994f, 0.947998047f, 0.0520019531f, 0.0769958496f, 0.0390014648f, 0.0f, 0.0f };
-
 static inline void to_xyz_d50(SkMatrix44* toXYZD50, SkColorSpace::Gamut gamut) {
     switch (gamut) {
         case SkColorSpace::kSRGB_Gamut:
