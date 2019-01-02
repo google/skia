@@ -268,7 +268,9 @@ public:
         char*      utf8text; //!< reserved for future use
         uint32_t*  clusters; //!< reserved for future use
 
+        // experimental
         SkPoint*    points() const { return reinterpret_cast<SkPoint*>(pos); }
+        // experimental
         SkRSXform*  xforms() const { return reinterpret_cast<SkRSXform*>(pos); }
     };
 
