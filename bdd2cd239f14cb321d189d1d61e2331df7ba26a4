@@ -441,6 +441,24 @@
     },
     {
       "key": {
+        "uuid": "48565b4e_09d6b29d",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-02T19:54:48Z",
+      "side": 1,
+      "message": "Removed the if check itself",
+      "parentUuid": "ae3aaaa2_c947595e",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "90d2d7cc_c095ccdc",
         "filename": "src/gpu/vk/GrVkRenderPass.cpp",
         "patchSetId": 4
