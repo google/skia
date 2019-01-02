@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89fa1472_f80de4f3",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-02T18:48:52Z",
+      "side": 1,
+      "message": "BothCaches like above might be a little more reader friendly.",
+      "range": {
+        "startLine": 748,
+        "startChar": 20,
+        "endLine": 748,
+        "endChar": 24
+      },
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1b6a1a1_98f8a578",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-02T18:48:52Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 822,
+        "startChar": 16,
+        "endLine": 822,
+        "endChar": 20
+      },
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "007b0586_dc8a01ad",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-02T18:48:52Z",
+      "side": 1,
+      "message": "Might be clearer what this is about if you move it down to line 450 or so?",
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
