@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "234912c2_879257af",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-02T23:45:15Z",
+      "side": 1,
+      "message": "Ugh. Sorry it didn\u0027t detect these lines as nearly identical to the removed ones above. The only differences should be indentation, removal of a bunch of \"draw.\" prefixes, and a couple other minor things.",
+      "revId": "ec50d77921c0f258ad340b6128f2466b74b8901a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
