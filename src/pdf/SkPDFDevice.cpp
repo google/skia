@@ -1910,9 +1910,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
     SK_AT_SCOPE_EXIT(if (needToRestore) { this->cs().restore(); });
 
-    #ifdef SK_PDF_IMAGE_STATS
-    gDrawImageCalls.fetch_add(1);
-    #endif
     SkMatrix matrix = transform;
 
     // Rasterize the bitmap using perspective in a new bitmap.
