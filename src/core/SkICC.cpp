@@ -260,9 +260,6 @@ const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
             return "Linear Transfer with Rec-BT-2020 Gamut";
         }
     }
-    if (dcip3_gamut && nearly_equal(fn, gDCIP3_TransferFn)) {
-        return "DCI-P3";
-    }
     return nullptr;
 }
 
