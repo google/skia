@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edff1238_36bfa440",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "// This flag indicates if the surface is wrapping a raw Vulkan secondary command buffer.\n\n?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4dc85fe_085a52fd",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "2019 ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6651099b_f9327b5d",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "will",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "473b040f_0122d6f6",
+        "filename": "include/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "then ?",
+      "range": {
+        "startLine": 68,
+        "startChar": 50,
+        "endLine": 68,
+        "endChar": 54
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "210542ce_d8df0b8a",
+        "filename": "include/private/GrRenderTargetProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "Can we make this one of the verbose flags, i.e.:\n\nenum class WrapsVKSecondaryCB : bool { kNo \u003d false, kYes \u003d true };\n\n?",
+      "range": {
+        "startLine": 89,
+        "startChar": 59,
+        "endLine": 89,
+        "endChar": 90
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1039f227_06af33b3",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "Maybe instead:\n\n// This proxy should be unbudgeted bc we\u0027re just wrapping an external resource ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "069d0a38_d07c2684",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": ":(",
+      "range": {
+        "startLine": 548,
+        "startChar": 88,
+        "endLine": 548,
+        "endChar": 92
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a98bfaf_c36219f6",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "Rather than have MakeForVulkanSecondaryCB, can we just reuse this entry point ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "848b50d3_4c7570b0",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:20:59Z",
+      "side": 1,
+      "message": "delete ?",
+      "range": {
+        "startLine": 1015,
+        "startChar": 74,
+        "endLine": 1015,
+        "endChar": 75
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
