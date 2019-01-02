@@ -10,6 +10,8 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setTypeface(null);
   this._fontString = '10px monospace';
 
+  this._font = new CanvasKit.SkFont();
+
   this._strokeStyle    = CanvasKit.BLACK;
   this._fillStyle      = CanvasKit.BLACK;
   this._shadowBlur     = 0;
@@ -41,6 +43,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._dispose = function() {
     this._currentPath.delete();
     this._paint.delete();
+    this._font.delete();
     this._toCleanUp.forEach(function(c) {
       c._dispose();
     });
@@ -105,6 +108,8 @@ function CanvasRenderingContext2D(skcanvas) {
         // bracket notation to tell closure not to minify these names.
         this._paint.setTextSize(tf['sizePx']);
         this._paint.setTypeface(tf['typeface']);
+        this._font.setTypeface(tf['typeface']);
+        this._font.setSize(tf['sizePx']);
         this._fontString = newFont;
       }
     }
@@ -488,11 +493,22 @@ function CanvasRenderingContext2D(skcanvas) {
   });
 
   this.arc = function(x, y, radius, startAngle, endAngle, ccw) {
-    arc(this._currentPath, x, y, radius, startAngle, endAngle, ccw);
+    // As per  https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-arc
+    // arc is essentially a simpler version of ellipse.
+    this.ellipse(x, y, radius, radius, 0, startAngle, endAngle, ccw);
   }
 
   this.arcTo = function(x1, y1, x2, y2, radius) {
-    arcTo(this._currentPath, x1, y1, x2, y2, radius);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    if (radius < 0) {
+      throw 'radii cannot be negative';
+    }
+    if (this._currentPath.isEmpty()) {
+      this.moveTo(x1, y1);
+    }
+    this._currentPath.arcTo(x1, y1, x2, y2, radius);
   }
 
   // As per the spec this doesn't begin any paths, it only
@@ -503,7 +519,13 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
-    bezierCurveTo(this._currentPath, cp1x, cp1y, cp2x, cp2y, x, y);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    if (this._currentPath.isEmpty()) {
+      this.moveTo(cp1x, cp1y);
+    }
+    this._currentPath.cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
   }
 
   this.clearRect = function(x, y, width, height) {
@@ -513,30 +535,25 @@ function CanvasRenderingContext2D(skcanvas) {
     this._paint.setBlendMode(this._globalCompositeOperation);
   }
 
-  this.clip = function(path, fillRule) {
-    if (typeof path === 'string') {
-      // shift the args if a Path2D is supplied
-      fillRule = path;
-      path = this._currentPath;
-    } else if (path && path._getPath) {
-      path = path._getPath();
-    }
-    if (!path) {
-      path = this._currentPath;
-    }
-
-    var clip = path.copy();
+  this.clip = function(fillRule) {
+    var clip = this._currentPath.copy();
     if (fillRule && fillRule.toLowerCase() === 'evenodd') {
       clip.setFillType(CanvasKit.FillType.EvenOdd);
     } else {
       clip.setFillType(CanvasKit.FillType.Winding);
     }
     this._canvas.clipPath(clip, CanvasKit.ClipOp.Intersect, true);
-    clip.delete();
   }
 
   this.closePath = function() {
-    closePath(this._currentPath);
+    if (this._currentPath.isEmpty()) {
+      return;
+    }
+    // Check to see if we are not just a single point
+    var bounds = this._currentPath.getBounds();
+    if ((bounds.fBottom - bounds.fTop) || (bounds.fRight - bounds.fLeft)) {
+      this._currentPath.close();
+    }
   }
 
   this.createImageData = function() {
@@ -618,10 +635,69 @@ function CanvasRenderingContext2D(skcanvas) {
     iPaint.dispose();
   }
 
+  this._ellipseHelper = function(x, y, radiusX, radiusY, startAngle, endAngle) {
+    var sweepDegrees = radiansToDegrees(endAngle - startAngle);
+    var startDegrees = radiansToDegrees(startAngle);
+
+    var oval = CanvasKit.LTRBRect(x - radiusX, y - radiusY, x + radiusX, y + radiusY);
+
+    // draw in 2 180 degree segments because trying to draw all 360 degrees at once
+    // draws nothing.
+    if (almostEqual(Math.abs(sweepDegrees), 360)) {
+      var halfSweep = sweepDegrees/2;
+      this._currentPath.arcTo(oval, startDegrees, halfSweep, false);
+      this._currentPath.arcTo(oval, startDegrees + halfSweep, halfSweep, false);
+      return;
+    }
+    this._currentPath.arcTo(oval, startDegrees, sweepDegrees, false);
+  }
+
   this.ellipse = function(x, y, radiusX, radiusY, rotation,
                           startAngle, endAngle, ccw) {
-    ellipse(this._currentPath, x, y, radiusX, radiusY, rotation,
-            startAngle, endAngle, ccw);
+    if (!allAreFinite([x, y, radiusX, radiusY, rotation, startAngle, endAngle])) {
+      return;
+    }
+    if (radiusX < 0 || radiusY < 0) {
+      throw 'radii cannot be negative';
+    }
+
+    // based off of CanonicalizeAngle in Chrome
+    var tao = 2 * Math.PI;
+    var newStartAngle = startAngle % tao;
+    if (newStartAngle < 0) {
+      newStartAngle += tao;
+    }
+    var delta = newStartAngle - startAngle;
+    startAngle = newStartAngle;
+    endAngle += delta;
+
+    // Based off of AdjustEndAngle in Chrome.
+    if (!ccw && (endAngle - startAngle) >= tao) {
+      // Draw complete ellipse
+      endAngle = startAngle + tao;
+    } else if (ccw && (startAngle - endAngle) >= tao) {
+      // Draw complete ellipse
+      endAngle = startAngle - tao;
+    } else if (!ccw && startAngle > endAngle) {
+      endAngle = startAngle + (tao - (startAngle - endAngle) % tao);
+    } else if (ccw && startAngle < endAngle) {
+      endAngle = startAngle - (tao - (endAngle - startAngle) % tao);
+    }
+
+
+    // Based off of Chrome's implementation in
+    // https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/graphics/path.cc
+    // of note, can't use addArc or addOval because they close the arc, which
+    // the spec says not to do (unless the user explicitly calls closePath).
+    // This throws off points being in/out of the arc.
+    if (!rotation) {
+      this._ellipseHelper(x, y, radiusX, radiusY, startAngle, endAngle);
+      return;
+    }
+    var rotated = CanvasKit.SkMatrix.rotated(rotation, x, y);
+    this._currentPath.transform(CanvasKit.SkMatrix.invert(rotated));
+    this._ellipseHelper(x, y, radiusX, radiusY, startAngle, endAngle);
+    this._currentPath.transform(rotated);
   }
 
   // A helper to copy the current paint, ready for filling
@@ -648,14 +724,7 @@ function CanvasRenderingContext2D(skcanvas) {
     return paint;
   }
 
-  this.fill = function(path, fillRule) {
-    if (typeof path === 'string') {
-      // shift the args if a Path2D is supplied
-      fillRule = path;
-      path = this._currentPath;
-    } else if (path && path._getPath) {
-      path = path._getPath();
-    }
+  this.fill = function(fillRule) {
     if (fillRule === 'evenodd') {
       this._currentPath.setFillType(CanvasKit.FillType.EvenOdd);
     } else if (fillRule === 'nonzero' || !fillRule) {
@@ -663,21 +732,17 @@ function CanvasRenderingContext2D(skcanvas) {
     } else {
       throw 'invalid fill rule';
     }
-    if (!path) {
-      path = this._currentPath;
-    }
-
     var fillPaint = this._fillPaint();
 
     var shadowPaint = this._shadowPaint(fillPaint);
     if (shadowPaint) {
       this._canvas.save();
       this._canvas.concat(this._shadowOffsetMatrix());
-      this._canvas.drawPath(path, shadowPaint);
+      this._canvas.drawPath(this._currentPath, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
     }
-    this._canvas.drawPath(path, fillPaint);
+    this._canvas.drawPath(this._currentPath, fillPaint);
     fillPaint.dispose();
   }
 
@@ -725,17 +790,6 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this.isPointInPath = function(x, y, fillmode) {
-    var args = arguments;
-    if (args.length === 3) {
-      var path = this._currentPath;
-    } else if (args.length === 4) {
-      var path = args[0];
-      x = args[1];
-      y = args[2];
-      fillmode = args[3];
-    } else {
-      throw 'invalid arg count, need 3 or 4, got ' + args.length;
-    }
     if (!isFinite(x) || !isFinite(y)) {
       return false;
     }
@@ -747,30 +801,20 @@ function CanvasRenderingContext2D(skcanvas) {
     var pts = this._mapToLocalCoordinates([x, y]);
     x = pts[0];
     y = pts[1];
-    path.setFillType(fillmode === 'nonzero' ?
+    this._currentPath.setFillType(fillmode === 'nonzero' ?
                                   CanvasKit.FillType.Winding :
                                   CanvasKit.FillType.EvenOdd);
-    return path.contains(x, y);
+    return this._currentPath.contains(x, y);
   }
 
   this.isPointInStroke = function(x, y) {
-    var args = arguments;
-    if (args.length === 2) {
-      var path = this._currentPath;
-    } else if (args.length === 3) {
-      var path = args[0];
-      x = args[1];
-      y = args[2];
-    } else {
-      throw 'invalid arg count, need 2 or 3, got ' + args.length;
-    }
     if (!isFinite(x) || !isFinite(y)) {
       return false;
     }
     var pts = this._mapToLocalCoordinates([x, y]);
     x = pts[0];
     y = pts[1];
-    var temp = path.copy();
+    var temp = this._currentPath.copy();
     // fillmode is always nonzero
     temp.setFillType(CanvasKit.FillType.Winding);
     temp.stroke({'width': this.lineWidth, 'miter_limit': this.miterLimit,
@@ -783,18 +827,28 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this.lineTo = function(x, y) {
-    lineTo(this._currentPath, x, y);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    // A lineTo without a previous point has a moveTo inserted before it
+    if (this._currentPath.isEmpty()) {
+      this._currentPath.moveTo(x, y);
+    }
+    this._currentPath.lineTo(x, y);
   }
 
   this.measureText = function(text) {
     return {
-      width: this._paint.measureText(text),
+      width: this._font.measureText(text),
       // TODO other measurements?
     }
   }
 
   this.moveTo = function(x, y) {
-    moveTo(this._currentPath, x, y);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    this._currentPath.moveTo(x, y);
   }
 
   this.putImageData = function(imageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
@@ -846,11 +900,21 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this.quadraticCurveTo = function(cpx, cpy, x, y) {
-    quadraticCurveTo(this._currentPath, cpx, cpy, x, y);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    if (this._currentPath.isEmpty()) {
+      this._currentPath.moveTo(cpx, cpy);
+    }
+    this._currentPath.quadTo(cpx, cpy, x, y);
   }
 
   this.rect = function(x, y, width, height) {
-    rect(this._currentPath, x, y, width, height);
+    if (!allAreFinite(arguments)) {
+      return;
+    }
+    // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
+    this._currentPath.addRect(x, y, x+width, y+height);
   }
 
   this.resetTransform = function() {
@@ -1054,20 +1118,19 @@ function CanvasRenderingContext2D(skcanvas) {
     return paint;
   }
 
-  this.stroke = function(path) {
-    path = path ? path._getPath() : this._currentPath;
+  this.stroke = function() {
     var strokePaint = this._strokePaint();
 
     var shadowPaint = this._shadowPaint(strokePaint);
     if (shadowPaint) {
       this._canvas.save();
       this._canvas.concat(this._shadowOffsetMatrix());
-      this._canvas.drawPath(path, shadowPaint);
+      this._canvas.drawPath(this._currentPath, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
     }
 
-    this._canvas.drawPath(path, strokePaint);
+    this._canvas.drawPath(this._currentPath, strokePaint);
     strokePaint.dispose();
   }
 
