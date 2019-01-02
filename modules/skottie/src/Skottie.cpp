@@ -61,14 +61,14 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
     fLogger->log(lvl, buff, jsonstr.c_str());
 }
 
-sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix(const skjson::ObjectValue& t,
-                                                   AnimatorScope* ascope,
-                                                   sk_sp<sksg::Matrix> parentMatrix) const {
+sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& t,
+                                                     AnimatorScope* ascope,
+                                                     sk_sp<sksg::Matrix> parentMatrix) const {
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
 
     auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
-    auto adapter = sk_make_sp<TransformAdapter>(matrix);
+    auto adapter = sk_make_sp<TransformAdapter2D>(matrix);
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
             [adapter](const VectorValue& a) {
@@ -105,6 +105,58 @@ sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix(const skjson::ObjectValue& t,
     const auto dispatched = this->dispatchTransformProperty(adapter);
 
     return (bound || dispatched) ? matrix : parentMatrix;
+}
+
+sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
+                                                     AnimatorScope* ascope,
+                                                     sk_sp<sksg::Matrix> parentMatrix) const {
+    static const VectorValue g_default_vec_0   = {  0,   0,   0},
+                             g_default_vec_100 = {100, 100, 100};
+
+    auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
+    auto adapter = sk_make_sp<TransformAdapter3D>(matrix);
+
+    auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
+            [adapter](const VectorValue& a) {
+                adapter->setAnchorPoint(TransformAdapter3D::Vec3(a));
+            }, g_default_vec_0);
+    bound |= this->bindProperty<VectorValue>(t["p"], ascope,
+            [adapter](const VectorValue& p) {
+                adapter->setPosition(TransformAdapter3D::Vec3(p));
+            }, g_default_vec_0);
+    bound |= this->bindProperty<VectorValue>(t["s"], ascope,
+            [adapter](const VectorValue& s) {
+                adapter->setScale(TransformAdapter3D::Vec3(s));
+            }, g_default_vec_100);
+
+    // Orientation and rx/ry/rz are mapped to the same rotation property -- the difference is
+    // in how they get interpolated (vector vs. scalar/decomposed interpolation).
+    bound |= this->bindProperty<VectorValue>(t["or"], ascope,
+            [adapter](const VectorValue& o) {
+                adapter->setRotation(TransformAdapter3D::Vec3(o));
+            }, g_default_vec_0);
+
+    bound |= this->bindProperty<ScalarValue>(t["rx"], ascope,
+            [adapter](const ScalarValue& rx) {
+                const auto& r = adapter->getRotation();
+                adapter->setRotation(TransformAdapter3D::Vec3({rx, r.fY, r.fZ}));
+            }, 0.0f);
+
+    bound |= this->bindProperty<ScalarValue>(t["ry"], ascope,
+            [adapter](const ScalarValue& ry) {
+                const auto& r = adapter->getRotation();
+                adapter->setRotation(TransformAdapter3D::Vec3({r.fX, ry, r.fZ}));
+            }, 0.0f);
+
+    bound |= this->bindProperty<ScalarValue>(t["rz"], ascope,
+            [adapter](const ScalarValue& rz) {
+                const auto& r = adapter->getRotation();
+                adapter->setRotation(TransformAdapter3D::Vec3({r.fX, r.fY, rz}));
+            }, 0.0f);
+
+    // TODO: dispatch 3D transform properties
+
+    return bound ? matrix : parentMatrix;
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
@@ -251,7 +303,7 @@ bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&
     return dispatched;
 }
 
-bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter>& t) const {
+bool AnimationBuilder::dispatchTransformProperty(const sk_sp<TransformAdapter2D>& t) const {
     bool dispatched = false;
 
     if (fPropertyObserver) {
