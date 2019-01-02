@@ -112,11 +112,11 @@ private:
 
 class SkGlyphRunBuilder {
 public:
-    void drawText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
-    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
+    void drawTextUTF8(
+        const SkPaint& paint, const SkFont&, const void* bytes, size_t byteLength, SkPoint origin);
     void drawGlyphsWithPositions(
-            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
+            const SkPaint&, const SkFont&, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
+    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin, SkBaseDevice*);
 
     const SkGlyphRunList& useGlyphRunList();
 
@@ -128,7 +128,7 @@ public:
 private:
     void initialize(size_t totalRunSize);
     SkSpan<const SkGlyphID> textToGlyphIDs(
-            const SkPaint& paint, const void* bytes, size_t byteLength);
+            const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding);
 
     void makeGlyphRun(
             const SkFont& font,
