@@ -1642,7 +1642,7 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
     metadata.fExecutor = executor.get();
 #endif
-    sk_sp<SkDocument> doc = SkPDF::MakeDocument(dst, metadata);
+    std::unique_ptr<SkDocument> doc = SkPDF::MakeDocument(dst, metadata);
     if (!doc) {
         return "SkPDF::MakeDocument() returned nullptr";
     }
@@ -1672,7 +1672,7 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!factory) {
         return "Failed to create XPS Factory.";
     }
-    sk_sp<SkDocument> doc(SkXPS::MakeDocument(dst, factory.get()));
+    std::unique_ptr<SkDocument> doc(SkXPS::MakeDocument(dst, factory.get()));
     if (!doc) {
         return "SkXPS::MAkeDocument() returned nullptr";
     }

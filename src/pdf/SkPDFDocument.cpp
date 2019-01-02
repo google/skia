@@ -531,7 +531,11 @@ void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
     canvas->drawAnnotation({0, 0, 0, 0}, key, payload.get());
 }
 
-sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
+std::unique_ptr<SkDocument> SkPDF::MakeDocument(SkWStream* stream,
+                                                const SkPDF::Metadata& metadata) {
+    if (!stream) {
+        return nullptr;
+    }
     SkPDF::Metadata meta = metadata;
     if (meta.fRasterDPI <= 0) {
         meta.fRasterDPI = 72.0f;
@@ -539,6 +543,6 @@ sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& 
     if (meta.fEncodingQuality < 0) {
         meta.fEncodingQuality = 0;
     }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
+    return std::unique_ptr<SkDocument>(new SkPDFDocument(stream, std::move(meta)));
 }
 

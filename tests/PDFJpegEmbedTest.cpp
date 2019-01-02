@@ -55,7 +55,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     }
     ////////////////////////////////////////////////////////////////////////////
     SkDynamicMemoryWStream pdf;
-    sk_sp<SkDocument> document(SkPDF::MakeDocument(&pdf));
+    std::unique_ptr<SkDocument> document(SkPDF::MakeDocument(&pdf));
     SkCanvas* canvas = document->beginPage(642, 1028);
 
     canvas->clear(SK_ColorLTGRAY);

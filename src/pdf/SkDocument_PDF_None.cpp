@@ -8,7 +8,7 @@
 #include "SkCanvas.h"
 #include "SkPDFDocument.h"
 
-sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream*, const SkPDF::Metadata&) { return nullptr; }
+std::unique_ptr<SkDocument> SkPDF::MakeDocument(SkWStream*, const SkPDF::Metadata&) { return nullptr; }
 
 void SkPDF::SetNodeId(SkCanvas* c, int n) {
     c->drawAnnotation({0, 0, 0, 0}, "PDF_Node_Key", SkData::MakeWithCopy(&n, sizeof(n)).get());

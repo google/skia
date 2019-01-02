@@ -223,9 +223,13 @@ public:
      *  No call to ref() or unref() will be made.
      */
     sk_sp(sk_sp<T>&& that) : fPtr(that.release()) {}
+    sk_sp(std::unique_ptr<T>&& that) : fPtr(that.release()) {}
     template <typename U,
               typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
     sk_sp(sk_sp<U>&& that) : fPtr(that.release()) {}
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+    sk_sp(std::unique_ptr<U>&& that) : fPtr(that.release()) {}
 
     /**
      *  Adopt the bare pointer into the newly created sk_sp.

@@ -76,12 +76,12 @@ void SkXPSDocument::onAbort() {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkDocument> SkXPS::MakeDocument(SkWStream* stream,
-                                      IXpsOMObjectFactory* factoryPtr,
-                                      SkScalar dpi) {
+std::unique_ptr<SkDocument> SkXPS::MakeDocument(SkWStream* stream,
+                                                IXpsOMObjectFactory* factoryPtr,
+                                                SkScalar dpi) {
     SkTScopedComPtr<IXpsOMObjectFactory> factory(SkSafeRefComPtr(factoryPtr));
     return stream && factory
-           ? sk_make_sp<SkXPSDocument>(stream, dpi, std::move(factory))
+           ? std::unique_ptr<SkDocument>(new SkXPSDocument(stream, dpi, std::move(factory)))
            : nullptr;
 }
 #endif  // defined(SK_BUILD_FOR_WIN)

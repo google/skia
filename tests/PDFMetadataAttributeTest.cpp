@@ -23,7 +23,7 @@ DEF_TEST(SkPDF_Metadata, r) {
     metadata.fModified = now;
 
     SkDynamicMemoryWStream pdf;
-    sk_sp<SkDocument> doc = SkPDF::MakeDocument(&pdf, metadata);
+    std::unique_ptr<SkDocument> doc = SkPDF::MakeDocument(&pdf, metadata);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     sk_sp<SkData> data = pdf.detachAsData();

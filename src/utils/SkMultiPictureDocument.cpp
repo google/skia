@@ -95,8 +95,9 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
-    return sk_make_sp<MultiPictureDocument>(wStream, procs);
+std::unique_ptr<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream,
+                                                       const SkSerialProcs* procs) {
+    return std::unique_ptr<SkDocument>(new MultiPictureDocument(wStream, procs));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

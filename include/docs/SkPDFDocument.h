@@ -184,9 +184,9 @@ SK_API void SetNodeId(SkCanvas* dst, int nodeID);
 
     @returns NULL if there is an error, otherwise a newly created PDF-backed SkDocument.
 */
-SK_API sk_sp<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
+SK_API std::unique_ptr<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
 
-static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
+static inline std::unique_ptr<SkDocument> MakeDocument(SkWStream* stream) {
     return MakeDocument(stream, Metadata());
 }
 

@@ -18,9 +18,9 @@ struct IXpsOMObjectFactory;
 
 namespace SkXPS {
 
-SK_API sk_sp<SkDocument> MakeDocument(SkWStream* stream,
-                                      IXpsOMObjectFactory* xpsFactory,
-                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
+SK_API std::unique_ptr<SkDocument> MakeDocument(SkWStream* stream,
+                                                IXpsOMObjectFactory* xpsFactory,
+                                                SkScalar dpi = SK_ScalarDefaultRasterDPI);
 
 }  // namespace SkXPS
 #endif  // SK_BUILD_FOR_WIN

@@ -93,7 +93,7 @@ DEF_TEST(SkPDF_tagged, r) {
     p2.fChildCount = 0;
 
     metadata.fStructureElementTreeRoot = &root;
-    sk_sp<SkDocument> document = SkPDF::MakeDocument(
+    std::unique_ptr<SkDocument> document = SkPDF::MakeDocument(
         &outputStream, metadata);
 
     SkPaint paint;

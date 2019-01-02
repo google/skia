@@ -221,7 +221,7 @@ private:
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
     do {                                                                   \
         SkDynamicMemoryWStream testStream;                                 \
-        sk_sp<SkDocument> testDoc(SkPDF::MakeDocument(&testStream));       \
+        std::unique_ptr<SkDocument> testDoc(SkPDF::MakeDocument(&testStream));       \
         if (!testDoc) {                                                    \
             INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME); \
             return;                                                        \
