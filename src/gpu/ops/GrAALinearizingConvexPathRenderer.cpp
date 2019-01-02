@@ -82,8 +82,7 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 // extract the result vertices and indices from the GrAAConvexTessellator
 static void extract_verts(const GrAAConvexTessellator& tess,
                           void* vertData,
-                          size_t vertexStride,
-                          GrColor color,
+                          const GrVertexColor& color,
                           uint16_t firstIndex,
                           uint16_t* idxs) {
     GrVertexWriter verts{vertData};
@@ -99,18 +98,18 @@ static void extract_verts(const GrAAConvexTessellator& tess,
 static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shaderCaps,
                                                        bool tweakAlphaForCoverage,
                                                        const SkMatrix& viewMatrix,
-                                                       bool usesLocalCoords) {
+                                                       bool usesLocalCoords,
+                                                       bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
         tweakAlphaForCoverage ? Coverage::kAttributeTweakAlpha_Type : Coverage::kAttribute_Type;
     LocalCoords::Type localCoordsType =
-            usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(shaderCaps,
-                              Color::kPremulGrColorAttribute_Type,
-                              coverageType,
-                              localCoordsType,
-                              viewMatrix);
+        usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+    Color::Type colorType =
+        wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
+
+    return MakeForDeviceSpace(shaderCaps, colorType, coverageType, localCoordsType, viewMatrix);
 }
 
 namespace {
@@ -161,6 +160,7 @@ public:
             bounds.outset(w, w);
         }
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        fWideColor = !SkPMColor4fFitsInBytes(color);
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
@@ -230,7 +230,8 @@ private:
         sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
                                                            fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
-                                                           fHelper.usesLocalCoords()));
+                                                           fHelper.usesLocalCoords(),
+                                                           fWideColor));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
             return;
@@ -283,9 +284,9 @@ private:
                 indices = (uint16_t*) sk_realloc_throw(indices, maxIndices * sizeof(uint16_t));
             }
 
-            // TODO4F: Preserve float colors
-            extract_verts(tess, vertices + vertexStride * vertexCount, vertexStride,
-                          args.fColor.toBytes_RGBA(), vertexCount, indices + indexCount);
+            extract_verts(tess, vertices + vertexStride * vertexCount,
+                          GrVertexColor(args.fColor, fWideColor), vertexCount,
+                          indices + indexCount);
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
@@ -304,6 +305,7 @@ private:
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
 
@@ -321,6 +323,7 @@ private:
 
     SkSTArray<1, PathData, true> fPaths;
     Helper fHelper;
+    bool fWideColor;
 
     typedef GrMeshDrawOp INHERITED;
 };
