@@ -188,6 +188,217 @@
       "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d92248e_6ac0c026",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "// ??\n\nIt seems like we could make this work for external attachments. Is there some reason we\u0027ll never check this in that case ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae3aaaa2_c947595e",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "rm this assert (since we handle that case below) ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90d2d7cc_c095ccdc",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "Do you want asserts in the other two blocks that there is no external flag ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f722f486_72a25bf5",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "Not the fColorAttachmentIndex too ?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e23f9dd_d2de6791",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "// In this case we have to explicitly be told the color attachment index\n\n?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26cc65e4_42f6cdf1",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "signals",
+      "range": {
+        "startLine": 89,
+        "startChar": 40,
+        "endLine": 89,
+        "endChar": 47
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa2be9e9_2d167292",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "// However, the external render pass must have a color attachment.\n\n?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106ec868_0fd574d7",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "// We don\u0027t know the status of the stencil attachment for wrapped external secondary command buffers so we just assume we don\u0027t have one.\n\n?",
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bdde314_efd28115",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "CB ?",
+      "range": {
+        "startLine": 168,
+        "startChar": 38,
+        "endLine": 168,
+        "endChar": 39
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da0e3d50_7de12e33",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "in ?\n\nWow - I\u0027m in a super-picky mood after the break!",
+      "range": {
+        "startLine": 170,
+        "startChar": 15,
+        "endLine": 170,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41de9a5d_4cbe44a4",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-02T16:56:57Z",
+      "side": 1,
+      "message": "2019 ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bdd2cd239f14cb321d189d1d61e2331df7ba26a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
