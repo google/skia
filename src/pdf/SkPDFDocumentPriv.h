@@ -59,6 +59,17 @@ public:
      */
     SkPDFIndirectReference emit(const SkPDFObject&, SkPDFIndirectReference);
     SkPDFIndirectReference emit(const SkPDFObject& o) { return this->emit(o, this->reserveRef()); }
+
+    template <typename T>
+    void emitStream(const SkPDFDict& dict, T writeStream, SkPDFIndirectReference ref) {
+        SkWStream* stream = this->beginObject(ref);
+        dict.emitObject(stream);
+        stream->writeText(" stream\n");
+        writeStream(stream);
+        stream->writeText("\nendstream");
+        this->endObject();
+    }
+
     SkPDFCanon* canon() { return &fCanon; }
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
@@ -67,8 +78,6 @@ public:
     int getMarkIdForNodeId(int nodeId);
 
     SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
-    SkWStream* beginObject(SkPDFIndirectReference);
-    void endObject();
 
     SkExecutor* executor() const { return fExecutor; }
     void incrementJobCount();
@@ -102,6 +111,8 @@ private:
 
     void reset();
     void waitForJobs();
+    SkWStream* beginObject(SkPDFIndirectReference);
+    void endObject();
 };
 
 #endif  // SkPDFDocumentPriv_DEFINED

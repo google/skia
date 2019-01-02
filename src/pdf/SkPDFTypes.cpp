@@ -344,11 +344,6 @@ SkPDFDict::SkPDFDict(const char type[]) {
 
 void SkPDFDict::emitObject(SkWStream* stream) const {
     stream->writeText("<<");
-    this->emitAll(stream);
-    stream->writeText(">>");
-}
-
-void SkPDFDict::emitAll(SkWStream* stream) const {
     for (size_t i = 0; i < fRecords.size(); ++i) {
         const std::pair<SkPDFUnion, SkPDFUnion>& record = fRecords[i];
         record.first.emitObject(stream);
@@ -358,6 +353,7 @@ void SkPDFDict::emitAll(SkWStream* stream) const {
             stream->writeText("\n");
         }
     }
+    stream->writeText(">>");
 }
 
 size_t SkPDFDict::size() const { return fRecords.size(); }
@@ -422,7 +418,7 @@ void SkPDFDict::insertString(const char key[], SkString value) {
 
 
 
-static void serialize_stream(const SkPDFDict* origDict,
+static void serialize_stream(SkPDFDict* origDict,
                              SkStreamAsset* stream,
                              bool deflate,
                              SkPDFDocument* doc,
@@ -431,7 +427,8 @@ static void serialize_stream(const SkPDFDict* origDict,
     SkASSERT(stream && stream->hasLength());
 
     std::unique_ptr<SkStreamAsset> tmp;
-    SkPDFDict dict;
+    SkPDFDict tmpDict;
+    SkPDFDict& dict = origDict ? *origDict : tmpDict;
     static const size_t kMinimumSavings = strlen("/Filter_/FlateDecode_");
     if (deflate && stream->getLength() > kMinimumSavings) {
         SkDynamicMemoryWStream compressedData;
@@ -460,18 +457,9 @@ static void serialize_stream(const SkPDFDict* origDict,
 
     }
     dict.insertInt("Length", stream->getLength());
-
-    SkWStream* dst = doc->beginObject(ref);
-    dst->writeText("<<");
-    if (origDict) {
-        origDict->emitAll(dst);
-        // dst->writeText("\n"); TODO
-    }
-    dict.emitAll(dst);
-    dst->writeText(">> stream\n");
-    dst->writeStream(stream, stream->getLength());
-    dst->writeText("\nendstream");
-    doc->endObject();
+    doc->emitStream(dict,
+                    [stream](SkWStream* dst) { dst->writeStream(stream, stream->getLength()); },
+                    ref);
 }
 
 SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
@@ -496,20 +484,3 @@ SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
     serialize_stream(dict.get(), content.get(), deflate, doc, ref);
     return ref;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_PDF_IMAGE_STATS
-std::atomic<int> gDrawImageCalls(0);
-std::atomic<int> gJpegImageObjects(0);
-std::atomic<int> gRegularImageObjects(0);
-
-void SkPDFImageDumpStats() {
-    SkDebugf("\ntotal PDF drawImage/drawBitmap calls: %d\n"
-             "total PDF jpeg images: %d\n"
-             "total PDF regular images: %d\n",
-             gDrawImageCalls.load(),
-             gJpegImageObjects.load(),
-             gRegularImageObjects.load());
-}
-#endif // SK_PDF_IMAGE_STATS
