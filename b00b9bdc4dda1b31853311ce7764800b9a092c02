@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac9678a1_fdf66fae",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-02T20:12:50Z",
+      "side": 1,
+      "message": "wrap",
+      "range": {
+        "startLine": 160,
+        "startChar": 12,
+        "endLine": 160,
+        "endChar": 35
+      },
+      "revId": "b00b9bdc4dda1b31853311ce7764800b9a092c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
