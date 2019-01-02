@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e52f38a6_78bf9aba",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-02T22:26:14Z",
+      "side": 1,
+      "message": "Is this useful in the public API?  It seems clients can easily check these fields if needed... no strong opinion though.",
+      "revId": "143863cd89617cf6644bdb465cf23313d8cdba7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "487b9c0c_088432a9",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-02T22:26:14Z",
+      "side": 1,
+      "message": "nit: I would #ifndef-bracket this too, just so we don\u0027t forget to remove later.",
+      "revId": "143863cd89617cf6644bdb465cf23313d8cdba7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d53d93dc_f689935f",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-02T22:26:14Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "revId": "143863cd89617cf6644bdb465cf23313d8cdba7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
