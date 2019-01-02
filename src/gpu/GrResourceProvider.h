@@ -25,6 +25,7 @@ class GrSemaphore;
 class GrSingleOwner;
 class GrStencilAttachment;
 class GrTexture;
+struct GrVkDrawableInfo;
 
 class GrStyle;
 class SkDescriptor;
@@ -130,6 +131,9 @@ public:
      * @return GrRenderTarget object or NULL on failure.
      */
     sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
+
+    sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
+                                                              const GrVkDrawableInfo&);
 
     static const uint32_t kMinScratchTextureSize;
 

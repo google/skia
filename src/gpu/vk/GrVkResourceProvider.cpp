@@ -31,6 +31,7 @@ GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
 
 GrVkResourceProvider::~GrVkResourceProvider() {
     SkASSERT(0 == fRenderPassArray.count());
+    SkASSERT(0 == fExternalRenderPasses.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
     delete fPipelineStateCache;
 }
@@ -132,6 +133,26 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
     const GrVkRenderPass* renderPass = fRenderPassArray[index].getCompatibleRenderPass();
     renderPass->ref();
     return renderPass;
+}
+
+const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
+        VkRenderPass renderPass, uint32_t colorAttachmentIndex) {
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        if (fExternalRenderPasses[i]->isCompatibleExternalRP(renderPass)) {
+            fExternalRenderPasses[i]->ref();
+#ifdef SK_DEBUG
+            uint32_t cachedColorIndex;
+            SkASSERT(fExternalRenderPasses[i]->colorAttachmentIndex(&cachedColorIndex));
+            SkASSERT(cachedColorIndex == colorAttachmentIndex);
+#endif
+            return fExternalRenderPasses[i];
+        }
+    }
+
+    const GrVkRenderPass* newRenderPass = new GrVkRenderPass(renderPass, colorAttachmentIndex);
+    fExternalRenderPasses.push_back(newRenderPass);
+    newRenderPass->ref();
+    return newRenderPass;
 }
 
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
@@ -346,6 +367,11 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     }
     fRenderPassArray.reset();
 
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        fExternalRenderPasses[i]->unref(fGpu);
+    }
+    fExternalRenderPasses.reset();
+
     // Iterate through all store GrVkSamplers and unref them before resetting the hash.
     SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
     for (; !iter.done(); ++iter) {
@@ -413,6 +439,11 @@ void GrVkResourceProvider::abandonResources() {
         fRenderPassArray[i].abandonResources();
     }
     fRenderPassArray.reset();
+
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
+        fExternalRenderPasses[i]->unrefAndAbandon();
+    }
+    fExternalRenderPasses.reset();
 
     // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
     SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);

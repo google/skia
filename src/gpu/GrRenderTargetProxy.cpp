@@ -25,7 +25,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrBackendForm
                                          GrInternalSurfaceFlags surfaceFlags)
         : INHERITED(format, desc, origin, fit, budgeted, surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fNeedsStencil(false) {
+        , fNeedsStencil(false)
+        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fSampleCnt > 1) {
@@ -42,15 +43,18 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
         : INHERITED(std::move(callback), lazyType, format, desc, origin, fit, budgeted,
                     surfaceFlags)
         , fSampleCnt(desc.fSampleCnt)
-        , fNeedsStencil(false) {
+        , fNeedsStencil(false)
+        , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
 }
 
 // Wrapped version
-GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
+GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin,
+                                         WrapsVkSecondaryCB wrapsVkSecondaryCB)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-        , fNeedsStencil(false) {
+        , fNeedsStencil(false)
+        , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {

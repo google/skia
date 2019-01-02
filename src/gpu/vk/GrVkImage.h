@@ -25,13 +25,15 @@ private:
 
 public:
     GrVkImage(const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
-              GrBackendObjectOwnership ownership)
+              GrBackendObjectOwnership ownership, bool forSecondaryCB = false)
             : fInfo(info)
             , fInitialQueueFamily(info.fCurrentQueueFamily)
             , fLayout(std::move(layout))
             , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
         SkASSERT(fLayout->getImageLayout() == fInfo.fImageLayout);
-        if (fIsBorrowed) {
+        if (forSecondaryCB) {
+            fResource = nullptr;
+        } else if (fIsBorrowed) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
         } else {
             fResource = new Resource(info.fImage, info.fAlloc, info.fImageTiling);
@@ -39,18 +41,37 @@ public:
     }
     virtual ~GrVkImage();
 
-    VkImage image() const { return fInfo.fImage; }
-    const GrVkAlloc& alloc() const { return fInfo.fAlloc; }
+    VkImage image() const {
+        // Should only be called when we have a real fResource object, i.e. never when being used as
+        // a RT in an external secondary command buffer.
+        SkASSERT(fResource);
+        return fInfo.fImage;
+    }
+    const GrVkAlloc& alloc() const {
+        // Should only be called when we have a real fResource object, i.e. never when being used as
+        // a RT in an external secondary command buffer.
+        SkASSERT(fResource);
+        return fInfo.fAlloc;
+    }
     VkFormat imageFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
         return GrBackendFormat::MakeVk(this->imageFormat());
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const GrVkYcbcrConversionInfo& ycbcrConversionInfo() const {
+        // Should only be called when we have a real fResource object, i.e. never when being used as
+        // a RT in an external secondary command buffer.
+        SkASSERT(fResource);
         return fInfo.fYcbcrConversionInfo;
     }
-    const Resource* resource() const { return fResource; }
+    const Resource* resource() const {
+        SkASSERT(fResource);
+        return fResource;
+    }
     bool isLinearTiled() const {
+        // Should only be called when we have a real fResource object, i.e. never when being used as
+        // a RT in an external secondary command buffer.
+        SkASSERT(fResource);
         return SkToBool(VK_IMAGE_TILING_LINEAR == fInfo.fImageTiling);
     }
     bool isBorrowed() const { return fIsBorrowed; }
@@ -72,6 +93,9 @@ public:
     // This is only used for mip map generation where we are manually changing the layouts as we
     // blit each layer, and then at the end need to update our tracking.
     void updateImageLayout(VkImageLayout newLayout) {
+        // Should only be called when we have a real fResource object, i.e. never when being used as
+        // a RT in an external secondary command buffer.
+        SkASSERT(fResource);
         fLayout->setImageLayout(newLayout);
     }
 
@@ -115,8 +139,6 @@ public:
 protected:
     void releaseImage(GrVkGpu* gpu);
     void abandonImage();
-
-    void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
 
     GrVkImageInfo          fInfo;
     uint32_t               fInitialQueueFamily;

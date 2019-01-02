@@ -164,14 +164,15 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
 }
 
 void GrVkRenderPass::freeGPUData(GrVkGpu* gpu) const {
-    GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
+    if (!(fAttachmentFlags & kExternal_AttachmentFlag)) {
+        GR_VK_CALL(gpu->vkInterface(), DestroyRenderPass(gpu->device(), fRenderPass, nullptr));
+    }
 }
 
-// Works under the assumption that color attachment will always be the first attachment in our
-// attachment array if it exists.
 bool GrVkRenderPass::colorAttachmentIndex(uint32_t* index) const {
-    *index = 0;
-    if (fAttachmentFlags & kColor_AttachmentFlag) {
+    *index = fColorAttachmentIndex;
+    if ((fAttachmentFlags & kColor_AttachmentFlag) ||
+        (fAttachmentFlags & kExternal_AttachmentFlag)) {
         return true;
     }
     return false;
@@ -192,6 +193,7 @@ bool GrVkRenderPass::stencilAttachmentIndex(uint32_t* index) const {
 
 bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
                                   const AttachmentFlags& flags) const {
+    SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
     if (flags != fAttachmentFlags) {
         return false;
     }
@@ -211,6 +213,7 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
 }
 
 bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
+    SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
     target.getAttachmentsDescriptor(&desc, &flags);
@@ -219,11 +222,18 @@ bool GrVkRenderPass::isCompatible(const GrVkRenderTarget& target) const {
 }
 
 bool GrVkRenderPass::isCompatible(const GrVkRenderPass& renderPass) const {
+    SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
     return this->isCompatible(renderPass.fAttachmentsDescriptor, renderPass.fAttachmentFlags);
+}
+
+bool GrVkRenderPass::isCompatibleExternalRP(VkRenderPass renderPass) const {
+    SkASSERT(fAttachmentFlags & kExternal_AttachmentFlag);
+    return fRenderPass == renderPass;
 }
 
 bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,
                                        const LoadStoreOps& stencilOps) const {
+    SkASSERT(!(fAttachmentFlags & kExternal_AttachmentFlag));
     if (fAttachmentFlags & kColor_AttachmentFlag) {
         if (fAttachmentsDescriptor.fColor.fLoadStoreOps != colorOps) {
             return false;
@@ -246,5 +256,11 @@ void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         b->add32(fAttachmentsDescriptor.fStencil.fFormat);
         b->add32(fAttachmentsDescriptor.fStencil.fSamples);
+    }
+    if (fAttachmentFlags & kExternal_AttachmentFlag) {
+        SkASSERT(!(fAttachmentFlags & ~kExternal_AttachmentFlag));
+        uint64_t handle = (uint64_t)fRenderPass;
+        b->add32((uint32_t)handle);
+        b->add32((uint32_t)(handle>>32));
     }
 }
