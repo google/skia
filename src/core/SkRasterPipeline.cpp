@@ -19,7 +19,7 @@ void SkRasterPipeline::reset() {
 
     fStockStages.reset();
     fCtxPointers.reset();
-    fCanUseRunProgramObs = false;   // flip to true to experiment with this feature
+    fCanUseRunProgramObs = true;   // flip to true to experiment with this feature
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
