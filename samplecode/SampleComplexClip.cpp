@@ -7,6 +7,7 @@
 
 #include "Sample.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkPath.h"
 #include "SkClipOpPriv.h"
 
@@ -65,6 +66,9 @@ protected:
         clipB.close();
         SkColor colorB = SK_ColorRED;
 
+        SkFont font;
+        font.setSize(20);
+
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -122,19 +126,17 @@ protected:
                 paint.setColor(colorB);
                 canvas->drawPath(clipB, paint);
 
-                paint.setTextSize(SkIntToScalar(20));
-
                 SkScalar txtX = SkIntToScalar(55);
                 paint.setColor(colorA);
                 const char* aTxt = invA ? "InverseA " : "A ";
                 canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
-                txtX += paint.measureText(aTxt, strlen(aTxt));
+                txtX += font.measureText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawString(gOps[op].fName,
-                                    txtX, SkIntToScalar(220), paint);
-                txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
+                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding,
+                                    txtX, 220, font, paint);
+                txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding);
                 paint.setColor(colorB);
-                canvas->drawString("B", txtX, SkIntToScalar(220), paint);
+                canvas->drawSimpleText("B", 1, kUTF8_SkTextEncoding, txtX, 220, font, paint);
 
                 canvas->translate(SkIntToScalar(250),0);
             }

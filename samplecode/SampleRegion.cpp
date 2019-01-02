@@ -8,6 +8,7 @@
 #include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"
@@ -53,20 +54,20 @@ static void test_strokerect(SkCanvas* canvas) {
 
 static void drawFadingText(SkCanvas* canvas,
                            const char* text, size_t len, SkScalar x, SkScalar y,
-                           const SkPaint& paint) {
+                           const SkFont& font, const SkPaint& paint) {
     // Need a bounds for the text
     SkRect bounds;
     SkFontMetrics fm;
 
-    paint.getFontMetrics(&fm);
-    bounds.set(x, y + fm.fTop, x + paint.measureText(text, len), y + fm.fBottom);
+    font.getMetrics(&fm);
+    bounds.set(x, y + fm.fTop, x + font.measureText(text, len, kUTF8_SkTextEncoding), y + fm.fBottom);
 
     // may need to outset bounds a little, to account for hinting and/or
     // antialiasing
     bounds.inset(-SkIntToScalar(2), -SkIntToScalar(2));
 
     canvas->saveLayer(&bounds, nullptr);
-    canvas->drawText(text, len, x, y, paint);
+    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x, y, font, paint);
 
     const SkPoint pts[] = {
         { bounds.fLeft, y },
@@ -89,28 +90,30 @@ static void drawFadingText(SkCanvas* canvas,
 static void test_text(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(20);
+
+    SkFont font;
+    font.setSize(20);
 
     const char* str = "Hamburgefons";
     size_t len = strlen(str);
     SkScalar x = 20;
     SkScalar y = 20;
 
-    canvas->drawText(str, len, x, y, paint);
+    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
 
     y += 20;
 
-    const SkPoint pts[] = { { x, y }, { x + paint.measureText(str, len), y } };
+    const SkPoint pts[] = { { x, y }, { x + font.measureText(str, len, kUTF8_SkTextEncoding), y } };
     const SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, 0 };
     const SkScalar pos[] = { 0, 0.9f, 1 };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
                                                  SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode));
-    canvas->drawText(str, len, x, y, paint);
+    canvas->drawSimpleText(str, len, kUTF8_SkTextEncoding, x, y, font, paint);
 
     y += 20;
     paint.setShader(nullptr);
-    drawFadingText(canvas, str, len, x, y, paint);
+    drawFadingText(canvas, str, len, x, y, font, paint);
 }
 
 static void scale_rect(SkIRect* dst, const SkIRect& src, float scale) {

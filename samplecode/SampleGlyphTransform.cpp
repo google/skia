@@ -40,7 +40,8 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setTypeface(fEmojiFont.fTypeface);
+
+        SkFont font(fEmojiFont.fTypeface);
         const char* text = fEmojiFont.fText;
 
         double baseline = this->height() / 2;
@@ -54,8 +55,9 @@ protected:
 
         // d3 by default anchors text around the middle
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
-        canvas->drawString(text, -bounds.centerX(), -bounds.centerY(), paint);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
+        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, -bounds.centerX(), -bounds.centerY(),
+                               font, paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

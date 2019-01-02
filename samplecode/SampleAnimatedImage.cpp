@@ -9,6 +9,7 @@
 #include "SkAnimatedImage.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkPaint.h"
 #include "SkPictureRecorder.h"
 #include "SkRect.h"
@@ -30,19 +31,17 @@ public:
 
 protected:
     void onDrawBackground(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        constexpr SkScalar kTextSize = 20;
-        paint.setTextSize(kTextSize);
+        SkFont font;
+        font.setSize(20);
 
         SkString str = SkStringPrintf("Press '%c' to start/pause; '%c' to reset.",
                 kPauseKey, kResetKey);
         const char* text = str.c_str();
         SkRect bounds;
-        paint.measureText(text, strlen(text), &bounds);
+        font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         fYOffset = bounds.height();
 
-        canvas->drawText(text, strlen(text), 5, fYOffset, paint);
+        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 5, fYOffset, font, SkPaint());
         fYOffset *= 2;
     }
 

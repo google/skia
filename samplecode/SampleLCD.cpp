@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include <SkFont.h>
 #include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -30,7 +31,6 @@ protected:
         this->drawBG(canvas);
 
         SkPaint paint;
-        paint.setAntiAlias(true);
 
         SkScalar textSize = SkIntToScalar(6);
         SkScalar delta = SK_Scalar1;
@@ -40,16 +40,17 @@ protected:
         SkScalar x1 = SkIntToScalar(310);
         SkScalar y = SkIntToScalar(20);
 
+        SkFont font;
         for (int i = 0; i < 20; i++) {
-            paint.setTextSize(textSize);
+            font.setSize(textSize);
             textSize += delta;
 
-            paint.setLCDRenderText(false);
-            canvas->drawText(text, len, x0, y, paint);
-            paint.setLCDRenderText(true);
-            canvas->drawText(text, len, x1, y, paint);
+            font.setEdging(SkFont::Edging::kAntiAlias);
+            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x0, y, font, paint);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+            canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, x1, y, font, paint);
 
-            y += paint.getFontSpacing();
+            y += font.getSpacing();
         }
     }
 
