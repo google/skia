@@ -83,10 +83,10 @@ private:
     Type              fType;
 };
 
-class TransformAdapter final : public SkNVRefCnt<TransformAdapter> {
+class TransformAdapter2D final : public SkNVRefCnt<TransformAdapter2D> {
 public:
-    explicit TransformAdapter(sk_sp<sksg::Matrix>);
-    ~TransformAdapter();
+    explicit TransformAdapter2D(sk_sp<sksg::Matrix>);
+    ~TransformAdapter2D();
 
     ADAPTER_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
     ADAPTER_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
@@ -94,6 +94,35 @@ public:
     ADAPTER_PROPERTY(Rotation   , SkScalar, 0)
     ADAPTER_PROPERTY(Skew       , SkScalar, 0)
     ADAPTER_PROPERTY(SkewAxis   , SkScalar, 0)
+
+    SkMatrix totalMatrix() const;
+
+private:
+    void apply();
+
+    sk_sp<sksg::Matrix> fMatrixNode;
+};
+
+class TransformAdapter3D final : public SkNVRefCnt<TransformAdapter3D> {
+public:
+    explicit TransformAdapter3D(sk_sp<sksg::Matrix>);
+    ~TransformAdapter3D();
+
+    struct Vec3 {
+        float fX, fY, fZ;
+
+        explicit Vec3(const VectorValue&);
+
+        bool operator==(const Vec3& other) const {
+            return fX == other.fX && fY == other.fY && fZ == other.fZ;
+        }
+        bool operator!=(const Vec3& other) const { return !(*this == other); }
+    };
+
+    ADAPTER_PROPERTY(AnchorPoint, Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Position   , Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
+    ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
 
     SkMatrix totalMatrix() const;
 

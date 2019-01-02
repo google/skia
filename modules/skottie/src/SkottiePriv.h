@@ -71,8 +71,10 @@ public:
 
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
                                    const char prop_name[]) const;
-    sk_sp<sksg::Matrix> attachMatrix(const skjson::ObjectValue&, AnimatorScope*,
-                                     sk_sp<sksg::Matrix>) const;
+    sk_sp<sksg::Matrix> attachMatrix2D(const skjson::ObjectValue&, AnimatorScope*,
+                                       sk_sp<sksg::Matrix>) const;
+    sk_sp<sksg::Matrix> attachMatrix3D(const skjson::ObjectValue&, AnimatorScope*,
+                                       sk_sp<sksg::Matrix>) const;
     sk_sp<sksg::RenderNode> attachOpacity(const skjson::ObjectValue&, AnimatorScope*,
                                       sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::Path> attachPath(const skjson::Value&, AnimatorScope*) const;
@@ -119,7 +121,7 @@ private:
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
     bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
-    bool dispatchTransformProperty(const sk_sp<TransformAdapter>&) const;
+    bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {

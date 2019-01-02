@@ -596,7 +596,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
         // of the dangling/uncommitted ones.
         AnimatorScope local_scope;
 
-        if ((shape_matrix = this->attachMatrix(*jtransform, &local_scope, nullptr))) {
+        if ((shape_matrix = this->attachMatrix2D(*jtransform, &local_scope, nullptr))) {
             shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
         }
         shape_wrapper = this->attachOpacity(*jtransform, &local_scope, std::move(shape_wrapper));

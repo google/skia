@@ -52,10 +52,10 @@ void PropertyHandle<OpacityPropertyValue, sksg::OpacityEffect>::set(const Opacit
 }
 
 template <>
-PropertyHandle<TransformPropertyValue, TransformAdapter>::~PropertyHandle() {}
+PropertyHandle<TransformPropertyValue, TransformAdapter2D>::~PropertyHandle() {}
 
 template <>
-TransformPropertyValue PropertyHandle<TransformPropertyValue, TransformAdapter>::get() const {
+TransformPropertyValue PropertyHandle<TransformPropertyValue, TransformAdapter2D>::get() const {
     return {
         fNode->getAnchorPoint(),
         fNode->getPosition(),
@@ -67,7 +67,7 @@ TransformPropertyValue PropertyHandle<TransformPropertyValue, TransformAdapter>:
 }
 
 template <>
-void PropertyHandle<TransformPropertyValue, TransformAdapter>::set(
+void PropertyHandle<TransformPropertyValue, TransformAdapter2D>::set(
         const TransformPropertyValue& t) {
     fNode->setAnchorPoint(t.fAnchorPoint);
     fNode->setPosition(t.fPosition);

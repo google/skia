@@ -449,10 +449,11 @@ private:
         auto parent_matrix = this->AttachParentLayerMatrix(jlayer, abuilder, layer_index);
 
         if (const skjson::ObjectValue* jtransform = jlayer["ks"]) {
-            return *fLayerMatrixMap.set(layer_index,
-                                        abuilder->attachMatrix(*jtransform, fScope,
-                                                               std::move(parent_matrix)));
+            auto matrix_node = (ParseDefault<int>(jlayer["ddd"], 0) == 0)
+                ? abuilder->attachMatrix2D(*jtransform, fScope, std::move(parent_matrix))
+                : abuilder->attachMatrix3D(*jtransform, fScope, std::move(parent_matrix));
 
+            return *fLayerMatrixMap.set(layer_index, std::move(matrix_node));
         }
         return nullptr;
     }
