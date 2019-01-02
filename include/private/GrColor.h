@@ -98,6 +98,8 @@ public:
         }
     }
 
+    size_t size() const { return fWideColor ? 8 : 4; }
+
 private:
     friend struct GrVertexWriter;
 
