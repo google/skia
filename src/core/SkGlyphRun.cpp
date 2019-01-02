@@ -18,17 +18,6 @@
 #include "SkTo.h"
 #include "SkUtils.h"
 
-namespace {
-static SkTypeface::Encoding convert_encoding(SkTextEncoding encoding) {
-    switch (encoding) {
-        case  kUTF8_SkTextEncoding: return SkTypeface::kUTF8_Encoding;
-        case kUTF16_SkTextEncoding: return SkTypeface::kUTF16_Encoding;
-        case kUTF32_SkTextEncoding: return SkTypeface::kUTF32_Encoding;
-        default: return SkTypeface::kUTF32_Encoding;
-    }
-}
-}  // namespace
-
 // -- SkGlyphRun -----------------------------------------------------------------------------------
 SkGlyphRun::SkGlyphRun(const SkFont& font,
                        SkSpan<const SkPoint> positions,
@@ -162,9 +151,9 @@ SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
-void SkGlyphRunBuilder::drawText(
-        const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin) {
-    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
+void SkGlyphRunBuilder::drawTextUTF8(const SkPaint& paint, const SkFont& font, const void* bytes,
+                                     size_t byteLength, SkPoint origin) {
+    auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, kUTF8_SkTextEncoding);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
         this->simplifyDrawText(SkFont::LEGACY_ExtractFromPaint(paint),
@@ -236,11 +225,11 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
     }
 }
 
-void SkGlyphRunBuilder::drawGlyphsWithPositions(
-        const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
+void SkGlyphRunBuilder::drawGlyphsWithPositions(const SkPaint& paint, const SkFont& font,
+                                            SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
-        this->simplifyDrawPosText(SkFont::LEGACY_ExtractFromPaint(paint), glyphIDs, pos);
+        this->simplifyDrawPosText(font, glyphIDs, pos);
         this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
     }
 }
@@ -260,16 +249,12 @@ void SkGlyphRunBuilder::initialize(size_t totalRunSize) {
 }
 
 SkSpan<const SkGlyphID> SkGlyphRunBuilder::textToGlyphIDs(
-        const SkPaint& paint, const void* bytes, size_t byteLength) {
-    SkTextEncoding encoding = paint.getTextEncoding();
+        const SkFont& font, const void* bytes, size_t byteLength, SkTextEncoding encoding) {
     if (encoding != kGlyphID_SkTextEncoding) {
-        auto tfEncoding = convert_encoding(encoding);
-        int utfSize = SkUTFN_CountUnichars(tfEncoding, bytes, byteLength);
-        if (utfSize > 0) {
-            size_t runSize = SkTo<size_t>(utfSize);
-            fScratchGlyphIDs.resize(runSize);
-            auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
-            typeface->charsToGlyphs(bytes, tfEncoding, fScratchGlyphIDs.data(), runSize);
+        int count = font.countText(bytes, byteLength, encoding);
+        if (count > 0) {
+            fScratchGlyphIDs.resize(count);
+            font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
             return SkSpan<const SkGlyphID>{fScratchGlyphIDs};
         } else {
             return SkSpan<const SkGlyphID>();

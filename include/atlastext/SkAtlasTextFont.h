@@ -8,6 +8,7 @@
 #ifndef SkAtlasTextFont_DEFINED
 #define SkAtlasTextFont_DEFINED
 
+#include "SkFont.h"
 #include "SkRefCnt.h"
 #include "SkTypeface.h"
 
@@ -23,6 +24,8 @@ public:
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
     SkScalar size() const { return fSize; }
+
+    SkFont makeFont() const { return SkFont(fTypeface, fSize); }
 
 private:
     SkAtlasTextFont(sk_sp<SkTypeface> typeface, SkScalar size)

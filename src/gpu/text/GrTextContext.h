@@ -50,7 +50,7 @@ public:
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
                                                    GrTextContext*,
                                                    GrRenderTargetContext*,
-                                                   const SkPaint&,
+                                                   const SkPaint&, const SkFont&,
                                                    const SkMatrix& viewMatrix,
                                                    const char* text,
                                                    int x,

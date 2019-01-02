@@ -865,6 +865,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
                                                               GrTextContext* textContext,
                                                               GrRenderTargetContext* rtc,
                                                               const SkPaint& skPaint,
+                                                              const SkFont& font,
                                                               const SkMatrix& viewMatrix,
                                                               const char* text,
                                                               int x,
@@ -880,7 +881,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
 
     auto origin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
-    builder.drawText(skPaint, text, textLen, origin);
+    builder.drawTextUTF8(skPaint, font, text, textLen, origin);
 
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
