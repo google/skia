@@ -148,10 +148,6 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
                                          const SkAtlasTextFont& font) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTypeface(font.refTypeface());
-    paint.setTextSize(font.size());
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
 
     // The atlas text context does munging of the paint color. We store the client's color here
     // and then overwrite the generated op's color when addDrawOp() is called.
@@ -161,7 +157,8 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto* grContext = this->context()->internal().grContext();
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
     SkGlyphRunBuilder builder;
-    builder.drawGlyphsWithPositions(paint, SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)},
+    builder.drawGlyphsWithPositions(paint, font.makeFont(),
+                                    SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)},
                                     positions);
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
