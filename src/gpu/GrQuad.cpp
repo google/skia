@@ -30,9 +30,7 @@ static bool dot_nearly_zero(const SkVector& e1, const SkVector& e2) {
         dotValue = dot({sign(e1.fX), sign(e1.fY)}, {sign(e2.fX), sign(e2.fY)});
     }
 
-    // Unfortunately must have a pretty healthy tolerance here or transformed rects that are
-    // effectively rectilinear will have edge dot products of around .005
-    return SkScalarNearlyZero(dotValue, 1e-2f);
+    return SkScalarNearlyZero(dotValue, 5e-4f);
 }
 
 // This is not the most performance critical function; code using GrQuad should rely on the faster
@@ -45,10 +43,15 @@ static bool coords_form_rect(const float xs[4], const float ys[4]) {
 }
 
 static bool coords_rectilinear(const float xs[4], const float ys[4]) {
-    SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // Connects to e1 and e2(repeat)
+    SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // connects to e1 and e2(repeat)
     SkVector e1{xs[3] - xs[1], ys[3] - ys[1]}; // connects to e0(repeat) and e3
     SkVector e2{xs[0] - xs[2], ys[0] - ys[2]}; // connects to e0 and e3(repeat)
     SkVector e3{xs[2] - xs[3], ys[2] - ys[3]}; // connects to e1(repeat) and e2
+
+    e0.normalize();
+    e1.normalize();
+    e2.normalize();
+    e3.normalize();
 
     return dot_nearly_zero(e0, e1) && dot_nearly_zero(e1, e3) &&
            dot_nearly_zero(e2, e0) && dot_nearly_zero(e3, e2);
