@@ -22,8 +22,10 @@
 #include "SkDiscretePathEffect.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFilterQuality.h"
+#include "SkFont.h"
 #include "SkFontMgr.h"
 #include "SkFontMgrPriv.h"
+#include "SkFontTypes.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkImageInfo.h"
@@ -690,6 +692,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
 
+    class_<SkFont>("SkFont")
+        .constructor<>()
+        .constructor<sk_sp<SkTypeface>>()
+        .constructor<sk_sp<SkTypeface>, SkScalar>()
+        .constructor<sk_sp<SkTypeface>, SkScalar, SkScalar, SkScalar>()
+        .function("getScaleX", &SkFont::getScaleX)
+        .function("getSize", &SkFont::getSize)
+        .function("getSkewX", &SkFont::getSkewX)
+        .function("getTypeface", &SkFont::getTypeface, allow_raw_pointers())
+        .function("measureText", optional_override([](SkFont& self, std::string text) {
+            // TODO(kjlubick): This does not work well for non-ascii
+            // Need to maybe add a helper in interface.js that supports UTF-8
+            // Otherwise, go with std::wstring and set UTF-32 encoding.
+            return self.measureText(text.c_str(), text.length(), SkTextEncoding::kUTF8);
+        }))
+        .function("setScaleX", &SkFont::setScaleX)
+        .function("setSize", &SkFont::setSize)
+        .function("setSkewX", &SkFont::setSkewX)
+        .function("setTypeface", &SkFont::setTypeface, allow_raw_pointers());
+
     class_<SkFontMgr>("SkFontMgr")
         .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
         .class_function("RefDefault", &SkFontMgr::RefDefault)
@@ -743,12 +765,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
         .function("getTextSize", &SkPaint::getTextSize)
-        .function("measureText", optional_override([](SkPaint& self, std::string text) {
-            // TODO(kjlubick): This does not work well for non-ascii
-            // Need to maybe add a helper in interface.js that supports UTF-8
-            // Otherwise, go with std::wstring and set UTF-32 encoding.
-            return self.measureText(text.c_str(), text.length());
-        }))
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setBlendMode", &SkPaint::setBlendMode)
         .function("setColor", optional_override([](SkPaint& self, JSColor color)->void {

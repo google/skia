@@ -104,6 +104,19 @@ var CanvasKit = {
 		delete: function() {},
 	},
 
+	SkFont: {
+		// public API (from C++ bindings)
+		getScaleX: function() {},
+		getSize: function() {},
+		getSkewX: function() {},
+		getTypeface: function() {},
+		measureText: function() {},
+		setScaleX: function() {},
+		setSize: function() {},
+		setSkewX: function() {},
+		setTypeface: function() {},
+	},
+
 	SkFontMgr: {
 		// public API (from C++ bindings)
 		RefDefault: function() {},
@@ -144,7 +157,6 @@ var CanvasKit = {
 		getStrokeMiter: function() {},
 		getStrokeWidth: function() {},
 		getTextSize: function() {},
-		measureText: function() {},
 		setAntiAlias: function() {},
 		setBlendMode: function() {},
 		setColor: function() {},

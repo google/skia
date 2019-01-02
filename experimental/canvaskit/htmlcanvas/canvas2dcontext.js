@@ -10,6 +10,8 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setTypeface(null);
   this._fontString = '10px monospace';
 
+  this._font = new CanvasKit.SkFont();
+
   this._strokeStyle    = CanvasKit.BLACK;
   this._fillStyle      = CanvasKit.BLACK;
   this._shadowBlur     = 0;
@@ -41,6 +43,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._dispose = function() {
     this._currentPath.delete();
     this._paint.delete();
+    this._font.delete();
     this._toCleanUp.forEach(function(c) {
       c._dispose();
     });
@@ -105,6 +108,8 @@ function CanvasRenderingContext2D(skcanvas) {
         // bracket notation to tell closure not to minify these names.
         this._paint.setTextSize(tf['sizePx']);
         this._paint.setTypeface(tf['typeface']);
+        this._font.setSize(tf['sizePx']);
+        this._font.setTypeface(tf['typeface']);
         this._fontString = newFont;
       }
     }
@@ -788,7 +793,7 @@ function CanvasRenderingContext2D(skcanvas) {
 
   this.measureText = function(text) {
     return {
-      width: this._paint.measureText(text),
+      width: this._font.measureText(text),
       // TODO other measurements?
     }
   }
