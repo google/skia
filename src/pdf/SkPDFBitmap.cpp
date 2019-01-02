@@ -72,24 +72,27 @@ static void emit_stream(SkDynamicMemoryWStream* src, SkWStream* dst) {
 }
 
 static void emit_dict(SkWStream* stream, SkISize size, const char* colorSpace,
-                      const SkPDFIndirectReference* smask, int length) {
+                      SkPDFIndirectReference smask, int length, bool jpeg) {
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
     pdfDict.insertInt("Width", size.width());
     pdfDict.insertInt("Height", size.height());
     pdfDict.insertName("ColorSpace", colorSpace);
     if (smask) {
-        pdfDict.insertRef("SMask", *smask);
+        pdfDict.insertRef("SMask", smask);
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     #ifdef SK_PDF_BASE85_BINARY
     auto filters = SkPDFMakeArray();
     filters->appendName("ASCII85Decode");
-    filters->appendName("FlateDecode");
+    filters->appendName(jpeg ? "DCTDecode" : "FlateDecode");
     pdfDict.insertObject("Filter", std::move(filters));
     #else
-    pdfDict.insertName("Filter", "FlateDecode");
+    pdfDict.insertName("Filter", jpeg ? "DCTDecode" : "FlateDecode");
     #endif
+    if (jpeg) {
+        pdfDict.insertInt("ColorTransform", 0);
+    }
     pdfDict.insertInt("Length", length);
     pdfDict.emitObject(stream);
 }
@@ -126,7 +129,8 @@ static SkPDFIndirectReference do_deflated_alpha(const SkPixmap& pm, SkPDFDocumen
     SkPDFUtils::Base85Encode(buffer.detachAsStream(), &buffer);
     #endif
     SkWStream* stream = doc->beginObject(ref);
-    emit_dict(stream, pm.info().dimensions(), "DeviceGray", nullptr, buffer.bytesWritten());
+    emit_dict(stream, pm.info().dimensions(), "DeviceGray", SkPDFIndirectReference(),
+              buffer.bytesWritten(), false);
     emit_stream(&buffer, stream);
     doc->endObject();
     return ref;
@@ -184,9 +188,7 @@ static void  do_deflated_image(const SkPixmap& pm,
     SkPDFUtils::Base85Encode(buffer.detachAsStream(), &buffer);
     #endif
     SkWStream* stream = doc->beginObject(ref);
-    emit_dict(stream, pm.info().dimensions(), colorSpace,
-              sMask.fValue != -1 ? &sMask : nullptr,
-              buffer.bytesWritten());
+    emit_dict(stream, pm.info().dimensions(), colorSpace, sMask, buffer.bytesWritten(), false);
     emit_stream(&buffer, stream);
     doc->endObject();
     if (!isOpaque) {
@@ -221,29 +223,9 @@ static bool do_jpeg(const SkData& data, SkPDFDocument* doc, SkISize size,
     #else
     int length = SkToInt(data.size());
     #endif
-    SkPDFDict pdfDict("XObject");
-    pdfDict.insertName("Subtype", "Image");
-    pdfDict.insertInt("Width", jpegSize.width());
-    pdfDict.insertInt("Height", jpegSize.height());
-    if (yuv) {
-        pdfDict.insertName("ColorSpace", "DeviceRGB");
-    } else {
-        pdfDict.insertName("ColorSpace", "DeviceGray");
-    }
-    pdfDict.insertInt("BitsPerComponent", 8);
-    #ifdef SK_PDF_BASE85_BINARY
-    auto filters = SkPDFMakeArray();
-    filters->appendName("ASCII85Decode");
-    filters->appendName("DCTDecode");
-    pdfDict.insertObject("Filter", std::move(filters));
-    #else
-    pdfDict.insertName("Filter", "DCTDecode");
-    #endif
-    pdfDict.insertInt("ColorTransform", 0);
-    pdfDict.insertInt("Length", length);
-
     SkWStream* stream = doc->beginObject(ref);
-    pdfDict.emitObject(stream);
+    emit_dict(stream, jpegSize, yuv ? "DeviceRGB" : "DeviceGray",
+              SkPDFIndirectReference(), length, true);
     stream->writeText(" stream\n");
     #ifdef SK_PDF_BASE85_BINARY
     buffer.writeToAndReset(stream);
