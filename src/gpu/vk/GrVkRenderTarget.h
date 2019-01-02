@@ -20,6 +20,7 @@ class GrVkCommandBuffer;
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
+class GrVkSecondaryCommandBuffer;
 class GrVkStencilAttachment;
 
 struct GrVkImageInfo;
@@ -67,7 +68,10 @@ public:
         return fCachedSimpleRenderPass;
     }
 
-    bool wrapsSecondaryCommandBuffer() const { return fSecondaryCommandBuffer != VK_NULL_HANDLE; }
+    bool wrapsSecondaryCommandBuffer() const { return fSecondaryCommandBuffer != nullptr; }
+    GrVkSecondaryCommandBuffer* getExternalSecondaryCommandBuffer() const {
+        return fSecondaryCommandBuffer;
+    }
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
@@ -152,7 +156,7 @@ private:
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkRenderPass* renderPass,
-                     VkCommandBuffer secondaryCommandBuffer);
+                     GrVkSecondaryCommandBuffer* secondaryCommandBuffer);
 
     bool completeStencilAttachment() override;
 
@@ -167,10 +171,10 @@ private:
     // This is a handle to be used to quickly get compatible GrVkRenderPasses for this render target
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
 
-    // Handle to an external secondary command buffer which this GrVkRenderTarget represents. If
-    // this is not VK_NULL_HANDLE then the GrVkRenderTarget does not have a real VkImage backing it,
-    // and is limited in what it can be used for.
-    VkCommandBuffer            fSecondaryCommandBuffer = VK_NULL_HANDLE;
+    // GrVkSecondaryCommandBuffer which wraps an external secondary commandBuffer which this
+    // GrVkRenderTarget wraps. If this is not nullptr then the GrVkRenderTarget does not have a real
+    // VkImage backing it, and is limited to what it can be used for.
+    GrVkSecondaryCommandBuffer* fSecondaryCommandBuffer = nullptr;
 };
 
 #endif

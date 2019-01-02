@@ -520,7 +520,8 @@ void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& colo
     // stencil buffer, following draw ops may not so we can't get rid of all the preceding ops.
     // Beware! If we ever add any ops that have a side effect beyond modifying the stencil
     // buffer we will need a more elaborate tracking system (skbug.com/7002).
-    if (this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) {
+    if ((this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) &&
+        !fTarget.get()->asRenderTargetProxy()->wrapsVkSecondaryCB()) {
         this->deleteOps();
         fDeferredProxies.reset();
         fColorLoadOp = GrLoadOp::kClear;
