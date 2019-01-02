@@ -200,6 +200,10 @@ public:
     */
     SkScalar    getSkewX() const { return fSkewX; }
 
+    /** Returns true iff all of the scalar fields are finite (e.g. size, scalex, skewx)
+     */
+    bool isFinite() const;
+
     /** Increases SkTypeface SkRefCnt by one.
 
         @return  SkTypeface if previously set, nullptr otherwise

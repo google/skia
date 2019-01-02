@@ -83,6 +83,15 @@ bool SkGlyphRunList::anyRunsSubpixelPositioned() const {
     return false;
 }
 
+bool SkGlyphRunList::allFontsFinite() const {
+    for (const auto& r : fGlyphRuns) {
+        if (!r.font().isFinite()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
     SkASSERT(fOriginalTextBlob != nullptr);
     fOriginalTextBlob->notifyAddedToCache(cacheID);

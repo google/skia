@@ -109,6 +109,10 @@ SkFont SkFont::makeWithSize(SkScalar newSize) const {
     return font;
 }
 
+bool SkFont::isFinite() const {
+    return SkScalarIsFinite(fSize) && SkScalarIsFinite(fScaleX) && SkScalarIsFinite(fSkewX);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
