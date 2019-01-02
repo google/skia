@@ -1744,6 +1744,16 @@ if (skia_enable_tools) {
         ":skia",
       ]
     }
+    test_app("junior") {
+      sources = [
+        "tools/junior.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":gm",
+        ":skia",
+      ]
+    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
