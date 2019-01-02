@@ -397,13 +397,7 @@ protected:
                 continue;
             }
 
-            SkPaint paint;
-            paint.setTypeface(face);
-            paint.setTextEncoding(kUTF32_SkTextEncoding);
-
-            uint16_t glyphID;
-            paint.textToGlyphs(&character, sizeof(character), &glyphID);
-            if (glyphID != 0) {
+            if (face->unicharToGlyph(character) != 0) {
                 return face;
             }
         }
