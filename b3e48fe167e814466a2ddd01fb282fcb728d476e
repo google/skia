@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dec61d5a_efe138f6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-02T19:24:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89fa1472_f80de4f3",
+      "range": {
+        "startLine": 748,
+        "startChar": 20,
+        "endLine": 748,
+        "endChar": 24
+      },
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1b6a1a1_98f8a578",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7f6db896_bc9765b0",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-02T19:24:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1b6a1a1_98f8a578",
+      "range": {
+        "startLine": 822,
+        "startChar": 16,
+        "endLine": 822,
+        "endChar": 20
+      },
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "007b0586_dc8a01ad",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 1
@@ -62,6 +110,24 @@
       "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8596e806_6ce5858f",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-02T19:24:43Z",
+      "side": 1,
+      "message": "It seems like it, but that line is actually in the class GrGlyphBlob::Run, and not in GrGlyphBlog itself. That is where I had it initially.",
+      "parentUuid": "007b0586_dc8a01ad",
+      "revId": "b3e48fe167e814466a2ddd01fb282fcb728d476e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
