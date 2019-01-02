@@ -24,7 +24,7 @@ static boolean sk_empty_output_buffer(j_compress_ptr cinfo) {
     if (!dest->fStream->write(dest->fBuffer,
             skjpeg_destination_mgr::kBufferSize)) {
         ERREXIT(cinfo, JERR_FILE_WRITE);
-        return false;
+        return FALSE;
     }
 
     dest->next_output_byte = dest->fBuffer;
