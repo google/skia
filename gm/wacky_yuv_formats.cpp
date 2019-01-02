@@ -622,43 +622,43 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
     static const char* kYUVColorSpaceNames[] = { "JPEG", "601", "709" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace+1);
 
-    SkPaint textPaint;
-    sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
-    textPaint.setTextSize(16);
+    SkPaint paint;
+    SkFont font(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
+    font.setEdging(SkFont::Edging::kAlias);
 
     SkRect textRect;
     SkString colLabel;
 
     colLabel.printf("%s", kYUVColorSpaceNames[yuvColorSpace]);
-    textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
+    font.measureText(colLabel.c_str(), colLabel.size(), kUTF8_SkTextEncoding, &textRect);
     int y = textRect.height();
 
-    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, colLabel.c_str(), x, y, font, paint, SkTextUtils::kCenter_Align);
 
     colLabel.printf("%s", opaque ? "Opaque" : "Transparent");
 
-    textPaint.measureText(colLabel.c_str(), colLabel.size(), &textRect);
+    font.measureText(colLabel.c_str(), colLabel.size(), kUTF8_SkTextEncoding, &textRect);
     y += textRect.height();
 
-    SkTextUtils::DrawString(canvas, colLabel, x, y, textPaint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, colLabel.c_str(), x, y, font, paint, SkTextUtils::kCenter_Align);
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     static const char* kYUVFormatNames[] = { "AYUV", "NV12", "NV21", "I420", "YV12" };
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kYUVFormatNames) == kLast_YUVFormat+1);
 
-    SkPaint textPaint;
-    sk_tool_utils::set_portable_typeface(&textPaint, nullptr, SkFontStyle::Bold());
-    textPaint.setTextSize(16);
+    SkPaint paint;
+    SkFont font(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()), 16);
+    font.setEdging(SkFont::Edging::kAlias);
 
     SkRect textRect;
     SkString rowLabel;
 
     rowLabel.printf("%s", kYUVFormatNames[yuvFormat]);
-    textPaint.measureText(rowLabel.c_str(), rowLabel.size(), &textRect);
+    font.measureText(rowLabel.c_str(), rowLabel.size(), kUTF8_SkTextEncoding, &textRect);
     y += kTileWidthHeight/2 + textRect.height()/2;
 
-    canvas->drawText(rowLabel.c_str(), rowLabel.size(), 0, y, textPaint);
+    canvas->drawSimpleText(rowLabel.c_str(), rowLabel.size(), kUTF8_SkTextEncoding, 0, y, font, paint);
 }
 
 static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
