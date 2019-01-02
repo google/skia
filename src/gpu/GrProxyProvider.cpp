@@ -515,10 +515,39 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     }
     SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
     SkASSERT(!rt->getUniqueKey().isValid());
-    // Make sure we match how we created the proxy with SkBudgeted::kNo
+    // This proxy should be unbudgeted because we're just wrapping an external resource
     SkASSERT(SkBudgeted::kNo == rt->resourcePriv().isBudgeted());
 
     return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(rt), origin));
+}
+
+sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
+        const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    // This is only supported on a direct GrContext.
+    if (!fResourceProvider) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTarget> rt = fResourceProvider->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
+                                                                                      vkInfo);
+
+    if (!rt) {
+        return nullptr;
+    }
+    SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
+    SkASSERT(!rt->getUniqueKey().isValid());
+    // This proxy should be unbudgeted because we're just wrapping an external resource
+    SkASSERT(SkBudgeted::kNo == rt->resourcePriv().isBudgeted());
+
+    // All Vulkan surfaces uses top left origins.
+    return sk_sp<GrRenderTargetProxy>(
+            new GrRenderTargetProxy(std::move(rt),
+                                    kTopLeft_GrSurfaceOrigin,
+                                    GrRenderTargetProxy::WrapsVkSecondaryCB::kYes));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,

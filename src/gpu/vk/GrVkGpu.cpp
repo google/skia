@@ -990,6 +990,36 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     return GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, imageInfo, std::move(layout));
 }
 
+sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
+        const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
+    int maxSize = this->caps()->maxTextureSize();
+    if (imageInfo.width() > maxSize || imageInfo.height() > maxSize) {
+        return nullptr;
+    }
+
+    GrBackendFormat backendFormat = GrBackendFormat::MakeVk(vkInfo.fFormat);
+    if (!backendFormat.isValid()) {
+        return nullptr;
+    }
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat,
+                                                                    imageInfo.colorType());
+    if (config == kUnknown_GrPixelConfig) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fWidth = imageInfo.width();
+    desc.fHeight = imageInfo.height();
+    desc.fConfig = config;
+    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(1, config);
+    if (!desc.fSampleCnt) {
+        return nullptr;
+    }
+
+    return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, desc, vkInfo);
+}
+
 bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     auto* vkTex = static_cast<GrVkTexture*>(tex);
     // don't do anything for linearly tiled textures (can't have mipmaps)

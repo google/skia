@@ -36,6 +36,9 @@ public:
                                                            const GrVkImageInfo&,
                                                            sk_sp<GrVkImageLayout>);
 
+    static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
+                                                               const GrVkDrawableInfo& vkInfo);
+
     ~GrVkRenderTarget() override;
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
@@ -55,8 +58,16 @@ public:
 
     const GrVkRenderPass* simpleRenderPass() const { return fCachedSimpleRenderPass; }
     GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle() const {
+        SkASSERT(!this->wrapsSecondaryCommandBuffer());
         return fCompatibleRPHandle;
     }
+    const GrVkRenderPass* externalRenderPass() const {
+        SkASSERT(this->wrapsSecondaryCommandBuffer());
+        // We use the cached simple render pass to hold the external render pass.
+        return fCachedSimpleRenderPass;
+    }
+
+    bool wrapsSecondaryCommandBuffer() const { return fSecondaryCommandBuffer != VK_NULL_HANDLE; }
 
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
@@ -67,7 +78,9 @@ public:
     }
 
     bool canAttemptStencilAttachment() const override {
-        return true;
+        // We don't know the status of the stencil attachment for wrapped external secondary command
+        // buffers so we just assume we don't have one.
+        return !this->wrapsSecondaryCommandBuffer();
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
@@ -133,6 +146,14 @@ private:
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageView* colorAttachmentView);
 
+
+    GrVkRenderTarget(GrVkGpu* gpu,
+                     const GrSurfaceDesc& desc,
+                     const GrVkImageInfo& info,
+                     sk_sp<GrVkImageLayout> layout,
+                     const GrVkRenderPass* renderPass,
+                     VkCommandBuffer secondaryCommandBuffer);
+
     bool completeStencilAttachment() override;
 
     void releaseInternalObjects();
@@ -145,6 +166,11 @@ private:
     const GrVkRenderPass*      fCachedSimpleRenderPass;
     // This is a handle to be used to quickly get compatible GrVkRenderPasses for this render target
     GrVkResourceProvider::CompatibleRPHandle fCompatibleRPHandle;
+
+    // Handle to an external secondary command buffer which this GrVkRenderTarget represents. If
+    // this is not VK_NULL_HANDLE then the GrVkRenderTarget does not have a real VkImage backing it,
+    // and is limited in what it can be used for.
+    VkCommandBuffer            fSecondaryCommandBuffer = VK_NULL_HANDLE;
 };
 
 #endif

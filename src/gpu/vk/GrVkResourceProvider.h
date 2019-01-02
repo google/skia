@@ -69,6 +69,9 @@ public:
     // findCompatibleRenderPass(GrVkRenderTarget&, CompatibleRPHandle*).
     const GrVkRenderPass* findCompatibleRenderPass(const CompatibleRPHandle& compatibleHandle);
 
+    const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
+                                                           uint32_t colorAttachmentIndex);
+
     // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
     // If this is non null it will be set to a handle that can be used in the furutre to quickly
@@ -251,6 +254,8 @@ private:
     SkTArray<GrVkCopyPipeline*> fCopyPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
+
+    SkTArray<const GrVkRenderPass*> fExternalRenderPasses;
 
     // Array of command pools that we are waiting on
     SkSTArray<4, GrVkCommandPool*, true> fActiveCommandPools;

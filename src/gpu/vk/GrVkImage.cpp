@@ -209,10 +209,6 @@ void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
     GrVkMemory::FreeImageMemory(gpu, isLinear, info->fAlloc);
 }
 
-void GrVkImage::setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling) {
-    fResource = new Resource(image, alloc, tiling);
-}
-
 GrVkImage::~GrVkImage() {
     // should have been released or abandoned first
     SkASSERT(!fResource);
@@ -238,6 +234,7 @@ void GrVkImage::abandonImage() {
 }
 
 void GrVkImage::setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+    SkASSERT(fResource);
     // Forward the release proc on to GrVkImage::Resource
     fResource->setRelease(std::move(releaseHelper));
 }
