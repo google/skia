@@ -87,10 +87,21 @@ private:
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
 
-    struct SingleDraw {
+    class SingleDraw {
+    public:
         SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
                    Visibility maskVisibility, const SkPMColor4f&);
+
+        // See the corresponding methods in GrCCDrawPathsOp.
+        RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*, GrProcessorSet*);
+        void accountForOwnPath(GrCCPathCache*, GrOnFlushResourceProvider*,
+                               GrCCPerFlushResourceSpecs*);
+        void setupResources(GrCCPathCache*, GrOnFlushResourceProvider*, GrCCPerFlushResources*,
+                            DoCopiesToA8Coverage, GrCCDrawPathsOp*);
+
+    private:
+        bool shouldCachePathMask(int maxRenderTargetSize) const;
 
         SkMatrix fMatrix;
         GrShape fShape;
@@ -103,8 +114,11 @@ private:
         GrCCPathCache::OnFlushEntryRef fCacheEntry;
         SkIVector fCachedMaskShift;
         bool fDoCopyToA8Coverage = false;
+        bool fDoCachePathMask = false;
 
         SingleDraw* fNext = nullptr;
+
+        friend class GrCCSTLList<SingleDraw>;  // To access fNext.
     };
 
     // Declare fOwningPerOpListPaths first, before fDraws. The draws use memory allocated by
