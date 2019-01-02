@@ -226,9 +226,14 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
-    skPaint.setLCDRenderText(random->nextBool());
-    skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());
-    skPaint.setSubpixelText(random->nextBool());
+
+    SkFont font;
+    if (random->nextBool()) {
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    } else {
+        font.setEdging(random->nextBool() ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
+    }
+    font.setSubpixel(random->nextBool());
 
     const char* text = "The quick brown fox jumps over the lazy dog.";
 
@@ -240,7 +245,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
     return gTextContext->createOp_TestingOnly(context, gTextContext.get(), rtc.get(),
-                                              skPaint, viewMatrix, text, xInt, yInt);
+                                              skPaint, font, viewMatrix, text, xInt, yInt);
 }
 
 #endif
