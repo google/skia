@@ -17,8 +17,8 @@ void SkRasterPipeline::reset() {
     fNumStages   = 0;
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
 
-    fStockStages.rewind();
-    fCtxPointers.rewind();
+    fStockStages.reset();
+    fCtxPointers.reset();
     fCanUseRunProgramObs = false;   // flip to true to experiment with this feature
 }
 
@@ -70,8 +70,8 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fNumStages   += src.fNumStages;
     fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
 
-    fStockStages.append(src.fStockStages.count(), src.fStockStages.begin());
-    fCtxPointers.append(src.fCtxPointers.count(), src.fCtxPointers.begin());
+    fStockStages.push_back_n(src.fStockStages.count(), src.fStockStages.begin());
+    fCtxPointers.push_back_n(src.fCtxPointers.count(), src.fCtxPointers.begin());
 }
 
 void SkRasterPipeline::dump() const {
