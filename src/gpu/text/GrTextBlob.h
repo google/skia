@@ -248,6 +248,10 @@ public:
                                           const SkPaint& paint, const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextTarget*);
+    struct BothCaches {
+        SkExclusiveStrikePtr skCache;
+        sk_sp<GrTextStrike> grCache;
+    };
 
 private:
     GrTextBlob()
@@ -376,7 +380,6 @@ private:
         const SkAutoDescriptor& fDesc;
     };  // SubRunInfo
 
-
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
      * To determine if regeneration is necessary, fAtlasGeneration is used.  If there have been
@@ -446,11 +449,12 @@ private:
                                     SkPoint origin,
                                     SkScalar textScale);
 
-        SkExclusiveStrikePtr setupCache(const SkPaint& skPaint,
-                                        const SkFont& skFont,
-                                        const SkSurfaceProps& props,
-                                        SkScalerContextFlags scalerContextFlags,
-                                        const SkMatrix& viewMatrix);
+        BothCaches setupCache(const SkPaint& skPaint,
+                              const SkFont& skFont,
+                              const SkSurfaceProps& props,
+                              SkScalerContextFlags scalerContextFlags,
+                              const SkMatrix& viewMatrix,
+                              GrGlyphCache* grGlyphCache);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;

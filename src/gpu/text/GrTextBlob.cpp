@@ -58,11 +58,12 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount, GrColor color) 
     return blob;
 }
 
-SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& paint,
-                                                 const SkFont& font,
-                                                 const SkSurfaceProps& props,
-                                                 SkScalerContextFlags scalerContextFlags,
-                                                 const SkMatrix& viewMatrix) {
+GrTextBlob::BothCaches GrTextBlob::Run::setupCache(const SkPaint& paint,
+                                                   const SkFont& font,
+                                                   const SkSurfaceProps& props,
+                                                   SkScalerContextFlags scalerContextFlags,
+                                                   const SkMatrix& viewMatrix,
+                                                   GrGlyphCache* grGlyphCache) {
     // if we have an override descriptor for the run, then we should use that
     SkAutoDescriptor* desc = fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
     SkScalerContextEffects effects;
@@ -71,7 +72,11 @@ SkExclusiveStrikePtr GrTextBlob::Run::setupCache(const SkPaint& paint,
     fTypeface = SkFontPriv::RefTypefaceOrDefault(font);
     fPathEffect = sk_ref_sp(effects.fPathEffect);
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *fTypeface);
+
+    SkExclusiveStrikePtr skCache =
+            SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *fTypeface);
+    sk_sp<GrTextStrike> grCache = grGlyphCache->getStrike(skCache.get());
+    return {std::move(skCache), std::move(grCache)};
 }
 
 void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,
