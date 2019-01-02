@@ -21,6 +21,12 @@ class SkSurfaceCharacterization;
 class SkSurfaceProps;
 
 /**
+ * This class is a private header that is intended to only be used inside of Chromium. This requires
+ * Chromium to burrow in and include this specifically since it is not part of skia's public include
+ * directory.
+ */
+
+/**
  * This class is used to draw into an external Vulkan secondary command buffer that is imported
  * by the client. The secondary command buffer that gets imported must already have had begin called
  * on it with VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT. Thus any draws to the imported
