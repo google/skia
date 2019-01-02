@@ -176,9 +176,15 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            return false;
+        }
         dstSampleCnt = rtProxy->numColorSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            return false;
+        }
         srcSampleCnt = rtProxy->numColorSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
