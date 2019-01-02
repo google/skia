@@ -30,9 +30,7 @@ static bool dot_nearly_zero(const SkVector& e1, const SkVector& e2) {
         dotValue = dot({sign(e1.fX), sign(e1.fY)}, {sign(e2.fX), sign(e2.fY)});
     }
 
-    // Unfortunately must have a pretty healthy tolerance here or transformed rects that are
-    // effectively rectilinear will have edge dot products of around .005
-    return SkScalarNearlyZero(dotValue, 1e-2f);
+    return SkScalarNearlyZero(dotValue, 5e-4f);
 }
 
 // This is not the most performance critical function; code using GrQuad should rely on the faster
@@ -45,10 +43,16 @@ static bool coords_form_rect(const float xs[4], const float ys[4]) {
 }
 
 static bool coords_rectilinear(const float xs[4], const float ys[4]) {
-    SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // Connects to e1 and e2(repeat)
+    SkVector e0{xs[1] - xs[0], ys[1] - ys[0]}; // connects to e1 and e2(repeat)
     SkVector e1{xs[3] - xs[1], ys[3] - ys[1]}; // connects to e0(repeat) and e3
     SkVector e2{xs[0] - xs[2], ys[0] - ys[2]}; // connects to e0 and e3(repeat)
     SkVector e3{xs[2] - xs[3], ys[2] - ys[3]}; // connects to e1(repeat) and e2
+
+    // normalize edges to have consistent dot product value ranges
+    e0.normalize();
+    e1.normalize();
+    e2.normalize();
+    e3.normalize();
 
     return dot_nearly_zero(e0, e1) && dot_nearly_zero(e1, e3) &&
            dot_nearly_zero(e2, e0) && dot_nearly_zero(e3, e2);
@@ -199,7 +203,6 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
         SkNx_shuffle<0, 0, 2, 2>(r).store(fX);
         SkNx_shuffle<1, 3, 1, 3>(r).store(fY);
         fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
-        fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
     } else {
         Sk4f rx(rect.fLeft, rect.fLeft, rect.fRight, rect.fRight);
         Sk4f ry(rect.fTop, rect.fBottom, rect.fTop, rect.fBottom);
@@ -217,12 +220,17 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
             Sk4f w2(m.get(SkMatrix::kMPersp2));
             auto w = SkNx_fma(w0, rx, SkNx_fma(w1, ry, w2));
             w.store(fW);
-            w.invert().store(fIW);
         } else {
             fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
-            fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
         }
     }
+}
+
+// Private constructor used by GrQuadList to quickly fill in a quad's values from the channel arrays
+GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
+    memcpy(&fX, xs, 4 * sizeof(float));
+    memcpy(&fY, ys, 4 * sizeof(float));
+    memcpy(&fW, ws, 4 * sizeof(float));
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
