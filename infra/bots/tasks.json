@@ -6467,6 +6467,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [

@@ -795,8 +795,7 @@ func usesGo(b *specs.TasksCfgBuilder, t *specs.TaskSpec) {
 
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
-	// currently, just the WASM (using EMCC) builder uses Docker.
-	if strings.Contains(name, "EMCC") {
+	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") {
 		t.Caches = append(t.Caches, CACHES_DOCKER...)
 	}
 }
