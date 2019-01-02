@@ -3385,7 +3385,7 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
 static bool can_run_pipeline_obs(const SkRasterPipeline::StockStage* stages, int nstages) {
     for (int i = 0; i < nstages; i++) {
         switch (stages[i]) {
-    #define CASE(st) case SkRasterPipeline::st: if (!st) { return false; }
+    #define CASE(st) case SkRasterPipeline::st: if (!st) { return false; } break;
         SK_RASTER_PIPELINE_STAGES(CASE)
     #undef CASE
         }
