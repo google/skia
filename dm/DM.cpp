@@ -45,10 +45,6 @@
 
 #include <vector>
 
-#ifdef SK_PDF_IMAGE_STATS
-extern void SkPDFImageDumpStats();
-#endif
-
 #include "png.h"
 
 #include <stdlib.h>
@@ -1439,10 +1435,6 @@ int main(int argc, char** argv) {
         info("%d failures\n", gFailures.count());
         return 1;
     }
-
-#ifdef SK_PDF_IMAGE_STATS
-    SkPDFImageDumpStats();
-#endif  // SK_PDF_IMAGE_STATS
 
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
