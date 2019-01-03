@@ -40,12 +40,11 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
     paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(r.height()/2);
+
+    SkFont font(sk_tool_utils::create_portable_typeface(), r.height()/2);
     canvas->save();
     canvas->clipRect(r);
-    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), paint,
-                            SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint, SkTextUtils::kCenter_Align);
     canvas->restore();
 }
 

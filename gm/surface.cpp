@@ -36,7 +36,6 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     SkPaint paint;
 
     paint.setAntiAlias(true);
-    paint.setLCDRenderText(true);
     paint.setDither(true);
 
     paint.setShader(make_shader());
@@ -44,9 +43,10 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setShader(nullptr);
 
     paint.setColor(SK_ColorWHITE);
-    paint.setTextSize(32);
-    sk_tool_utils::set_portable_typeface(&paint);
-    SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, paint, SkTextUtils::kCenter_Align);
+    SkFont font(sk_tool_utils::create_portable_typeface(), 32);
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, font, paint,
+                            SkTextUtils::kCenter_Align);
 }
 
 class SurfacePropsGM : public skiagm::GM {

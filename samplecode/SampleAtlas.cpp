@@ -45,7 +45,6 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    paint.setAntiAlias(true);
     SkRandom rand;
 
     const SkScalar half = cellSize * SK_ScalarHalf;
@@ -57,8 +56,8 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
             paint.setColor(rand.nextU());
             paint.setAlpha(0xFF);
             int index = i % strlen(s);
-            SkTextUtils::DrawText(canvas, &s[index], 1, x + half, y + half + half/2, paint,
-                                  SkTextUtils::kCenter_Align);
+            SkTextUtils::Draw(canvas, &s[index], 1, kUTF8_SkTextEncoding, x + half, y + half + half/2, SkFont(), paint,
+                              SkTextUtils::kCenter_Align);
             i += 1;
         }
     }

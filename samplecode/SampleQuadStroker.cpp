@@ -503,11 +503,13 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
         canvas->drawRect(button.fBounds, paint);
-        paint.setTextSize(25.0f);
         paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
         paint.setStyle(SkPaint::kFill_Style);
-        SkTextUtils::DrawText(canvas, &button.fLabel, 1, button.fBounds.centerX(), button.fBounds.fBottom - 5,
-                paint, SkTextUtils::kCenter_Align);
+        SkFont font;
+        font.setSize(25.0f);
+        SkTextUtils::Draw(canvas, &button.fLabel, 1, kUTF8_SkTextEncoding,
+                button.fBounds.centerX(), button.fBounds.fBottom - 5,
+                font, paint, SkTextUtils::kCenter_Align);
     }
 
     void draw_control(SkCanvas* canvas, const SkRect& bounds, SkScalar value,

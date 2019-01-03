@@ -10,6 +10,7 @@
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkPath.h"
@@ -27,8 +28,8 @@
 #include "SkColorPriv.h"
 #include "SkBlurMaskFilter.h"
 
-static void setNamedTypeface(SkPaint* paint, const char name[]) {
-    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
+static void setNamedTypeface(SkFont* font, const char name[]) {
+    font->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
 }
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
@@ -83,29 +84,6 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-        if (false) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(50);
-            paint.setTypeface(SkTypeface::MakeFromName("Arial Unicode MS", SkFontStyle()));
-            char buffer[10];
-            size_t len = SkUTF::ToUTF8(0x8500, buffer);
-            canvas->drawText(buffer, len, 40, 40, paint);
-            return;
-        }
-        if (false) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-
-            SkRect r0 = { 0, 0, 10.5f, 20 };
-            SkRect r1 = { 10.5f, 10, 20, 30 };
-            paint.setColor(SK_ColorRED);
-            canvas->drawRect(r0, paint);
-            paint.setColor(SK_ColorBLUE);
-            canvas->drawRect(r1, paint);
-            return;
-        }
-
         const SkBlendMode gModes[] = {
             SkBlendMode::kClear,
             SkBlendMode::kSrc,
@@ -129,10 +107,9 @@ protected:
         auto s = SkShader::MakeBitmapShader(fBG, SkShader::kRepeat_TileMode,
                                             SkShader::kRepeat_TileMode, &m);
 
-        SkPaint labelP;
-        labelP.setAntiAlias(true);
-        labelP.setLCDRenderText(true);
-        setNamedTypeface(&labelP, "Menlo Regular");
+        SkFont font;
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        setNamedTypeface(&font, "Menlo Regular");
 
         const int W = 5;
 
@@ -158,7 +135,7 @@ protected:
                 canvas->drawRect(r, p);
 
                 const char* label = SkBlendMode_Name(gModes[i]);
-                SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2, labelP,
+                SkTextUtils::DrawString(canvas, label, x + w/2, y - font.getSize()/2, font, SkPaint(),
                                         SkTextUtils::kCenter_Align);
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {

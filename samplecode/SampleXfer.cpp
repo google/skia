@@ -52,10 +52,11 @@ public:
         canvas->drawRoundRect(fRect, 8, 8, paint);
 
         paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(16);
-        paint.setLCDRenderText(true);
-        SkTextUtils::DrawString(canvas, fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
-                                paint, SkTextUtils::kCenter_Align);
+        SkFont font;
+        font.setSize(16);
+        font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        SkTextUtils::DrawString(canvas, fLabel.c_str(), fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
+                                font, paint, SkTextUtils::kCenter_Align);
     }
 
     bool hitTest(SkScalar x, SkScalar y) {

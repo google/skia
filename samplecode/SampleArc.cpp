@@ -104,15 +104,13 @@ protected:
     }
 
     static void DrawLabel(SkCanvas* canvas, const SkRect& rect, SkScalar start, SkScalar sweep) {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-
+        SkFont font;
         SkString    str;
         str.appendScalar(start);
         str.append(", ");
         str.appendScalar(sweep);
-        SkTextUtils::DrawString(canvas, str, rect.centerX(),
-                         rect.fBottom + paint.getTextSize() * 5/4, paint,
+        SkTextUtils::DrawString(canvas, str.c_str(), rect.centerX(),
+                         rect.fBottom + font.getSize() * 5/4, font, SkPaint(),
                                 SkTextUtils::kCenter_Align);
     }
 
