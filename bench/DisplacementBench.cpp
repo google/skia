@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkImageSource.h"
 #include "SkSurface.h"
@@ -36,11 +37,11 @@ protected:
         SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
-        paint.setAntiAlias(true);
         paint.setColor(0xFF884422);
-        paint.setTextSize(SkIntToScalar(96));
-        const char* str = "g";
-        canvas.drawString(str, SkIntToScalar(15), SkIntToScalar(55), paint);
+
+        SkFont font;
+        font.setSize(SkIntToScalar(96));
+        canvas.drawSimpleText("g", 1, kUTF8_SkTextEncoding, SkIntToScalar(15), SkIntToScalar(55), font, paint);
     }
 
     void makeCheckerboard() {
