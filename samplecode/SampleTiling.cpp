@@ -106,12 +106,11 @@ protected:
                 for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
                     SkPaint p;
                     SkString str;
-                    p.setAntiAlias(true);
                     p.setDither(true);
                     p.setLooper(fLooper);
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
-                    SkTextUtils::DrawString(textCanvas, str, x + r.width()/2, y, p,
+                    SkTextUtils::DrawString(textCanvas, str.c_str(), x + r.width()/2, y, SkFont(), p,
                                             SkTextUtils::kCenter_Align);
 
                     x += r.width() * 4 / 3;

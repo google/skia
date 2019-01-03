@@ -32,26 +32,6 @@ public:
         Draw(canvas, text, strlen(text), kUTF8_SkTextEncoding, x, y, font, paint, align);
     }
 
-#if 1
-    static void DrawString(SkCanvas* canvas, const char text[], SkScalar x, SkScalar y,
-                           const SkPaint& paint, Align align = kLeft_Align) {
-        SkASSERT(paint.getTextEncoding() == kUTF8_SkTextEncoding);
-        Draw(canvas, text, strlen(text), kUTF8_SkTextEncoding, x, y,
-             SkFont::LEGACY_ExtractFromPaint(paint), paint, align);
-    }
-
-    static void DrawText(SkCanvas* canvas, const void* text, size_t size, SkScalar x, SkScalar y,
-                         const SkPaint& paint, Align align = kLeft_Align) {
-        Draw(canvas, text, size, paint.getTextEncoding(), x, y,
-             SkFont::LEGACY_ExtractFromPaint(paint), paint, align);
-    }
-
-    static void DrawString(SkCanvas* canvas, const SkString& str, SkScalar x, SkScalar y,
-                           const SkPaint& paint, Align align = kLeft_Align) {
-        DrawText(canvas, str.c_str(), str.size(), x, y, paint, align);
-    }
-#endif
-
     static void GetPath(const void* text, size_t length, SkTextEncoding, SkScalar x, SkScalar y,
                         const SkFont&, SkPath*);
 };

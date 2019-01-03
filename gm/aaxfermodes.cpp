@@ -68,10 +68,9 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fLabelPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&fLabelPaint);
-        fLabelPaint.setTextSize(5 * kShapeSize/8);
-        fLabelPaint.setSubpixelText(true);
+        fLabelFont.setTypeface(sk_tool_utils::create_portable_typeface());
+        fLabelFont.setSize(5 * kShapeSize/8);
+        fLabelFont.setSubpixel(true);
 
         constexpr SkScalar radius = -1.4f * kShapeSize/2;
         SkPoint pts[4] = {
@@ -109,12 +108,12 @@ protected:
             if (kShape_Pass == drawingPass) {
                 SkTextUtils::DrawString(canvas, "Src Unknown",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2,
-                        kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3, fLabelPaint,
+                        kSubtitleSpacing / 2 + fLabelFont.getSize() / 3, fLabelFont, SkPaint(),
                                         SkTextUtils::kCenter_Align);
                 SkTextUtils::DrawString(canvas, "Src Opaque",
                         kLabelSpacing + kShapeTypeSpacing * 1.5f + kShapeSpacing / 2 +
-                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelPaint.getTextSize() / 3,
-                        fLabelPaint, SkTextUtils::kCenter_Align);
+                        kPaintSpacing, kSubtitleSpacing / 2 + fLabelFont.getSize() / 3,
+                                        fLabelFont, SkPaint(), SkTextUtils::kCenter_Align);
             }
 
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
@@ -177,16 +176,16 @@ protected:
         canvas->translate(kMargin, kMargin);
         draw_pass(canvas, kBackground_Pass);
 
-        SkPaint titlePaint(fLabelPaint);
-        titlePaint.setTextSize(9 * titlePaint.getTextSize() / 8);
-        titlePaint.setFakeBoldText(true);
+        SkFont titleFont(fLabelFont);
+        titleFont.setSize(9 * titleFont.getSize() / 8);
+        titleFont.setEmbolden(true);
         SkTextUtils::DrawString(canvas, "Porter Duff",
                                 kLabelSpacing + 4 * kShapeTypeSpacing,
-                                kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint,
+                                kTitleSpacing / 2 + titleFont.getSize() / 3, titleFont, SkPaint(),
                                 SkTextUtils::kCenter_Align);
         SkTextUtils::DrawString(canvas, "Advanced",
                                 kXfermodeTypeSpacing + kLabelSpacing + 4 * kShapeTypeSpacing,
-                                kTitleSpacing / 2 + titlePaint.getTextSize() / 3, titlePaint,
+                                kTitleSpacing / 2 + titleFont.getSize() / 3, titleFont, SkPaint(),
                                 SkTextUtils::kCenter_Align);
 
         draw_pass(canvas, kShape_Pass);
@@ -196,7 +195,7 @@ protected:
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
         const char* modeName = SkBlendMode_Name(mode);
         SkTextUtils::DrawString(canvas, modeName, kLabelSpacing - kShapeSize / 4,
-                                fLabelPaint.getTextSize() / 4, fLabelPaint,
+                                fLabelFont.getSize() / 4, fLabelFont, SkPaint(),
                                 SkTextUtils::kRight_Align);
     }
 
@@ -266,7 +265,7 @@ protected:
     }
 
 private:
-    SkPaint   fLabelPaint;
+    SkFont    fLabelFont;
     SkPath    fOval;
     SkPath    fConcave;
 

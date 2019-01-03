@@ -227,7 +227,8 @@ protected:
 
         SkPaint labelP;
         labelP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&labelP);
+
+        SkFont font(sk_tool_utils::create_portable_typeface());
 
         const int W = 5;
 
@@ -258,8 +259,8 @@ protected:
 
 #if 1
                 const char* label = SkBlendMode_Name(gModes[i].fMode);
-                SkTextUtils::DrawString(canvas, label, x + w/2, y - labelP.getTextSize()/2,
-                                        labelP, SkTextUtils::kCenter_Align);
+                SkTextUtils::DrawString(canvas, label, x + w/2, y - font.getSize()/2,
+                                        font, labelP, SkTextUtils::kCenter_Align);
 #endif
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {
