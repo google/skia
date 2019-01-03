@@ -1870,6 +1870,18 @@ public:
     void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
 
+    // Experimental
+    void drawUTF8String(const char* text, SkScalar x, SkScalar y,
+                        const SkFont& font, const SkPaint& paint) {
+        this->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, x, y, font, paint);
+    }
+
+    // Experimental
+    void drawUTF8String(const SkString& string, SkScalar x, SkScalar y,
+                        const SkFont& font, const SkPaint& p) {
+        this->drawSimpleText(string.c_str(), string.size(), SkTextEncoding::kUTF8, x, y, font, p);
+    }
+
     /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
         SkPaint paint.
 

@@ -155,7 +155,7 @@ protected:
 
         SkString str("9");
 
-        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
+        canvas->drawUTF8String(str,
                                x, y, font, SkPaint());
         drawdots(canvas, str, x, y, font);
 

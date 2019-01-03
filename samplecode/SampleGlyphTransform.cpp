@@ -56,7 +56,7 @@ protected:
         // d3 by default anchors text around the middle
         SkRect bounds;
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, -bounds.centerX(), -bounds.centerY(),
+        canvas->drawUTF8String(text, -bounds.centerX(), -bounds.centerY(),
                                font, paint);
     }
 
