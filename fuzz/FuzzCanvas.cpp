@@ -974,12 +974,6 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
     return array;
 }
 
-#ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
-static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
-    return make_fuzz_text(fuzz, SkFont::LEGACY_ExtractFromPaint(paint), paint.getTextEncoding());
-}
-#endif
-
 static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
     SkTextBlobBuilder textBlobBuilder;
     int8_t runCount;

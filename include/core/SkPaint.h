@@ -907,25 +907,6 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 
-#ifdef SK_SUPPORT_LEGACY_FONTMETRICS_IN_PAINT
-    /**
-        SkFontMetrics is filled out by getFontMetrics(). SkFontMetrics contents reflect the values
-        computed by font manager using SkTypeface. Values are set to zero if they are
-        not available.
-
-        All vertical values are relative to the baseline, on a y-axis pointing down.
-        Zero is on the baseline, negative values are above the baseline, and positive
-        values are below the baseline.
-
-        fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
-
-        fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
-    */
-    typedef SkFontMetrics FontMetrics;
-#endif
-
     /** Returns SkFontMetrics associated with SkTypeface.
         The return value is the recommended spacing between lines: the sum of metrics
         descent, ascent, and leading.
