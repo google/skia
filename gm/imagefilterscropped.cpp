@@ -43,11 +43,9 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     SkPaint paint;
     paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(r.height()/2);
-    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), paint,
-                            SkTextUtils::kCenter_Align);
+
+    SkFont font(sk_tool_utils::create_portable_typeface(), r.height()/2);
+    SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint, SkTextUtils::kCenter_Align);
 }
 
 static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
