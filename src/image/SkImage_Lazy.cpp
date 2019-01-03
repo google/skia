@@ -323,7 +323,8 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
             // If we had an originalProxy with a valid key, that means there already is a proxy in
             // the cache which matches the key, but it does not have mip levels and we require them.
             // Thus we must remove the unique key from that proxy.
-            proxyProvider->removeUniqueKeyFromProxy(key, originalProxy);
+            SkASSERT(originalProxy->getUniqueKey() == key);
+            proxyProvider->removeUniqueKeyFromProxy(originalProxy);
         }
         proxyProvider->assignUniqueKeyToProxy(key, proxy);
     }

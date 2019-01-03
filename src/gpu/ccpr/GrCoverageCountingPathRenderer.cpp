@@ -202,7 +202,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         if (stashedAtlasProxy) {
             // Instantiate the proxy so we can clear the underlying texture's unique key.
             onFlushRP->instatiateProxy(stashedAtlasProxy.get());
-            onFlushRP->removeUniqueKeyFromProxy(fStashedAtlasKey, stashedAtlasProxy.get());
+            SkASSERT(fStashedAtlasKey == stashedAtlasProxy->getUniqueKey());
+            onFlushRP->removeUniqueKeyFromProxy(stashedAtlasProxy.get());
         } else {
             fStashedAtlasKey.reset();  // Indicate there is no stashed atlas to copy from.
         }

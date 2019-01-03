@@ -44,10 +44,15 @@ bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
     return proxyProvider->assignUniqueKeyToProxy(key, proxy);
 }
 
-void GrOnFlushResourceProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key,
-                                                         GrTextureProxy* proxy) {
+void GrOnFlushResourceProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
     auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
-    proxyProvider->removeUniqueKeyFromProxy(key, proxy);
+    proxyProvider->removeUniqueKeyFromProxy(proxy);
+}
+
+void GrOnFlushResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) {
+    auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    proxyProvider->processInvalidUniqueKey(key, nullptr,
+                                           GrProxyProvider::InvalidateGPUResource::kYes);
 }
 
 sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(

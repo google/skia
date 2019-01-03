@@ -47,7 +47,7 @@ public:
      * Removes a unique key from a proxy. If the proxy has already been instantiated, it will
      * also remove the unique key from the target GrSurface.
      */
-    void removeUniqueKeyFromProxy(const GrUniqueKey&, GrTextureProxy*);
+    void removeUniqueKeyFromProxy(GrTextureProxy*);
 
     /*
      * Finds a proxy by unique key.
@@ -207,8 +207,7 @@ public:
      * (in which case we don't want it cluttering up the hash table) or the client has indicated
      * that it will never refer to the unique key again.
      */
-    void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*,
-                                 InvalidateGPUResource invalidateGPUResource);
+    void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
 
     uint32_t contextUniqueID() const { return fContextUniqueID; }
     const GrCaps* caps() const { return fCaps.get(); }
