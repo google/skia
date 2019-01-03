@@ -16,6 +16,24 @@
       "revId": "e4325ae3cf3bfe1d74c121bc9de56f1cbf6d2919",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a57ac6b7_e9db13da",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-03T22:40:13Z",
+      "side": 1,
+      "message": "Done. Verified this was indeed necessary.",
+      "parentUuid": "52af59a4_3fd2096f",
+      "revId": "e4325ae3cf3bfe1d74c121bc9de56f1cbf6d2919",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
