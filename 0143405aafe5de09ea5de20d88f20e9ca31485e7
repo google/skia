@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "96dcd47d_92d5e2c4",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-03T17:33:24Z",
+      "side": 1,
+      "message": "Yeah, I like the fixed point version, so I\u0027ll just have to go back and find the correct sRGB values.",
+      "parentUuid": "64d842bd_76ee74e5",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 3
+      },
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe117dd1_066896db",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-03T16:22:11Z",
       "side": 1,
       "message": "Think we should model these off the old just-floats methods below instead, returning void?\n\nOr are you thinking ahead to non-7-parameter TFs, non-XYZ gamuts?  PQ + CIELAB for the new year?",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 51
+      },
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcd90664_ed95109b",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-03T17:33:24Z",
+      "side": 1,
+      "message": "The latter. I\u0027m happy with fitting everything in the 16 float box for now, but PQ in particular makes me want to leave that door open.",
+      "parentUuid": "fe117dd1_066896db",
       "range": {
         "startLine": 196,
         "startChar": 0,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "56975906_c6de3105",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-03T17:33:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b39a337_36d37a97",
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "355b62d0_9805ed52",
         "filename": "src/core/SkColorSpace.cpp",
         "patchSetId": 4
@@ -76,6 +142,24 @@
       "writtenOn": "2019-01-03T16:22:11Z",
       "side": 1,
       "message": "Time to finally use the fVersion field of ColorSpaceHeader?  Or just see if we can get away with breaking old formats?  If we\u0027re ok to break things, most of all this serialization seems pretty overkill to me... just write and read 7+9, maybe with a size+version header up front?",
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8560eed_709e1619",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-03T17:33:24Z",
+      "side": 1,
+      "message": "Aye. I\u0027ve gone ahead and stripped this code down to just an (incremented) version tag plus 16 floats. Old data is rejected. Size is handled by the SkData itself.",
+      "parentUuid": "355b62d0_9805ed52",
       "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
