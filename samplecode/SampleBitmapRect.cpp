@@ -171,7 +171,7 @@ static void make_big_bitmap(SkBitmap* bm) {
 
     SkCanvas canvas(*bm);
 
-    canvas.drawSimpleText(gText, strlen(gText), kUTF8_SkTextEncoding, 0, font.getSize()*4/5, font, SkPaint());
+    canvas.drawUTF8String(gText, 0, font.getSize()*4/5, font, SkPaint());
 }
 
 class BitmapRectView2 : public Sample {
