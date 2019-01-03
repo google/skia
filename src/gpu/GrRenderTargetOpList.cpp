@@ -523,9 +523,15 @@ void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& colo
     if (this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) {
         this->deleteOps();
         fDeferredProxies.reset();
-        fColorLoadOp = GrLoadOp::kClear;
-        fLoadClearColor = color;
-        return;
+
+        // If the opList is using a render target which wraps a vulkan command buffer, we can't do a
+        // clear load since we cannot change the render pass that we are using. Thus we fall back to
+        // making a clear op in this case.
+        if (!fTarget.get()->asRenderTargetProxy()->wrapsVkSecondaryCB()) {
+            fColorLoadOp = GrLoadOp::kClear;
+            fLoadClearColor = color;
+            return;
+        }
     }
 
     std::unique_ptr<GrClearOp> op(GrClearOp::Make(context, GrFixedClip::Disabled(),
