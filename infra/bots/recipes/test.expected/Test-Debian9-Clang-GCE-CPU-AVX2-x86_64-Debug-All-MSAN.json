@@ -452,9 +452,6 @@
       "gm",
       "_",
       "complexclip4_aa",
-      "--match",
-      "~Once",
-      "~Shared",
       "--nonativeFonts",
       "--verbose"
     ],

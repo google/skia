@@ -493,11 +493,6 @@
       "gm",
       "_",
       "vertices",
-      "--match",
-      "~^InitialTextureClear$",
-      "~^RGB565TextureTest$",
-      "~^RGBA4444TextureTest$",
-      "~^WritePixelsNonTextureMSAA_Gpu$",
       "--nonativeFonts",
       "--verbose"
     ],

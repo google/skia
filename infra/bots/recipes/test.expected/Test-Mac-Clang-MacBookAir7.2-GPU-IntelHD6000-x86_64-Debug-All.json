@@ -489,9 +489,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~^ProcessorCloneTest$",
-      "~^GrMeshTest$",
       "--nonativeFonts",
       "--verbose"
     ],

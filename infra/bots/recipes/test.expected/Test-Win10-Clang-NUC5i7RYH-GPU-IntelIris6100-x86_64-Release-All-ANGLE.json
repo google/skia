@@ -420,9 +420,6 @@
       "gm",
       "_",
       "lighting",
-      "--match",
-      "~BlurMaskBiggerThanDest",
-      "~^ProcessorOptimizationValidationTest$",
       "--nonativeFonts",
       "--reduceOpListSplitting",
       "--verbose"
