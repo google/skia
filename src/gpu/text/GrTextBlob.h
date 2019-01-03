@@ -248,10 +248,6 @@ public:
                                           const SkPaint& paint, const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextTarget*);
-    struct BothCaches {
-        SkExclusiveStrikePtr skCache;
-        sk_sp<GrTextStrike> grCache;
-    };
 
 private:
     GrTextBlob()
@@ -448,13 +444,6 @@ private:
                                     const SkGlyph& skGlyph,
                                     SkPoint origin,
                                     SkScalar textScale);
-
-        BothCaches lookupCache(const SkPaint& skPaint,
-                               const SkFont& skFont,
-                               const SkSurfaceProps& props,
-                               SkScalerContextFlags scalerContextFlags,
-                               const SkMatrix& viewMatrix,
-                               GrGlyphCache* grGlyphCache);
 
         void setupFont(const SkPaint& skPaint,
                        const SkFont& skFont,
