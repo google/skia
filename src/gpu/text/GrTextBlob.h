@@ -449,12 +449,16 @@ private:
                                     SkPoint origin,
                                     SkScalar textScale);
 
-        BothCaches setupCache(const SkPaint& skPaint,
-                              const SkFont& skFont,
-                              const SkSurfaceProps& props,
-                              SkScalerContextFlags scalerContextFlags,
-                              const SkMatrix& viewMatrix,
-                              GrGlyphCache* grGlyphCache);
+        BothCaches lookupCache(const SkPaint& skPaint,
+                               const SkFont& skFont,
+                               const SkSurfaceProps& props,
+                               SkScalerContextFlags scalerContextFlags,
+                               const SkMatrix& viewMatrix,
+                               GrGlyphCache* grGlyphCache);
+
+        void setupFont(const SkPaint& skPaint,
+                       const SkFont& skFont,
+                       const SkDescriptor& skCache);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
