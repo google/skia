@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5be57b5f_5741ea99",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "It seems like we can\u0027t guarantee the RTC doesn\u0027t wrap a secondaryCB here but we can arrange things so no path renderer that uses stencil is selected.\n\nre that, should \u0027fTargetIsWrappedVkSecondaryCB\u0027 be something like \u0027fCantUseStencil\u0027 which is set to true when the RTC wraps a secondaryCB ?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ff39a16_f291c464",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "This seems like a bit of overkill (though we never get here anyway so ...)",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc2b1bea_97b39677",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1790,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "// comment here\n\n?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a1c96c8_56e79f25",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "// So, no saveLayer ?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a7a57aa_7fa2298a",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "// Copying to or from render targets that wrap a secondary render target is disallowed bc ...\n\n?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b41913c5_c4c95f59",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "// Same comment here\n\n?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65467c94_4cfb0616",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1777,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "Do we need these ifs or is it just to scope the variables ?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d34474bf_2b3024a7",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:54:43Z",
+      "side": 1,
+      "message": "// Reading of render targets that wrap a secondary command buffer is disallowed bc ...\n\n\n?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
