@@ -1,0 +1,210 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79966f7f_5b00aabc",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "// If the target is an external secondary command buffer we cannot delete the ops bc ...\n\n?",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab2c0e0d_3c92f65e",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "line this up ?",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a525c80_bffe2e7e",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "const ?",
+      "range": {
+        "startLine": 94,
+        "startChar": 38,
+        "endLine": 94,
+        "endChar": 39
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b6e7d6_e0979851",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "This could stand to be clearer. Maybe:\n\nIf this render target wraps an external VK Command Buffer then this pointer will be non-null and will point to the GrVk object that, in turn, wraps the external VK Command Buffer. In this case, this render target will not be backed by and an actual VkImage and will, thus, be limited in terms what it can be used for.\n\n?",
+      "range": {
+        "startLine": 174,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 69
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c49faa6_d4bb8bde",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "// Exercise wrapped-secondary-command-buffer drawing ...\n\n?",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e01e2b0a_4e5aa4c8",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "// Test that ...\n\n?",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29e36392_d2a95f96",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "dups",
+      "range": {
+        "startLine": 124,
+        "startChar": 65,
+        "endLine": 124,
+        "endChar": 70
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfce90ed_51b7c0c6",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 125,
+        "startChar": 19,
+        "endLine": 125,
+        "endChar": 23
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a2ca84_6bb1b7a3",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "sync",
+      "range": {
+        "startLine": 126,
+        "startChar": 90,
+        "endLine": 126,
+        "endChar": 95
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecb51787_b0bc0288",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T16:23:38Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 132,
+        "startChar": 68,
+        "endLine": 132,
+        "endChar": 100
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
