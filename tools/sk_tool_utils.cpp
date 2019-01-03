@@ -125,8 +125,7 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     SkFont font(sk_tool_utils::create_portable_typeface(), textSize);
 
     canvas.clear(0x00000000);
-    canvas.drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding,
-                          SkIntToScalar(x), SkIntToScalar(y), font, paint);
+    canvas.drawUTF8String(str, SkIntToScalar(x), SkIntToScalar(y), font, paint);
 
     // Tag data as sRGB (without doing any color space conversion). Color-space aware configs
     // will process this correctly but legacy configs will render as if this returned N32.

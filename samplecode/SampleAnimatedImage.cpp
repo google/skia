@@ -41,7 +41,7 @@ protected:
         font.measureText(text, strlen(text), kUTF8_SkTextEncoding, &bounds);
         fYOffset = bounds.height();
 
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 5, fYOffset, font, SkPaint());
+        canvas->drawUTF8String(text, 5, fYOffset, font, SkPaint());
         fYOffset *= 2;
     }
 

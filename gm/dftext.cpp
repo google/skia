@@ -212,7 +212,7 @@ protected:
             emoiFont.setSubpixel(true);
             emoiFont.setTypeface(fEmojiTypeface);
             emoiFont.setSize(SkIntToScalar(19));
-            canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), kUTF8_SkTextEncoding, 670, 90, emoiFont, paint);
+            canvas->drawUTF8String(fEmojiText, 670, 90, emoiFont, paint);
         }
 
         // render offscreen buffer

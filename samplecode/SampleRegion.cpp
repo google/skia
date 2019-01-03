@@ -188,7 +188,7 @@ protected:
         paint.setColor(hilite ? SK_ColorRED : 0x40FF0000);
         SkFont font;
         font.setSize(SkIntToScalar(20));
-        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, loc.fX, loc.fY, font, paint);
+        canvas->drawUTF8String(text, loc.fX, loc.fY, font, paint);
     }
 
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
