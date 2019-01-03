@@ -176,9 +176,21 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        // Copying to or from render targets that wrap a secondary command buffer is not allowed
+        // since they would require us to know the VkImage, which we don't have, as well as need us
+        // to stop and start the VkRenderPass which we don't have access to.
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            return false;
+        }
         dstSampleCnt = rtProxy->numColorSamples();
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        // Copying to or from render targets that wrap a secondary command buffer is not allowed
+        // since they would require us to know the VkImage, which we don't have, as well as need us
+        // to stop and start the VkRenderPass which we don't have access to.
+        if (rtProxy->wrapsVkSecondaryCB()) {
+            return false;
+        }
         srcSampleCnt = rtProxy->numColorSamples();
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
