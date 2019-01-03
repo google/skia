@@ -129,7 +129,7 @@ protected:
                 SkScalar txtX = SkIntToScalar(55);
                 paint.setColor(colorA);
                 const char* aTxt = invA ? "InverseA " : "A ";
-                canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
+                canvas->drawSimpleText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding, txtX, SkIntToScalar(220), font, paint);
                 txtX += font.measureText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding);
                 paint.setColor(SK_ColorBLACK);
                 canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding,

@@ -185,10 +185,10 @@ protected:
     static void drawstr(SkCanvas* canvas, const char text[], const SkPoint& loc,
                         bool hilite) {
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(20));
         paint.setColor(hilite ? SK_ColorRED : 0x40FF0000);
-        canvas->drawString(text, loc.fX, loc.fY, paint);
+        SkFont font;
+        font.setSize(SkIntToScalar(20));
+        canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, loc.fX, loc.fY, font, paint);
     }
 
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
@@ -303,9 +303,8 @@ protected:
             { SK_ColorBLUE,     "XOR",          SkRegion::kXOR_Op           }
         };
 
-        SkPaint textPaint;
-        textPaint.setAntiAlias(true);
-        textPaint.setTextSize(SK_Scalar1*24);
+        SkFont font;
+        font.setSize(SK_Scalar1*24);
 
         this->drawOrig(canvas, false);
         canvas->save();
@@ -316,7 +315,8 @@ protected:
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawString(gOps[op].fName, SkIntToScalar(75), SkIntToScalar(50), textPaint);
+            canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding,
+                                   SkIntToScalar(75), SkIntToScalar(50), font, SkPaint());
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);
 

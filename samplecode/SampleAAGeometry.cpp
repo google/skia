@@ -564,6 +564,9 @@ struct ControlPaints {
     SkPaint fLabel;
     SkPaint fValue;
 
+    SkFont fLabelFont;
+    SkFont fValueFont;
+
     ControlPaints() {
         fOutline.setAntiAlias(true);
         fOutline.setStyle(SkPaint::kStroke_Style);
@@ -572,9 +575,9 @@ struct ControlPaints {
         fFill.setAntiAlias(true);
         fFill.setColor(0x7fff0000);
         fLabel.setAntiAlias(true);
-        fLabel.setTextSize(13.0f);
+        fLabelFont.setSize(13.0f);
         fValue.setAntiAlias(true);
-        fValue.setTextSize(11.0f);
+        fValueFont.setSize(11.0f);
     }
 };
 
@@ -610,9 +613,10 @@ struct UniControl {
         canvas->drawLine(fBounds.fLeft - 5, fYLo, fBounds.fRight + 5, fYLo, paints.fIndicator);
         SkString label;
         label.printf("%0.3g", fValLo);
-        canvas->drawString(label, fBounds.fLeft + 5, fYLo - 5, paints.fValue);
-        canvas->drawString(fName, fBounds.fLeft, fBounds.bottom() + 11,
-                paints.fLabel);
+        canvas->drawSimpleText(label.c_str(), label.size(), kUTF8_SkTextEncoding,
+                               fBounds.fLeft + 5, fYLo - 5, paints.fValueFont, paints.fValue);
+        canvas->drawSimpleText(fName.c_str(), fName.size(), kUTF8_SkTextEncoding,
+                               fBounds.fLeft, fBounds.bottom() + 11, paints.fLabelFont, paints.fLabel);
     }
 };
 

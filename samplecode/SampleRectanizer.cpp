@@ -7,6 +7,7 @@
 
 #include "Sample.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkRandom.h"
 #include "SkPaint.h"
 #include "SkUTF.h"
@@ -88,8 +89,8 @@ protected:
             }
         }
 
-        SkPaint blackBigFont;
-        blackBigFont.setTextSize(20);
+        SkFont blackBigFont;
+        blackBigFont.setSize(20);
         SkPaint blackStroke;
         blackStroke.setStyle(SkPaint::kStroke_Style);
         SkPaint redFill;
@@ -121,13 +122,16 @@ protected:
                    100.0f * totArea / ((float)kWidth*kHeight),
                    fCurRandRect,
                    kNumRandRects);
-        canvas->drawString(str, 50, kHeight + 50, blackBigFont);
+        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
+                               50, kHeight + 50, blackBigFont, SkPaint());
 
         str.printf("Press \'j\' to toggle rectanizer");
-        canvas->drawString(str, 50, kHeight + 100, blackBigFont);
+        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
+                               50, kHeight + 100, blackBigFont, SkPaint());
 
         str.printf("Press \'h\' to toggle rects");
-        canvas->drawString(str, 50, kHeight + 150, blackBigFont);
+        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
+                               50, kHeight + 150, blackBigFont, SkPaint());
     }
 
 private:

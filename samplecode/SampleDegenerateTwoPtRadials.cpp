@@ -8,6 +8,7 @@
 #include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkString.h"
 
@@ -68,10 +69,8 @@ protected:
         draw_gradient2(canvas, SkRect::MakeXYWH(l, t, w, h), delta);
         SkString txt;
         txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setColor(SK_ColorBLACK);
-        canvas->drawString(txt, l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
+        canvas->drawSimpleText(txt.c_str(), txt.size(), kUTF8_SkTextEncoding,
+                               l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, SkFont(), SkPaint());
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

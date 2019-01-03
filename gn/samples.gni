@@ -24,7 +24,6 @@ samples_sources = [
   "$_samplecode/SampleBigBlur.cpp",
   "$_samplecode/SampleBigGradient.cpp",
   "$_samplecode/SampleBitmapRect.cpp",
-  "$_samplecode/SampleBlur.cpp",
   "$_samplecode/SampleCCPRGeometry.cpp",
   "$_samplecode/SampleCamera.cpp",
   "$_samplecode/SampleChart.cpp",

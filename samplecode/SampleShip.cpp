@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
 #include "Timer.h"
@@ -106,7 +107,9 @@ protected:
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setColor(SK_ColorWHITE);
-        paint.setTextSize(15.0f);
+
+        SkFont font;
+        font.setSize(15.0f);
 
         fTimer.end();
 
@@ -148,7 +151,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
         paint.setColor(SK_ColorWHITE);
-        canvas->drawString(outString, 5, 15, paint);
+        canvas->drawSimpleText(outString.c_str(), outString.size(), kUTF8_SkTextEncoding, 5, 15, font, paint);
     }
 
 #if 0

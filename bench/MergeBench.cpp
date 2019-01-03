@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkImageSource.h"
 #include "SkMergeImageFilter.h"
 #include "SkSurface.h"
@@ -20,11 +21,10 @@ static sk_sp<SkImage> make_bitmap() {
     sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(80, 80));
     surface->getCanvas()->clear(0x00000000);
     SkPaint paint;
-    paint.setAntiAlias(true);
     paint.setColor(0xFF884422);
-    paint.setTextSize(SkIntToScalar(96));
-    const char* str = "g";
-    surface->getCanvas()->drawString(str, 15, 55, paint);
+    SkFont font;
+    font.setSize(SkIntToScalar(96));
+    surface->getCanvas()->drawSimpleText("g", 1, kUTF8_SkTextEncoding, 15, 55, font, paint);
     return surface->makeImageSnapshot();
 }
 
