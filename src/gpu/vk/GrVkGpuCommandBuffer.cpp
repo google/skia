@@ -127,6 +127,21 @@ void GrVkGpuRTCommandBuffer::init() {
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
+void GrVkGpuRTCommandBuffer::initWrapped() {
+    CommandBufferInfo& cbInfo = fCommandBufferInfos.push_back();
+    SkASSERT(fCommandBufferInfos.count() == 1);
+    fCurrentCmdInfo = 0;
+
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+    SkASSERT(vkRT->wrapsSecondaryCommandBuffer());
+    cbInfo.fRenderPass = vkRT->externalRenderPass();
+    cbInfo.fRenderPass->ref();
+
+    cbInfo.fBounds.setEmpty();
+    cbInfo.fCommandBuffers.push_back(vkRT->getExternalSecondaryCommandBuffer());
+    cbInfo.fCommandBuffers[0]->ref();
+    cbInfo.currentCmdBuf()->begin(fGpu, nullptr, cbInfo.fRenderPass);
+}
 
 GrVkGpuRTCommandBuffer::~GrVkGpuRTCommandBuffer() {
     this->reset();
@@ -174,6 +189,23 @@ void GrVkGpuRTCommandBuffer::submit() {
             // We have sumbitted no actual draw commands to the command buffer and we are not using
             // the render pass to do a clear so there is no need to submit anything.
             continue;
+        }
+
+        // We don't want to actually submit the secondary command buffer if it is wrapped.
+        if (this->wrapsSecondaryCommandBuffer()) {
+            // If we have any sampled images set their layout now.
+            for (int j = 0; j < cbInfo.fSampledImages.count(); ++j) {
+                cbInfo.fSampledImages[j]->setImageLayout(fGpu,
+                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                         VK_ACCESS_SHADER_READ_BIT,
+                                                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                                         false);
+            }
+
+            // There should have only been one secondary command buffer in the wrapped case so it is
+            // safe to just return here.
+            SkASSERT(fCommandBufferInfos.count() == 1);
+            return;
         }
 
         // Make sure if we only have a discard load that we execute the discard on the whole image.
@@ -244,6 +276,11 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
 
     this->INHERITED::set(rt, origin);
 
+    if (this->wrapsSecondaryCommandBuffer()) {
+        this->initWrapped();
+        return;
+    }
+
     fClearColor = colorInfo.fClearColor;
 
     get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
@@ -269,6 +306,11 @@ void GrVkGpuRTCommandBuffer::reset() {
 
     fLastPipelineState = nullptr;
     fRenderTarget = nullptr;
+}
+
+bool GrVkGpuRTCommandBuffer::wrapsSecondaryCommandBuffer() const {
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+    return vkRT->wrapsSecondaryCommandBuffer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
