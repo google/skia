@@ -70,23 +70,10 @@ using Bone        = SkVertices::Bone;
 // Wraps the WebGL context in an SkSurface and returns it.
 // This function based on the work of
 // https://github.com/Zubnix/skia-wasm-port/, used under the terms of the MIT license.
-sk_sp<SkSurface> getWebGLSurface(std::string id, int width, int height) {
-    // Context configurations
-    EmscriptenWebGLContextAttributes attrs;
-    emscripten_webgl_init_context_attributes(&attrs);
-    attrs.alpha = true;
-    attrs.premultipliedAlpha = true;
-    attrs.majorVersion = 1;
-    attrs.enableExtensionsByDefault = true;
-
-    EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context = emscripten_webgl_create_context(id.c_str(), &attrs);
-    if (context < 0) {
-        printf("failed to create webgl context %d\n", context);
-        return nullptr;
-    }
+sk_sp<SkSurface> getWebGLSurface(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context, int width, int height) {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
     if (r < 0) {
-        printf("failed to make webgl current %d\n", r);
+        printf("failed to make webgl context current %d\n", r);
         return nullptr;
     }
 
