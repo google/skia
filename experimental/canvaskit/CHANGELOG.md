@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
  - `SkFont` now exposed.
+ - `MakeCanvasSurface` can now take a canvas element directly.
+ - `MakeWebGLCanvasSurface` can now take a WebGL context as an integer and use it directly.
 
 ### Removed
 - `SkPaint.measureText` - use `SkFont.measureText` instead.
