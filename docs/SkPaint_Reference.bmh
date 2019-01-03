@@ -3052,9 +3052,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Typedef typedef SkFontMetrics FontMetrics
-##
-
 #Subtopic Text_Encoding ##
 # ------------------------------------------------------------------------------
 #Subtopic Font_Metrics
