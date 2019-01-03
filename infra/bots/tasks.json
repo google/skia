@@ -16357,7 +16357,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateWinToolchain"
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -16901,7 +16902,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateWinToolchain"
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -17687,7 +17689,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateWinToolchain"
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -17949,7 +17952,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateWinToolchain"
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -20059,6 +20063,29 @@
         "/bin/cp",
         "-rL",
         "win_toolchain",
+        "${ISOLATED_OUTDIR}"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "isolate": "empty.isolate"
+    },
+    "Housekeeper-PerCommit-IsolateWinVulkanSDK": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_vulkan_sdk",
+          "path": "win_vulkan_sdk",
+          "version": "version:7"
+        }
+      ],
+      "command": [
+        "/bin/cp",
+        "-rL",
+        "win_vulkan_sdk",
         "${ISOLATED_OUTDIR}"
       ],
       "dimensions": [

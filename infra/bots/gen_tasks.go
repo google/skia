@@ -30,15 +30,16 @@ import (
 )
 
 const (
-	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
-	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
-	ISOLATE_GO_DEPS_NAME       = "Housekeeper-PerCommit-IsolateGoDeps"
-	ISOLATE_SKIMAGE_NAME       = "Housekeeper-PerCommit-IsolateSkImage"
-	ISOLATE_SKP_NAME           = "Housekeeper-PerCommit-IsolateSKP"
-	ISOLATE_SVG_NAME           = "Housekeeper-PerCommit-IsolateSVG"
-	ISOLATE_NDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
-	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
-	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
+	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
+	ISOLATE_GO_DEPS_NAME        = "Housekeeper-PerCommit-IsolateGoDeps"
+	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
+	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
+	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
+	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
@@ -730,6 +731,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "win_toolchain",
 		path:    "win_toolchain",
 	},
+	ISOLATE_WIN_VULKAN_SDK_NAME: {
+		cipdPkg: "win_vulkan_sdk",
+		path:    "win_vulkan_sdk",
+	},
 }
 
 // isolateCIPDAsset generates a task to isolate the given CIPD asset.
@@ -877,6 +882,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_win"))
+		}
+		if strings.Contains(name, "Vulkan") {
+			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
 		}
 		if strings.Contains(name, "OpenCL") {
 			task.CipdPackages = append(task.CipdPackages,
