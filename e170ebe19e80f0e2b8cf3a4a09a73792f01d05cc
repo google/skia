@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8374e66b_8c3de050",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Reworked to allow us to delete the ops but not do the clear load. Also added comment.",
+      "parentUuid": "79966f7f_5b00aabc",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ab2c0e0d_3c92f65e",
         "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1495d3de_e5c8d61f",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab2c0e0d_3c92f65e",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7041b8bc_266d9122",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a525c80_bffe2e7e",
+      "range": {
+        "startLine": 94,
+        "startChar": 38,
+        "endLine": 94,
+        "endChar": 39
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01b6e7d6_e0979851",
         "filename": "src/gpu/vk/GrVkRenderTarget.h",
         "patchSetId": 4
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "b7c6b582_32327b48",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01b6e7d6_e0979851",
+      "range": {
+        "startLine": 174,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 69
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c49faa6_d4bb8bde",
         "filename": "tests/VkDrawableTest.cpp",
         "patchSetId": 4
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "bd48a4c3_4dbbf8cb",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c49faa6_d4bb8bde",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e01e2b0a_4e5aa4c8",
         "filename": "tests/VkDrawableTest.cpp",
         "patchSetId": 4
@@ -113,6 +215,24 @@
       "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a577e522_f5b54585",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e01e2b0a_4e5aa4c8",
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "5e3cff44_62f96756",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29e36392_d2a95f96",
+      "range": {
+        "startLine": 124,
+        "startChar": 65,
+        "endLine": 124,
+        "endChar": 70
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cfce90ed_51b7c0c6",
         "filename": "tests/VkDrawableTest.cpp",
         "patchSetId": 4
@@ -159,6 +303,30 @@
       "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df4183d9_046d7601",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfce90ed_51b7c0c6",
+      "range": {
+        "startLine": 125,
+        "startChar": 19,
+        "endLine": 125,
+        "endChar": 23
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -185,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "09578484_e3346f5b",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22a2ca84_6bb1b7a3",
+      "range": {
+        "startLine": 126,
+        "startChar": 90,
+        "endLine": 126,
+        "endChar": 95
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecb51787_b0bc0288",
         "filename": "tests/VkDrawableTest.cpp",
         "patchSetId": 4
@@ -196,6 +388,30 @@
       "writtenOn": "2019-01-03T16:23:38Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 132,
+        "startChar": 68,
+        "endLine": 132,
+        "endChar": 100
+      },
+      "revId": "e170ebe19e80f0e2b8cf3a4a09a73792f01d05cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "851ee799_ce03ad67",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T22:37:35Z",
+      "side": 1,
+      "message": "Added more context to the comment to clarify things.",
+      "parentUuid": "ecb51787_b0bc0288",
       "range": {
         "startLine": 132,
         "startChar": 68,
