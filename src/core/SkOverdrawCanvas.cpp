@@ -61,7 +61,7 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     fPaint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(kIncrementAlpha));
 }
 
-void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, const SkScalar pos[],
+void SkOverdrawCanvas::drawPosTextCommon(const SkGlyphID glyphs[], int count, const SkScalar pos[],
                                          int scalarsPerPos, const SkPoint& offset,
                                          const SkFont& font, const SkPaint& paint) {
     ProcessOneGlyphBounds processBounds(this);
@@ -70,8 +70,7 @@ void SkOverdrawCanvas::drawPosTextCommon(const void* text, size_t byteLength, co
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                                 font, paint, props,
                                 SkScalerContextFlags::kNone, this->getTotalMatrix());
-    SkFindAndPlaceGlyph::ProcessPosText(kGlyphID_SkTextEncoding,
-                                        (const char*)text, byteLength,
+    SkFindAndPlaceGlyph::ProcessPosText(glyphs, count,
                                         SkPoint::Make(0, 0), SkMatrix(), (const SkScalar*) pos, 2,
                                         cache.get(), processBounds);
 }
@@ -80,18 +79,17 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
                                       const SkPaint& paint) {
     SkTextBlobRunIterator it(blob);
     for (;!it.done(); it.next()) {
-        size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
         switch (it.positioning()) {
             case SkTextBlobRunIterator::kDefault_Positioning:
                 SK_ABORT("This canvas does not support draw text.");
                 break;
             case SkTextBlobRunIterator::kHorizontal_Positioning:
-                this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 1,
+                this->drawPosTextCommon(it.glyphs(), it.glyphCount(), it.pos(), 1,
                                         SkPoint::Make(x, y + offset.y()), it.font(), paint);
                 break;
             case SkTextBlobRunIterator::kFull_Positioning:
-                this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 2, SkPoint::Make(x, y),
+                this->drawPosTextCommon(it.glyphs(), it.glyphCount(), it.pos(), 2, {x, y},
                                         it.font(), paint);
                 break;
             case SkTextBlobRunIterator::kRSXform_Positioning:

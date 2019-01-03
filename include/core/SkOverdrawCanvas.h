@@ -56,7 +56,7 @@ public:
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
 private:
-    void drawPosTextCommon(const void*, size_t, const SkScalar[], int, const SkPoint&,
+    void drawPosTextCommon(const SkGlyphID[], int, const SkScalar[], int, const SkPoint&,
                            const SkFont&, const SkPaint&);
 
     inline SkPaint overdrawPaint(const SkPaint& paint);
