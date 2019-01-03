@@ -241,6 +241,13 @@ void GrRenderTargetContext::drawGlyphRunList(
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawGlyphRunList", fContext);
 
+    // Drawing text can cause us to do inline uploads. This is not supported for wrapped vulkan
+    // secondary command buffers because it would require stopping and starting a render pass which
+    // we don't have access to.
+    if (this->wrapsVkSecondaryCB()) {
+        return;
+    }
+
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
                                        fSurfaceProps, blob);
@@ -1577,6 +1584,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
+    SkASSERT(!fRenderTargetContext->wrapsVkSecondaryCB());
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = false;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
     // Don't allow the SW renderer
@@ -1644,6 +1653,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
+    canDrawArgs.fTargetIsWrappedVkSecondaryCB = this->wrapsVkSecondaryCB();
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
@@ -1777,6 +1787,13 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
                                           const GrOp& op,
                                           GrXferProcessor::DstProxy* dstProxy) {
+    // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
+    // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
+    // start and stop the render pass in order to make the copy.
+    if (rtProxy->wrapsVkSecondaryCB()) {
+        return false;
+    }
+
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP

@@ -1230,6 +1230,14 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
+    // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
+    // since it would require us to make a copy of the underlying VkImage which we don't have access
+    // to. Additionaly we can't stop and start the render pass that is used with the secondary
+    // command buffer.
+    if (this->accessRenderTargetContext()->wrapsVkSecondaryCB()) {
+        return nullptr;
+    }
+
     sk_sp<GrTextureProxy> proxy(this->accessRenderTargetContext()->asTextureProxyRef());
     if (!proxy) {
         // When the device doesn't have a texture, we create a temporary texture.
@@ -1258,14 +1266,18 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapBackImage(const SkIRect& subset) {
     GrRenderTargetContext* rtc = this->accessRenderTargetContext();
-    if (!rtc) {
+
+    // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
+    // since it would require us to make a copy of the underlying VkImage which we don't have access
+    // to. Additionaly we can't stop and start the render pass that is used with the secondary
+    // command buffer.
+    if (rtc->wrapsVkSecondaryCB()) {
         return nullptr;
     }
 
+
     GrContext* ctx = this->context();
-    if (!rtc->asSurfaceProxy()) {
-        return nullptr;
-    }
+    SkASSERT(rtc->asSurfaceProxy());
 
     auto srcProxy =
             GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->mipMapped(), subset,
