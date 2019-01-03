@@ -1773,6 +1773,15 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                             GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect, const SkIPoint& dstPoint,
                             bool canDiscardOutsideDstRect) {
+#ifdef SK_DEBUG
+    if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
+        SkASSERT(!srcRT->wrapsSecondaryCommandBuffer());
+    }
+    if (GrVkRenderTarget* dstRT = static_cast<GrVkRenderTarget*>(dst->asRenderTarget())) {
+        SkASSERT(!dstRT->wrapsSecondaryCommandBuffer());
+    }
+#endif
+
     GrPixelConfig dstConfig = dst->config();
     GrPixelConfig srcConfig = src->config();
 
@@ -1799,6 +1808,9 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GrRenderTarget* dstRT = dst->asRenderTarget();
     if (dstRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(dstRT);
+        if (vkRT->wrapsSecondaryCommandBuffer()) {
+            return false;
+        }
         dstImage = vkRT->numColorSamples() > 1 ? vkRT->msaaImage() : vkRT;
     } else {
         SkASSERT(dst->asTexture());
@@ -1839,6 +1851,12 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     GrVkImage* image = nullptr;
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(surface->asRenderTarget());
     if (rt) {
+        // Reading from render targets that wrap a secondary command buffer is not allowed since
+        // it would require us to know the VkImage, which we don't have, as well as need us to
+        // stop and start the VkRenderPass which we don't have access to.
+        if (rt->wrapsSecondaryCommandBuffer()) {
+            return false;
+        }
         // resolve the render target if necessary
         switch (rt->getResolveType()) {
             case GrVkRenderTarget::kCantResolve_ResolveType:
@@ -2039,6 +2057,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
                                            const VkClearValue* colorClear,
                                            GrVkRenderTarget* target, GrSurfaceOrigin origin,
                                            const SkIRect& bounds) {
+    SkASSERT (!target->wrapsSecondaryCommandBuffer());
     const SkIRect* pBounds = &bounds;
     SkIRect flippedBounds;
     if (kBottomLeft_GrSurfaceOrigin == origin) {

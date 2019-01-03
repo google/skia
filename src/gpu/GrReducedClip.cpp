@@ -855,6 +855,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
             canDrawArgs.fHasUserStencilSettings = false;
+            canDrawArgs.fTargetIsWrappedVkSecondaryCB = renderTargetContext->wrapsVkSecondaryCB();
 
             GrDrawingManager* dm = context->contextPriv().drawingManager();
             pr = dm->getPathRenderer(canDrawArgs, false, GrPathRendererChain::DrawType::kStencil,
