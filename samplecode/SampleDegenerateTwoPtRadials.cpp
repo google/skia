@@ -69,7 +69,7 @@ protected:
         draw_gradient2(canvas, SkRect::MakeXYWH(l, t, w, h), delta);
         SkString txt;
         txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
-        canvas->drawSimpleText(txt.c_str(), txt.size(), kUTF8_SkTextEncoding,
+        canvas->drawUTF8String(txt,
                                l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, SkFont(), SkPaint());
     }
 

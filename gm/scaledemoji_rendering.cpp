@@ -57,7 +57,7 @@ protected:
                 font.setSubpixel(true);
                 y += -metrics.fAscent;
 
-                canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding,
+                canvas->drawUTF8String(text,
                                        10, y, font, paint);
                 y += metrics.fDescent + metrics.fLeading;
             }
