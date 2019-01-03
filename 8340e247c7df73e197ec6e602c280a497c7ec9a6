@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "520dc6b2_5d8aaf08",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-03T20:21:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19608c30_9b7c3962",
+      "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1698f0fb_d4f5f75f",
         "filename": "src/gpu/ops/GrFillRectOp.cpp",
         "patchSetId": 5
@@ -39,6 +57,30 @@
       "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f34ae084_37c74026",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-03T20:21:41Z",
+      "side": 1,
+      "message": "Done, didn\u0027t remember that temporary object lifetimes could be extended in this situation, and I like that it matches the const\u0026 of the info variable now.",
+      "parentUuid": "1698f0fb_d4f5f75f",
+      "range": {
+        "startLine": 220,
+        "startChar": 12,
+        "endLine": 220,
+        "endChar": 23
+      },
+      "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7a092eee_43071e98",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-03T20:21:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f24eb84d_1824c8b3",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 24
+      },
+      "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "514afcf0_c854e714",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 5
@@ -85,6 +151,30 @@
       "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "453081b4_42a5517d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-03T20:21:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "514afcf0_c854e714",
+      "range": {
+        "startLine": 325,
+        "startChar": 12,
+        "endLine": 325,
+        "endChar": 23
+      },
+      "revId": "8340e247c7df73e197ec6e602c280a497c7ec9a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
