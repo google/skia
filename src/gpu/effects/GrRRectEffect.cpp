@@ -157,7 +157,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
     // only rectangular corners, that side's value corresponds to the rect edge's value outset by
     // half a pixel.
-    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                    "innerRect", &rectName);
     // x is (r + .5) and y is 1/(r + .5)
     fRadiusPlusHalfUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
@@ -503,7 +503,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     const char *rectName;
     // The inner rect is the rrect bounds inset by the x/y radii
-    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+    fInnerRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                    "innerRect", &rectName);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
