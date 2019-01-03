@@ -64,19 +64,24 @@ GrTextBlob::BothCaches GrTextBlob::Run::setupCache(const SkPaint& paint,
                                                    SkScalerContextFlags scalerContextFlags,
                                                    const SkMatrix& viewMatrix,
                                                    GrGlyphCache* grGlyphCache) {
-    // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc = fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
-    SkScalerContextEffects effects;
-    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
-        font, paint, props, scalerContextFlags, viewMatrix, desc, &effects);
-    fTypeface = SkFontPriv::RefTypefaceOrDefault(font);
+    auto skCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            font, paint, props, scalerContextFlags, viewMatrix);
+    sk_sp<GrTextStrike> grCache = grGlyphCache->getStrike(skCache.get());
+    this->setupFont(paint, font, skCache->getDescriptor());
+    return {std::move(skCache), std::move(grCache)};
+}
+
+void GrTextBlob::Run::setupFont(const SkPaint& skPaint, const SkFont& skFont,
+                                const SkDescriptor& cacheDescriptor) {
+    fTypeface = SkFontPriv::RefTypefaceOrDefault(skFont);
+    SkScalerContextEffects effects{skPaint};
     fPathEffect = sk_ref_sp(effects.fPathEffect);
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-
-    SkExclusiveStrikePtr skCache =
-            SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *fTypeface);
-    sk_sp<GrTextStrike> grCache = grGlyphCache->getStrike(skCache.get());
-    return {std::move(skCache), std::move(grCache)};
+    // if we have an override descriptor for the run, then we should use that
+    SkAutoDescriptor* desc =
+            fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
+    desc->SkAutoDescriptor::~SkAutoDescriptor();
+    new (desc) SkAutoDescriptor{cacheDescriptor};
 }
 
 void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,

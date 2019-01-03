@@ -89,8 +89,6 @@ public:
     }
 
     bool operator==(const SkDescriptor& other) const {
-        // probe to see if we have a good checksum algo
-//        SkASSERT(a.fChecksum != b.fChecksum || memcmp(&a, &b, a.fLength) == 0);
 
         // the first value we should look at is the checksum, so this loop
         // should terminate early if they descriptors are different.
@@ -157,6 +155,7 @@ public:
     }
 
     SkDescriptor* getDesc() const { SkASSERT(fDesc); return fDesc; }
+
 private:
     SkAutoDescriptor(SkAutoDescriptor&&) = delete;
     SkAutoDescriptor& operator =(SkAutoDescriptor&&) = delete;
@@ -170,12 +169,9 @@ private:
         kStorageSize =  sizeof(SkDescriptor)
                         + sizeof(SkDescriptor::Entry) + sizeof(SkScalerContextRec) // for rec
                         + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
-                        + 32   // slop for occational small extras
+                        + 32   // slop for occasional small extras
     };
     SkDescriptor*   fDesc;
     uint32_t        fStorage[(kStorageSize + 3) >> 2];
 };
-#define SkAutoDescriptor(...) SK_REQUIRE_LOCAL_VAR(SkAutoDescriptor)
-
-
-#endif
+#endif  //SkDescriptor_DEFINED
