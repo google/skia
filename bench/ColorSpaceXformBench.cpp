@@ -34,8 +34,8 @@ struct ColorSpaceXformBench : public Benchmark {
 
     void onDelayedSetup() override {
         sk_sp<SkColorSpace> src = SkColorSpace::MakeSRGB(),
-                            dst = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                                        SkColorSpace::kDCIP3_D65_Gamut);
+                            dst = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                        SkNamedGamut::kDCIP3);
 
         fSteps = skstd::make_unique<SkColorSpaceXformSteps>(src.get(), kOpaque_SkAlphaType,
                                                             dst.get(), kPremul_SkAlphaType);

@@ -94,8 +94,7 @@ static void compare_pixel(const char* label,
 }
 
 DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
-    auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                    SkColorSpace::kDCIP3_D65_Gamut);
+    auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
     auto srgb = SkColorSpace::MakeSRGB();
 
     auto p3_to_srgb = [&](SkColor4f c) {
@@ -356,8 +355,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 }
 
 DEF_SIMPLE_GM(p3_ovals, canvas, 450, 320) {
-    auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                    SkColorSpace::kDCIP3_D65_Gamut);
+    auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
 
     // Test cases that exercise each Op in GrOvalOpFactory.cpp
 
