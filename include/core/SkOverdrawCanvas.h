@@ -57,7 +57,7 @@ public:
 
 private:
     void drawPosTextCommon(const void*, size_t, const SkScalar[], int, const SkPoint&,
-                           const SkPaint&);
+                           const SkFont&, const SkPaint&);
 
     inline SkPaint overdrawPaint(const SkPaint& paint);
 

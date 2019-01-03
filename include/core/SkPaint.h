@@ -27,6 +27,10 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#define SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#endif
+
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
@@ -753,6 +757,11 @@ public:
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+public:
+#else
+private:
+#endif
     /** Returns SkTypeface if set, or nullptr.
         Does not alter SkTypeface SkRefCnt.
 
@@ -773,6 +782,9 @@ public:
         @param typeface  font and style used to draw text
     */
     void setTypeface(sk_sp<SkTypeface> typeface);
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+public:
+#endif
 
     /** Returns SkImageFilter if set, or nullptr.
         Does not alter SkImageFilter SkRefCnt.
@@ -832,6 +844,11 @@ public:
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+public:
+#else
+private:
+#endif
     /** Returns text size in points.
 
         @return  typographic height of text
@@ -888,6 +905,9 @@ public:
      *  @param encoding  the new text encoding
      */
     void setTextEncoding(SkTextEncoding encoding);
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+public:
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 

@@ -1720,9 +1720,7 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 
     // Check for valid input
     const SkMatrix& ctm = this->ctm();
-    const SkPaint& paint = glyphRunList.paint();
-    if (!ctm.isFinite() || !SkScalarIsFinite(paint.getTextSize()) ||
-        !SkScalarIsFinite(paint.getTextScaleX()) || !SkScalarIsFinite(paint.getTextSkewX())) {
+    if (!ctm.isFinite() || !glyphRunList.allFontsFinite()) {
         return;
     }
 

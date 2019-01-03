@@ -86,6 +86,7 @@ public:
         }
         return glyphCount;
     }
+    bool allFontsFinite() const;
 
     SkPoint origin() const { return fOrigin; }
     const SkPaint& paint() const { return *fOriginalPaint; }

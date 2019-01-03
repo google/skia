@@ -17,6 +17,7 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
+#include "SkFontPriv.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkJpegCodec.h"
@@ -240,7 +241,7 @@ public:
 
     void addRectAttributes(const SkRect&);
     void addPathAttributes(const SkPath&);
-    void addTextAttributes(const SkPaint&);
+    void addTextAttributes(const SkFont&);
 
 private:
     Resources addResources(const MxCp&, const SkPaint& paint);
@@ -588,12 +589,12 @@ void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
     this->addAttribute("d", pathData);
 }
 
-void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
-    this->addAttribute("font-size", paint.getTextSize());
+void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
+    this->addAttribute("font-size", font.getSize());
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
-    sk_sp<SkTypeface> tface = SkPaintPriv::RefTypefaceOrDefault(paint);
+    sk_sp<SkTypeface> tface = SkFontPriv::RefTypefaceOrDefault(font);
 
     SkASSERT(tface);
     SkFontStyle style = tface->fontStyle();
@@ -930,10 +931,8 @@ void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
 
     auto processGlyphRun = [this]
                            (SkPoint origin, const SkGlyphRun& glyphRun, const SkPaint& runPaint) {
-        SkPaint paint{runPaint};
-        glyphRun.font().LEGACY_applyToPaint(&paint);
-        AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
-        elem.addTextAttributes(paint);
+        AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), runPaint);
+        elem.addTextAttributes(glyphRun.font());
 
         SVGTextBuilder builder(origin, glyphRun);
         elem.addAttribute("x", builder.posX());
