@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a1b2789a_eeea6029",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1790,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T21:40:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc2b1bea_97b39677",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a1c96c8_56e79f25",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 8
@@ -100,6 +118,24 @@
       "writtenOn": "2019-01-03T18:54:43Z",
       "side": 1,
       "message": "// So, no saveLayer ?",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9cdba15_50a1ee5f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T21:40:58Z",
+      "side": 1,
+      "message": "Changed to only block when we are snapping a special image or doing snapBackImage. This should catch the case of doing a save layer with backdrop",
+      "parentUuid": "5a1c96c8_56e79f25",
       "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -123,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "739c64c0_e7a3d76f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T21:40:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a7a57aa_7fa2298a",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b41913c5_c4c95f59",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 8
@@ -137,6 +191,24 @@
       "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a5d961b_7b684d76",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T21:40:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b41913c5_c4c95f59",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -189,6 +261,24 @@
       "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf70c56e_d9747e30",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-03T21:40:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d34474bf_2b3024a7",
+      "revId": "4ce56479255edd6609aa1a7f86500771562e9686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
