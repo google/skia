@@ -674,15 +674,17 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             SkExclusiveStrikePtr fallbackCache ;
             sk_sp<GrTextStrike> strike;
             {
-                BothCaches both = fRun->setupCache(fallbackPaint,
-                                                     fallbackFont,
-                                                     fProps,
-                                                     fScalerContextFlags,
-                                                     glyphCacheMatrix,
-                                                     fGlyphCache);
+                BothCaches both = fRun->lookupCache(fallbackPaint,
+                                                    fallbackFont,
+                                                    fProps,
+                                                    fScalerContextFlags,
+                                                    glyphCacheMatrix,
+                                                    fGlyphCache);
                 fallbackCache = std::move(both.skCache);
                 strike = std::move(both.grCache);
             }
+            fRun->setupFont(fallbackPaint, fallbackFont, fallbackCache->getDescriptor());
+
             SkASSERT(strike != nullptr);
             subRun->setStrike(strike);
             const SkPoint* glyphPos = positions.data();
@@ -745,14 +747,15 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
                 SkExclusiveStrikePtr cache;
                 sk_sp<GrTextStrike> currStrike;
                 {
-                    BothCaches both = run->setupCache(distanceFieldPaint,
-                                                      distanceFieldFont,
-                                                      props,
-                                                      flags,
-                                                      SkMatrix::I(),
-                                                      glyphCache);
+                    BothCaches both = run->lookupCache(distanceFieldPaint,
+                                                       distanceFieldFont,
+                                                       props,
+                                                       flags,
+                                                       SkMatrix::I(),
+                                                       glyphCache);
                     cache = std::move(both.skCache);
                     currStrike = std::move(both.grCache);
+                    run->setupFont(distanceFieldPaint, distanceFieldFont, cache->getDescriptor());
                 }
 
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
@@ -819,14 +822,16 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             SkExclusiveStrikePtr cache;
             sk_sp<GrTextStrike> currStrike;
             {
-                BothCaches both = run->setupCache(runPaint,
-                                                  runFont,
-                                                  props,
-                                                  scalerContextFlags,
-                                                  viewMatrix,
-                                                  glyphCache);
+                BothCaches both = run->lookupCache(runPaint,
+                                                   runFont,
+                                                   props,
+                                                   scalerContextFlags,
+                                                   viewMatrix,
+                                                   glyphCache);
                 cache = std::move(both.skCache);
                 currStrike = std::move(both.grCache);
+                run->setupFont(runPaint, runFont, cache->getDescriptor());
+
             }
 
             auto perEmpty = [](const SkGlyph&, SkPoint) {};
