@@ -169,15 +169,16 @@ public:
             str.appendf("Proxy ID: %d, Filter: %d\n", fProxies[p].fProxy->uniqueID().asUInt(),
                         static_cast<int>(fFilter));
             for (int i = 0; i < fProxies[p].fQuadCnt; ++i, ++q) {
-                const Quad& quad = fQuads[q];
+                GrPerspQuad quad = fQuads[q];
+                const ColorDomainAndAA& info = fQuads.metadata(i);
                 str.appendf(
                         "%d: Color: 0x%08x, TexRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f] "
                         "Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                        i, quad.color().toBytes_RGBA(), quad.srcRect().fLeft, quad.srcRect().fTop,
-                        quad.srcRect().fRight, quad.srcRect().fBottom, quad.quad().point(0).fX,
-                        quad.quad().point(0).fY, quad.quad().point(1).fX, quad.quad().point(1).fY,
-                        quad.quad().point(2).fX, quad.quad().point(2).fY, quad.quad().point(3).fX,
-                        quad.quad().point(3).fY);
+                        i, info.fColor.toBytes_RGBA(), info.fSrcRect.fLeft, info.fSrcRect.fTop,
+                        info.fSrcRect.fRight, info.fSrcRect.fBottom, quad.point(0).fX,
+                        quad.point(0).fY, quad.point(1).fX, quad.point(1).fY,
+                        quad.point(2).fX, quad.point(2).fY, quad.point(3).fX,
+                        quad.point(3).fY);
             }
         }
         str += INHERITED::dumpInfo();
@@ -221,7 +222,6 @@ private:
         GrResolveAATypeForQuad(aaType, aaFlags, quad, quadType, &aaType, &aaFlags);
         fAAType = static_cast<unsigned>(aaType);
 
-        fQuadType = static_cast<unsigned>(quadType);
         // We expect our caller to have already caught this optimization.
         SkASSERT(!srcRect.contains(proxy->getWorstCaseBoundsRect()) ||
                  constraint == SkCanvas::kFast_SrcRectConstraint);
@@ -241,12 +241,15 @@ private:
             aaType != GrAAType::kCoverage) {
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
-        const auto& draw = fQuads.emplace_back(srcRect, quad, aaFlags, constraint, color);
+
+        Domain domain = constraint == SkCanvas::kStrict_SrcRectConstraint ? Domain::kYes
+                                                                          : Domain::kNo;
+        fQuads.push_back(quad, quadType, {color, srcRect, domain, aaFlags});
         fProxyCnt = 1;
         fProxies[0] = {proxy.release(), 1};
         auto bounds = quad.bounds();
         this->setBounds(bounds, HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
-        fDomain = static_cast<unsigned>(draw.domain());
+        fDomain = static_cast<unsigned>(domain);
         fWideColor = !SkPMColor4fFitsInBytes(color);
         fCanSkipAllocatorGather =
                 static_cast<unsigned>(fProxies[0].fProxy->canSkipResourceAllocator());
@@ -258,7 +261,6 @@ private:
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fFilter(static_cast<unsigned>(filter))
             , fFinalized(0) {
-        fQuads.reserve(cnt);
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
         GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
@@ -266,6 +268,8 @@ private:
         fCanSkipAllocatorGather = static_cast<unsigned>(true);
         // All dst rects are transformed by the same view matrix, so their quad types are identical
         GrQuadType quadType = GrQuadTypeForTransformedRect(viewMatrix);
+        fQuads.reserve(cnt, quadType);
+
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy = SkRef(set[p].fProxy.get());
             fProxies[p].fQuadCnt = 1;
@@ -291,15 +295,13 @@ private:
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
-            fQuads.emplace_back(set[p].fSrcRect, quad, aaFlags, SkCanvas::kFast_SrcRectConstraint,
-                                color);
+            fQuads.push_back(quad, quadType, {color, set[p].fSrcRect, Domain::kNo, aaFlags});
         }
         fAAType = static_cast<unsigned>(overallAAType);
         if (!mustFilter) {
             fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
         }
         this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage), IsZeroArea::kNo);
-        fQuadType = static_cast<unsigned>(quadType);
         fDomain = static_cast<unsigned>(false);
         fWideColor = static_cast<unsigned>(false);
     }
@@ -320,12 +322,14 @@ private:
         }
 
         for (int i = start; i < start + cnt; ++i) {
-            const auto q = fQuads[i];
-            GrPerspQuad srcQuad = compute_src_quad(origin, q.srcRect(), iw, ih, h);
+            const GrPerspQuad& device = fQuads[i];
+            const ColorDomainAndAA& info = fQuads.metadata(i);
+
+            GrPerspQuad srcQuad = compute_src_quad(origin, info.fSrcRect, iw, ih, h);
             SkRect domain =
-                    compute_domain(q.domain(), this->filter(), origin, q.srcRect(), iw, ih, h);
-            v = GrQuadPerEdgeAA::Tessellate(v, spec, q.quad(), q.color(), srcQuad, domain,
-                                            q.aaFlags());
+                    compute_domain(info.domain(), this->filter(), origin, info.fSrcRect, iw, ih, h);
+            v = GrQuadPerEdgeAA::Tessellate(v, spec, device, info.fColor, srcQuad, domain,
+                                            info.aaFlags());
         }
     }
 
@@ -340,8 +344,8 @@ private:
         auto config = fProxies[0].fProxy->config();
         GrAAType aaType = this->aaType();
         for (const auto& op : ChainRange<TextureOp>(this)) {
-            if (op.quadType() > quadType) {
-                quadType = op.quadType();
+            if (op.fQuads.quadType() > quadType) {
+                quadType = op.fQuads.quadType();
             }
             if (op.fDomain) {
                 domain = Domain::kYes;
@@ -485,10 +489,7 @@ private:
             return CombineResult::kCannotCombine;
         }
         fProxies[0].fQuadCnt += that->fQuads.count();
-        fQuads.push_back_n(that->fQuads.count(), that->fQuads.begin());
-        if (that->fQuadType > fQuadType) {
-            fQuadType = that->fQuadType;
-        }
+        fQuads.concat(that->fQuads);
         fDomain |= that->fDomain;
         fWideColor |= that->fWideColor;
         if (upgradeToCoverageAAOnMerge) {
@@ -499,47 +500,44 @@ private:
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     GrSamplerState::Filter filter() const { return static_cast<GrSamplerState::Filter>(fFilter); }
-    GrQuadType quadType() const { return static_cast<GrQuadType>(fQuadType); }
 
-    class Quad {
-    public:
-        Quad(const SkRect& srcRect, const GrPerspQuad& quad, GrQuadAAFlags aaFlags,
-             SkCanvas::SrcRectConstraint constraint, const SkPMColor4f& color)
-                : fSrcRect(srcRect)
-                , fQuad(quad)
-                , fColor(color)
-                , fHasDomain(constraint == SkCanvas::kStrict_SrcRectConstraint)
+    struct ColorDomainAndAA {
+        // Special constructor to convert enums into the packed bits, which should not delete
+        // the implicit move constructor (but it does require us to declare an empty ctor for
+        // use with the GrTQuadList).
+        ColorDomainAndAA(const SkPMColor4f& color, const SkRect& srcRect,
+                         Domain hasDomain, GrQuadAAFlags aaFlags)
+                : fColor(color)
+                , fSrcRect(srcRect)
+                , fHasDomain(static_cast<unsigned>(hasDomain))
                 , fAAFlags(static_cast<unsigned>(aaFlags)) {
+            SkASSERT(fHasDomain == static_cast<unsigned>(hasDomain));
             SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
         }
-        const GrPerspQuad& quad() const { return fQuad; }
-        const SkRect& srcRect() const { return fSrcRect; }
-        SkPMColor4f color() const { return fColor; }
-        Domain domain() const { return Domain(fHasDomain); }
-        GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
+        ColorDomainAndAA() = default;
 
-    private:
-        SkRect fSrcRect;
-        GrPerspQuad fQuad;
         SkPMColor4f fColor;
+        SkRect fSrcRect;
         unsigned fHasDomain : 1;
         unsigned fAAFlags : 4;
+
+        Domain domain() const { return Domain(fHasDomain); }
+        GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
     };
     struct Proxy {
         GrTextureProxy* fProxy;
         int fQuadCnt;
     };
-    SkSTArray<1, Quad, true> fQuads;
+    GrTQuadList<ColorDomainAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     unsigned fFilter : 2;
     unsigned fAAType : 2;
-    unsigned fQuadType : 2; // Device quad, src quad is always trivial
     unsigned fDomain : 1;
     unsigned fWideColor : 1;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fCanSkipAllocatorGather : 1;
-    unsigned fProxyCnt : 32 - 10;
+    unsigned fProxyCnt : 32 - 8;
     Proxy fProxies[1];
 
     static_assert(kGrQuadTypeCount <= 4, "GrQuadType does not fit in 2 bits");
