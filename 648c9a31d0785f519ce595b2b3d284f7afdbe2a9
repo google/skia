@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddf88883_a52e39c7",
+        "filename": "src/gpu/ops/GrFillRectOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-03T18:22:31Z",
+      "side": 1,
+      "message": "Do we need the \", since\" ?",
+      "range": {
+        "startLine": 320,
+        "startChar": 46,
+        "endLine": 320,
+        "endChar": 53
+      },
+      "revId": "648c9a31d0785f519ce595b2b3d284f7afdbe2a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
