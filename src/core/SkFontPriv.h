@@ -64,6 +64,12 @@ public:
      */
     static SkRect GetFontBounds(const SkFont&);
 
+    static bool IsFinite(const SkFont& font) {
+        return SkScalarIsFinite(font.fSize) &&
+               SkScalarIsFinite(font.fScaleX) &&
+               SkScalarIsFinite(font.fSkewX);
+    }
+
     // Returns the number of elements (characters or glyphs) in the array.
     static int CountTextElements(const void* text, size_t byteLength, SkTextEncoding);
 

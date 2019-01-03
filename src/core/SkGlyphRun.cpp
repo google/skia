@@ -7,11 +7,11 @@
 
 #include "SkGlyphRun.h"
 
-#include "SkFont.h"
 #include "SkDevice.h"
+#include "SkFont.h"
+#include "SkFontPriv.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
-#include "SkPaintPriv.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobPriv.h"
@@ -81,6 +81,15 @@ bool SkGlyphRunList::anyRunsSubpixelPositioned() const {
         }
     }
     return false;
+}
+
+bool SkGlyphRunList::allFontsFinite() const {
+    for (const auto& r : fGlyphRuns) {
+        if (!SkFontPriv::IsFinite(r.font())) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
