@@ -2240,36 +2240,6 @@ STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     }
 }
 
-static void run_pipeline_chunk(size_t x, size_t y, size_t tail,
-                               const SkRasterPipeline::StockStage* stages, int nstages,
-                               void** ctx) {
-    F  r = 0,  g = 0,  b = 0,  a = 0,
-      dr = 0, dg = 0, db = 0, da = 0;
-    for (int i = 0; i < nstages; i++) {
-        switch (stages[i]) {
-    #define CASE(st) \
-            case SkRasterPipeline::st: st##_k(Ctx{ctx}, x,y,tail, r,g,b,a, dr,dg,db,da); break;
-        SK_RASTER_PIPELINE_STAGES(CASE)
-    #undef CASE
-        }
-    }
-}
-
-static void run_pipeline_obs(size_t x0, size_t y0,
-                             size_t x1, size_t y1,
-                             const SkRasterPipeline::StockStage* stages, int nstages,
-                             void** ctx) {
-    for (size_t y = y0; y < y1; y++) {
-        size_t x = x0;
-        for (; x + N <= x1; x += N) {
-            run_pipeline_chunk(x,y,    0, stages,nstages,ctx);
-        }
-        if (size_t tail = x1 - x) {
-            run_pipeline_chunk(x,y, tail, stages,nstages,ctx);
-        }
-    }
-}
-
 namespace lowp {
 #if defined(JUMPER_IS_SCALAR) || defined(SK_DISABLE_LOWP_RASTER_PIPELINE)
     // If we're not compiled by Clang, or otherwise switched into scalar mode (old Clang, manually),
@@ -2281,10 +2251,6 @@ namespace lowp {
     static void (*just_return)(void) = nullptr;
 
     static void start_pipeline(size_t,size_t,size_t,size_t, void**) {}
-
-    static bool can_run_pipeline_obs(const SkRasterPipeline::StockStage*, int) { return false; }
-    static void run_pipeline_obs(size_t,size_t, size_t,size_t,
-                                 const SkRasterPipeline::StockStage*, int, void**) {}
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
@@ -3307,10 +3273,7 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
 
 // Now we'll add null stand-ins for stages we haven't implemented in lowp.
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
-#define NOT_IMPLEMENTED(st)             \
-    static void (*st)(void) = nullptr;  \
-    static void st##_k(Ctx::None, size_t,size_t,size_t, F,F, U16,U16,U16,U16, U16,U16,U16,U16) {}
-
+#define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
     NOT_IMPLEMENTED(load_rgba)
     NOT_IMPLEMENTED(store_rgba)
@@ -3381,50 +3344,6 @@ STAGE_PP(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     NOT_IMPLEMENTED(mask_2pt_conical_degenerates)
     NOT_IMPLEMENTED(apply_vector_mask)
 #undef NOT_IMPLEMENTED
-
-static bool can_run_pipeline_obs(const SkRasterPipeline::StockStage* stages, int nstages) {
-    for (int i = 0; i < nstages; i++) {
-        switch (stages[i]) {
-    #define CASE(st) case SkRasterPipeline::st: if (!st) { return false; } break;
-        SK_RASTER_PIPELINE_STAGES(CASE)
-    #undef CASE
-        }
-    }
-    return true;
-}
-
-static void run_pipeline_chunk(size_t dx, size_t dy, size_t tail,
-                               const SkRasterPipeline::StockStage* stages, int nstages,
-                               void** ctx) {
-    F x = 0,
-      y = 0;
-    U16  r = 0,  g = 0,  b = 0,  a = 0,
-        dr = 0, dg = 0, db = 0, da = 0;
-    for (int i = 0; i < nstages; i++) {
-        switch (stages[i]) {
-    #define CASE(st)                                                                            \
-            case SkRasterPipeline::st: st##_k(Ctx{ctx}, dx,dy,tail, x,y, r,g,b,a, dr,dg,db,da); \
-                                       break;
-        SK_RASTER_PIPELINE_STAGES(CASE)
-    #undef CASE
-        }
-    }
-}
-
-static void run_pipeline_obs(size_t x0, size_t y0,
-                             size_t x1, size_t y1,
-                             const SkRasterPipeline::StockStage* stages, int nstages,
-                             void** ctx) {
-    for (size_t y = y0; y < y1; y++) {
-        size_t x = x0;
-        for (; x + N <= x1; x += N) {
-            run_pipeline_chunk(x,y,    0, stages,nstages,ctx);
-        }
-        if (size_t tail = x1 - x) {
-            run_pipeline_chunk(x,y, tail, stages,nstages,ctx);
-        }
-    }
-}
 
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages
 }  // namespace lowp
