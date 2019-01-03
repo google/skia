@@ -16,10 +16,6 @@ void SkRasterPipeline::reset() {
     fStages      = nullptr;
     fNumStages   = 0;
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
-
-    fStockStages.reset();
-    fCtxPointers.reset();
-    fCanUseRunProgramObs = true;   // flip to true to experiment with this feature
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -34,20 +30,11 @@ void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) stage, ctx, false} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
-
-    if (fCanUseRunProgramObs) {
-        fStockStages.push_back(stage);
-        if (ctx) {
-            fCtxPointers.push_back(ctx);
-        }
-    }
 }
 void SkRasterPipeline::append(void* fn, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, (uint64_t) fn, ctx, true} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
-
-    fCanUseRunProgramObs = false;
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
@@ -69,20 +56,23 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fStages = &stages[src.fNumStages - 1];
     fNumStages   += src.fNumStages;
     fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
-
-    fStockStages.push_back_n(src.fStockStages.count(), src.fStockStages.begin());
-    fCtxPointers.push_back_n(src.fCtxPointers.count(), src.fCtxPointers.begin());
 }
 
 void SkRasterPipeline::dump() const {
     SkDebugf("SkRasterPipeline, %d stages\n", fNumStages);
-
-    for (auto st : fStockStages) {
-        switch (st) {
-        #define M(st) case st: SkDebugf("\t%s\n", #st); break;
+    std::vector<const char*> stages;
+    for (auto st = fStages; st; st = st->prev) {
+        const char* name = "";
+        switch (st->stage) {
+        #define M(x) case x: name = #x; break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
         }
+        stages.push_back(name);
+    }
+    std::reverse(stages.begin(), stages.end());
+    for (const char* name : stages) {
+        SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
 }
@@ -306,22 +296,6 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
         return;
     }
 
-    if (fCanUseRunProgramObs) {
-        const auto& stages = fStockStages;
-        const auto& ctx    = fCtxPointers;
-
-        if (SkOpts::can_run_pipeline_obs_lowp(stages.begin(), stages.count())) {
-            SkOpts::run_pipeline_obs_lowp(x,y, x+w,y+h,
-                                          stages.begin(), stages.count(),
-                                          (void**)ctx.begin());
-        } else {
-            SkOpts::run_pipeline_obs(x,y, x+w,y+h,
-                                     stages.begin(), stages.count(),
-                                     (void**)ctx.begin());
-        }
-        return;
-    }
-
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
@@ -332,23 +306,6 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     if (this->empty()) {
         return [](size_t, size_t, size_t, size_t) {};
-    }
-
-    if (fCanUseRunProgramObs) {
-        const auto& stages = fStockStages;
-        const auto& ctx = fCtxPointers;
-
-        if (SkOpts::can_run_pipeline_obs_lowp(stages.begin(), stages.count())) {
-            return [=](size_t x, size_t y, size_t w, size_t h) {
-                SkOpts::run_pipeline_obs_lowp(x,y, x+w,y+h,
-                                              stages.begin(), stages.count(), (void**)ctx.begin());
-            };
-        } else {
-            return [=](size_t x, size_t y, size_t w, size_t h) {
-                SkOpts::run_pipeline_obs(x,y, x+w,y+h,
-                                         stages.begin(), stages.count(), (void**)ctx.begin());
-            };
-        }
     }
 
     void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
