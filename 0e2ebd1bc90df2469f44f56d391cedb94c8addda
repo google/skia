@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6943dcca_1ac2aa28",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-03T00:01:38Z",
+      "side": 1,
+      "message": "Thoughts on this criteria? The two cases I\u0027m worried about are:\n\n1) Somebody draws the top-left corner of an absolutely gigantic path, then draws the bottom-right corner. If we don\u0027t require the 10% visibility thing, we will cache an enormous mask.\n\n2) Somebody pans an enormous path across the screen in a zigzag pattern. We will eventually cache the entire thing, but probably should not.\n\nAre we ok with 50% lifetime visibility/10% current visibility? Any better ideas?",
+      "range": {
+        "startLine": 291,
+        "startChar": 15,
+        "endLine": 292,
+        "endChar": 71
+      },
+      "revId": "0e2ebd1bc90df2469f44f56d391cedb94c8addda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
