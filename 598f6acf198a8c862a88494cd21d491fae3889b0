@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75cfaa73_0710e375",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T19:30:01Z",
+      "side": 1,
+      "message": "Feels kind of dangerous to use std::unique_ptr while still inheriting from SkRefCnt.",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 41
+      },
+      "revId": "598f6acf198a8c862a88494cd21d491fae3889b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2b404f9_150f1b3a",
+        "filename": "include/core/SkRefCnt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T19:30:01Z",
+      "side": 1,
+      "message": "Seems weird to make these non-explicit?\n\nIs this how you\u0027re getting away with not having to change any code outside the Skia repo?  Maybe try a #define guard?",
+      "revId": "598f6acf198a8c862a88494cd21d491fae3889b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
