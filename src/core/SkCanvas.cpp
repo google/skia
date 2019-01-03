@@ -2562,40 +2562,6 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
         this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
-#ifdef SK_SUPPORT_LEGACY_DRAWPOSTTEXT
-void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                           const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (byteLength) {
-        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-        const SkTextEncoding encoding = paint.getTextEncoding();
-        this->drawTextBlob(SkTextBlob::MakeFromPosText(text, byteLength, pos, font, encoding), 0, 0, paint);
-    }
-}
-void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                            SkScalar constY, const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (byteLength) {
-        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-        const SkTextEncoding encoding = paint.getTextEncoding();
-        this->drawTextBlob(SkTextBlob::MakeFromPosTextH(text, byteLength, xpos, constY, font, encoding), 0, 0, paint);
-    }
-}
-
-void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                               const SkRect* cullRect, const SkPaint& paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    if (byteLength) {
-        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-        const SkTextEncoding encoding = paint.getTextEncoding();
-        this->drawTextBlob(SkTextBlob::MakeFromRSXform(text, byteLength, xform, font, encoding),
-                           0, 0, paint);
-    }
-}
-#endif
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);

@@ -3955,7 +3955,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawString drawPosText drawPosTextH drawTextBlob drawTextRSXform
+#SeeAlso drawString drawTextBlob
 
 ##
 
@@ -3971,7 +3971,7 @@ void draw(SkCanvas* canvas) {
    canvas->drawString("a small hello", 20, 20, paint);
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextRSXform
+#SeeAlso drawText drawTextBlob
 
 ##
 
@@ -3984,88 +3984,7 @@ void draw(SkCanvas* canvas) {
    canvas->drawString(string, 20, 20, paint);
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextRSXform
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                     const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws text at array of (x, y) positions ##
-#Populate
-
-#Example
-#Height 120
-void draw(SkCanvas* canvas) {
-  const char hello[] = "HeLLo!";
-  const SkPoint pos[] = { {40, 100}, {82, 95}, {115, 110}, {130, 95}, {145, 85},
-    {172, 100} };
-  SkPaint paint;
-  paint.setTextSize(60);
-  canvas->drawPosText(hello, strlen(hello), pos, paint);
-}
-##
-
-#SeeAlso drawText drawPosTextH drawTextBlob drawTextRSXform
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], SkScalar constY,
-                      const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws text at x positions with common baseline ##
-#Populate
-
-#Example
-#Height 40
-    void draw(SkCanvas* canvas) {
-        SkScalar xpos[] = { 20, 40, 80, 160 };
-        SkPaint paint;
-        canvas->drawPosTextH("XXXX", 4, xpos, 20, paint);
-    }
-##
-
-#SeeAlso drawText drawPosText drawTextBlob drawTextRSXform
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
-                         const SkRect* cullRect, const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws text with array of RSXform ##
-#Populate
-
-#Example
-void draw(SkCanvas* canvas) {
-    const int iterations = 26;
-    SkRSXform transforms[iterations];
-    char alphabet[iterations];
-    SkScalar angle = 0;
-    SkScalar scale = 1;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {
-        const SkScalar s = SkScalarSin(angle) * scale;
-        const SkScalar c = SkScalarCos(angle) * scale;
-        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);
-        angle += .45;
-        scale += .2;
-        alphabet[i] = 'A' + i;
-    }
-    SkPaint paint;
-    canvas->translate(110, 138);
-    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);
-}
-##
-
-#SeeAlso drawText drawPosText drawTextBlob
+#SeeAlso drawText drawTextBlob
 
 ##
 
@@ -4122,7 +4041,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH
+#SeeAlso drawText
 
 ##
 
@@ -4165,7 +4084,7 @@ Paint attributes related to text, like text size, have no effect on paint passed
     }
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH
+#SeeAlso drawText
 
 ##
 
