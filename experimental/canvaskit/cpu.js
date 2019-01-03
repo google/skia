@@ -3,11 +3,15 @@
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
-    CanvasKit.MakeSWCanvasSurface = function(htmlID) {
-      var canvas = document.getElementById(htmlID);
-      if (!canvas) {
-        throw 'Canvas with id ' + htmlID + ' was not found';
-      }
+    // Takes in an html id or a canvas element
+    CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
+        var canvas = idOrElement;
+        if (canvas.tagName !== 'CANVAS') {
+          canvas = document.getElementById(idOrElement);
+          if (!canvas) {
+            throw 'Canvas with id ' + idOrElement + ' was not found';
+          }
+        }
       // Maybe better to use clientWidth/height.  See:
       // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
       var surface = CanvasKit.MakeSurface(canvas.width, canvas.height);
