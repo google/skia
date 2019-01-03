@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64d842bd_76ee74e5",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T16:22:11Z",
+      "side": 1,
+      "message": "Think we should convert one of these two over to the other\u0027s style?",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 3
+      },
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe117dd1_066896db",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T16:22:11Z",
+      "side": 1,
+      "message": "Think we should model these off the old just-floats methods below instead, returning void?\n\nOr are you thinking ahead to non-7-parameter TFs, non-XYZ gamuts?  PQ + CIELAB for the new year?",
+      "range": {
+        "startLine": 196,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 51
+      },
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b39a337_36d37a97",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T16:22:11Z",
+      "side": 1,
+      "message": "// Going through this old path makes sure we classify transferFn as an SkGammaNamed.\n\n?",
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "355b62d0_9805ed52",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-03T16:22:11Z",
+      "side": 1,
+      "message": "Time to finally use the fVersion field of ColorSpaceHeader?  Or just see if we can get away with breaking old formats?  If we\u0027re ok to break things, most of all this serialization seems pretty overkill to me... just write and read 7+9, maybe with a size+version header up front?",
+      "revId": "0143405aafe5de09ea5de20d88f20e9ca31485e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
