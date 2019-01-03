@@ -53,10 +53,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         this->src_to_dst_matrix[8] = row_major[8];
     } else {
     #ifdef SK_DEBUG
-        SkMatrix44 srcM, dstM;
+        skcms_Matrix3x3 srcM, dstM;
         src->toXYZD50(&srcM);
         dst->toXYZD50(&dstM);
-        SkASSERT(0 == memcmp(&srcM, &dstM, 16*sizeof(SkMScalar)) && "Hash collision");
+        SkASSERT(0 == memcmp(&srcM, &dstM, 9*sizeof(float)) && "Hash collision");
     #endif
     }
 

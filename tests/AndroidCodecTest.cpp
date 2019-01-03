@@ -15,7 +15,6 @@
 #include "SkEncodedImageFormat.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
-#include "SkMatrix44.h"
 #include "SkPixmapPriv.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
@@ -157,8 +156,7 @@ DEF_TEST(AndroidCodec_wide, r) {
         return;
     }
 
-    auto expected = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                          SkColorSpace::kDCIP3_D65_Gamut);
+    auto expected = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
     REPORTER_ASSERT(r, SkColorSpace::Equals(cs.get(), expected.get()));
 }
 
@@ -190,17 +188,15 @@ DEF_TEST(AndroidCodec_P3, r) {
     REPORTER_ASSERT(r, !cs->isSRGB());
     REPORTER_ASSERT(r, cs->gammaCloseToSRGB());
 
-    SkMatrix44 matrix;
+    skcms_Matrix3x3 matrix;
     cs->toXYZD50(&matrix);
 
-    SkMatrix44 expected;
-    static constexpr float kExpected[] = {
-        0.426254272f,  0.369018555f,  0.168914795f,
-        0.226013184f,  0.685974121f,  0.0880126953f,
-        0.0116729736f, 0.0950927734f, 0.71812439f,
-    };
-    expected.set3x3RowMajorf(kExpected);
-    REPORTER_ASSERT(r, matrix == expected);
+    static constexpr skcms_Matrix3x3 kExpected = {{
+        { 0.426254272f,  0.369018555f,  0.168914795f  },
+        { 0.226013184f,  0.685974121f,  0.0880126953f },
+        { 0.0116729736f, 0.0950927734f, 0.71812439f   },
+    }};
+    REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
 }
 
 DEF_TEST(AndroidCodec_orientation, r) {
