@@ -51,7 +51,8 @@ if [[ $@ == *cpu* ]]; then
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js"
 fi
 
-WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
+WASM_SKOTTIE=" \
+  $BASE_DIR/skottie_bindings.cpp \
   modules/skottie/src/Skottie.cpp \
   modules/skottie/src/SkottieAdapter.cpp \
   modules/skottie/src/SkottieAnimator.cpp \
@@ -71,7 +72,7 @@ WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=1 \
   src/utils/SkParse.cpp "
 if [[ $@ == *no_skottie* ]]; then
   echo "Omitting Skottie"
-  WASM_SKOTTIE="-DSK_INCLUDE_SKOTTIE=0"
+  WASM_SKOTTIE=""
 fi
 
 WASM_MANAGED_SKOTTIE="\
