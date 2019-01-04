@@ -46,11 +46,6 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, font.getTypeface() == newFont.getTypeface());
     REPORTER_ASSERT(reporter, 36 == newFont.getSize());   // double check we haven't changed
     REPORTER_ASSERT(reporter, 24 == font.getSize());   // double check we haven't changed
-
-    SkPaint paint;
-    paint.setTextSize(18);
-    font = SkFont::LEGACY_ExtractFromPaint(paint);
-    REPORTER_ASSERT(reporter, font.getSize() == paint.getTextSize());
 }
 
 /*

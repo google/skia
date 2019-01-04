@@ -78,7 +78,7 @@ public:
                     fCount = 0;
                 } else {
                     fCount = SkPaintPriv::ValidCountText(fText, fByteLength,
-                                                         paint->getTextEncoding());
+                                                         SkPaintPriv::GetEncoding(*paint));
                     reader->validate(fCount > 0);
                 }
             }
@@ -461,7 +461,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (paint && text.text()) {
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
                 auto blob = SkTextBlob::MakeFromPosText(text.text(), text.length(), pos, font,
-                                                        paint->getTextEncoding());
+                                                        SkPaintPriv::GetEncoding(*paint));
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
@@ -479,7 +479,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
                 auto blob = SkTextBlob::MakeFromPosText(text.text(), text.length(), pos, font,
-                                                        paint->getTextEncoding());
+                                                        SkPaintPriv::GetEncoding(*paint));
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
@@ -495,7 +495,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (paint && text.text()) {
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
                 auto blob = SkTextBlob::MakeFromPosTextH(text.text(), text.length(), xpos, constY,
-                                                         font, paint->getTextEncoding());
+                                                         font, SkPaintPriv::GetEncoding(*paint));
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
@@ -515,7 +515,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
                 auto blob = SkTextBlob::MakeFromPosTextH(text.text(), text.length(), xpos, constY,
-                                                         font, paint->getTextEncoding());
+                                                         font, SkPaintPriv::GetEncoding(*paint));
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
@@ -634,7 +634,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (text.text()) {
                 SkFont font = SkFont::LEGACY_ExtractFromPaint(*paint);
                 auto blob = SkTextBlob::MakeFromRSXform(text.text(), text.length(), xform, font,
-                                                        paint->getTextEncoding());
+                                                        SkPaintPriv::GetEncoding(*paint));
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;

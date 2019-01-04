@@ -26,12 +26,13 @@ public:
      */
     enum Bits {
         kStyle_Bit      = 1 << 0,   //!< use this layer's Style/stroke settings
-        kTextSkewX_Bit  = 1 << 1,   //!< use this layer's textskewx
         kPathEffect_Bit = 1 << 2,   //!< use this layer's patheffect
         kMaskFilter_Bit = 1 << 3,   //!< use this layer's maskfilter
         kShader_Bit     = 1 << 4,   //!< use this layer's shader
         kColorFilter_Bit = 1 << 5,  //!< use this layer's colorfilter
         kXfermode_Bit   = 1 << 6,   //!< use this layer's xfermode
+
+        // unsupported kTextSkewX_Bit  = 1 << 1,
 
         /**
          *  Use the layer's paint entirely, with these exceptions:
