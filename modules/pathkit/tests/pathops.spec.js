@@ -84,7 +84,7 @@ describe('PathKit\'s PathOps Behavior', function() {
         } else {
             PathKitInit({
                 locateFile: (file) => '/pathkit/'+file,
-            }).then((_PathKit) => {
+            }).ready().then((_PathKit) => {
                 PathKit = _PathKit;
                 PATHOP_MAP = {
                     'kIntersect_SkPathOp':         PathKit.PathOp.INTERSECT,
