@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ca35379_260b823d",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-04T18:48:53Z",
+      "side": 1,
+      "message": "nit: align with all others above?",
+      "range": {
+        "startLine": 422,
+        "startChar": 36,
+        "endLine": 422,
+        "endChar": 41
+      },
+      "revId": "477cae1b00a186ed3007ad1778cf4e57c8cc212d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3db426f_7ed96e91",
+        "filename": "tests/PaintTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-04T18:48:53Z",
+      "side": 1,
+      "message": "Just delete these instead of commenting out?",
+      "revId": "477cae1b00a186ed3007ad1778cf4e57c8cc212d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
