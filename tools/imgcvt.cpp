@@ -28,9 +28,10 @@ int main(int argc, char** argv) {
 
     const char* dst_profile_path = argc > 2 ? argv[2] : nullptr;
     skcms_ICCProfile dst_profile = *skcms_sRGB_profile();
+    sk_sp<SkData> dst_blob;
     if (dst_profile_path) {
-        sk_sp<SkData> blob = SkData::MakeFromFileName(dst_profile_path);
-        if (!skcms_Parse(blob->data(), blob->size(), &dst_profile)) {
+        dst_blob = SkData::MakeFromFileName(dst_profile_path);
+        if (!skcms_Parse(dst_blob->data(), dst_blob->size(), &dst_profile)) {
             SkDebugf("Can't parse %s as an ICC profile.\n", dst_profile_path);
             return 1;
         }
@@ -90,8 +91,14 @@ int main(int argc, char** argv) {
 
     sk_sp<SkColorSpace> dst_cs = SkColorSpace::Make(dst_profile);
     if (!dst_cs) {
-        SkDebugf("We can't convert to this destination profile.\n");
-        return 1;
+        SkDebugf("We can't convert to this destination profile as-is. Coercing it.\n");
+        if (skcms_MakeUsableAsDestinationWithSingleCurve(&dst_profile)) {
+            dst_cs = SkColorSpace::Make(dst_profile);
+        }
+        if (!dst_cs) {
+            SkDebugf("We can't convert to this destination profile at all.\n");
+            return 1;
+        }
     }
 
     { // transform with skcms
@@ -109,7 +116,7 @@ int main(int argc, char** argv) {
                 return 1;
         }
 
-        if (pixmap.alphaType() != kPremul_SkAlphaType) {
+        if (pixmap.alphaType() == kUnpremul_SkAlphaType) {
             SkDebugf("not premul, that's weird.\n");
             return 1;
         }
