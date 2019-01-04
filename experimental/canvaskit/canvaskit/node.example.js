@@ -4,7 +4,7 @@ const path = require('path');
 
 CanvasKitInit({
   locateFile: (file) => __dirname + '/bin/'+file,
-}).then((CanvasKit) => {
+}).ready().then((CanvasKit) => {
   let canvas = CanvasKit.MakeCanvas(300, 300);
 
   let img = fs.readFileSync(path.join(__dirname, 'test.png'));
