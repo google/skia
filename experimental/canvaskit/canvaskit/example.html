@@ -65,40 +65,32 @@
   var bonesImageData = null;
   CanvasKitInit({
     locateFile: (file) => '/node_modules/canvaskit/bin/'+file,
-  }).then((CK) => {
-     // when debugging, it can be handy to not run directly in the then, because if there
-     // is a failure (for example, miscalling an API), the WASM loader tries to re-load
-     // the web assembly in the (much slower) ArrayBuffer version. This will also fail
-     // and thus there is a lot of extra log spew.
-     // Thus, the setTimeout to run on the next microtask avoids this second loading
-     // and the log spew.
-    setTimeout(() => {
-      CanvasKit = CK;
-      DrawingExample(CanvasKit, robotoData);
-      PathExample(CanvasKit);
-      InkExample(CanvasKit);
-      // Set bounds to fix the 4:3 resolution of the legos
-      SkottieExample(CanvasKit, 'sk_legos', legoJSON,
-                    {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
-      // Re-size to fit
-      SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
-      SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
-      SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
+  }).ready().then((CK) => {
+    CanvasKit = CK;
+    DrawingExample(CanvasKit, robotoData);
+    PathExample(CanvasKit);
+    InkExample(CanvasKit);
+    // Set bounds to fix the 4:3 resolution of the legos
+    SkottieExample(CanvasKit, 'sk_legos', legoJSON,
+                  {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    // Re-size to fit
+    SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
+    SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
 
-      CanvasAPI1(CanvasKit);
-      CanvasAPI2(CanvasKit);
-      CanvasAPI3(CanvasKit);
-      CanvasAPI4(CanvasKit);
-      CanvasAPI5(CanvasKit);
-      CanvasAPI6(CanvasKit);
-      CanvasAPI7(CanvasKit);
-      CanvasAPI8(CanvasKit)
+    CanvasAPI1(CanvasKit);
+    CanvasAPI2(CanvasKit);
+    CanvasAPI3(CanvasKit);
+    CanvasAPI4(CanvasKit);
+    CanvasAPI5(CanvasKit);
+    CanvasAPI6(CanvasKit);
+    CanvasAPI7(CanvasKit);
+    CanvasAPI8(CanvasKit)
 
-      VertexAPI1(CanvasKit);
-      VertexAPI2(CanvasKit, bonesImageData);
+    VertexAPI1(CanvasKit);
+    VertexAPI2(CanvasKit, bonesImageData);
 
-      GradiantAPI1(CanvasKit);
-    }, 0);
+    GradiantAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
