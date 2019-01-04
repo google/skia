@@ -74,11 +74,11 @@ bool Window_win::init(HINSTANCE hInstance) {
         wcex.cbWndExtra = 0;
         wcex.hInstance = fHInstance;
         wcex.hIcon = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);;
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
         wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = gSZWindowClass;
-        wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);;
+        wcex.hIconSm = LoadIcon(fHInstance, (LPCTSTR)IDI_WINLOGO);
 
         if (!RegisterClassEx(&wcex)) {
             return false;
