@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "246cecd2_8aa3ea6b",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-04T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ca35379_260b823d",
+      "range": {
+        "startLine": 422,
+        "startChar": 36,
+        "endLine": 422,
+        "endChar": 41
+      },
+      "revId": "477cae1b00a186ed3007ad1778cf4e57c8cc212d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3db426f_7ed96e91",
         "filename": "tests/PaintTest.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "477cae1b00a186ed3007ad1778cf4e57c8cc212d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42488913_b388743f",
+        "filename": "tests/PaintTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-04T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3db426f_7ed96e91",
+      "revId": "477cae1b00a186ed3007ad1778cf4e57c8cc212d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
