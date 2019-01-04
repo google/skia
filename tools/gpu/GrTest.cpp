@@ -27,7 +27,6 @@
 #include "SkString.h"
 #include "SkTo.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
-#include "ccpr/GrCCPathCache.h"
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
@@ -279,54 +278,9 @@ void GrCoverageCountingPathRenderer::testingOnly_drawPathDirectly(const DrawPath
     this->onDrawPath(args);
 }
 
-const GrCCPerFlushResources*
-GrCoverageCountingPathRenderer::testingOnly_getCurrentFlushResources() {
-    SkASSERT(fFlushing);
-    if (fFlushingPaths.empty()) {
-        return nullptr;
-    }
-    // All pending paths should share the same resources.
-    const GrCCPerFlushResources* resources = fFlushingPaths.front()->fFlushResources.get();
-#ifdef SK_DEBUG
-    for (const auto& flushingPaths : fFlushingPaths) {
-        SkASSERT(flushingPaths->fFlushResources.get() == resources);
-    }
-#endif
-    return resources;
+const GrUniqueKey& GrCoverageCountingPathRenderer::testingOnly_getStashedAtlasKey() const {
+    return fStashedAtlasKey;
 }
-
-const GrCCPathCache* GrCoverageCountingPathRenderer::testingOnly_getPathCache() const {
-    return fPathCache.get();
-}
-
-const GrTexture* GrCCPerFlushResources::testingOnly_frontCopyAtlasTexture() const {
-    if (fCopyAtlasStack.empty()) {
-        return nullptr;
-    }
-    const GrTextureProxy* proxy = fCopyAtlasStack.front().textureProxy();
-    return (proxy) ? proxy->peekTexture() : nullptr;
-}
-
-const GrTexture* GrCCPerFlushResources::testingOnly_frontRenderedAtlasTexture() const {
-    if (fRenderedAtlasStack.empty()) {
-        return nullptr;
-    }
-    const GrTextureProxy* proxy = fRenderedAtlasStack.front().textureProxy();
-    return (proxy) ? proxy->peekTexture() : nullptr;
-}
-
-const SkTHashTable<GrCCPathCache::HashNode, const GrCCPathCache::Key&>&
-GrCCPathCache::testingOnly_getHashTable() const {
-    return fHashTable;
-}
-
-const SkTInternalLList<GrCCPathCacheEntry>& GrCCPathCache::testingOnly_getLRU() const {
-    return fLRU;
-}
-
-int GrCCPathCacheEntry::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
-
-int GrCCCachedAtlas::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -175,12 +175,11 @@ void get_text_path(const SkFont& font, const void* text, size_t length, SkTextEn
 }
 
 SkPath make_star(const SkRect& bounds, int numPts, int step) {
-    SkASSERT(numPts != step);
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0,-1);
     for (int i = 1; i < numPts; ++i) {
-        int idx = i*step % numPts;
+        int idx = i*step;
         SkScalar theta = idx * 2*SK_ScalarPI/numPts + SK_ScalarPI/2;
         SkScalar x = SkScalarCos(theta);
         SkScalar y = -SkScalarSin(theta);

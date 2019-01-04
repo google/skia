@@ -18,13 +18,11 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrShape.h"
 #include "GrTexture.h"
-#include "SkExchange.h"
 #include "SkMatrix.h"
 #include "SkPathPriv.h"
 #include "SkRect.h"
 #include "sk_tool_utils.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
-#include "ccpr/GrCCPathCache.h"
 #include "mock/GrMockTypes.h"
 
 #include <cmath>
@@ -58,7 +56,7 @@ private:
 
 class CCPRPathDrawer {
 public:
-    CCPRPathDrawer(sk_sp<GrContext> ctx, skiatest::Reporter* reporter, bool doStroke)
+    CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter, bool doStroke)
             : fCtx(ctx)
             , fCCPR(fCtx->contextPriv().drawingManager()->getCoverageCountingPathRenderer())
             , fRTC(fCtx->contextPriv().makeDeferredRenderTargetContext(
@@ -74,19 +72,13 @@ public:
         }
     }
 
-    GrContext* ctx() const { return fCtx.get(); }
+    GrContext* ctx() const { return fCtx; }
     GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
 
     bool valid() const { return fCCPR && fRTC; }
     void clear() const { fRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                                      GrRenderTargetContext::CanClearFullscreen::kYes); }
-    void destroyGrContext() {
-        SkASSERT(fRTC->unique());
-        SkASSERT(fCtx->unique());
-        fRTC.reset();
-        fCCPR = nullptr;
-        fCtx.reset();
-    }
+    void abandonGrContext() { fCtx = nullptr; fCCPR = nullptr; fRTC = nullptr; }
 
     void drawPath(const SkPath& path, const SkMatrix& matrix = SkMatrix::I()) const {
         SkASSERT(this->valid());
@@ -110,7 +102,7 @@ public:
         }
 
         fCCPR->testingOnly_drawPathDirectly({
-                fCtx.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
+                fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
                 &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
     }
 
@@ -130,7 +122,7 @@ public:
     }
 
 private:
-    sk_sp<GrContext> fCtx;
+    GrContext* fCtx;
     GrCoverageCountingPathRenderer* fCCPR;
     sk_sp<GrRenderTargetContext> fRTC;
     const bool fDoStroke;
@@ -158,17 +150,17 @@ public:
 
         this->customizeOptions(&mockOptions, &ctxOptions);
 
-        sk_sp<GrContext> mockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
-        if (!mockContext) {
+        fMockContext = GrContext::MakeMock(&mockOptions, ctxOptions);
+        if (!fMockContext) {
             ERRORF(reporter, "could not create mock context");
             return;
         }
-        if (!mockContext->unique()) {
+        if (!fMockContext->unique()) {
             ERRORF(reporter, "mock context is not unique");
             return;
         }
 
-        CCPRPathDrawer ccpr(skstd::exchange(mockContext, nullptr), reporter, doStroke);
+        CCPRPathDrawer ccpr(fMockContext.get(), reporter, doStroke);
         if (!ccpr.valid()) {
             return;
         }
@@ -184,6 +176,7 @@ protected:
     virtual void customizeOptions(GrMockOptions*, GrContextOptions*) {}
     virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) = 0;
 
+    sk_sp<GrContext> fMockContext;
     SkPath fPath;
 };
 
@@ -194,7 +187,7 @@ protected:
         test.run(reporter, true); \
     }
 
-class CCPR_cleanup : public CCPRTest {
+class GrCCPRTest_cleanup : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
 
@@ -219,22 +212,22 @@ class CCPR_cleanup : public CCPRTest {
             ccpr.drawPath(fPath);
             ccpr.clipFullscreenRect(fPath);
         }
+        ccpr.abandonGrContext();
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
-
-        ccpr.destroyGrContext();
+        fMockContext.reset();
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
     }
 };
-DEF_CCPR_TEST(CCPR_cleanup)
+DEF_CCPR_TEST(GrCCPRTest_cleanup)
 
-class CCPR_cleanupWithTexAllocFail : public CCPR_cleanup {
+class GrCCPRTest_cleanupWithTexAllocFail : public GrCCPRTest_cleanup {
     void customizeOptions(GrMockOptions* mockOptions, GrContextOptions*) override {
         mockOptions->fFailTextureAllocations = true;
     }
 };
-DEF_CCPR_TEST(CCPR_cleanupWithTexAllocFail)
+DEF_CCPR_TEST(GrCCPRTest_cleanupWithTexAllocFail)
 
-class CCPR_unregisterCulledOps : public CCPRTest {
+class GrCCPRTest_unregisterCulledOps : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
 
@@ -250,12 +243,13 @@ class CCPR_unregisterCulledOps : public CCPRTest {
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
         ccpr.clear(); // Clear should delete the CCPR DrawPathsOp.
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
-        ccpr.destroyGrContext(); // Should not crash (DrawPathsOp should have unregistered itself).
+        ccpr.abandonGrContext();
+        fMockContext.reset(); // Should not crash (DrawPathsOp should have unregistered itself).
     }
 };
-DEF_CCPR_TEST(CCPR_unregisterCulledOps)
+DEF_CCPR_TEST(GrCCPRTest_unregisterCulledOps)
 
-class CCPR_parseEmptyPath : public CCPRTest {
+class GrCCPRTest_parseEmptyPath : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
 
@@ -289,496 +283,119 @@ class CCPR_parseEmptyPath : public CCPRTest {
         ccpr.flush();
     }
 };
-DEF_CCPR_TEST(CCPR_parseEmptyPath)
-
-static int get_mock_texture_id(const GrTexture* texture) {
-    const GrBackendTexture& backingTexture = texture->getBackendTexture();
-    SkASSERT(GrBackendApi::kMock == backingTexture.backend());
-
-    if (!backingTexture.isValid()) {
-        return 0;
-    }
-
-    GrMockTextureInfo info;
-    backingTexture.getMockTextureInfo(&info);
-    return info.fID;
-}
-
-// Base class for cache path unit tests.
-class CCPRCacheTest : public CCPRTest {
-protected:
-    // Registers as an onFlush callback in order to snag the CCPR per-flush resources and note the
-    // texture IDs.
-    class RecordLastMockAtlasIDs : public GrOnFlushCallbackObject {
-    public:
-        RecordLastMockAtlasIDs(sk_sp<GrCoverageCountingPathRenderer> ccpr) : fCCPR(ccpr) {}
-
-        int lastCopyAtlasID() const { return fLastCopyAtlasID; }
-        int lastRenderedAtlasID() const { return fLastRenderedAtlasID; }
-
-        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
-                      SkTArray<sk_sp<GrRenderTargetContext>>* out) override {
-            fLastRenderedAtlasID = fLastCopyAtlasID = 0;
-
-            const GrCCPerFlushResources* resources = fCCPR->testingOnly_getCurrentFlushResources();
-            if (!resources) {
-                return;
-            }
-
-            if (const GrTexture* tex = resources->testingOnly_frontCopyAtlasTexture()) {
-                fLastCopyAtlasID = get_mock_texture_id(tex);
-            }
-            if (const GrTexture* tex = resources->testingOnly_frontRenderedAtlasTexture()) {
-                fLastRenderedAtlasID = get_mock_texture_id(tex);
-            }
-        }
-
-        void postFlush(GrDeferredUploadToken, const uint32_t*, int) override {}
-
-    private:
-        sk_sp<GrCoverageCountingPathRenderer> fCCPR;
-        int fLastCopyAtlasID = 0;
-        int fLastRenderedAtlasID = 0;
-    };
-
-    CCPRCacheTest() {
-        static constexpr int primes[11] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-
-        SkRandom rand;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fPaths); ++i) {
-            int numPts = rand.nextRangeU(GrShape::kMaxKeyFromDataVerbCnt + 1,
-                                         GrShape::kMaxKeyFromDataVerbCnt * 2);
-            int step;
-            do {
-                step = primes[rand.nextU() % SK_ARRAY_COUNT(primes)];
-            } while (step == numPts);
-            fPaths[i] = sk_tool_utils::make_star(SkRect::MakeLTRB(0,0,1,1), numPts, step);
-        }
-    }
-
-    void drawPathsAndFlush(CCPRPathDrawer& ccpr, const SkMatrix& m) {
-        this->drawPathsAndFlush(ccpr, &m, 1);
-    }
-    void drawPathsAndFlush(CCPRPathDrawer& ccpr, const SkMatrix* matrices, int numMatrices) {
-        // Draw all the paths.
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fPaths); ++i) {
-            ccpr.drawPath(fPaths[i], matrices[i % numMatrices]);
-        }
-        // Re-draw a few paths, to test the case where a cache entry is hit more than once in a
-        // single flush.
-        SkRandom rand;
-        int duplicateIndices[10];
-        for (size_t i = 0; i < SK_ARRAY_COUNT(duplicateIndices); ++i) {
-            duplicateIndices[i] = rand.nextULessThan(SK_ARRAY_COUNT(fPaths));
-        }
-        for (size_t i = 0; i < SK_ARRAY_COUNT(duplicateIndices); ++i) {
-            for (size_t j = 0; j <= i; ++j) {
-                int idx = duplicateIndices[j];
-                ccpr.drawPath(fPaths[idx], matrices[idx % numMatrices]);
-            }
-        }
-        ccpr.flush();
-    }
-
-private:
-    void customizeOptions(GrMockOptions*, GrContextOptions* ctxOptions) override {
-        ctxOptions->fAllowPathMaskCaching = true;
-    }
-
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) final {
-        RecordLastMockAtlasIDs atlasIDRecorder(sk_ref_sp(ccpr.ccpr()));
-        ccpr.ctx()->contextPriv().addOnFlushCallbackObject(&atlasIDRecorder);
-
-        this->onRun(reporter, ccpr, atlasIDRecorder);
-
-        ccpr.ctx()->contextPriv().testingOnly_flushAndRemoveOnFlushCallbackObject(&atlasIDRecorder);
-    }
-
-    virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-                       const RecordLastMockAtlasIDs&) = 0;
-
-protected:
-    SkPath fPaths[350];
-};
-
-// Ensures ccpr always reuses the same atlas texture in the animation use case.
-class CCPR_cache_animationAtlasReuse : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        SkMatrix m = SkMatrix::MakeTrans(kCanvasSize/2, kCanvasSize/2);
-        m.preScale(80, 80);
-        m.preTranslate(-.5,-.5);
-        this->drawPathsAndFlush(ccpr, m);
-
-        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-        const int atlasID = atlasIDRecorder.lastRenderedAtlasID();
-
-        // Ensures we always reuse the same atlas texture in the animation use case.
-        for (int i = 0; i < 12; ++i) {
-            // 59 is prime, so we will hit every integer modulo 360 before repeating.
-            m.preRotate(59, .5, .5);
-
-            // Go twice. Paths have to get drawn twice with the same matrix before we cache their
-            // atlas. This makes sure that on the subsequent draw, after an atlas has been cached
-            // and is then invalidated since the matrix will change, that the same underlying
-            // texture object is still reused for the next atlas.
-            for (int j = 0; j < 2; ++j) {
-                this->drawPathsAndFlush(ccpr, m);
-                // Nothing should be copied to an 8-bit atlas after just two draws.
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                REPORTER_ASSERT(reporter, atlasIDRecorder.lastRenderedAtlasID() == atlasID);
-            }
-        }
-
-        // Do the last draw again. (On draw 3 they should get copied to an 8-bit atlas.)
-        this->drawPathsAndFlush(ccpr, m);
-        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-
-        // Now double-check that everything continues to hit the cache as expected when the matrix
-        // doesn't change.
-        for (int i = 0; i < 10; ++i) {
-            this->drawPathsAndFlush(ccpr, m);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_animationAtlasReuse)
-
-class CCPR_cache_recycleEntries : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        SkMatrix m = SkMatrix::MakeTrans(kCanvasSize/2, kCanvasSize/2);
-        m.preScale(80, 80);
-        m.preTranslate(-.5,-.5);
-
-        auto cache = ccpr.ccpr()->testingOnly_getPathCache();
-        REPORTER_ASSERT(reporter, cache);
-
-        const auto& lru = cache->testingOnly_getLRU();
-
-        SkTArray<const void*> expectedPtrs;
-
-        // Ensures we always reuse the same atlas texture in the animation use case.
-        for (int i = 0; i < 5; ++i) {
-            // 59 is prime, so we will hit every integer modulo 360 before repeating.
-            m.preRotate(59, .5, .5);
-
-            // Go twice. Paths have to get drawn twice with the same matrix before we cache their
-            // atlas.
-            for (int j = 0; j < 2; ++j) {
-                this->drawPathsAndFlush(ccpr, m);
-                // Nothing should be copied to an 8-bit atlas after just two draws.
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-            }
-
-            int idx = 0;
-            for (const GrCCPathCacheEntry* entry : lru) {
-                if (0 == i) {
-                    expectedPtrs.push_back(entry);
-                } else {
-                    // The same pointer should have been recycled for the new matrix.
-                    REPORTER_ASSERT(reporter, entry == expectedPtrs[idx]);
-                }
-                ++idx;
-            }
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_recycleEntries)
-
-// Ensures mostly-visible paths get their full mask cached.
-class CCPR_cache_mostlyVisible : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        SkMatrix matrices[3] = {
-            SkMatrix::MakeScale(kCanvasSize/2, kCanvasSize/2), // Fully visible.
-            SkMatrix::MakeScale(kCanvasSize * 1.25, kCanvasSize * 1.25), // Mostly visible.
-            SkMatrix::MakeScale(kCanvasSize * 1.5, kCanvasSize * 1.5), // Mostly NOT visible.
-        };
-
-        for (int i = 0; i < 10; ++i) {
-            this->drawPathsAndFlush(ccpr, matrices, 3);
-            if (2 == i) {
-                // The mostly-visible paths should still get cached.
-                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-            } else {
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            }
-            // Ensure mostly NOT-visible paths never get cached.
-            REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-        }
-
-        // Clear the path cache.
-        this->drawPathsAndFlush(ccpr, SkMatrix::I());
-
-        // Now only draw the fully/mostly visible ones.
-        for (int i = 0; i < 2; ++i) {
-            this->drawPathsAndFlush(ccpr, matrices, 2);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-        }
-
-        // On draw 3 they should get copied to an 8-bit atlas.
-        this->drawPathsAndFlush(ccpr, matrices, 2);
-        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-
-        for (int i = 0; i < 10; ++i) {
-            this->drawPathsAndFlush(ccpr, matrices, 2);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-        }
-
-        // Draw a different part of the path to ensure the full mask was cached.
-        matrices[1].postTranslate(SkScalarFloorToInt(kCanvasSize * -.25f),
-                                  SkScalarFloorToInt(kCanvasSize * -.25f));
-        for (int i = 0; i < 10; ++i) {
-            this->drawPathsAndFlush(ccpr, matrices, 2);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_mostlyVisible)
-
-// Ensures GrContext::performDeferredCleanup works.
-class CCPR_cache_deferredCleanup : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        SkMatrix m = SkMatrix::MakeScale(20, 20);
-        int lastRenderedAtlasID = 0;
-
-        for (int i = 0; i < 5; ++i) {
-            this->drawPathsAndFlush(ccpr, m);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-            int renderedAtlasID = atlasIDRecorder.lastRenderedAtlasID();
-            REPORTER_ASSERT(reporter, renderedAtlasID != lastRenderedAtlasID);
-            lastRenderedAtlasID = renderedAtlasID;
-
-            this->drawPathsAndFlush(ccpr, m);
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, lastRenderedAtlasID == atlasIDRecorder.lastRenderedAtlasID());
-
-            // On draw 3 they should get copied to an 8-bit atlas.
-            this->drawPathsAndFlush(ccpr, m);
-            REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-            REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-
-            for (int i = 0; i < 10; ++i) {
-                this->drawPathsAndFlush(ccpr, m);
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-            }
-
-            ccpr.ctx()->performDeferredCleanup(std::chrono::milliseconds(0));
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_deferredCleanup)
-
-// Verifies the cache/hash table internals.
-class CCPR_cache_hashTable : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        using CoverageType = GrCCAtlas::CoverageType;
-        SkMatrix m = SkMatrix::MakeScale(20, 20);
-
-        for (int i = 0; i < 5; ++i) {
-            this->drawPathsAndFlush(ccpr, m);
-            if (2 == i) {
-                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-            } else {
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-            }
-            if (i < 2) {
-                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-            } else {
-                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-            }
-
-            auto cache = ccpr.ccpr()->testingOnly_getPathCache();
-            REPORTER_ASSERT(reporter, cache);
-
-            const auto& hash = cache->testingOnly_getHashTable();
-            const auto& lru = cache->testingOnly_getLRU();
-            int count = 0;
-            for (GrCCPathCacheEntry* entry : lru) {
-                auto* node = hash.find(entry->cacheKey());
-                REPORTER_ASSERT(reporter, node);
-                REPORTER_ASSERT(reporter, node->entry() == entry);
-                REPORTER_ASSERT(reporter, 0 == entry->testingOnly_peekOnFlushRefCnt());
-                if (0 == i) {
-                    REPORTER_ASSERT(reporter, !entry->cachedAtlas());
-                } else {
-                    const GrCCCachedAtlas* cachedAtlas = entry->cachedAtlas();
-                    REPORTER_ASSERT(reporter, cachedAtlas);
-                    if (1 == i) {
-                        REPORTER_ASSERT(reporter, CoverageType::kFP16_CoverageCount
-                                                          == cachedAtlas->coverageType());
-                    } else {
-                        REPORTER_ASSERT(reporter, CoverageType::kA8_LiteralCoverage
-                                                          == cachedAtlas->coverageType());
-                    }
-                    REPORTER_ASSERT(reporter, cachedAtlas->textureKey().isValid());
-                    // The actual proxy should not be held past the end of a flush.
-                    REPORTER_ASSERT(reporter, !cachedAtlas->getOnFlushProxy());
-                    REPORTER_ASSERT(reporter, 0 == cachedAtlas->testingOnly_peekOnFlushRefCnt());
-                }
-                ++count;
-            }
-            REPORTER_ASSERT(reporter, hash.count() == count);
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_hashTable)
-
-// Ensures paths get cached even when using a sporadic flushing pattern and drawing out of order
-// (a la Chrome tiles).
-class CCPR_cache_multiFlush : public CCPRCacheTest {
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
-        static constexpr int kNumPaths = SK_ARRAY_COUNT(fPaths);
-        static constexpr int kBigPrimes[] = {
-                9323, 11059, 22993, 38749, 45127, 53147, 64853, 77969, 83269, 99989};
-
-        SkRandom rand;
-        SkMatrix m = SkMatrix::I();
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(kBigPrimes); ++i) {
-            int prime = kBigPrimes[i];
-            int endPathIdx = (int)rand.nextULessThan(kNumPaths);
-            int pathIdx = endPathIdx;
-            int nextFlush = rand.nextRangeU(1, 47);
-            for (int j = 0; j < kNumPaths; ++j) {
-                pathIdx = (pathIdx + prime) % kNumPaths;
-                int repeat = rand.nextRangeU(1, 3);
-                for (int k = 0; k < repeat; ++k) {
-                    ccpr.drawPath(fPaths[pathIdx], m);
-                }
-                if (nextFlush == j) {
-                    ccpr.flush();
-                    // The paths are small enough that we should never copy to an A8 atlas.
-                    REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                    if (i < 2) {
-                        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
-                    } else {
-                        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
-                    }
-                    nextFlush = SkTMin(j + (int)rand.nextRangeU(1, 29), kNumPaths - 1);
-                }
-            }
-            SkASSERT(endPathIdx == pathIdx % kNumPaths);
-        }
-    }
-};
-DEF_CCPR_TEST(CCPR_cache_multiFlush)
+DEF_CCPR_TEST(GrCCPRTest_parseEmptyPath)
 
 // This test exercises CCPR's cache capabilities by drawing many paths with two different
 // transformation matrices. We then vary the matrices independently by whole and partial pixels,
 // and verify the caching behaved as expected.
-class CCPR_cache_partialInvalidate : public CCPRCacheTest {
+class GrCCPRTest_cache : public CCPRTest {
     void customizeOptions(GrMockOptions*, GrContextOptions* ctxOptions) override {
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    static constexpr int kPathSize = 4;
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        static constexpr int kPathSize = 20;
+        SkRandom rand;
 
-    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
-               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
+        SkPath paths[300];
+        int primes[11] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
+            int numPts = rand.nextRangeU(GrShape::kMaxKeyFromDataVerbCnt + 1,
+                                         GrShape::kMaxKeyFromDataVerbCnt * 2);
+            paths[i] = sk_tool_utils::make_star(SkRect::MakeIWH(kPathSize, kPathSize), numPts,
+                                                primes[rand.nextU() % SK_ARRAY_COUNT(primes)]);
+        }
+
         SkMatrix matrices[2] = {
             SkMatrix::MakeTrans(5, 5),
             SkMatrix::MakeTrans(kCanvasSize - kPathSize - 5, kCanvasSize - kPathSize - 5)
         };
-        matrices[0].preScale(kPathSize, kPathSize);
-        matrices[1].preScale(kPathSize, kPathSize);
 
-        int firstAtlasID = 0;
+        int firstAtlasID = -1;
 
-        for (int iterIdx = 0; iterIdx < 4*3*2; ++iterIdx) {
-            this->drawPathsAndFlush(ccpr, matrices, 2);
+        for (int iterIdx = 0; iterIdx < 10; ++iterIdx) {
+            static constexpr int kNumHitsBeforeStash = 2;
+            static const GrUniqueKey gInvalidUniqueKey;
+
+            // Draw all the paths then flush. Repeat until a new stash occurs.
+            const GrUniqueKey* stashedAtlasKey = &gInvalidUniqueKey;
+            for (int j = 0; j < kNumHitsBeforeStash; ++j) {
+                // Nothing should be stashed until its hit count reaches kNumHitsBeforeStash.
+                REPORTER_ASSERT(reporter, !stashedAtlasKey->isValid());
+
+                for (size_t i = 0; i < SK_ARRAY_COUNT(paths); ++i) {
+                    ccpr.drawPath(paths[i], matrices[i % 2]);
+                }
+                ccpr.flush();
+
+                stashedAtlasKey = &ccpr.ccpr()->testingOnly_getStashedAtlasKey();
+            }
+
+            // Figure out the mock backend ID of the atlas texture stashed away by CCPR.
+            GrMockTextureInfo stashedAtlasInfo;
+            stashedAtlasInfo.fID = -1;
+            if (stashedAtlasKey->isValid()) {
+                GrResourceProvider* rp = ccpr.ctx()->contextPriv().resourceProvider();
+                sk_sp<GrSurface> stashedAtlas = rp->findByUniqueKey<GrSurface>(*stashedAtlasKey);
+                REPORTER_ASSERT(reporter, stashedAtlas);
+                if (stashedAtlas) {
+                    const auto& backendTexture = stashedAtlas->asTexture()->getBackendTexture();
+                    backendTexture.getMockTextureInfo(&stashedAtlasInfo);
+                }
+            }
 
             if (0 == iterIdx) {
                 // First iteration: just note the ID of the stashed atlas and continue.
-                firstAtlasID = atlasIDRecorder.lastRenderedAtlasID();
-                REPORTER_ASSERT(reporter, 0 != firstAtlasID);
+                REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
+                firstAtlasID = stashedAtlasInfo.fID;
                 continue;
             }
 
-            int testIdx = (iterIdx/2) % 3;
-            int repetitionIdx = iterIdx % 2;
-            switch (testIdx) {
-                case 0:
-                    if (0 == repetitionIdx) {
-                        // This is the big test. New paths were drawn twice last round. On hit 2
-                        // (last time), 'firstAtlasID' was cached as a 16-bit atlas. Now, on hit 3,
-                        // these paths should be copied out of 'firstAtlasID', and into an A8 atlas.
-                        // THEN: we should recycle 'firstAtlasID' and reuse that same texture to
-                        // render the new masks.
-                        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-                        REPORTER_ASSERT(reporter,
-                                        atlasIDRecorder.lastRenderedAtlasID() == firstAtlasID);
-                    } else {
-                        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                        // This is hit 2 for the new masks. Next time they will be copied to an A8
-                        // atlas.
-                        REPORTER_ASSERT(reporter,
-                                        atlasIDRecorder.lastRenderedAtlasID() == firstAtlasID);
-                    }
-
-                    if (1 == repetitionIdx) {
-                        // Integer translates: all path masks stay valid.
-                        matrices[0].preTranslate(-1, -1);
-                        matrices[1].preTranslate(1, 1);
-                    }
-                    break;
-
+            switch (iterIdx % 3) {
                 case 1:
-                    if (0 == repetitionIdx) {
-                        // New paths were drawn twice last round. The third hit (now) they should be
-                        // copied to an A8 atlas.
-                        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
-                    } else {
-                        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
-                    }
-
                     // This draw should have gotten 100% cache hits; we only did integer translates
-                    // last time (or none if it was the first flush). Therefore, everything should
-                    // have been cached.
-                    REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
+                    // last time (or none if it was the first flush). Therefore, no atlas should
+                    // have been stashed away.
+                    REPORTER_ASSERT(reporter, !stashedAtlasKey->isValid());
 
-                    if (1 == repetitionIdx) {
-                        // Invalidate even path masks.
-                        matrices[0].preTranslate(1.6f, 1.4f);
-                    }
+                    // Invalidate even path masks.
+                    matrices[0].preTranslate(1.6f, 1.4f);
                     break;
 
                 case 2:
-                    // No new masks to copy from last time; it had 100% cache hits.
-                    REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+                    // Even path masks were invalidated last iteration by a subpixel translate. They
+                    // should have been re-rendered this time and stashed away in the CCPR atlas.
+                    REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
 
-                    // Even path masks were invalidated last iteration by a subpixel translate.
-                    // They should have been re-rendered this time in the original 'firstAtlasID'
-                    // texture.
-                    REPORTER_ASSERT(reporter,
-                                    atlasIDRecorder.lastRenderedAtlasID() == firstAtlasID);
+                    // 'firstAtlasID' should be kept as a scratch texture in the resource cache.
+                    REPORTER_ASSERT(reporter, stashedAtlasInfo.fID == firstAtlasID);
 
-                    if (1 == repetitionIdx) {
-                        // Invalidate odd path masks.
-                        matrices[1].preTranslate(-1.4f, -1.6f);
-                    }
+                    // Invalidate odd path masks.
+                    matrices[1].preTranslate(-1.4f, -1.6f);
+                    break;
+
+                case 0:
+                    // Odd path masks were invalidated last iteration by a subpixel translate. They
+                    // should have been re-rendered this time and stashed away in the CCPR atlas.
+                    REPORTER_ASSERT(reporter, stashedAtlasKey->isValid());
+
+                    // 'firstAtlasID' is the same texture that got stashed away last time (assuming
+                    // no assertion failures). So if it also got stashed this time, it means we
+                    // first copied the even paths out of it, then recycled the exact same texture
+                    // to render the odd paths. This is the expected behavior.
+                    REPORTER_ASSERT(reporter, stashedAtlasInfo.fID == firstAtlasID);
+
+                    // Integer translates: all path masks stay valid.
+                    matrices[0].preTranslate(-1, -1);
+                    matrices[1].preTranslate(1, 1);
                     break;
             }
         }
     }
 };
-DEF_CCPR_TEST(CCPR_cache_partialInvalidate)
+DEF_CCPR_TEST(GrCCPRTest_cache)
 
-class CCPR_unrefPerOpListPathsBeforeOps : public CCPRTest {
+class GrCCPRTest_unrefPerOpListPathsBeforeOps : public CCPRTest {
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
         for (int i = 0; i < 10000; ++i) {
@@ -796,7 +413,7 @@ class CCPR_unrefPerOpListPathsBeforeOps : public CCPRTest {
         REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
     }
 };
-DEF_CCPR_TEST(CCPR_unrefPerOpListPathsBeforeOps)
+DEF_CCPR_TEST(GrCCPRTest_unrefPerOpListPathsBeforeOps)
 
 class CCPRRenderingTest {
 public:
@@ -804,7 +421,7 @@ public:
         if (!ctx->contextPriv().drawingManager()->getCoverageCountingPathRenderer()) {
             return; // CCPR is not enabled on this GPU.
         }
-        CCPRPathDrawer ccpr(sk_ref_sp(ctx), reporter, doStroke);
+        CCPRPathDrawer ccpr(ctx, reporter, doStroke);
         if (!ccpr.valid()) {
             return;
         }
@@ -824,7 +441,7 @@ protected:
         test.run(reporter, ctxInfo.grContext(), true); \
     }
 
-class CCPR_busyPath : public CCPRRenderingTest {
+class GrCCPRTest_busyPath : public CCPRRenderingTest {
     void onRun(skiatest::Reporter* reporter, const CCPRPathDrawer& ccpr) const override {
         static constexpr int kNumBusyVerbs = 1 << 17;
         ccpr.clear();
@@ -842,4 +459,4 @@ class CCPR_busyPath : public CCPRRenderingTest {
                       // your platform's GrGLCaps.
     }
 };
-DEF_CCPR_RENDERING_TEST(CCPR_busyPath)
+DEF_CCPR_RENDERING_TEST(GrCCPRTest_busyPath)

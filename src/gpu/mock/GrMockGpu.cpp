@@ -15,11 +15,7 @@
 
 int GrMockGpu::NextInternalTextureID() {
     static std::atomic<int> nextID{1};
-    int id;
-    do {
-        id = nextID.fetch_add(1);
-    } while (0 == id);  // Reserve 0 for an invalid ID.
-    return id;
+    return nextID++;
 }
 
 int GrMockGpu::NextExternalTextureID() {
