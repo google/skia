@@ -20,6 +20,10 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
     return true;
 }
 
+bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {
+    return skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, toXYZ_D50);
+}
+
 static bool is_3x3(const SkMatrix44& m44) {
     return m44.getFloat(0, 3) == 0.0f
         && m44.getFloat(1, 3) == 0.0f
@@ -57,9 +61,9 @@ SkColorSpace::SkColorSpace(SkGammaNamed gammaNamed,
     fToXYZD50Hash = SkOpts::hash_fn(fToXYZD50_3x3, 9*sizeof(float), 0);
 
     switch (fGammaNamed) {
-        case kSRGB_SkGammaNamed:        transferFn = &  gSRGB_TransferFn.fG; break;
-        case k2Dot2Curve_SkGammaNamed:  transferFn = & g2Dot2_TransferFn.fG; break;
-        case kLinear_SkGammaNamed:      transferFn = &gLinear_TransferFn.fG; break;
+        case kSRGB_SkGammaNamed:        transferFn = &  SkNamedTransferFn::kSRGB.g; break;
+        case k2Dot2Curve_SkGammaNamed:  transferFn = & SkNamedTransferFn::k2Dot2.g; break;
+        case kLinear_SkGammaNamed:      transferFn = &SkNamedTransferFn::kLinear.g; break;
         case kNonStandard_SkGammaNamed:                                      break;
     }
     memcpy(fTransferFn, transferFn, 7*sizeof(float));
@@ -73,12 +77,12 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(SkGammaNamed gammaNamed, const SkMatri
     }
     switch (gammaNamed) {
         case kSRGB_SkGammaNamed:
-            if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
+            if (xyz_almost_equal(toXYZD50, &SkNamedGamut::kSRGB.vals[0][0])) {
                 return SkColorSpace::MakeSRGB();
             }
             break;
         case kLinear_SkGammaNamed:
-            if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
+            if (xyz_almost_equal(toXYZD50, &SkNamedGamut::kSRGB.vals[0][0])) {
                 return SkColorSpace::MakeSRGBLinear();
             }
             break;
@@ -136,6 +140,16 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, 
     return SkColorSpace::MakeRGB(coeffs, toXYZD50);
 }
 
+sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const skcms_TransferFunction& transferFn,
+                                          const skcms_Matrix3x3& toXYZ) {
+    SkMatrix44 toXYZD50;
+    toXYZD50.set3x3RowMajorf(&toXYZ.vals[0][0]);
+    SkColorSpaceTransferFn tf;
+    memcpy(&tf, &transferFn, sizeof(tf));
+    // Going through this old path makes sure we classify transferFn as an SkGammaNamed
+    return SkColorSpace::MakeRGB(tf, toXYZD50);
+}
+
 class SkColorSpaceSingletonFactory {
 public:
     static SkColorSpace* Make(SkGammaNamed gamma, const float to_xyz[9]) {
@@ -148,12 +162,12 @@ public:
 
 SkColorSpace* sk_srgb_singleton() {
     static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(kSRGB_SkGammaNamed,
-                                                                 gSRGB_toXYZD50);
+                                                                 &SkNamedGamut::kSRGB.vals[0][0]);
     return cs;
 }
 SkColorSpace* sk_srgb_linear_singleton() {
     static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(kLinear_SkGammaNamed,
-                                                                 gSRGB_toXYZD50);
+                                                                 &SkNamedGamut::kSRGB.vals[0][0]);
     return cs;
 }
 
@@ -196,6 +210,11 @@ bool SkColorSpace::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
     return true;
 }
 
+bool SkColorSpace::isNumericalTransferFn(skcms_TransferFunction* coeffs) const {
+    this->transferFn(&coeffs->g);
+    return true;
+}
+
 void SkColorSpace::transferFn(float gabcdef[7]) const {
     memcpy(gabcdef, &fTransferFn, 7*sizeof(float));
 }
@@ -210,6 +229,10 @@ bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
     return true;
 }
 
+bool SkColorSpace::toXYZD50(skcms_Matrix3x3* toXYZD50) const {
+    memcpy(toXYZD50, fToXYZD50_3x3, 9*sizeof(float));
+    return true;
+}
 
 void SkColorSpace::gamutTransformTo(const SkColorSpace* dst, float src_to_dst[9]) const {
     dst->computeLazyDstFields();
@@ -374,74 +397,34 @@ struct ColorSpaceHeader {
 };
 
 size_t SkColorSpace::writeToMemory(void* memory) const {
-    // If we have a named profile, only write the enum.
-    const SkGammaNamed gammaNamed = this->gammaNamed();
-    if (this == sk_srgb_singleton()) {
-        if (memory) {
-            *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
-                    k0_Version, kSRGB_NamedColorSpace, gammaNamed, 0);
-        }
-        return sizeof(ColorSpaceHeader);
-    } else if (this == sk_srgb_linear_singleton()) {
-        if (memory) {
-            *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
-                    k0_Version, kSRGBLinear_NamedColorSpace, gammaNamed, 0);
-        }
-        return sizeof(ColorSpaceHeader);
+    if (memory) {
+        *((ColorSpaceHeader*) memory) =
+                ColorSpaceHeader::Pack(k0_Version, 0, kNonStandard_SkGammaNamed,
+                                        ColorSpaceHeader::kTransferFn_Flag);
+        memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
+
+        skcms_TransferFunction transferFn;
+        SkAssertResult(this->isNumericalTransferFn(&transferFn));
+
+        *(((float*) memory) + 0) = transferFn.a;
+        *(((float*) memory) + 1) = transferFn.b;
+        *(((float*) memory) + 2) = transferFn.c;
+        *(((float*) memory) + 3) = transferFn.d;
+        *(((float*) memory) + 4) = transferFn.e;
+        *(((float*) memory) + 5) = transferFn.f;
+        *(((float*) memory) + 6) = transferFn.g;
+        memory = SkTAddOffset<void>(memory, 7 * sizeof(float));
+
+        SkMatrix44 m44;
+        this->toXYZD50(&m44);
+        m44.as3x4RowMajorf((float*) memory);
     }
 
-    // If we have a named gamma, write the enum and the matrix.
-    switch (gammaNamed) {
-        case kSRGB_SkGammaNamed:
-        case k2Dot2Curve_SkGammaNamed:
-        case kLinear_SkGammaNamed: {
-            if (memory) {
-                *((ColorSpaceHeader*) memory) =
-                        ColorSpaceHeader::Pack(k0_Version, 0, gammaNamed,
-                                                ColorSpaceHeader::kMatrix_Flag);
-                memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-                SkMatrix44 m44;
-                this->toXYZD50(&m44);
-                m44.as3x4RowMajorf((float*) memory);
-            }
-            return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
-        }
-        default: {
-            SkColorSpaceTransferFn transferFn;
-            SkAssertResult(this->isNumericalTransferFn(&transferFn));
-
-            if (memory) {
-                *((ColorSpaceHeader*) memory) =
-                        ColorSpaceHeader::Pack(k0_Version, 0, gammaNamed,
-                                                ColorSpaceHeader::kTransferFn_Flag);
-                memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
-
-                *(((float*) memory) + 0) = transferFn.fA;
-                *(((float*) memory) + 1) = transferFn.fB;
-                *(((float*) memory) + 2) = transferFn.fC;
-                *(((float*) memory) + 3) = transferFn.fD;
-                *(((float*) memory) + 4) = transferFn.fE;
-                *(((float*) memory) + 5) = transferFn.fF;
-                *(((float*) memory) + 6) = transferFn.fG;
-                memory = SkTAddOffset<void>(memory, 7 * sizeof(float));
-
-                SkMatrix44 m44;
-                this->toXYZD50(&m44);
-                m44.as3x4RowMajorf((float*) memory);
-            }
-
-            return sizeof(ColorSpaceHeader) + 19 * sizeof(float);
-        }
-    }
+    return sizeof(ColorSpaceHeader) + 19 * sizeof(float);
 }
 
 sk_sp<SkData> SkColorSpace::serialize() const {
-    size_t size = this->writeToMemory(nullptr);
-    if (0 == size) {
-        return nullptr;
-    }
-
-    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    sk_sp<SkData> data = SkData::MakeUninitialized(this->writeToMemory(nullptr));
     this->writeToMemory(data->writable_data());
     return data;
 }
@@ -461,7 +444,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
             case kSRGBLinear_NamedColorSpace:
                 return SkColorSpace::MakeSRGBLinear();
             case kAdobeRGB_NamedColorSpace:
-                return SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut);
+                return SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB);
         }
     }
 
@@ -491,18 +474,21 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
                 return nullptr;
             }
 
-            SkColorSpaceTransferFn transferFn;
-            transferFn.fA = *(((const float*) data) + 0);
-            transferFn.fB = *(((const float*) data) + 1);
-            transferFn.fC = *(((const float*) data) + 2);
-            transferFn.fD = *(((const float*) data) + 3);
-            transferFn.fE = *(((const float*) data) + 4);
-            transferFn.fF = *(((const float*) data) + 5);
-            transferFn.fG = *(((const float*) data) + 6);
+            skcms_TransferFunction transferFn;
+            transferFn.a = *(((const float*) data) + 0);
+            transferFn.b = *(((const float*) data) + 1);
+            transferFn.c = *(((const float*) data) + 2);
+            transferFn.d = *(((const float*) data) + 3);
+            transferFn.e = *(((const float*) data) + 4);
+            transferFn.f = *(((const float*) data) + 5);
+            transferFn.g = *(((const float*) data) + 6);
             data = SkTAddOffset<const void>(data, 7 * sizeof(float));
 
-            SkMatrix44 toXYZ;
-            toXYZ.set3x4RowMajorf((const float*) data);
+            // Data is serialized as row-major 3x4
+            skcms_Matrix3x3 toXYZ;
+            memcpy(&toXYZ.vals[0][0], (const float*)data + 0, 3 * sizeof(float));
+            memcpy(&toXYZ.vals[1][0], (const float*)data + 4, 3 * sizeof(float));
+            memcpy(&toXYZ.vals[2][0], (const float*)data + 8, 3 * sizeof(float));
             return SkColorSpace::MakeRGB(transferFn, toXYZ);
         }
         default:

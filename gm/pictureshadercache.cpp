@@ -60,9 +60,12 @@ public:
 
         {
             // Render in a funny color space that converts green to yellow.
-            SkMatrix44 greenToYellow;
-            greenToYellow.setFloat(0, 1, 1.0f);
-            sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+            skcms_Matrix3x3 greenToYellow = {{
+                { 1, 1, 0 },
+                { 0, 1, 0 },
+                { 0, 0, 1 },
+            }};
+            sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
                                                             greenToYellow);
             SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100, std::move(gty));
             sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
