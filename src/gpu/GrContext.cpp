@@ -857,6 +857,19 @@ void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
     }
 }
 
+// In DDL-mode this will remove the unique key from any extant proxy. This will mean that, when
+// finally instantiated at playback time, the GrGpuResource will not get a unique key and will thus
+// not be shareable between DLL draws.
+// In normal mode this will remove the unique key from both the proxy and the GrGpuResource.
+// The benefit of using this entry point over posting a message is that this happens synchronously
+// in a DDL recording thread so has fewer multithreading issues.
+// TODO: Use more complete ref counted system so redrawing of a DDL can refind such resources
+void GrContextPriv::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
+    GrProxyProvider* proxyProvider = this->proxyProvider();
+
+    proxyProvider->processInvalidUniqueKey(key, nullptr, GrProxyProvider::InvalidateGPUResource::kYes);
+}
+
 void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
