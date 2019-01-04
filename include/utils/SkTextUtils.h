@@ -28,7 +28,6 @@ public:
 
     static void DrawString(SkCanvas* canvas, const char text[], SkScalar x, SkScalar y,
                            const SkFont& font, const SkPaint& paint, Align align = kLeft_Align) {
-        SkASSERT(paint.getTextEncoding() == kUTF8_SkTextEncoding);
         Draw(canvas, text, strlen(text), kUTF8_SkTextEncoding, x, y, font, paint, align);
     }
 

@@ -111,6 +111,7 @@ static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
 
 
 static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> typeface) {
+    SkFont font(typeface);
     SkPaint p;
     init_paint(fuzz, &p);
     sk_sp<SkSurface> surface;
@@ -125,10 +126,9 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> typeface) {
     SkPoint pts[kPtsLen];
     for (uint8_t i = 0; i < kPtsLen; ++i) {
         pts[i].set(x, y);
-        x += p.getTextSize();
+        x += font.getSize();
     }
 
-    SkFont font(typeface);
     bool b;
     fuzz->next(&b);
     font.setForceAutoHinting(b);
