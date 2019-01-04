@@ -140,7 +140,7 @@ namespace hello_ar {
         height_ = height;
 
         if (ar_session_ != nullptr) {
-            ArSession_setDisplayGeometry(ar_session_, display_rotation, width, height);;
+            ArSession_setDisplayGeometry(ar_session_, display_rotation, width, height);
         }
     }
 

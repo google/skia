@@ -439,7 +439,7 @@ void SkPathOpsDebug::DumpGlitchType(GlitchType glitchType) {
         case kAddCorruptCoin_Glitch: SkDebugf(" AddCorruptCoin"); break;
         case kAddExpandedCoin_Glitch: SkDebugf(" AddExpandedCoin"); break;
         case kAddExpandedFail_Glitch: SkDebugf(" AddExpandedFail"); break;
-        case kAddIfCollapsed_Glitch: SkDebugf(" AddIfCollapsed"); break;; break;
+        case kAddIfCollapsed_Glitch: SkDebugf(" AddIfCollapsed"); break;
         case kAddIfMissingCoin_Glitch: SkDebugf(" AddIfMissingCoin"); break;
         case kAddMissingCoin_Glitch: SkDebugf(" AddMissingCoin"); break;
         case kAddMissingExtend_Glitch: SkDebugf(" AddMissingExtend"); break;

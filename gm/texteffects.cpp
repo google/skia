@@ -23,7 +23,7 @@ static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
     SkPath underline;
     SkScalar end = last;
     for (int index = 0; index < intersections.count(); index += 2) {
-        SkScalar start = intersections[index] - uWidth;;
+        SkScalar start = intersections[index] - uWidth;
         end = intersections[index + 1] + uWidth;
         if (start > last && last + textSize / 12 < start) {
             underline.moveTo(last, uPos);
