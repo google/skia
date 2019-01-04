@@ -317,7 +317,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 
     if (auto ccpr = fDrawingManager->getCoverageCountingPathRenderer()) {
-        ccpr->purgeCacheEntriesOlderThan(purgeTime);
+        ccpr->purgeCacheEntriesOlderThan(fProxyProvider, purgeTime);
     }
 
     fTextBlobCache->purgeStaleBlobs();
