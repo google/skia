@@ -296,8 +296,7 @@ public:
         case 4:
             // This just needs to be a colorSpace different from that returned by MakeSRGB().
             // In this case we just change the gamut.
-            fColorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                                SkColorSpace::kAdobeRGB_Gamut);
+            fColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB);
             break;
         case kSampleCount:
             fSampleCount = 4;

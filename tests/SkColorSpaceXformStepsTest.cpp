@@ -11,8 +11,8 @@
 
 DEF_TEST(SkColorSpaceXformSteps, r) {
     auto srgb   = SkColorSpace::MakeSRGB(),
-         adobe  = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut),
-         srgb22 = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::    kSRGB_Gamut),
+         adobe  = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB),
+         srgb22 = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kSRGB),
          srgb1  = srgb ->makeLinearGamma(),
          adobe1 = adobe->makeLinearGamma();
 

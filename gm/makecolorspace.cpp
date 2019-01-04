@@ -48,8 +48,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkColorSpace> wideGamut = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                                              SkColorSpace::kAdobeRGB_Gamut);
+        sk_sp<SkColorSpace> wideGamut = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                              SkNamedGamut::kAdobeRGB);
         sk_sp<SkColorSpace> wideGamutLinear = wideGamut->makeLinearGamma();
 
         // Lazy images
