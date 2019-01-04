@@ -740,13 +740,14 @@ private:
             f = f * 10.f + (*p++ - '0'); --exp;
         }
 
-        if (is_numeric(*p)) {
-            SkASSERT(*p == '.' || *p == 'e' || *p == 'E');
-            // We either have malformed input, or an (unsupported) exponent.
+        const auto decimal_scale = pow10(exp);
+        if (is_numeric(*p) || !decimal_scale) {
+            SkASSERT((*p == '.' || *p == 'e' || *p == 'E') || !decimal_scale);
+            // Malformed input, or an (unsupported) exponent, or a collapsed decimal factor.
             return nullptr;
         }
 
-        this->pushFloat(sign * f * pow10(exp));
+        this->pushFloat(sign * f * decimal_scale);
 
         return p;
     }
