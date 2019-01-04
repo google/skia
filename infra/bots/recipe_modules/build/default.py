@@ -59,7 +59,6 @@ def compile_fn(api, checkout_root, out_dir):
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   linux_vulkan_sdk = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
-  win_vulkan_sdk   = str(api.vars.slave_dir.join('win_vulkan_sdk'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
   cc, cxx = None, None
@@ -214,8 +213,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_vulkan_debug_layers'] = 'false'
     if api.vars.is_linux:
       args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
-    if 'Win' in os:
-      args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
     if 'MoltenVK' in extra_tokens:
       args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Metal' in extra_tokens:
