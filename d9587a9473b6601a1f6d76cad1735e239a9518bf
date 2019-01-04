@@ -16,6 +16,24 @@
       "revId": "d9587a9473b6601a1f6d76cad1735e239a9518bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a3ac1f6_90eb65ff",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-04T20:03:14Z",
+      "side": 1,
+      "message": "This used to happen inside SkScalerContext::CreateDescriptorAndEffectsUsingPaint(), but soon the SkGlyphCache will be calculated by the painter, and passed to the drawing code. I have added a much better interface on SkAutoDescriptor to reset desc.",
+      "parentUuid": "f7ed6ba4_3f317999",
+      "revId": "d9587a9473b6601a1f6d76cad1735e239a9518bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
