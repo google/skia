@@ -356,23 +356,23 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('H', "Paint", "Hinting mode", [this]() {
-        if (!fPaintOverrides.fHinting) {
-            fPaintOverrides.fHinting = true;
-            fPaint.setHinting(kNo_SkFontHinting);
+        if (!fFontOverrides.fHinting) {
+            fFontOverrides.fHinting = true;
+            fFont.setHinting(kNo_SkFontHinting);
         } else {
-            switch ((SkFontHinting)fPaint.getHinting()) {
+            switch (fFont.getHinting()) {
                 case kNo_SkFontHinting:
-                    fPaint.setHinting(kSlight_SkFontHinting);
+                    fFont.setHinting(kSlight_SkFontHinting);
                     break;
                 case kSlight_SkFontHinting:
-                    fPaint.setHinting(kNormal_SkFontHinting);
+                    fFont.setHinting(kNormal_SkFontHinting);
                     break;
                 case kNormal_SkFontHinting:
-                    fPaint.setHinting(kFull_SkFontHinting);
+                    fFont.setHinting(kFull_SkFontHinting);
                     break;
                 case kFull_SkFontHinting:
-                    fPaint.setHinting(kNo_SkFontHinting);
-                    fPaintOverrides.fHinting = false;
+                    fFont.setHinting(kNo_SkFontHinting);
+                    fFontOverrides.fHinting = false;
                     break;
             }
         }
@@ -708,8 +708,8 @@ void Viewer::updateTitle() {
     paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
               "Force Autohint", "No Force Autohint");
 
-    if (fPaintOverrides.fHinting) {
-        switch ((SkFontHinting)fPaint.getHinting()) {
+    if (fFontOverrides.fHinting) {
+        switch (fFont.getHinting()) {
             case kNo_SkFontHinting:
                 paintTitle.append("No Hinting");
                 break;
@@ -962,18 +962,17 @@ void Viewer::setColorMode(ColorMode colorMode) {
 
 class OveridePaintFilterCanvas : public SkPaintFilterCanvas {
 public:
-    OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* fields)
-        : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
+    OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* pfields,
+            SkFont* font, Viewer::SkFontFields* ffields)
+        : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(pfields), fFont(font), fFontOverrides(ffields)
     { }
     const SkTextBlob* filterTextBlob(const SkPaint& paint, const SkTextBlob* blob,
                                      sk_sp<SkTextBlob>* cache) {
         bool blobWillChange = false;
         for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
-            SkPaint blobPaint = paint;
-            it.applyFontToPaint(&blobPaint);
-            SkTCopyOnFirstWrite<SkPaint> filteredPaint(blobPaint);
-            bool shouldDraw = this->onFilter(&filteredPaint, kTextBlob_Type);
-            if (blobPaint != *filteredPaint || !shouldDraw) {
+            SkTCopyOnFirstWrite<SkFont> filteredFont(it.font());
+            bool shouldDraw = this->filterFont(&filteredFont);
+            if (it.font() != *filteredFont || !shouldDraw) {
                 blobWillChange = true;
                 break;
             }
@@ -984,15 +983,13 @@ public:
 
         SkTextBlobBuilder builder;
         for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
-            SkPaint blobPaint = paint;
-            it.applyFontToPaint(&blobPaint);
-            SkTCopyOnFirstWrite<SkPaint> filteredPaint(blobPaint);
-            bool shouldDraw = this->onFilter(&filteredPaint, kTextBlob_Type);
+            SkTCopyOnFirstWrite<SkFont> filteredFont(it.font());
+            bool shouldDraw = this->filterFont(&filteredFont);
             if (!shouldDraw) {
                 continue;
             }
 
-            SkFont font = SkFont::LEGACY_ExtractFromPaint(*filteredPaint);
+            SkFont font = *filteredFont;
 
             const SkTextBlobBuilder::RunBuffer& runBuffer
                 = it.positioning() == SkTextBlobRunIterator::kDefault_Positioning
@@ -1034,46 +1031,54 @@ public:
         this->SkPaintFilterCanvas::onDrawTextBlob(
             this->filterTextBlob(paint, blob, &cache), x, y, paint);
     }
+    bool filterFont(SkTCopyOnFirstWrite<SkFont>* font) const {
+        if (fFontOverrides->fTextSize) {
+            font->writable()->setSize(fFont->getSize());
+        }
+        if (fFontOverrides->fHinting) {
+            font->writable()->setHinting(fFont->getHinting());
+        }
+#if 0
+        if (fFontOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
+            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
+            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kLinearText_Flag) {
+            paint->writable()->setLinearText(fPaint->isLinearText());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
+            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
+            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
+            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
+        }
+        if (fFontOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
+            paint->writable()->setAutohinted(fPaint->isAutohinted());
+        }
+#endif
+        return true;
+    }
     bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
         if (*paint == nullptr) {
             return true;
         }
-        if (fPaintOverrides->fTextSize) {
-            paint->writable()->setTextSize(fPaint->getTextSize());
-        }
-        if (fPaintOverrides->fHinting) {
-            paint->writable()->setHinting(fPaint->getHinting());
-        }
-
         if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
             paint->writable()->setAntiAlias(fPaint->isAntiAlias());
         }
         if (fPaintOverrides->fFlags & SkPaint::kDither_Flag) {
             paint->writable()->setDither(fPaint->isDither());
         }
-        if (fPaintOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
-            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kLinearText_Flag) {
-            paint->writable()->setLinearText(fPaint->isLinearText());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
-            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
-            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
-            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
-        }
-        if (fPaintOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
-            paint->writable()->setAutohinted(fPaint->isAutohinted());
-        }
-
         return true;
     }
     SkPaint* fPaint;
     Viewer::SkPaintFields* fPaintOverrides;
+    SkFont* fFont;
+    Viewer::SkFontFields* fFontOverrides;
 };
 
 void Viewer::drawSlide(SkCanvas* canvas) {
@@ -1145,7 +1150,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
                 tileCanvas->translate(-x, -y);
                 tileCanvas->clear(SK_ColorTRANSPARENT);
                 tileCanvas->concat(m);
-                OveridePaintFilterCanvas filterCanvas(tileCanvas, &fPaint, &fPaintOverrides);
+                OveridePaintFilterCanvas filterCanvas(tileCanvas, &fPaint, &fPaintOverrides,
+                                                      &fFont, &fFontOverrides);
                 fSlides[fCurrentSlide]->draw(&filterCanvas);
                 tileSurface->draw(slideCanvas, x, y, nullptr);
             }
@@ -1167,7 +1173,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         if (kPerspective_Real == fPerspectiveMode) {
             slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
         }
-        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides);
+        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides, &fFont, &fFontOverrides);
         fSlides[fCurrentSlide]->draw(&filterCanvas);
     }
     fStatsLayer.endTiming(fPaintTimer);
@@ -1610,19 +1616,19 @@ void Viewer::drawImGui() {
 
             if (ImGui::CollapsingHeader("Paint")) {
                 int hintingIdx = 0;
-                if (fPaintOverrides.fHinting) {
-                    hintingIdx = static_cast<unsigned>(fPaint.getHinting()) + 1;
+                if (fFontOverrides.fHinting) {
+                    hintingIdx = static_cast<unsigned>(fFont.getHinting()) + 1;
                 }
                 if (ImGui::Combo("Hinting", &hintingIdx,
                                  "Default\0None\0Slight\0Normal\0Full\0\0"))
                 {
                     if (hintingIdx == 0) {
-                        fPaintOverrides.fHinting = false;
-                        fPaint.setHinting(kNo_SkFontHinting);
+                        fFontOverrides.fHinting = false;
+                        fFont.setHinting(kNo_SkFontHinting);
                     } else {
-                        fPaintOverrides.fHinting = true;
+                        fFontOverrides.fHinting = true;
                         SkFontHinting hinting = SkTo<SkFontHinting>(hintingIdx - 1);
-                        fPaint.setHinting(hinting);
+                        fFont.setHinting(hinting);
                     }
                     paramsChanged = true;
                 }
@@ -1698,7 +1704,7 @@ void Viewer::drawImGui() {
                           "Default\0No Dither\0Dither\0\0",
                           SkPaint::kDither_Flag,
                           &SkPaint::isDither, &SkPaint::setDither);
-
+#if 0
                 paintFlag("Fake Bold Glyphs",
                           "Default\0No Fake Bold\0Fake Bold\0\0",
                           SkPaint::kFakeBoldText_Flag,
@@ -1728,18 +1734,18 @@ void Viewer::drawImGui() {
                           "Default\0No Force Auto-Hinting\0Force Auto-Hinting\0\0",
                           SkPaint::kAutoHinting_Flag,
                           &SkPaint::isAutohinted, &SkPaint::setAutohinted);
-
-                ImGui::Checkbox("Override TextSize", &fPaintOverrides.fTextSize);
-                if (fPaintOverrides.fTextSize) {
-                    ImGui::DragFloat2("TextRange", fPaintOverrides.fTextSizeRange,
+#endif
+                ImGui::Checkbox("Override TextSize", &fFontOverrides.fTextSize);
+                if (fFontOverrides.fTextSize) {
+                    ImGui::DragFloat2("TextRange", fFontOverrides.fTextSizeRange,
                                       0.001f, -10.0f, 300.0f, "%.6f", 2.0f);
-                    float textSize = fPaint.getTextSize();
+                    float textSize = fFont.getSize();
                     if (ImGui::DragFloat("TextSize", &textSize, 0.001f,
-                                         fPaintOverrides.fTextSizeRange[0],
-                                         fPaintOverrides.fTextSizeRange[1],
+                                         fFontOverrides.fTextSizeRange[0],
+                                         fFontOverrides.fTextSizeRange[1],
                                          "%.6f", 2.0f))
                     {
-                        fPaint.setTextSize(textSize);
+                        fFont.setSize(textSize);
                         this->preTouchMatrixChanged();
                         paramsChanged = true;
                     }
