@@ -163,7 +163,7 @@ protected:
 
 private:
     static constexpr SkScalar kDrawPad = 10.f;
-    static constexpr SkScalar kTestPad = 10.f;;
+    static constexpr SkScalar kTestPad = 10.f;
     static constexpr int      kTargetWidth = 100;
     static constexpr int      kTargetHeight = 100;
     sk_sp<SkImage> fImage;
