@@ -5415,7 +5415,7 @@ DEF_TEST(path_last_move_to_index, r) {
         }
     }, &copyPath);
 
-    SkScalar radii[] = { 80, 100, 0, 0, 40, 60, 0, 0 };;
+    SkScalar radii[] = { 80, 100, 0, 0, 40, 60, 0, 0 };
     SkPath path;
     path.addRoundRect({10, 10, 110, 110}, radii);
     path.offset(0, 5, &(copyPath));                     // <== change buffer copyPath.fPathRef->fPoints but not reset copyPath.fLastMoveToIndex lead to out of bound
