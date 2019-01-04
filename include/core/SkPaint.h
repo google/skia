@@ -753,9 +753,7 @@ public:
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-public:
-#else
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 private:
 #endif
     /** Returns SkTypeface if set, or nullptr.
@@ -778,7 +776,7 @@ private:
         @param typeface  font and style used to draw text
     */
     void setTypeface(sk_sp<SkTypeface> typeface);
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 public:
 #endif
 
@@ -840,9 +838,7 @@ public:
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-public:
-#else
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 private:
 #endif
     /** Returns text size in points.
@@ -901,7 +897,7 @@ private:
      *  @param encoding  the new text encoding
      */
     void setTextEncoding(SkTextEncoding encoding);
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 public:
 #endif
 
