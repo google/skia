@@ -242,7 +242,6 @@ public:
         SkASSERT(!this->done());
         return fCurrentRun->font();
     }
-    void applyFontToPaint(SkPaint*) const;
     GlyphPositioning positioning() const;
     uint32_t* clusters() const {
         SkASSERT(!this->done());

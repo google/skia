@@ -34,6 +34,7 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
 #define SKDEBUGCANVAS_ATTRIBUTE_DRAWDEPTHTRANS    "drawDepthTranslation"
 #define SKDEBUGCANVAS_ATTRIBUTE_COORDS            "coords"
+#define SKDEBUGCANVAS_ATTRIBUTE_EDGING            "edging"
 #define SKDEBUGCANVAS_ATTRIBUTE_HINTING           "hinting"
 #define SKDEBUGCANVAS_ATTRIBUTE_BOUNDS            "bounds"
 #define SKDEBUGCANVAS_ATTRIBUTE_PAINT             "paint"
@@ -189,6 +190,10 @@
 #define SKDEBUGCANVAS_HINTING_SLIGHT              "slight"
 #define SKDEBUGCANVAS_HINTING_NORMAL              "normal"
 #define SKDEBUGCANVAS_HINTING_FULL                "full"
+
+#define SKDEBUGCANVAS_EDGING_ALIAS                "alias"
+#define SKDEBUGCANVAS_EDGING_ANTIALIAS            "antialias"
+#define SKDEBUGCANVAS_EDGING_SUBPIXELANTIALIAS    "subpixelantialias"
 
 #define SKDEBUGCANVAS_SHADOWFLAG_TRANSPARENT_OCC  "transparentOccluder"
 #define SKDEBUGCANVAS_SHADOWFLAG_GEOMETRIC_ONLY   "geometricOnly"
@@ -786,8 +791,8 @@ bool SkDrawCommand::flatten(const SkBitmap& bitmap, Json::Value* target,
     return success;
 }
 
-static void apply_paint_hinting(const SkPaint& paint, Json::Value* target) {
-    SkFontHinting hinting = (SkFontHinting)paint.getHinting();
+static void apply_font_hinting(const SkFont& font, Json::Value* target) {
+    SkFontHinting hinting = font.getHinting();
     if (hinting != SkPaintDefaults_Hinting) {
         switch (hinting) {
             case kNo_SkFontHinting:
@@ -803,6 +808,20 @@ static void apply_paint_hinting(const SkPaint& paint, Json::Value* target) {
                 (*target)[SKDEBUGCANVAS_ATTRIBUTE_HINTING] = SKDEBUGCANVAS_HINTING_FULL;
                 break;
         }
+    }
+}
+
+static void apply_font_edging(const SkFont& font, Json::Value* target) {
+    switch (font.getEdging()) {
+        case SkFont::Edging::kAlias:
+            (*target)[SKDEBUGCANVAS_ATTRIBUTE_EDGING] = SKDEBUGCANVAS_EDGING_ALIAS;
+            break;
+        case SkFont::Edging::kAntiAlias:
+            (*target)[SKDEBUGCANVAS_ATTRIBUTE_EDGING] = SKDEBUGCANVAS_EDGING_ANTIALIAS;
+            break;
+        case SkFont::Edging::kSubpixelAntiAlias:
+            (*target)[SKDEBUGCANVAS_ATTRIBUTE_EDGING] = SKDEBUGCANVAS_EDGING_SUBPIXELANTIALIAS;
+            break;
     }
 }
 
@@ -959,9 +978,9 @@ static void apply_paint_patheffect(const SkPaint& paint, Json::Value* target,
     }
 }
 
-static void apply_paint_typeface(const SkPaint& paint, Json::Value* target,
+static void apply_font_typeface(const SkFont& font, Json::Value* target,
                                  UrlDataManager& urlDataManager) {
-    SkTypeface* typeface = paint.getTypeface();
+    SkTypeface* typeface = font.getTypeface();
     if (typeface != nullptr) {
         Json::Value jsonTypeface;
         SkDynamicMemoryWStream buffer;
@@ -1024,19 +1043,7 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
                  SkPaintDefaults_MiterLimit);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_ANTIALIAS, paint.isAntiAlias(), false);
     store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_DITHER, paint.isDither(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_FAKEBOLDTEXT, paint.isFakeBoldText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LINEARTEXT, paint.isLinearText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_SUBPIXELTEXT, paint.isSubpixelText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LCDRENDERTEXT, paint.isLCDRenderText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT, paint.isEmbeddedBitmapText(), false);
-    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING, paint.isAutohinted(), false);
-    //kGenA8FromLCD_Flag
 
-    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSIZE, paint.getTextSize(),
-                 SkPaintDefaults_TextSize);
-    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextScaleX(), SK_Scalar1);
-    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, paint.getTextSkewX(), 0.0f);
-    apply_paint_hinting(paint, &result);
     apply_paint_color(paint, &result);
     apply_paint_style(paint, &result);
     apply_paint_blend_mode(paint, &result);
@@ -1049,7 +1056,24 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_looper(paint, &result, urlDataManager);
     apply_paint_imagefilter(paint, &result, urlDataManager);
     apply_paint_colorfilter(paint, &result, urlDataManager);
-    apply_paint_typeface(paint, &result, urlDataManager);
+    return result;
+}
+
+static Json::Value MakeJsonFont(const SkFont& font, UrlDataManager& urlDataManager) {
+    Json::Value result(Json::objectValue);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_FAKEBOLDTEXT, font.isEmbolden(), false);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_LINEARTEXT, font.isLinearMetrics(), false);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_SUBPIXELTEXT, font.isSubpixel(), false);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_EMBEDDEDBITMAPTEXT, font.isEmbeddedBitmaps(), false);
+    store_bool(&result, SKDEBUGCANVAS_ATTRIBUTE_AUTOHINTING, font.isForceAutoHinting(), false);
+
+    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSIZE, font.getSize(),
+                 SkPaintDefaults_TextSize);
+    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, font.getScaleX(), SK_Scalar1);
+    store_scalar(&result, SKDEBUGCANVAS_ATTRIBUTE_TEXTSCALEX, font.getSkewX(), 0.0f);
+    apply_font_edging(font, &result);
+    apply_font_hinting(font, &result);
+    apply_font_typeface(font, &result, urlDataManager);
     return result;
 }
 
@@ -1864,8 +1888,7 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
         }
         run[SKDEBUGCANVAS_ATTRIBUTE_GLYPHS] = jsonGlyphs;
         SkPaint fontPaint;
-        iter.applyFontToPaint(&fontPaint);
-        run[SKDEBUGCANVAS_ATTRIBUTE_FONT] = MakeJsonPaint(fontPaint, urlDataManager);
+        run[SKDEBUGCANVAS_ATTRIBUTE_FONT] = MakeJsonFont(iter.font(), urlDataManager);
         run[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonPoint(iter.offset());
         runs.append(run);
         iter.next();

@@ -210,12 +210,7 @@ public:
 
         SkTextBlobRunIterator it(blob.get());
         while (!it.done()) {
-            SkPaint paint;
-            it.applyFontToPaint(&paint);    // need iter for fonts
-            SkFont iterFont = SkFont::LEGACY_ExtractFromPaint(paint);
-
-            REPORTER_ASSERT(reporter, iterFont == font);
-
+            REPORTER_ASSERT(reporter, it.font() == font);
             it.next();
         }
 

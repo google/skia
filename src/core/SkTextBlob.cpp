@@ -234,13 +234,6 @@ SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() con
     return SkTo<GlyphPositioning>(fCurrentRun->positioning());
 }
 
-void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
-    SkASSERT(!this->done());
-
-    fCurrentRun->font().LEGACY_applyToPaint(paint);
-    paint->setTextEncoding(kGlyphID_SkTextEncoding);
-}
-
 bool SkTextBlobRunIterator::isLCD() const {
     return fCurrentRun->font().getEdging() == SkFont::Edging::kSubpixelAntiAlias;
 }
