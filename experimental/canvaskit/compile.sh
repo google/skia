@@ -207,6 +207,7 @@ ${EMCXX} \
     --bind \
     --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/interface.js \
+    --post-js $BASE_DIR/ready.js \
     $HTML_CANVAS_API \
     $BUILTIN_FONT \
     $BASE_DIR/canvaskit_bindings.cpp \

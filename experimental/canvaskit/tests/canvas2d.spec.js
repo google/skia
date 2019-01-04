@@ -11,7 +11,7 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
         } else {
             CanvasKitInit({
                 locateFile: (file) => '/canvaskit/'+file,
-            }).then((_CanvasKit) => {
+            }).ready().then((_CanvasKit) => {
                 CanvasKit = _CanvasKit;
                 resolve();
             });
