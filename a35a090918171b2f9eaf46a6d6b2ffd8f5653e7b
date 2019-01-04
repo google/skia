@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21d25d83_a71dd57f",
+        "filename": "src/core/SkDescriptor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-04T18:45:08Z",
+      "side": 1,
+      "message": "2019 ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "a35a090918171b2f9eaf46a6d6b2ffd8f5653e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af7f8dc9_febf3aaf",
+        "filename": "src/core/SkDescriptor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-04T18:45:08Z",
+      "side": 1,
+      "message": "Does this still need to be here (vs. in the .cpp) ?",
+      "revId": "a35a090918171b2f9eaf46a6d6b2ffd8f5653e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
