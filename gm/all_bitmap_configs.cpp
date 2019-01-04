@@ -106,12 +106,13 @@ int find(T* array, int N, T item) {
 
 static void draw(SkCanvas* canvas,
                  const SkPaint& p,
+                 const SkFont& font,
                  const SkBitmap& src,
                  SkColorType colorType,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
     canvas->drawBitmap(src, 0.0f, 0.0f);
-    canvas->drawString(text, 0.0f, 12.0f, p);
+    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0.0f, 12.0f, font, p);
 }
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
@@ -119,28 +120,29 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkPaint p;
     p.setColor(SK_ColorBLACK);
     p.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&p, nullptr);
+
+    SkFont font(sk_tool_utils::create_portable_typeface());
 
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     SkBitmap bitmap;
     if (GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
         bitmap.setImmutable();
-        draw(canvas, p, bitmap, kN32_SkColorType, "Native 32");
+        draw(canvas, p, font, bitmap, kN32_SkColorType, "Native 32");
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy565 = copy_bitmap(bitmap, kRGB_565_SkColorType);
         p.setColor(SK_ColorRED);
-        draw(canvas, p, copy565, kRGB_565_SkColorType, "RGB 565");
+        draw(canvas, p, font, copy565, kRGB_565_SkColorType, "RGB 565");
         p.setColor(SK_ColorBLACK);
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy4444 = copy_bitmap(bitmap, kARGB_4444_SkColorType);
-        draw(canvas, p, copy4444, kARGB_4444_SkColorType, "ARGB 4444");
+        draw(canvas, p, font, copy4444, kARGB_4444_SkColorType, "ARGB 4444");
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copyF16 = copy_bitmap(bitmap, kRGBA_F16_SkColorType);
-        draw(canvas, p, copyF16, kRGBA_F16_SkColorType, "RGBA F16");
+        draw(canvas, p, font, copyF16, kRGBA_F16_SkColorType, "RGBA F16");
 
     } else {
         canvas->translate(0.0f, SkIntToScalar(3 * SCALE));
@@ -148,12 +150,12 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
 
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapA8 = make_bitmap(kAlpha_8_SkColorType);
-    draw(canvas, p, bitmapA8, kAlpha_8_SkColorType, "Alpha 8");
+    draw(canvas, p, font, bitmapA8, kAlpha_8_SkColorType, "Alpha 8");
 
     p.setColor(SK_ColorRED);
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapG8 = make_bitmap(kGray_8_SkColorType);
-    draw(canvas, p, bitmapG8, kGray_8_SkColorType, "Gray 8");
+    draw(canvas, p, font, bitmapG8, kGray_8_SkColorType, "Gray 8");
 }
 
 sk_sp<SkImage> make_not_native32_color_wheel() {

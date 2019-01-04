@@ -79,7 +79,6 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
                     sk_srgb_singleton());
 
     BitFlags bits = info.fPaintBits;
-    SkTextEncoding encoding = dst->getTextEncoding();
 
     if (0 == bits) {
         return;
@@ -91,7 +90,6 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         *dst = src;
         dst->setFlags(f);
         dst->setColor4f(c, sk_srgb_singleton());
-        dst->setTextEncoding(encoding);
         return;
     }
 
@@ -101,10 +99,6 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         dst->setStrokeMiter(src.getStrokeMiter());
         dst->setStrokeCap(src.getStrokeCap());
         dst->setStrokeJoin(src.getStrokeJoin());
-    }
-
-    if (bits & kTextSkewX_Bit) {
-        dst->setTextSkewX(src.getTextSkewX());
     }
 
     if (bits & kPathEffect_Bit) {
