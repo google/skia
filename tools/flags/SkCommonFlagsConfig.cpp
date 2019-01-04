@@ -309,13 +309,16 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("p3")) {
         *outColorType = kRGBA_8888_SkColorType;
-        *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+        *outColorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                               SkColorSpace::kDCIP3_D65_Gamut);
     } else if (value.equals("esrgb")) {
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("narrow") || value.equals("enarrow")) {
+        SkMatrix44 narrow_gamut;
+        narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
         *outColorType = value.equals("narrow") ? kRGBA_8888_SkColorType : kRGBA_F16_SkColorType;
-        *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50);
+        *outColorSpace = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut);
     } else if (value.equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGBLinear();

@@ -833,7 +833,7 @@ static bool gather_srcs() {
 
 static sk_sp<SkColorSpace> rec2020() {
     return SkColorSpace::MakeRGB({2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0},
-                                 SkNamedGamut::kRec2020);
+                                 SkColorSpace::kRec2020_Gamut);
 }
 
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
@@ -925,10 +925,14 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         // Configs relevant to color management testing (and 8888 for reference).
 
         // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-        auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
+        SkMatrix44 narrow_gamut;
+        narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
+
+        auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
                srgb = SkColorSpace::MakeSRGB(),
          srgbLinear = SkColorSpace::MakeSRGBLinear(),
-                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+                 p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                            SkColorSpace::kDCIP3_D65_Gamut);
 
         SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
         SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
@@ -954,7 +958,8 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) return new via(__VA_ARGS__)
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("p3",        ViaCSXform,           wrapped,
-                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3), false);
+                     SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                           SkColorSpace::kDCIP3_D65_Gamut), false);
     VIA("lite",      ViaLite,              wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);

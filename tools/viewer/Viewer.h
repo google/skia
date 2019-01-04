@@ -138,7 +138,7 @@ private:
     // Color properties for slide rendering
     ColorMode              fColorMode;
     SkColorSpacePrimaries  fColorSpacePrimaries;
-    skcms_TransferFunction fColorSpaceTransferFn;
+    SkColorSpaceTransferFn fColorSpaceTransferFn;
 
     // transform data
     SkScalar               fZoomLevel;

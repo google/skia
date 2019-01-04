@@ -813,8 +813,8 @@ DEF_TEST(CanvasClipType, r) {
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 DEF_TEST(Canvas_LegacyColorBehavior, r) {
-    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
-                                                   SkNamedGamut::kAdobeRGB);
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                   SkColorSpace::kAdobeRGB_Gamut);
 
     // Make a Adobe RGB bitmap.
     SkBitmap bitmap;

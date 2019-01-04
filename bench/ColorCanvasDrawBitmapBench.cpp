@@ -54,5 +54,5 @@ DEF_BENCH(return new ColorCanvasDrawBitmap(nullptr, SkColorSpace::MakeSRGB(), "n
 DEF_BENCH(return new ColorCanvasDrawBitmap(SkColorSpace::MakeSRGB(), SkColorSpace::MakeSRGB(),
         "sRGB_to_sRGB");)
 DEF_BENCH(return new ColorCanvasDrawBitmap(
-        SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB),
+        SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kAdobeRGB_Gamut),
         SkColorSpace::MakeSRGB(), "AdobeRGB_to_sRGB");)

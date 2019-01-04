@@ -22,7 +22,8 @@ DEF_TEST(SkToSRGBColorFilter, r) {
     REPORTER_ASSERT(r, nullptr == SkToSRGBColorFilter::Make(nullptr));
 
     // Here's a realistic conversion.
-    auto dci_p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kDCIP3);
+    auto dci_p3 = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
+                                        SkColorSpace::kDCIP3_D65_Gamut);
     REPORTER_ASSERT(r, nullptr != SkToSRGBColorFilter::Make(dci_p3));
 
 }
