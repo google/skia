@@ -185,7 +185,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
-    , fColorSpaceTransferFn(SkNamedTransferFn::k2Dot2)
+    , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
     , fRotation(0.0f)
     , fOffset{0.5f, 0.5f}
@@ -748,7 +748,7 @@ void Viewer::updateTitle() {
         }
         title.appendf(" %s Gamma %f",
                       curPrimaries >= 0 ? gNamedPrimaries[curPrimaries].fName : "Custom",
-                      fColorSpaceTransferFn.g);
+                      fColorSpaceTransferFn.fG);
     }
 
     const DisplayParams& params = fWindow->getRequestedDisplayParams();
@@ -1091,7 +1091,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     // If we're in any of the color managed modes, construct the color space we're going to use
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (ColorMode::kLegacy != fColorMode) {
-        skcms_Matrix3x3 toXYZ;
+        SkMatrix44 toXYZ;
         SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
         colorSpace = SkColorSpace::MakeRGB(fColorSpaceTransferFn, toXYZ);
     }
@@ -1835,7 +1835,7 @@ void Viewer::drawImGui() {
                 }
 
                 // Let user adjust the gamma
-                ImGui::SliderFloat("Gamma", &fColorSpaceTransferFn.g, 0.5f, 3.5f);
+                ImGui::SliderFloat("Gamma", &fColorSpaceTransferFn.fG, 0.5f, 3.5f);
 
                 if (ImGui::Combo("Primaries", &primariesIdx,
                                  "sRGB\0AdobeRGB\0P3\0Rec. 2020\0Custom\0\0")) {

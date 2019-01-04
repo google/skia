@@ -164,8 +164,9 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType: {
-            // If |prefColorSpace| is supplied, choose it.
-            if (prefColorSpace) {
+            // If |prefColorSpace| is supported, choose it.
+            SkColorSpaceTransferFn fn;
+            if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
                 return prefColorSpace;
             }
 
@@ -178,7 +179,8 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
                 }
 
                 if (is_wide_gamut(*encodedProfile)) {
-                    return SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+                    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                 SkColorSpace::kDCIP3_D65_Gamut);
                 }
             }
 

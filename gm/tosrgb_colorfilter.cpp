@@ -26,17 +26,20 @@ DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
     canvas->drawBitmapRect(bmp, SkRect::MakeXYWH(10, 10, 50, 50), nullptr);
 
     auto srgb = SkColorSpace::MakeSRGB();
-    auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
+    auto rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                         SkColorSpace::kRec2020_Gamut);
 
     // NarrowGamut RGB (an artifically smaller than sRGB gamut)
-    skcms_Matrix3x3 narrowGamutRGBMatrix;
-    SkAssertResult(skcms_PrimariesToXYZD50(
+    SkColorSpacePrimaries narrowPrimaries = {
         0.54f, 0.33f,     // Rx, Ry
         0.33f, 0.50f,     // Gx, Gy
         0.25f, 0.20f,     // Bx, By
         0.3127f, 0.3290f, // Wx, Wy
-        &narrowGamutRGBMatrix));
-    auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, narrowGamutRGBMatrix);
+    };
+    SkMatrix44 narrowGamutRGBMatrix;
+    narrowPrimaries.toXYZD50(&narrowGamutRGBMatrix);
+    auto narrow = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                        narrowGamutRGBMatrix);
 
     SkPaint paint;
 
