@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bd31993e_88eea654",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-04T20:19:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e82cc13e_1ddd6cdd",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 40
+      },
+      "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7171329_177d4fd8",
         "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
         "patchSetId": 3
@@ -39,6 +63,24 @@
       "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dada7f8_24e86d49",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-04T20:19:28Z",
+      "side": 1,
+      "message": "There\u0027s a GrCCPRTest for it and the destructor asserts it\u0027s null. I just improved another assert so we make sure it\u0027s zeroed out every time we access an entry.",
+      "parentUuid": "c7171329_177d4fd8",
+      "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "d650c58a_86fca28d",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-04T20:19:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8646412a_46a6c9db",
+      "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3d24952_d375f81e",
         "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
         "patchSetId": 3
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "723d7800_6664b7f1",
+        "filename": "src/gpu/ccpr/GrCCPerFlushResources.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-04T20:19:28Z",
+      "side": 1,
+      "message": "It just accumulates nullptrs. std::exchange will set it to null and then return the old value. I personally like it better than std::move because it\u0027s explicit.\n\n(That\u0027s why we check if \"texture\" is null, and it\u0027s rare to have \u003e1 atlas anyway.)",
+      "parentUuid": "d3d24952_d375f81e",
+      "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea860543_5af1f508",
         "filename": "tests/GrCCPRTest.cpp",
         "patchSetId": 3
@@ -87,6 +165,30 @@
       "writtenOn": "2019-01-04T16:27:26Z",
       "side": 1,
       "message": "\u0027 \u0027",
+      "range": {
+        "startLine": 417,
+        "startChar": 75,
+        "endLine": 417,
+        "endChar": 82
+      },
+      "revId": "a0275479737a52d46edae97fd968d1fdce81f409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02f40c6c_5d02ea33",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-04T20:19:28Z",
+      "side": 1,
+      "message": "Did you mean to surround the word \"usecase\" in ticks?",
+      "parentUuid": "ea860543_5af1f508",
       "range": {
         "startLine": 417,
         "startChar": 75,
