@@ -36,7 +36,6 @@ public:
         kPath_Type,
         kPicture_Type,
         kDrawable_Type,
-        kText_Type,
         kTextBlob_Type,
         kVertices_Type,
         kPatch_Type,
