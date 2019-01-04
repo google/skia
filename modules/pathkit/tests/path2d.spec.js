@@ -1,4 +1,4 @@
-
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
 describe('PathKit\'s Path2D API', function() {
     // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
