@@ -202,12 +202,14 @@ DEF_TEST(Paint_flattening, reporter) {
         kMedium_SkFilterQuality,
         kHigh_SkFilterQuality,
     };
+#if 0
     const SkFontHinting hinting[] = {
         kNo_SkFontHinting,
         kSlight_SkFontHinting,
         kNormal_SkFontHinting,
         kFull_SkFontHinting,
     };
+#endif
     const SkPaint::Cap caps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
@@ -218,12 +220,14 @@ DEF_TEST(Paint_flattening, reporter) {
         SkPaint::kRound_Join,
         SkPaint::kBevel_Join,
     };
+#if 0
     const SkTextEncoding encodings[] = {
         kUTF8_SkTextEncoding,
         kUTF16_SkTextEncoding,
         kUTF32_SkTextEncoding,
         kGlyphID_SkTextEncoding,
     };
+#endif
     const SkPaint::Style styles[] = {
         SkPaint::kFill_Style,
         SkPaint::kStroke_Style,
@@ -232,16 +236,16 @@ DEF_TEST(Paint_flattening, reporter) {
 
 #define FOR_SETUP(index, array, setter)                                 \
     for (size_t index = 0; index < SK_ARRAY_COUNT(array); ++index) {    \
-        paint.setter(array[index]);                                     \
+        paint.setter(array[index]);
 
     SkPaint paint;
-    paint.setFlags(0x1234);
+    paint.setAntiAlias(true);
 
     FOR_SETUP(i, levels, setFilterQuality)
-    FOR_SETUP(j, hinting, setHinting)
+//    FOR_SETUP(j, hinting, setHinting)
     FOR_SETUP(l, caps, setStrokeCap)
     FOR_SETUP(m, joins, setStrokeJoin)
-    FOR_SETUP(n, encodings, setTextEncoding)
+//    FOR_SETUP(n, encodings, setTextEncoding)
     FOR_SETUP(p, styles, setStyle)
 
     SkBinaryWriteBuffer writer;
@@ -255,7 +259,7 @@ DEF_TEST(Paint_flattening, reporter) {
     SkPaintPriv::Unflatten(&paint2, reader);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
-    }}}}}}
+    }}}}
 #undef FOR_SETUP
 
 }
@@ -297,8 +301,6 @@ DEF_TEST(Paint_MoreFlattening, r) {
 
     // No matter the encoding, these must always hold.
     ASSERT(other.getColor()      == paint.getColor());
-    ASSERT(other.getTextScaleX() == paint.getTextScaleX());
-    ASSERT(other.getTextSize()   == paint.getTextSize());
     ASSERT(other.getLooper()     == paint.getLooper());
     ASSERT(other.getBlendMode()  == paint.getBlendMode());
 }
