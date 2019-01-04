@@ -16,7 +16,6 @@
 #include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
-#include "ccpr/GrCCPathCache.h"
 #include <atomic>
 
 class GrCCAtlas::Node {
@@ -48,9 +47,8 @@ private:
     GrRectanizerSkyline fRectanizer;
 };
 
-GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps& caps)
-        : fCoverageType(coverageType)
-        , fMaxTextureSize(SkTMax(SkTMax(specs.fMinHeight, specs.fMinWidth),
+GrCCAtlas::GrCCAtlas(GrPixelConfig pixelConfig, const Specs& specs, const GrCaps& caps)
+        : fMaxTextureSize(SkTMax(SkTMax(specs.fMinHeight, specs.fMinWidth),
                                  specs.fMaxPreferredTextureSize)) {
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
@@ -75,12 +73,12 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
 
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
-    GrColorType colorType = (CoverageType::kFP16_CoverageCount == fCoverageType)
-            ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
+    // TODO: don't have this rely on the GrPixelConfig
+    GrSRGBEncoded srgbEncoded = GrSRGBEncoded::kNo;
+    GrColorType colorType = GrPixelConfigToColorTypeAndEncoding(pixelConfig, &srgbEncoded);
+
     const GrBackendFormat format =
-            caps.getBackendFormatFromGrColorType(colorType, GrSRGBEncoded::kNo);
-    GrPixelConfig pixelConfig = (CoverageType::kFP16_CoverageCount == fCoverageType)
-            ? kAlpha_half_GrPixelConfig : kAlpha_8_GrPixelConfig;
+            caps.getBackendFormatFromGrColorType(colorType, srgbEncoded);
 
     fTextureProxy = GrProxyProvider::MakeFullyLazyProxy(
             [this, pixelConfig](GrResourceProvider* resourceProvider) {
@@ -161,23 +159,27 @@ static uint32_t next_atlas_unique_id() {
     return nextID++;
 }
 
-sk_sp<GrCCCachedAtlas> GrCCAtlas::refOrMakeCachedAtlas(GrOnFlushResourceProvider* onFlushRP) {
-    if (!fCachedAtlas) {
-        static const GrUniqueKey::Domain kAtlasDomain = GrUniqueKey::GenerateDomain();
+const GrUniqueKey& GrCCAtlas::getOrAssignUniqueKey(GrOnFlushResourceProvider* onFlushRP) {
+    static const GrUniqueKey::Domain kAtlasDomain = GrUniqueKey::GenerateDomain();
 
-        GrUniqueKey atlasUniqueKey;
-        GrUniqueKey::Builder builder(&atlasUniqueKey, kAtlasDomain, 1, "CCPR Atlas");
+    if (!fUniqueKey.isValid()) {
+        GrUniqueKey::Builder builder(&fUniqueKey, kAtlasDomain, 1, "CCPR Atlas");
         builder[0] = next_atlas_unique_id();
         builder.finish();
 
-        onFlushRP->assignUniqueKeyToProxy(atlasUniqueKey, fTextureProxy.get());
-
-        fCachedAtlas = sk_make_sp<GrCCCachedAtlas>(fCoverageType, atlasUniqueKey, fTextureProxy);
+        if (fTextureProxy->isInstantiated()) {
+            onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
+        }
     }
+    return fUniqueKey;
+}
 
-    SkASSERT(fCachedAtlas->coverageType() == fCoverageType);
-    SkASSERT(fCachedAtlas->getOnFlushProxy() == fTextureProxy.get());
-    return fCachedAtlas;
+sk_sp<GrCCAtlas::CachedAtlasInfo> GrCCAtlas::refOrMakeCachedAtlasInfo(uint32_t contextUniqueID) {
+    if (!fCachedAtlasInfo) {
+        fCachedAtlasInfo = sk_make_sp<CachedAtlasInfo>(contextUniqueID);
+    }
+    SkASSERT(fCachedAtlasInfo->fContextUniqueID == contextUniqueID);
+    return fCachedAtlasInfo;
 }
 
 sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
@@ -203,6 +205,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         return nullptr;
     }
 
+    if (fUniqueKey.isValid()) {
+        onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
+    }
+
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
     rtc->clear(&clearRect, SK_PMColor4fTRANSPARENT,
                GrRenderTargetContext::CanClearFullscreen::kYes);
@@ -214,7 +220,7 @@ GrCCAtlas* GrCCAtlasStack::addRect(const SkIRect& devIBounds, SkIVector* devToAt
     if (fAtlases.empty() || !fAtlases.back().addRect(devIBounds, devToAtlasOffset)) {
         // The retired atlas is out of room and can't grow any bigger.
         retiredAtlas = !fAtlases.empty() ? &fAtlases.back() : nullptr;
-        fAtlases.emplace_back(fCoverageType, fSpecs, *fCaps);
+        fAtlases.emplace_back(fPixelConfig, fSpecs, *fCaps);
         SkASSERT(devIBounds.width() <= fSpecs.fMinWidth);
         SkASSERT(devIBounds.height() <= fSpecs.fMinHeight);
         SkAssertResult(fAtlases.back().addRect(devIBounds, devToAtlasOffset));

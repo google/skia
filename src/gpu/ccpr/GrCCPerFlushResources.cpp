@@ -33,9 +33,8 @@ public:
         return RequiresDstTexture::kNo;
     }
     CombineResult onCombineIfPossible(GrOp* other, const GrCaps&) override {
-        // We will only make multiple copy ops if they have different source proxies.
-        // TODO: make use of texture chaining.
-        return CombineResult::kCannotCombine;
+        SK_ABORT("Only expected one Op per CCPR atlas.");
+        return CombineResult::kMerged;
     }
     void onPrepare(GrOpFlushState*) override {}
 
@@ -51,7 +50,7 @@ protected:
     const sk_sp<const GrCCPerFlushResources> fResources;
 };
 
-// Copies paths from a cached coverage count atlas into an 8-bit literal-coverage atlas.
+// Copies paths from a stashed coverage count atlas into an 8-bit literal-coverage atlas.
 class CopyAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -67,16 +66,18 @@ public:
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
-    void visitProxies(const VisitProxyFunc& fn, VisitorType) const override { fn(fSrcProxy.get()); }
+    void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
+        fn(fStashedAtlasProxy.get());
+    }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        SkASSERT(fSrcProxy);
+        SkASSERT(fStashedAtlasProxy);
         GrPipeline::FixedDynamicState dynamicState;
-        auto srcProxy = fSrcProxy.get();
-        dynamicState.fPrimitiveProcessorTextures = &srcProxy;
+        auto atlasProxy = fStashedAtlasProxy.get();
+        dynamicState.fPrimitiveProcessorTextures = &atlasProxy;
 
         GrPipeline pipeline(flushState->proxy(), GrScissorTest::kDisabled, SkBlendMode::kSrc);
-        GrCCPathProcessor pathProc(srcProxy);
+        GrCCPathProcessor pathProc(atlasProxy);
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
     }
@@ -84,14 +85,15 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, sk_sp<GrTextureProxy> srcProxy,
+    CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, sk_sp<GrTextureProxy> copyProxy,
                 int baseInstance, int endInstance, const SkISize& drawBounds)
             : AtlasOp(ClassID(), std::move(resources), drawBounds)
-            , fSrcProxy(srcProxy)
+            , fStashedAtlasProxy(copyProxy)
             , fBaseInstance(baseInstance)
             , fEndInstance(endInstance) {
     }
-    sk_sp<GrTextureProxy> fSrcProxy;
+
+    sk_sp<GrTextureProxy> fStashedAtlasProxy;
     const int fBaseInstance;
     const int fEndInstance;
 };
@@ -159,10 +161,9 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
         , fStroker(specs.fNumRenderedPaths[kStrokeIdx],
                    specs.fRenderedPathStats[kStrokeIdx].fNumTotalSkPoints,
                    specs.fRenderedPathStats[kStrokeIdx].fNumTotalSkVerbs)
-        , fCopyAtlasStack(GrCCAtlas::CoverageType::kA8_LiteralCoverage, specs.fCopyAtlasSpecs,
-                          onFlushRP->caps())
-        , fRenderedAtlasStack(GrCCAtlas::CoverageType::kFP16_CoverageCount,
-                              specs.fRenderedAtlasSpecs, onFlushRP->caps())
+        , fCopyAtlasStack(kAlpha_8_GrPixelConfig, specs.fCopyAtlasSpecs, onFlushRP->caps())
+        , fRenderedAtlasStack(kAlpha_half_GrPixelConfig, specs.fRenderedAtlasSpecs,
+                              onFlushRP->caps())
         , fIndexBuffer(GrCCPathProcessor::FindIndexBuffer(onFlushRP))
         , fVertexBuffer(GrCCPathProcessor::FindVertexBuffer(onFlushRP))
         , fInstanceBuffer(onFlushRP->makeBuffer(kVertex_GrBufferType,
@@ -189,84 +190,21 @@ GrCCPerFlushResources::GrCCPerFlushResources(GrOnFlushResourceProvider* onFlushR
     SkDEBUGCODE(fEndPathInstance = inst_buffer_count(specs));
 }
 
-void GrCCPerFlushResources::upgradeEntryToLiteralCoverageAtlas(
-        GrCCPathCache* pathCache, GrOnFlushResourceProvider* onFlushRP, GrCCPathCacheEntry* entry,
-        GrCCPathProcessor::DoEvenOddFill evenOdd) {
-    using ReleaseAtlasResult = GrCCPathCacheEntry::ReleaseAtlasResult;
+GrCCAtlas* GrCCPerFlushResources::copyPathToCachedAtlas(const GrCCPathCacheEntry& entry,
+                                                        GrCCPathProcessor::DoEvenOddFill evenOdd,
+                                                        SkIVector* newAtlasOffset) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextCopyInstanceIdx < fEndCopyInstance);
+    SkASSERT(!entry.hasCachedAtlas());  // Unexpected, but not necessarily a problem.
 
-    const GrCCCachedAtlas* cachedAtlas = entry->cachedAtlas();
-    SkASSERT(cachedAtlas);
-    SkASSERT(cachedAtlas->getOnFlushProxy());
-
-    if (GrCCAtlas::CoverageType::kA8_LiteralCoverage == cachedAtlas->coverageType()) {
-        // This entry has already been upgraded to literal coverage. The path must have been drawn
-        // multiple times during the flush.
-        SkDEBUGCODE(--fEndCopyInstance);
-        return;
+    if (GrCCAtlas* retiredAtlas = fCopyAtlasStack.addRect(entry.devIBounds(), newAtlasOffset)) {
+        // We did not fit in the previous copy atlas and it was retired. We will render the copies
+        // up until fNextCopyInstanceIdx into the retired atlas during finalize().
+        retiredAtlas->setFillBatchID(fNextCopyInstanceIdx);
     }
 
-    SkIVector newAtlasOffset;
-    if (GrCCAtlas* retiredAtlas = fCopyAtlasStack.addRect(entry->devIBounds(), &newAtlasOffset)) {
-        // We did not fit in the previous copy atlas and it was retired. We will render the ranges
-        // up until fCopyPathRanges.count() into the retired atlas during finalize().
-        retiredAtlas->setFillBatchID(fCopyPathRanges.count());
-        fCurrCopyAtlasRangesIdx = fCopyPathRanges.count();
-    }
-
-    this->recordCopyPathInstance(*entry, newAtlasOffset, evenOdd,
-                                 sk_ref_sp(cachedAtlas->getOnFlushProxy()));
-
-    sk_sp<GrTexture> previousAtlasTexture =
-            sk_ref_sp(cachedAtlas->getOnFlushProxy()->peekTexture());
-    GrCCAtlas* newAtlas = &fCopyAtlasStack.current();
-    if (ReleaseAtlasResult::kDidInvalidateFromCache ==
-            entry->upgradeToLiteralCoverageAtlas(pathCache, onFlushRP, newAtlas, newAtlasOffset)) {
-        // This texture just got booted out of the cache. Keep it around, in case we might be able
-        // to recycle it for a new atlas. We can recycle it because copying happens before rendering
-        // new paths, and every path from the atlas that we're planning to use this flush will be
-        // copied to a new atlas. We'll never copy some and leave others.
-        fRecyclableAtlasTextures.push_back(std::move(previousAtlasTexture));
-    }
-}
-
-template<typename T, typename... Args>
-static void emplace_at_memcpy(SkTArray<T>* array, int idx, Args&&... args) {
-    if (int moveCount = array->count() - idx) {
-        array->push_back();
-        T* location = array->begin() + idx;
-        memcpy(location+1, location, moveCount * sizeof(T));
-        new (location) T(std::forward<Args>(args)...);
-    } else {
-        array->emplace_back(std::forward<Args>(args)...);
-    }
-}
-
-void GrCCPerFlushResources::recordCopyPathInstance(const GrCCPathCacheEntry& entry,
-                                                   const SkIVector& newAtlasOffset,
-                                                   GrCCPathProcessor::DoEvenOddFill evenOdd,
-                                                   sk_sp<GrTextureProxy> srcProxy) {
-    SkASSERT(fNextCopyInstanceIdx < fEndCopyInstance);
-
-    // Write the instance at the back of the array.
-    int currentInstanceIdx = fNextCopyInstanceIdx++;
-    fPathInstanceData[currentInstanceIdx].set(entry, newAtlasOffset, GrColor_WHITE, evenOdd);
-
-    // Percolate the instance forward until it's contiguous with other instances that share the same
-    // proxy.
-    for (int i = fCopyPathRanges.count() - 1; i >= fCurrCopyAtlasRangesIdx; --i) {
-        if (fCopyPathRanges[i].fSrcProxy == srcProxy) {
-            ++fCopyPathRanges[i].fCount;
-            return;
-        }
-        int rangeFirstInstanceIdx = currentInstanceIdx - fCopyPathRanges[i].fCount;
-        std::swap(fPathInstanceData[rangeFirstInstanceIdx], fPathInstanceData[currentInstanceIdx]);
-        currentInstanceIdx = rangeFirstInstanceIdx;
-    }
-
-    // An instance with this particular proxy did not yet exist in the array. Add a range for it.
-    emplace_at_memcpy(&fCopyPathRanges, fCurrCopyAtlasRangesIdx, std::move(srcProxy), 1);
+    fPathInstanceData[fNextCopyInstanceIdx++].set(entry, *newAtlasOffset, GrColor_WHITE, evenOdd);
+    return &fCopyAtlasStack.current();
 }
 
 static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
@@ -325,7 +263,7 @@ static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
     return true;
 }
 
-GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
+const GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
         SkRect* devBounds, SkRect* devBounds45, SkIRect* devIBounds, SkIVector* devToAtlasOffset) {
     SkASSERT(this->isMapped());
@@ -423,17 +361,17 @@ bool GrCCPerFlushResources::placeRenderedPathInAtlas(const SkIRect& clipIBounds,
 }
 
 bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
+                                     sk_sp<GrTextureProxy> stashedAtlasProxy,
                                      SkTArray<sk_sp<GrRenderTargetContext>>* out) {
     SkASSERT(this->isMapped());
     SkASSERT(fNextPathInstanceIdx == fEndPathInstance);
-    SkASSERT(fNextCopyInstanceIdx == fEndCopyInstance);
+    // No assert for fEndCopyInstance because the caller may have detected and skipped duplicates.
 
     fInstanceBuffer->unmap();
     fPathInstanceData = nullptr;
 
     if (!fCopyAtlasStack.empty()) {
-        fCopyAtlasStack.current().setFillBatchID(fCopyPathRanges.count());
-        fCurrCopyAtlasRangesIdx = fCopyPathRanges.count();
+        fCopyAtlasStack.current().setFillBatchID(fNextCopyInstanceIdx);
     }
     if (!fRenderedAtlasStack.empty()) {
         fRenderedAtlasStack.current().setFillBatchID(fFiller.closeCurrentBatch());
@@ -449,43 +387,37 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         return false;
     }
 
-    // Draw the copies from 16-bit literal coverage atlas(es) into 8-bit cached atlas(es).
-    int copyRangeIdx = 0;
+    // Draw the copies from the stashed atlas into 8-bit cached atlas(es).
     int baseCopyInstance = 0;
     for (GrCCAtlasStack::Iter atlas(fCopyAtlasStack); atlas.next();) {
-        int endCopyRange = atlas->getFillBatchID();
-        SkASSERT(endCopyRange > copyRangeIdx);
-
-        sk_sp<GrRenderTargetContext> rtc = atlas->makeRenderTargetContext(onFlushRP);
-        for (; copyRangeIdx < endCopyRange; ++copyRangeIdx) {
-            const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
-            int endCopyInstance = baseCopyInstance + copyRange.fCount;
-            if (rtc) {
-                auto op = CopyAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
-                                            copyRange.fSrcProxy, baseCopyInstance, endCopyInstance,
-                                            atlas->drawBounds());
-                rtc->addDrawOp(GrNoClip(), std::move(op));
-            }
-            baseCopyInstance = endCopyInstance;
+        int endCopyInstance = atlas->getFillBatchID();
+        if (endCopyInstance <= baseCopyInstance) {
+            SkASSERT(endCopyInstance == baseCopyInstance);
+            continue;
         }
-        out->push_back(std::move(rtc));
+        if (auto rtc = atlas->makeRenderTargetContext(onFlushRP)) {
+            GrContext* ctx = rtc->surfPriv().getContext();
+            auto op = CopyAtlasOp::Make(ctx, sk_ref_sp(this), stashedAtlasProxy, baseCopyInstance,
+                                        endCopyInstance, atlas->drawBounds());
+            rtc->addDrawOp(GrNoClip(), std::move(op));
+            out->push_back(std::move(rtc));
+        }
+        baseCopyInstance = endCopyInstance;
     }
-    SkASSERT(fCopyPathRanges.count() == copyRangeIdx);
-    SkASSERT(fNextCopyInstanceIdx == baseCopyInstance);
-    SkASSERT(baseCopyInstance == fEndCopyInstance);
 
     // Render the coverage count atlas(es).
     for (GrCCAtlasStack::Iter atlas(fRenderedAtlasStack); atlas.next();) {
-        // Copies will be finished by the time we get to rendering new atlases. See if we can
-        // recycle any previous invalidated atlas textures instead of creating new ones.
+        // Copies will be finished by the time we get to this atlas. See if we can recycle the
+        // stashed atlas texture instead of creating a new one.
         sk_sp<GrTexture> backingTexture;
-        for (sk_sp<GrTexture>& texture : fRecyclableAtlasTextures) {
-            if (texture && atlas->currentHeight() == texture->height() &&
-                    atlas->currentWidth() == texture->width()) {
-                backingTexture = skstd::exchange(texture, nullptr);
-                break;
-            }
+        if (stashedAtlasProxy && atlas->currentWidth() == stashedAtlasProxy->width() &&
+            atlas->currentHeight() == stashedAtlasProxy->height()) {
+            backingTexture = sk_ref_sp(stashedAtlasProxy->peekTexture());
         }
+
+        // Delete the stashed proxy here. That way, if we can't recycle the stashed atlas texture,
+        // we free this memory prior to allocating a new backing texture.
+        stashedAtlasProxy = nullptr;
 
         if (auto rtc = atlas->makeRenderTargetContext(onFlushRP, std::move(backingTexture))) {
             auto op = RenderAtlasOp::Make(rtc->surfPriv().getContext(), sk_ref_sp(this),
@@ -499,10 +431,23 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
     return true;
 }
 
-void GrCCPerFlushResourceSpecs::cancelCopies() {
-    // Convert copies to cached draws.
-    fNumCachedPaths += fNumCopiedPaths[kFillIdx] + fNumCopiedPaths[kStrokeIdx];
-    fNumCopiedPaths[kFillIdx] = fNumCopiedPaths[kStrokeIdx] = 0;
-    fCopyPathStats[kFillIdx] = fCopyPathStats[kStrokeIdx] = GrCCRenderedPathStats();
+void GrCCPerFlushResourceSpecs::convertCopiesToRenders() {
+    for (int i = 0; i < 2; ++i) {
+        fNumRenderedPaths[i] += fNumCopiedPaths[i];
+        fNumCopiedPaths[i] = 0;
+
+        fRenderedPathStats[i].fMaxPointsPerPath =
+               SkTMax(fRenderedPathStats[i].fMaxPointsPerPath, fCopyPathStats[i].fMaxPointsPerPath);
+        fRenderedPathStats[i].fNumTotalSkPoints += fCopyPathStats[i].fNumTotalSkPoints;
+        fRenderedPathStats[i].fNumTotalSkVerbs += fCopyPathStats[i].fNumTotalSkVerbs;
+        fRenderedPathStats[i].fNumTotalConicWeights += fCopyPathStats[i].fNumTotalConicWeights;
+        fCopyPathStats[i] = GrCCRenderedPathStats();
+    }
+
+    fRenderedAtlasSpecs.fApproxNumPixels += fCopyAtlasSpecs.fApproxNumPixels;
+    fRenderedAtlasSpecs.fMinWidth =
+            SkTMax(fRenderedAtlasSpecs.fMinWidth, fCopyAtlasSpecs.fMinWidth);
+    fRenderedAtlasSpecs.fMinHeight =
+            SkTMax(fRenderedAtlasSpecs.fMinHeight, fCopyAtlasSpecs.fMinHeight);
     fCopyAtlasSpecs = GrCCAtlas::Specs();
 }

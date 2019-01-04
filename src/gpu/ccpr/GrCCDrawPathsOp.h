@@ -11,13 +11,14 @@
 #include "GrShape.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCSTLList.h"
-#include "ccpr/GrCCPathCache.h"
 #include "ops/GrDrawOp.h"
 
 struct GrCCPerFlushResourceSpecs;
 struct GrCCPerOpListPaths;
 class GrCCAtlas;
 class GrOnFlushResourceProvider;
+class GrCCPathCache;
+class GrCCPathCacheEntry;
 class GrCCPerFlushResources;
 
 /**
@@ -44,24 +45,26 @@ public:
     void addToOwningPerOpListPaths(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths);
 
     // Makes decisions about how to draw each path (cached, copied, rendered, etc.), and
-    // increments/fills out the corresponding GrCCPerFlushResourceSpecs.
-    void accountForOwnPaths(GrCCPathCache*, GrOnFlushResourceProvider*, GrCCPerFlushResourceSpecs*);
+    // increments/fills out the corresponding GrCCPerFlushResourceSpecs. 'stashedAtlasKey', if
+    // valid, references the mainline coverage count atlas from the previous flush. Paths found in
+    // this atlas will be copied to more permanent atlases in the resource cache.
+    void accountForOwnPaths(GrCCPathCache*, GrOnFlushResourceProvider*,
+                            const GrUniqueKey& stashedAtlasKey, GrCCPerFlushResourceSpecs*);
 
-    // Allows the caller to decide whether to actually do the suggested copies from cached 16-bit
-    // coverage count atlases, and into 8-bit literal coverage atlases. Purely to save space.
-    enum class DoCopiesToA8Coverage : bool {
+    // Allows the caller to decide whether to copy paths out of the stashed atlas and into the
+    // resource cache, or to just re-render the paths from scratch. If there aren't many copies or
+    // the copies would only fill a small atlas, it's probably best to just re-render.
+    enum class DoCopiesToCache : bool {
         kNo = false,
         kYes = true
     };
 
     // Allocates the GPU resources indicated by accountForOwnPaths(), in preparation for drawing. If
-    // DoCopiesToA8Coverage is kNo, the paths slated for copy will instead be left in their 16-bit
-    // coverage count atlases.
+    // DoCopiesToCache is kNo, the paths slated for copy will instead be re-rendered from scratch.
     //
-    // NOTE: If using DoCopiesToA8Coverage::kNo, it is the caller's responsibility to have called
-    // cancelCopies() on the GrCCPerFlushResourceSpecs, prior to making this call.
-    void setupResources(GrCCPathCache*, GrOnFlushResourceProvider*, GrCCPerFlushResources*,
-                        DoCopiesToA8Coverage);
+    // NOTE: If using DoCopiesToCache::kNo, it is the caller's responsibility to call
+    //       convertCopiesToRenders() on the GrCCPerFlushResourceSpecs.
+    void setupResources(GrOnFlushResourceProvider*, GrCCPerFlushResources*, DoCopiesToCache);
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -91,6 +94,7 @@ private:
         SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
                    Visibility maskVisibility, const SkPMColor4f&);
+        ~SingleDraw();
 
         SkMatrix fMatrix;
         GrShape fShape;
@@ -100,9 +104,9 @@ private:
         Visibility fMaskVisibility;
         SkPMColor4f fColor;
 
-        GrCCPathCache::OnFlushEntryRef fCacheEntry;
+        sk_sp<GrCCPathCacheEntry> fCacheEntry;
+        sk_sp<GrTextureProxy> fCachedAtlasProxy;
         SkIVector fCachedMaskShift;
-        bool fDoCopyToA8Coverage = false;
 
         SingleDraw* fNext = nullptr;
     };

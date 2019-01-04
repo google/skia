@@ -6,7 +6,6 @@
  */
 
 #include "GrCCDrawPathsOp.h"
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrMemoryPool.h"
@@ -158,6 +157,13 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
 #endif
 }
 
+GrCCDrawPathsOp::SingleDraw::~SingleDraw() {
+    if (fCacheEntry) {
+        // All currFlushAtlas references must be reset back to null before the flush is finished.
+        fCacheEntry->setCurrFlushAtlas(nullptr);
+    }
+}
+
 GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
                                                        const GrAppliedClip* clip) {
     SkASSERT(1 == fNumDraws);  // There should only be one single path draw in this Op right now.
@@ -227,10 +233,10 @@ void GrCCDrawPathsOp::addToOwningPerOpListPaths(sk_sp<GrCCPerOpListPaths> owning
 
 void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
                                          GrOnFlushResourceProvider* onFlushRP,
+                                         const GrUniqueKey& stashedAtlasKey,
                                          GrCCPerFlushResourceSpecs* specs) {
     using CreateIfAbsent = GrCCPathCache::CreateIfAbsent;
     using MaskTransform = GrCCPathCache::MaskTransform;
-    using CoverageType = GrCCAtlas::CoverageType;
 
     for (SingleDraw& draw : fDraws) {
         SkPath path;
@@ -241,32 +247,41 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
         if (pathCache) {
             MaskTransform m(draw.fMatrix, &draw.fCachedMaskShift);
             bool canStashPathMask = draw.fMaskVisibility >= Visibility::kMostlyComplete;
-            draw.fCacheEntry =
-                    pathCache->find(onFlushRP, draw.fShape, m, CreateIfAbsent(canStashPathMask));
+            draw.fCacheEntry = pathCache->find(draw.fShape, m, CreateIfAbsent(canStashPathMask));
         }
 
-        if (draw.fCacheEntry) {
-            if (const GrCCCachedAtlas* cachedAtlas = draw.fCacheEntry->cachedAtlas()) {
-                SkASSERT(cachedAtlas->getOnFlushProxy());
-                if (CoverageType::kA8_LiteralCoverage == cachedAtlas->coverageType()) {
+        if (auto cacheEntry = draw.fCacheEntry.get()) {
+            SkASSERT(!cacheEntry->currFlushAtlas());  // Shouldn't be set until setupResources().
+
+            if (cacheEntry->atlasKey().isValid()) {
+                // Does the path already exist in a cached atlas?
+                if (cacheEntry->hasCachedAtlas() &&
+                    (draw.fCachedAtlasProxy = onFlushRP->findOrCreateProxyByUniqueKey(
+                                                     cacheEntry->atlasKey(),
+                                                     GrCCAtlas::kTextureOrigin))) {
                     ++specs->fNumCachedPaths;
-                } else {
-                    // Suggest that this path be copied to a literal coverage atlas, to save memory.
-                    // (The client may decline this copy via DoCopiesToA8Coverage::kNo.)
+                    continue;
+                }
+
+                // Does the path exist in the atlas that we stashed away from last flush? If so we
+                // can copy it into a new 8-bit atlas and keep it in the resource cache.
+                if (stashedAtlasKey.isValid() && stashedAtlasKey == cacheEntry->atlasKey()) {
+                    SkASSERT(!cacheEntry->hasCachedAtlas());
                     int idx = (draw.fShape.style().strokeRec().isFillStyle())
                             ? GrCCPerFlushResourceSpecs::kFillIdx
                             : GrCCPerFlushResourceSpecs::kStrokeIdx;
                     ++specs->fNumCopiedPaths[idx];
                     specs->fCopyPathStats[idx].statPath(path);
-                    specs->fCopyAtlasSpecs.accountForSpace(
-                            draw.fCacheEntry->width(), draw.fCacheEntry->height());
-                    draw.fDoCopyToA8Coverage = true;
+                    specs->fCopyAtlasSpecs.accountForSpace(cacheEntry->width(),
+                                                           cacheEntry->height());
+                    continue;
                 }
-                continue;
+
+                // Whatever atlas the path used to reside in, it no longer exists.
+                cacheEntry->resetAtlasKeyAndInfo();
             }
 
-            if (Visibility::kMostlyComplete == draw.fMaskVisibility &&
-                    draw.fCacheEntry->hitCount() > 1) {
+            if (Visibility::kMostlyComplete == draw.fMaskVisibility && cacheEntry->hitCount() > 1) {
                 int shapeSize = SkTMax(draw.fShapeConservativeIBounds.height(),
                                        draw.fShapeConservativeIBounds.width());
                 if (shapeSize <= onFlushRP->caps()->maxRenderTargetSize()) {
@@ -288,9 +303,8 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
     }
 }
 
-void GrCCDrawPathsOp::setupResources(
-        GrCCPathCache* pathCache, GrOnFlushResourceProvider* onFlushRP,
-        GrCCPerFlushResources* resources, DoCopiesToA8Coverage doCopies) {
+void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
+                                     GrCCPerFlushResources* resources, DoCopiesToCache doCopies) {
     using DoEvenOddFill = GrCCPathProcessor::DoEvenOddFill;
     SkASSERT(fNumDraws > 0);
     SkASSERT(-1 == fBaseInstance);
@@ -307,29 +321,51 @@ void GrCCDrawPathsOp::setupResources(
 
         if (auto cacheEntry = draw.fCacheEntry.get()) {
             // Does the path already exist in a cached atlas texture?
-            if (cacheEntry->cachedAtlas()) {
-                SkASSERT(cacheEntry->cachedAtlas()->getOnFlushProxy());
-                if (DoCopiesToA8Coverage::kYes == doCopies && draw.fDoCopyToA8Coverage) {
-                    resources->upgradeEntryToLiteralCoverageAtlas(pathCache, onFlushRP, cacheEntry,
-                                                                  doEvenOddFill);
-                    SkASSERT(cacheEntry->cachedAtlas());
-                    SkASSERT(GrCCAtlas::CoverageType::kA8_LiteralCoverage
-                                     == cacheEntry->cachedAtlas()->coverageType());
-                    SkASSERT(cacheEntry->cachedAtlas()->getOnFlushProxy());
-                }
-                this->recordInstance(cacheEntry->cachedAtlas()->getOnFlushProxy(),
-                                     resources->nextPathInstanceIdx());
+            if (auto proxy = draw.fCachedAtlasProxy.get()) {
+                SkASSERT(!cacheEntry->currFlushAtlas());
+                this->recordInstance(proxy, resources->nextPathInstanceIdx());
                 // TODO4F: Preserve float colors
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
                                                         draw.fColor.toBytes_RGBA());
                 continue;
             }
+
+            // Have we already encountered this path during the flush? (i.e. was the same SkPath
+            // drawn more than once during the same flush, with a compatible matrix?)
+            if (auto atlas = cacheEntry->currFlushAtlas()) {
+                this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+                // TODO4F: Preserve float colors
+                resources->appendDrawPathInstance().set(
+                        *cacheEntry, draw.fCachedMaskShift, draw.fColor.toBytes_RGBA(),
+                        cacheEntry->hasCachedAtlas() ? DoEvenOddFill::kNo : doEvenOddFill);
+                continue;
+            }
+
+            // If the cache entry still has a valid atlas key at this point, it means the path
+            // exists in the atlas that we stashed away from last flush. Copy it into a permanent
+            // 8-bit atlas in the resource cache.
+            if (DoCopiesToCache::kYes == doCopies && cacheEntry->atlasKey().isValid()) {
+                SkIVector newOffset;
+                GrCCAtlas* atlas =
+                        resources->copyPathToCachedAtlas(*cacheEntry, doEvenOddFill, &newOffset);
+                cacheEntry->updateToCachedAtlas(
+                        atlas->getOrAssignUniqueKey(onFlushRP), newOffset,
+                        atlas->refOrMakeCachedAtlasInfo(onFlushRP->contextUniqueID()));
+                this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
+                // TODO4F: Preserve float colors
+                resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
+                                                        draw.fColor.toBytes_RGBA());
+                // Remember this atlas in case we encounter the path again during the same flush.
+                cacheEntry->setCurrFlushAtlas(atlas);
+                continue;
+            }
         }
 
-        // Render the raw path into a coverage count atlas. renderShapeInAtlas() gives us two tight
+        // Render the raw path into a coverage count atlas. renderPathInAtlas() gives us two tight
         // bounding boxes: One in device space, as well as a second one rotated an additional 45
         // degrees. The path vertex shader uses these two bounding boxes to generate an octagon that
         // circumscribes the path.
+        SkASSERT(!draw.fCachedAtlasProxy);
         SkRect devBounds, devBounds45;
         SkIRect devIBounds;
         SkIVector devToAtlasOffset;
@@ -344,7 +380,7 @@ void GrCCDrawPathsOp::setupResources(
             // If we have a spot in the path cache, try to make a note of where this mask is so we
             // can reuse it in the future.
             if (auto cacheEntry = draw.fCacheEntry.get()) {
-                SkASSERT(!cacheEntry->cachedAtlas());
+                SkASSERT(!cacheEntry->hasCachedAtlas());
 
                 if (Visibility::kComplete != draw.fMaskVisibility || cacheEntry->hitCount() <= 1) {
                     // Don't cache a path mask unless it's completely visible with a hit count > 1.
@@ -354,9 +390,19 @@ void GrCCDrawPathsOp::setupResources(
                     continue;
                 }
 
-                cacheEntry->setCoverageCountAtlas(onFlushRP, atlas, devToAtlasOffset, devBounds,
-                                                  devBounds45, devIBounds, draw.fCachedMaskShift);
+                if (resources->nextAtlasToStash() != atlas) {
+                    // This mask does not belong to the atlas that will be stashed for next flush.
+                    continue;
+                }
+
+                const GrUniqueKey& atlasKey =
+                        resources->nextAtlasToStash()->getOrAssignUniqueKey(onFlushRP);
+                cacheEntry->initAsStashedAtlas(atlasKey, devToAtlasOffset, devBounds, devBounds45,
+                                               devIBounds, draw.fCachedMaskShift);
+                // Remember this atlas in case we encounter the path again during the same flush.
+                cacheEntry->setCurrFlushAtlas(atlas);
             }
+            continue;
         }
     }
 
