@@ -42,8 +42,21 @@ void GrVkResourceProvider::init() {
     createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.initialDataSize = 0;
-    createInfo.pInitialData = nullptr;
+
+    auto persistentCache = fGpu->getContext()->contextPriv().getPersistentCache();
+    sk_sp<SkData> cached;
+    if (persistentCache) {
+        uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
+        sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));
+        cached = persistentCache->load(*keyData);
+    }
+    if (cached) {
+        createInfo.initialDataSize = cached->size();
+        createInfo.pInitialData = cached->data();
+    } else {
+        createInfo.initialDataSize = 0;
+        createInfo.pInitialData = nullptr;
+    }
     VkResult result = GR_VK_CALL(fGpu->vkInterface(),
                                  CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
                                                      &fPipelineCache));
@@ -489,6 +502,25 @@ void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
     pool->reset(fGpu);
     std::unique_lock<std::recursive_mutex> providerLock(fBackgroundMutex);
     fAvailableCommandPools.push_back(pool);
+}
+
+void GrVkResourceProvider::storePipelineCacheData() {
+    size_t dataSize = 0;
+    VkResult result = GR_VK_CALL(fGpu->vkInterface(),
+            GetPipelineCacheData(fGpu->device(), fPipelineCache, &dataSize, nullptr));
+    SkASSERT(result == VK_SUCCESS);
+
+    std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
+
+    result = GR_VK_CALL(fGpu->vkInterface(),
+            GetPipelineCacheData(fGpu->device(), fPipelineCache, &dataSize, (void*)data.get()));
+    SkASSERT(result == VK_SUCCESS);
+
+    uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
+    sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));
+
+    fGpu->getContext()->contextPriv().getPersistentCache()->store(
+            *keyData, *SkData::MakeWithoutCopy(data.get(), dataSize));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
