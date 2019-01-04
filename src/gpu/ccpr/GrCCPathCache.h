@@ -27,9 +27,9 @@ public:
     GrCCPathCache();
     ~GrCCPathCache();
 
-    class Key : public SkPathRef::GenIDChangeListener {
+    class Key100 : public SkPathRef::GenIDChangeListener2 {
     public:
-        static sk_sp<Key> Make(uint32_t pathCacheUniqueID, int dataCountU32,
+        static sk_sp<Key100> Make(uint32_t pathCacheUniqueID, int dataCountU32,
                                const void* data = nullptr);
 
         uint32_t pathCacheUniqueID() const { return fPathCacheUniqueID; }
@@ -43,13 +43,13 @@ public:
         }
         uint32_t* data();
 
-        bool operator==(const Key&) const;
+        bool operator==(const Key100&) const;
 
         // Called when our corresponding path is modified or deleted. Not threadsafe.
         void onChange() override;
 
     private:
-        Key(uint32_t pathCacheUniqueID, int dataCountU32)
+        Key100(uint32_t pathCacheUniqueID, int dataCountU32)
                 : fPathCacheUniqueID(pathCacheUniqueID)
                 , fDataSizeInBytes(dataCountU32 * sizeof(uint32_t))
                 SkDEBUGCODE(, fDataReserveCountU32(dataCountU32)) {
@@ -96,11 +96,11 @@ private:
     // the hash table. We take that opportunity to remove it from the LRU list and do some cleanup.
     class HashNode : SkNoncopyable {
     public:
-        static const Key& GetKey(const HashNode&);
-        static uint32_t Hash(const Key&);
+        static const Key100& GetKey(const HashNode&);
+        static uint32_t Hash(const Key100&);
 
         HashNode() = default;
-        HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrShape&);
+        HashNode(GrCCPathCache*, sk_sp<Key100>, const MaskTransform&, const GrShape&);
         HashNode(HashNode&& node)
                 : fPathCache(node.fPathCache), fEntry(std::move(node.fEntry)) {
             SkASSERT(!node.fEntry);
@@ -127,16 +127,16 @@ private:
         return fPerFlushTimestamp;
     }
 
-    void evict(const GrCCPathCache::Key& key) {
+    void evict(const GrCCPathCache::Key100& key) {
         fHashTable.remove(key);  // HashNode::willExitHashTable() takes care of the rest.
     }
 
     void purgeInvalidatedKeys();
 
-    SkTHashTable<HashNode, const GrCCPathCache::Key&> fHashTable;
+    SkTHashTable<HashNode, const GrCCPathCache::Key100&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
-    SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
-    sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
+    SkMessageBus<sk_sp<Key100>>::Inbox fInvalidatedKeysInbox;
+    sk_sp<Key100> fScratchKey;  // Reused for creating a temporary key in the find() method.
 
     // We only read the clock once per flush, and cache it in this variable. This prevents us from
     // excessive clock reads for cache timestamps that might degrade performance.
@@ -206,7 +206,7 @@ public:
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
 
-    GrCCPathCacheEntry(sk_sp<GrCCPathCache::Key> cacheKey, const MaskTransform& maskTransform)
+    GrCCPathCacheEntry(sk_sp<GrCCPathCache::Key100> cacheKey, const MaskTransform& maskTransform)
             : fCacheKey(std::move(cacheKey)), fMaskTransform(maskTransform) {
     }
 
@@ -214,7 +214,7 @@ private:
     // resource cache if needed.
     void invalidateAtlas();
 
-    sk_sp<GrCCPathCache::Key> fCacheKey;
+    sk_sp<GrCCPathCache::Key100> fCacheKey;
 
     GrStdSteadyClock::time_point fTimestamp;
     int fHitCount = 0;
