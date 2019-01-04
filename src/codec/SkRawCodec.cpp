@@ -612,17 +612,6 @@ private:
     bool fIsXtransImage;
 };
 
-static constexpr skcms_Matrix3x3 gAdobe_RGB_to_XYZD50 = {{
-    // ICC fixed-point (16.16) repesentation of:
-    // 0.60974, 0.20528, 0.14919,
-    // 0.31111, 0.62567, 0.06322,
-    // 0.01947, 0.06087, 0.74457,
-    { SkFixedToFloat(0x9c18), SkFixedToFloat(0x348d), SkFixedToFloat(0x2631) }, // Rx, Gx, Bx
-    { SkFixedToFloat(0x4fa5), SkFixedToFloat(0xa02c), SkFixedToFloat(0x102f) }, // Ry, Gy, By
-    { SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c) }, // Rz, Gz, Bz
-}};
-
-
 /*
  * Tries to handle the image with PIEX. If PIEX returns kOk and finds the preview image, create a
  * SkJpegCodec. If PIEX returns kFail, then the file is invalid, return nullptr. In other cases,
@@ -649,12 +638,10 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
 
         std::unique_ptr<SkEncodedInfo::ICCProfile> profile;
         if (imageData.color_space == ::piex::PreviewImageData::kAdobeRgb) {
-            constexpr skcms_TransferFunction twoDotTwo =
-                    { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
             skcms_ICCProfile skcmsProfile;
             skcms_Init(&skcmsProfile);
-            skcms_SetTransferFunction(&skcmsProfile, &twoDotTwo);
-            skcms_SetXYZD50(&skcmsProfile, &gAdobe_RGB_to_XYZD50);
+            skcms_SetTransferFunction(&skcmsProfile, &SkNamedTransferFn::k2Dot2);
+            skcms_SetXYZD50(&skcmsProfile, &SkNamedGamut::kAdobeRGB);
             profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
         }
 

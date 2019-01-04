@@ -12,8 +12,7 @@
 
 DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
     auto srgb = SkColorSpace::MakeSRGB();
-    auto dp3  = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                      SkColorSpace::kDCIP3_D65_Gamut);
+    auto dp3  = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
 
     skcms_ICCProfile srgb_profile;
     srgb->toProfile(&srgb_profile);
