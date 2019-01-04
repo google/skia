@@ -97,6 +97,8 @@ public:
     */
     static bool Unflatten(SkPaint* paint, SkReadBuffer& buffer);
 
+private:
+    static bool Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer);
 };
 
 #endif
