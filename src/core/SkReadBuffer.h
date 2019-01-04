@@ -45,6 +45,7 @@ public:
         kFloat4PaintColor_Version          = 65,
         kSaveBehind_Version                = 66,
         kSerializeFonts_Version            = 67,
+        kPaintDoesntSerializeFonts_Version = 68,
     };
 
     /**
