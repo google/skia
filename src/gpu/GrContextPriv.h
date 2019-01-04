@@ -283,6 +283,8 @@ public:
         return fContext->fFPFactoryCache;
     }
 
+    void processInvalidProxyUniqueKey(const GrUniqueKey& key);
+
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
 
