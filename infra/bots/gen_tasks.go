@@ -569,6 +569,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-25.20.100.6444",
 					"IntelIris6100": "8086:162b-20.19.15.4963",
+					"IntelIris655":  "8086:3ea5-25.20.100.6444",
 					"RadeonHD7770":  "1002:683d-24.20.13001.1010",
 					"RadeonR9M470X": "1002:6646-24.20.13001.1010",
 					"QuadroP400":    "10de:1cb3-25.21.14.1678",
