@@ -166,6 +166,13 @@ public:
     uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&,
                                           const GrBackendFormat& format) override;
 
+    enum PersistentCacheKeyType : uint32_t {
+        kShader_PersistentCacheKeyType = 0,
+        kPipelineCache_PersistentCacheKeyType = 1,
+    };
+
+    void storeVkPipelineCacheData() override;
+
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>);

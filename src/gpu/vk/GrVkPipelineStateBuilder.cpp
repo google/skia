@@ -184,8 +184,10 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String& vert,
                                                    const SkSL::Program::Inputs& fragInputs,
                                                    const SkSL::String& geom,
                                                    const SkSL::Program::Inputs& geomInputs) {
+    Desc* desc = static_cast<Desc*>(this->desc());
+
     // see loadShadersFromCache for the layout of cache entries
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
     size_t dataLength = (sizeof(shader_size) + sizeof(SkSL::Program::Inputs)) * 3 + vert.length() +
                         frag.length() + geom.length();
     std::unique_ptr<uint8_t[]> data(new uint8_t[dataLength]);
@@ -396,6 +398,10 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     }
 
     GrProcessorKeyBuilder b(&desc->key());
+
+    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
+    desc->fShaderKeyLength = desc->keyLength();
+
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
