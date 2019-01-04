@@ -57,7 +57,7 @@ SkSurface_Compute::onNewCanvas()
 
   // skc_interop_size_get(compute->interop,&w,&h); TODO skc.h
 
-  SkDevice_Compute * const device_compute = new SkDevice_Compute(compute,w,h);;
+  SkDevice_Compute * const device_compute = new SkDevice_Compute(compute,w,h);
   SkCanvas         * const canvas         = new SkCanvas(device_compute,SkCanvas::kConservativeRasterClip_InitFlag);
 
   //
