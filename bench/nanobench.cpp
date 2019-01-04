@@ -478,10 +478,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     CPU_CONFIG(565,  kRaster_Backend, kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
 
     // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-    SkMatrix44 narrow_gamut;
-    narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
-
-    auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
+    auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
            srgb = SkColorSpace::MakeSRGB(),
      srgbLinear = SkColorSpace::MakeSRGBLinear();
 
