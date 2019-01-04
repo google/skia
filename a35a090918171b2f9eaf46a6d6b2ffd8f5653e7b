@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fd19399_ded6019c",
+        "filename": "src/core/SkDescriptor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-04T18:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21d25d83_a71dd57f",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "a35a090918171b2f9eaf46a6d6b2ffd8f5653e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af7f8dc9_febf3aaf",
         "filename": "src/core/SkDescriptor.h",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2019-01-04T18:45:08Z",
       "side": 1,
       "message": "Does this still need to be here (vs. in the .cpp) ?",
+      "revId": "a35a090918171b2f9eaf46a6d6b2ffd8f5653e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27f43a7_f170d59a",
+        "filename": "src/core/SkDescriptor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-04T18:50:12Z",
+      "side": 1,
+      "message": "Yes. This is needed for std::unique_ptr.",
+      "parentUuid": "af7f8dc9_febf3aaf",
       "revId": "a35a090918171b2f9eaf46a6d6b2ffd8f5653e7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
