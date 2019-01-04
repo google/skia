@@ -9,6 +9,7 @@
 
 #include "GrContext.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 
@@ -79,9 +80,10 @@ void HelloWorld::onPaint(SkCanvas* canvas) {
     }
 
     // Draw a message with a nice black paint
-    paint.setSubpixelText(true);
+    SkFont font;
+    font.setSubpixel(true);
+    font.setSize(20);
     paint.setColor(SK_ColorBLACK);
-    paint.setTextSize(20);
 
     canvas->save();
     static const char message[] = "Hello World";
@@ -95,7 +97,7 @@ void HelloWorld::onPaint(SkCanvas* canvas) {
     canvas->rotate(fRotationAngle);
 
     // Draw the text
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawSimpleText(message, strlen(message), kUTF8_SkTextEncoding, 0, 0, font, paint);
 
     canvas->restore();
 }
