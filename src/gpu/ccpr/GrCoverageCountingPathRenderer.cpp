@@ -30,15 +30,16 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps, AllowCaching allowCaching) {
+        const GrCaps& caps, AllowCaching allowCaching, uint32_t contextUniqueID) {
     return sk_sp<GrCoverageCountingPathRenderer>((IsSupported(caps))
-            ? new GrCoverageCountingPathRenderer(allowCaching)
+            ? new GrCoverageCountingPathRenderer(allowCaching, contextUniqueID)
             : nullptr);
 }
 
-GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allowCaching) {
+GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allowCaching,
+                                                               uint32_t contextUniqueID) {
     if (AllowCaching::kYes == allowCaching) {
-        fPathCache = skstd::make_unique<GrCCPathCache>();
+        fPathCache = skstd::make_unique<GrCCPathCache>(contextUniqueID);
     }
 }
 
@@ -188,29 +189,16 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
 void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
                                               const uint32_t* opListIDs, int numOpListIDs,
                                               SkTArray<sk_sp<GrRenderTargetContext>>* out) {
-    using DoCopiesToCache = GrCCDrawPathsOp::DoCopiesToCache;
+    using DoCopiesToA8Coverage = GrCCDrawPathsOp::DoCopiesToA8Coverage;
     SkASSERT(!fFlushing);
     SkASSERT(fFlushingPaths.empty());
     SkDEBUGCODE(fFlushing = true);
 
-    // Dig up the stashed atlas from the previous flush (if any) so we can attempt to copy any
-    // reusable paths out of it and into the resource cache. We also need to clear its unique key.
-    sk_sp<GrTextureProxy> stashedAtlasProxy;
-    if (fStashedAtlasKey.isValid()) {
-        stashedAtlasProxy = onFlushRP->findOrCreateProxyByUniqueKey(fStashedAtlasKey,
-                                                                    GrCCAtlas::kTextureOrigin);
-        if (stashedAtlasProxy) {
-            // Instantiate the proxy so we can clear the underlying texture's unique key.
-            onFlushRP->instatiateProxy(stashedAtlasProxy.get());
-            SkASSERT(fStashedAtlasKey == stashedAtlasProxy->getUniqueKey());
-            onFlushRP->removeUniqueKeyFromProxy(stashedAtlasProxy.get());
-        } else {
-            fStashedAtlasKey.reset();  // Indicate there is no stashed atlas to copy from.
-        }
+    if (fPathCache) {
+        fPathCache->doPreFlushProcessing();
     }
 
     if (fPendingPaths.empty()) {
-        fStashedAtlasKey.reset();
         return;  // Nothing to draw.
     }
 
@@ -234,13 +222,12 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         fPendingPaths.erase(iter);
 
         for (GrCCDrawPathsOp* op : fFlushingPaths.back()->fDrawOps) {
-            op->accountForOwnPaths(fPathCache.get(), onFlushRP, fStashedAtlasKey, &specs);
+            op->accountForOwnPaths(fPathCache.get(), onFlushRP, &specs);
         }
         for (const auto& clipsIter : fFlushingPaths.back()->fClipPaths) {
             clipsIter.second.accountForOwnPath(&specs);
         }
     }
-    fStashedAtlasKey.reset();
 
     if (specs.isEmpty()) {
         return;  // Nothing to draw.
@@ -250,12 +237,10 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     // copy them to cached atlas(es).
     int numCopies = specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kFillIdx] +
                     specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kStrokeIdx];
-    DoCopiesToCache doCopies = DoCopiesToCache(numCopies > 100 ||
-                                               specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
-    if (numCopies && DoCopiesToCache::kNo == doCopies) {
-        specs.convertCopiesToRenders();
-        SkASSERT(!specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kFillIdx]);
-        SkASSERT(!specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kStrokeIdx]);
+    auto doCopies = DoCopiesToA8Coverage(numCopies > 100 ||
+                                         specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
+    if (numCopies && DoCopiesToA8Coverage::kNo == doCopies) {
+        specs.cancelCopies();
     }
 
     auto resources = sk_make_sp<GrCCPerFlushResources>(onFlushRP, specs);
@@ -266,20 +251,23 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     // Layout the atlas(es) and parse paths.
     for (const auto& flushingPaths : fFlushingPaths) {
         for (GrCCDrawPathsOp* op : flushingPaths->fDrawOps) {
-            op->setupResources(onFlushRP, resources.get(), doCopies);
+            op->setupResources(fPathCache.get(), onFlushRP, resources.get(), doCopies);
         }
         for (auto& clipsIter : flushingPaths->fClipPaths) {
             clipsIter.second.renderPathInAtlas(resources.get(), onFlushRP);
         }
     }
 
-    // Allocate resources and then render the atlas(es).
-    if (!resources->finalize(onFlushRP, std::move(stashedAtlasProxy), out)) {
-        return;
+    if (fPathCache) {
+        // Purge invalidated textures from previous atlases *before* calling finalize(). That way,
+        // the underlying textures objects can be freed up and reused for the next atlases.
+        fPathCache->purgeInvalidatedAtlasTextures(onFlushRP);
     }
 
-    // Verify the stashed atlas got released so its texture could be recycled.
-    SkASSERT(!stashedAtlasProxy);  // NOLINT(bugprone-use-after-move)
+    // Allocate resources and then render the atlas(es).
+    if (!resources->finalize(onFlushRP, out)) {
+        return;
+    }
 
     // Commit flushing paths to the resources once they are successfully completed.
     for (auto& flushingPaths : fFlushingPaths) {
@@ -291,15 +279,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
-    SkASSERT(!fStashedAtlasKey.isValid());  // Should have been cleared in preFlush().
 
     if (!fFlushingPaths.empty()) {
-        // Note the stashed atlas's key for next flush, if any.
-        auto resources = fFlushingPaths.front()->fFlushResources.get();
-        if (resources && resources->hasStashedAtlas()) {
-            fStashedAtlasKey = resources->stashedAtlasKey();
-        }
-
         // In DDL mode these aren't guaranteed to be deleted so we must clear out the perFlush
         // resources manually.
         for (auto& flushingPaths : fFlushingPaths) {
@@ -310,17 +291,13 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
         fFlushingPaths.reset();
     }
 
-    if (fPathCache) {
-        fPathCache->doPostFlushProcessing();
-    }
-
     SkDEBUGCODE(fFlushing = false);
 }
 
 void GrCoverageCountingPathRenderer::purgeCacheEntriesOlderThan(
-        const GrStdSteadyClock::time_point& purgeTime) {
+        GrProxyProvider* proxyProvider, const GrStdSteadyClock::time_point& purgeTime) {
     if (fPathCache) {
-        fPathCache->purgeEntriesOlderThan(purgeTime);
+        fPathCache->purgeEntriesOlderThan(proxyProvider, purgeTime);
     }
 }
 

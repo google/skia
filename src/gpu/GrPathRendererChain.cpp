@@ -40,7 +40,8 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         using AllowCaching = GrCoverageCountingPathRenderer::AllowCaching;
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(
-                                caps, AllowCaching(options.fAllowPathMaskCaching))) {
+                                caps, AllowCaching(options.fAllowPathMaskCaching),
+                                context->uniqueID())) {
             fCoverageCountingPathRenderer = ccpr.get();
             context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
             fChain.push_back(std::move(ccpr));
