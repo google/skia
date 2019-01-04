@@ -62,10 +62,9 @@ static sk_sp<SkImage> make_picture_image() {
 }
 
 static sk_sp<SkColorSpace> make_parametric_transfer_fn(const SkColorSpacePrimaries& primaries) {
-    SkMatrix44 toXYZD50;
+    skcms_Matrix3x3 toXYZD50;
     SkAssertResult(primaries.toXYZD50(&toXYZD50));
-    SkColorSpaceTransferFn fn;
-    fn.fA = 1.f; fn.fB = 0.f; fn.fC = 0.f; fn.fD = 0.f; fn.fE = 0.f; fn.fF = 0.f; fn.fG = 1.8f;
+    skcms_TransferFunction fn = { 1.8f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f };
     return SkColorSpace::MakeRGB(fn, toXYZD50);
 }
 
