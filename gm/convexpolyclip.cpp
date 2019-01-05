@@ -57,18 +57,19 @@ static SkBitmap make_bmp(int w, int h) {
         mat.postScale(SK_Scalar1 / 3, SK_Scalar1 / 3);
     }
 
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
-    paint.setTextSize(wScalar / 2.2f);
+    SkFont font(sk_tool_utils::create_portable_typeface(), wScalar / 2.2f);
+
     paint.setShader(nullptr);
     paint.setColor(SK_ColorLTGRAY);
     constexpr char kTxt[] = "Skia";
-    SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    SkPoint texPos = { wScalar / 17, hScalar / 2 + font.getSize() / 2.5f };
+    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+                          texPos.fX, texPos.fY, font, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    canvas.drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, kUTF8_SkTextEncoding,
+                          texPos.fX, texPos.fY, font, paint);
     return bmp;
 }
 
