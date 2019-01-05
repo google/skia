@@ -44,14 +44,15 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     SkAutoCanvasRestore acr(canvas, true);
 
     SkPaint paint;
+    paint.setAntiAlias(true);
+
     SkScalar x = 0;
     const int scale = 32;
 
-    paint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&paint);
+    SkFont font(sk_tool_utils::create_portable_typeface());
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
     canvas->drawString(name, x, SkIntToScalar(bm.height())*scale*5/8,
-                     paint);
+                       font, paint);
     canvas->translate(SkIntToScalar(48), 0);
 
     canvas->scale(SkIntToScalar(scale), SkIntToScalar(scale));

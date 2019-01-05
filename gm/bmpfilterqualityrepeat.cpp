@@ -64,10 +64,11 @@ private:
         lm.setTranslateY(330);
 
         SkPaint textPaint;
-        sk_tool_utils::set_portable_typeface(&textPaint);
         textPaint.setAntiAlias(true);
 
         SkPaint bmpPaint(textPaint);
+
+        SkFont font(sk_tool_utils::create_portable_typeface());
 
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -76,7 +77,7 @@ private:
             bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
             bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);
-            canvas->drawString(kQualities[q].fName, 20, 40, textPaint);
+            canvas->drawString(kQualities[q].fName, 20, 40, font, textPaint);
             canvas->translate(250, 0);
         }
 

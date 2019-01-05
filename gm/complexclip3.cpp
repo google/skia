@@ -52,8 +52,8 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(20));
+
+        SkFont font(sk_tool_utils::create_portable_typeface(), 20);
 
         constexpr struct {
             SkClipOp    fOp;
@@ -106,7 +106,7 @@ protected:
                                                    doAAB ? "A" : "B",
                                                    doInvB ? "I" : "N");
 
-                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), paint);
+                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), font, paint);
                         if (doInvB) {
                             canvas->translate(SkIntToScalar(150),0);
                         } else {
