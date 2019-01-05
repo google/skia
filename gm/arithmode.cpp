@@ -149,12 +149,9 @@ protected:
                 canvas->translate(gap, 0);
 
                 // Label
-                SkPaint paint;
-                paint.setTextSize(SkIntToScalar(24));
-                paint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&paint);
+                SkFont font(sk_tool_utils::create_portable_typeface(), 24);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
-                canvas->drawString(str, 0, paint.getTextSize(), paint);
+                canvas->drawString(str, 0, font.getSize(), font, SkPaint());
             }
             canvas->translate(0, HH + 12);
         }
