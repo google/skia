@@ -27,6 +27,10 @@
 #include "SkSurfaceProps.h"
 #include "SkVertices.h"
 
+#ifndef SK_SUPPORT_LEGACY_DRAWSTRING
+#define SK_SUPPORT_LEGACY_DRAWSTRING
+#endif
+
 class GrContext;
 class GrRenderTargetContext;
 class SkAndroidFrameworkUtils;
@@ -1870,6 +1874,7 @@ public:
     void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
 
+#ifdef SK_SUPPORT_LEGACY_DRAWSTRING
     /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
         SkPaint paint.
 
@@ -1920,6 +1925,18 @@ public:
         @param paint   text size, blend, color, and so on, used to draw
     */
     void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint);
+#endif
+
+    // Experimental
+    void drawString(const char str[], SkScalar x, SkScalar y, const SkFont& font,
+                    const SkPaint& paint) {
+        this->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, paint);
+    }
+    // Experimental
+    void drawString(const SkString& str, SkScalar x, SkScalar y, const SkFont& font,
+                    const SkPaint& paint) {
+        this->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
+    }
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 

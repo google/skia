@@ -16,15 +16,12 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLACK);
 
-    SkPaint textPaint;
-    textPaint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&textPaint);
-    textPaint.setTextSize(SkIntToScalar(25));
+    SkFont font(sk_tool_utils::create_portable_typeface(), 25);
 
     const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
 
-    canvas->drawString("mask blur",  285, 50, textPaint);
-    canvas->drawString("image blur", 285 + 250, 50, textPaint);
+    canvas->drawString("mask blur",  285, 50, font, paint);
+    canvas->drawString("image blur", 285 + 250, 50, font, paint);
 
 
     SkRect r = {35, 100, 135, 200};
@@ -34,7 +31,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         char out[100];
         sprintf(out, "Sigma: %g", sigma);
-        canvas->drawString(out, r.left(), r.bottom() + 35, textPaint);
+        canvas->drawString(out, r.left(), r.bottom() + 35, font, paint);
 
         r.offset(250, 0);
 
