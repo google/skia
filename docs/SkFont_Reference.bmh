@@ -203,6 +203,20 @@ Whether edge pixels draw opaque or with partial transparency.
 
 # ------------------------------------------------------------------------------
 
+#Method explicit SkFont(sk_sp<SkTypeface> typeface)
+#In Constructor
+#Line # incomplete ##
+#Populate
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)
 #In Constructor
 #Line # incomplete ##
@@ -222,6 +236,22 @@ Whether edge pixels draw opaque or with partial transparency.
 #Method bool operator==(const SkFont& font) const
 #In Operator
 #Line # compares fonts for equality ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator!=(const SkFont& font) const
+#In Operator
+#Line # compares fonts for inequality ##
 
 #Populate
 
@@ -621,13 +651,24 @@ Whether edge pixels draw opaque or with partial transparency.
 
 #Method int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const
-#In incomplete
-#Line # incomplete ##
-
+#In Utility
+#Line # converts text into glyph indices ##
 #Populate
 
 #Example
-// incomplete
+    #Height 64
+    void draw(SkCanvas* canvas) {
+        SkFont font;
+        const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };
+        std::vector<SkGlyphID> glyphs;
+        int count = font.textToGlyphs(utf8, sizeof(utf8), SkTextEncoding::kUTF8, nullptr, 0);
+        glyphs.resize(count);
+        (void) font.textToGlyphs(utf8, sizeof(utf8), SkTextEncoding::kUTF8, &glyphs.front(),
+                count);
+        font.setSize(32);
+        canvas->drawSimpleText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID),
+                SkTextEncoding::kGlyphID, 10, 40, font, SkPaint());
+    }
 ##
 
 #SeeAlso incomplete
@@ -653,13 +694,18 @@ Whether edge pixels draw opaque or with partial transparency.
 # ------------------------------------------------------------------------------
 
 #Method int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const
-#In incomplete
-#Line # incomplete ##
-
+#In Utility
+#Line # returns number of Glyphs in text ##
 #Populate
 
 #Example
-// incomplete
+    SkFont font;
+    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };
+    SkDebugf("count = %d\n", font.countText(utf8, sizeof(utf8), SkTextEncoding::kUTF8));
+
+    #StdOut
+        count = 5
+    ##
 ##
 
 #SeeAlso incomplete
@@ -669,13 +715,50 @@ Whether edge pixels draw opaque or with partial transparency.
 # ------------------------------------------------------------------------------
 
 #Method bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const
-#In incomplete
-#Line # incomplete ##
-
+#In Utility
+#Line # returns if all text corresponds to Glyphs ##
 #Populate
 
+#NoExample
+    #Description
+    containsText succeeds for degree symbol, but cannot find a glyph index
+    corresponding to the Unicode surrogate code point.
+    ##
+    SkFont font;
+    const uint16_t goodChar = 0x00B0;  // degree symbol
+    const uint16_t badChar = 0xD800;   // Unicode surrogate
+    SkDebugf("0x%04x %c= has char\n", goodChar,
+            font.containsText(&goodChar, 2, SkTextEncoding::kUTF16) ? '=' : '!');
+    SkDebugf("0x%04x %c= has char\n", badChar,
+            font.containsText(&badChar, 2, SkTextEncoding::kUTF16) ? '=' : '!');
+
+    #StdOut
+        0x00b0 == has char
+        0xd800 != has char
+    ##
+##
+
 #Example
-// incomplete
+    #Description
+    containsText returns true that glyph index is greater than zero, not
+    that it corresponds to an entry in Typeface.
+    ##
+    SkFont font;
+    const uint16_t goodGlyph = 511;
+    const uint16_t zeroGlyph = 0;
+    const uint16_t badGlyph = 65535; // larger than glyph count in font
+    SkDebugf("0x%04x %c= has glyph\n", goodGlyph,
+            font.containsText(&goodGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');
+    SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,
+            font.containsText(&zeroGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');
+    SkDebugf("0x%04x %c= has glyph\n", badGlyph,
+            font.containsText(&badGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');
+
+    #StdOut
+        0x01ff == has glyph
+        0x0000 != has glyph
+        0xffff == has glyph
+    ##
 ##
 
 #SeeAlso incomplete
@@ -724,28 +807,172 @@ Whether edge pixels draw opaque or with partial transparency.
 #Method SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const
 #In incomplete
-#Line # incomplete ##
-
+#Line # returns advance width and bounds of text ##
 #Populate
 
 #Example
-// incomplete
+    SkFont font;
+    SkDebugf("default width = %g\n", font.measureText("!", 1, SkTextEncoding::kUTF8));
+    font.setSize(font.getSize() * 2);
+    SkDebugf("double width = %g\n", font.measureText("!", 1, SkTextEncoding::kUTF8));
+
+    #StdOut
+        default width = 5
+        double width = 10
+    ##
 ##
 
 #SeeAlso incomplete
 
 #Method ##
 
+
+#Method SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                         SkRect* bounds, const SkPaint* paint) const
+#In incomplete
+#Populate
+
+#Example
+    #Height 64
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        SkFont font(nullptr, 50);
+        const char str[] = "ay^jZ";
+        const int count = sizeof(str) - 1;
+        canvas->drawSimpleText(str, count, SkTextEncoding::kUTF8, 25, 50, font, paint);
+        SkRect bounds;
+        font.measureText(str, count, SkTextEncoding::kUTF8, &bounds, nullptr);
+        canvas->translate(25, 50);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(bounds, paint);
+    }
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Method void getWidths(const uint16_t glyphs[], int count, SkScalar widths[]) const
+#In incomplete
+#Line # returns advance and bounds for each glyph in text ##
+#Populate
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+#Method ##
+
+#Method void getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
+                         const SkPaint* paint) const
+#In incomplete
+#Populate
+#Example
+    #Height 160
+    #Description
+    Bounds of Glyphs increase for stroked text, but text advance remains the same.
+    The underlines show the text advance, spaced to keep them distinct.
+    ##
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        SkFont font(nullptr, 50);
+        const char str[] = "abc";
+        const int bytes = sizeof(str) - 1;
+        int count = font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, nullptr, 0);
+        std::vector<SkGlyphID> glyphs;
+        std::vector<SkScalar> widths;
+        std::vector<SkRect> bounds;
+        glyphs.resize(count);
+        (void) font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, &glyphs.front(), count);
+        widths.resize(count);
+        bounds.resize(count);
+        for (int loop = 0; loop < 2; ++loop) {
+            (void) font.getWidthsBounds(&glyphs.front(), count, &widths.front(), &bounds.front(),
+                    &paint);
+            SkPoint loc = { 25, 50 };
+            canvas->drawSimpleText(str, bytes, SkTextEncoding::kUTF8, loc.fX, loc.fY, font, paint);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(0);
+            SkScalar advanceY = loc.fY + 10;
+            for (int index = 0; index < count; ++index) {
+                bounds[index].offset(loc.fX, loc.fY);
+                canvas->drawRect(bounds[index], paint);
+                canvas->drawLine(loc.fX, advanceY, loc.fX + widths[index], advanceY, paint);
+                loc.fX += widths[index];
+                advanceY += 5;
+            }
+            canvas->translate(0, 80);
+            paint.setStrokeWidth(3);
+        }
+    }
+##
+#SeeAlso incomplete
+#Method ##
+
+#Method void getBounds(const uint16_t glyphs[], int count, SkRect bounds[],
+                   const SkPaint* paint) const
+#In incomplete
+#Populate
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+#Method ##
+
+#Method void getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin = {0, 0}) const
+#In incomplete
+#Populate
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+#Method ##
+
+#Method void getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const
+#In incomplete
+#Populate
+#Example
+// incomplete
+##
+#SeeAlso incomplete
+#Method ##
+
 # ------------------------------------------------------------------------------
 
 #Method bool getPath(uint16_t glyphID, SkPath* path) const
 #In incomplete
-#Line # incomplete ##
-
+#Line # returns Path equivalent to text ##
 #Populate
 
 #Example
-// incomplete
+    #Description
+    Text is added to Path, offset, and subtracted from Path, then added at
+    the offset location. The result is rendered with one draw call.
+    ##
+    #Height 128
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        SkFont font(nullptr, 80);
+        SkPath onePath, path, path2;
+        const char str[] = "ABC";
+        const int bytes = sizeof(str) - 1;
+        int count = font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, nullptr, 0);
+        std::vector<SkGlyphID> glyphs;
+        glyphs.resize(count);
+        (void) font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, &glyphs.front(), count);
+        int xPos = 20;
+        for (auto oneGlyph : glyphs) {
+            font.getPath(oneGlyph, &onePath);
+            path.addPath(onePath, xPos, 60);
+            xPos += 60;
+        }
+        path.offset(20, 20, &path2);
+        Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);
+        path.addPath(path2);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(path, paint);
+    }
 ##
 
 #SeeAlso incomplete
@@ -774,12 +1001,18 @@ Whether edge pixels draw opaque or with partial transparency.
 
 #Method SkScalar getMetrics(SkFontMetrics* metrics) const
 #In incomplete
-#Line # incomplete ##
-
+#Line # returns Typeface metrics scaled by text size ##
 #Populate
 
 #Example
-// incomplete
+    #Height 128
+    void draw(SkCanvas* canvas) {
+        SkFont font(nullptr, 32);
+        SkScalar lineHeight = font.getMetrics(nullptr);
+        SkPaint paint;
+        canvas->drawSimpleText("line 1", 6, SkTextEncoding::kUTF8, 10, 40, font, paint);
+        canvas->drawSimpleText("line 2", 6, SkTextEncoding::kUTF8, 10, 40 + lineHeight, font, paint);
+    }
 ##
 
 #SeeAlso incomplete
@@ -790,12 +1023,23 @@ Whether edge pixels draw opaque or with partial transparency.
 
 #Method SkScalar getSpacing() const
 #In incomplete
-#Line # incomplete ##
+#Line # returns recommended spacing between lines ##
 
 #Populate
 
 #Example
-// incomplete
+        SkFont font;
+        for (SkScalar textSize : { 12, 18, 24, 32 } ) {
+            font.setSize(textSize);
+            SkDebugf("textSize: %g spacing: %g\n", textSize, font.getSpacing());
+        }
+
+        #StdOut
+            textSize: 12 spacing: 13.9688
+            textSize: 18 spacing: 20.9531
+            textSize: 24 spacing: 27.9375
+            textSize: 32 spacing: 37.25
+        ##
 ##
 
 #SeeAlso incomplete
