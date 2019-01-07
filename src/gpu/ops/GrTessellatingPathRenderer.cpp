@@ -277,11 +277,8 @@ private:
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(vertexStride, rp, canMapVB);
-        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator, false,
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-                                                   GrColor(), false,
-#endif
-                                                   &isLinear);
+        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
+                                                   false, GrColor(), false, &isLinear);
         if (count == 0) {
             return;
         }
@@ -305,12 +302,11 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
         DynamicVertexAllocator allocator(vertexStride, target);
-        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-                                                   fColor.toBytes_RGBA(),
-                                                   fHelper.compatibleWithAlphaAsCoverage(),
-#endif
-                                                   &isLinear);
+        // TODO4F: Preserve float colors
+        int count =
+                GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
+                                               fColor.toBytes_RGBA(),
+                                               fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
         if (count == 0) {
             return;
         }
@@ -329,15 +325,9 @@ private:
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
                 color = Color(Color::kPremulGrColorAttribute_Type);
-#endif
                 if (fHelper.compatibleWithAlphaAsCoverage()) {
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
                     coverageType = Coverage::kSolid_Type;
-#else
-                    coverageType = Coverage::kAttributeTweakAlpha_Type;
-#endif
                 } else {
                     coverageType = Coverage::kAttribute_Type;
                 }

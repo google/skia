@@ -175,17 +175,10 @@ struct Vertex {
 
 /***************************************************************************************/
 
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
 struct AAParams {
     bool fTweakAlpha;
     GrColor fColor;
 };
-#define AA_PARAM const AAParams* aaParams
-#define AA_ARG   aaParams
-#else
-#define AA_PARAM bool emitCoverage
-#define AA_ARG   emitCoverage
-#endif
 
 typedef bool (*CompareFunc)(const SkPoint& a, const SkPoint& b);
 
@@ -206,11 +199,10 @@ struct Comparator {
     Direction fDirection;
 };
 
-inline void* emit_vertex(Vertex* v, AA_PARAM, void* data) {
+inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     GrVertexWriter verts{data};
     verts.write(v->fPoint);
 
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
     if (aaParams) {
         if (aaParams->fTweakAlpha) {
             verts.write(SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha)));
@@ -218,29 +210,24 @@ inline void* emit_vertex(Vertex* v, AA_PARAM, void* data) {
             verts.write(aaParams->fColor, GrNormalizeByteToFloat(v->fAlpha));
         }
     }
-#else
-    if (emitCoverage) {
-        verts.write(GrNormalizeByteToFloat(v->fAlpha));
-    }
-#endif
     return verts.fPtr;
 }
 
-void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, AA_PARAM, void* data) {
+void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {
     LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
     LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
     LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
-    data = emit_vertex(v0, AA_ARG, data);
-    data = emit_vertex(v1, AA_ARG, data);
-    data = emit_vertex(v1, AA_ARG, data);
-    data = emit_vertex(v2, AA_ARG, data);
-    data = emit_vertex(v2, AA_ARG, data);
-    data = emit_vertex(v0, AA_ARG, data);
+    data = emit_vertex(v0, aaParams, data);
+    data = emit_vertex(v1, aaParams, data);
+    data = emit_vertex(v1, aaParams, data);
+    data = emit_vertex(v2, aaParams, data);
+    data = emit_vertex(v2, aaParams, data);
+    data = emit_vertex(v0, aaParams, data);
 #else
-    data = emit_vertex(v0, AA_ARG, data);
-    data = emit_vertex(v1, AA_ARG, data);
-    data = emit_vertex(v2, AA_ARG, data);
+    data = emit_vertex(v0, aaParams, data);
+    data = emit_vertex(v1, aaParams, data);
+    data = emit_vertex(v2, aaParams, data);
 #endif
     return data;
 }
@@ -566,7 +553,7 @@ struct Poly {
             }
         }
 
-        void* emit(AA_PARAM, void* data) {
+        void* emit(const AAParams* aaParams, void* data) {
             Edge* e = fFirstEdge;
             VertexList vertices;
             vertices.append(e->fTop);
@@ -589,14 +576,14 @@ struct Poly {
                 Vertex* curr = v;
                 Vertex* next = v->fNext;
                 if (count == 3) {
-                    return emit_triangle(prev, curr, next, AA_ARG, data);
+                    return emit_triangle(prev, curr, next, aaParams, data);
                 }
                 double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
                 double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
                 double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
                 double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
                 if (ax * by - ay * bx >= 0.0) {
-                    data = emit_triangle(prev, curr, next, AA_ARG, data);
+                    data = emit_triangle(prev, curr, next, aaParams, data);
                     v->fPrev->fNext = v->fNext;
                     v->fNext->fPrev = v->fPrev;
                     count--;
@@ -653,13 +640,13 @@ struct Poly {
         }
         return poly;
     }
-    void* emit(AA_PARAM, void *data) {
+    void* emit(const AAParams* aaParams, void *data) {
         if (fCount < 3) {
             return data;
         }
         LOG("emit() %d, size %d\n", fID, fCount);
         for (MonotonePoly* m = fHead; m != nullptr; m = m->fNext) {
-            data = m->emit(AA_ARG, data);
+            data = m->emit(aaParams, data);
         }
         return data;
     }
@@ -2179,10 +2166,11 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* polys_to_triangles(Poly* polys, SkPath::FillType fillType, AA_PARAM, void* data) {
+void* polys_to_triangles(Poly* polys, SkPath::FillType fillType, const AAParams* aaParams,
+                         void* data) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
-            data = poly->emit(AA_ARG, data);
+            data = poly->emit(aaParams, data);
         }
     }
     return data;
@@ -2231,15 +2219,15 @@ int64_t count_outer_mesh_points(const VertexList& outerMesh) {
     return count;
 }
 
-void* outer_mesh_to_triangles(const VertexList& outerMesh, AA_PARAM, void* data) {
+void* outer_mesh_to_triangles(const VertexList& outerMesh, const AAParams* aaParams, void* data) {
     for (Vertex* v = outerMesh.fHead; v; v = v->fNext) {
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
             Vertex* v0 = e->fTop;
             Vertex* v1 = e->fBottom;
             Vertex* v2 = e->fBottom->fPartner;
             Vertex* v3 = e->fTop->fPartner;
-            data = emit_triangle(v0, v1, v2, AA_ARG, data);
-            data = emit_triangle(v0, v2, v3, AA_ARG, data);
+            data = emit_triangle(v0, v1, v2, aaParams, data);
+            data = emit_triangle(v0, v2, v3, aaParams, data);
         }
     }
     return data;
@@ -2252,11 +2240,8 @@ namespace GrTessellator {
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator* vertexAllocator, bool antialias,
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-                    const GrColor& color, bool canTweakAlphaForCoverage,
-#endif
-                    bool* isLinear) {
+                    VertexAllocator* vertexAllocator, bool antialias, const GrColor& color,
+                    bool canTweakAlphaForCoverage, bool* isLinear) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
@@ -2283,17 +2268,12 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
 
     LOG("emitting %d verts\n", count);
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
     AAParams aaParams;
     aaParams.fTweakAlpha = canTweakAlphaForCoverage;
     aaParams.fColor = color;
+
     void* end = polys_to_triangles(polys, fillType, antialias ? &aaParams : nullptr, verts);
     end = outer_mesh_to_triangles(outerMesh, &aaParams, end);
-#else
-    void* end = polys_to_triangles(polys, fillType, antialias, verts);
-    end = outer_mesh_to_triangles(outerMesh, true, end);
-#endif
-
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
                                        / vertexAllocator->stride());
     SkASSERT(actualCount <= count);
@@ -2327,11 +2307,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
             SkPoint* start = pointsEnd;
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
             pointsEnd = static_cast<SkPoint*>(poly->emit(nullptr, pointsEnd));
-#else
-            pointsEnd = static_cast<SkPoint*>(poly->emit(false, pointsEnd));
-#endif
             while (start != pointsEnd) {
                 vertsEnd->fPos = *start;
                 vertsEnd->fWinding = poly->fWinding;
