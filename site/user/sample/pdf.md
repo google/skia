@@ -20,7 +20,7 @@ SkDocument and SkCanvas APIs.
         SkTime::GetDateTime(&now);
         metadata.fCreation = now;
         metadata.fModified = now;
-        sk_sp<SkDocument> pdfDocument = SkPDF::MakeDocument(outputStream, metadata);
+        auto pdfDocument = SkPDF::MakeDocument(outputStream, metadata);
         assert(pdfDocument);
 
         for (int page = 0; page < numberOfPages; ++page) {
