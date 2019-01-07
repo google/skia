@@ -78,6 +78,12 @@ public:
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath);
 
+    template <typename PerEmptyT, typename PerGlyphT, typename PerPathT>
+    void drawGlyphRunAsBMPWithPathFallback2(
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkPoint origin, const SkMatrix& deviceMatrix,
+            PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath);
+
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
 
     using ARGBFallback =
