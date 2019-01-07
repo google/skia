@@ -384,7 +384,6 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     mapping.preTranslate(origin.x(), origin.y());
     SkVector rounding = cache->rounding();
     mapping.postTranslate(rounding.x(), rounding.y());
-
     auto runSize = glyphRun.runSize();
     this->ensureBitmapBuffers(runSize);
     mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
@@ -411,6 +410,106 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
             }
         }
     }
+}
+
+template <typename PerEmptyT, typename PerGlyphT, typename PerPathT>
+void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback2(
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath) {
+
+    SkMatrix mapping = deviceMatrix;
+    mapping.preTranslate(origin.x(), origin.y());
+    SkVector rounding = cache->rounding();
+    mapping.postTranslate(rounding.x(), rounding.y());
+    auto runSize = glyphRun.runSize();
+    this->ensureBitmapBuffers(runSize);
+    mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+
+    const SkGlyph* glyphs[128];
+    SkPoint positions[128];
+    size_t glyphCount = 0;
+    SkGlyphID emptyGlyphs[128];
+    size_t emptyCount = 0;
+
+    const SkPoint* mappedPtCursor = fPositions;
+    for (auto glyphID : glyphRun.glyphsIDs()) {
+        SkPoint mappedPt = *mappedPtCursor++;
+        for (size_t i = 0; i < emptyCount; i++) {
+            if (emptyGlyphs[i] == glyphID) {
+                goto next;
+            }
+        }
+        if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+            const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+            if (glyph.isEmpty()) {
+                emptyGlyphs[emptyCount] = glyphID;
+                emptyCount += 1;
+                goto next;
+            }
+            glyphs[glyphCount] = &glyph;
+            positions[glyphCount] = mappedPt;
+            glyphCount += 1;
+        }
+        next:;
+    }
+
+    /*
+    std::vector<const SkGlyph*> maskGlyphs;
+    std::vector<SkPoint> maskPos;
+
+    std::vector<const SkGlyph*> pathGlyphs;
+    std::vector<SkPoint> pathPos;
+
+    std::vector<SkGlyphID> emptyGlyphs;
+
+    maskGlyphs.reserve(glyphRun.runSize());
+    maskPos.reserve(glyphRun.runSize());
+    emptyGlyphs.reserve(2);
+
+    const SkPoint* mappedPtCursor = fPositions;
+    for (auto glyphID : glyphRun.glyphsIDs()) {
+        SkPoint mappedPt = *mappedPtCursor++;
+        for (SkGlyphID emptyOne : emptyGlyphs) {
+            if (glyphID == emptyOne) {
+                goto next;
+            }
+        }
+        if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+            const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+            if (glyph.isEmpty()) {
+                emptyGlyphs.push_back(glyphID);
+            } else if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+                // TODO: this check is probably not needed. Remove when proven.
+                if (cache->hasImage(glyph)) {
+                    maskGlyphs.push_back(&glyph);
+                    maskPos.push_back(mappedPt);
+                } else {
+                    emptyGlyphs.push_back(glyphID);
+                }
+            } else {
+                if (cache->hasPath(glyph)) {
+                    pathGlyphs.push_back(&glyph);
+                    pathPos.push_back(mappedPt);
+                } else {
+                    emptyGlyphs.push_back(glyphID);
+                }
+            }
+        }
+        next:;
+    }
+     */
+
+    if (emptyCount > 0) {
+        perEmpty(SkSpan<const SkGlyphID>{emptyGlyphs, emptyCount});
+    }
+    if (glyphCount > 0) {
+        perGlyph(SkSpan<const SkGlyph*>{glyphs, glyphCount},
+                SkSpan<const SkPoint>{positions, glyphCount});
+    }
+    //if (!pathGlyphs.empty()) {
+    //    perPath(SkSpan<const SkGlyph*>{pathGlyphs}, SkSpan<const SkPoint>{pathPos});
+    //}
 }
 
 template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
@@ -803,31 +902,39 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
 
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     runFont, runPaint, props, scalerContextFlags, viewMatrix);
-            sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
             run->setupFont(runPaint, runFont, cache->getDescriptor());
 
-            auto perEmpty = [](const SkGlyph&, SkPoint) {};
+            auto perEmpty = [](SkSpan<const SkGlyphID>glyphIDs) {};
 
             auto perGlyph =
-                [run, &currStrike]
-                (const SkGlyph& glyph, SkPoint mappedPt) {
-                    SkPoint pt{SkScalarFloorToScalar(mappedPt.fX),
-                               SkScalarFloorToScalar(mappedPt.fY)};
-                    run->appendDeviceSpaceGlyph(currStrike, glyph, pt);
+                [run, cache{cache.get()}, glyphCache]
+                (SkSpan<const SkGlyph*> glyphs, SkSpan<const SkPoint> positions) {
+                    sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache);
+                    const SkPoint* posCursor = positions.data();
+                    for (const SkGlyph* glyph : glyphs) {
+                        SkPoint position = *posCursor++;
+                        SkPoint pt{SkScalarFloorToScalar(position.fX),
+                                   SkScalarFloorToScalar(position.fY)};
+                        run->appendDeviceSpaceGlyph(currStrike, *glyph, pt);
+                    }
                 };
 
             auto perPath =
                 [run]
-                (const SkGlyph& glyph, SkPoint position) {
-                    SkPoint pt{SkScalarFloorToScalar(position.fX),
-                               SkScalarFloorToScalar(position.fY)};
-                    // TODO: path should always be set. Remove when proven.
-                    if (const SkPath* glyphPath = glyph.path()) {
-                        run->appendPathGlyph(*glyphPath, pt, SK_Scalar1, true);
+                (SkSpan<const SkGlyph*> glyphs, SkSpan<const SkPoint> positions) {
+                    const SkPoint* posCursor = positions.data();
+                    for (const SkGlyph* glyph : glyphs) {
+                        SkPoint position = *posCursor++;
+                        SkPoint pt{SkScalarFloorToScalar(position.fX),
+                                   SkScalarFloorToScalar(position.fY)};
+                        // TODO: path should always be set. Remove when proven.
+                        if (const SkPath* glyphPath = glyph->path()) {
+                            run->appendPathGlyph(*glyphPath, pt, SK_Scalar1, true);
+                        }
                     }
                 };
 
-            glyphPainter->drawGlyphRunAsBMPWithPathFallback(
+            glyphPainter->drawGlyphRunAsBMPWithPathFallback2(
                     cache.get(), glyphRun, origin, viewMatrix,
                     std::move(perEmpty), std::move(perGlyph), std::move(perPath));
         }
