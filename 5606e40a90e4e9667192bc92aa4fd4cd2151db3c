@@ -34,6 +34,24 @@
       "revId": "5606e40a90e4e9667192bc92aa4fd4cd2151db3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e393f184_b022ee1e",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-07T17:15:16Z",
+      "side": 1,
+      "message": "aha, carry on",
+      "parentUuid": "2b3d1755_e1b10bfd",
+      "revId": "5606e40a90e4e9667192bc92aa4fd4cd2151db3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
