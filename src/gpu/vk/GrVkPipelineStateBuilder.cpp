@@ -85,7 +85,6 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     if (outInputs->fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
                                                      this->pipeline().proxy()->origin()));
-        desc->finalize();
     }
     return true;
 }
