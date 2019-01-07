@@ -17,6 +17,10 @@ Sample JSON animations
 
 Here are some test samples rendering with Skia's animation player:
 
+<skottie-inline-sk
+  width=200 height=200
+  url="https://skottie.skia.org/_/j/e6741dda67629da1f80c254dad3df865">
+</skottie-inline-sk>
 <a href="https://skottie.skia.org/e6741dda67629da1f80c254dad3df865"> <video
 id="video" muted="" autoplay="" title="lottie" loop=""
 src="https://skottie.skia.org/_/i/e6741dda67629da1f80c254dad3df865" width="200"
