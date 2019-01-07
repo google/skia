@@ -126,8 +126,7 @@ protected:
 
         font.setSize(16);
 //        canvas->drawString(outString, 512.f, 540.f, paint);
-        canvas->drawSimpleText(modeString.c_str(), modeString.size(), kUTF8_SkTextEncoding,
-                               768.f, 540.f, font, paint);
+        canvas->drawString(modeString, 768.f, 540.f, font, paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

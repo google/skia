@@ -20,7 +20,7 @@
 
 static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
-    canvas->drawSimpleText(text.c_str(), text.size(), kUTF8_SkTextEncoding, x, y, font, SkPaint());
+    canvas->drawString(text, x, y, font, SkPaint());
     return x + font.measureText(text.c_str(), text.size(), kUTF8_SkTextEncoding);
 }
 
@@ -277,8 +277,7 @@ public:
         if (FLAGS_veryVerbose) {
             SkString name;
             font.getTypeface()->getFamilyName(&name);
-            canvas->drawSimpleText(name.c_str(), name.size(), kUTF8_SkTextEncoding,
-                             fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
+            canvas->drawString(name, fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
         }
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
             SkPath path;
@@ -292,8 +291,7 @@ public:
             if (FLAGS_veryVerbose) {
                 SkString glyphStr;
                 glyphStr.appendS32(str[i]);
-                canvas->drawSimpleText(glyphStr.c_str(), glyphStr.size(), kUTF8_SkTextEncoding,
-                                 location[i].fX, location[i].fY, labelFont, SkPaint());
+                canvas->drawString(glyphStr, location[i].fX, location[i].fY, labelFont, SkPaint());
             }
 
         }
