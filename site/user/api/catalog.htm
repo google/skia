@@ -574,6 +574,34 @@
     "name": "SkCanvas::restoreToCount",
         "stdout": "depth = 1\\ndepth = 3\\ndepth = 1\\n"
     },
+        "SkFont_containsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph,\n            font.containsText(&goodGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            font.containsText(&zeroGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            font.containsText(&badGlyph, 2, SkTextEncoding::kGlyphID) ? '=' : '!');\n}",
+    "hash": "33b81e78b038b0eb4cded1458d39db6d",
+    "file": "SkFont_Reference",
+    "name": "SkFont::containsText",
+        "stdout": "0x01ff == has glyph\\n0x0000 != has glyph\\n0xffff == has glyph\\n"
+    },
+        "SkFont_countText": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    SkDebugf(\"count = %d\\n\", font.countText(utf8, sizeof(utf8), SkTextEncoding::kUTF8));\n}",
+    "hash": "1a71a55f97e22b20944013cc41defec3",
+    "file": "SkFont_Reference",
+    "name": "SkFont::countText",
+        "stdout": "count = 5\\n"
+    },
+        "SkFont_getSpacing": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    for (SkScalar textSize : { 12, 18, 24, 32 } ) {\n        font.setSize(textSize);\n        SkDebugf(\"textSize: %g spacing: %g\\n\", textSize, font.getSpacing());\n    }\n}",
+    "hash": "415dea5a809d983c4f59b8953affad88",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getSpacing",
+        "stdout": "textSize: 12 spacing: 13.9688\\ntextSize: 18 spacing: 20.9531\\ntextSize: 24 spacing: 27.9375\\ntextSize: 32 spacing: 37.25\\n"
+    },
+        "SkFont_measureText": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    SkDebugf(\"default width = %g\\n\", font.measureText(\"!\", 1, SkTextEncoding::kUTF8));\n    font.setSize(font.getSize() * 2);\n    SkDebugf(\"double width = %g\\n\", font.measureText(\"!\", 1, SkTextEncoding::kUTF8));\n}",
+    "hash": "f698211bb0a58939770fd68dad69bc2a",
+    "file": "SkFont_Reference",
+    "name": "SkFont::measureText",
+        "stdout": "default width = 5\\ndouble width = 10\\n"
+    },
         "SkIPoint_Make": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkIPoint pt2 = SkIPoint::Make(45, 66);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
     "hash": "e5cf5159525bd3140f288a95fe641fae",
@@ -1400,13 +1428,6 @@
     "name": "SkMatrix::setScaleTranslate",
         "stdout": "[  1.0000   0.0000   3.0000][  0.0000   2.0000   4.0000][  0.0000   0.0000   1.0000]\\n"
     },
-        "SkPaint_containsText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint16_t goodGlyph = 511;\n    const uint16_t zeroGlyph = 0;\n    const uint16_t badGlyph = 65535; // larger than glyph count in font\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkDebugf(\"0x%04x %c= has glyph\\n\", goodGlyph,\n            paint.containsText(&goodGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", zeroGlyph,\n            paint.containsText(&zeroGlyph, 2) ? '=' : '!');\n    SkDebugf(\"0x%04x %c= has glyph\\n\", badGlyph,\n            paint.containsText(&badGlyph, 2) ? '=' : '!');\n}",
-    "hash": "6a68cb3c8b81a5976c81ee004f559247",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::containsText",
-        "stdout": "0x01ff == has glyph\\n0x0000 != has glyph\\n0xffff == has glyph\\n"
-    },
         "SkPaint_copy_const_SkPaint": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1;\n    paint1.setColor(SK_ColorRED);\n    SkPaint paint2(paint1);\n    paint2.setColor(SK_ColorBLUE);\n    SkDebugf(\"SK_ColorRED %c= paint1.getColor()\\n\", SK_ColorRED == paint1.getColor() ? '=' : '!');\n    SkDebugf(\"SK_ColorBLUE %c= paint2.getColor()\\n\", SK_ColorBLUE == paint2.getColor() ? '=' : '!');\n}",
     "hash": "b99971ad0ef243d617925289d963b62d",
@@ -1420,13 +1441,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::operator=(const SkPaint& paint)",
         "stdout": "SK_ColorRED == paint1.getColor()\\nSK_ColorRED == paint2.getColor()\\n"
-    },
-        "SkPaint_countText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    SkDebugf(\"count = %d\\n\", paint.countText(utf8, sizeof(utf8)));\n}",
-    "hash": "85436c71aab5410767fc688ab0573e09",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::countText",
-        "stdout": "count = 5\\n"
     },
         "SkPaint_equal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2.setColor(0xFFFF0000);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n    float intervals[] = { 5, 5 };\n    paint1.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));\n    paint2.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n}",
@@ -1490,13 +1504,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFlags",
         "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
-    },
-        "SkPaint_getFontSpacing": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (SkScalar textSize : { 12, 18, 24, 32 } ) {\n        paint.setTextSize(textSize);\n        SkDebugf(\"textSize: %g fontSpacing: %g\\n\", textSize, paint.getFontSpacing());\n    }\n}",
-    "hash": "424741e26e1b174e43087d67422ce14f",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getFontSpacing",
-        "stdout": "textSize: 12 fontSpacing: 13.9688\\ntextSize: 18 fontSpacing: 20.9531\\ntextSize: 24 fontSpacing: 27.9375\\ntextSize: 32 fontSpacing: 37.25\\n"
     },
         "SkPaint_getHash": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2.setColor(0xFFFF0000);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n    SkDebugf(\"paint1.getHash() %c= paint2.getHash()\\n\",\n             paint1.getHash() == paint2.getHash() ? '=' : '!');\n}",
@@ -1665,13 +1672,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::isSubpixelText",
         "stdout": "paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\npaint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\n"
-    },
-        "SkPaint_measureText_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"default width = %g\\n\", paint.measureText(\"!\", 1));\n    paint.setTextSize(paint.getTextSize() * 2);\n    SkDebugf(\"double width = %g\\n\", paint.measureText(\"!\", 1));\n}",
-    "hash": "f1139a5ddd17fd47c2f45f6e642cac76",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::measureText_2",
-        "stdout": "default width = 5\\ndouble width = 10\\n"
     },
         "SkPaint_move_SkPaint": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    float intervals[] = { 5, 5 };\n    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 2.5f));\n    SkPaint dashed(std::move(paint));\n    SkDebugf(\"path effect unique: %s\\n\", dashed.getPathEffect()->unique() ? \"true\" : \"false\");\n}",
@@ -3877,122 +3877,122 @@
     "name": "Color_Constants_4"
 },
     "Illustrations_Blend_Mode_Overview_Color_Blends": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,\n                        SkBlendMode::kLuminosity } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint,\n                SkTextUtils::kCenter_Align);\n        canvas->translate(90, 0);\n    }\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    SkFont labelFont(nullptr, 16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setColor(0xFF606080);\n    SkFont dstFont(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()), 80);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,\n                        SkBlendMode::kLuminosity } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint,\n                SkTextUtils::kCenter_Align);\n        canvas->translate(90, 0);\n    }\n}\n",
     "width": 480,
     "height": 110,
-    "hash": "630fe21aea8369b307231f5bcf8b2d50",
+    "hash": "8bcd4299933dcd6b6e03d4691dedb08e",
     "file": "illustrations",
     "name": "Blend_Mode_Overview_Color_Blends"
 },
     "Illustrations_Blend_Mode_Overview_Lighten_Darken": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kPlus, SkBlendMode::kScreen, SkBlendMode::kOverlay,\n            SkBlendMode::kDarken, SkBlendMode::kLighten, SkBlendMode::kColorDodge,\n            SkBlendMode::kColorBurn, SkBlendMode::kHardLight, SkBlendMode::kSoftLight,\n            SkBlendMode::kDifference, SkBlendMode::kExclusion, SkBlendMode::kMultiply } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);\n        canvas->translate(90, 0);\n        if (SkBlendMode::kLighten == blend || SkBlendMode::kDifference == blend) {\n            canvas->translate(-90 * 5, 100);\n        }\n    }\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    SkFont labelFont(nullptr, 16);\n    SkPaint dstPaint = srcPaint;\n    dstPaint.setColor(0xFF606080);\n    SkFont dstFont(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()), 80);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kPlus, SkBlendMode::kScreen, SkBlendMode::kOverlay,\n            SkBlendMode::kDarken, SkBlendMode::kLighten, SkBlendMode::kColorDodge,\n            SkBlendMode::kColorBurn, SkBlendMode::kHardLight, SkBlendMode::kSoftLight,\n            SkBlendMode::kDifference, SkBlendMode::kExclusion, SkBlendMode::kMultiply } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint,\n                SkTextUtils::kCenter_Align);\n        canvas->translate(90, 0);\n        if (SkBlendMode::kLighten == blend || SkBlendMode::kDifference == blend) {\n            canvas->translate(-90 * 5, 100);\n        }\n    }\n}\n",
     "width": 480,
     "height": 330,
-    "hash": "23a33fa04cdd0204b2490d05e340f87c",
+    "hash": "2585c7af3d098986fc8f82a70e25349f",
     "file": "illustrations",
     "name": "Blend_Mode_Overview_Lighten_Darken"
 },
     "Illustrations_Blend_Mode_Overview_Modulate_Blend": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    SkBitmap srcBits;\n    srcBits.allocN32Pixels(80, 84);\n    SkCanvas srcCanvas(srcBits);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    srcBits.eraseColor(0);\n    srcCanvas.drawPath(srcPath, srcPaint);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    srcPaint.setBlendMode(SkBlendMode::kModulate);\n    for (auto step: { 1, 2 } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstPaint, SkTextUtils::kCenter_Align);\n        if (1 == step) {\n            canvas->drawBitmap(srcBits, 0, 0, &srcPaint);\n            SkTextUtils::DrawString(canvas, \"Bitmap\", 50, 18, labelPaint, SkTextUtils::kCenter_Align);\n        } else {\n            canvas->drawPath(srcPath, srcPaint);\n            SkTextUtils::DrawString(canvas, \"Geometry\", 50, 18, labelPaint, SkTextUtils::kCenter_Align);\n        }\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelPaint,\n                SkTextUtils::kCenter_Align);\n        canvas->translate(120, 0);\n    }\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    SkFont labelFont(nullptr, 16);\n    SkPaint dstPaint = srcPaint;\n    dstPaint.setColor(0xFF606080);\n    SkFont dstFont(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()), 80);\n    SkBitmap srcBits;\n    srcBits.allocN32Pixels(80, 84);\n    SkCanvas srcCanvas(srcBits);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    srcBits.eraseColor(0);\n    srcCanvas.drawPath(srcPath, srcPaint);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    srcPaint.setBlendMode(SkBlendMode::kModulate);\n    for (auto step: { 1, 2 } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);\n        if (1 == step) {\n            canvas->drawBitmap(srcBits, 0, 0, &srcPaint);\n            SkTextUtils::DrawString(canvas, \"Bitmap\", 50, 18, labelFont, labelPaint, SkTextUtils::kCenter_Align);\n        } else {\n            canvas->drawPath(srcPath, srcPaint);\n            SkTextUtils::DrawString(canvas, \"Geometry\", 50, 18, labelFont, labelPaint, SkTextUtils::kCenter_Align);\n        }\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelFont, labelPaint,\n                SkTextUtils::kCenter_Align);\n        canvas->translate(120, 0);\n    }\n}\n",
     "width": 480,
     "height": 110,
-    "hash": "877f96610ab7638a310432674b04f837",
+    "hash": "dfa188c6475fec48bea2d36f6bf464e0",
     "file": "illustrations",
     "name": "Blend_Mode_Overview_Modulate_Blend"
 },
     "Illustrations_Blend_Mode_Overview_Porter_Duff": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    SkBitmap srcBits;\n    srcBits.allocN32Pixels(80, 84);\n    SkCanvas srcCanvas(srcBits);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    srcBits.eraseColor(0);\n    srcCanvas.drawPath(srcPath, srcPaint);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,\n                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,\n                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,\n                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,\n                        SkBlendMode::kClear, SkBlendMode::kXor } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawBitmap(srcBits, 0, 0, &srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);\n        canvas->translate(80, 0);\n        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {\n            canvas->translate(-80 * 5, 100);\n        }\n    }\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    SkFont labelFont(nullptr, 16);\n    SkPaint dstPaint = srcPaint;\n    dstPaint.setColor(0xFF606080);\n    SkFont dstFont(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()), 80);\n    SkBitmap srcBits;\n    srcBits.allocN32Pixels(80, 84);\n    SkCanvas srcCanvas(srcBits);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    srcBits.eraseColor(0);\n    srcCanvas.drawPath(srcPath, srcPaint);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,\n                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,\n                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,\n                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,\n                        SkBlendMode::kClear, SkBlendMode::kXor } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawBitmap(srcBits, 0, 0, &srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint, SkTextUtils::kCenter_Align);\n        canvas->translate(80, 0);\n        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {\n            canvas->translate(-80 * 5, 100);\n        }\n    }\n}\n",
     "width": 480,
     "height": 330,
-    "hash": "819903e0bb125385269948474b6c8a84",
+    "hash": "0b72741998ddb6bd514e34482ac632c6",
     "file": "illustrations",
     "name": "Blend_Mode_Overview_Porter_Duff"
 },
     "Illustrations_Blend_Mode_Overview_Porter_Duff_2": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    labelPaint.setTextSize(16);\n    SkPaint dstPaint = labelPaint;\n    dstPaint.setTextSize(80);\n    dstPaint.setColor(0xFF606080);\n    dstPaint.setTypeface(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()));\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    SkBitmap dstBits;\n    dstBits.allocN32Pixels(80, 80);\n    SkCanvas dstCanvas(dstBits);\n    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,\n                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,\n                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,\n                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,\n                        SkBlendMode::kClear, SkBlendMode::kXor } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);\n        canvas->translate(80, 0);\n        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {\n            canvas->translate(-80 * 5, 100);\n        }\n    }\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint srcPaint;\n    srcPaint.setAntiAlias(true);\n    SkPaint labelPaint = srcPaint;\n    SkFont labelFont(nullptr, 16);\n    SkPaint dstPaint = srcPaint;\n    dstPaint.setColor(0xFF606080);\n    SkFont dstFont(SkTypeface::MakeFromName(\"Roboto\", SkFontStyle::Bold()), 80);\n    srcPaint.setColor(0xFFcc6633);\n    SkPath srcPath;\n    const SkPoint points[] = {{20, 20}, {80, 45}, {45, 80}};\n    srcPath.addPoly(points, SK_ARRAY_COUNT(points), true);\n    canvas->drawColor(0, SkBlendMode::kClear);\n    SkBitmap dstBits;\n    dstBits.allocN32Pixels(80, 80);\n    SkCanvas dstCanvas(dstBits);\n    for (auto blend : { SkBlendMode::kSrc, SkBlendMode::kSrcATop, SkBlendMode::kSrcOver,\n                        SkBlendMode::kSrcIn, SkBlendMode::kSrcOut,\n                        SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,\n                        SkBlendMode::kDstIn, SkBlendMode::kDstOut,\n                        SkBlendMode::kClear, SkBlendMode::kXor } ) {\n        SkTextUtils::DrawString(canvas, \"&\", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);\n        srcPaint.setBlendMode(blend);\n        canvas->drawPath(srcPath, srcPaint);\n        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint, SkTextUtils::kCenter_Align);\n        canvas->translate(80, 0);\n        if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {\n            canvas->translate(-80 * 5, 100);\n        }\n    }\n}\n",
     "width": 480,
     "height": 330,
-    "hash": "8f320c1e94e77046e00f7e9e843caa27",
+    "hash": "6f60191857de3869f70a6407334fb156",
     "file": "illustrations",
     "name": "Blend_Mode_Overview_Porter_Duff_2"
 },
     "Illustrations_Image_Info_Color_Type_ARGB_4444": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"16-bit word\", 5 + 20 * 8, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 4, 8, 12, 16 };\n    const char* labels[] = { \"red\", \"green\", \"blue\", \"alpha\" };\n    drawBoxText(&edges[0], &labels[0], 4, 15, 45);\n    drawBoxText(&edges[0], &labels[2], 2, 7, 110);\n    drawBoxText(&edges[0], &labels[0], 2, 7, 160);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"16-bit word\", 5 + 20 * 8, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 4, 8, 12, 16 };\n    const char* labels[] = { \"red\", \"green\", \"blue\", \"alpha\" };\n    drawBoxText(&edges[0], &labels[0], 4, 15, 45);\n    drawBoxText(&edges[0], &labels[2], 2, 7, 110);\n    drawBoxText(&edges[0], &labels[0], 2, 7, 160);\n}\n",
     "width": 415,
     "height": 250,
-    "hash": "e8008512f0d197051e3f26faa67bafc2",
+    "hash": "93aeccd052b2ea30969e187b74589ca5",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_ARGB_4444"
 },
     "Illustrations_Image_Info_Color_Type_BGRA_8888": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"alpha\", \"red\", \"green\", \"blue\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"alpha\", \"red\", \"green\", \"blue\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
     "width": 812,
     "height": 365,
-    "hash": "6c35ca14d88b0de200ba7f897f889ad7",
+    "hash": "8ba83f305cd7a32bf119afb4da7a8cd8",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_BGRA_8888"
 },
     "Illustrations_Image_Info_Color_Type_RGBA_1010102": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 137, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 3, 187, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 7, 187, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 2, 237, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6, 237, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 5, 287, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 2, 12, 22, 32,\n                         0, 8,\n                         0, 6, 8,\n                         0, 4, 8,\n                         0, 2, 8\n                        };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 4, 31, 45);\n    drawBoxText(&edges[5], &labels[3], 1, 7, 110);\n    drawBoxText(&edges[7], &labels[2], 2, 7, 160);\n    drawBoxText(&edges[10], &labels[1], 2, 7, 210);\n    drawBoxText(&edges[13], &labels[0], 2, 7, 260);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 137, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 3, 187, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 7, 187, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 2, 237, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6, 237, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 5, 287, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 2, 12, 22, 32,\n                         0, 8,\n                         0, 6, 8,\n                         0, 4, 8,\n                         0, 2, 8\n                        };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 4, 31, 45);\n    drawBoxText(&edges[5], &labels[3], 1, 7, 110);\n    drawBoxText(&edges[7], &labels[2], 2, 7, 160);\n    drawBoxText(&edges[10], &labels[1], 2, 7, 210);\n    drawBoxText(&edges[13], &labels[0], 2, 7, 260);\n}\n",
     "width": 812,
     "height": 380,
-    "hash": "8d78daf69145f611054f289a7443a670",
+    "hash": "22df332e5348d5af150bf5f71d2caa87",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGBA_1010102"
 },
     "Illustrations_Image_Info_Color_Type_RGBA_8888": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
     "width": 812,
     "height": 365,
-    "hash": "9abc324f670e6468f09385551aae5a1c",
+    "hash": "1f642a3f00a00bbeade12cbadcd0ecd4",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGBA_8888"
 },
     "Illustrations_Image_Info_Color_Type_RGBA_F16": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"64-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 135, paint, SkTextUtils::kCenter_Align);\n    for (int i = 0; i < 4; ++i) {\n        SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 187 + i * 100, paint, SkTextUtils::kCenter_Align);\n        SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 4, 237 + i * 100, paint, SkTextUtils::kCenter_Align);\n    }\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 16, 32,\n                         0, 8\n                       };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 2, 63, 45);\n    drawBoxText(&edges[0], &labels[2], 2, 31, 95);\n    drawBoxText(&edges[3], &labels[3], 1, 7, 160);\n    drawBoxText(&edges[3], &labels[3], 1, 7, 210);\n    drawBoxText(&edges[3], &labels[2], 1, 7, 260);\n    drawBoxText(&edges[3], &labels[2], 1, 7, 310);\n    drawBoxText(&edges[3], &labels[1], 1, 7, 360);\n    drawBoxText(&edges[3], &labels[1], 1, 7, 410);\n    drawBoxText(&edges[3], &labels[0], 1, 7, 460);\n    drawBoxText(&edges[3], &labels[0], 1, 7, 510);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"64-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 135, font, paint, SkTextUtils::kCenter_Align);\n    for (int i = 0; i < 4; ++i) {\n        SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 187 + i * 100, font, paint, SkTextUtils::kCenter_Align);\n        SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 4, 237 + i * 100, font, paint, SkTextUtils::kCenter_Align);\n    }\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 16, 32,\n                         0, 8\n                       };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 2, 63, 45);\n    drawBoxText(&edges[0], &labels[2], 2, 31, 95);\n    drawBoxText(&edges[3], &labels[3], 1, 7, 160);\n    drawBoxText(&edges[3], &labels[3], 1, 7, 210);\n    drawBoxText(&edges[3], &labels[2], 1, 7, 260);\n    drawBoxText(&edges[3], &labels[2], 1, 7, 310);\n    drawBoxText(&edges[3], &labels[1], 1, 7, 360);\n    drawBoxText(&edges[3], &labels[1], 1, 7, 410);\n    drawBoxText(&edges[3], &labels[0], 1, 7, 460);\n    drawBoxText(&edges[3], &labels[0], 1, 7, 510);\n}\n",
     "width": 812,
     "height": 685,
-    "hash": "1bb35ae52173e0fef874022ca8138adc",
+    "hash": "6f7208aba3e0f8dd22f269557581ce70",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGBA_F16"
 },
     "Illustrations_Image_Info_Color_Type_RGBA_F32": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"128-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 135, paint, SkTextUtils::kCenter_Align);\n    for (int i = 0; i < 4; ++i) {\n        SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 10 * 4, 187 + i * 100, paint, SkTextUtils::kCenter_Align);\n        SkTextUtils::DrawString(canvas, \"(high bits)\", 105 + 10 * 4, 237 + i * 100, paint, SkTextUtils::kCenter_Align);\n    }\n    auto drawBoxText = [=](SkScalar e[], const char* s[], const char* nums[] , \n             int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int stringIndex = 0;\n        for (int i = n; i >= 0; --i) {\n            if (0 == i || n == i || 32 == i || 31 == i) {\n                int x = xPos;\n                if (2 == count) {\n                    x += stringIndex * 12 + (stringIndex ? 8 : 0);\n                }\n                SkTextUtils::DrawString(canvas, nums[stringIndex], x, yPos - 5, p, SkTextUtils::kCenter_Align);\n                if (1 == count) {\n                    SkTextUtils::DrawString(canvas, nums[stringIndex], xPos + 100, yPos - 5, p, SkTextUtils::kCenter_Align);\n                }\n                ++stringIndex;\n            }\n            xPos += 9;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkTextUtils::kCenter_Align);\n            if (1 == count) {\n                SkTextUtils::DrawString(canvas, s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkTextUtils::kCenter_Align);\n            }\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 10, yPos, 5 + e[i] * 10, yPos + 15, p);\n            if (1 == count) {\n                canvas->drawLine(105 + e[i] * 10, yPos, 105 + e[i] * 10, yPos + 15, p);\n            }\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 10, yPos + i * 15,\n                             5 + e[count] * 10, yPos + i * 15, p);\n            if (1 == count) {\n                canvas->drawLine(105 + e[0] * 10, yPos + i * 15,\n                                 105 + e[count] * 10, yPos + i * 15, p);\n            }\n        }\n    };\n    SkScalar edges[] = { 0, 32, 64,\n                         0, 8\n                       };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    const char* nums128[] = { \"127\", \"96\", \"95\", \"64\"};\n    const char* nums64[] = { \"63\", \"32\", \"31\", \"0\"};\n    const char* nums8[] = { \"7\", \"0\"};\n    drawBoxText(&edges[0], &labels[0], nums128, 2, 63, 45);\n    drawBoxText(&edges[0], &labels[2], nums64, 2, 63, 95);\n    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 160);\n    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 210);\n    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 260);\n    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 310);\n    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 360);\n    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 410);\n    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 460);\n    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 510);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"128-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 135, font, paint, SkTextUtils::kCenter_Align);\n    for (int i = 0; i < 4; ++i) {\n        SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 10 * 4, 187 + i * 100, font, paint, SkTextUtils::kCenter_Align);\n        SkTextUtils::DrawString(canvas, \"(high bits)\", 105 + 10 * 4, 237 + i * 100, font, paint, SkTextUtils::kCenter_Align);\n    }\n    auto drawBoxText = [=](SkScalar e[], const char* s[], const char* nums[] , \n             int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int stringIndex = 0;\n        for (int i = n; i >= 0; --i) {\n            if (0 == i || n == i || 32 == i || 31 == i) {\n                int x = xPos;\n                if (2 == count) {\n                    x += stringIndex * 12 + (stringIndex ? 8 : 0);\n                }\n                SkTextUtils::DrawString(canvas, nums[stringIndex], x, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                if (1 == count) {\n                    SkTextUtils::DrawString(canvas, nums[stringIndex], xPos + 100, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                }\n                ++stringIndex;\n            }\n            xPos += 9;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n            if (1 == count) {\n                SkTextUtils::DrawString(canvas, s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n            }\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 10, yPos, 5 + e[i] * 10, yPos + 15, p);\n            if (1 == count) {\n                canvas->drawLine(105 + e[i] * 10, yPos, 105 + e[i] * 10, yPos + 15, p);\n            }\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 10, yPos + i * 15,\n                             5 + e[count] * 10, yPos + i * 15, p);\n            if (1 == count) {\n                canvas->drawLine(105 + e[0] * 10, yPos + i * 15,\n                                 105 + e[count] * 10, yPos + i * 15, p);\n            }\n        }\n    };\n    SkScalar edges[] = { 0, 32, 64,\n                         0, 8\n                       };\n    const char* labels[] = { \"alpha\", \"blue\", \"green\", \"red\" };\n    const char* nums128[] = { \"127\", \"96\", \"95\", \"64\"};\n    const char* nums64[] = { \"63\", \"32\", \"31\", \"0\"};\n    const char* nums8[] = { \"7\", \"0\"};\n    drawBoxText(&edges[0], &labels[0], nums128, 2, 63, 45);\n    drawBoxText(&edges[0], &labels[2], nums64, 2, 63, 95);\n    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 160);\n    drawBoxText(&edges[3], &labels[3], nums8, 1, 7, 210);\n    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 260);\n    drawBoxText(&edges[3], &labels[2], nums8, 1, 7, 310);\n    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 360);\n    drawBoxText(&edges[3], &labels[1], nums8, 1, 7, 410);\n    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 460);\n    drawBoxText(&edges[3], &labels[0], nums8, 1, 7, 510);\n}\n",
     "width": 812,
     "height": 685,
-    "hash": "4ba31a8f9bc94a996f34da81ef541a9c",
+    "hash": "900400a80e1310b03661a3a1bb892485",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGBA_F32"
 },
     "Illustrations_Image_Info_Color_Type_RGB_101010": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 137, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 3, 187, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 7, 187, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 2, 237, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6, 237, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 5, 287, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 2, 12, 22, 32,\n                         0, 8,\n                         0, 6, 8,\n                         0, 4, 8,\n                         0, 2, 8\n                        };\n    const char* labels[] = { \"unused\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 4, 31, 45);\n    drawBoxText(&edges[5], &labels[3], 1, 7, 110);\n    drawBoxText(&edges[7], &labels[2], 2, 7, 160);\n    drawBoxText(&edges[10], &labels[1], 2, 7, 210);\n    drawBoxText(&edges[13], &labels[0], 2, 7, 260);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 4, 137, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 3, 187, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 7, 187, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 2, 237, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6, 237, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 5, 287, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 2, 12, 22, 32,\n                         0, 8,\n                         0, 6, 8,\n                         0, 4, 8,\n                         0, 2, 8\n                        };\n    const char* labels[] = { \"unused\", \"blue\", \"green\", \"red\" };\n    drawBoxText(&edges[0], &labels[0], 4, 31, 45);\n    drawBoxText(&edges[5], &labels[3], 1, 7, 110);\n    drawBoxText(&edges[7], &labels[2], 2, 7, 160);\n    drawBoxText(&edges[10], &labels[1], 2, 7, 210);\n    drawBoxText(&edges[13], &labels[0], 2, 7, 260);\n}\n",
     "width": 812,
     "height": 380,
-    "hash": "4c9f4d939e2047269d73fa3507caf01f",
+    "hash": "f9faab58ac516739c79555d6910f0e93",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGB_101010"
 },
     "Illustrations_Image_Info_Color_Type_RGB_565": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"16-bit word\", 5 + 20 * 8, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 1.5f, 137, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6.5f, 187, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 5, 11, 16,\n                         0, 3, 8,\n                         0, 5, 8 };\n    const char* labels[] = { \"red\", \"green\", \"blue\" };\n    drawBoxText(&edges[0], &labels[0], 3, 15, 45);\n    drawBoxText(&edges[4], &labels[1], 2, 7, 110);\n    drawBoxText(&edges[7], &labels[0], 2, 7, 160);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"16-bit word\", 5 + 20 * 8, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(low bits)\", 5 + 20 * 1.5f, 137, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"(high bits)\", 5 + 20 * 6.5f, 187, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 5, 11, 16,\n                         0, 3, 8,\n                         0, 5, 8 };\n    const char* labels[] = { \"red\", \"green\", \"blue\" };\n    drawBoxText(&edges[0], &labels[0], 3, 15, 45);\n    drawBoxText(&edges[4], &labels[1], 2, 7, 110);\n    drawBoxText(&edges[7], &labels[0], 2, 7, 160);\n}\n",
     "width": 415,
     "height": 250,
-    "hash": "6dec0226490a4ac1977dc87a31564147",
+    "hash": "5c3428dd7662fecceb81d40b4f15be1b",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGB_565"
 },
     "Illustrations_Image_Info_Color_Type_RGB_888": {
-    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"(unused)\", \"blue\", \"green\", \"red\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
+    "code": "#include \"SkTextUtils.h\"\n\nvoid draw(SkCanvas* canvas) {\n    canvas->scale(1.25f, 1.25f);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 10);\n    SkTextUtils::DrawString(canvas, \"32-bit word\", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);\n    SkTextUtils::DrawString(canvas, \"little endian byte order\", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);\n    auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {\n        SkPaint p(paint);\n        p.setColor(SK_ColorRED);\n        SkScalar xPos = 15;\n        int width = n % 32 + 1;\n        int lastN = n > 32 ? 32 : 0;\n        for (; n >= lastN; --n) {\n            for (int i = 0; i <= count; ++i) {\n                int a = width - e[i];\n                if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {\n                    char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\\0'};\n                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);\n                    break;\n                }\n            }\n            xPos += 20;\n        }\n        p.setColor(SK_ColorBLACK);\n        for (int i = 0; i < count; ++i) {\n            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);\n        }\n        p.setStyle(SkPaint::kStroke_Style);\n        for (int i = 0; i <= count; ++i) {\n            canvas->drawLine(5 + e[i] * 20, yPos, 5 + e[i] * 20, yPos + 15, p);\n        }\n        for (int i = 0; i < 2; ++i) {\n            canvas->drawLine(5 + e[0] * 20, yPos + i * 15, 5 + e[count] * 20, yPos + i * 15, p);\n        }\n    };\n    SkScalar edges[] = { 0, 8, 16, 24, 32 };\n    const char* labels[] = { \"(unused)\", \"blue\", \"green\", \"red\" };\n    drawBoxText(edges, &labels[0], 4, 31, 45);\n    drawBoxText(edges, &labels[3], 1, 7, 110);\n    drawBoxText(edges, &labels[2], 1, 7, 160);\n    drawBoxText(edges, &labels[1], 1, 7, 210);\n    drawBoxText(edges, &labels[0], 1, 7, 260);\n}\n",
     "width": 812,
     "height": 365,
-    "hash": "7527d7ade4764302818e250cd4e03962",
+    "hash": "fef2f1be30a530be35f0e0ed972f8723",
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGB_888"
 },
     "Illustrations_Path_Arc": {
-    "code": "struct data {\n   const char* name;\n   char super;\n   int yn[10];\n};\nconst data dataSet[] = {\n{ \"arcTo sweep\",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},\n{ \"drawArc\",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},\n{ \"addArc\",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},\n{ \"arcTo tangents\", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"arcTo radii\",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"conicTo\",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}\n};\n#define __degree_symbol__ \"\\xC2\" \"\\xB0\"\nconst char* headers[] = {\n    \"Oval part\",\n    \"force moveTo\",\n    \"can draw 180\" __degree_symbol__,\n    \"can draw 360\" __degree_symbol__,\n    \"can draw greater than 360\" __degree_symbol__,\n    \"ignored if radius is zero\",\n    \"ignored if sweep is zero\",\n    \"requires Path\",\n    \"describes rotation\",\n    \"describes perspective\",\n};\nconst char* yna[] = {\n     \"n/a\",\n     \"no\",\n     \"yes\"\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint lp;\n    lp.setAntiAlias(true);\n    SkPaint tp(lp);\n    SkPaint sp(tp);\n    SkPaint bp(tp);\n    bp.setFakeBoldText(true);\n    sp.setTextSize(10);\n    lp.setColor(SK_ColorGRAY);\n    canvas->translate(0, 32);\n    const int tl = 115;\n    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {\n       canvas->drawLine(tl + col * 35, 100, tl + col * 35, 250, lp);\n       if (0 == col) {\n          continue;\n       }\n       canvas->drawLine( tl +        col * 35, 100,  tl + 100  + col * 35,   0, lp);\n       SkPoint pts[] = {{tl - 10.f + col * 35, 98}, {tl + 90.f + col * 35,  -2}};\n       SkVector v = pts[1] - pts[0];\n       v.normalize();\n       SkMatrix matrix;\n       matrix.setSinCos(v.fY, v.fX, pts[0].fX, pts[0].fY);\n       canvas->save();\n       canvas->concat(matrix);\n       canvas->drawText(headers[col -1], strlen(headers[col -1]), pts[0].fX, pts[0].fY, bp);\n       canvas->restore();\n    }\n    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {\n        if (0 == row) {\n            canvas->drawLine(tl, 100, tl + 350, 100, lp);\n        } else {\n            canvas->drawLine(5, 100 + row * 25, tl + 350, 100 + row * 25, lp);\n        }\n        if (row == SK_ARRAY_COUNT(dataSet)) {\n            break;\n        }\n        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);\n        if (dataSet[row].super) {\n            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));\n            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * 25, sp);\n        }\n        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {\n            int val = dataSet[row].yn[col];\n            canvas->drawString(yna[SkTMin(2, val + 1)], tl + 5 + col * 35, 117 + row * 25, tp);\n            if (val > 1) {\n                char supe = '0' + val - 1;\n                canvas->drawText(&supe, 1, tl + 25 + col * 35, 112 + row * 25, sp);\n            }\n        }\n    }\n}\n",
+    "code": "struct data {\n   const char* name;\n   char super;\n   int yn[10];\n};\nconst data dataSet[] = {\n{ \"arcTo sweep\",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},\n{ \"drawArc\",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},\n{ \"addArc\",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},\n{ \"arcTo tangents\", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"arcTo radii\",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"conicTo\",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}\n};\n#define __degree_symbol__ \"\\xC2\" \"\\xB0\"\nconst char* headers[] = {\n    \"Oval part\",\n    \"force moveTo\",\n    \"can draw 180\" __degree_symbol__,\n    \"can draw 360\" __degree_symbol__,\n    \"can draw greater than 360\" __degree_symbol__,\n    \"ignored if radius is zero\",\n    \"ignored if sweep is zero\",\n    \"requires Path\",\n    \"describes rotation\",\n    \"describes perspective\",\n};\nconst char* yna[] = {\n     \"n/a\",\n     \"no\",\n     \"yes\"\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint lp;\n    lp.setAntiAlias(true);\n    SkPaint tp(lp);\n    SkPaint sp(tp);\n    SkFont bf;\n    bf.setEmbolden(true);\n    SkFont sf(nullptr, 10);\n    lp.setColor(SK_ColorGRAY);\n    canvas->translate(0, 32);\n    const int tl = 115;\n    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {\n       canvas->drawLine(tl + col * 35, 100, tl + col * 35, 250, lp);\n       if (0 == col) {\n          continue;\n       }\n       canvas->drawLine( tl +        col * 35, 100,  tl + 100  + col * 35,   0, lp);\n       SkPoint pts[] = {{tl - 10.f + col * 35, 98}, {tl + 90.f + col * 35,  -2}};\n       SkVector v = pts[1] - pts[0];\n       v.normalize();\n       SkMatrix matrix;\n       matrix.setSinCos(v.fY, v.fX, pts[0].fX, pts[0].fY);\n       canvas->save();\n       canvas->concat(matrix);\n       canvas->drawSimpleText(headers[col -1], strlen(headers[col -1]), SkTextEncoding::kUTF8,\n            pts[0].fX, pts[0].fY, bf, lp);\n       canvas->restore();\n    }\n    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {\n        if (0 == row) {\n            canvas->drawLine(tl, 100, tl + 350, 100, lp);\n        } else {\n            canvas->drawLine(5, 100 + row * 25, tl + 350, 100 + row * 25, lp);\n        }\n        if (row == SK_ARRAY_COUNT(dataSet)) {\n            break;\n        }\n        canvas->drawSimpleText(dataSet[row].name, strlen(dataSet[row].name),\n              SkTextEncoding::kUTF8, 5, 117 + row * 25, bf, lp);\n        if (dataSet[row].super) {\n            SkScalar width = bf.measureText(dataSet[row].name, strlen(dataSet[row].name),\n                    SkTextEncoding::kUTF8);\n            canvas->drawSimpleText(&dataSet[row].super, 1, SkTextEncoding::kUTF8,\n                    8 + width, 112 + row * 25, sf, lp);\n        }\n        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {\n            int val = dataSet[row].yn[col];\n            canvas->drawString(yna[SkTMin(2, val + 1)], tl + 5 + col * 35, 117 + row * 25, tp);\n            if (val > 1) {\n                char supe = '0' + val - 1;\n                canvas->drawSimpleText(&supe, 1, SkTextEncoding::kUTF8,\n                     tl + 25 + col * 35, 112 + row * 25, sf, lp);\n            }\n        }\n    }\n}\n",
     "width": 600,
     "height": 300,
-    "hash": "e17e48e9d2182e9afc0f5d26b72c60f0",
+    "hash": "1ace38a4b3eeeb1b7e231d2c2f0fe737",
     "file": "illustrations",
     "name": "Path_Arc"
 },
@@ -4245,10 +4245,10 @@
     "name": "Stroke_Width"
 },
     "Paint_Text_Encoding": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello8[] = \"Hello\" \"\\xE2\" \"\\x98\" \"\\xBA\";\n    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    paint.setTextSize(24);\n    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n    paint.setTextEncoding(kUTF16_SkTextEncoding);\n    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello8[] = \"Hello\" \"\\xE2\" \"\\x98\" \"\\xBA\";\n    const uint16_t hello16[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };\n    paint.setTextSize(24);\n    canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);\n    paint.setTextEncoding(SkTextEncoding::kUTF16);\n    canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);\n    paint.setTextEncoding(SkTextEncoding::kUTF32);\n    canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);\n    uint16_t glyphs[SK_ARRAY_COUNT(hello32)];\n    SkFont font;\n    font.textToGlyphs(hello32, sizeof(hello32), SkTextEncoding::kUTF32,\n            glyphs, SK_ARRAY_COUNT(hello32));\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "767fa4e7b6300e16a419f9881f0f9d3d",
+    "hash": "8a4f539178c945d3331d8739e373f9a7",
     "file": "SkPaint_Reference",
     "name": "Text_Encoding"
 },
@@ -4781,18 +4781,18 @@
     "name": "SkCanvas::~SkCanvas()"
 },
     "SkCanvas_drawAnnotation": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char text[] = \"Click this link!\";\n    SkRect bounds;\n    SkPaint paint;\n    paint.setTextSize(40);\n    (void)paint.measureText(text, strlen(text), &bounds);\n    const char url[] = \"https://www.google.com/\";\n    sk_sp<SkData> urlData(SkData::MakeWithCString(url));\n    canvas->drawAnnotation(bounds, \"url_key\", urlData.get());\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const char text[] = \"Click this link!\";\n    SkRect bounds;\n    SkPaint paint;\n    SkFont font(nullptr, 40);\n    (void)font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);\n    const char url[] = \"https://www.google.com/\";\n    sk_sp<SkData> urlData(SkData::MakeWithCString(url));\n    canvas->drawAnnotation(bounds, \"url_key\", urlData.get());\n}",
     "width": 256,
     "height": 1,
-    "hash": "00b430bd80d740e19c6d020a940f56d5",
+    "hash": "9dbc560cbfb773b9dc8496c50788f2b8",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawAnnotation"
 },
     "SkCanvas_drawAnnotation_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char text[] = \"Click this link!\";\n    SkRect bounds;\n    SkPaint paint;\n    paint.setTextSize(40);\n    (void)paint.measureText(text, strlen(text), &bounds);\n    const char url[] = \"https://www.google.com/\";\n    sk_sp<SkData> urlData(SkData::MakeWithCString(url));\n    canvas->drawAnnotation(bounds, \"url_key\", urlData.get());\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const char text[] = \"Click this link!\";\n    SkRect bounds;\n    SkPaint paint;\n    SkFont font(nullptr, 40);\n    (void)font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);\n    const char url[] = \"https://www.google.com/\";\n    sk_sp<SkData> urlData(SkData::MakeWithCString(url));\n    canvas->drawAnnotation(bounds, \"url_key\", urlData.get());\n}",
     "width": 256,
     "height": 1,
-    "hash": "00b430bd80d740e19c6d020a940f56d5",
+    "hash": "9dbc560cbfb773b9dc8496c50788f2b8",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawAnnotation_2"
 },
@@ -5164,22 +5164,6 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawPoints"
 },
-    "SkCanvas_drawPosText": {
-    "code": "void draw(SkCanvas* canvas) {\n  const char hello[] = \"HeLLo!\";\n  const SkPoint pos[] = { {40, 100}, {82, 95}, {115, 110}, {130, 95}, {145, 85},\n    {172, 100} };\n  SkPaint paint;\n  paint.setTextSize(60);\n  canvas->drawPosText(hello, strlen(hello), pos, paint);\n}\n",
-    "width": 256,
-    "height": 120,
-    "hash": "bf0b2402533a23b6392e0676b7a8414c",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawPosText"
-},
-    "SkCanvas_drawPosTextH": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkScalar xpos[] = { 20, 40, 80, 160 };\n    SkPaint paint;\n    canvas->drawPosTextH(\"XXXX\", 4, xpos, 20, paint);\n}\n",
-    "width": 256,
-    "height": 40,
-    "hash": "95c6a7ef82993a8d2add676080e9438a",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawPosTextH"
-},
     "SkCanvas_drawRRect": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRect outer = {30, 40, 210, 220};\n    SkRect radii = {30, 50, 70, 90 };\n    SkRRect rRect;\n    rRect.setNinePatch(outer, radii.fLeft, radii.fTop, radii.fRight, radii.fBottom);\n    canvas->drawRRect(rRect, paint);\n    paint.setColor(SK_ColorWHITE);\n    canvas->drawLine(outer.fLeft + radii.fLeft, outer.fTop,\n                     outer.fLeft + radii.fLeft, outer.fBottom, paint);\n    canvas->drawLine(outer.fRight - radii.fRight, outer.fTop,\n                     outer.fRight - radii.fRight, outer.fBottom, paint);\n    canvas->drawLine(outer.fLeft,  outer.fTop + radii.fTop,\n                     outer.fRight, outer.fTop + radii.fTop, paint);\n    canvas->drawLine(outer.fLeft,  outer.fBottom - radii.fBottom,\n                     outer.fRight, outer.fBottom - radii.fBottom, paint);\n}\n",
     "width": 256,
@@ -5237,10 +5221,10 @@
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkFont font;\n    font.textToGlyphs(bunny, len, SkTextEncoding::kUTF8, glyphs, len);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        font.setSize(1 == runLen ? 20 : 50);\n        textPos.fX += font.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen,\n                SkTextEncoding::kGlyphID);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, SkPaint());\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "005502b502c1282cb8d306d6c8d998fb",
+    "hash": "c036ee6b858dfc119b063fe042e6a5f7",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob"
 },
@@ -5251,14 +5235,6 @@
     "hash": "1cae21e7b63b24de3eca0bbd9be1936b",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
-},
-    "SkCanvas_drawTextRSXform": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int iterations = 26;\n    SkRSXform transforms[iterations];\n    char alphabet[iterations];\n    SkScalar angle = 0;\n    SkScalar scale = 1;\n    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {\n        const SkScalar s = SkScalarSin(angle) * scale;\n        const SkScalar c = SkScalarCos(angle) * scale;\n        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);\n        angle += .45;\n        scale += .2;\n        alphabet[i] = 'A' + i;\n    }\n    SkPaint paint;\n    canvas->translate(110, 138);\n    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "935c8f8b9782d297a73d7186f6ef7945",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawTextRSXform"
 },
     "SkCanvas_drawVertices": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };\n    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };\n    auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,\n            SK_ARRAY_COUNT(points), points, nullptr, colors);\n    canvas->drawVertices(vertices.get(), SkBlendMode::kSrc, paint);\n}\n",
@@ -5805,28 +5781,20 @@
     "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface, SkScalar size, SkScalar scaleX, SkScalar skewX)"
 },
     "SkFont_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    SkFont font;\n    font.setSize(50);\n    int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,\n            100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
+    "width": 280,
+    "height": 128,
+    "hash": "3cad18678254526be66ef162eecd1d23",
     "file": "SkFont_Reference",
     "name": "SkFont::breakText"
 },
-    "SkFont_containsText": {
+    "SkFont_copy_SkTypeface": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
     "height": 256,
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
-    "name": "SkFont::containsText"
-},
-    "SkFont_countText": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkFont_Reference",
-    "name": "SkFont::countText"
+    "name": "SkFont::SkFont(sk_sp<SkTypeface> typeface)"
 },
     "SkFont_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -5843,6 +5811,14 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
     "name": "SkFont::operator==(const SkFont& font) const"
+},
+    "SkFont_getBounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getBounds"
 },
     "SkFont_getEdging": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -5861,18 +5837,18 @@
     "name": "SkFont::getHinting"
 },
     "SkFont_getMetrics": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font(nullptr, 32);\n    SkScalar lineHeight = font.getMetrics(nullptr);\n    SkPaint paint;\n    canvas->drawSimpleText(\"line 1\", 6, SkTextEncoding::kUTF8, 10, 40, font, paint);\n    canvas->drawSimpleText(\"line 2\", 6, SkTextEncoding::kUTF8, 10, 40 + lineHeight, font, paint);\n}\n",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 128,
+    "hash": "f478bbcaaa4b6058cff0e62a199b1352",
     "file": "SkFont_Reference",
     "name": "SkFont::getMetrics"
 },
     "SkFont_getPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkFont font(nullptr, 80);\n    SkPath onePath, path, path2;\n    const char str[] = \"ABC\";\n    const int bytes = sizeof(str) - 1;\n    int count = font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, nullptr, 0);\n    std::vector<SkGlyphID> glyphs;\n    glyphs.resize(count);\n    (void) font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, &glyphs.front(), count);\n    int xPos = 20;\n    for (auto oneGlyph : glyphs) {\n        font.getPath(oneGlyph, &onePath);\n        path.addPath(onePath, xPos, 60);\n        xPos += 60;\n    }\n    path.offset(20, 20, &path2);\n    Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);\n    path.addPath(path2);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 128,
+    "hash": "fbec87ffbd17bf09c84fa5820db2f011",
     "file": "SkFont_Reference",
     "name": "SkFont::getPath"
 },
@@ -5883,6 +5859,14 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
     "name": "SkFont::getPaths"
+},
+    "SkFont_getPos": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getPos"
 },
     "SkFont_getScaleX": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -5908,14 +5892,6 @@
     "file": "SkFont_Reference",
     "name": "SkFont::getSkewX"
 },
-    "SkFont_getSpacing": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkFont_Reference",
-    "name": "SkFont::getSpacing"
-},
     "SkFont_getTypeface": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -5923,6 +5899,30 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
     "name": "SkFont::getTypeface"
+},
+    "SkFont_getWidths": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getWidths"
+},
+    "SkFont_getWidthsBounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 50);\n    const char str[] = \"abc\";\n    const int bytes = sizeof(str) - 1;\n    int count = font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, nullptr, 0);\n    std::vector<SkGlyphID> glyphs;\n    std::vector<SkScalar> widths;\n    std::vector<SkRect> bounds;\n    glyphs.resize(count);\n    (void) font.textToGlyphs(str, bytes, SkTextEncoding::kUTF8, &glyphs.front(), count);\n    widths.resize(count);\n    bounds.resize(count);\n    for (int loop = 0; loop < 2; ++loop) {\n        (void) font.getWidthsBounds(&glyphs.front(), count, &widths.front(), &bounds.front(),\n                &paint);\n        SkPoint loc = { 25, 50 };\n        canvas->drawSimpleText(str, bytes, SkTextEncoding::kUTF8, loc.fX, loc.fY, font, paint);\n        paint.setStyle(SkPaint::kStroke_Style);\n        paint.setStrokeWidth(0);\n        SkScalar advanceY = loc.fY + 10;\n        for (int index = 0; index < count; ++index) {\n            bounds[index].offset(loc.fX, loc.fY);\n            canvas->drawRect(bounds[index], paint);\n            canvas->drawLine(loc.fX, advanceY, loc.fX + widths[index], advanceY, paint);\n            loc.fX += widths[index];\n            advanceY += 5;\n        }\n        canvas->translate(0, 80);\n        paint.setStrokeWidth(3);\n    }\n}\n",
+    "width": 256,
+    "height": 160,
+    "hash": "cff62c8a0d5dcb5beaa2a602523433d4",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getWidthsBounds"
+},
+    "SkFont_getXPos": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFont_Reference",
+    "name": "SkFont::getXPos"
 },
     "SkFont_isEmbeddedBitmaps": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -5972,13 +5972,21 @@
     "file": "SkFont_Reference",
     "name": "SkFont::makeWithSize"
 },
-    "SkFont_measureText": {
+    "SkFont_measureText_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkFont font(nullptr, 50);\n    const char str[] = \"ay^jZ\";\n    const int count = sizeof(str) - 1;\n    canvas->drawSimpleText(str, count, SkTextEncoding::kUTF8, 25, 50, font, paint);\n    SkRect bounds;\n    font.measureText(str, count, SkTextEncoding::kUTF8, &bounds, nullptr);\n    canvas->translate(25, 50);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(bounds, paint);\n}\n",
+    "width": 256,
+    "height": 64,
+    "hash": "481fb47a120a26697718e753e9cd27e2",
+    "file": "SkFont_Reference",
+    "name": "SkFont::measureText_2"
+},
+    "SkFont_notequal1_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
     "height": 256,
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkFont_Reference",
-    "name": "SkFont::measureText"
+    "name": "SkFont::operator!=(const SkFont& font) const"
 },
     "SkFont_refTypeface": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -6077,10 +6085,10 @@
     "name": "SkFont::setTypeface"
 },
     "SkFont_textToGlyphs": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    std::vector<SkGlyphID> glyphs;\n    int count = font.textToGlyphs(utf8, sizeof(utf8), SkTextEncoding::kUTF8, nullptr, 0);\n    glyphs.resize(count);\n    (void) font.textToGlyphs(utf8, sizeof(utf8), SkTextEncoding::kUTF8, &glyphs.front(),\n            count);\n    font.setSize(32);\n    canvas->drawSimpleText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID),\n            SkTextEncoding::kGlyphID, 10, 40, font, SkPaint());\n}\n",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 64,
+    "hash": "e3a25e269ef0dfd41d87396f8b19ddc8",
     "file": "SkFont_Reference",
     "name": "SkFont::textToGlyphs"
 },
@@ -6373,10 +6381,10 @@
     "name": "SkImage::MakeFromTexture"
 },
     "SkImage_MakeFromTexture_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {\n     // broken\n     //   *((int *) releaseContext) += 128;\n    };\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, 0);\n        x += 128;\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext releaseContext) -> void {\n       *((int *) releaseContext) += 128;\n    };\n    int x = 0, y = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, y);\n        y += 128;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "f40e1ebba6b067714062b81877b22fa1",
+    "hash": "2b1e46354d823dbb53fa6af570135329",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture_2"
 },
@@ -7372,14 +7380,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint_2"
 },
-    "SkPaint_breakText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"Breakfast\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkScalar measuredWidth;\n    int partialBytes = paint.breakText(str, count, 100, &measuredWidth);\n    canvas->drawText(str, partialBytes, 25, 100, paint);\n    canvas->drawLine(25, 60, 25 + 100, 60, paint);\n    canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);\n}\n",
-    "width": 280,
-    "height": 128,
-    "hash": "fd0033470ccbd5c7059670fdbf96cffc",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::breakText"
-},
     "SkPaint_empty_constructor": {
     "code": "void draw(SkCanvas* canvas) {\n    #ifndef SkUserConfig_DEFINED\n    #define SkUserConfig_DEFINED\n    #define SkPaintDefaults_Flags      0x01   // always enable antialiasing\n    #define SkPaintDefaults_TextSize   24.f   // double default font size\n    #define SkPaintDefaults_Hinting    3      // use full hinting\n    #define SkPaintDefaults_MiterLimit 10.f   // use HTML Canvas miter limit setting\n    #endif\n}",
     "width": 256,
@@ -7404,54 +7404,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFillPath_2"
 },
-    "SkPaint_getFontMetrics": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    SkScalar lineHeight = paint.getFontMetrics(nullptr);\n    canvas->drawString(\"line 1\", 10, 40, paint);\n    canvas->drawString(\"line 2\", 10, 40 + lineHeight, paint);\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "59d9b8249afa1c2af6186711250ce240",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getFontMetrics"
-},
-    "SkPaint_getPosTextPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(80);\n    SkPath path, path2;\n    SkPoint pos[] = {{20, 60}, {30, 70}, {40, 80}};\n    paint.getPosTextPath(\"ABC\", 3, pos, &path);\n    Simplify(path, &path);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
-    "width": 256,
-    "height": 85,
-    "hash": "7f27c93472aa99a7542fb3493076f072",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getPosTextPath"
-},
-    "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
-    "width": 256,
-    "height": 143,
-    "hash": "728ea9089f233a71a1062e364b8c73fa",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getTextBlobIntercepts"
-},
-    "SkPaint_getTextPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(80);\n    SkPath path, path2;\n    paint.getTextPath(\"ABC\", 3, 20, 80, &path);\n    path.offset(20, 20, &path2);\n    Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);\n    path.addPath(path2);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPath(path, paint);\n}\n",
-    "width": 256,
-    "height": 128,
-    "hash": "7c9e6a399f898d68026c1f0865e6f73e",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getTextPath"
-},
-    "SkPaint_getTextWidths": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"abc\";\n    const int bytes = sizeof(str) - 1;\n    int count = paint.getTextWidths(str, bytes, nullptr);\n    std::vector<SkScalar> widths;\n    std::vector<SkRect> bounds;\n    widths.resize(count);\n    bounds.resize(count);\n    for (int loop = 0; loop < 2; ++loop) {\n        (void) paint.getTextWidths(str, count, &widths.front(), &bounds.front());\n        SkPoint loc = { 25, 50 };\n        canvas->drawText(str, bytes, loc.fX, loc.fY, paint);\n        paint.setStyle(SkPaint::kStroke_Style);\n        paint.setStrokeWidth(0);\n        SkScalar advanceY = loc.fY + 10;\n        for (int index = 0; index < count; ++index) {\n            bounds[index].offset(loc.fX, loc.fY);\n            canvas->drawRect(bounds[index], paint);\n            canvas->drawLine(loc.fX, advanceY, loc.fX + widths[index], advanceY, paint);\n            loc.fX += widths[index];\n            advanceY += 5;\n        }\n        canvas->translate(0, 80);\n        paint.setStrokeWidth(3);\n    }\n}\n",
-    "width": 256,
-    "height": 160,
-    "hash": "6b9e101f49e9c2c28755c5bdcef64dfb",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getTextWidths"
-},
-    "SkPaint_glyphsToUnichars": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const char hello[] = \"Hello!\";\n    const int count = sizeof(hello) - 1;\n    SkGlyphID glyphs[count];\n    if (count != paint.textToGlyphs(hello, count, glyphs)) {\n        return;\n    }\n    SkUnichar unichars[count];\n    paint.glyphsToUnichars(glyphs, count, unichars);\n    paint.setTextEncoding(kUTF32_SkTextEncoding);\n    canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "79c550ec6c34054ab60fbcd1b81adc03",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::glyphsToUnichars"
-},
     "SkPaint_isLinearText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"xxxx xxxx\";\n    for (auto linearText : { false, true } ) {\n        paint.setLinearText(linearText);\n        paint.setTextSize(24);\n        canvas->drawString(paint.isLinearText() ? \"linear\" : \"hinted\", 128, 30, paint);\n        for (SkScalar textSize = 8; textSize < 30; textSize *= 1.22f) {\n            paint.setTextSize(textSize);\n            canvas->translate(0, textSize);\n            canvas->drawString(testStr, 10, 0, paint);\n        }\n    }\n}\n",
     "width": 256,
@@ -7459,14 +7411,6 @@
     "hash": "2890ad644f980637837e6fcb386fb462",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isLinearText"
-},
-    "SkPaint_measureText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    const char str[] = \"ay^jZ\";\n    const int count = sizeof(str) - 1;\n    canvas->drawText(str, count, 25, 50, paint);\n    SkRect bounds;\n    paint.measureText(str, count, &bounds);\n    canvas->translate(25, 50);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(bounds, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "06084f609184470135a9cd9ebc5af149",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::measureText"
 },
     "SkPaint_setAutohinted": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"xxxx xxxx\";\n        for (auto forceAutoHinting : { false, true} ) {\n        paint.setAutohinted(forceAutoHinting);\n        paint.setTextSize(24);\n        canvas->drawString(paint.isAutohinted() ? \"auto-hinted\" : \"default\", 108, 30, paint);\n        for (SkScalar textSize = 8; textSize < 30; textSize *= 1.22f) {\n            paint.setTextSize(textSize);\n            canvas->translate(0, textSize);\n            canvas->drawString(testStr, 10, 0, paint);\n        }\n    }\n}\n",
@@ -7501,10 +7445,10 @@
     "name": "SkPaint::setImageFilter"
 },
     "SkPaint_setLinearText": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"abcd efgh\";\n    for (int textSize : { 12, 24 } ) {\n        paint.setTextSize(textSize);\n        for (auto linearText : { false, true } ) {\n            paint.setLinearText(linearText);\n            SkString width;\n            width.appendScalar(paint.measureText(testStr, SK_ARRAY_COUNT(testStr), nullptr));\n            canvas->translate(0, textSize + 4);\n            canvas->drawString(testStr, 10, 0, paint);\n            canvas->drawString(width, 128, 0, paint);\n        }\n     }\n  }\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const char testStr[] = \"abcd efgh\";\n    size_t count = 9;\n    for (int textSize : { 12, 24 } ) {\n        SkFont font(nullptr, textSize);\n        for (auto linearMetrics : { false, true } ) {\n            font.setLinearMetrics(linearMetrics);\n            SkString width;\n            width.appendScalar(font.measureText(testStr, count, SkTextEncoding::kUTF8));\n            canvas->translate(0, textSize + 4);\n            canvas->drawSimpleText(testStr, count, SkTextEncoding::kUTF8,\n                10, 0, font, paint);\n            canvas->drawSimpleText(width.c_str(), width.size(), SkTextEncoding::kUTF8,\n                128, 0, font, paint);\n        }\n    }\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "c93bb912f3bddfb4d96d3ad70ada552b",
+    "hash": "5352b6e2316c005d973dbb446c25928b",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setLinearText"
 },
@@ -7547,14 +7491,6 @@
     "hash": "0e6fbb7773cd925b274552f4cd1abef2",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setTypeface"
-},
-    "SkPaint_textToGlyphs": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    std::vector<SkGlyphID> glyphs;\n    int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);\n    glyphs.resize(count);\n    (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    paint.setTextSize(32);\n    canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "d11136d8a74f63009da2a7f550710823",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::textToGlyphs"
 },
     "SkPath_AddPathMode": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path, path2;\n    path.moveTo(20, 20);\n    path.lineTo(20, 40);\n    path.lineTo(40, 20);\n    path2.moveTo(60, 60);\n    path2.lineTo(80, 60);\n    path2.lineTo(80, 40);\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    for (int i = 0; i < 2; i++) {\n        for (auto addPathMode : { SkPath::kAppend_AddPathMode, SkPath::kExtend_AddPathMode } ) {\n            SkPath test(path);\n            test.addPath(path2, addPathMode);\n            canvas->drawPath(test, paint);\n            canvas->translate(100, 0);\n        }\n        canvas->translate(-200, 100);\n        path.close();\n    }\n}",
@@ -9341,12 +9277,20 @@
     "name": "SkTextBlob::MakeFromText"
 },
     "SkTextBlob_bounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(kGlyphID_SkTextEncoding);\n    SkFont font;\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkFont font;\n    font.textToGlyphs(bunny, len, SkTextEncoding::kUTF8, glyphs, sizeof(glyphs));\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        font.setSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += font.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, \n                SkTextEncoding::kGlyphID);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
     "width": 256,
     "height": 70,
-    "hash": "fb8b2502bbe52d2029aecdf569dd9fdb",
+    "hash": "69279345bcc9feea2ace476fcbd47571",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::bounds()"
+},
+    "SkTextBlob_getIntercepts": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkFont font;\n    font.setSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run =\n            textBlobBuilder.allocRun(font, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    SkPaint paint;\n    SkScalar bounds[] = { 116, 134 };\n    int count = blob->getIntercepts(bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "width": 256,
+    "height": 143,
+    "hash": "e9d4eb8ece521b1329e7433d4b243fdf",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::getIntercepts"
 },
     "SkTextBlob_serialize": {
     "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkFont blobFont;\n    blobFont.setSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobFont);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
@@ -9365,10 +9309,10 @@
     "name": "SkTextBlob::serialize_2"
 },
     "SkTextBlob_uniqueID": {
-    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(kGlyphID_SkTextEncoding);\n        paint.setTextScaleX(0.5);\n        SkFont font;\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkFont font;\n        font.textToGlyphs(bunny, len, SkTextEncoding::kUTF8, glyphs, sizeof(glyphs));\n        font.setScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            font.setSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(font, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += font.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen,\n                    SkTextEncoding::kGlyphID);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        SkPaint paint;\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "6e12cceca981ddabc0fc18c380543f34",
+    "hash": "4fb35f1d0e1c36bd53879eee2738cb2c",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::uniqueID"
 },

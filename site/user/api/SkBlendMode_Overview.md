@@ -32,12 +32,12 @@ and therefore well-defined.
 Drawing a <a href='SkBitmap_Reference#Bitmap'>bitmap</a> with transparency using <a href='#Blend_Mode_Overview_Porter_Duff'>Porter_Duff</a> compositing is free to clear
 the destination.
 
-![Porter_Duff](https://fiddle.skia.org/i/819903e0bb125385269948474b6c8a84_raster.png "")
+![Porter_Duff](https://fiddle.skia.org/i/0b72741998ddb6bd514e34482ac632c6_raster.png "")
 
 Draw geometry with transparency using <a href='#Blend_Mode_Overview_Porter_Duff'>Porter_Duff</a> compositing does not combine
 transparent source pixels, leaving the destination outside the geometry untouched.
 
-![Porter_Duff](https://fiddle.skia.org/i/8f320c1e94e77046e00f7e9e843caa27_raster.png "")
+![Porter_Duff](https://fiddle.skia.org/i/6f60191857de3869f70a6407334fb156_raster.png "")
 
 <a name='Lighten_Darken'></a>
 
@@ -47,7 +47,7 @@ simple arithmetic to lighten or darken the destination. Modes
 algorithms to lighten or darken; sometimes one mode does both, as described by
 <a href='https://en.wikipedia.org/wiki/Blend_modes'>Blend Modes</a></a> .
 
-![Lighten_Darken](https://fiddle.skia.org/i/23a33fa04cdd0204b2490d05e340f87c_raster.png "")
+![Lighten_Darken](https://fiddle.skia.org/i/2585c7af3d098986fc8f82a70e25349f_raster.png "")
 
 <a name='Modulate_Blend'></a>
 
@@ -57,7 +57,7 @@ source or destination is transparent, result is transparent. <a href='SkBlendMod
 uses <a href='undocumented#Premultiply'>Premultiplied</a> values to compute the product; <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkBlendMode_kMultiply'>kMultiply</a> uses <a href='undocumented#Unpremultiply'>Unpremultiplied</a>
 values to compute the product.
 
-![Modulate_Blend](https://fiddle.skia.org/i/877f96610ab7638a310432674b04f837_raster.png "")
+![Modulate_Blend](https://fiddle.skia.org/i/dfa188c6475fec48bea2d36f6bf464e0_raster.png "")
 
 <a name='Color_Blends'></a>
 
@@ -66,5 +66,5 @@ Modes <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a>::<a href='#SkB
 components <a href='SkColor_Reference#Color'>color</a> information, using
 <a href='https://www.w3.org/TR/compositing-1/#blendingnonseparable'>non-separable blend modes</a></a> .
 
-![Color_Blends](https://fiddle.skia.org/i/630fe21aea8369b307231f5bcf8b2d50_raster.png "")
+![Color_Blends](https://fiddle.skia.org/i/8bcd4299933dcd6b6e03d4691dedb08e_raster.png "")
 

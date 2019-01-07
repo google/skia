@@ -133,24 +133,7 @@ class <a href='SkPaint_Reference#SkPaint'>SkPaint</a> {
     void <a href='#SkPaint_setTextSkewX'>setTextSkewX</a>(<a href='undocumented#SkScalar'>SkScalar</a> skewX);
     <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> <a href='#SkPaint_getTextEncoding'>getTextEncoding</a>() const;
     void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding);
-
-    typedef <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> <a href='#SkPaint_FontMetrics'>FontMetrics</a>;
-
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics) const;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>() const;
-    int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength,
-                     <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[]) const;
-    bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const;
     void <a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a>(const <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkUnichar'>SkUnichar</a> <a href='undocumented#Text'>text</a>[]) const;
-    int <a href='#SkPaint_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength) const;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds) const;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length) const;
-    int <a href='#SkPaint_getTextWidths'>getTextWidths</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> widths[],
-                      <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[] = nullptr) const;
-    void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                     <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
-    void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length,
-                        const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     bool <a href='#SkPaint_nothingToDraw'>nothingToDraw</a>() const;
 };
 
@@ -1039,7 +1022,7 @@ Clears <a href='#SkPaint_kLinearText_Flag'>kLinearText_Flag</a> if <a href='#SkP
 
 ### Example
 
-<div><fiddle-embed name="c93bb912f3bddfb4d96d3ad70ada552b"></fiddle-embed></div>
+<div><fiddle-embed name="5352b6e2316c005d973dbb446c25928b"></fiddle-embed></div>
 
 ### See Also
 
@@ -3551,7 +3534,7 @@ Default value is zero.
 
 ### Example
 
-<div><fiddle-embed name="767fa4e7b6300e16a419f9881f0f9d3d"><div>First <a href='undocumented#Line'>line</a> is encoded in UTF-8.
+<div><fiddle-embed name="8a4f539178c945d3331d8739e373f9a7"><div>First <a href='undocumented#Line'>line</a> is encoded in UTF-8.
 Second <a href='undocumented#Line'>line</a> is encoded in UTF-16.
 Third <a href='undocumented#Line'>line</a> is encoded in UTF-32.
 Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Glyph'>glyph</a> indices.
@@ -3566,7 +3549,7 @@ Fourth <a href='undocumented#Line'>line</a> has 16-bit <a href='undocumented#Gly
 </pre>
 
 Returns the <a href='undocumented#Text'>text</a> encoding. <a href='undocumented#Text'>Text</a> encoding describes how to interpret the <a href='undocumented#Text'>text</a> bytes pass
-to methods like <a href='#SkPaint_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
+to methods like <a href='SkFont_Reference#SkFont'>SkFont</a>::<a href='#SkFont_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
 
 ### Return Value
 
@@ -3594,7 +3577,7 @@ void <a href='#SkPaint_setTextEncoding'>setTextEncoding</a>(<a href='undocumente
 </pre>
 
 Sets the  <a href='#Text_Encoding'>text encoding</a>. <a href='undocumented#Text'>Text</a> <a href='#SkPaint_setTextEncoding_encoding'>encoding</a> describes how to interpret the <a href='undocumented#Text'>text</a> bytes pass
-to methods like <a href='#SkPaint_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
+to methods like <a href='SkFont_Reference#SkFont'>SkFont</a>::<a href='#SkFont_measureText'>measureText</a>() and <a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>::<a href='#SkCanvas_drawText'>drawText</a>().
 
 ### Parameters
 
@@ -3614,223 +3597,6 @@ to methods like <a href='#SkPaint_measureText'>measureText</a>() and <a href='Sk
 ~~~~
 
 </fiddle-embed></div>
-
-<a name='SkPaint_FontMetrics'></a>
-
----
-
-<a name='Font_Metrics'></a>
-
-<a name='SkPaint_getFontMetrics'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>(<a href='undocumented#SkFontMetrics'>SkFontMetrics</a>* metrics)const
-</pre>
-
-Returns <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> associated with <a href='undocumented#SkTypeface'>SkTypeface</a>.
-The return value is the recommended spacing between <a href='undocumented#Line'>lines</a>: the sum of <a href='#SkPaint_getFontMetrics_metrics'>metrics</a>
-descent, ascent, and leading.
-If <a href='#SkPaint_getFontMetrics_metrics'>metrics</a> is not nullptr, <a href='undocumented#SkFontMetrics'>SkFontMetrics</a> is copied to <a href='#SkPaint_getFontMetrics_metrics'>metrics</a>.
-Results are scaled by  <a href='#Text_Size'>text size</a> but does not take into account
-dimensions required by   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Fake_Bold'>fake bold</a>,
-<a href='#Style_Stroke'>style stroke</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getFontMetrics_metrics'><code><strong>metrics</strong></code></a></td>
-    <td>storage for <a href='undocumented#SkFontMetrics'>SkFontMetrics</a>; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-recommended spacing between <a href='undocumented#Line'>lines</a>
-
-### Example
-
-<div><fiddle-embed name="59d9b8249afa1c2af6186711250ce240"></fiddle-embed></div>
-
-### See Also
-
-<a href='#Font_Size'>Font_Size</a> <a href='undocumented#Typeface'>Typeface</a> <a href='#Paint_Typeface_Methods'>Typeface_Methods</a>
-
-<a name='SkPaint_getFontSpacing'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getFontSpacing'>getFontSpacing</a>()const
-</pre>
-
-Returns the recommended spacing between <a href='undocumented#Line'>lines</a>: the sum of metrics
-descent, ascent, and leading.
-Result is scaled by <a href='undocumented#Text'>text</a> <a href='undocumented#Size'>size</a> but does not take into account
-dimensions required by stroking and <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-Returns the same result as <a href='#SkPaint_getFontMetrics'>getFontMetrics</a>().
-
-### Return Value
-
-recommended spacing between <a href='undocumented#Line'>lines</a>
-
-### Example
-
-<div><fiddle-embed name="424741e26e1b174e43087d67422ce14f">
-
-#### Example Output
-
-~~~~
-textSize: 12 fontSpacing: 13.9688
-textSize: 18 fontSpacing: 20.9531
-textSize: 24 fontSpacing: 27.9375
-textSize: 32 fontSpacing: 37.25
-~~~~
-
-</fiddle-embed></div>
-
-<a name='SkPaint_textToGlyphs'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkGlyphID'>SkGlyphID</a> <a href='undocumented#Glyph'>glyphs</a>[])const
-</pre>
-
-Converts <a href='#SkPaint_textToGlyphs_text'>text</a> into <a href='undocumented#Glyph'>glyph</a> indices.
-Returns the number of <a href='undocumented#Glyph'>glyph</a> indices represented by <a href='#SkPaint_textToGlyphs_text'>text</a>.
-<a href='undocumented#SkTextEncoding'>SkTextEncoding</a> specifies how <a href='#SkPaint_textToGlyphs_text'>text</a> represents characters or <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a>.
-<a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> may be nullptr, to compute the <a href='undocumented#Glyph'>glyph</a> count.
-
-Does not check <a href='#SkPaint_textToGlyphs_text'>text</a> for valid character codes or valid <a href='undocumented#Glyph'>glyph</a> indices.
-
-If <a href='#SkPaint_textToGlyphs_byteLength'>byteLength</a> equals zero, returns zero.
-If <a href='#SkPaint_textToGlyphs_byteLength'>byteLength</a> includes a partial character, the partial character is ignored.
-
-If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a> and
-<a href='#SkPaint_textToGlyphs_text'>text</a> contains an invalid UTF-8 sequence, zero is returned.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_textToGlyphs_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_textToGlyphs_byteLength'><code><strong>byteLength</strong></code></a></td>
-    <td>length of character storage in bytes</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_textToGlyphs_glyphs'><code><strong>glyphs</strong></code></a></td>
-    <td>storage for <a href='undocumented#Glyph'>glyph</a> indices; may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of <a href='#SkPaint_textToGlyphs_glyphs'>glyphs</a> represented by <a href='#SkPaint_textToGlyphs_text'>text</a> of length <a href='#SkPaint_textToGlyphs_byteLength'>byteLength</a>
-
-### Example
-
-<div><fiddle-embed name="d11136d8a74f63009da2a7f550710823"></fiddle-embed></div>
-
-<a name='SkPaint_countText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_countText'>countText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength)const
-</pre>
-
-Returns the number of <a href='undocumented#Glyph'>glyphs</a> in <a href='#SkPaint_countText_text'>text</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to count the <a href='undocumented#Glyph'>glyphs</a>.
-Returns the same result as <a href='#SkPaint_textToGlyphs'>textToGlyphs</a>().
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_countText_text'><code><strong>text</strong></code></a></td>
-    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_countText_byteLength'><code><strong>byteLength</strong></code></a></td>
-    <td>length of character storage in bytes</td>
-  </tr>
-</table>
-
-### Return Value
-
-number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href='#SkPaint_countText_text'>text</a> of length <a href='#SkPaint_countText_byteLength'>byteLength</a>
-
-### Example
-
-<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
-
-#### Example Output
-
-~~~~
-count = 5
-~~~~
-
-</fiddle-embed></div>
-
-<a name='SkPaint_containsText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkPaint_containsText'>containsText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength)const
-</pre>
-
-Returns true if all <a href='#SkPaint_containsText_text'>text</a> corresponds to a non-zero <a href='undocumented#Glyph'>glyph</a> index.
-Returns false if any characters in <a href='#SkPaint_containsText_text'>text</a> are not supported in
-<a href='undocumented#SkTypeface'>SkTypeface</a>.
-
-If <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> is <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>,
-returns true if all <a href='undocumented#Glyph'>glyph</a> indices in <a href='#SkPaint_containsText_text'>text</a> are non-zero;
-does not check to see if <a href='#SkPaint_containsText_text'>text</a> contains valid <a href='undocumented#Glyph'>glyph</a> indices for <a href='undocumented#SkTypeface'>SkTypeface</a>.
-
-Returns true if <a href='#SkPaint_containsText_byteLength'>byteLength</a> is zero.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_containsText_text'><code><strong>text</strong></code></a></td>
-    <td>array of characters or <a href='undocumented#Glyph'>glyphs</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_containsText_byteLength'><code><strong>byteLength</strong></code></a></td>
-    <td>number of bytes in <a href='#SkPaint_containsText_text'>text</a> array</td>
-  </tr>
-</table>
-
-### Return Value
-
-true if all <a href='#SkPaint_containsText_text'>text</a> corresponds to a non-zero <a href='undocumented#Glyph'>glyph</a> index
-
-<div><a href='#SkPaint_containsText'>containsText</a> succeeds for degree symbol, but cannot find a <a href='undocumented#Glyph'>glyph</a> index
-corresponding to the Unicode surrogate code <a href='SkPoint_Reference#Point'>point</a>.
-</div>
-
-#### Example Output
-
-~~~~
-0x00b0 == has char
-0xd800 != has char
-~~~~
-
-### Example
-
-<div><fiddle-embed name="6a68cb3c8b81a5976c81ee004f559247"><div><a href='#SkPaint_containsText'>containsText</a> returns true that <a href='undocumented#Glyph'>glyph</a> index is greater than zero, not
-that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
-</div>
-
-#### Example Output
-
-~~~~
-0x01ff == has glyph
-0x0000 != has glyph
-0xffff == has glyph
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href='#SkPaint_setTextEncoding'>setTextEncoding</a> <a href='undocumented#Typeface'>Typeface</a>
 
 <a name='SkPaint_glyphsToUnichars'></a>
 
@@ -3862,209 +3628,6 @@ Only supported on platforms that use FreeType as the  <a href='SkFont_Reference#
 
 <div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code <a href='SkPoint_Reference#Point'>points</a>.
 </div>
-
-<a name='Measure_Text'></a>
-
-<a name='SkPaint_measureText'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds)const
-</pre>
-
-Returns the advance width of <a href='#SkPaint_measureText_text'>text</a>.
-The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_text'>text</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_measureText_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
-and  <a href='#Text_Size'>text size</a>,   <a href='#Text_Scale_X'>text scale x</a>,   <a href='#Text_Skew_X'>text skew x</a>,  <a href='#Stroke_Width'>stroke width</a>, and
-<a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale the metrics and <a href='#SkPaint_measureText_bounds'>bounds</a>.
-Returns the bounding box of <a href='#SkPaint_measureText_text'>text</a> if <a href='#SkPaint_measureText_bounds'>bounds</a> is not nullptr.
-The bounding box is computed as if the <a href='#SkPaint_measureText_text'>text</a> was drawn at the origin.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_measureText_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_measureText_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_measureText_text'>text</a> to measure</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_measureText_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>returns bounding box relative to (0, 0) if not nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-advance width or height
-
-### Example
-
-<div><fiddle-embed name="06084f609184470135a9cd9ebc5af149"></fiddle-embed></div>
-
-<a name='SkPaint_measureText_2'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t length)const
-</pre>
-
-Returns the advance width of <a href='#SkPaint_measureText_2_text'>text</a>.
-The advance is the normal distance to move before drawing additional <a href='#SkPaint_measureText_2_text'>text</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_measureText_2_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
-and  <a href='#Text_Size'>text size</a> to scale the metrics.
-Does not scale the advance or bounds by  <a href='#Fake_Bold'>fake bold</a> or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_measureText_2_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_measureText_2_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_measureText_2_text'>text</a> to measure</td>
-  </tr>
-</table>
-
-### Return Value
-
-advance width or height
-
-### Example
-
-<div><fiddle-embed name="f1139a5ddd17fd47c2f45f6e642cac76">
-
-#### Example Output
-
-~~~~
-default width = 5
-double width = 10
-~~~~
-
-</fiddle-embed></div>
-
-<a name='SkPaint_getTextWidths'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextWidths'>getTextWidths</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[] = nullptr)const
-</pre>
-
-Retrieves the advance and <a href='#SkPaint_getTextWidths_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkPaint_getTextWidths_text'>text</a>, and returns
-the <a href='undocumented#Glyph'>glyph</a> count in <a href='#SkPaint_getTextWidths_text'>text</a>.
-Both <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a> may be nullptr.
-If <a href='#SkPaint_getTextWidths_widths'>widths</a> is not nullptr, <a href='#SkPaint_getTextWidths_widths'>widths</a> must be an array of <a href='undocumented#Glyph'>glyph</a> count entries.
-if <a href='#SkPaint_getTextWidths_bounds'>bounds</a> is not nullptr, <a href='#SkPaint_getTextWidths_bounds'>bounds</a> must be an array of <a href='undocumented#Glyph'>glyph</a> count entries.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextWidths_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the  <a href='#Font_Metrics'>font metrics</a>,
-and  <a href='#Text_Size'>text size</a> to scale the <a href='#SkPaint_getTextWidths_widths'>widths</a> and <a href='#SkPaint_getTextWidths_bounds'>bounds</a>.
-Does not scale the advance by  <a href='#Fake_Bold'>fake bold</a> or <a href='undocumented#SkPathEffect'>SkPathEffect</a>.
-Does include  <a href='#Fake_Bold'>fake bold</a> and <a href='undocumented#SkPathEffect'>SkPathEffect</a> in the <a href='#SkPaint_getTextWidths_bounds'>bounds</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getTextWidths_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextWidths_byteLength'><code><strong>byteLength</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getTextWidths_text'>text</a> to measure</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextWidths_widths'><code><strong>widths</strong></code></a></td>
-    <td>returns <a href='#SkPaint_getTextWidths_text'>text</a> advances for each <a href='undocumented#Glyph'>glyph</a>; may be nullptr</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextWidths_bounds'><code><strong>bounds</strong></code></a></td>
-    <td>returns <a href='#SkPaint_getTextWidths_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> relative to (0, 0); may be nullptr</td>
-  </tr>
-</table>
-
-### Return Value
-
-<a href='undocumented#Glyph'>glyph</a> count in <a href='#SkPaint_getTextWidths_text'>text</a>
-
-### Example
-
-<div><fiddle-embed name="6b9e101f49e9c2c28755c5bdcef64dfb"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='#SkPaint_getTextWidths_text'>text</a>, but <a href='#SkPaint_getTextWidths_text'>text</a> advance remains the same.
-The underlines show the <a href='#SkPaint_getTextWidths_text'>text</a> advance, spaced to keep them distinct.
-</div></fiddle-embed></div>
-
-<a name='Text_Path'></a>
-
-<a href='#Paint_Text_Path'>Text_Path</a> describes the geometry of <a href='undocumented#Glyph'>Glyphs</a> used to draw <a href='undocumented#Text'>text</a>.
-
-<a name='SkPaint_getTextPath'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_getTextPath'>getTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>)const
-</pre>
-
-Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getTextPath_text'>text</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getTextPath_path'>path</a>.
-Uses <a href='#SkPaint_getTextPath_x'>x</a>, <a href='#SkPaint_getTextPath_y'>y</a>, to position <a href='#SkPaint_getTextPath_path'>path</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getTextPath_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextPath_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getTextPath_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextPath_x'><code><strong>x</strong></code></a></td>
-    <td>x-axis value of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextPath_y'><code><strong>y</strong></code></a></td>
-    <td>y-axis value of the origin of the <a href='#SkPaint_getTextPath_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getTextPath_path'><code><strong>path</strong></code></a></td>
-    <td>geometry of the <a href='undocumented#Glyph'>glyphs</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="7c9e6a399f898d68026c1f0865e6f73e"><div><a href='undocumented#Text'>Text</a> is added to <a href='SkPath_Reference#Path'>Path</a>, offset, and subtracted from <a href='SkPath_Reference#Path'>Path</a>, then added at
-the offset location. The result is rendered with one draw call.
-</div></fiddle-embed></div>
-
-<a name='SkPaint_getPosTextPath'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPaint_getPosTextPath'>getPosTextPath</a>(const void* <a href='undocumented#Text'>text</a>, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>)const
-</pre>
-
-Returns the geometry as <a href='SkPath_Reference#SkPath'>SkPath</a> equivalent to the drawn <a href='#SkPaint_getPosTextPath_text'>text</a>.
-Uses <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> to decode <a href='#SkPaint_getPosTextPath_text'>text</a>, <a href='undocumented#SkTypeface'>SkTypeface</a> to get the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>,
-and  <a href='#Text_Size'>text size</a>,  <a href='#Fake_Bold'>fake bold</a>, and <a href='undocumented#SkPathEffect'>SkPathEffect</a> to scale and modify the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a>.
-All of the <a href='undocumented#Glyph'>glyph</a> <a href='SkPath_Reference#Path'>paths</a> are stored in <a href='#SkPaint_getPosTextPath_path'>path</a>.
-Uses <a href='#SkPaint_getPosTextPath_pos'>pos</a> array to position <a href='#SkPaint_getPosTextPath_path'>path</a>.
-<a href='#SkPaint_getPosTextPath_pos'>pos</a> contains a position for each <a href='undocumented#Glyph'>glyph</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name='SkPaint_getPosTextPath_text'><code><strong>text</strong></code></a></td>
-    <td>character codes or <a href='undocumented#Glyph'>glyph</a> indices</td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextPath_length'><code><strong>length</strong></code></a></td>
-    <td>number of bytes of <a href='#SkPaint_getPosTextPath_text'>text</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextPath_pos'><code><strong>pos</strong></code></a></td>
-    <td>positions of each <a href='undocumented#Glyph'>glyph</a></td>
-  </tr>
-  <tr>    <td><a name='SkPaint_getPosTextPath_path'><code><strong>path</strong></code></a></td>
-    <td>geometry of the <a href='undocumented#Glyph'>glyphs</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="7f27c93472aa99a7542fb3493076f072"><div>Simplifies three <a href='undocumented#Glyph'>Glyphs</a> to eliminate overlaps, and strokes the result.
-</div></fiddle-embed></div>
 
 <a name='SkPaint_nothingToDraw'></a>
 

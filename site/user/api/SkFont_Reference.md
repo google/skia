@@ -122,8 +122,10 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
 
     <a href='#SkFont_empty_constructor'>SkFont()</a>;
     <a href='#SkFont_SkTypeface_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>);
+    explicit <a href='#SkFont_copy_SkTypeface'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>);
     <a href='#SkFont_SkTypeface_SkScalar_SkScalar_SkScalar'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a><<a href='undocumented#SkTypeface'>SkTypeface</a>> <a href='undocumented#Typeface'>typeface</a>, <a href='undocumented#SkScalar'>SkScalar</a> <a href='undocumented#Size'>size</a>, <a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX);
     bool <a href='#SkFont_equal1_operator'>operator==</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>) const;
+    bool <a href='#SkFont_notequal1_operator'>operator!=</a>(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>) const;
     bool <a href='#SkFont_isForceAutoHinting'>isForceAutoHinting</a>() const;
     bool <a href='#SkFont_isEmbeddedBitmaps'>isEmbeddedBitmaps</a>() const;
     bool <a href='#SkFont_isSubpixel'>isSubpixel</a>() const;
@@ -157,6 +159,15 @@ class <a href='SkFont_Reference#SkFont'>SkFont</a> {
                      <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkFont_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding,
                          <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds = nullptr) const;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkFont_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding,
+                         <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>) const;
+    void <a href='#SkFont_getWidths'>getWidths</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> widths[]) const;
+    void <a href='#SkFont_getWidthsBounds'>getWidthsBounds</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[],
+                         const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>) const;
+    void <a href='#SkFont_getBounds'>getBounds</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[],
+                   const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>) const;
+    void <a href='#SkFont_getPos'>getPos</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPoint_Reference#SkPoint'>SkPoint</a> origin =; {0, 0}) const;
+    void <a href='#SkFont_getXPos'>getXPos</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> origin = 0) const;
     bool <a href='#SkFont_getPath'>getPath</a>(uint16_t glyphID, <a href='SkPath_Reference#SkPath'>SkPath</a>* <a href='SkPath_Reference#Path'>path</a>) const;
     void <a href='#SkFont_getPaths'>getPaths</a>(const uint16_t glyphIDs[], int count,
                   void (*glyphPathProc)(const <a href='SkPath_Reference#SkPath'>SkPath</a>* pathOrNull, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>& mx, void* ctx),
@@ -270,6 +281,35 @@ initialized <a href='SkFont_Reference#SkFont'>SkFont</a>
 
 incomplete
 
+<a name='SkFont_copy_SkTypeface'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+explicit <a href='SkFont_Reference#SkFont'>SkFont</a>(<a href='undocumented#sk_sp'>sk_sp</a>&lt;<a href='undocumented#SkTypeface'>SkTypeface</a>&gt; <a href='undocumented#Typeface'>typeface</a>)
+</pre>
+
+Constructs <a href='SkFont_Reference#SkFont'>SkFont</a> with default values with <a href='undocumented#SkTypeface'>SkTypeface</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_copy_SkTypeface_typeface'><code><strong>typeface</strong></code></a></td>
+    <td><a href='SkFont_Reference#Font'>font</a> and style used to draw and measure <a href='undocumented#Text'>text</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+initialized <a href='SkFont_Reference#SkFont'>SkFont</a>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
 <a name='SkFont_SkTypeface_SkScalar_SkScalar_SkScalar'></a>
 
 ---
@@ -331,6 +371,36 @@ May return false if <a href='undocumented#SkTypeface'>SkTypeface</a> has identic
 ### Return Value
 
 true if <a href='SkFont_Reference#SkFont'>SkFont</a> pair are equivalent
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_notequal1_operator'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+bool operator!=(const <a href='SkFont_Reference#SkFont'>SkFont</a>& <a href='SkFont_Reference#Font'>font</a>)const
+</pre>
+
+Compares <a href='SkFont_Reference#SkFont'>SkFont</a> and <a href='#SkFont_notequal1_operator_font'>font</a>, and returns true if they are not equivalent.
+May return true if <a href='undocumented#SkTypeface'>SkTypeface</a> has identical contents but different pointers.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_notequal1_operator_font'><code><strong>font</strong></code></a></td>
+    <td><a href='#SkFont_notequal1_operator_font'>font</a> to compare</td>
+  </tr>
+</table>
+
+### Return Value
+
+true if <a href='SkFont_Reference#SkFont'>SkFont</a> pair are not equivalent
 
 ### Example
 
@@ -985,7 +1055,7 @@ number of <a href='#SkFont_textToGlyphs_glyphs'>glyphs</a> represented by <a hre
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="e3a25e269ef0dfd41d87396f8b19ddc8"></fiddle-embed></div>
 
 ### See Also
 
@@ -1051,7 +1121,15 @@ number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href='#SkFon
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="1a71a55f97e22b20944013cc41defec3">
+
+#### Example Output
+
+~~~~
+count = 5
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -1092,9 +1170,32 @@ Returns true if <a href='#SkFont_containsText_byteLength'>byteLength</a> is zero
 
 true if all <a href='#SkFont_containsText_text'>text</a> corresponds to a non-zero <a href='undocumented#Glyph'>glyph</a> index
 
+<div><a href='#SkFont_containsText'>containsText</a> succeeds for degree symbol, but cannot find a <a href='undocumented#Glyph'>glyph</a> index
+corresponding to the Unicode surrogate code <a href='SkPoint_Reference#Point'>point</a>.
+</div>
+
+#### Example Output
+
+~~~~
+0x00b0 == has char
+0xd800 != has char
+~~~~
+
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="33b81e78b038b0eb4cded1458d39db6d"><div><a href='#SkFont_containsText'>containsText</a> returns true that <a href='undocumented#Glyph'>glyph</a> index is greater than zero, not
+that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
+</div>
+
+#### Example Output
+
+~~~~
+0x01ff == has glyph
+0x0000 != has glyph
+0xffff == has glyph
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -1191,6 +1292,249 @@ number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href='#SkFon
 
 ### Example
 
+<div><fiddle-embed name="f698211bb0a58939770fd68dad69bc2a">
+
+#### Example Output
+
+~~~~
+default width = 5
+double width = 10
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_measureText_2'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkFont_measureText'>measureText</a>(const void* <a href='undocumented#Text'>text</a>, size_t byteLength, <a href='undocumented#SkTextEncoding'>SkTextEncoding</a> encoding, <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds,
+                     const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>)const
+</pre>
+
+Returns the advance width of <a href='#SkFont_measureText_2_text'>text</a>.
+The advance is the normal distance to move before drawing additional <a href='#SkFont_measureText_2_text'>text</a>.
+Returns the bounding box of <a href='#SkFont_measureText_2_text'>text</a> if <a href='#SkFont_measureText_2_bounds'>bounds</a> is not nullptr. <a href='#SkFont_measureText_2_paint'>paint</a>
+stroke width or <a href='undocumented#SkPathEffect'>SkPathEffect</a> may modify the advance with.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_measureText_2_text'><code><strong>text</strong></code></a></td>
+    <td>character storage encoded with <a href='undocumented#SkTextEncoding'>SkTextEncoding</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_measureText_2_byteLength'><code><strong>byteLength</strong></code></a></td>
+    <td>length of character storage in bytes</td>
+  </tr>
+  <tr>    <td><a name='SkFont_measureText_2_encoding'><code><strong>encoding</strong></code></a></td>
+    <td>one of: <a href='undocumented#kUTF8_SkTextEncoding'>kUTF8_SkTextEncoding</a>, <a href='undocumented#kUTF16_SkTextEncoding'>kUTF16_SkTextEncoding</a>,</td>
+  </tr>
+</table>
+
+<a href='undocumented#kUTF32_SkTextEncoding'>kUTF32_SkTextEncoding</a>, <a href='undocumented#kGlyphID_SkTextEncoding'>kGlyphID_SkTextEncoding</a>
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_measureText_2_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>returns bounding box relative to (0, 0) if not nullptr</td>
+  </tr>
+  <tr>    <td><a name='SkFont_measureText_2_paint'><code><strong>paint</strong></code></a></td>
+    <td>optional; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+number of <a href='undocumented#Glyph'>glyphs</a> represented by <a href='#SkFont_measureText_2_text'>text</a> of length <a href='#SkFont_measureText_2_byteLength'>byteLength</a>
+
+### Example
+
+<div><fiddle-embed name="481fb47a120a26697718e753e9cd27e2"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_getWidths'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkFont_getWidths'>getWidths</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> widths[])const
+</pre>
+
+Retrieves the advance and bounds for each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkFont_getWidths_glyphs'>glyphs</a>.
+Both <a href='#SkFont_getWidths_widths'>widths</a> and bounds may be nullptr.
+If <a href='#SkFont_getWidths_widths'>widths</a> is not nullptr, <a href='#SkFont_getWidths_widths'>widths</a> must be an array of <a href='#SkFont_getWidths_count'>count</a> entries.
+if bounds is not nullptr, bounds must be an array of <a href='#SkFont_getWidths_count'>count</a> entries.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_getWidths_glyphs'><code><strong>glyphs</strong></code></a></td>
+    <td>array of <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidths_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='#SkFont_getWidths_glyphs'>glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidths_widths'><code><strong>widths</strong></code></a></td>
+    <td>returns <a href='undocumented#Text'>text</a> advances for each <a href='undocumented#Glyph'>glyph</a></td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_getWidthsBounds'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkFont_getWidthsBounds'>getWidthsBounds</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> widths[], <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[],
+                     const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>)const
+</pre>
+
+Retrieves the advance and <a href='#SkFont_getWidthsBounds_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkFont_getWidthsBounds_glyphs'>glyphs</a>.
+Both <a href='#SkFont_getWidthsBounds_widths'>widths</a> and <a href='#SkFont_getWidthsBounds_bounds'>bounds</a> may be nullptr.
+If <a href='#SkFont_getWidthsBounds_widths'>widths</a> is not nullptr, <a href='#SkFont_getWidthsBounds_widths'>widths</a> must be an array of <a href='#SkFont_getWidthsBounds_count'>count</a> entries.
+if <a href='#SkFont_getWidthsBounds_bounds'>bounds</a> is not nullptr, <a href='#SkFont_getWidthsBounds_bounds'>bounds</a> must be an array of <a href='#SkFont_getWidthsBounds_count'>count</a> entries.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_getWidthsBounds_glyphs'><code><strong>glyphs</strong></code></a></td>
+    <td>array of <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidthsBounds_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='#SkFont_getWidthsBounds_glyphs'>glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidthsBounds_widths'><code><strong>widths</strong></code></a></td>
+    <td>returns <a href='undocumented#Text'>text</a> advances for each <a href='undocumented#Glyph'>glyph</a>; may be nullptr</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidthsBounds_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>returns <a href='#SkFont_getWidthsBounds_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> relative to (0, 0); may be nullptr</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getWidthsBounds_paint'><code><strong>paint</strong></code></a></td>
+    <td>optional, specifies stroking, <a href='undocumented#SkPathEffect'>SkPathEffect</a> and <a href='undocumented#SkMaskFilter'>SkMaskFilter</a></td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="cff62c8a0d5dcb5beaa2a602523433d4"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='undocumented#Text'>text</a>, but <a href='undocumented#Text'>text</a> advance remains the same.
+The underlines show the <a href='undocumented#Text'>text</a> advance, spaced to keep them distinct.
+</div></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_getBounds'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkFont_getBounds'>getBounds</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='SkRect_Reference#SkRect'>SkRect</a> bounds[], const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* <a href='SkPaint_Reference#Paint'>paint</a>)const
+</pre>
+
+Retrieves the <a href='#SkFont_getBounds_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> in <a href='#SkFont_getBounds_glyphs'>glyphs</a>.
+<a href='#SkFont_getBounds_bounds'>bounds</a> must be an array of <a href='#SkFont_getBounds_count'>count</a> entries.
+If <a href='#SkFont_getBounds_paint'>paint</a> is not nullptr, its stroking, <a href='undocumented#SkPathEffect'>SkPathEffect</a>, and <a href='undocumented#SkMaskFilter'>SkMaskFilter</a> fields are respected.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_getBounds_glyphs'><code><strong>glyphs</strong></code></a></td>
+    <td>array of <a href='undocumented#Glyph'>glyph</a> indices to be measured</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getBounds_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='#SkFont_getBounds_glyphs'>glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_getBounds_bounds'><code><strong>bounds</strong></code></a></td>
+    <td>returns <a href='#SkFont_getBounds_bounds'>bounds</a> for each <a href='undocumented#Glyph'>glyph</a> relative to (0, 0); may be nullptr</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getBounds_paint'><code><strong>paint</strong></code></a></td>
+    <td>optional, specifies stroking, <a href='undocumented#SkPathEffect'>SkPathEffect</a>, and <a href='undocumented#SkMaskFilter'>SkMaskFilter</a></td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_getPos'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkFont_getPos'>getPos</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], <a href='SkPoint_Reference#SkPoint'>SkPoint</a> origin = {0, 0})const
+</pre>
+
+Retrieves the positions for each <a href='undocumented#Glyph'>glyph</a>, beginning at the specified <a href='#SkFont_getPos_origin'>origin</a>. The caller
+must allocated at least <a href='#SkFont_getPos_count'>count</a> number of elements in the <a href='#SkFont_getPos_pos'>pos</a>[] array.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_getPos_glyphs'><code><strong>glyphs</strong></code></a></td>
+    <td>array of <a href='undocumented#Glyph'>glyph</a> indices to be positioned</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getPos_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='#SkFont_getPos_glyphs'>glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_getPos_pos'><code><strong>pos</strong></code></a></td>
+    <td>returns <a href='#SkFont_getPos_glyphs'>glyphs</a> positions</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getPos_origin'><code><strong>origin</strong></code></a></td>
+    <td>location of the first <a href='undocumented#Glyph'>glyph</a>. Defaults to {0, 0}.</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+incomplete
+
+<a name='SkFont_getXPos'></a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkFont_getXPos'>getXPos</a>(const uint16_t <a href='undocumented#Glyph'>glyphs</a>[], int count, <a href='undocumented#SkScalar'>SkScalar</a> xpos[], <a href='undocumented#SkScalar'>SkScalar</a> origin = 0)const
+</pre>
+
+Retrieves the x-positions for each <a href='undocumented#Glyph'>glyph</a>, beginning at the specified <a href='#SkFont_getXPos_origin'>origin</a>. The caller
+must allocated at least <a href='#SkFont_getXPos_count'>count</a> number of elements in the <a href='#SkFont_getXPos_xpos'>xpos</a>[] array.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkFont_getXPos_glyphs'><code><strong>glyphs</strong></code></a></td>
+    <td>array of <a href='undocumented#Glyph'>glyph</a> indices to be positioned</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getXPos_count'><code><strong>count</strong></code></a></td>
+    <td>number of <a href='#SkFont_getXPos_glyphs'>glyphs</a></td>
+  </tr>
+  <tr>    <td><a name='SkFont_getXPos_xpos'><code><strong>xpos</strong></code></a></td>
+    <td>returns <a href='#SkFont_getXPos_glyphs'>glyphs</a> x-positions</td>
+  </tr>
+  <tr>    <td><a name='SkFont_getXPos_origin'><code><strong>origin</strong></code></a></td>
+    <td>x-position of the first <a href='undocumented#Glyph'>glyph</a>. Defaults to 0.</td>
+  </tr>
+</table>
+
+### Example
+
 <div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
 
 ### See Also
@@ -1226,7 +1570,9 @@ true if <a href='#SkFont_getPath_glyphID'>glyphID</a> is described by <a href='#
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="fbec87ffbd17bf09c84fa5820db2f011"><div><a href='undocumented#Text'>Text</a> is added to <a href='SkPath_Reference#Path'>Path</a>, offset, and subtracted from <a href='SkPath_Reference#Path'>Path</a>, then added at
+the offset location. The result is rendered with one draw call.
+</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1296,7 +1642,7 @@ recommended spacing between <a href='undocumented#Line'>lines</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="f478bbcaaa4b6058cff0e62a199b1352"></fiddle-embed></div>
 
 ### See Also
 
@@ -1322,7 +1668,18 @@ recommended spacing between <a href='undocumented#Line'>lines</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="415dea5a809d983c4f59b8953affad88">
+
+#### Example Output
+
+~~~~
+textSize: 12 spacing: 13.9688
+textSize: 18 spacing: 20.9531
+textSize: 24 spacing: 27.9375
+textSize: 32 spacing: 37.25
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
