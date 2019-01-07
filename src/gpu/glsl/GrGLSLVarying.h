@@ -16,6 +16,20 @@
 
 class GrGLSLProgramBuilder;
 
+static bool is_matrix(GrSLType type) {
+    switch (type) {
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
+        case kHalf2x2_GrSLType:
+        case kHalf3x3_GrSLType:
+        case kHalf4x4_GrSLType:
+            return true;
+        default:
+            return false;
+    }
+}
+
 class GrGLSLVarying {
 public:
     enum class Scope {
@@ -25,9 +39,16 @@ public:
     };
 
     GrGLSLVarying() = default;
-    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag) : fType(type), fScope(scope) {}
+    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag)
+        : fType(type)
+        , fScope(scope) {
+        // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
+        SkASSERT(!is_matrix(type));
+    }
 
     void reset(GrSLType type, Scope scope = Scope::kVertToFrag) {
+        // Metal doesn't support varying matrices, so we disallow them everywhere for consistency
+        SkASSERT(!is_matrix(type));
         *this = GrGLSLVarying();
         fType = type;
         fScope = scope;
