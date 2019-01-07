@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cdd215d_eeef09e2",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-07T17:08:53Z",
+      "side": 1,
+      "message": "Here this is worded in a sort of API-neutral way but really were talking about specific Vulkan functionality, which the rest of the comment concedes. Given the nature of this class I don\u0027t think we need to pretend that this is anything other than asking Skia to wait on VkSemaphores via the VkCommandBuffer that contains the secondary VkCommandBuffer that this draws to.",
+      "range": {
+        "startLine": 71,
+        "startChar": 58,
+        "endLine": 71,
+        "endChar": 73
+      },
+      "revId": "1c00ece69d15c0d9b9e5b32a78c9d2450da2c74a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1ec62c7_6a18cec1",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-07T17:08:53Z",
+      "side": 1,
+      "message": "really minor but I\u0027d say that \"Skia waits\" rather then \"we wait\".",
+      "range": {
+        "startLine": 74,
+        "startChar": 80,
+        "endLine": 74,
+        "endChar": 87
+      },
+      "revId": "1c00ece69d15c0d9b9e5b32a78c9d2450da2c74a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deaf1102_2fe0d0d4",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-07T17:08:53Z",
+      "side": 1,
+      "message": "slight preference for const GrBackendSemaphore waitSemaphores[] to emphasize the fact that this an array rather than a pointer to a single GrBackendSemaphore.",
+      "range": {
+        "startLine": 84,
+        "startChar": 33,
+        "endLine": 84,
+        "endChar": 73
+      },
+      "revId": "1c00ece69d15c0d9b9e5b32a78c9d2450da2c74a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
