@@ -11,8 +11,6 @@
 
 #include <stdlib.h>
 
-DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
-
 template <typename T> static void ignore_result(const T&) {}
 
 bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
@@ -349,12 +347,8 @@ void SkCommandLineFlags::Parse(int argc, const char* const * argv) {
                     i++;  // skip YES
                 } else
 #endif
-                if (FLAGS_undefok) {
-                    SkDebugf("FYI: ignoring unknown flag '%s'.\n", argv[i]);
-                } else {
-                    SkDebugf("Got unknown flag '%s'. Exiting.\n", argv[i]);
-                    exit(-1);
-                }
+                SkDebugf("Got unknown flag '%s'. Exiting.\n", argv[i]);
+                exit(-1);
             }
         }
     }

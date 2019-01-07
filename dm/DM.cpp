@@ -63,7 +63,6 @@ extern void SkPDFImageDumpStats();
 
 extern bool gSkForceRasterPipelineBlitter;
 
-DECLARE_bool(undefok);
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
@@ -1016,13 +1015,10 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
     if (configs.count() == 0 ||
         // If we're using the default configs, we're okay.
         defaultConfigs ||
-        // If we've been told to ignore undefined flags, we're okay.
-        FLAGS_undefok ||
         // Otherwise, make sure that all specified configs have become sinks.
         configs.count() == gSinks.count()) {
         return true;
     }
-    info("Invalid --config. Use --undefok to bypass this warning.\n");
     return false;
 }
 
