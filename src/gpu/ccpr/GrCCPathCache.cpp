@@ -158,9 +158,9 @@ private:
 
 }
 
-GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
-        GrOnFlushResourceProvider* onFlushRP, const GrShape& shape,
-        const SkIRect& clippedDrawBounds, const SkMatrix& viewMatrix, SkIVector* maskShift) {
+GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(GrOnFlushResourceProvider* onFlushRP,
+                                                   const GrShape& shape, const MaskTransform& m,
+                                                   CreateIfAbsent createIfAbsent) {
     if (!shape.hasUnstyledKey()) {
         return OnFlushEntryRef();
     }
@@ -174,7 +174,6 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
     fScratchKey->resetDataCountU32(writeKeyHelper.allocCountU32());
     writeKeyHelper.write(shape, fScratchKey->data());
 
-    MaskTransform m(viewMatrix, maskShift);
     GrCCPathCacheEntry* entry = nullptr;
     if (HashNode* node = fHashTable.find(*fScratchKey)) {
         entry = node->entry();
@@ -182,12 +181,11 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
 
         if (!fuzzy_equals(m, entry->fMaskTransform)) {
             // The path was reused with an incompatible matrix.
-            if (entry->unique()) {
+            if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
                 // This entry is unique: recycle it instead of deleting and malloc-ing a new one.
                 SkASSERT(0 == entry->fOnFlushRefCnt);  // Because we are unique.
                 entry->fMaskTransform = m;
                 entry->fHitCount = 0;
-                entry->fHitRect = SkIRect::MakeEmpty();
                 entry->releaseCachedAtlas(this);
             } else {
                 this->evict(*fScratchKey);
@@ -197,6 +195,9 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
     }
 
     if (!entry) {
+        if (CreateIfAbsent::kNo == createIfAbsent) {
+            return OnFlushEntryRef();
+        }
         if (fHashTable.count() >= kMaxCacheCount) {
             SkDEBUGCODE(HashNode* node = fHashTable.find(*fLRU.tail()->fCacheKey));
             SkASSERT(node && node->entry() == fLRU.tail());
@@ -240,7 +241,6 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
             }
         }
     }
-    entry->fHitRect.join(clippedDrawBounds.makeOffset(-maskShift->x(), -maskShift->y()));
     SkASSERT(!entry->fCachedAtlas || entry->fCachedAtlas->getOnFlushProxy());
     return OnFlushEntryRef::OnFlushRef(entry);
 }

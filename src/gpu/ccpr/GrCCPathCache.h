@@ -99,15 +99,15 @@ public:
         GrCCPathCacheEntry* fEntry = nullptr;
     };
 
-    // Finds an entry in the cache that matches the given shape and transformation matrix.
-    // 'maskShift' is filled with an integer post-translate that the caller must apply when drawing
-    // the entry's mask to the device.
-    //
-    // NOTE: Shapes are only given one entry, so any time they are accessed with a new
-    // transformation, the old entry gets evicted.
-    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrShape&,
-                         const SkIRect& clippedDrawBounds, const SkMatrix& viewMatrix,
-                         SkIVector* maskShift);
+    enum class CreateIfAbsent : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    // Finds an entry in the cache. Shapes are only given one entry, so any time they are accessed
+    // with a different MaskTransform, the old entry gets evicted.
+    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrShape&, const MaskTransform&,
+                         CreateIfAbsent = CreateIfAbsent::kNo);
 
     void doPreFlushProcessing();
 
@@ -204,16 +204,13 @@ public:
 
     const GrCCPathCache::Key& cacheKey() const { SkASSERT(fCacheKey); return *fCacheKey; }
 
-    // The number of flushes during which this specific entry (path + matrix combination) has been
-    // pulled from the path cache. If a path is pulled from the cache more than once in a single
-    // flush, the hit count is only incremented once.
+    // The number of times this specific entry (path + matrix combination) has been pulled from
+    // the path cache. As long as the caller does exactly one lookup per draw, this translates to
+    // the number of times the path has been drawn with a compatible matrix.
     //
-    // If the entry did not previously exist, its hit count will be 1.
+    // If the entry did not previously exist and was created during
+    // GrCCPathCache::find(.., CreateIfAbsent::kYes), its hit count will be 1.
     int hitCount() const { return fHitCount; }
-
-    // The accumulative region of the path that has been drawn during the lifetime of this cache
-    // entry (as defined by the 'clippedDrawBounds' parameter for GrCCPathCache::find).
-    const SkIRect& hitRect() const { return fHitRect; }
 
     const GrCCCachedAtlas* cachedAtlas() const { return fCachedAtlas.get(); }
 
@@ -254,7 +251,6 @@ private:
     sk_sp<GrCCPathCache::Key> fCacheKey;
     GrStdSteadyClock::time_point fTimestamp;
     int fHitCount = 0;
-    SkIRect fHitRect = SkIRect::MakeEmpty();
 
     sk_sp<GrCCCachedAtlas> fCachedAtlas;
     SkIVector fAtlasOffset;
