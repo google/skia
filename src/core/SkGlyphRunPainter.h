@@ -112,34 +112,8 @@ public:
 
 private:
     struct BufferManager {
-        BufferManager(SkGlyphRunListPainter* painter, size_t size)
-                : fPainter{painter}{
-            if (size > fPainter->fMaxRunSize) {
-                fPainter->fPositions.reset(size);
-                fPainter->fMaskGlyphs.reset(size);
-                fPainter->fMaskPositions.reset(size);
-                fPainter->fMaxRunSize = size;
-            }
-        }
-
-        ~BufferManager() {
-            fPainter->fPathGlyphs.clear();
-            fPainter->fPathPositions.clear();
-            fPainter->fARGBGlyphsIDs.clear();
-            fPainter->fARGBPositions.clear();
-
-            if (fPainter->fMaxRunSize > 200) {
-                fPainter->fPositions.reset();
-                fPainter->fMaskGlyphs.reset();
-                fPainter->fMaskPositions.reset();
-                fPainter->fPathGlyphs.shrink_to_fit();
-                fPainter->fPathPositions.shrink_to_fit();
-                fPainter->fARGBGlyphsIDs.shrink_to_fit();
-                fPainter->fARGBPositions.shrink_to_fit();
-                fPainter->fMaxRunSize = 0;
-            }
-        }
-
+        BufferManager(SkGlyphRunListPainter* painter, size_t size);
+        ~BufferManager();
         SkGlyphRunListPainter* fPainter;
     };
 
