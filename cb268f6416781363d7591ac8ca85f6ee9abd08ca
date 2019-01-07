@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c2b2a69_0c8880ac",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1874,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-01-07T20:02:29Z",
+      "side": 1,
+      "message": "... using clip, SkMatrix, SkFont font, and SkPaint paint",
+      "revId": "cb268f6416781363d7591ac8ca85f6ee9abd08ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "984f9322_bd6493ea",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1879,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-01-07T20:02:29Z",
+      "side": 1,
+      "message": "kPaint::Align and SkPaint vertical text do not exist anymore.",
+      "revId": "cb268f6416781363d7591ac8ca85f6ee9abd08ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d7b5745_499a821d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1881,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-01-07T20:02:29Z",
+      "side": 1,
+      "message": "...text size is affected by SkMatrix and SkFont text size.",
+      "revId": "cb268f6416781363d7591ac8ca85f6ee9abd08ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
