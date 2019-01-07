@@ -1846,18 +1846,19 @@ public:
                   const SkPaint& paint);
 #endif  // SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
 
-    /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
+    /** Experimental.
 
-        text meaning depends on SkTextEncoding; by default, text is encoded as
-        UTF-8.
+        Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
+        and SkPaint paint.
 
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
-        text draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
+        Text meaning depends on SkTextEncoding.
+
+        Text size is affected by SkMatrix and SkFont text size. Default text
+        size is 12 point.
 
         All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
-        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
-        filled 12 point black glyphs.
+        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By
+        default, draws filled black glyphs.
 
         @param text        character code points or glyphs drawn
         @param byteLength  byte length of text array
@@ -1866,16 +1867,57 @@ public:
         @param y           start of text on y-axis
         @param font        typeface, text size and so, used to describe the text
         @param paint       blend, color, and so on, used to draw
-     */
+    */
     void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
 
-    // Experimental
+    /** Experimental.
+
+        Draws null terminated string, with origin at (x, y), using clip, SkMatrix,
+        SkFont font, and SkPaint paint.
+
+        String str is encoded as UTF-8.
+
+        Text size is affected by SkMatrix and font text size. Default text
+        size is 12 point.
+
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
+        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By
+        default, draws filled black glyphs.
+
+        @param str     character code points drawn,
+                       ending with a char value of zero
+        @param x       start of string on x-axis
+        @param y       start of string on y-axis
+        @param font    typeface, text size and so, used to describe the text
+        @param paint   blend, color, and so on, used to draw
+    */
     void drawString(const char str[], SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
         this->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, x, y, font, paint);
     }
-    // Experimental
+
+    /** Experimental.
+
+        Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
+        and SkPaint paint.
+
+        SkString str is encoded as UTF-8.
+
+        Text size is affected by SkMatrix and SkFont text size. Default text
+        size is 12 point.
+
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
+        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By
+        default, draws filled black glyphs.
+
+        @param str     character code points drawn,
+                       ending with a char value of zero
+        @param x       start of string on x-axis
+        @param y       start of string on y-axis
+        @param font    typeface, text size and so, used to describe the text
+        @param paint   blend, color, and so on, used to draw
+    */
     void drawString(const SkString& str, SkScalar x, SkScalar y, const SkFont& font,
                     const SkPaint& paint) {
         this->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
