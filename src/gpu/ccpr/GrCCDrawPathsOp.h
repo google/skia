@@ -73,10 +73,15 @@ private:
                                                          float strokeDevWidth,
                                                          const SkRect& conservativeDevBounds,
                                                          GrPaint&&);
+    enum class Visibility {
+        kPartial,
+        kMostlyComplete,  // (i.e., can we cache the whole path mask if we think it will be reused?)
+        kComplete
+    };
 
     GrCCDrawPathsOp(const SkMatrix&, const GrShape&, float strokeDevWidth,
                     const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                    const SkRect& conservativeDevBounds, GrPaint&&);
+                    Visibility maskVisibility, const SkRect& conservativeDevBounds, GrPaint&&);
 
     void recordInstance(GrTextureProxy* atlasProxy, int instanceIdx);
 
@@ -86,7 +91,7 @@ private:
     public:
         SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                   const SkPMColor4f&);
+                   Visibility maskVisibility, const SkPMColor4f&);
 
         // See the corresponding methods in GrCCDrawPathsOp.
         RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*, GrProcessorSet*);
@@ -96,19 +101,17 @@ private:
                             DoCopiesToA8Coverage, GrCCDrawPathsOp*);
 
     private:
-        bool shouldCachePathMask(int maxRenderTargetSize) const;
-
         SkMatrix fMatrix;
         GrShape fShape;
         float fStrokeDevWidth;
         const SkIRect fShapeConservativeIBounds;
         SkIRect fMaskDevIBounds;
+        Visibility fMaskVisibility;
         SkPMColor4f fColor;
 
         GrCCPathCache::OnFlushEntryRef fCacheEntry;
         SkIVector fCachedMaskShift;
         bool fDoCopyToA8Coverage = false;
-        bool fDoCachePathMask = false;
 
         SingleDraw* fNext = nullptr;
 
