@@ -3919,8 +3919,8 @@ void draw(SkCanvas* canvas) {
 #Line # draws text into Canvas ##
 ##
 
-#Method void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                  const SkPaint& paint)
+#Method void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
+                            SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint)
 #In Draw_Text
 #In Draw
 #Line # draws text at (x, y), using font advance ##
@@ -3929,27 +3929,26 @@ void draw(SkCanvas* canvas) {
 #Example
 #Height 200
 #Description
-    The same text is drawn varying Paint_Text_Size and varying
-    Matrix.
+The same text is drawn varying Paint_Text_Size and varying
+Matrix.
 ##
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setAntiAlias(true);
+    SkFont font;
     float textSizes[] = { 12, 18, 24, 36 };
     for (auto size: textSizes ) {
-        paint.setTextSize(size);
-        canvas->drawText("Aa", 2, 10, 20, paint);
+        font.setSize(size);
+        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10, 20, font, paint);
         canvas->translate(0, size * 2);
     }
-    paint.reset();
-    paint.setAntiAlias(true);
+    font.setSize(12);
     float yPos = 20;
     for (auto size: textSizes ) {
         float scale = size / 12.f;
         canvas->resetMatrix();
         canvas->translate(100, 0);
         canvas->scale(scale, scale);
-        canvas->drawText("Aa", 2, 10 / scale, yPos / scale, paint);
+        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10 / scale, yPos / scale, font, paint);
         yPos += size * 2;
     }
 }
