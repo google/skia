@@ -122,16 +122,13 @@ protected:
                    100.0f * totArea / ((float)kWidth*kHeight),
                    fCurRandRect,
                    kNumRandRects);
-        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
-                               50, kHeight + 50, blackBigFont, SkPaint());
+        canvas->drawString(str, 50, kHeight + 50, blackBigFont, SkPaint());
 
         str.printf("Press \'j\' to toggle rectanizer");
-        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
-                               50, kHeight + 100, blackBigFont, SkPaint());
+        canvas->drawString(str, 50, kHeight + 100, blackBigFont, SkPaint());
 
         str.printf("Press \'h\' to toggle rects");
-        canvas->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding,
-                               50, kHeight + 150, blackBigFont, SkPaint());
+        canvas->drawString(str, 50, kHeight + 150, blackBigFont, SkPaint());
     }
 
 private:
