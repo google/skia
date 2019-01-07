@@ -373,8 +373,8 @@ int main(int argc, char** argv) {
         }
         srcname = SkOSPath::Basename(srcfile.c_str());
     }
-    int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
-        height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
+    int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 5753),
+        height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 5753);
     if (FLAGS_verbosity >= 3 &&
         (width != skp->cullRect().width() || height != skp->cullRect().height())) {
         fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
