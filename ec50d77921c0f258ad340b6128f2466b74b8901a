@@ -33,6 +33,24 @@
       "revId": "ec50d77921c0f258ad340b6128f2466b74b8901a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9fb4ab1_26e9ab10",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-07T16:35:06Z",
+      "side": 1,
+      "message": "Next CL 😅Removed it from here.",
+      "parentUuid": "f13cfba0_40fc8168",
+      "revId": "ec50d77921c0f258ad340b6128f2466b74b8901a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
