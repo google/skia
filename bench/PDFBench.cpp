@@ -314,7 +314,7 @@ void big_pdf_test(const SkBitmap& background) {
     SkPDF::Metadata metadata;
     //std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
     //metadata.fExecutor = executor.get();
-    sk_sp<SkDocument> doc = SkPDF::MakeDocument(&wStream, metadata);
+    auto doc = SkPDF::MakeDocument(&wStream, metadata);
 
     SkCanvas* canvas = nullptr;
     float x = 36;

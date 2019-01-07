@@ -52,7 +52,7 @@ DEF_TEST(Annotation_NoDraw, reporter) {
 DEF_TEST(Annotation_PdfLink, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfLink, reporter);
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&outStream));
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
@@ -71,7 +71,7 @@ DEF_TEST(Annotation_PdfLink, reporter) {
 DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfNamedDestination, reporter);
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&outStream));
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(612.0f, 792.0f);
     REPORTER_ASSERT(reporter, canvas);
 
