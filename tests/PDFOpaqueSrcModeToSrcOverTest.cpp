@@ -11,7 +11,7 @@
 #include "Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
-    sk_sp<SkDocument> pdfDoc(SkPDF::MakeDocument(out));
+    auto pdfDoc = SkPDF::MakeDocument(out);
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;

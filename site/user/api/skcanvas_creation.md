@@ -131,7 +131,7 @@ a document must include multiple pages.
                void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        sk_sp<SkDocument> pdfDoc = SkPDF::MakeDocument(&pdfStream);
+        auto pdfDoc = SkPDF::MakeDocument(&pdfStream);
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);

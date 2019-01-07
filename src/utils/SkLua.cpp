@@ -1800,7 +1800,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkPDF::MakeDocument(file.get());
+    auto doc = SkPDF::MakeDocument(file.get());
     if (!doc) {
         return 0;
     }

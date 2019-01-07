@@ -374,7 +374,7 @@ struct PDFBigDocBench : public Benchmark {
             #endif
             SkPDF::Metadata metadata;
             metadata.fExecutor = fExecutor.get();
-            sk_sp<SkDocument> doc = SkPDF::MakeDocument(&wStream, metadata);
+            auto doc = SkPDF::MakeDocument(&wStream, metadata);
             big_pdf_test(doc.get(), fBackground);
         }
     }

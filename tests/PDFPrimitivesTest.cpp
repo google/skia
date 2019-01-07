@@ -83,7 +83,7 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&outStream));
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     uint16_t glyphID = 65000;
@@ -286,7 +286,7 @@ sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
 DEF_TEST(SkPDF_ImageFilter, reporter) {
     REQUIRE_PDF_DOCUMENT(SkPDF_ImageFilter, reporter);
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkPDF::MakeDocument(&stream));
+    auto doc = SkPDF::MakeDocument(&stream);
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     sk_sp<DummyImageFilter> filter(DummyImageFilter::Make());
