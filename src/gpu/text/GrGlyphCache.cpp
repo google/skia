@@ -172,11 +172,6 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-GrGlyph* GrTextStrike::generateGlyph(const SkGlyph& skGlyph) {
-    GrGlyph* grGlyph = fAlloc.make<GrGlyph>(skGlyph);
-    fCache.add(grGlyph);
-    return grGlyph;
-}
 
 void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     SkTDynamicHash<GrGlyph, SkPackedGlyphID>::Iter iter(&fCache);

@@ -30,13 +30,7 @@ class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
     GrTextStrike(const SkDescriptor& fontScalerKey);
 
-    GrGlyph* getGlyph(const SkGlyph& skGlyph) {
-        GrGlyph* glyph = fCache.find(skGlyph.getPackedID());
-        if (!glyph) {
-            glyph = this->generateGlyph(skGlyph);
-        }
-        return glyph;
-    }
+    GrGlyph* getGlyph(const SkGlyph& skGlyph);
 
     // This variant of the above function is called by GrAtlasTextOp. At this point, it is possible
     // that the maskformat of the glyph differs from what we expect.  In these cases we will just
