@@ -326,6 +326,7 @@ void SkPaint::setTextSkewX(SkScalar skewX) {
     fTextSkewX = skewX;
 }
 
+#ifdef SK_SUPPORT_LEGACY_PAINTTEXTENCODING
 void SkPaint::setTextEncoding(SkTextEncoding encoding) {
     if ((unsigned)encoding <= (unsigned)kGlyphID_SkTextEncoding) {
         fBitfields.fTextEncoding = (unsigned)encoding;
@@ -335,6 +336,7 @@ void SkPaint::setTextEncoding(SkTextEncoding encoding) {
 #endif
     }
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -493,7 +495,7 @@ bool SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer) {
     paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
     paint->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, SkPaint::kLast_Join));
     paint->setStyle(safe.checkLE((tmp >> 12) & 0xF, SkPaint::kStrokeAndFill_Style));
-    paint->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_SkTextEncoding));
+    paint->private_internal_setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_SkTextEncoding));
     paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
