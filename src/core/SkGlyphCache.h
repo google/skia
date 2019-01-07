@@ -223,7 +223,7 @@ private:
     SkFontMetrics          fFontMetrics;
 
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
-    SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
+    SkTHashTable<SkGlyph*, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
 
     // so we don't grow our arrays a lot
     static constexpr size_t kMinGlyphCount = 8;
