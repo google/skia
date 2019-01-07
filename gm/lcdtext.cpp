@@ -53,12 +53,14 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(subpixelTextEnabled);
-        paint.setLCDRenderText(lcdRenderTextEnabled);
-        paint.setTextSize(textHeight);
-
-        canvas->drawString(string, 0, y, paint);
+        SkFont font(nullptr, textHeight);
+        if (subpixelTextEnabled) {
+            font.setSubpixel(true);
+        }
+        if (lcdRenderTextEnabled) {
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        }
+        canvas->drawString(string, 0, y, font, paint);
         y += textHeight;
     }
 
@@ -98,10 +100,6 @@ protected:
         const char* lcd_text = "LCD";
         const char* gray_text = "GRAY";
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
-
         const struct {
             SkPoint     fLoc;
             SkScalar    fTextSize;
@@ -118,9 +116,11 @@ protected:
             const SkPoint loc = rec[i].fLoc;
             SkAutoCanvasRestore acr(canvas, true);
 
-            paint.setTextSize(rec[i].fTextSize);
+            SkFont font(nullptr, rec[i].fTextSize);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawString(rec[i].fText, loc.x(), loc.y(), paint);
+            canvas->drawString(rec[i].fText, loc.x(), loc.y(), font, SkPaint());
         }
     }
 
@@ -134,11 +134,10 @@ DEF_GM( return new LcdTextSizeGM; )
 
 DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
     SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setLCDRenderText(true);
-    paint.setTextSize(20);
+    SkFont font(nullptr, 20.0f);
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
-    canvas->drawString("Hamburgefons", 30, 30, paint);
+    canvas->drawString("Hamburgefons", 30, 30, font, paint);
 
     const bool gPreserveLCDText[] = { false, true };
 
@@ -147,17 +146,17 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
         preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
                  : canvas->saveLayer(nullptr, nullptr);
         if (preserve && !canvas->imageInfo().colorSpace()) {
-            SkPaint noLCD = paint;
-            noLCD.setLCDRenderText(false);
-            canvas->drawString("LCD not supported", 30, 60, noLCD);
+            SkFont noLCD = font;
+            noLCD.setEdging(SkFont::Edging::kAntiAlias);
+            canvas->drawString("LCD not supported", 30, 60, noLCD, paint);
         } else {
-            canvas->drawString("Hamburgefons", 30, 60, paint);
+            canvas->drawString("Hamburgefons", 30, 60, font, paint);
         }
 
-        SkPaint p;
-        p.setColor(0xFFCCCCCC);
-        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
-        canvas->drawString("Hamburgefons", 30, 90, paint);
+        SkPaint lightGrayPaint;
+        lightGrayPaint.setColor(0xFFCCCCCC);
+        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), lightGrayPaint);
+        canvas->drawString("Hamburgefons", 30, 90, font, paint);
 
         canvas->restore();
         canvas->translate(0, 80);
