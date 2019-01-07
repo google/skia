@@ -235,20 +235,18 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(512, 342); }
 
-    void drawWaterfall(SkCanvas* canvas, const SkPaint& origPaint) {
-        const uint32_t flags[] = {
-            0,
-            SkPaint::kAntiAlias_Flag,
-            SkPaint::kAntiAlias_Flag | SkPaint::kLCDRenderText_Flag,
+    void drawWaterfall(SkCanvas* canvas, const SkPaint& paint) {
+        static const SkFont::Edging kEdgings[3] = {
+            SkFont::Edging::kAlias,
+            SkFont::Edging::kAntiAlias,
+            SkFont::Edging::kSubpixelAntiAlias,
         };
-        SkPaint paint(origPaint);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(30);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 30);
 
         SkAutoCanvasRestore acr(canvas, true);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(flags); ++i) {
-            paint.setFlags(flags[i]);
-            canvas->drawString("Hamburgefon", 0, 0, paint);
+        for (SkFont::Edging edging : kEdgings) {
+            font.setEdging(edging);
+            canvas->drawString("Hamburgefon", 0, 0, font, paint);
             canvas->translate(0, 40);
         }
     }

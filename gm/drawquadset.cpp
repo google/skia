@@ -21,12 +21,7 @@ static constexpr int kRowCount = 4;
 static constexpr int kColCount = 3;
 
 static void draw_text(SkCanvas* canvas, const char* text) {
-    SkPaint paint;
-    paint.setColor(SK_ColorBLACK);
-    paint.setTextSize(12.0f);
-    paint.setAntiAlias(true);
-
-    canvas->drawString(text, 0, 0, paint);
+    canvas->drawString(text, 0, 0, SkFont(nullptr, 12), SkPaint());
 }
 
 static void draw_gradient_tiles(GrRenderTargetContext* rtc, const SkMatrix& view,

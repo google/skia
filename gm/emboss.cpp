@@ -6,10 +6,12 @@
  */
 
 #include "gm.h"
+
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkEmbossMaskFilter.h"
+#include "SkFont.h"
 
 static SkBitmap make_bm() {
     SkBitmap bm;
@@ -69,8 +71,7 @@ protected:
         canvas->translate(SkIntToScalar(100), 0);
 
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setTextSize(50);
-        canvas->drawText("Hello", 5, 0, 50, paint);
+        canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
     }
 
 private:

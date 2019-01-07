@@ -53,12 +53,14 @@ protected:
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
-        paint.setAntiAlias(true);
-        paint.setSubpixelText(subpixelTextEnabled);
-        paint.setLCDRenderText(lcdRenderTextEnabled);
-        paint.setTextSize(textHeight);
-
-        canvas->drawString(string, 0, y, paint);
+        SkFont font(nullptr, textHeight);
+        if (subpixelTextEnabled) {
+            font.setSubpixel(true);
+        }
+        if (lcdRenderTextEnabled) {
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        }
+        canvas->drawString(string, 0, y, font, paint);
         y += textHeight;
     }
 
@@ -98,10 +100,6 @@ protected:
         const char* lcd_text = "LCD";
         const char* gray_text = "GRAY";
 
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
-
         const struct {
             SkPoint     fLoc;
             SkScalar    fTextSize;
@@ -118,9 +116,11 @@ protected:
             const SkPoint loc = rec[i].fLoc;
             SkAutoCanvasRestore acr(canvas, true);
 
-            paint.setTextSize(rec[i].fTextSize);
+            SkFont font(nullptr, rec[i].fTextSize);
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawString(rec[i].fText, loc.x(), loc.y(), paint);
+            canvas->drawString(rec[i].fText, loc.x(), loc.y(), font, SkPaint());
         }
     }
 
