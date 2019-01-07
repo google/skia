@@ -128,16 +128,12 @@ protected:
             quadColors[i] = gColors[i];
         }
 
-        SkPaint textP;
-        textP.setTextSize(SkIntToScalar(kTextPad));
-        textP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textP, nullptr);
+        SkFont font(sk_tool_utils::create_portable_typeface(), kTextPad);
 
         for (int i = 0; i < numModes; ++i) {
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawString(label,
-                             i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
-                             textP);
+            canvas->drawString(label, i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
+                               font, paint);
         }
 
         for (int i = 0; i < numModes; ++i) {

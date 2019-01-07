@@ -83,18 +83,18 @@ static SkBitmap make_text(SkImageInfo info) {
     canvas.drawColor(SK_ColorWHITE);
 
     SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setSubpixelText(true);
-    paint.setTextSize(textSize);
+    SkFont font;
+    font.setSubpixel(true);
+    font.setSize(textSize);
 
-    sk_tool_utils::set_portable_typeface(&paint, "serif", SkFontStyle());
-    canvas.drawString("Hamburgefons", textSize/2, 1.2f*textSize, paint);
-    sk_tool_utils::set_portable_typeface(&paint, "serif", SkFontStyle::Bold());
-    canvas.drawString("Hamburgefons", textSize/2, 2.4f*textSize, paint);
-    sk_tool_utils::set_portable_typeface(&paint, "serif", SkFontStyle::Italic());
-    canvas.drawString("Hamburgefons", textSize/2, 3.6f*textSize, paint);
-    sk_tool_utils::set_portable_typeface(&paint, "serif", SkFontStyle::BoldItalic());
-    canvas.drawString("Hamburgefons", textSize/2, 4.8f*textSize, paint);
+    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+    canvas.drawString("Hamburgefons", textSize/2, 1.2f*textSize, font, paint);
+    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Bold()));
+    canvas.drawString("Hamburgefons", textSize/2, 2.4f*textSize, font, paint);
+    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic()));
+    canvas.drawString("Hamburgefons", textSize/2, 3.6f*textSize, font, paint);
+    font.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle::BoldItalic()));
+    canvas.drawString("Hamburgefons", textSize/2, 4.8f*textSize, font, paint);
 
     return bm;
 }

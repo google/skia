@@ -21,6 +21,7 @@
 #include "Test.h"
 
 #include <cmath>
+#include <SkFont.h>
 
 static const SkColor bgColor = SK_ColorWHITE;
 
@@ -118,12 +119,12 @@ DEF_TEST(DrawText_weirdCoordinates, r) {
     SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
 
     for (auto x : oddballs) {
-        canvas->drawString("a", +x, 0.0f, SkPaint());
-        canvas->drawString("a", -x, 0.0f, SkPaint());
+        canvas->drawString("a", +x, 0.0f, SkFont(), SkPaint());
+        canvas->drawString("a", -x, 0.0f, SkFont(), SkPaint());
     }
     for (auto y : oddballs) {
-        canvas->drawString("a", 0.0f, +y, SkPaint());
-        canvas->drawString("a", 0.0f, -y, SkPaint());
+        canvas->drawString("a", 0.0f, +y, SkFont(), SkPaint());
+        canvas->drawString("a", 0.0f, -y, SkFont(), SkPaint());
     }
 }
 
@@ -133,9 +134,8 @@ DEF_TEST(DrawText_weirdMatricies, r) {
     auto surface = SkSurface::MakeRasterN32Premul(100,100);
     auto canvas = surface->getCanvas();
 
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setLCDRenderText(true);
+    SkFont font;
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
     struct {
         SkScalar textSize;
@@ -156,11 +156,11 @@ DEF_TEST(DrawText_weirdMatricies, r) {
     };
 
     for (const auto& testCase : testCases) {
-        paint.setTextSize(testCase.textSize);
+        font.setSize(testCase.textSize);
         const SkScalar(&m)[9] = testCase.matrix;
         SkMatrix mat;
         mat.setAll(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
         canvas->setMatrix(mat);
-        canvas->drawString("Hamburgefons", 10, 10, paint);
+        canvas->drawString("Hamburgefons", 10, 10, font, SkPaint());
     }
 }
