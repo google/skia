@@ -123,7 +123,9 @@ protected:
                 canvas->scale(4, 4);
                 canvas->translate(-0.9f*srcRect.fLeft, -2.45f*srcRect.fTop);
 
-                canvas->saveLayerPreserveLCDTextRequests(&bounds, &paint);
+                canvas->saveLayer(SkCanvas::SaveLayerRec(&bounds,
+                                                         &paint,
+                                                         SkCanvas::kPreserveLCDText_SaveLayerFlag));
                 canvas->restore();
             }
 

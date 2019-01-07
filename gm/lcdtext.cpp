@@ -140,12 +140,12 @@ DEF_SIMPLE_GM(savelayer_lcdtext, canvas, 620, 260) {
 
     canvas->drawString("Hamburgefons", 30, 30, paint);
 
-    const bool gPreserveLCDText[] = { false, true };
+    static constexpr SkCanvas::SaveLayerFlags gPreserveLCDText[] =
+        { 0, SkCanvas::kPreserveLCDText_SaveLayerFlag };
 
     canvas->translate(0, 20);
     for (auto preserve : gPreserveLCDText) {
-        preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
-                 : canvas->saveLayer(nullptr, nullptr);
+        canvas->saveLayer(SkCanvas::SaveLayerRec(nullptr, nullptr, preserve));
         if (preserve && !canvas->imageInfo().colorSpace()) {
             SkPaint noLCD = paint;
             noLCD.setLCDRenderText(false);
