@@ -277,6 +277,8 @@ def generate_args(target_os, enable_gpu):
     'skia_use_freetype':                  'true',
     'skia_use_fontconfig':                'false',
     'skia_use_fixed_gamma_text':          'true',
+
+    'extra_cflags': [ 'SK_SUPPORT_LEGACY_REFCNT_DOCUMENT' ],
   }
   d['target_os'] = target_os
   if target_os == '"android"':

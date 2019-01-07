@@ -21,6 +21,7 @@ args = parser.parse_args()
 
 def GenerateJSONFromGN(gn_args):
   gn_args = ' '.join(sorted('%s=%s' % (k,v) for (k,v) in gn_args.iteritems()))
+  gn_args = gn_args.replace("'", '"')
   tmp = tempfile.mkdtemp()
   subprocess.check_call([args.gn_cmd, 'gen', tmp, '--args=%s' % gn_args,
                          '--ide=json'])
