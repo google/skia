@@ -92,6 +92,14 @@ describe('CanvasKit\'s Path Behavior', function() {
                             0, 0, 1 ])
 
             canvas.drawPath(path, paint);
+
+            let rrect = new CanvasKit.SkPath()
+                               .addRoundRect(100, 10, 140, 62,
+                                             10, 4, true);
+
+            canvas.drawPath(rrect, paint);
+            rrect.delete();
+
             surface.flush();
 
             path.delete();
@@ -99,7 +107,44 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             reportSurface(surface, 'path_api_example', done);
         }));
-        // See CanvasKit for more tests, since they share implementation
+        // See PathKit for more tests, since they share implementation
+    });
+
+    it('can draw directly to a canvas', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            // This is taken from example.html
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(2.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            canvas.drawLine(3, 10, 30, 15, paint);
+            canvas.drawRoundRect(CanvasKit.LTRBRect(5, 35, 45, 80), 15, 10, paint);
+
+            canvas.drawOval(CanvasKit.LTRBRect(5, 35, 45, 80), paint);
+
+            canvas.drawArc(CanvasKit.LTRBRect(55, 35, 95, 80), 15, 270, true, paint);
+
+            paint.setTextSize(20);
+            canvas.drawText('this is ascii text', 5, 100, paint);
+
+            canvas.drawText('Unicode chars 💩 é É ص', 5, 130, paint);
+
+            surface.flush();
+
+            paint.delete();
+
+            reportSurface(surface, 'canvas_api_example', done);
+        }));
+        // See canvas2d for more API tests
     });
 
     function starPath(CanvasKit, X=128, Y=128, R=116) {
@@ -147,6 +192,46 @@ describe('CanvasKit\'s Path Behavior', function() {
             path.delete();
 
             reportSurface(surface, 'effect_and_text_example', done);
+        }));
+    });
+
+    it('can create a path from an SVG string', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            //.This is a parallelagram from
+            // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
+            let path = CanvasKit.MakePathFromSVGString('M 205,5 L 795,5 L 595,295 L 5,295 L 205,5 z');
+
+            let cmds = path.toCmds();
+            expect(cmds).toBeTruthy();
+            // 1 move, 4 lines, 1 close
+            // each element in cmds is an array, with index 0 being the verb, and the rest being args
+            expect(cmds.length).toBe(6);
+            expect(cmds).toEqual([[CanvasKit.MOVE_VERB, 205, 5],
+                                  [CanvasKit.LINE_VERB, 795, 5],
+                                  [CanvasKit.LINE_VERB, 595, 295],
+                                  [CanvasKit.LINE_VERB, 5, 295],
+                                  [CanvasKit.LINE_VERB, 205, 5],
+                                  [CanvasKit.CLOSE_VERB]]);
+            path.delete();
+            done();
+        }));
+    });
+
+     it('can create an SVG string from a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            let cmds = [[CanvasKit.MOVE_VERB, 205, 5],
+                       [CanvasKit.LINE_VERB, 795, 5],
+                       [CanvasKit.LINE_VERB, 595, 295],
+                       [CanvasKit.LINE_VERB, 5, 295],
+                       [CanvasKit.LINE_VERB, 205, 5],
+                       [CanvasKit.CLOSE_VERB]];
+            let path = CanvasKit.MakePathFromCmds(cmds);
+
+            let svgStr = path.toSVGString();
+            // We output it in terse form, which is different than Wikipedia's version
+            expect(svgStr).toEqual('M205 5L795 5L595 295L5 295L205 5Z');
+            path.delete();
+            done();
         }));
     });
 });
