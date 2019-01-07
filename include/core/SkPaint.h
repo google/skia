@@ -882,6 +882,7 @@ private:
     */
     void setTextSkewX(SkScalar skewX);
 
+#ifdef SK_SUPPORT_LEGACY_PAINTTEXTENCODING
     /**
      *  Returns the text encoding. Text encoding describes how to interpret the text bytes pass
      *  to methods like measureText() and SkCanvas::drawText().
@@ -897,6 +898,7 @@ private:
      *  @param encoding  the new text encoding
      */
     void setTextEncoding(SkTextEncoding encoding);
+#endif
 #ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 public:
 #endif
@@ -1205,6 +1207,13 @@ private:
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
+
+    SkTextEncoding private_internal_getTextEncoding() const {
+        return (SkTextEncoding)fBitfields.fTextEncoding;
+    }
+    void private_internal_setTextEncoding(SkTextEncoding e) {
+        fBitfields.fTextEncoding = (unsigned)e;
+    }
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
