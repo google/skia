@@ -1403,80 +1403,62 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
                              : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 }
 
-// TODO: Adjust logic here? This still assumes that purely linear inputs will have D > 1, which
-// we never generate. It also emits inverted linear using the same formulation. Standardize on
-// G == 1 here, too?
 bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_TransferFunction* dst) {
-    // Original equation is:       y = (ax + b)^g + e   for x >= d
-    //                             y = cx + f           otherwise
-    //
-    // so 1st inverse is:          (y - e)^(1/g) = ax + b
-    //                             x = ((y - e)^(1/g) - b) / a
-    //
-    // which can be re-written as: x = (1/a)(y - e)^(1/g) - b/a
-    //                             x = ((1/a)^g)^(1/g) * (y - e)^(1/g) - b/a
-    //                             x = ([(1/a)^g]y + [-((1/a)^g)e]) ^ [1/g] + [-b/a]
-    //
-    // and 2nd inverse is:         x = (y - f) / c
-    // which can be re-written as: x = [1/c]y + [-f/c]
-    //
-    // and now both can be expressed in terms of the same parametric form as the
-    // original - parameters are enclosed in square brackets.
-    skcms_TransferFunction tf_inv = { 0, 0, 0, 0, 0, 0, 0 };
-
-    // This rejects obviously malformed inputs, as well as decreasing functions
     if (!tf_is_valid(src)) {
         return false;
     }
 
-    // There are additional constraints to be invertible
-    bool has_nonlinear = (src->d <= 1);
-    bool has_linear = (src->d > 0);
+    // We're inverting this function, solving for x in terms of y.
+    //   y = (cx + f)         x < d
+    //       (ax + b)^g + e   x ≥ d
+    // The inverse of this function can be expressed in the same piecewise form.
+    skcms_TransferFunction inv = {0,0,0,0,0,0,0};
 
-    // Is the linear section not invertible?
-    if (has_linear && src->c == 0) {
+    // We'll start by finding the new threshold inv.d.
+    // In principle we should be able to find that by solving for y at x=d from either side.
+    // (If those two d values aren't the same, it's a discontinuous transfer function.)
+    float d_l =       src->c * src->d + src->f,
+          d_r = powf_(src->a * src->d + src->b, src->g) + src->e;
+    if (fabsf_(d_l - d_r) > 1/512.0f) {
         return false;
     }
+    inv.d = d_l;  // TODO(mtklein): better in practice to choose d_r?
 
-    // Is the nonlinear section not invertible?
-    if (has_nonlinear && (src->a == 0 || src->g == 0)) {
-        return false;
+    // When d=0, the linear section collapses to a point.  We leave c,d,f all zero in that case.
+    if (inv.d > 0) {
+        // Inverting the linear section is pretty straightfoward:
+        //        y       = cx + f
+        //        y - f   = cx
+        //   (1/c)y - f/c = x
+        inv.c =    1.0f/src->c;
+        inv.f = -src->f/src->c;
     }
 
-    // If both segments are present, they need to line up
-    if (has_linear && has_nonlinear) {
-        float l_at_d = src->c * src->d + src->f;
-        float n_at_d = powf_(src->a * src->d + src->b, src->g) + src->e;
-        if (fabsf_(l_at_d - n_at_d) > (1 / 512.0f)) {
-            return false;
-        }
-    }
+    // The interesting part is inverting the nonlinear section:
+    //         y                = (ax + b)^g + e.
+    //         y - e            = (ax + b)^g
+    //        (y - e)^1/g       =  ax + b
+    //        (y - e)^1/g - b   =  ax
+    //   (1/a)(y - e)^1/g - b/a =   x
+    //
+    // To make that fit our form, we need to move the (1/a) term inside the exponentiation:
+    //   let k = (1/a)^g
+    //   (1/a)( y -  e)^1/g - b/a = x
+    //        (ky - ke)^1/g - b/a = x
 
-    // Invert linear segment
-    if (has_linear) {
-        tf_inv.c = 1.0f / src->c;
-        tf_inv.f = -src->f / src->c;
-    }
+    float k = powf_(1.0f / src->a, src->g);  // TODO(mtklein): evaluate as 1 / powf(src->a, src->g)?
+    inv.g = 1.0f / src->g;
+    inv.a = k;
+    inv.b = -k * src->e;
+    inv.e = -src->b / src->a;
 
-    // Invert nonlinear segment
-    if (has_nonlinear) {
-        tf_inv.g = 1.0f / src->g;
-        tf_inv.a = powf_(1.0f / src->a, src->g);
-        tf_inv.b = -tf_inv.a * src->e;
-        tf_inv.e = -src->b / src->a;
-    }
+    // TODO(mtklein): we'd like to guarantee the edge cases more strongly:
+    //    inv(src(0)) = 0
+    //    inv(src(d)) = d
+    //    inv(src(1)) = 1
 
-    if (!has_linear) {
-        tf_inv.d = 0;
-    } else if (!has_nonlinear) {
-        // Any value larger than 1 works
-        tf_inv.d = 2.0f;
-    } else {
-        tf_inv.d = src->c * src->d + src->f;
-    }
-
-    *dst = tf_inv;
-    return true;
+    *dst = inv;
+    return tf_is_valid(dst);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -1722,7 +1704,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             int mid = (L + N) / 2;
             float mid_x = mid / (N - 1.0f);
             float mid_y = eval_curve(curve, mid_x);
-            tf.g = log2f_(mid_y) / log2f_(mid_x);
+            tf.g = log2f_(mid_y) / log2f_(mid_x);;
             tf.a = 1;
             tf.b = 0;
             tf.e =    tf.c*tf.d + tf.f
