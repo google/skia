@@ -111,7 +111,53 @@ public:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
-    void ensureBitmapBuffers(size_t runSize);
+    struct BufferManager {
+        BufferManager(SkGlyphRunListPainter* painter, size_t size)
+                : fPainter{painter}{
+            reserve(size);
+        }
+
+        ~BufferManager() {
+            fPainter->fPathGlyphs.clear();
+            fPainter->fPathPositions.clear();
+            fPainter->fARGBGlyphsIDs.clear();
+            fPainter->fARGBPositions.clear();
+
+            if (fPainter->fMaxRunSize > 200) {
+                fPainter->fPositions.reset();
+                fPainter->fMaskGlyphs.reset();
+                fPainter->fMaskPositions.reset();
+                fPainter->fPathGlyphs.shrink_to_fit();
+                fPainter->fPathPositions.shrink_to_fit();
+                fPainter->fARGBGlyphsIDs.shrink_to_fit();
+                fPainter->fARGBPositions.shrink_to_fit();
+                fPainter->fMaxRunSize = 0;
+            }
+        }
+
+        void reserve(size_t size) {
+            if (size > fPainter->fMaxRunSize) {
+                fPainter->fPositions.reset(size);
+                fPainter->fMaskGlyphs.reset(size);
+                fPainter->fMaskPositions.reset(size);
+                fPainter->fMaxRunSize = size;
+            }
+        }
+
+        SkGlyphRunListPainter* fPainter;
+    };
+
+    BufferManager SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList) {
+        size_t size = 0;
+        for (const SkGlyphRun& run : glyphRunList) {
+            size = std::max(run.runSize(), size);
+        }
+        return BufferManager(this, size);
+    }
+
+    BufferManager SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun) {
+        return BufferManager(this, glyphRun.runSize());
+    }
 
     void processARGBFallback(
             SkScalar maxGlyphDimension, const SkPaint& fallbackPaint, const SkFont& fallbackFont,
@@ -123,8 +169,14 @@ private:
     const SkSurfaceProps fBitmapFallbackProps;
     const SkColorType fColorType;
     const SkScalerContextFlags fScalerContextFlags;
+
     size_t fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<const SkGlyph*> fMaskGlyphs;
+    SkAutoTMalloc<SkPoint> fMaskPositions;
+
+    std::vector<const SkGlyph*> fPathGlyphs;
+    std::vector<SkPoint> fPathPositions;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
