@@ -1399,7 +1399,15 @@ public:
     ~GrReleaseProcHelper() override {}
 
     void weak_dispose() const override {
+        if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
+        }
+    }
+
+    void callAndClear() {
         fReleaseProc(fReleaseCtx);
+        fReleaseProc = nullptr;
+        fReleaseCtx = nullptr;
     }
 
 private:
