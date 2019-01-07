@@ -108,9 +108,15 @@ static constexpr skcms_Matrix3x3 kDCIP3 = {{
 }};
 
 static constexpr skcms_Matrix3x3 kRec2020 = {{
-    {  0.673459f,   0.165661f,  0.125100f, },
+    {  0.673459f,   0.165661f,  0.125100f  },
     {  0.279033f,   0.675338f,  0.0456288f },
     { -0.00193139f, 0.0299794f, 0.797162f  },
+}};
+
+static constexpr skcms_Matrix3x3 kXYZ = {{
+    { 1.0f, 0.0f, 0.0f },
+    { 0.0f, 1.0f, 0.0f },
+    { 0.0f, 0.0f, 1.0f },
 }};
 
 }
