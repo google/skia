@@ -193,6 +193,41 @@
       return this;
     };
 
+    CanvasKit.SkPath.prototype.addRoundRect = function() {
+      // Takes 3, 4, 6 or 7 args
+      //  - SkRect, radii, ccw
+      //  - SkRect, rx, ry, ccw
+      //  - left, top, right, bottom, radii, ccw
+      //  - left, top, right, bottom, rx, ry, ccw
+      var args = arguments;
+      if (args.length === 3 || args.length === 6) {
+        var radii = args[args.length-2];
+      } else if (args.length === 6 || args.length === 7){
+        // duplicate the given (rx, ry) pairs for each corner.
+        var rx = args[args.length-3];
+        var ry = args[args.length-2];
+        var radii = [rx, ry, rx, ry, rx, ry, rx, ry];
+      } else {
+        SkDebug('addRoundRect expected to take 3, 4, 6, or 7 args. Got ' + args.length);
+        return null;
+      }
+      if (radii.length !== 8) {
+        SkDebug('addRoundRect needs 8 radii provided. Got ' + radii.length);
+        return null;
+      }
+      var rptr = copy1dArray(radii, CanvasKit.HEAPF32);
+      if (args.length === 3 || args.length === 4) {
+        var r = args[0];
+        var ccw = args[args.length - 1];
+        this._addRoundRect(r.fLeft, r.fTop, r.fRight, r.fBottom, rptr, ccw);
+      } else if (args.length === 6 || args.length === 7) {
+        var a = args;
+        this._addRoundRect(a[0], a[1], a[2], a[3], rptr, ccw);
+      }
+      CanvasKit._free(rptr);
+      return this;
+    };
+
     CanvasKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
       // emulates the HTMLCanvas behavior.  See addArc() for the SkPath version.
       // Note input angles are radians.
@@ -504,6 +539,56 @@
       }
     }
     return ptr;
+  }
+
+  // Caching the Float32Arrays can save having to reallocate them
+  // over and over again.
+  var Float32ArrayCache = {};
+
+  // Takes a 2D array of commands and puts them into the WASM heap
+  // as a 1D array. This allows them to referenced from the C++ code.
+  // Returns a 2 element array, with the first item being essentially a
+  // pointer to the array and the second item being the length of
+  // the new 1D array.
+  //
+  // Example usage:
+  // let cmds = [
+  //   [CanvasKit.MOVE_VERB, 0, 10],
+  //   [CanvasKit.LINE_VERB, 30, 40],
+  //   [CanvasKit.QUAD_VERB, 20, 50, 45, 60],
+  // ];
+  function loadCmdsTypedArray(arr) {
+    var len = 0;
+    for (var r = 0; r < arr.length; r++) {
+      len += arr[r].length;
+    }
+
+    var ta;
+    if (Float32ArrayCache[len]) {
+      ta = Float32ArrayCache[len];
+    } else {
+      ta = new Float32Array(len);
+      Float32ArrayCache[len] = ta;
+    }
+    // Flatten into a 1d array
+    var i = 0;
+    for (var r = 0; r < arr.length; r++) {
+      for (var c = 0; c < arr[r].length; c++) {
+        var item = arr[r][c];
+        ta[i] = item;
+        i++;
+      }
+    }
+
+    var ptr = copy1dArray(ta, CanvasKit.HEAPF32);
+    return [ptr, len];
+  }
+
+  CanvasKit.MakePathFromCmds = function(cmds) {
+    var ptrLen = loadCmdsTypedArray(cmds);
+    var path = CanvasKit._MakePathFromCmds(ptrLen[0], ptrLen[1]);
+    CanvasKit._free(ptrLen[0]);
+    return path;
   }
 
   CanvasKit.MakeSkDashPathEffect = function(intervals, phase) {

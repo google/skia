@@ -159,7 +159,7 @@ describe('PathKit\'s Path Behavior', function() {
     }
 
     describe('Command arrays', function(){
-        it('does NOT approximates conics when dumping as toCmds', function(done){
+        it('does NOT approximates conics when dumping as toCmds', function(done) {
             LoadPathKit.then(catchException(done, () => {
                 let path = PathKit.NewPath();
                 path.moveTo(20, 120);

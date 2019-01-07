@@ -250,9 +250,16 @@
 
       canvas.drawPath(path, paint);
 
+      let rrect = new CanvasKit.SkPath()
+                               .addRoundRect(100, 10, 140, 62,
+                                             10, 4, true);
+
+      canvas.drawPath(rrect, paint);
+
       surface.flush();
 
       path.delete();
+      rrect.delete();
       paint.delete();
       // Intentionally just draw frame once
     }
