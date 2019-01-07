@@ -34,6 +34,24 @@
       "revId": "8e13f69262eeb01e926df4eb79e89615cc741be5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73c217db_aca78189",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2019-01-07T17:47:26Z",
+      "side": 1,
+      "message": "Makes sense. Thanks!",
+      "parentUuid": "460da204_3273b4e8",
+      "revId": "8e13f69262eeb01e926df4eb79e89615cc741be5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
