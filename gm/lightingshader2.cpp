@@ -143,9 +143,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint labelPaint;
-        labelPaint.setTypeface(sk_tool_utils::create_portable_typeface("sans-serif",SkFontStyle()));
-        labelPaint.setAntiAlias(true);
-        labelPaint.setTextSize(kLabelSize);
+        SkFont font(
+                sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle()), kLabelSize);
 
         int gridNum = 0;
 
@@ -170,25 +169,25 @@ protected:
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useNormalSource: %d", useNormalSource);
-                            canvas->drawString(label, 0.0f, 0.0f, labelPaint);
+                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useDiffuseShader: %d", useDiffuseShader);
-                            canvas->drawString(label, 0.0f, 0.0f, labelPaint);
+                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useTranslucentPaint: %d", useTranslucentPaint);
-                            canvas->drawString(label, 0.0f, 0.0f, labelPaint);
+                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useTranslucentShader: %d", useTranslucentShader);
-                            canvas->drawString(label, 0.0f, 0.0f, labelPaint);
+                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
                         }
 
                         canvas->restore();

@@ -22,6 +22,8 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix,
                                                              kNone_SkFilterQuality,
                                                              nullptr));
+
+        SkFont font(sk_tool_utils::create_portable_typeface(), 100);
         const SkScalar tile_size = SkIntToScalar(100);
         for (SkScalar y = 0; y < HEIGHT; y += tile_size) {
             for (SkScalar x = 0; x < WIDTH; x += tile_size) {
@@ -36,15 +38,10 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                     "jumped over",
                     "the lazy dog.",
                 };
-                SkPaint textPaint;
-                textPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&textPaint);
-                textPaint.setTextSize(SkIntToScalar(100));
-                int posY = 0;
+                float posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
-                    posY += 100;
-                    canvas->drawString(str[i], SkIntToScalar(0),
-                                     SkIntToScalar(posY), textPaint);
+                    posY += 100.0f;
+                    canvas->drawString(str[i], 0.0f, posY, font, SkPaint());
                 }
                 canvas->restore();
                 canvas->restore();
