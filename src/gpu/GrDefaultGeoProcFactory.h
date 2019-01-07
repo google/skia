@@ -50,7 +50,6 @@ namespace GrDefaultGeoProcFactory {
             kSolid_Type,
             kUniform_Type,
             kAttribute_Type,
-            kAttributeTweakAlpha_Type,
         };
         explicit Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
         Coverage(Type type) : fType(type), fCoverage(0xff) {
