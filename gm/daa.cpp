@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkFont.h"
 #include "SkPath.h"
 
 // This GM shows off a flaw in delta-based rasterizers (DAA, CCPR, etc.).
@@ -19,7 +20,7 @@ DEF_SIMPLE_GM(daa, canvas, K+350, K) {
 
     paint.setColor(SK_ColorBLACK);
     canvas->drawString("Should be a green square with no red showing through.",
-                       K*1.5f, K/2, paint);
+                       K*1.5f, K/2, SkFont(), paint);
 
     paint.setColor(SK_ColorRED);
     canvas->drawRect({0,0,K,K}, paint);

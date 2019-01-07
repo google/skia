@@ -45,7 +45,6 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
         SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
         canvas->clipRect(r);
@@ -55,9 +54,11 @@ protected:
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
-        paint.setTextSize(SkIntToScalar(500));
 
-        canvas->drawString("I", 0, 100, paint);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 500);
+        font.setEdging(SkFont::Edging::kAlias);
+
+        canvas->drawString("I", 0, 100, font, paint);
     }
 private:
     typedef GM INHERITED;
@@ -74,20 +75,21 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
+        SkFont font(sk_tool_utils::create_portable_typeface());
+        font.setEdging(SkFont::Edging::kAlias);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Normal Fill Text", 0, 50, paint);
+        canvas->drawString("Normal Fill Text", 0, 50, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawString("Normal Stroke Text", 0, 100, paint);
+        canvas->drawString("Normal Stroke Text", 0, 100, font, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Gradient Fill Text", 0, 150, paint);
+        canvas->drawString("Gradient Fill Text", 0, 150, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawString("Gradient Stroke Text", 0, 200, paint);
+        canvas->drawString("Gradient Stroke Text", 0, 200, font, paint);
     }
 private:
     typedef GM INHERITED;
