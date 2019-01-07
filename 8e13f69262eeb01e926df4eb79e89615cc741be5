@@ -16,6 +16,24 @@
       "revId": "8e13f69262eeb01e926df4eb79e89615cc741be5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "460da204_3273b4e8",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-07T17:45:48Z",
+      "side": 1,
+      "message": "Yes, the differences are all minor, but they\u0027re a result of doing the modulation in the vertex shader. The old code converted the float coverage to a byte, then did integer math to modulate the GrColor by that value. The new code sends the color in as a uniform, and the coverage as a float attribute, so there\u0027s less quantization happening.",
+      "parentUuid": "c2088353_fb344930",
+      "revId": "8e13f69262eeb01e926df4eb79e89615cc741be5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
