@@ -555,33 +555,6 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
-    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
-        LCD text is preserved when the layer is drawn to the prior layer.
-
-        Calling restore() discards changes to SkMatrix and clip, and draws layer.
-
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
-
-        SkRect bounds suggests but does not define the layer size. To clip drawing to
-        a specific rectangle, use clipRect().
-
-        Optional SkPaint paint applies alpha, SkColorFilter, SkImageFilter, and
-        SkBlendMode when restore() is called.
-
-        Call restoreToCount() with returned value to restore this and subsequent saves.
-
-        Draw text on an opaque background so that LCD text blends correctly with the
-        prior layer. LCD text drawn on a background with transparency may result in
-        incorrect blending.
-
-        @param bounds  hint to limit the size of layer; may be nullptr
-        @param paint   graphics state for layer; may be nullptr
-        @return        depth of saved stack
-    */
-    int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
-
     /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix and clip,
@@ -610,7 +583,7 @@ public:
         kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
     */
     enum SaveLayerFlagsSet {
-        kPreserveLCDText_SaveLayerFlag  = 1 << 1, //!< creates layer for LCD text
+        // kPreserveLCDText_SaveLayerFlag  = 1 << 1, (no longer used)
         kInitWithPrevious_SaveLayerFlag = 1 << 2, //!< initializes with previous contents
         kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag =
                                           1 << 3, //!< experimental: do not use

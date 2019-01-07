@@ -910,10 +910,6 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
     return this->saveLayer(SaveLayerRec(bounds, paint, 0));
 }
 
-int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint) {
-    return this->saveLayer(SaveLayerRec(bounds, paint, kPreserveLCDText_SaveLayerFlag));
-}
-
 int SkCanvas::saveLayer(const SaveLayerRec& rec) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (rec.fPaint && rec.fPaint->nothingToDraw()) {
@@ -1065,8 +1061,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
 
     sk_sp<SkBaseDevice> newDevice;
     {
-        const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
-                                     (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
+        const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType();
         const SkBaseDevice::TileUsage usage = SkBaseDevice::kNever_TileUsage;
         const bool trackCoverage =
                 SkToBool(saveLayerFlags & kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag);
