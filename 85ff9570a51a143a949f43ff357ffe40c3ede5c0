@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d3daf69_511e5d90",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2019-01-07T19:39:46Z",
+      "side": 1,
+      "message": "Double semi-colons at the end of this line.",
+      "revId": "85ff9570a51a143a949f43ff357ffe40c3ede5c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
