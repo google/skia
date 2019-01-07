@@ -153,9 +153,6 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(0xDE000000);
-        paint.setTypeface(fTypeface);
-        paint.setTextSize(11);
-        paint.setTextEncoding(kUTF32_SkTextEncoding);
 
         if (afterFirstFrame) {
 #if SK_SUPPORT_GPU

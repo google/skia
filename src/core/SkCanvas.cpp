@@ -2560,7 +2560,7 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-        const SkTextEncoding encoding = paint.getTextEncoding();
+        const SkTextEncoding encoding = paint.private_internal_getTextEncoding();
         this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }

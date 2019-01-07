@@ -273,7 +273,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     }
 
     SkFontPriv::GlyphCacheProc glyphCacheProc = SkFontPriv::GetGlyphCacheProc(
-                                                    this->getTextEncoding(), nullptr != bounds);
+                                      this->private_internal_getTextEncoding(), nullptr != bounds);
 
     int         n = 1;
     const char* stop = (const char*)text + byteLength;

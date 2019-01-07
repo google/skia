@@ -80,7 +80,7 @@ public:
     }
 
     static SkTextEncoding GetEncoding(const SkPaint& paint) {
-        return paint.getTextEncoding();
+        return paint.private_internal_getTextEncoding();
     }
 
     /** Serializes SkPaint into a buffer. A companion unflatten() call

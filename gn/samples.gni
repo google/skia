@@ -43,7 +43,6 @@ samples_sources = [
   "$_samplecode/SampleFatBits.cpp",
   "$_samplecode/SampleFillType.cpp",
   "$_samplecode/SampleFilter2.cpp",
-  "$_samplecode/SampleFilterFuzz.cpp",
   "$_samplecode/SampleFilterQuality.cpp",
   "$_samplecode/SampleFlutterAnimate.cpp",
   "$_samplecode/SampleFuzz.cpp",
