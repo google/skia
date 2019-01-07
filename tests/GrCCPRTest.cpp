@@ -679,6 +679,61 @@ class CCPR_cache_multiFlush : public CCPRCacheTest {
 };
 DEF_CCPR_TEST(CCPR_cache_multiFlush)
 
+// Ensures a path drawn over mutiple tiles gets cached.
+class CCPR_cache_multiTileCache : public CCPRCacheTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
+               const RecordLastMockAtlasIDs& atlasIDRecorder) override {
+        // Make sure a path drawn over 9 tiles gets cached (1 tile out of 9 is >10% visibility).
+        const SkMatrix m0 = SkMatrix::MakeScale(kCanvasSize*3, kCanvasSize*3);
+        const SkPath p0 = fPaths[0];
+        for (int i = 0; i < 9; ++i) {
+            static constexpr int kRowOrder[9] = {0,1,1,0,2,2,2,1,0};
+            static constexpr int kColumnOrder[9] = {0,0,1,1,0,1,2,2,2};
+
+            SkMatrix tileM = m0;
+            tileM.postTranslate(-kCanvasSize * kColumnOrder[i], -kCanvasSize * kRowOrder[i]);
+            ccpr.drawPath(p0, tileM);
+            ccpr.flush();
+            if (i < 5) {
+                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
+            } else if (5 == i) {
+                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastCopyAtlasID());
+                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
+            } else {
+                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
+            }
+        }
+
+        // Now make sure paths don't get cached when visibility is <10% for every draw (12 tiles).
+        const SkMatrix m1 = SkMatrix::MakeScale(kCanvasSize*4, kCanvasSize*3);
+        const SkPath p1 = fPaths[1];
+        for (int row = 0; row < 3; ++row) {
+            for (int col = 0; col < 4; ++col) {
+                SkMatrix tileM = m1;
+                tileM.postTranslate(-kCanvasSize * col, -kCanvasSize * row);
+                ccpr.drawPath(p1, tileM);
+                ccpr.flush();
+                REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+                REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
+            }
+        }
+
+        // Double-check the cache is still intact.
+        ccpr.drawPath(p0, m0);
+        ccpr.flush();
+        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastRenderedAtlasID());
+
+        ccpr.drawPath(p1, m1);
+        ccpr.flush();
+        REPORTER_ASSERT(reporter, 0 == atlasIDRecorder.lastCopyAtlasID());
+        REPORTER_ASSERT(reporter, 0 != atlasIDRecorder.lastRenderedAtlasID());
+    }
+};
+DEF_CCPR_TEST(CCPR_cache_multiTileCache)
+
 // This test exercises CCPR's cache capabilities by drawing many paths with two different
 // transformation matrices. We then vary the matrices independently by whole and partial pixels,
 // and verify the caching behaved as expected.
