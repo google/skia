@@ -151,7 +151,7 @@ protected:
         paint.setColor(SK_ColorBLACK);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
         paint.setColor(SK_ColorWHITE);
-        canvas->drawSimpleText(outString.c_str(), outString.size(), kUTF8_SkTextEncoding, 5, 15, font, paint);
+        canvas->drawString(outString, 5, 15, font, paint);
     }
 
 #if 0

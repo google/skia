@@ -153,8 +153,7 @@ void CommandSet::drawHelp(SkCanvas* canvas) {
         canvas->drawSimpleText(cmd.fKeyName.c_str(), cmd.fKeyName.size(), kUTF8_SkTextEncoding,
                                x, y, font, paint);
         SkString text = SkStringPrintf(": %s", cmd.fDescription.c_str());
-        canvas->drawSimpleText(text.c_str(), text.size(), kUTF8_SkTextEncoding,
-                               x + keyWidth, y, font, paint);
+        canvas->drawString(text, x + keyWidth, y, font, paint);
         y += font.getSize() + 2;
     }
 }
