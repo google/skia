@@ -215,10 +215,10 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
                                                        int imageHeight,
                                                        GrSurfaceOrigin imageOrigin,
                                                        sk_sp<SkColorSpace> imageColorSpace,
-                                                       TextureFulfillProc textureFulfillProc,
-                                                       TextureReleaseProc textureReleaseProc,
-                                                       PromiseDoneProc promiseDoneProc,
-                                                       TextureContext textureContexts[]) {
+                                                       PromiseImageTextureFulfillProc textureFulfillProc,
+                                                       PromiseImageTextureReleaseProc textureReleaseProc,
+                                                       PromiseImageTextureDoneProc promiseDoneProc,
+                                                       PromiseImageTextureContext textureContexts[]) {
     int numTextures;
     bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
 
