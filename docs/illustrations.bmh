@@ -14,11 +14,11 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 1.5f, 137, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6.5f, 187, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 1.5f, 137, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6.5f, 187, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -30,7 +30,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -38,7 +38,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -73,9 +73,9 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "16-bit word", 5 + 20 * 8, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -87,7 +87,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -95,7 +95,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -128,9 +128,9 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -142,7 +142,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -150,7 +150,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -185,9 +185,9 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -199,7 +199,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -207,7 +207,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -242,9 +242,9 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -256,7 +256,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -264,7 +264,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -299,15 +299,15 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -319,7 +319,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -327,7 +327,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -367,15 +367,15 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "32-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 85, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 137, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 3, 187, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 7, 187, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 2, 237, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 6, 237, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 5, 287, font, paint, SkTextUtils::kCenter_Align);
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
         p.setColor(SK_ColorRED);
@@ -387,7 +387,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -395,7 +395,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -435,12 +435,12 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "64-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "64-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, font, paint, SkTextUtils::kCenter_Align);
     for (int i = 0; i < 4; ++i) {
-        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 187 + i * 100, paint, SkTextUtils::kCenter_Align);
-        SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 4, 237 + i * 100, paint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 20 * 4, 187 + i * 100, font, paint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(high bits)", 5 + 20 * 4, 237 + i * 100, font, paint, SkTextUtils::kCenter_Align);
     }
     auto drawBoxText = [=](SkScalar e[], const char* s[], int count, int n, SkScalar yPos) -> void {
         SkPaint p(paint);
@@ -453,7 +453,7 @@ void draw(SkCanvas* canvas) {
                 int a = width - e[i];
                 if (a == n || a == n + 1 || a == n - 32 || a == n - 31) {
                     char num[3] = {(char) ('0' + n / 10), (char) ('0' + n % 10), '\0'};
-                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, n >= 10 ? num : &num[1], xPos, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                     break;
                 }
             }
@@ -461,7 +461,7 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 10, yPos + 10, font, p, SkTextUtils::kCenter_Align);
         }
         p.setStyle(SkPaint::kStroke_Style);
         for (int i = 0; i <= count; ++i) {
@@ -503,12 +503,12 @@ void draw(SkCanvas* canvas) {
     canvas->scale(1.25f, 1.25f);
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setTextSize(10);
-    SkTextUtils::DrawString(canvas, "128-bit word", 5 + 20 * 16, 20, paint, SkTextUtils::kCenter_Align);
-    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, paint, SkTextUtils::kCenter_Align);
+    SkFont font(nullptr, 10);
+    SkTextUtils::DrawString(canvas, "128-bit word", 5 + 20 * 16, 20, font, paint, SkTextUtils::kCenter_Align);
+    SkTextUtils::DrawString(canvas, "little endian byte order", 5 + 20 * 4, 135, font, paint, SkTextUtils::kCenter_Align);
     for (int i = 0; i < 4; ++i) {
-        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 10 * 4, 187 + i * 100, paint, SkTextUtils::kCenter_Align);
-        SkTextUtils::DrawString(canvas, "(high bits)", 105 + 10 * 4, 237 + i * 100, paint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(low bits)", 5 + 10 * 4, 187 + i * 100, font, paint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "(high bits)", 105 + 10 * 4, 237 + i * 100, font, paint, SkTextUtils::kCenter_Align);
     }
     auto drawBoxText = [=](SkScalar e[], const char* s[], const char* nums[] , 
              int count, int n, SkScalar yPos) -> void {
@@ -522,9 +522,9 @@ void draw(SkCanvas* canvas) {
                 if (2 == count) {
                     x += stringIndex * 12 + (stringIndex ? 8 : 0);
                 }
-                SkTextUtils::DrawString(canvas, nums[stringIndex], x, yPos - 5, p, SkTextUtils::kCenter_Align);
+                SkTextUtils::DrawString(canvas, nums[stringIndex], x, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                 if (1 == count) {
-                    SkTextUtils::DrawString(canvas, nums[stringIndex], xPos + 100, yPos - 5, p, SkTextUtils::kCenter_Align);
+                    SkTextUtils::DrawString(canvas, nums[stringIndex], xPos + 100, yPos - 5, font, p, SkTextUtils::kCenter_Align);
                 }
                 ++stringIndex;
             }
@@ -532,9 +532,9 @@ void draw(SkCanvas* canvas) {
         }
         p.setColor(SK_ColorBLACK);
         for (int i = 0; i < count; ++i) {
-            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, s[i], 5 + (e[i] + e[i + 1]) * 5, yPos + 10, font, p, SkTextUtils::kCenter_Align);
             if (1 == count) {
-                SkTextUtils::DrawString(canvas, s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, p, SkTextUtils::kCenter_Align);
+                SkTextUtils::DrawString(canvas, s[i], 105 + (e[i] + e[i + 1]) * 5, yPos + 10, font, p, SkTextUtils::kCenter_Align);
             }
         }
         p.setStyle(SkPaint::kStroke_Style);
@@ -588,11 +588,10 @@ void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextSize(16);
-    SkPaint dstPaint = labelPaint;
-    dstPaint.setTextSize(80);
+    SkFont labelFont(nullptr, 16);
+    SkPaint dstPaint = srcPaint;
     dstPaint.setColor(0xFF606080);
-    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+    SkFont dstFont(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()), 80);
 
     SkBitmap srcBits;
     srcBits.allocN32Pixels(80, 84);
@@ -610,10 +609,10 @@ void draw(SkCanvas* canvas) {
                         SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
                         SkBlendMode::kDstIn, SkBlendMode::kDstOut,
                         SkBlendMode::kClear, SkBlendMode::kXor } ) {
-        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
-        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint, SkTextUtils::kCenter_Align);
         canvas->translate(80, 0);
         if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
             canvas->translate(-80 * 5, 100);
@@ -637,11 +636,10 @@ void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextSize(16);
-    SkPaint dstPaint = labelPaint;
-    dstPaint.setTextSize(80);
+    SkFont labelFont(nullptr, 16);
+    SkPaint dstPaint = srcPaint;
     dstPaint.setColor(0xFF606080);
-    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+    SkFont dstFont(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()), 80);
 
     srcPaint.setColor(0xFFcc6633);
     SkPath srcPath;
@@ -657,10 +655,10 @@ void draw(SkCanvas* canvas) {
                         SkBlendMode::kDst, SkBlendMode::kDstATop, SkBlendMode::kDstOver,
                         SkBlendMode::kDstIn, SkBlendMode::kDstOut,
                         SkBlendMode::kClear, SkBlendMode::kXor } ) {
-        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint, SkTextUtils::kCenter_Align);
         canvas->translate(80, 0);
         if (SkBlendMode::kSrcOut == blend || SkBlendMode::kDstOut == blend) {
             canvas->translate(-80 * 5, 100);
@@ -684,11 +682,10 @@ void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextSize(16);
-    SkPaint dstPaint = labelPaint;
-    dstPaint.setTextSize(80);
+    SkFont labelFont(nullptr, 16);
+    SkPaint dstPaint = srcPaint;
     dstPaint.setColor(0xFF606080);
-    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+    SkFont dstFont(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()), 80);
 
     srcPaint.setColor(0xFFcc6633);
     SkPath srcPath;
@@ -699,10 +696,11 @@ void draw(SkCanvas* canvas) {
             SkBlendMode::kDarken, SkBlendMode::kLighten, SkBlendMode::kColorDodge,
             SkBlendMode::kColorBurn, SkBlendMode::kHardLight, SkBlendMode::kSoftLight,
             SkBlendMode::kDifference, SkBlendMode::kExclusion, SkBlendMode::kMultiply } ) {
-        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint,
+                SkTextUtils::kCenter_Align);
         canvas->translate(90, 0);
         if (SkBlendMode::kLighten == blend || SkBlendMode::kDifference == blend) {
             canvas->translate(-90 * 5, 100);
@@ -726,11 +724,10 @@ void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextSize(16);
+    SkFont labelFont(nullptr, 16);
     SkPaint dstPaint = labelPaint;
-    dstPaint.setTextSize(80);
     dstPaint.setColor(0xFF606080);
-    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+    SkFont dstFont(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()), 80);
 
     srcPaint.setColor(0xFFcc6633);
     SkPath srcPath;
@@ -739,10 +736,10 @@ void draw(SkCanvas* canvas) {
     canvas->drawColor(0, SkBlendMode::kClear);
     for (auto blend : { SkBlendMode::kHue, SkBlendMode::kSaturation, SkBlendMode::kColor,
                         SkBlendMode::kLuminosity } ) {
-        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);
         srcPaint.setBlendMode(blend);
         canvas->drawPath(srcPath, srcPaint);
-        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelPaint,
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(blend), 50, 100, labelFont, labelPaint,
                 SkTextUtils::kCenter_Align);
         canvas->translate(90, 0);
     }
@@ -764,11 +761,10 @@ void draw(SkCanvas* canvas) {
     SkPaint srcPaint;
     srcPaint.setAntiAlias(true);
     SkPaint labelPaint = srcPaint;
-    labelPaint.setTextSize(16);
-    SkPaint dstPaint = labelPaint;
-    dstPaint.setTextSize(80);
+    SkFont labelFont(nullptr, 16);
+    SkPaint dstPaint = srcPaint;
     dstPaint.setColor(0xFF606080);
-    dstPaint.setTypeface(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()));
+    SkFont dstFont(SkTypeface::MakeFromName("Roboto", SkFontStyle::Bold()), 80);
 
     SkBitmap srcBits;
     srcBits.allocN32Pixels(80, 84);
@@ -783,15 +779,15 @@ void draw(SkCanvas* canvas) {
     canvas->drawColor(0, SkBlendMode::kClear);
     srcPaint.setBlendMode(SkBlendMode::kModulate);
     for (auto step: { 1, 2 } ) {
-        SkTextUtils::DrawString(canvas, "&", 50, 80, dstPaint, SkTextUtils::kCenter_Align);
+        SkTextUtils::DrawString(canvas, "&", 50, 80, dstFont, dstPaint, SkTextUtils::kCenter_Align);
         if (1 == step) {
             canvas->drawBitmap(srcBits, 0, 0, &srcPaint);
-            SkTextUtils::DrawString(canvas, "Bitmap", 50, 18, labelPaint, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, "Bitmap", 50, 18, labelFont, labelPaint, SkTextUtils::kCenter_Align);
         } else {
             canvas->drawPath(srcPath, srcPaint);
-            SkTextUtils::DrawString(canvas, "Geometry", 50, 18, labelPaint, SkTextUtils::kCenter_Align);
+            SkTextUtils::DrawString(canvas, "Geometry", 50, 18, labelFont, labelPaint, SkTextUtils::kCenter_Align);
         }
-        SkTextUtils::DrawString(canvas, SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelPaint,
+        SkTextUtils::DrawString(canvas, SkBlendMode_Name(SkBlendMode::kModulate), 50, 100, labelFont, labelPaint,
                 SkTextUtils::kCenter_Align);
         canvas->translate(120, 0);
     }
@@ -848,9 +844,9 @@ void draw(SkCanvas* canvas) {
     lp.setAntiAlias(true);
     SkPaint tp(lp);
     SkPaint sp(tp);
-    SkPaint bp(tp);
-    bp.setFakeBoldText(true);
-    sp.setTextSize(10);
+    SkFont bf;
+    bf.setEmbolden(true);
+    SkFont sf(nullptr, 10);
     lp.setColor(SK_ColorGRAY);
     canvas->translate(0, 32);
     const int tl = 115;
@@ -867,7 +863,8 @@ void draw(SkCanvas* canvas) {
        matrix.setSinCos(v.fY, v.fX, pts[0].fX, pts[0].fY);
        canvas->save();
        canvas->concat(matrix);
-       canvas->drawText(headers[col -1], strlen(headers[col -1]), pts[0].fX, pts[0].fY, bp);
+       canvas->drawSimpleText(headers[col -1], strlen(headers[col -1]), SkTextEncoding::kUTF8,
+            pts[0].fX, pts[0].fY, bf, lp);
        canvas->restore();
     }
     for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {
@@ -879,17 +876,21 @@ void draw(SkCanvas* canvas) {
         if (row == SK_ARRAY_COUNT(dataSet)) {
             break;
         }
-        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);
+        canvas->drawSimpleText(dataSet[row].name, strlen(dataSet[row].name),
+              SkTextEncoding::kUTF8, 5, 117 + row * 25, bf, lp);
         if (dataSet[row].super) {
-            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));
-            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * 25, sp);
+            SkScalar width = bf.measureText(dataSet[row].name, strlen(dataSet[row].name),
+                    SkTextEncoding::kUTF8);
+            canvas->drawSimpleText(&dataSet[row].super, 1, SkTextEncoding::kUTF8,
+                    8 + width, 112 + row * 25, sf, lp);
         }
         for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {
             int val = dataSet[row].yn[col];
             canvas->drawString(yna[SkTMin(2, val + 1)], tl + 5 + col * 35, 117 + row * 25, tp);
             if (val > 1) {
                 char supe = '0' + val - 1;
-                canvas->drawText(&supe, 1, tl + 25 + col * 35, 112 + row * 25, sp);
+                canvas->drawSimpleText(&supe, 1, SkTextEncoding::kUTF8,
+                     tl + 25 + col * 35, 112 + row * 25, sf, lp);
             }
         }
     }

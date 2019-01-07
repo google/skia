@@ -725,22 +725,25 @@ If Font_Linear is clear, it is the same as setting Hinting to SkFontHinting::kNo
 
 #Example
     #Height 128
-      void draw(SkCanvas* canvas) {
-          SkPaint paint;
-          paint.setAntiAlias(true);
-          const char testStr[] = "abcd efgh";
-          for (int textSize : { 12, 24 } ) {
-              paint.setTextSize(textSize);
-              for (auto linearText : { false, true } ) {
-                  paint.setLinearText(linearText);
-                  SkString width;
-                  width.appendScalar(paint.measureText(testStr, SK_ARRAY_COUNT(testStr), nullptr));
-                  canvas->translate(0, textSize + 4);
-                  canvas->drawString(testStr, 10, 0, paint);
-                  canvas->drawString(width, 128, 0, paint);
-              }
-           }
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        const char testStr[] = "abcd efgh";
+        size_t count = 9;
+        for (int textSize : { 12, 24 } ) {
+            SkFont font(nullptr, textSize);
+            for (auto linearMetrics : { false, true } ) {
+                font.setLinearMetrics(linearMetrics);
+                SkString width;
+                width.appendScalar(font.measureText(testStr, count, SkTextEncoding::kUTF8));
+                canvas->translate(0, textSize + 4);
+                canvas->drawSimpleText(testStr, count, SkTextEncoding::kUTF8,
+                    10, 0, font, paint);
+                canvas->drawSimpleText(width.c_str(), width.size(), SkTextEncoding::kUTF8,
+                    128, 0, font, paint);
+            }
         }
+    }
     ##
 
     #SeeAlso isLinearText Hinting
@@ -3000,12 +3003,14 @@ void draw(SkCanvas* canvas) {
     const uint32_t hello32[] = { 'H', 'e', 'l', 'l', 'o', 0x263A };
     paint.setTextSize(24);
     canvas->drawText(hello8, sizeof(hello8) - 1, 10, 30, paint);
-    paint.setTextEncoding(kUTF16_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF16);
     canvas->drawText(hello16, sizeof(hello16), 10, 60, paint);
-    paint.setTextEncoding(kUTF32_SkTextEncoding);
+    paint.setTextEncoding(SkTextEncoding::kUTF32);
     canvas->drawText(hello32, sizeof(hello32), 10, 90, paint);
     uint16_t glyphs[SK_ARRAY_COUNT(hello32)];
-    paint.textToGlyphs(hello32, sizeof(hello32), glyphs);
+    SkFont font;
+    font.textToGlyphs(hello32, sizeof(hello32), SkTextEncoding::kUTF32,
+            glyphs, SK_ARRAY_COUNT(hello32));
     paint.setTextEncoding(kGlyphID_SkTextEncoding);
     canvas->drawText(glyphs, sizeof(glyphs), 10, 120, paint);
 }
@@ -3053,151 +3058,6 @@ void draw(SkCanvas* canvas) {
 ##
 
 #Subtopic Text_Encoding ##
-# ------------------------------------------------------------------------------
-#Subtopic Font_Metrics
-
-#Method SkScalar getFontMetrics(SkFontMetrics* metrics) const
-
-#In Font_Metrics
-#Line # returns Typeface metrics scaled by text size ##
-#Populate
-
-#Example
-    #Height 128
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextSize(32);
-            SkScalar lineHeight = paint.getFontMetrics(nullptr);
-            canvas->drawString("line 1", 10, 40, paint);
-            canvas->drawString("line 2", 10, 40 + lineHeight, paint);
-        }
-    ##
-
-    #SeeAlso Font_Size Typeface Typeface_Methods
-
-##
-
-
-#Method SkScalar getFontSpacing() const
-
-#In Font_Metrics
-#Line # returns recommended spacing between lines ##
-#Populate
-
-#Example
-        SkPaint paint;
-        for (SkScalar textSize : { 12, 18, 24, 32 } ) {
-            paint.setTextSize(textSize);
-            SkDebugf("textSize: %g fontSpacing: %g\n", textSize, paint.getFontSpacing());
-        }
-
-        #StdOut
-            textSize: 12 fontSpacing: 13.9688
-            textSize: 18 fontSpacing: 20.9531
-            textSize: 24 fontSpacing: 27.9375
-            textSize: 32 fontSpacing: 37.25
-        ##
-    ##
-
-##
-
-#Subtopic Font_Metrics ##
-
-# ------------------------------------------------------------------------------
-
-#Method int textToGlyphs(const void* text, size_t byteLength,
-                     SkGlyphID glyphs[]) const
-#In Utility
-#Line # converts text into glyph indices ##
-#Populate
-
-#Example
-    #Height 64
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };
-            std::vector<SkGlyphID> glyphs;
-            int count = paint.textToGlyphs(utf8, sizeof(utf8), nullptr);
-            glyphs.resize(count);
-            (void) paint.textToGlyphs(utf8, sizeof(utf8), &glyphs.front());
-            paint.setTextEncoding(kGlyphID_SkTextEncoding);
-            paint.setTextSize(32);
-            canvas->drawText(&glyphs.front(), glyphs.size() * sizeof(SkGlyphID), 10, 40, paint);
-        }
-    ##
-
-##
-
-#Method int countText(const void* text, size_t byteLength) const
-#In Utility
-#Line # returns number of Glyphs in text ##
-#Populate
-
-#Example
-        SkPaint paint;
-        const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };
-        SkDebugf("count = %d\n", paint.countText(utf8, sizeof(utf8)));
-
-        #StdOut
-            count = 5
-        ##
-    ##
-##
-
-# ------------------------------------------------------------------------------
-
-#Method bool containsText(const void* text, size_t byteLength) const
-#In Utility
-#Line # returns if all text corresponds to Glyphs ##
-#Populate
-
-#NoExample
-    #Description
-    containsText succeeds for degree symbol, but cannot find a glyph index
-    corresponding to the Unicode surrogate code point.
-    ##
-        SkPaint paint;
-        const uint16_t goodChar = 0x00B0;  // degree symbol
-        const uint16_t badChar = 0xD800;   // Unicode surrogate
-        paint.setTextEncoding(kUTF16_SkTextEncoding);
-        SkDebugf("0x%04x %c= has char\n", goodChar,
-                paint.containsText(&goodChar, 2) ? '=' : '!');
-        SkDebugf("0x%04x %c= has char\n", badChar,
-                paint.containsText(&badChar, 2) ? '=' : '!');
-
-        #StdOut
-            0x00b0 == has char
-            0xd800 != has char
-        ##
-    ##
-
-    #Example
-    #Description
-    containsText returns true that glyph index is greater than zero, not
-    that it corresponds to an entry in Typeface.
-    ##
-        SkPaint paint;
-        const uint16_t goodGlyph = 511;
-        const uint16_t zeroGlyph = 0;
-        const uint16_t badGlyph = 65535; // larger than glyph count in font
-        paint.setTextEncoding(kGlyphID_SkTextEncoding);
-        SkDebugf("0x%04x %c= has glyph\n", goodGlyph,
-                paint.containsText(&goodGlyph, 2) ? '=' : '!');
-        SkDebugf("0x%04x %c= has glyph\n", zeroGlyph,
-                paint.containsText(&zeroGlyph, 2) ? '=' : '!');
-        SkDebugf("0x%04x %c= has glyph\n", badGlyph,
-                paint.containsText(&badGlyph, 2) ? '=' : '!');
-
-        #StdOut
-            0x01ff == has glyph
-            0x0000 != has glyph
-            0xffff == has glyph
-        ##
-    ##
-
-#SeeAlso setTextEncoding Typeface
-
-##
 
 # ------------------------------------------------------------------------------
 
@@ -3231,159 +3091,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-# ------------------------------------------------------------------------------
-#Subtopic Measure_Text
-#Line # width, height, bounds of text ##
-
-#Method SkScalar measureText(const void* text, size_t length, SkRect* bounds) const
-
-#In Measure_Text
-#Line # returns advance width and bounds of text ##
-#Populate
-
-#Example
-    #Height 64
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(50);
-            const char str[] = "ay^jZ";
-            const int count = sizeof(str) - 1;
-            canvas->drawText(str, count, 25, 50, paint);
-            SkRect bounds;
-            paint.measureText(str, count, &bounds);
-            canvas->translate(25, 50);
-            paint.setStyle(SkPaint::kStroke_Style);
-            canvas->drawRect(bounds, paint);
-        }
-    ##
-
-##
-
-#Method SkScalar measureText(const void* text, size_t length) const
-
-#In Measure_Text
-#Populate
-
-#Example
-        SkPaint paint;
-        SkDebugf("default width = %g\n", paint.measureText("!", 1));
-        paint.setTextSize(paint.getTextSize() * 2);
-        SkDebugf("double width = %g\n", paint.measureText("!", 1));
-
-        #StdOut
-            default width = 5
-            double width = 10
-        ##
-    ##
-
-##
-
-#Method int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
-                      SkRect bounds[] = nullptr) const
-#In Measure_Text
-#Line # returns advance and bounds for each glyph in text ##
-#Populate
-
-#Example
-    #Height 160
-    #Description
-    Bounds of Glyphs increase for stroked text, but text advance remains the same.
-    The underlines show the text advance, spaced to keep them distinct.
-    ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(50);
-            const char str[] = "abc";
-            const int bytes = sizeof(str) - 1;
-            int count = paint.getTextWidths(str, bytes, nullptr);
-            std::vector<SkScalar> widths;
-            std::vector<SkRect> bounds;
-            widths.resize(count);
-            bounds.resize(count);
-            for (int loop = 0; loop < 2; ++loop) {
-                (void) paint.getTextWidths(str, count, &widths.front(), &bounds.front());
-                SkPoint loc = { 25, 50 };
-                canvas->drawText(str, bytes, loc.fX, loc.fY, paint);
-                paint.setStyle(SkPaint::kStroke_Style);
-                paint.setStrokeWidth(0);
-                SkScalar advanceY = loc.fY + 10;
-                for (int index = 0; index < count; ++index) {
-                    bounds[index].offset(loc.fX, loc.fY);
-                    canvas->drawRect(bounds[index], paint);
-                    canvas->drawLine(loc.fX, advanceY, loc.fX + widths[index], advanceY, paint);
-                    loc.fX += widths[index];
-                    advanceY += 5;
-                }
-                canvas->translate(0, 80);
-                paint.setStrokeWidth(3);
-            }
-        }
-    ##
-
-##
-
-#Subtopic Measure_Text ##
-# ------------------------------------------------------------------------------
-#Subtopic Text_Path
-#Line # geometry of Glyphs ##
-
-Text_Path describes the geometry of Glyphs used to draw text.
-
-#Method void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
-                     SkPath* path) const
-#In Text_Path
-#Line # returns Path equivalent to text ##
-#Populate
-
-#Example
-    #Description
-    Text is added to Path, offset, and subtracted from Path, then added at
-    the offset location. The result is rendered with one draw call.
-    ##
-    #Height 128
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextSize(80);
-            SkPath path, path2;
-            paint.getTextPath("ABC", 3, 20, 80, &path);
-            path.offset(20, 20, &path2);
-            Op(path, path2, SkPathOp::kDifference_SkPathOp, &path);
-            path.addPath(path2);
-            paint.setStyle(SkPaint::kStroke_Style);
-            canvas->drawPath(path, paint);
-        }
-    ##
-
-##
-
-#Method void getPosTextPath(const void* text, size_t length,
-                        const SkPoint pos[], SkPath* path) const
-#In Text_Path
-#Line # returns Path equivalent to positioned text ##
-#Populate
-
-#Example
-    #Height 85
-    #Description
-    Simplifies three Glyphs to eliminate overlaps, and strokes the result.
-    ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            paint.setTextSize(80);
-            SkPath path, path2;
-            SkPoint pos[] = {{20, 60}, {30, 70}, {40, 80}};
-            paint.getPosTextPath("ABC", 3, pos, &path);
-            Simplify(path, &path);
-            paint.setStyle(SkPaint::kStroke_Style);
-            canvas->drawPath(path, paint);
-        }
-    ##
-
-##
-
-#Subtopic Text_Path ##
 # ------------------------------------------------------------------------------
 
 #Method bool nothingToDraw() const

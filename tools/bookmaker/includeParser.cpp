@@ -310,11 +310,18 @@ bool IncludeParser::advanceInclude(TextParser& i) {
     if ('{' == i.peek()) {
         if (looks_like_method(i)) {
             fCheck.fState = CheckCode::State::kMethod;
-            if (!i.skipToBalancedEndBracket('{', '}')) {
-                i.reportError("unbalanced open brace");
+            bool inBalance = false;
+            TextParser paren(i.fFileName, i.fStart, i.fEnd, i.fLineCount);
+            paren.skipToEndBracket('(');
+            paren.skipToBalancedEndBracket('(', ')');
+            inBalance = i.fChar < paren.fChar;
+            if (!inBalance) {
+                if (!i.skipToBalancedEndBracket('{', '}')) {
+                    i.reportError("unbalanced open brace");
+                }
+                i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
+                return false;
             }
-            i.skipToLineStart(&fCheck.fIndent, &fCheck.fWriteReturn);
-            return false;
         } else if (looks_like_class_decl(i)) {
             fCheck.fState = CheckCode::State::kClassDeclaration;
             fCheck.fPrivateBrace = fCheck.fBraceCount + 1;
@@ -434,9 +441,18 @@ string IncludeParser::writeCodeBlock(const Definition& iDef) {
         i.fEnd = loc;
     }
     if (i.contains("{", i.fEnd, &loc)) {
-        i.fEnd = loc + 1;
-        while (i.fEnd < iDef.fContentEnd && ' ' >= i.fEnd[0]) {
-            ++i.fEnd;
+        bool inBalance = false;
+        if (MarkType::kMethod == iDef.fMarkType) {
+            TextParser paren(&iDef);
+            paren.skipToEndBracket('(');
+            paren.skipToBalancedEndBracket('(', ')');
+            inBalance = loc < paren.fChar;
+        }
+        if (!inBalance) {
+            i.fEnd = loc + 1;
+            while (i.fEnd < iDef.fContentEnd && ' ' >= i.fEnd[0]) {
+                ++i.fEnd;
+            }
         }
     }
     while (i.fEnd > i.fStart && ' ' == i.fEnd[-1]) {

@@ -889,7 +889,7 @@ private:
 #ifdef SK_SUPPORT_LEGACY_PAINTTEXTENCODING
     /**
      *  Returns the text encoding. Text encoding describes how to interpret the text bytes pass
-     *  to methods like measureText() and SkCanvas::drawText().
+     *  to methods like SkFont::measureText() and SkCanvas::drawText().
      *  @return the text encoding
      */
     SkTextEncoding getTextEncoding() const {
@@ -898,7 +898,7 @@ private:
 
     /**
      *  Sets the text encoding. Text encoding describes how to interpret the text bytes pass
-     *  to methods like measureText() and SkCanvas::drawText().
+     *  to methods like SkFont::measureText() and SkCanvas::drawText().
      *  @param encoding  the new text encoding
      */
     void setTextEncoding(SkTextEncoding encoding);
@@ -909,63 +909,20 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 
-    /** Returns SkFontMetrics associated with SkTypeface.
-        The return value is the recommended spacing between lines: the sum of metrics
-        descent, ascent, and leading.
-        If metrics is not nullptr, SkFontMetrics is copied to metrics.
-        Results are scaled by text size but does not take into account
-        dimensions required by text scale x, text skew x, fake bold,
-        style stroke, and SkPathEffect.
-
-        @param metrics  storage for SkFontMetrics; may be nullptr
-        @return         recommended spacing between lines
+    /** Deprecated; use SkFont::getMetrics instead
     */
     SkScalar getFontMetrics(SkFontMetrics* metrics) const;
 
-    /** Returns the recommended spacing between lines: the sum of metrics
-        descent, ascent, and leading.
-        Result is scaled by text size but does not take into account
-        dimensions required by stroking and SkPathEffect.
-        Returns the same result as getFontMetrics().
-
-        @return  recommended spacing between lines
+    /** Deprecated; use SkFont::getSpacing instead
     */
     SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr); }
 
-    /** Converts text into glyph indices.
-        Returns the number of glyph indices represented by text.
-        SkTextEncoding specifies how text represents characters or glyphs.
-        glyphs may be nullptr, to compute the glyph count.
-
-        Does not check text for valid character codes or valid glyph indices.
-
-        If byteLength equals zero, returns zero.
-        If byteLength includes a partial character, the partial character is ignored.
-
-        If SkTextEncoding is kUTF8_SkTextEncoding and
-        text contains an invalid UTF-8 sequence, zero is returned.
-
-        @param text        character storage encoded with SkTextEncoding
-        @param byteLength  length of character storage in bytes
-        @param glyphs      storage for glyph indices; may be nullptr
-        @return            number of glyphs represented by text of length byteLength
+    /** Deprecated; use SkFont::textToGlyphs instead
     */
     int textToGlyphs(const void* text, size_t byteLength,
                      SkGlyphID glyphs[]) const;
 
-    /** Returns true if all text corresponds to a non-zero glyph index.
-        Returns false if any characters in text are not supported in
-        SkTypeface.
-
-        If SkTextEncoding is kGlyphID_SkTextEncoding,
-        returns true if all glyph indices in text are non-zero;
-        does not check to see if text contains valid glyph indices for SkTypeface.
-
-        Returns true if byteLength is zero.
-
-        @param text        array of characters or glyphs
-        @param byteLength  number of bytes in text array
-        @return            true if all text corresponds to a non-zero glyph index
+    /** Deprecated; use SkFont::containsText instead
     */
     bool containsText(const void* text, size_t byteLength) const;
 #endif
@@ -984,90 +941,31 @@ public:
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
-    /** Returns the number of glyphs in text.
-        Uses SkTextEncoding to count the glyphs.
-        Returns the same result as textToGlyphs().
-
-        @param text        character storage encoded with SkTextEncoding
-        @param byteLength  length of character storage in bytes
-        @return            number of glyphs represented by text of length byteLength
+    /** Deprecated; use SkFont::countText instead
     */
     int countText(const void* text, size_t byteLength) const;
 
-    /** Returns the advance width of text.
-        The advance is the normal distance to move before drawing additional text.
-        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
-        and text size, text scale x, text skew x, stroke width, and
-        SkPathEffect to scale the metrics and bounds.
-        Returns the bounding box of text if bounds is not nullptr.
-        The bounding box is computed as if the text was drawn at the origin.
-
-        @param text    character codes or glyph indices to be measured
-        @param length  number of bytes of text to measure
-        @param bounds  returns bounding box relative to (0, 0) if not nullptr
-        @return        advance width or height
+    /** Deprecated; use SkFont::measureText instead
     */
     SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
 
-    /** Returns the advance width of text.
-        The advance is the normal distance to move before drawing additional text.
-        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
-        and text size to scale the metrics.
-        Does not scale the advance or bounds by fake bold or SkPathEffect.
-
-        @param text    character codes or glyph indices to be measured
-        @param length  number of bytes of text to measure
-        @return        advance width or height
+    /** Deprecated; use SkFont::measureText instead
     */
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, nullptr);
     }
 
-    /** Retrieves the advance and bounds for each glyph in text, and returns
-        the glyph count in text.
-        Both widths and bounds may be nullptr.
-        If widths is not nullptr, widths must be an array of glyph count entries.
-        if bounds is not nullptr, bounds must be an array of glyph count entries.
-        Uses SkTextEncoding to decode text, SkTypeface to get the font metrics,
-        and text size to scale the widths and bounds.
-        Does not scale the advance by fake bold or SkPathEffect.
-        Does include fake bold and SkPathEffect in the bounds.
-
-        @param text        character codes or glyph indices to be measured
-        @param byteLength  number of bytes of text to measure
-        @param widths      returns text advances for each glyph; may be nullptr
-        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
-        @return            glyph count in text
+    /** Deprecated; use SkFont::getWidthsBounds instead
     */
     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = nullptr) const;
 
-    /** Returns the geometry as SkPath equivalent to the drawn text.
-        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        All of the glyph paths are stored in path.
-        Uses x, y, to position path.
-
-        @param text    character codes or glyph indices
-        @param length  number of bytes of text
-        @param x       x-axis value of the origin of the text
-        @param y       y-axis value of the origin of the text
-        @param path    geometry of the glyphs
+    /** Deprecated; use SkFont::getPath instead
     */
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
-    /** Returns the geometry as SkPath equivalent to the drawn text.
-        Uses SkTextEncoding to decode text, SkTypeface to get the glyph paths,
-        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
-        All of the glyph paths are stored in path.
-        Uses pos array to position path.
-        pos contains a position for each glyph.
-
-        @param text    character codes or glyph indices
-        @param length  number of bytes of text
-        @param pos     positions of each glyph
-        @param path    geometry of the glyphs
+    /** Deprecated; use SkFont::getPath instead
     */
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;

@@ -44,7 +44,11 @@ public:
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
 
-    // Experimental
+    /** Constructs SkFont with default values with SkTypeface.
+
+        @param typeface  font and style used to draw and measure text
+        @return          initialized SkFont
+    */
     explicit SkFont(sk_sp<SkTypeface> typeface);
 
 
@@ -68,7 +72,13 @@ public:
         @return      true if SkFont pair are equivalent
     */
     bool operator==(const SkFont& font) const;
-    // Experimental
+
+    /** Compares SkFont and font, and returns true if they are not equivalent.
+        May return true if SkTypeface has identical contents but different pointers.
+
+        @param font  font to compare
+        @return      true if SkFont pair are not equivalent
+    */
     bool operator!=(const SkFont& font) const { return !(*this == font); }
 
     /** If true, instructs the font manager to always hint glyphs.
@@ -334,9 +344,21 @@ public:
         return this->measureText(text, byteLength, encoding, bounds, nullptr);
     }
 
-    // Experimental
+    /** Returns the advance width of text.
+        The advance is the normal distance to move before drawing additional text.
+        Returns the bounding box of text if bounds is not nullptr. paint
+        stroke width or SkPathEffect may modify the advance with.
+
+        @param text        character storage encoded with SkTextEncoding
+        @param byteLength  length of character storage in bytes
+        @param encoding    one of: kUTF8_SkTextEncoding, kUTF16_SkTextEncoding,
+                           kUTF32_SkTextEncoding, kGlyphID_SkTextEncoding
+        @param bounds      returns bounding box relative to (0, 0) if not nullptr
+        @param paint       optional; may be nullptr
+        @return            number of glyphs represented by text of length byteLength
+    */
     SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         SkRect* bounds, const SkPaint*) const;
+                         SkRect* bounds, const SkPaint* paint) const;
 
     /** DEPRECATED
         Retrieves the advance and bounds for each glyph in glyphs.
@@ -358,8 +380,7 @@ public:
         this->getWidths(glyphs, count, widths);
     }
 
-    /** Experimental
-        Retrieves the advance and bounds for each glyph in glyphs.
+    /** Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.
         If widths is not nullptr, widths must be an array of count entries.
         if bounds is not nullptr, bounds must be an array of count entries.
@@ -372,8 +393,7 @@ public:
         this->getWidthsBounds(glyphs, count, widths, nullptr, nullptr);
     }
 
-    /** Experimental.
-        Retrieves the advance and bounds for each glyph in glyphs.
+    /** Retrieves the advance and bounds for each glyph in glyphs.
         Both widths and bounds may be nullptr.
         If widths is not nullptr, widths must be an array of count entries.
         if bounds is not nullptr, bounds must be an array of count entries.
@@ -388,8 +408,7 @@ public:
                          const SkPaint* paint) const;
 
 
-    /** Experimental.
-        Retrieves the bounds for each glyph in glyphs.
+    /** Retrieves the bounds for each glyph in glyphs.
         bounds must be an array of count entries.
         If paint is not nullptr, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
 
@@ -403,8 +422,7 @@ public:
         this->getWidthsBounds(glyphs, count, nullptr, bounds, paint);
     }
 
-    /** Experimental
-        Retrieves the positions for each glyph, beginning at the specified origin. The caller
+    /** Retrieves the positions for each glyph, beginning at the specified origin. The caller
         must allocated at least count number of elements in the pos[] array.
 
         @param glyphs   array of glyph indices to be positioned
@@ -414,8 +432,7 @@ public:
      */
     void getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin = {0, 0}) const;
 
-    /** Experimental
-        Retrieves the x-positions for each glyph, beginning at the specified origin. The caller
+    /** Retrieves the x-positions for each glyph, beginning at the specified origin. The caller
         must allocated at least count number of elements in the xpos[] array.
 
         @param glyphs   array of glyph indices to be positioned

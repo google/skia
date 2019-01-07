@@ -187,7 +187,8 @@ replicate replicated replicates report reports represent representation represen
 representative represented representing represents request requested requests require 
 required requirements requires requiring resemble reserve reserved
 reset resets reside residing resolution
-resolves resource resources respect respects responsible restore restored restores restoring
+resolves resource resources respect respected respects
+responsible restore restored restores restoring
 restrict restricted restriction restrictive restricts result resulting results retain
 retained retains retrieve retrieved retrieves retroactive return returned returning returns
 reused reveals reverse reversed reverses revert rewinds right right-bottom right-top rightmost root
@@ -249,7 +250,7 @@ wide-open widens wider width widths will wind winding windows winds with within 
 word words work works world would wrap wrapped wraps writable write writes writing 
 written wrong 
 
-x-axis x-coordinate x-radii
+x-axis x-coordinate x-position x-positions x-radii
 
 y-axis y-coordinate y-radii yellow
 
