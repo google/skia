@@ -122,7 +122,6 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     if (!GrProgramDesc::Build(&desc, primProc, hasPoints, pipeline, fGpu)) {
         return nullptr;
     }
-    desc.finalize();
 
     const GrTextureProxy* const* primProcProxies = nullptr;
     if (fixedDynamicState) {

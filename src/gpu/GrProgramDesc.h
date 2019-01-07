@@ -50,13 +50,11 @@ public:
         return reinterpret_cast<const uint32_t*>(fKey.begin());
     }
 
-    // Gets the number of bytes in asKey(). It will be a 4-byte aligned value. When comparing two
-    // keys the size of either key can be used with memcmp() since the lengths themselves begin the
-    // keys and thus the memcmp will exit early if the keys are of different lengths.
-    uint32_t keyLength() const { return *this->atOffset<uint32_t, kLengthOffset>(); }
-
-    // Gets the a checksum of the key. Can be used as a hash value for a fast lookup in a cache.
-    uint32_t getChecksum() const { return *this->atOffset<uint32_t, kChecksumOffset>(); }
+    // Gets the number of bytes in asKey(). It will be a 4-byte aligned value.
+    uint32_t keyLength() const {
+        SkASSERT(0 == (fKey.count() % 4));
+        return fKey.count();
+    }
 
     GrProgramDesc& operator= (const GrProgramDesc& other) {
         uint32_t keyLength = other.keyLength();
@@ -66,6 +64,10 @@ public:
     }
 
     bool operator== (const GrProgramDesc& that) const {
+        if (this->keyLength() != that.keyLength()) {
+            return false;
+        }
+
         SkASSERT(SkIsAlign4(this->keyLength()));
         int l = this->keyLength() >> 2;
         const uint32_t* aKey = this->asKey();
@@ -87,19 +89,6 @@ public:
         header->fSurfaceOriginKey = key;
     }
 
-    static bool Less(const GrProgramDesc& a, const GrProgramDesc& b) {
-        SkASSERT(SkIsAlign4(a.keyLength()));
-        int l = a.keyLength() >> 2;
-        const uint32_t* aKey = a.asKey();
-        const uint32_t* bKey = b.asKey();
-        for (int i = 0; i < l; ++i) {
-            if (aKey[i] != bKey[i]) {
-                return aKey[i] < bKey[i] ? true : false;
-            }
-        }
-        return false;
-    }
-
     struct KeyHeader {
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
         uint8_t fOutputSwizzle;
@@ -116,16 +105,6 @@ public:
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
-    void finalize() {
-        int keyLength = fKey.count();
-        SkASSERT(0 == (keyLength % 4));
-        *(this->atOffset<uint32_t, GrProgramDesc::kLengthOffset>()) = SkToU32(keyLength);
-
-        uint32_t* checksum = this->atOffset<uint32_t, GrProgramDesc::kChecksumOffset>();
-        *checksum = 0;  // We'll hash through these bytes, so make sure they're initialized.
-        *checksum = SkOpts::hash(fKey.begin(), keyLength);
-    }
-
 protected:
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
@@ -135,18 +114,11 @@ protected:
         return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
-    // The key, stored in fKey, is composed of four parts:
-    // 1. uint32_t for total key length.
-    // 2. uint32_t for a checksum.
-    // 3. Header struct defined above.
-    // 4. A Backend specific payload which includes the per-processor keys.
+    // The key, stored in fKey, is composed of two parts:
+    // 1. Header struct defined above.
+    // 2. A Backend specific payload which includes the per-processor keys.
     enum KeyOffsets {
-        // Part 1.
-        kLengthOffset = 0,
-        // Part 2.
-        kChecksumOffset = kLengthOffset + sizeof(uint32_t),
-        // Part 3.
-        kHeaderOffset = kChecksumOffset + sizeof(uint32_t),
+        kHeaderOffset = 0,
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
         // Part 4.
         // This is the offset into the backenend specific part of the key, which includes

@@ -78,7 +78,6 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
     if (inputs.fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
                                                                this->pipeline().proxy()->origin()));
-        desc->finalize();
     }
     return shaderLibrary;
 }
