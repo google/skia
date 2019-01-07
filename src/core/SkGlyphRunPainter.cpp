@@ -737,7 +737,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             {
                 SkExclusiveStrikePtr cache =SkStrikeCache::FindOrCreateStrikeExclusive(
                         distanceFieldFont, distanceFieldPaint, props, flags, SkMatrix::I());
-                sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());;
+                sk_sp<GrTextStrike> currStrike = glyphCache->getStrike(cache.get());
                 run->setupFont(distanceFieldPaint, distanceFieldFont, cache->getDescriptor());
 
                 auto perEmpty = [](const SkGlyph&, SkPoint) {};
