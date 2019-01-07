@@ -8,6 +8,7 @@
 #ifndef GrCCPathCache_DEFINED
 #define GrCCPathCache_DEFINED
 
+#include "GrShape.h"
 #include "SkExchange.h"
 #include "SkTHash.h"
 #include "SkTInternalLList.h"
@@ -24,7 +25,7 @@ class GrShape;
  */
 class GrCCPathCache {
 public:
-    GrCCPathCache();
+    GrCCPathCache(uint32_t contextUniqueID);
     ~GrCCPathCache();
 
     class Key : public SkPathRef::GenIDChangeListener {
@@ -43,7 +44,10 @@ public:
         }
         uint32_t* data();
 
-        bool operator==(const Key&) const;
+        bool operator==(const Key& that) const {
+            return fDataSizeInBytes == that.fDataSizeInBytes &&
+                   !memcmp(this->data(), that.data(), fDataSizeInBytes);
+        }
 
         // Called when our corresponding path is modified or deleted. Not threadsafe.
         void onChange() override;
@@ -76,6 +80,25 @@ public:
 #endif
     };
 
+    // Represents a ref on a GrCCPathCacheEntry that should only be used during the current flush.
+    class OnFlushEntryRef : SkNoncopyable {
+    public:
+        static OnFlushEntryRef OnFlushRef(GrCCPathCacheEntry*);
+        OnFlushEntryRef() = default;
+        OnFlushEntryRef(OnFlushEntryRef&& ref) : fEntry(skstd::exchange(ref.fEntry, nullptr)) {}
+        ~OnFlushEntryRef();
+
+        GrCCPathCacheEntry* get() const { return fEntry; }
+        GrCCPathCacheEntry* operator->() const { return fEntry; }
+        GrCCPathCacheEntry& operator*() const { return *fEntry; }
+        explicit operator bool() const { return fEntry; }
+        void operator=(OnFlushEntryRef&& ref) { fEntry = skstd::exchange(ref.fEntry, nullptr); }
+
+    private:
+        OnFlushEntryRef(GrCCPathCacheEntry* entry) : fEntry(entry) {}
+        GrCCPathCacheEntry* fEntry = nullptr;
+    };
+
     enum class CreateIfAbsent : bool {
         kNo = false,
         kYes = true
@@ -83,11 +106,19 @@ public:
 
     // Finds an entry in the cache. Shapes are only given one entry, so any time they are accessed
     // with a different MaskTransform, the old entry gets evicted.
-    sk_sp<GrCCPathCacheEntry> find(const GrShape&, const MaskTransform&,
-                                   CreateIfAbsent = CreateIfAbsent::kNo);
+    OnFlushEntryRef find(GrOnFlushResourceProvider*, const GrShape&, const MaskTransform&,
+                         CreateIfAbsent = CreateIfAbsent::kNo);
 
-    void doPostFlushProcessing();
-    void purgeEntriesOlderThan(const GrStdSteadyClock::time_point& purgeTime);
+    void doPreFlushProcessing();
+
+    void purgeEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point& purgeTime);
+
+    // As we evict entries from our local path cache, we accumulate a list of invalidated atlas
+    // textures. This call purges the invalidated atlas textures from the mainline GrResourceCache.
+    // This call is available with two different "provider" objects, to accomodate whatever might
+    // be available at the callsite.
+    void purgeInvalidatedAtlasTextures(GrOnFlushResourceProvider*);
+    void purgeInvalidatedAtlasTextures(GrProxyProvider*);
 
 private:
     // This is a special ref ptr for GrCCPathCacheEntry, used by the hash table. It provides static
@@ -97,7 +128,9 @@ private:
     class HashNode : SkNoncopyable {
     public:
         static const Key& GetKey(const HashNode&);
-        static uint32_t Hash(const Key&);
+        inline static uint32_t Hash(const Key& key) {
+            return GrResourceKeyHash(key.data(), key.dataSizeInBytes());
+        }
 
         HashNode() = default;
         HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrShape&);
@@ -108,13 +141,11 @@ private:
 
         ~HashNode();
 
-        HashNode& operator=(HashNode&& node);
+        void operator=(HashNode&& node);
 
         GrCCPathCacheEntry* entry() const { return fEntry.get(); }
 
     private:
-        void willExitHashTable();
-
         GrCCPathCache* fPathCache = nullptr;
         sk_sp<GrCCPathCacheEntry> fEntry;
     };
@@ -127,13 +158,15 @@ private:
         return fPerFlushTimestamp;
     }
 
-    void evict(const GrCCPathCache::Key& key) {
-        fHashTable.remove(key);  // HashNode::willExitHashTable() takes care of the rest.
-    }
+    void evict(const GrCCPathCache::Key&, GrCCPathCacheEntry* = nullptr);
 
-    void purgeInvalidatedKeys();
+    // Evicts all the cache entries whose keys have been queued up in fInvalidatedKeysInbox via
+    // SkPath listeners.
+    void evictInvalidatedCacheKeys();
 
-    SkTHashTable<HashNode, const GrCCPathCache::Key&> fHashTable;
+    const uint32_t fContextUniqueID;
+
+    SkTHashTable<HashNode, const Key&> fHashTable;
     SkTInternalLList<GrCCPathCacheEntry> fLRU;
     SkMessageBus<sk_sp<Key>>::Inbox fInvalidatedKeysInbox;
     sk_sp<Key> fScratchKey;  // Reused for creating a temporary key in the find() method.
@@ -141,6 +174,18 @@ private:
     // We only read the clock once per flush, and cache it in this variable. This prevents us from
     // excessive clock reads for cache timestamps that might degrade performance.
     GrStdSteadyClock::time_point fPerFlushTimestamp = GrStdSteadyClock::time_point::min();
+
+    // As we evict entries from our local path cache, we accumulate lists of invalidated atlas
+    // textures in these two members. We hold these until we purge them from the GrResourceCache
+    // (e.g. via purgeInvalidatedAtlasTextures().)
+    SkSTArray<4, sk_sp<GrTextureProxy>> fInvalidatedProxies;
+    SkSTArray<4, GrUniqueKey> fInvalidatedProxyUniqueKeys;
+
+    friend class GrCCCachedAtlas;  // To append to fInvalidatedProxies, fInvalidatedProxyUniqueKeys.
+
+public:
+    const SkTHashTable<HashNode, const Key&>& testingOnly_getHashTable() const;
+    const SkTInternalLList<GrCCPathCacheEntry>& testingOnly_getLRU() const;
 };
 
 /**
@@ -152,9 +197,12 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
     ~GrCCPathCacheEntry() {
-        SkASSERT(!fCurrFlushAtlas);  // Client is required to reset fCurrFlushAtlas back to null.
-        this->invalidateAtlas();
+        SkASSERT(this->hasBeenEvicted());  // Should have called GrCCPathCache::evict().
+        SkASSERT(!fCachedAtlas);
+        SkASSERT(0 == fOnFlushRefCnt);
     }
+
+    const GrCCPathCache::Key& cacheKey() const { SkASSERT(fCacheKey); return *fCacheKey; }
 
     // The number of times this specific entry (path + matrix combination) has been pulled from
     // the path cache. As long as the caller does exactly one lookup per draw, this translates to
@@ -164,44 +212,28 @@ public:
     // GrCCPathCache::find(.., CreateIfAbsent::kYes), its hit count will be 1.
     int hitCount() const { return fHitCount; }
 
-    // Does this entry reference a permanent, 8-bit atlas that resides in the resource cache?
-    // (i.e. not a temporarily-stashed, fp16 coverage count atlas.)
-    bool hasCachedAtlas() const { return SkToBool(fCachedAtlasInfo); }
+    const GrCCCachedAtlas* cachedAtlas() const { return fCachedAtlas.get(); }
 
     const SkIRect& devIBounds() const { return fDevIBounds; }
     int width() const { return fDevIBounds.width(); }
     int height() const { return fDevIBounds.height(); }
 
+    enum class ReleaseAtlasResult : bool {
+        kNone,
+        kDidInvalidateFromCache
+    };
+
     // Called once our path has been rendered into the mainline CCPR (fp16, coverage count) atlas.
     // The caller will stash this atlas texture away after drawing, and during the next flush,
     // recover it and attempt to copy any paths that got reused into permanent 8-bit atlases.
-    void initAsStashedAtlas(const GrUniqueKey& atlasKey, const SkIVector& atlasOffset,
-                            const SkRect& devBounds, const SkRect& devBounds45,
-                            const SkIRect& devIBounds, const SkIVector& maskShift);
+    void setCoverageCountAtlas(GrOnFlushResourceProvider*, GrCCAtlas*, const SkIVector& atlasOffset,
+                               const SkRect& devBounds, const SkRect& devBounds45,
+                               const SkIRect& devIBounds, const SkIVector& maskShift);
 
     // Called once our path mask has been copied into a permanent, 8-bit atlas. This method points
-    // the entry at the new atlas and updates the CachedAtlasInfo data.
-    void updateToCachedAtlas(const GrUniqueKey& atlasKey, const SkIVector& newAtlasOffset,
-                             sk_sp<GrCCAtlas::CachedAtlasInfo>);
-
-    const GrUniqueKey& atlasKey() const { return fAtlasKey; }
-
-    void resetAtlasKeyAndInfo() {
-        fAtlasKey.reset();
-        fCachedAtlasInfo.reset();
-    }
-
-    // This is a utility for the caller to detect when a path gets drawn more than once during the
-    // same flush, with compatible matrices. Before adding a path to an atlas, the caller may check
-    // here to see if they have already placed the path previously during the same flush. The caller
-    // is required to reset all currFlushAtlas references back to null before any subsequent flush.
-    void setCurrFlushAtlas(const GrCCAtlas* currFlushAtlas) {
-        // This should not get called more than once in a single flush. Once fCurrFlushAtlas is
-        // non-null, it can only be set back to null (once the flush is over).
-        SkASSERT(!fCurrFlushAtlas || !currFlushAtlas);
-        fCurrFlushAtlas = currFlushAtlas;
-    }
-    const GrCCAtlas* currFlushAtlas() const { return fCurrFlushAtlas; }
+    // the entry at the new atlas and updates the GrCCCCachedAtlas data.
+    ReleaseAtlasResult upgradeToLiteralCoverageAtlas(GrCCPathCache*, GrOnFlushResourceProvider*,
+                                                     GrCCAtlas*, const SkIVector& newAtlasOffset);
 
 private:
     using MaskTransform = GrCCPathCache::MaskTransform;
@@ -210,33 +242,118 @@ private:
             : fCacheKey(std::move(cacheKey)), fMaskTransform(maskTransform) {
     }
 
+    bool hasBeenEvicted() const { return fCacheKey->shouldUnregisterFromPath(); }
+
     // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
     // resource cache if needed.
-    void invalidateAtlas();
+    ReleaseAtlasResult releaseCachedAtlas(GrCCPathCache*);
 
     sk_sp<GrCCPathCache::Key> fCacheKey;
-
     GrStdSteadyClock::time_point fTimestamp;
     int fHitCount = 0;
-    MaskTransform fMaskTransform;
 
-    GrUniqueKey fAtlasKey;
+    sk_sp<GrCCCachedAtlas> fCachedAtlas;
     SkIVector fAtlasOffset;
 
+    MaskTransform fMaskTransform;
     SkRect fDevBounds;
     SkRect fDevBounds45;
     SkIRect fDevIBounds;
 
-    // If null, then we are referencing a "stashed" atlas (see initAsStashedAtlas()).
-    sk_sp<GrCCAtlas::CachedAtlasInfo> fCachedAtlasInfo;
-
-    // This field is for when a path gets drawn more than once during the same flush.
-    const GrCCAtlas* fCurrFlushAtlas = nullptr;
+    int fOnFlushRefCnt = 0;
 
     friend class GrCCPathCache;
     friend void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry&, const SkIVector&,
                                                  GrColor, DoEvenOddFill);  // To access data.
+
+public:
+    int testingOnly_peekOnFlushRefCnt() const;
 };
+
+/**
+ * Encapsulates the data for an atlas whose texture is stored in the mainline GrResourceCache. Many
+ * instances of GrCCPathCacheEntry will reference the same GrCCCachedAtlas.
+ *
+ * We use this object to track the percentage of the original atlas pixels that could still ever
+ * potentially be reused (i.e., those which still represent an extant path). When the percentage
+ * of useful pixels drops below 50%, we purge the entire texture from the resource cache.
+ *
+ * This object also holds a ref on the atlas's actual texture proxy during flush. When
+ * fOnFlushRefCnt decrements back down to zero, we release fOnFlushProxy and reset it back to null.
+ */
+class GrCCCachedAtlas : public GrNonAtomicRef<GrCCCachedAtlas> {
+public:
+    using ReleaseAtlasResult = GrCCPathCacheEntry::ReleaseAtlasResult;
+
+    GrCCCachedAtlas(GrCCAtlas::CoverageType type, const GrUniqueKey& textureKey,
+                    sk_sp<GrTextureProxy> onFlushProxy)
+            : fCoverageType(type)
+            , fTextureKey(textureKey)
+            , fOnFlushProxy(std::move(onFlushProxy)) {}
+
+    ~GrCCCachedAtlas() {
+        SkASSERT(!fOnFlushProxy);
+        SkASSERT(!fOnFlushRefCnt);
+    }
+
+    GrCCAtlas::CoverageType coverageType() const  { return fCoverageType; }
+    const GrUniqueKey& textureKey() const { return fTextureKey; }
+
+    GrTextureProxy* getOnFlushProxy() const { return fOnFlushProxy.get(); }
+
+    void setOnFlushProxy(sk_sp<GrTextureProxy> proxy) {
+        SkASSERT(!fOnFlushProxy);
+        fOnFlushProxy = std::move(proxy);
+    }
+
+    void addPathPixels(int numPixels) { fNumPathPixels += numPixels; }
+    ReleaseAtlasResult invalidatePathPixels(GrCCPathCache*, int numPixels);
+
+    int peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
+    void incrOnFlushRefCnt(int count = 1) const {
+        SkASSERT(count > 0);
+        SkASSERT(fOnFlushProxy);
+        fOnFlushRefCnt += count;
+    }
+    void decrOnFlushRefCnt(int count = 1) const;
+
+private:
+    const GrCCAtlas::CoverageType fCoverageType;
+    const GrUniqueKey fTextureKey;
+
+    int fNumPathPixels = 0;
+    int fNumInvalidatedPathPixels = 0;
+    bool fIsInvalidatedFromResourceCache = false;
+
+    mutable sk_sp<GrTextureProxy> fOnFlushProxy;
+    mutable int fOnFlushRefCnt = 0;
+
+public:
+    int testingOnly_peekOnFlushRefCnt() const;
+};
+
+
+inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* pathCache, sk_sp<Key> key,
+                                         const MaskTransform& m, const GrShape& shape)
+        : fPathCache(pathCache)
+        , fEntry(new GrCCPathCacheEntry(key, m)) {
+    SkASSERT(shape.hasUnstyledKey());
+    shape.addGenIDChangeListener(std::move(key));
+}
+
+inline const GrCCPathCache::Key& GrCCPathCache::HashNode::GetKey(
+        const GrCCPathCache::HashNode& node) {
+    return *node.entry()->fCacheKey;
+}
+
+inline GrCCPathCache::HashNode::~HashNode() {
+    SkASSERT(!fEntry || fEntry->hasBeenEvicted());  // Should have called GrCCPathCache::evict().
+}
+
+inline void GrCCPathCache::HashNode::operator=(HashNode&& node) {
+    SkASSERT(!fEntry || fEntry->hasBeenEvicted());  // Should have called GrCCPathCache::evict().
+    fEntry = skstd::exchange(node.fEntry, nullptr);
+}
 
 inline void GrCCPathProcessor::Instance::set(const GrCCPathCacheEntry& entry,
                                              const SkIVector& shift, GrColor color,
