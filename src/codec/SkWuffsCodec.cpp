@@ -12,7 +12,16 @@
 #include "SkSampler.h"
 #include "SkSwizzler.h"
 #include "SkUtils.h"
-#include "wuffs-v0.2.h"
+
+// Wuffs ships as a "single file C library" or "header file library" as per
+// https://github.com/nothings/stb/blob/master/docs/stb_howto.txt
+//
+// As we have not #define'd WUFFS_IMPLEMENTATION, the #include here is
+// including a header file, even though that file name ends in ".c".
+#include "wuffs-v0.2.c"
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1535
+#error "Wuffs version is too old. Upgrade to the latest version."
+#endif
 
 #define SK_WUFFS_CODEC_BUFFER_SIZE 4096
 
