@@ -5,9 +5,13 @@ Module['ready'] = function() {
   return new Promise(function (resolve, reject) {
     delete Module['then'];
     Module['onAbort'] = reject;
-    addOnPostRun(function () {
-      resolve(Module)
-    });
+    if (runtimeInitialized) {
+      resolve(Module);
+    } else {
+      addOnPostRun(function() {
+        resolve(Module);
+      });
+    }
   });
 }
 // TODO(kjlubick): Shut .then() entirely off in 0.4.0 by uncommenting below.
