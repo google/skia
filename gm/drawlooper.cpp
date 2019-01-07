@@ -37,13 +37,13 @@ protected:
 
         SkPaint  paint;
         paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
+
+        SkFont font(sk_tool_utils::create_portable_typeface(), 72);
 
         canvas->drawCircle(50, 50, 30, paint);
         canvas->drawRect({ 150, 50, 200, 100 }, paint);
-        canvas->drawString("Looper", 230, 100, paint);
+        canvas->drawString("Looper", 230, 100, font, paint);
     }
 
 private:

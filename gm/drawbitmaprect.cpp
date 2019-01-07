@@ -170,13 +170,13 @@ protected:
         SkPaint blackPaint;
         SkScalar titleHeight = SK_Scalar1 * 24;
         blackPaint.setColor(SK_ColorBLACK);
-        blackPaint.setTextSize(titleHeight);
         blackPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&blackPaint);
+
+        SkFont font(sk_tool_utils::create_portable_typeface(), titleHeight);
+
         SkString title;
         title.printf("Bitmap size: %d x %d", gBmpSize, gBmpSize);
-        canvas->drawString(title, 0,
-                         titleHeight, blackPaint);
+        canvas->drawString(title, 0, titleHeight, font, blackPaint);
 
         canvas->translate(0, SK_Scalar1 * kPadY / 2  + titleHeight);
         int rowCount = 0;
@@ -191,12 +191,9 @@ protected:
                 label.appendf("%d x %d", w, h);
                 blackPaint.setAntiAlias(true);
                 blackPaint.setStyle(SkPaint::kFill_Style);
-                blackPaint.setTextSize(SK_Scalar1 * 10);
-                SkScalar baseline = dstRect.height() +
-                                    blackPaint.getTextSize() + SK_Scalar1 * 3;
-                canvas->drawString(label,
-                                    0, baseline,
-                                    blackPaint);
+                font.setSize(SK_Scalar1 * 10);
+                SkScalar baseline = dstRect.height() + font.getSize() + SK_Scalar1 * 3;
+                canvas->drawString(label, 0, baseline, font, blackPaint);
                 blackPaint.setStyle(SkPaint::kStroke_Style);
                 blackPaint.setStrokeWidth(SK_Scalar1);
                 blackPaint.setAntiAlias(false);
