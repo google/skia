@@ -46,15 +46,11 @@ protected:
                     "jumped over",
                     "the lazy dog.",
                 };
-                SkPaint textPaint;
-                textPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&textPaint);
-                textPaint.setTextSize(SkIntToScalar(100));
+                SkFont font(sk_tool_utils::create_portable_typeface(), 100);
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100;
-                    canvas->drawString(str[i], SkIntToScalar(0),
-                                     SkIntToScalar(posY), textPaint);
+                    canvas->drawString(str[i], 0, SkIntToScalar(posY), font, SkPaint());
                 }
                 canvas->restore();
                 canvas->restore();
