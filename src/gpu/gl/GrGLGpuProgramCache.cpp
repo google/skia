@@ -83,13 +83,11 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
-    desc.finalize();
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
         GrSurfaceOrigin origin = pipeline.proxy()->origin();
         desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
-        desc.finalize();
         entry = fMap.find(desc);
     }
     if (!entry) {

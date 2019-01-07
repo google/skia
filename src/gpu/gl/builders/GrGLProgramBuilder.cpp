@@ -101,7 +101,6 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
         GrProgramDesc* d = this->desc();
         d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
                                                      this->pipeline().proxy()->origin()));
-        d->finalize();
     }
 
     return true;
