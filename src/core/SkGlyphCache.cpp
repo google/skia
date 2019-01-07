@@ -251,6 +251,7 @@ bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, siz
 
 bool SkGlyphCache::belongsToCache(const SkGlyph* glyph) const {
     return glyph && fGlyphMap.findOrNull(glyph->getPackedID()) == glyph;
+    return glyph && *fGlyphMap.find(glyph->getPackedID()) == glyph;
 }
 
 const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,

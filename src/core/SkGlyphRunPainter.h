@@ -125,6 +125,12 @@ private:
     const SkScalerContextFlags fScalerContextFlags;
     size_t fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<const SkGlyph*> fMaskGlyphs;
+    SkAutoTMalloc<SkPoint> fMaskPositions;
+
+
+    std::vector<const SkGlyph*> fPathGlyphs;
+    std::vector<SkPoint> fPathPositions;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
