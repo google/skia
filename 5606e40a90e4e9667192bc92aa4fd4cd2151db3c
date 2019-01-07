@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9599439_2bf76a10",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-07T17:11:46Z",
+      "side": 1,
+      "message": "nit: Move up for sorted list?",
+      "revId": "5606e40a90e4e9667192bc92aa4fd4cd2151db3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
