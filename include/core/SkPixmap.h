@@ -669,7 +669,7 @@ public:
         Returns false if colorType() is kUnknown_SkColorType, or if subset does
         not intersect bounds().
 
-        @param color   unpremultiplied color to write
+        @param color   sRGB unpremultiplied color to write
         @param subset  bounding integer SkRect of written pixels
         @return        true if pixels are changed
     */
@@ -679,7 +679,7 @@ public:
         Returns false if colorType() is kUnknown_SkColorType, or if bounds()
         is empty.
 
-        @param color  unpremultiplied color to write
+        @param color  sRGB unpremultiplied color to write
         @return       true if pixels are changed
     */
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
@@ -689,7 +689,7 @@ public:
         colorType() is kUnknown_SkColorType, if subset is not nullptr and does
         not intersect bounds(), or if subset is nullptr and bounds() is empty.
 
-        @param color   unpremultiplied color to write
+        @param color   sRGB unpremultiplied color to write
         @param subset  bounding integer SkRect of pixels to write; may be nullptr
         @return        true if pixels are changed
     */
