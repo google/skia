@@ -173,8 +173,8 @@ public:
 
     class HashTraits {
     public:
-        static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
-            return glyph.fID;
+        static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
+            return glyph->fID;
         }
         static uint32_t Hash(SkPackedGlyphID glyphId) {
             return glyphId.hash();
