@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f295a516_15eecd91",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-01-07T15:35:55Z",
+      "side": 1,
+      "message": "Using magic constants here seems a little dangerous -- it\u0027s not clear that we need to avoid collision with the flags.",
+      "range": {
+        "startLine": 234,
+        "startChar": 46,
+        "endLine": 234,
+        "endChar": 51
+      },
+      "revId": "d4b2849acf2af9f1c39dbfe06a5a38e9b4c19532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
