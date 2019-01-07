@@ -323,7 +323,8 @@ BASE_SRCS_ANDROID = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
-        "src/ports/SkDebug_stdio.cpp",
+        # TODO(dogben): Figure out how to re-enable this.
+        "src/ports/SkDebug_android.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
