@@ -134,6 +134,7 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
         case kAlpha_half_as_Red_GrPixelConfig: return "AlphaHalf_asRed";
         case kRGBA_half_GrPixelConfig: return "RGBAHalf";
+        case kRGB_ETC_GrPixelConfig: return "RGBETC";
     }
     SK_ABORT("Invalid pixel config");
     return "<invalid>";
