@@ -49,12 +49,10 @@ static void draw_row(SkCanvas* canvas, const char* desc, GradientFactory factory
     canvas->save();
 
     SkPaint text;
-    text.setColor(SK_ColorBLACK);
-    text.setTextSize(12.0f);
     text.setAntiAlias(true);
 
     canvas->translate(0, TILE_GAP);
-    canvas->drawString(desc, 0, 0, text);
+    canvas->drawString(desc, 0, 0, SkFont(), text);
     canvas->translate(0, TILE_GAP);
 
     SkPaint paint;

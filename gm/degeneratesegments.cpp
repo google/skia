@@ -289,15 +289,11 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(220*SK_Scalar1, 50*SK_Scalar1);
@@ -349,32 +345,15 @@ protected:
                 SkPaint labelPaint;
                 labelPaint.setColor(color);
                 labelPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&labelPaint);
-                labelPaint.setTextSize(10 * SK_Scalar1);
-                canvas->drawString(style.fName,
-                                   0, rect.height() + 12 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(fill.fName,
-                                   0, rect.height() + 24 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(cap.fName,
-                                   0, rect.height() + 36 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s1],
-                                   0, rect.height() + 48 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s2],
-                                   0, rect.height() + 60 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s3],
-                                   0, rect.height() + 72 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s4],
-                                   0, rect.height() + 84 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gSegmentNames[s5],
-                                   0, rect.height() + 96 * SK_Scalar1,
-                                   labelPaint);
+                font.setSize(10);
+                canvas->drawString(style.fName, 0, rect.height() + 12, font, labelPaint);
+                canvas->drawString(fill.fName, 0, rect.height() + 24, font, labelPaint);
+                canvas->drawString(cap.fName, 0, rect.height() + 36, font, labelPaint);
+                canvas->drawString(gSegmentNames[s1], 0, rect.height() + 48, font, labelPaint);
+                canvas->drawString(gSegmentNames[s2], 0, rect.height() + 60, font, labelPaint);
+                canvas->drawString(gSegmentNames[s3], 0, rect.height() + 72, font, labelPaint);
+                canvas->drawString(gSegmentNames[s4], 0, rect.height() + 84, font, labelPaint);
+                canvas->drawString(gSegmentNames[s5], 0, rect.height() + 96, font, labelPaint);
             }
             canvas->restore();
         }

@@ -60,11 +60,9 @@ private:
                                        SkIntToScalar(50), SkIntToScalar(20));
         canvas->drawRect(rect, paint);
 
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(25));
+        SkFont font(sk_tool_utils::create_portable_typeface(), 25);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawString(text, x, y, paint);
+        canvas->drawString(text, x, y, font, paint);
     }
 
     typedef GM INHERITED;

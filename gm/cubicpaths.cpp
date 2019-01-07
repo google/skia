@@ -198,14 +198,10 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Cubic Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -241,18 +237,10 @@ protected:
 
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
-                    labelPaint.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface(&labelPaint);
-                    labelPaint.setTextSize(10 * SK_Scalar1);
-                    canvas->drawString(gStyles[style].fName,
-                                       0, rect.height() + 12 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gFills[fill].fName,
-                                       0, rect.height() + 24 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gCaps[cap].fName,
-                                       0, rect.height() + 36 * SK_Scalar1,
-                                       labelPaint);
+                    font.setSize(10);
+                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
+                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
+                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
                 }
                 canvas->restore();
             }
@@ -340,14 +328,10 @@ protected:
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Cubic Closed Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -384,17 +368,10 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface(&labelPaint);
-                    labelPaint.setTextSize(10 * SK_Scalar1);
-                    canvas->drawString(gStyles[style].fName,
-                                       0, rect.height() + 12 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gFills[fill].fName,
-                                       0, rect.height() + 24 * SK_Scalar1,
-                                       labelPaint);
-                    canvas->drawString(gCaps[cap].fName,
-                                       0, rect.height() + 36 * SK_Scalar1,
-                                       labelPaint);
+                    font.setSize(10);
+                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
+                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
+                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
                 }
                 canvas->restore();
             }
