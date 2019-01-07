@@ -1197,6 +1197,8 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
                     inMethod = false;
                 } else if (Punctuation::kSemicolon == token.fPunctuation) {
                     inMethod = false;
+                } else if (Punctuation::kAsterisk == token.fPunctuation) {
+                    inMethod = false;
                 } else {
                     SkASSERT(0);  // incomplete
                 }

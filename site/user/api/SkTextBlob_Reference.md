@@ -47,7 +47,7 @@ conservative bounding box
 
 ### Example
 
-<div><fiddle-embed name="fb8b2502bbe52d2029aecdf569dd9fdb"></fiddle-embed></div>
+<div><fiddle-embed name="69279345bcc9feea2ace476fcbd47571"></fiddle-embed></div>
 
 ### See Also
 
@@ -69,7 +69,7 @@ identifier for <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>
 
 ### Example
 
-<div><fiddle-embed name="6e12cceca981ddabc0fc18c380543f34"></fiddle-embed></div>
+<div><fiddle-embed name="4fb35f1d0e1c36bd53879eee2738cb2c"></fiddle-embed></div>
 
 ### See Also
 
