@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2088353_fb344930",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 6250
+      },
+      "writtenOn": "2019-01-07T17:43:42Z",
+      "side": 1,
+      "message": "I\u0027m kind of surprised this needs to be guarded. Why are the layout test results different? Is the alpha combination math done differently in the new version?",
+      "revId": "8e13f69262eeb01e926df4eb79e89615cc741be5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
