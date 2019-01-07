@@ -41,8 +41,8 @@ extern "C" {
 }
 
 struct DocHolder {
-    sk_sp<SkDocument>           fDoc;
-    std::unique_ptr<SkWStream>  fStream;
+    decltype(SkPDF::MakeDocument(nullptr)) fDoc;
+    std::unique_ptr<SkWStream>             fStream;
 };
 
 // return the metatable name for a given class
