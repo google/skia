@@ -61,17 +61,10 @@ protected:
             {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
         };
 
-        SkPaint titlePaint;
-        titlePaint.setColor(SK_ColorBLACK);
-        titlePaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&titlePaint);
-        titlePaint.setTextSize(15 * SK_Scalar1);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
                              "Indicated Style and Fill";
-        canvas->drawString(title,
-                           20 * SK_Scalar1,
-                           20 * SK_Scalar1,
-                           titlePaint);
+        canvas->drawString(title, 20.0f, 20.0f, font, SkPaint());
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -106,15 +99,11 @@ protected:
 
                 SkPaint labelPaint;
                 labelPaint.setColor(color);
-                labelPaint.setAntiAlias(true);
-                sk_tool_utils::set_portable_typeface(&labelPaint);
-                labelPaint.setTextSize(12 * SK_Scalar1);
-                canvas->drawString(gStyles[style].fName,
-                                   0, rect.height() + 15 * SK_Scalar1,
-                                   labelPaint);
-                canvas->drawString(gFills[fill].fName,
-                                   0, rect.height() + 28 * SK_Scalar1,
-                                   labelPaint);
+                SkFont labelFont(sk_tool_utils::create_portable_typeface(), 12);
+                canvas->drawString(gStyles[style].fName, 0, rect.height() + 15.0f,
+                                   labelFont, labelPaint);
+                canvas->drawString(gFills[fill].fName, 0, rect.height() + 28.0f,
+                                   labelFont, labelPaint);
             }
         }
         canvas->restore();
