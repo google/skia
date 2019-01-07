@@ -8,17 +8,16 @@
 #ifndef SkDeferredDisplayListMaker_DEFINED
 #define SkDeferredDisplayListMaker_DEFINED
 
+#include "../private/SkDeferredDisplayList.h"
+#include "GrBackendSurface.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceCharacterization.h"
 #include "SkTypes.h"
 
-#include "../private/SkDeferredDisplayList.h"
-
 class GrBackendFormat;
 class GrBackendTexture;
 class GrContext;
-
 class SkCanvas;
 class SkImage;
 class SkSurface;
@@ -53,11 +52,52 @@ public:
 
     std::unique_ptr<SkDeferredDisplayList> detach();
 
-    // Matches the defines in SkImage_GpuBase.h
-    typedef void* TextureContext;
-    typedef void (*TextureReleaseProc)(TextureContext textureContext);
-    typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
-    typedef void (*PromiseDoneProc)(TextureContext textureContext);
+    class PromiseImageTexture;
+#if SK_SUPPORT_GPU
+    /**
+     * This type is used to fulfill textures for PromiseImages. Once an instance is returned from a
+     * PromiseImageTextureFulfillProc it must remain valid until the corresponding
+     * PromiseImageTextureReleaseProc is called. For performance reasons it is recommended that the
+     * the client reuse a single PromiseImageTexture every time a given texture is returned by
+     * the PromiseImageTextureFulfillProc rather than recreating PromiseImageTextures representing
+     * the same underlying backend API texture.
+     */
+    class PromiseImageTexture {
+    public:
+        PromiseImageTexture() = default;
+        PromiseImageTexture(const PromiseImageTexture&) = delete;
+        explicit PromiseImageTexture(const GrBackendTexture& backendTexture);
+        PromiseImageTexture(PromiseImageTexture&&);
+        ~PromiseImageTexture();
+        PromiseImageTexture& operator=(const PromiseImageTexture&) = delete;
+        PromiseImageTexture& operator=(PromiseImageTexture&&);
+        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+        bool isValid() const { return SkToBool(fUniqueID); }
+
+        void addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key);
+        uint32_t uniqueID() const { return fUniqueID; }
+
+#if GR_TEST_UTILS
+        SkTArray<GrUniqueKey> testingOnly_uniqueKeysToInvalidate() const;
+#endif
+
+    private:
+        SkSTArray<1, GrUniqueKeyInvalidatedMessage> fMessages;
+        GrBackendTexture fBackendTexture;
+        uint32_t fUniqueID = SK_InvalidUniqueID;
+        static std::atomic<uint32_t> gUniqueID;
+    };
+#endif
+
+    using PromiseImageTextureContext = void*;
+    using PromiseImageTextureFulfillProc = PromiseImageTexture* (*)(PromiseImageTextureContext);
+    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
+    using PromiseImageTextureDoneProc = void (*)(PromiseImageTextureContext);
+
+    // Deprecated types. To be removed.
+    using LegacyPromiseImageTextureFulfillProc = void (*)(PromiseImageTextureContext,
+                                                          GrBackendTexture*);
+    using TextureContext = PromiseImageTextureContext;
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
@@ -112,10 +152,23 @@ public:
                                       SkColorType colorType,
                                       SkAlphaType alphaType,
                                       sk_sp<SkColorSpace> colorSpace,
-                                      TextureFulfillProc textureFulfillProc,
-                                      TextureReleaseProc textureReleaseProc,
-                                      PromiseDoneProc promiseDoneProc,
-                                      TextureContext textureContext);
+                                      PromiseImageTextureFulfillProc textureFulfillProc,
+                                      PromiseImageTextureReleaseProc textureReleaseProc,
+                                      PromiseImageTextureDoneProc textureDoneProc,
+                                      PromiseImageTextureContext textureContext);
+    /** Deprecated variant of above. */
+    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
+                                      int width,
+                                      int height,
+                                      GrMipMapped mipMapped,
+                                      GrSurfaceOrigin origin,
+                                      SkColorType colorType,
+                                      SkAlphaType alphaType,
+                                      sk_sp<SkColorSpace> colorSpace,
+                                      LegacyPromiseImageTextureFulfillProc textureFulfillProc,
+                                      PromiseImageTextureReleaseProc textureReleaseProc,
+                                      PromiseImageTextureDoneProc textureDoneProc,
+                                      PromiseImageTextureContext textureContext);
 
     /**
         This entry point operates the same as 'makePromiseTexture' except that its
@@ -132,12 +185,25 @@ public:
                                           int imageHeight,
                                           GrSurfaceOrigin imageOrigin,
                                           sk_sp<SkColorSpace> imageColorSpace,
-                                          TextureFulfillProc textureFulfillProc,
-                                          TextureReleaseProc textureReleaseProc,
-                                          PromiseDoneProc promiseDoneProc,
-                                          TextureContext textureContexts[]);
+                                          PromiseImageTextureFulfillProc textureFulfillProc,
+                                          PromiseImageTextureReleaseProc textureReleaseProc,
+                                          PromiseImageTextureDoneProc textureDoneProc,
+                                          PromiseImageTextureContext textureContexts[]);
+    /** Deprecated variant of above. */
+    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                          const GrBackendFormat yuvaFormats[],
+                                          const SkISize yuvaSizes[],
+                                          const SkYUVAIndex yuvaIndices[4],
+                                          int imageWidth,
+                                          int imageHeight,
+                                          GrSurfaceOrigin imageOrigin,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          LegacyPromiseImageTextureFulfillProc textureFulfillProc,
+                                          PromiseImageTextureReleaseProc textureReleaseProc,
+                                          PromiseImageTextureDoneProc textureDoneProc,
+                                          PromiseImageTextureContext textureContexts[]);
 
- private:
+private:
     bool init();
 
     const SkSurfaceCharacterization             fCharacterization;
