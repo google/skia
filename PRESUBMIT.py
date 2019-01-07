@@ -12,6 +12,7 @@ for more details about the presubmit API built into gcl.
 import collections
 import csv
 import fnmatch
+import inspect
 import os
 import re
 import subprocess
@@ -65,15 +66,10 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
 def _PythonChecks(input_api, output_api):
   """Run checks on any modified Python files."""
   blacklist = [
-      r'infra[\\\/]bots[\\\/]recipes.py',
-
-      # Blacklist DEPS. Those under third_party are already covered by
-      # input_api.DEFAULT_BLACK_LIST.
-      r'common[\\\/].*',
-      r'buildtools[\\\/].*',
-      r'.*[\\\/]\.recipe_deps[\\\/].*',
+      'infra/bots/recipes.py',
   ]
-  blacklist.extend(input_api.DEFAULT_BLACK_LIST)
+  all_files = subprocess.check_output(['git', 'ls-files'], cwd='.').splitlines()
+  pyfiles = [f for f in all_files if f.endswith('.py') and f not in blacklist]
 
   pylint_disabled_warnings = (
       'F0401',  # Unable to import.
@@ -86,10 +82,24 @@ def _PythonChecks(input_api, output_api):
       'W0613',  # Unused argument.
       'W0105',  # String statement has no effect.
   )
-  return input_api.canned_checks.RunPylint(
-      input_api, output_api,
-      disabled_warnings=pylint_disabled_warnings,
-      black_list=blacklist)
+  # The canned Pylint test performs an os.walk(), which tends to take a long
+  # time in some Skia checkouts due to various nested trees. Just call into
+  # pylint directly.
+  depot_tools = os.path.dirname(os.path.realpath(inspect.stack()[-1][1]))
+  pylint = os.path.join(depot_tools, 'third_party', 'pylint.py')
+  cmd = [input_api.python_executable, pylint, '--args-on-stdin']
+  pylintrc = input_api.os_path.join(depot_tools, 'pylintrc')
+  args = ['--rcfile=%s' % pylintrc, '--jobs=%s' % input_api.cpu_count]
+  args.extend(['-d', ','.join(pylint_disabled_warnings)])
+  if input_api.is_committing:
+    error_type = output_api.PresubmitError
+  else:
+    error_type = output_api.PresubmitPromptWarning
+  return input_api.RunTests([input_api.Command(
+      name='Pylint',
+      cmd=cmd,
+      kwargs={'env': input_api.environ, 'stdin': '\n'.join(args+pyfiles)},
+      message=error_type)])
 
 
 def _JsonChecks(input_api, output_api):
