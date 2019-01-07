@@ -16,6 +16,24 @@
       "revId": "5606e40a90e4e9667192bc92aa4fd4cd2151db3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b3d1755_e1b10bfd",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-07T17:14:01Z",
+      "side": 1,
+      "message": "It is sorted - GPU, not CPU",
+      "parentUuid": "f9599439_2bf76a10",
+      "revId": "5606e40a90e4e9667192bc92aa4fd4cd2151db3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
