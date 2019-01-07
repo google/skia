@@ -51,7 +51,7 @@ private:
     it attempts to use a minimum amount of RAM. */
 class SkPDFDocument : public SkDocument {
 public:
-    SkPDFDocument(SkWStream*, SkPDF::Metadata);
+    SkPDFDocument(SkWStream*, const SkPDF::Metadata&);
     ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar) override;
     void onEndPage() override;
