@@ -31,10 +31,6 @@
 #define SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 #endif
 
-#ifndef SK_SUPPORT_LEGACY_PAINTTEXTENCODING
-#define SK_SUPPORT_LEGACY_PAINTTEXTENCODING
-#endif
-
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
