@@ -186,10 +186,16 @@ static void reset_object(T* dst, Args&&... args) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             SkPDF::Metadata metadata)
+                             const SkPDF::Metadata& metadata)
     : SkDocument(stream)
-    , fMetadata(std::move(metadata)) {
+    , fMetadata(metadata) {
     constexpr float kDpiForRasterScaleOne = 72.0f;
+    if (fMetadata.fRasterDPI <= 0) {
+        fMetadata.fRasterDPI = kDpiForRasterScaleOne;
+    }
+    if (fMetadata.fEncodingQuality < 0) {
+        fMetadata.fEncodingQuality = 0;
+    }
     if (fMetadata.fRasterDPI != kDpiForRasterScaleOne) {
         fInverseRasterScale = kDpiForRasterScaleOne / fMetadata.fRasterDPI;
         fRasterScale        = fMetadata.fRasterDPI / kDpiForRasterScaleOne;
@@ -515,14 +521,12 @@ void SkPDF::SetNodeId(SkCanvas* canvas, int nodeID) {
     canvas->drawAnnotation({0, 0, 0, 0}, key, payload.get());
 }
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
-    SkPDF::Metadata meta = metadata;
-    if (meta.fRasterDPI <= 0) {
-        meta.fRasterDPI = 72.0f;
-    }
-    if (meta.fEncodingQuality < 0) {
-        meta.fEncodingQuality = 0;
-    }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
+    return stream ? sk_make_sp<SkPDFDocument>(stream, metadata) : nullptr;
 }
-
+#else
+std::unique_ptr<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& meta) {
+    return std::unique_ptr<SkDocument>(stream ? new SkPDFDocument(stream, meta) : nullptr);
+}
+#endif

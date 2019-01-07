@@ -354,7 +354,10 @@ here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
 def get_defines(json):
-  return {str(d) for d in json['targets']['//:skia']['defines']}
+  extra_defines = set([
+    'SK_SUPPORT_LEGACY_REFCNT_DOCUMENT'
+  ])
+  return {str(d) for d in json['targets']['//:skia']['defines']} | extra_defines
 android_defines = get_defines(js)
 linux_defines   = get_defines(js_linux)
 mac_defines     = get_defines(js_mac)

@@ -11,6 +11,10 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
+#ifndef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
+#define SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
+#endif
+
 class SkCanvas;
 class SkWStream;
 struct SkRect;
@@ -28,7 +32,11 @@ static constexpr SkScalar SK_ScalarDefaultRasterDPI = 72.0f;
  *      c. doc->endPage();
  *  3. Close the document with doc->close().
  */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 class SK_API SkDocument : public SkRefCnt {
+#else
+class SK_API SkDocument {
+#endif
 public:
 
     /**
@@ -59,12 +67,18 @@ public:
      */
     void abort();
 
+    /** Calls close(), if it has not already been called.
+        Frees up resources used by SkDocument
+    */
+    virtual ~SkDocument();
+
 protected:
     SkDocument(SkWStream*);
 
     // note: subclasses must call close() in their destructor, as the base class
     // cannot do this for them.
-    virtual ~SkDocument();
+    SkDocument(const SkDocument&) = delete;
+    SkDocument& operator=(const SkDocument&) = delete;
 
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height) = 0;
     virtual void onEndPage() = 0;
@@ -84,8 +98,6 @@ protected:
 private:
     SkWStream* fStream;
     State      fState;
-
-    typedef SkRefCnt INHERITED;
 };
 
 #endif

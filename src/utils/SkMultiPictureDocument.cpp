@@ -95,9 +95,16 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
     return sk_make_sp<MultiPictureDocument>(wStream, procs);
 }
+#else
+std::unique_ptr<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
+    return std::unique_ptr<SkDocument>(new MultiPictureDocument(wStream, procs));
+}
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

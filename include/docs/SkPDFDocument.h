@@ -9,6 +9,8 @@
 #include "SkString.h"
 #include "SkTime.h"
 
+#include <memory>
+
 class SkExecutor;
 
 namespace SkPDF {
@@ -184,11 +186,19 @@ SK_API void SetNodeId(SkCanvas* dst, int nodeID);
 
     @returns NULL if there is an error, otherwise a newly created PDF-backed SkDocument.
 */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 SK_API sk_sp<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
 
 static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
     return MakeDocument(stream, Metadata());
 }
+#else
+SK_API std::unique_ptr<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
+
+static inline std::unique_ptr<SkDocument> MakeDocument(SkWStream* stream) {
+    return MakeDocument(stream, Metadata());
+}
+#endif
 
 }  // namespace SkPDF
 #endif  // SkPDFDocument_DEFINED

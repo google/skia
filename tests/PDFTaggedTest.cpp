@@ -94,8 +94,7 @@ DEF_TEST(SkPDF_tagged, r) {
     p2.fChildCount = 0;
 
     metadata.fStructureElementTreeRoot = &root;
-    sk_sp<SkDocument> document = SkPDF::MakeDocument(
-        &outputStream, metadata);
+    auto document = SkPDF::MakeDocument(&outputStream, metadata);
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
