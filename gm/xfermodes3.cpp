@@ -43,9 +43,8 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
+        SkFont font(sk_tool_utils::create_portable_typeface());
         SkPaint labelP;
-        labelP.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&labelP);
 
         constexpr SkColor kSolidColors[] = {
             SK_ColorTRANSPARENT,
@@ -70,9 +69,9 @@ protected:
             for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
                 canvas->drawString(SkBlendMode_Name(mode),
-                                 SkIntToScalar(x),
-                                 SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
-                                 labelP);
+                                   SkIntToScalar(x),
+                                   SkIntToScalar(y + kSize + 3) + font.getSize(),
+                                   font, labelP);
                 for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
                     SkPaint modePaint;
                     modePaint.setBlendMode(mode);

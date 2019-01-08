@@ -29,15 +29,12 @@ protected:
         fBitmap.allocN32Pixels(135, 135);
         SkCanvas canvas(fBitmap);
         canvas.clear(0x0);
+
+        SkFont font(sk_tool_utils::create_portable_typeface(), 64.0f);
         SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
-        const char* str1 = "ABC";
-        const char* str2 = "XYZ";
         paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(64);
-        canvas.drawString(str1, 10, 55, paint);
-        canvas.drawString(str2, 10, 110, paint);
+        canvas.drawString("ABC", 10, 55,  font, paint);
+        canvas.drawString("XYZ", 10, 110, font, paint);
     }
 
     SkISize onISize() override {

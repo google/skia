@@ -145,12 +145,11 @@ static SkColor blend(SkColor dst, SkColor src,
 }
 
 DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
-    SkPaint label;
-    sk_tool_utils::set_portable_typeface(&label);
-    label.setAntiAlias(true);
+    SkPaint paint;
+    SkFont font(sk_tool_utils::create_portable_typeface());
 
     const char* comment = "HSL blend modes are correct when you see no circles in the squares.";
-    canvas->drawText(comment, strlen(comment), 10,10, label);
+    canvas->drawString(comment, 10,10, font, paint);
 
     // Just to keep things reaaaal simple, we'll only use opaque colors.
     SkPaint bg, fg;
@@ -180,8 +179,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
             canvas->drawCircle(50,50, 20, ref);
         }
 
-        const char* name = SkBlendMode_Name(test.mode);
-        canvas->drawText(name, strlen(name), 20,90, label);
+        canvas->drawString(SkBlendMode_Name(test.mode), 20, 90, font, paint);
 
         canvas->translate(100,0);
     }

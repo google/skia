@@ -146,9 +146,8 @@ protected:
         SkASSERT(SkToBool(rectImgs[0]) == SkToBool(rectImgs[1]));
         if (!rectImgs[0]) {
             SkPaint paint;
-            paint.setAntiAlias(true);
-            const char* kMsg = "Could not create rectangle texture image.";
-            canvas->drawString(kMsg, 10, 100, paint);
+            SkFont font;
+            canvas->drawString("Could not create rectangle texture image.", 10, 100, font, paint);
             return;
         }
 

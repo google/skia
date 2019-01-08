@@ -38,11 +38,13 @@ private:
     SkPaint     fFillPaint;
     SkPaint     fStrokePaint;
     SkPath      fPath;
+    SkFont      fFont;
 };
 
-SkJSCanvas::SkJSCanvas(SkCanvas* target) : fTarget(target) {
+SkJSCanvas::SkJSCanvas(SkCanvas* target)
+        : fTarget(target)
+        , fFont(sk_tool_utils::create_portable_typeface(), 12) {
     fFillPaint.setAntiAlias(true);
-    sk_tool_utils::set_portable_typeface(&fFillPaint);
     fStrokePaint.setAntiAlias(true);
     fStrokePaint.setStyle(SkPaint::kStroke_Style);
     fStrokePaint.setStrokeWidth(SK_Scalar1);
@@ -74,7 +76,7 @@ void SkJSCanvas::stroke() {
 }
 
 void SkJSCanvas::fillText(const char text[], double x, double y) {
-    fTarget->drawString(text, SkDoubleToScalar(x), SkDoubleToScalar(y), fFillPaint);
+    fTarget->drawString(text, SkDoubleToScalar(x), SkDoubleToScalar(y), fFont, fFillPaint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
