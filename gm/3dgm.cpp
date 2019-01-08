@@ -6,7 +6,9 @@
  */
 
 #include "gm.h"
+
 #include "Sk3D.h"
+#include "SkFont.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
 
@@ -128,6 +130,8 @@ protected:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAlias);
 
         SkPath cube;
 
@@ -158,13 +162,13 @@ protected:
             mv.setConcat(perspective, camera);
             Sk3MapPts(dst, mv, src, 4);
             viewport.mapPoints(dst, 4);
-            const char str[] = "XYZ";
+            const char* str[3] = { "X", "Y", "Z" };
             for (int i = 1; i <= 3; ++i) {
                 canvas->drawLine(dst[0], dst[i], paint);
             }
 
-            for (int i = 1; i <= 3; ++i) {
-                canvas->drawText(&str[i-1], 1, dst[i].fX, dst[i].fY, paint);
+            for (int i = 0; i < 3; ++i) {
+                canvas->drawString(str[i], dst[i + 1].fX, dst[i + 1].fY, font, paint);
             }
         }
 
