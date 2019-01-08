@@ -19,10 +19,15 @@
 #define SkPath_DEFINED
 
 #include "SkMatrix.h"
+#include "SkPathTypes.h"
 #include "../private/SkPathRef.h"
 #include "../private/SkTo.h"
 
 #include <initializer_list>
+
+#ifndef SK_SUPPORT_LEGACY_PATHTYPES
+#define SK_SUPPORT_LEGACY_PATHTYPES
+#endif
 
 class SkAutoPathBoundsUpdate;
 class SkData;
@@ -50,6 +55,7 @@ class SkWStream;
 class SK_API SkPath {
 public:
 
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
     /** \enum SkPath::Direction
         Direction describes whether contour is clockwise or counterclockwise.
         When SkPath contains multiple overlapping contours, Direction together with
@@ -67,6 +73,9 @@ public:
         kCW_Direction,  //!< contour travels clockwise
         kCCW_Direction, //!< contour travels counterclockwise
     };
+#else
+    typedef SkPathDirection Direction;
+#endif
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         SkPath::FillType is set to kWinding_FillType.
@@ -160,6 +169,7 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
     /** \enum SkPath::FillType
         FillType selects the rule used to fill SkPath. SkPath set to kWinding_FillType
         fills if the sum of contour edges is not zero, where clockwise edges add one, and
@@ -193,13 +203,21 @@ public:
     void setFillType(FillType ft) {
         fFillType = SkToU8(ft);
     }
+#else
+    typedef SkPathFillType FillType;
+#endif
+
+    // Experimental
+    SkPathFillType fillType() const;
+    // Experimental
+    void setFillType(SkPathFillType);
 
     /** Returns if FillType describes area outside SkPath geometry. The inverse fill area
         extends indefinitely.
 
         @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
     */
-    bool isInverseFillType() const { return IsInverseFillType((FillType)fFillType); }
+    bool isInverseFillType() const { return SkPathFillType_IsInverse(this->fillType()); }
 
     /** Replaces FillType with its inverse. The inverse of FillType describes the area
         unmodified by the original FillType.
@@ -981,11 +999,7 @@ public:
         @return      true if SkPath fills outside its bounds
     */
     static bool IsInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (fill & 2) != 0;
+        return SkPathFillType_IsInverse((SkPathFillType)fill);
     }
 
     /** Returns equivalent SkPath::FillType representing SkPath fill inside its bounds.
@@ -996,11 +1010,7 @@ public:
         @return      fill, or kWinding_FillType or kEvenOdd_FillType if fill is inverted
     */
     static FillType ConvertToNonInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (FillType)(fill & 1);
+        return (FillType)SkPathFillType_ConverToNonInverse((SkPathFillType)fill);
     }
 
     /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
@@ -1044,7 +1054,15 @@ public:
         @param direction  storage set to SkRect direction; may be nullptr
         @return           true if SkPath contains SkRect
     */
-    bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const;
+    bool isRect(SkRect* rect, bool* isClosed = nullptr, SkPathDirection* direction = nullptr) const;
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    bool isRect(SkRect* rect, bool* isClosed, std::nullptr_t) const {
+        return this->isRect(rect, isClosed, (SkPathDirection*)nullptr);
+    }
+    bool isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
+        return this->isRect(rect, isClosed, (SkPathDirection*)direction);
+    }
+#endif
 
     /** Returns true if SkPath is equivalent to nested SkRect pair when filled.
         If false, rect and dirs are unchanged.
@@ -1057,7 +1075,12 @@ public:
         @param dirs  storage for SkPath::Direction pair; may be nullptr
         @return      true if SkPath contains nested SkRect pair
     */
-    bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const;
+    bool isNestedFillRects(SkRect rect[2], SkPathDirection dirs[2] = nullptr) const;
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    bool isNestedFillRects(SkRect rect[2], Direction dirs[2]) const {
+        return this->isNestedFillRects(rect, (SkPathDirection*)dirs);
+    }
+#endif
 
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
@@ -1068,7 +1091,12 @@ public:
         @param dir   SkPath::Direction to wind added contour
         @return      reference to SkPath
     */
-    SkPath& addRect(const SkRect& rect, Direction dir = kCW_Direction);
+    SkPath& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRect(const SkRect& rect, Direction dir) {
+        return this->addRect(rect, (SkPathDirection)dir);
+    }
+#endif
 
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb.
         If dir is kCW_Direction, SkRect corners are added clockwise; if dir is
@@ -1080,8 +1108,14 @@ public:
         @param start  initial corner of SkRect to add
         @return       reference to SkPath
     */
-    SkPath& addRect(const SkRect& rect, Direction dir, unsigned start);
+    SkPath& addRect(const SkRect& rect, SkPathDirection dir, unsigned start);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRect(const SkRect& rect, Direction dir, unsigned start) {
+        return this->addRect(rect, (SkPathDirection)dir, start);
+    }
+#endif
 
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
     /** Adds SkRect (left, top, right, bottom) to SkPath,
         appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
@@ -1097,6 +1131,7 @@ public:
     */
     SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
                     Direction dir = kCW_Direction);
+#endif
 
     /** Adds oval to path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
         Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
@@ -1107,7 +1142,12 @@ public:
         @param dir   SkPath::Direction to wind ellipse
         @return      reference to SkPath
     */
-    SkPath& addOval(const SkRect& oval, Direction dir = kCW_Direction);
+    SkPath& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addOval(const SkRect& oval, Direction dir) {
+        return this->addOval(oval, (SkPathDirection)dir);
+    }
+#endif
 
     /** Adds oval to SkPath, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
         Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
@@ -1119,7 +1159,12 @@ public:
         @param start  index of initial point of ellipse
         @return       reference to SkPath
     */
-    SkPath& addOval(const SkRect& oval, Direction dir, unsigned start);
+    SkPath& addOval(const SkRect& oval, SkPathDirection dir, unsigned start);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addOval(const SkRect& oval, Direction dir, unsigned start) {
+        return this->addOval(oval, (SkPathDirection)dir, start);
+    }
+#endif
 
     /** Adds circle centered at (x, y) of size radius to SkPath, appending kMove_Verb,
         four kConic_Verb, and kClose_Verb. Circle begins at: (x + radius, y), continuing
@@ -1134,7 +1179,12 @@ public:
         @return        reference to SkPath
     */
     SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius,
-                      Direction dir = kCW_Direction);
+                      SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir) {
+        return this->addCircle(x, y, radius, (SkPathDirection)dir);
+    }
+#endif
 
     /** Appends arc to SkPath, as the start of new contour. Arc added is part of ellipse
         bounded by oval, from startAngle through sweepAngle. Both startAngle and
@@ -1171,7 +1221,12 @@ public:
         @return      reference to SkPath
     */
     SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
-                         Direction dir = kCW_Direction);
+                         SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir) {
+        return this->addRoundRect(rect, rx, ry, (SkPathDirection)dir);
+    }
+#endif
 
     /** Appends SkRRect to SkPath, creating a new closed contour. SkRRect has bounds
         equal to rect; each corner is 90 degrees of an ellipse with radii from the
@@ -1183,7 +1238,12 @@ public:
         @return       reference to SkPath
     */
     SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
-                         Direction dir = kCW_Direction);
+                         SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir) {
+        return this->addRoundRect(rect, radii, (SkPathDirection)dir);
+    }
+#endif
 
     /** Adds rrect to SkPath, creating a new closed contour. If
         dir is kCW_Direction, rrect starts at top-left of the lower-left corner and
@@ -1196,7 +1256,12 @@ public:
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPath
     */
-    SkPath& addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
+    SkPath& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRRect(const SkRRect& rrect, Direction dir) {
+        return this->addRRect(rrect, (SkPathDirection)dir);
+    }
+#endif
 
     /** Adds rrect to SkPath, creating a new closed contour. If dir is kCW_Direction, rrect
         winds clockwise; if dir is kCCW_Direction, rrect winds counterclockwise.
@@ -1207,7 +1272,12 @@ public:
         @param start  index of initial point of SkRRect
         @return       reference to SkPath
     */
-    SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start);
+    SkPath& addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned start);
+#ifdef SK_SUPPORT_LEGACY_PATHTYPES
+    SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start) {
+        return this->addRRect(rrect, (SkPathDirection)dir, start);
+    }
+#endif
 
     /** Adds contour created from line array, adding (count - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint

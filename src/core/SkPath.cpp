@@ -1026,7 +1026,7 @@ static void assert_known_direction(int dir) {
     SkASSERT(SkPath::kCW_Direction == dir || SkPath::kCCW_Direction == dir);
 }
 
-SkPath& SkPath::addRect(const SkRect& rect, Direction dir) {
+SkPath& SkPath::addRect(const SkRect& rect, SkPathDirection dir) {
     return this->addRect(rect, dir, 0);
 }
 
@@ -1035,7 +1035,7 @@ SkPath& SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
     return this->addRect(SkRect::MakeLTRB(left, top, right, bottom), dir, 0);
 }
 
-SkPath& SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) {
+SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startIndex) {
     assert_known_direction(dir);
     this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathPriv::FirstDirection)dir
                                                    : SkPathPriv::kUnknown_FirstDirection);
@@ -1160,18 +1160,18 @@ static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkV
 }
 
 SkPath& SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
-                          Direction dir) {
+                          SkPathDirection dir) {
     SkRRect rrect;
     rrect.setRectRadii(rect, (const SkVector*) radii);
     return this->addRRect(rrect, dir);
 }
 
-SkPath& SkPath::addRRect(const SkRRect& rrect, Direction dir) {
+SkPath& SkPath::addRRect(const SkRRect& rrect, SkPathDirection dir) {
     // legacy start indices: 6 (CW) and 7(CCW)
-    return this->addRRect(rrect, dir, dir == kCW_Direction ? 6 : 7);
+    return this->addRRect(rrect, dir, dir == SkPathDirection::kCW ? 6 : 7);
 }
 
-SkPath& SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) {
+SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned startIndex) {
     assert_known_direction(dir);
 
     bool isRRect = hasOnlyMoveTos();
@@ -1191,7 +1191,7 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startInde
         SkAutoDisableDirectionCheck addc(this);
 
         // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
-        const bool startsWithConic = ((startIndex & 1) == (dir == kCW_Direction));
+        const bool startsWithConic = ((startIndex & 1) == (dir == SkPathDirection::kCW));
         const SkScalar weight = SK_ScalarRoot2Over2;
 
         SkDEBUGCODE(int initialVerbCount = this->countVerbs());
@@ -1203,7 +1203,7 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startInde
         RRectPointIterator rrectIter(rrect, dir, startIndex);
         // Corner iterator indices follow the collapsed radii model,
         // adjusted such that the start pt is "behind" the radii start pt.
-        const unsigned rectStartIndex = startIndex / 2 + (dir == kCW_Direction ? 0 : 1);
+        const unsigned rectStartIndex = startIndex / 2 + (dir == SkPathDirection::kCW ? 0 : 1);
         RectPointIterator rectIter(bounds, dir, rectStartIndex);
 
         this->moveTo(rrectIter.current());
@@ -1263,7 +1263,7 @@ bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
 }
 
 SkPath& SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
-                             Direction dir) {
+                             SkPathDirection dir) {
     assert_known_direction(dir);
 
     if (rx < 0 || ry < 0) {
@@ -1275,12 +1275,12 @@ SkPath& SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
     return this->addRRect(rrect, dir);
 }
 
-SkPath& SkPath::addOval(const SkRect& oval, Direction dir) {
+SkPath& SkPath::addOval(const SkRect& oval, SkPathDirection dir) {
     // legacy start index: 1
     return this->addOval(oval, dir, 1);
 }
 
-SkPath& SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex) {
+SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startPointIndex) {
     assert_known_direction(dir);
 
     /* If addOval() is called after previous moveTo(),
@@ -1305,7 +1305,7 @@ SkPath& SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIn
 
     OvalPointIterator ovalIter(oval, dir, startPointIndex);
     // The corner iterator pts are tracking "behind" the oval/radii pts.
-    RectPointIterator rectIter(oval, dir, startPointIndex + (dir == kCW_Direction ? 0 : 1));
+    RectPointIterator rectIter(oval, dir, startPointIndex + (dir == SkPathDirection::kCW ? 0 : 1));
     const SkScalar weight = SK_ScalarRoot2Over2;
 
     this->moveTo(ovalIter.current());
@@ -1318,11 +1318,11 @@ SkPath& SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIn
 
     SkPathRef::Editor ed(&fPathRef);
 
-    ed.setIsOval(isOval, kCCW_Direction == dir, startPointIndex % 4);
+    ed.setIsOval(isOval, SkPathDirection::kCCW == dir, startPointIndex % 4);
     return *this;
 }
 
-SkPath& SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
+SkPath& SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, SkPathDirection dir) {
     if (r > 0) {
         this->addOval(SkRect::MakeLTRB(x - r, y - r, x + r, y + r), dir);
     }
@@ -1404,7 +1404,7 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
 // http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
 // Note that arcSweep bool value is flipped from the original implementation.
 SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arcLarge,
-                      SkPath::Direction arcSweep, SkScalar x, SkScalar y) {
+                      SkPathDirection arcSweep, SkScalar x, SkScalar y) {
     this->injectMoveToIfNeeded();
     SkPoint srcPts[2];
     this->getLastPt(&srcPts[0]);
@@ -1519,7 +1519,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
 }
 
 SkPath& SkPath::rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, SkPath::ArcSize largeArc,
-                       SkPath::Direction sweep, SkScalar dx, SkScalar dy) {
+                       SkPathDirection sweep, SkScalar dx, SkScalar dy) {
     SkPoint currentPoint;
     this->getLastPt(&currentPoint);
     return this->arcTo(rx, ry, xAxisRotate, largeArc, sweep,
@@ -1543,7 +1543,7 @@ SkPath& SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAn
             // Index 1 is at startAngle == 0.
             SkScalar startIndex = std::fmod(startOver90I + 1.f, 4.f);
             startIndex = startIndex < 0 ? startIndex + 4.f : startIndex;
-            return this->addOval(oval, sweepAngle > 0 ? kCW_Direction : kCCW_Direction,
+            return this->addOval(oval, sweepAngle > 0 ? SkPathDirection::kCW : SkPathDirection::kCCW,
                                  (unsigned) startIndex);
         }
     }
