@@ -67,50 +67,29 @@ public:
                                           GrQuadType localQuadType) {
         // Clean up deviations between aaType and edgeAA
         GrResolveAATypeForQuad(aaType, edgeAA, deviceQuad, deviceQuadType, &aaType, &edgeAA);
-
-        // Analyze the paint to see if it is compatible with scissor-clearing
-        SkPMColor4f color = paint.getColor4f();
-        // Only non-null if the paint can be turned into a clear, it can be a local pointer since
-        // the op ctor consumes the value right away if it's provided
-        SkPMColor4f* clearColor = nullptr;
-        if (paint.isTrivial() || paint.isConstantBlendedColor(&color)) {
-            clearColor = &color;
-        }
-
-        return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), clearColor, aaType,
-                edgeAA, stencilSettings, deviceQuad, deviceQuadType, localQuad, localQuadType);
+        return Helper::FactoryHelper<FillRectOp>(context, std::move(paint), aaType, edgeAA,
+                stencilSettings, deviceQuad, deviceQuadType, localQuad, localQuadType);
     }
 
-    // Analysis of the GrPaint to determine the const blend color must be done before, passing
-    // nullptr for constBlendColor disables all scissor-clear optimizations (must keep the
-    // paintColor argument because it is assumed by the GrSimpleMeshDrawOpHelper). Similarly, aaType
-    // is passed to Helper in the initializer list, so incongruities between aaType and edgeFlags
-    // must be resolved prior to calling this constructor.
-    FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, const SkPMColor4f* constBlendColor,
-               GrAAType aaType, GrQuadAAFlags edgeFlags, const GrUserStencilSettings* stencil,
+    // aaType is passed to Helper in the initializer list, so incongruities between aaType and
+    // edgeFlags must be resolved prior to calling this constructor.
+    FillRectOp(Helper::MakeArgs args, SkPMColor4f paintColor, GrAAType aaType,
+               GrQuadAAFlags edgeFlags, const GrUserStencilSettings* stencil,
                const GrPerspQuad& deviceQuad, GrQuadType deviceQuadType,
                const GrPerspQuad& localQuad, GrQuadType localQuadType)
             : INHERITED(ClassID())
-            , fHelper(args, aaType, stencil) {
-        if (constBlendColor) {
-            // The GrPaint is compatible with clearing, and the constant blend color overrides the
-            // paint color (although in most cases they are probably the same)
-            paintColor = *constBlendColor;
-            // However, just because the paint is compatible, the device quad must also be a rect
-            // that is non-AA (AA aligned with pixel bounds should have already been turned into
-            // non-AA).
-            fClearCompatible = deviceQuadType == GrQuadType::kRect && aaType == GrAAType::kNone;
-        } else {
-            // Paint isn't clear compatible
-            fClearCompatible = false;
-        }
-
-        fWideColor = !SkPMColor4fFitsInBytes(paintColor);
-
+            , fHelper(args, aaType, stencil)
+            , fWideColor(!SkPMColor4fFitsInBytes(paintColor)) {
         // The color stored with the quad is the clear color if a scissor-clear is decided upon
         // when executing the op.
         fDeviceQuads.push_back(deviceQuad, deviceQuadType, { paintColor, edgeFlags });
-        fLocalQuads.push_back(localQuad, localQuadType);
+
+        if (!fHelper.isTrivial()) {
+            // Conservatively keep track of the local coordinates; it may be that the paint doesn't
+            // need them after analysis is finished. If the paint is known to be solid up front they
+            // can be skipped entirely.
+            fLocalQuads.push_back(localQuad, localQuadType);
+        }
         this->setBounds(deviceQuad.bounds(deviceQuadType),
                         HasAABloat(aaType == GrAAType::kCoverage), IsZeroArea::kNo);
     }
@@ -132,7 +111,9 @@ public:
         for (int i = 0; i < this->quadCount(); i++) {
             device = fDeviceQuads[i];
             const ColorAndAA& info = fDeviceQuads.metadata(i);
-            local = fLocalQuads[i];
+            if (!fHelper.isTrivial()) {
+                local = fLocalQuads[i];
+            }
             str += dump_quad_info(i, device, local, info.fColor, info.fAAFlags);
         }
         str += INHERITED::dumpInfo();
@@ -198,6 +179,9 @@ private:
                               fWideColor ? ColorType::kHalf : ColorType::kByte,
                               fLocalQuads.quadType(), fHelper.usesLocalCoords(), Domain::kNo,
                               fHelper.aaType(), fHelper.compatibleWithAlphaAsCoverage());
+        // Make sure that if the op thought it was a solid color, the vertex spec does not use
+        // local coords.
+        SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
         size_t vertexSize = gp->vertexStride();
@@ -216,13 +200,21 @@ private:
 
         // vertices pointer advances through vdata based on Tessellate's return value
         void* vertices = vdata;
-        for (int i = 0; i < this->quadCount(); ++i) {
-            const GrPerspQuad& device = fDeviceQuads[i];
-            const ColorAndAA& info = fDeviceQuads.metadata(i);
-            const GrPerspQuad& local = fLocalQuads[i];
-
-            vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, device, info.fColor, local,
-                                                   kEmptyDomain, info.fAAFlags);
+        if (fHelper.isTrivial()) {
+            SkASSERT(fLocalQuads.count() == 0); // No local coords, so send an ignored dummy quad
+            static const GrPerspQuad kIgnoredLocal(SkRect::MakeEmpty(), SkMatrix::I());
+            for (int i = 0; i < this->quadCount(); ++i) {
+                const ColorAndAA& info = fDeviceQuads.metadata(i);
+                vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, fDeviceQuads[i],
+                        info.fColor, kIgnoredLocal, kEmptyDomain, info.fAAFlags);
+            }
+        } else {
+            SkASSERT(fLocalQuads.count() == fDeviceQuads.count());
+            for (int i = 0; i < this->quadCount(); ++i) {
+                const ColorAndAA& info = fDeviceQuads.metadata(i);
+                vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, fDeviceQuads[i],
+                        info.fColor, fLocalQuads[i], kEmptyDomain, info.fAAFlags);
+            }
         }
 
         // Configure the mesh for the vertex data
@@ -254,10 +246,12 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        // If the processor sets are compatible, the two ops are always compatible; it just needs
-        // to adjust the state of the op to be the more general quad and aa types of the two ops.
+        // If the paints were compatible, the trivial/solid-color state should be the same
+        SkASSERT(fHelper.isTrivial() == that->fHelper.isTrivial());
 
-        fClearCompatible &= that->fClearCompatible;
+        // If the processor sets are compatible, the two ops are always compatible; it just needs to
+        // adjust the state of the op to be the more general quad and aa types of the two ops and
+        // then concatenate the per-quad data.
         fWideColor |= that->fWideColor;
 
         // The helper stores the aa type, but isCompatible(with true arg) allows the two ops' aa
@@ -268,7 +262,9 @@ private:
         }
 
         fDeviceQuads.concat(that->fDeviceQuads);
-        fLocalQuads.concat(that->fLocalQuads);
+        if (!fHelper.isTrivial()) {
+            fLocalQuads.concat(that->fLocalQuads);
+        }
         return CombineResult::kMerged;
     }
 
@@ -304,12 +300,15 @@ private:
         this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
                         IsZeroArea::kNo);
         fDeviceQuads.push_back(deviceQuad, fDeviceQuads.quadType(), { color, edgeAA });
-        fLocalQuads.push_back(localQuad, localQuadType);
+        if (!fHelper.isTrivial()) {
+            fLocalQuads.push_back(localQuad, localQuadType);
+        }
     }
 
     int quadCount() const {
         // Sanity check that the parallel arrays for quad properties all have the same size
-        SkASSERT(fDeviceQuads.count() == fLocalQuads.count());
+        SkASSERT(fDeviceQuads.count() == fLocalQuads.count() ||
+                 (fLocalQuads.count() == 0 && fHelper.isTrivial()));
         return fDeviceQuads.count();
     }
 
@@ -320,14 +319,10 @@ private:
 
     Helper fHelper;
     GrTQuadList<ColorAndAA> fDeviceQuads;
-    // No metadata attached to the local quads
+    // No metadata attached to the local quads; this list is empty when local coords are not needed.
     GrQuadList fLocalQuads;
 
     unsigned fWideColor: 1;
-
-    // True if fQuad produced by a rectangle-preserving view matrix, is pixel aligned or non-AA,
-    // and its paint is a constant blended color.
-    unsigned fClearCompatible: 1;
 
     typedef GrMeshDrawOp INHERITED;
 };
