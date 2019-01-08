@@ -780,10 +780,10 @@ public:
     */
     void notifyPixelsChanged() const;
 
-    /** Replaces pixel values with c. All pixels contained by bounds() are affected.
-        If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
-        is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then RGB is ignored.
+    /** Replaces pixel values with c, interpreted as being in the sRGB SkColorSpace.
+        All pixels contained by bounds() are affected. If the colorType() is
+        kGray_8_SkColorType or kRGB_565_SkColorType, then alpha is ignored; RGB is
+        treated as opaque. If colorType() is kAlpha_8_SkColorType, then RGB is ignored.
 
         @param c  unpremultiplied color
 
@@ -791,11 +791,11 @@ public:
     */
     void eraseColor(SkColor c) const;
 
-    /** Replaces pixel values with unpremultiplied color built from a, r, g, and b.
-        All pixels contained by bounds() are affected.
-        If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then a
-        is ignored; r, g, and b are treated as opaque. If colorType() is kAlpha_8_SkColorType,
-        then r, g, and b are ignored.
+    /** Replaces pixel values with unpremultiplied color built from a, r, g, and b,
+        interpreted as being in the sRGB SkColorSpace. All pixels contained by
+        bounds() are affected. If the colorType() is kGray_8_SkColorType or
+        kRGB_565_SkColorType, then a is ignored; r, g, and b are treated as opaque.
+        If colorType() is kAlpha_8_SkColorType, then r, g, and b are ignored.
 
         @param a  amount of alpha, from fully transparent (0) to fully opaque (255)
         @param r  amount of red, from no red (0) to full red (255)
@@ -806,8 +806,8 @@ public:
         this->eraseColor(SkColorSetARGB(a, r, g, b));
     }
 
-    /** Replaces pixel values inside area with c. If area does not intersect bounds(),
-        call has no effect.
+    /** Replaces pixel values inside area with c. interpreted as being in the sRGB
+        SkColorSpace. If area does not intersect bounds(), call has no effect.
 
         If the colorType() is kGray_8_SkColorType or kRGB_565_SkColorType, then alpha
         is ignored; RGB is treated as opaque. If colorType() is kAlpha_8_SkColorType,

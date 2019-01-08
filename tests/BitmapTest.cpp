@@ -253,6 +253,20 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
     }
 }
 
+// Verify that SkBitmap::erase erases in SRGB, regardless of the SkColorSpace of the
+// SkBitmap.
+DEF_TEST(Bitmap_erase_srgb, r) {
+    SkBitmap bm;
+    // Use a color spin from SRGB.
+    bm.allocPixels(SkImageInfo::Make(1, 1, kN32_SkColorType, kPremul_SkAlphaType,
+                                     SkColorSpace::MakeSRGB()->makeColorSpin()));
+    // RED will be converted into the spun color space.
+    bm.eraseColor(SK_ColorRED);
+    // getColor doesn't take the color space into account, so the returned color
+    // is different due to the color spin.
+    REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorBLUE);
+}
+
 // Make sure that the bitmap remains valid when pixelref is removed.
 DEF_TEST(Bitmap_clear_pixelref_keep_info, r) {
     SkBitmap bm;
