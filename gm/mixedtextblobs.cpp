@@ -114,8 +114,6 @@ protected:
         paint.setColor(SK_ColorBLACK);
         canvas->translate(10, 40);
 
-        paint.setTextSize(40);
-
         // compute the bounds of the text and setup some clips
         SkRect bounds = fBlob->bounds();
 

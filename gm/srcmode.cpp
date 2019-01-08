@@ -28,32 +28,30 @@ static void gradient_paintproc(SkPaint* paint) {
                                                   SkShader::kClamp_TileMode));
 }
 
-typedef void (*Proc)(SkCanvas*, const SkPaint&);
+typedef void (*Proc)(SkCanvas*, const SkPaint&, const SkFont&);
 
-static void draw_hair(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_hair(SkCanvas* canvas, const SkPaint& paint, const SkFont&) {
     SkPaint p(paint);
     p.setStrokeWidth(0);
     canvas->drawLine(0, 0, W, H, p);
 }
 
-static void draw_thick(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_thick(SkCanvas* canvas, const SkPaint& paint, const SkFont&) {
     SkPaint p(paint);
     p.setStrokeWidth(H/5);
     canvas->drawLine(0, 0, W, H, p);
 }
 
-static void draw_rect(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_rect(SkCanvas* canvas, const SkPaint& paint, const SkFont&) {
     canvas->drawRect(SkRect::MakeWH(W, H), paint);
 }
 
-static void draw_oval(SkCanvas* canvas, const SkPaint& paint) {
+static void draw_oval(SkCanvas* canvas, const SkPaint& paint, const SkFont&) {
     canvas->drawOval(SkRect::MakeWH(W, H), paint);
 }
 
-static void draw_text(SkCanvas* canvas, const SkPaint& paint) {
-    SkPaint p(paint);
-    p.setTextSize(H/4);
-    canvas->drawString("Hamburge", 0, H*2/3, p);
+static void draw_text(SkCanvas* canvas, const SkPaint& paint, const SkFont& font) {
+    canvas->drawString("Hamburge", 0, H*2/3, font, paint);
 }
 
 class SrcModeGM : public skiagm::GM {
@@ -76,7 +74,7 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
-        sk_tool_utils::set_portable_typeface(&paint);
+        SkFont font(sk_tool_utils::create_portable_typeface(), H/4);
         paint.setColor(0x80F60000);
 
         const Proc procs[] = {
@@ -93,6 +91,7 @@ protected:
 
         for (int aa = 0; aa <= 1; ++aa) {
             paint.setAntiAlias(SkToBool(aa));
+            font.setEdging(SkToBool(aa) ? SkFont::Edging::kAntiAlias : SkFont::Edging::kAlias);
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(paintProcs); ++i) {
                 paintProcs[i](&paint);
@@ -100,7 +99,7 @@ protected:
                     paint.setBlendMode(modes[x]);
                     canvas->save();
                     for (size_t y = 0; y < SK_ARRAY_COUNT(procs); ++y) {
-                        procs[y](canvas, paint);
+                        procs[y](canvas, paint, font);
                         canvas->translate(0, H * 5 / 4);
                     }
                     canvas->restore();
