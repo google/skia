@@ -10,6 +10,8 @@
 #include "SkTypeface.h"
 #include "Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+
 static void test_cachedfont(skiatest::Reporter* reporter,
                             const SkPaint& paint, const SkFont& font) {
     // Currently SkFont resolves null into the default, so only test if paint's is not null
@@ -142,3 +144,4 @@ DEF_TEST(FontObj, reporter) {
 }
 
 // need tests for SkStrSearch
+#endif  // SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
