@@ -110,10 +110,7 @@ protected:
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
         if (!surface) {
-            const char* text = "This test requires a surface";
-            size_t len = strlen(text);
-            SkPaint paint;
-            canvas->drawText(text, len, 10, 100, paint);
+            canvas->drawString("This test requires a surface", 10, 100, SkFont(), SkPaint());
             return;
         }
 
