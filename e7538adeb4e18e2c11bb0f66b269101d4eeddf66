@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58602c48_5afcaf8d",
+        "filename": "src/gpu/GrQuad.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-08T20:24:58Z",
+      "side": 1,
+      "message": "nit: If it doesn\u0027t make the line too long and/or the type name isn\u0027t overly verbose, I generally prefer to read the explicit type name rather than \u0027auto\u0027. As is, I surmised \u0027x\u0027 is probably an Sk4f, but wasn\u0027t 100% certain.",
+      "range": {
+        "startLine": 114,
+        "startChar": 8,
+        "endLine": 114,
+        "endChar": 12
+      },
+      "revId": "e7538adeb4e18e2c11bb0f66b269101d4eeddf66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
