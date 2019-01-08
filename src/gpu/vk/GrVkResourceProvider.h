@@ -156,6 +156,8 @@ public:
     // can be reused by the next uniform buffer resource request.
     void recycleStandardUniformBufferResource(const GrVkResource*);
 
+    void storePipelineCacheData();
+
     // Destroy any cached resources. To be called before destroying the VkDevice.
     // The assumption is that all queues are idle and all command buffers are finished.
     // For resource tracing to work properly, this should be called after unrefing all other
@@ -244,6 +246,8 @@ private:
         SkSTArray<4, GrVkRenderPass*> fRenderPasses;
         int                           fLastReturnedIndex;
     };
+
+    VkPipelineCache pipelineCache();
 
     GrVkGpu* fGpu;
 
