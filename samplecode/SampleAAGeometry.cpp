@@ -640,7 +640,7 @@ struct BiControl : public UniControl {
         if (yPos < fYLo + 10) {
             yPos = fYLo + 10;
         }
-        canvas->drawString(label, fBounds.fLeft + 5, yPos - 5, paints.fValue);
+        canvas->drawString(label, fBounds.fLeft + 5, yPos - 5, paints.fValueFont, paints.fValue);
         SkRect fill = { fBounds.fLeft, fYLo, fBounds.fRight, yPos };
         canvas->drawRect(fill, paints.fFill);
     }

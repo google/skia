@@ -467,10 +467,9 @@ protected:
                        FatBits::kHair_Style == fFB.getStyle() ? "Hair" : "Stroke",
                        fFB.getUseClip() ? "clip" : "noclip");
             SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(16);
             paint.setColor(SK_ColorBLUE);
-            canvas->drawString(str, 10, 16, paint);
+            SkFont font(nullptr, 16);
+            canvas->drawString(str, 10, 16, font, paint);
         }
     }
 

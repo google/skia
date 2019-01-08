@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
+#include "SkFont.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -720,12 +721,10 @@ protected:
             this->showFrame(canvas, fPts, 3, paint);
             this->showFrame(canvas, fQuad, 2, paint);
 
-            SkString str;
-            str.printf("t = %g", fT);
             paint.setColor(SK_ColorBLACK);
             paint.setStyle(SkPaint::kFill_Style);
-            paint.setTextSize(20);
-            canvas->drawText(str.c_str(), str.size(), 20, 20, paint);
+            SkFont font(nullptr, 20);
+            canvas->drawString(SkStringPrintf("t = %g", fT), 20, 20, font, paint);
         }
 
         if (fShowFlatness) {

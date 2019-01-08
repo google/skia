@@ -238,11 +238,10 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
     }
 
+    SkFont font(nullptr, 20);
     SkPaint captionPaint;
-    captionPaint.setTextSize(20);
     captionPaint.setColor(SK_ColorWHITE);
-    captionPaint.setAntiAlias(true);
-    canvas->drawText(caption.c_str(), caption.size(), 10, 30, captionPaint);
+    canvas->drawString(caption, 10, 30, font, captionPaint);
 }
 
 void CCPRGeometryView::updateGpuData() {

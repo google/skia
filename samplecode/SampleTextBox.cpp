@@ -76,14 +76,13 @@ protected:
         SkScalar margin = 20;
 
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
             SkTextBlobBuilderLineHandler builder;
-            paint.setTextSize(SkIntToScalar(i));
-            SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+            SkFont font(nullptr, SkIntToScalar(i));
+            font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
             SkPoint end = shaper.shape(&builder, font, gText, strlen(gText), true,
                                        { margin, margin }, w - margin);
             canvas->drawTextBlob(builder.makeBlob(), 0, 0, paint);

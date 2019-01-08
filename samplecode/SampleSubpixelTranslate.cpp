@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Sample.h"
+
 #include "DecodeFile.h"
 #include "Resources.h"
-#include "Sample.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkFont.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 
@@ -58,8 +60,8 @@ protected:
         };
 
         SkPaint paint;
-        paint.setTextSize(48);
-        paint.setSubpixelText(true);
+        SkFont font(nullptr, 48);
+        font.setSubpixel(true);
 
         paint.setAntiAlias(true);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
@@ -68,31 +70,39 @@ protected:
             canvas->drawBitmapRect( fBM, r, &paint );
         }
 
-        canvas->drawString( "AA Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10), fCurPos.fY + fSize/2, paint );
+        canvas->drawString("AA Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10),
+                           fCurPos.fY + fSize/2, font, paint);
 
         paint.setAntiAlias(false);
+        font.setEdging(SkFont::Edging::kAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             SkRect r = SkRect::MakeXYWH( fCurPos.fX + i * (fSize + 10), fCurPos.fY + fSize + 10, fSize, fSize );
             canvas->drawBitmapRect( fBM, r, &paint );
         }
-        canvas->drawString( "Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10), fCurPos.fY + fSize + 10 + fSize/2, paint );
+        canvas->drawString("Scaled", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fSize + 10),
+                           fCurPos.fY + fSize + 10 + fSize/2, font, paint);
 
         paint.setAntiAlias(true);
+        font.setEdging(SkFont::Edging::kAntiAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             canvas->drawBitmap( fBM, fCurPos.fX + i * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10), &paint );
         }
 
-        canvas->drawString( "AA No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fSize/2, paint );
+        canvas->drawString("AA No Scale",
+                           fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10),
+                           fCurPos.fY + 2*(fSize + 10) + fSize/2, font, paint);
 
         paint.setAntiAlias(false);
+        font.setEdging(SkFont::Edging::kAlias);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gQualitys); ++i) {
             paint.setFilterQuality(gQualitys[i]);
             canvas->drawBitmap( fBM, fCurPos.fX + i * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10, &paint );
         }
 
-        canvas->drawString( "No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10), fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10 + fSize/2, paint );
+        canvas->drawString("No Scale", fCurPos.fX + SK_ARRAY_COUNT(gQualitys) * (fBM.width() + 10),
+                           fCurPos.fY + 2*(fSize + 10) + fBM.height() + 10 + fSize/2, font, paint);
 
 
         fCurPos.fX += fHorizontalVelocity;
