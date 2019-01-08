@@ -7,7 +7,9 @@
  */
 #include "Sample.h"
 #include "Resources.h"
+
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
@@ -182,6 +184,7 @@ protected:
             0xFF15CCBE, 0xFF25E5CE, 0xFF2CFFE0, 0xFF80FFEA, 0xFFB3FFF0
         };
 
+        SkFont font;
         SkPaint paint;
         paint.setAntiAlias(true);
         if (fDarkBackground) {
@@ -191,11 +194,10 @@ protected:
             canvas->drawColor(0xFFEAEAEA);
             paint.setColor(SK_ColorBLACK);
         }
-
         if (fTwoPassColor) {
-            canvas->drawText("Two pass", 8, 10, 15, paint);
+            canvas->drawString("Two pass", 10, 15, font, paint);
         } else {
-            canvas->drawText("One pass", 8, 10, 15, paint);
+            canvas->drawString("One pass", 10, 15, font, paint);
         }
 
         SkPoint3 lightPos = { 75, -400, 600 };

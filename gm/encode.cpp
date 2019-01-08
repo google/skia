@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+
+#include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkFont.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
-#include "Resources.h"
 
 namespace skiagm {
 
@@ -37,8 +39,7 @@ protected:
         canvas->drawImage(pngImage.get(), 0.0f, 0.0f);
         canvas->drawImage(jpgImage.get(), 512.0f, 0.0f);
 
-        const char text[] = "Images should look identical.";
-        canvas->drawText(text, sizeof(text) - 1, 450.0f, 550.0f, SkPaint());
+        canvas->drawString("Images should look identical.", 450.0f, 550.0f, SkFont(), SkPaint());
     }
 
 private:
