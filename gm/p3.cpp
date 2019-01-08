@@ -133,21 +133,6 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 
     canvas->translate(0,80);
 
-    // Draw a P3 red bitmap, using SkBitmap::eraseColor().
-    {
-        SkBitmap bm;
-        bm.allocPixels(SkImageInfo::Make(60,60, kRGBA_F16_SkColorType, kPremul_SkAlphaType, p3));
-
-        bm.eraseColor(0xffff0000/*in P3*/);
-
-        canvas->drawBitmap(bm, 10,10);
-        compare_pixel("drawBitmap P3 red, from SkBitmap::eraseColor()",
-                      canvas, 10,10,
-                      {1,0,0,1}, p3.get());
-    }
-
-    canvas->translate(0,80);
-
     // Draw a P3 red bitmap, using SkPixmap::erase().
     {
         SkBitmap bm;
@@ -156,7 +141,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         // At the moment only SkPixmap has an erase() that takes an SkColor4f.
         SkPixmap pm;
         SkAssertResult(bm.peekPixels(&pm));
-        SkAssertResult(pm.erase({1,0,0,1} /*in p3*/));
+        SkAssertResult(pm.erase(p3_to_srgb({1,0,0,1})));
 
         canvas->drawBitmap(bm, 10,10);
         compare_pixel("drawBitmap P3 red, from SkPixmap::erase",
@@ -174,7 +159,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         // At the moment only SkPixmap has an erase() that takes an SkColor4f.
         SkPixmap pm;
         SkAssertResult(bm.peekPixels(&pm));
-        SkAssertResult(pm.erase({1,0,0,1} /*in p3*/));
+        SkAssertResult(pm.erase(p3_to_srgb({1,0,0,1})));
 
         SkPaint paint;
         paint.setShader(SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode,
