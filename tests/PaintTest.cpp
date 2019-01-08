@@ -267,8 +267,10 @@ DEF_TEST(Paint_regression_measureText, reporter) {
 DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
+#endif
     paint.setBlendMode(SkBlendMode::kModulate);
     paint.setLooper(nullptr);  // Default value, ignored.
 
@@ -302,11 +304,13 @@ DEF_TEST(Paint_getHash, r) {
     paint.setColor(SK_ColorBLACK);  // Reset to default value.
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     // SkTypeface is the first field we hash, so test it specially.
     paint.setTypeface(SkTypeface::MakeDefault());
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
+#endif
 
     // This is part of fBitfields, the last field we hash.
     paint.setHinting(kSlight_SkFontHinting);

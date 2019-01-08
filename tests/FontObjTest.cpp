@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+
 #include "SkFont.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
@@ -142,3 +144,4 @@ DEF_TEST(FontObj, reporter) {
 }
 
 // need tests for SkStrSearch
+#endif  // SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
