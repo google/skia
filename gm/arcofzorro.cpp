@@ -26,51 +26,38 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+        return SkISize::Make(1000, 150);
+    }
+
+    void drawClippedRect(SkCanvas* canvas, const SkRect& r) {
+        SkPaint grey;
+        grey.setColor(0xFFEEEEEE);
+
+        bool isAA = grey.isAntiAlias();
+
+        canvas->save();
+
+//        canvas->clipRect(r);         // non-AA
+
+        canvas->drawRect(r, grey);     // non-AA
+
+        canvas->restore();
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
+        canvas->save();
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
+        canvas->concat(SkMatrix::MakeTrans(493.5f, 8.0f));
 
-        SkPaint p;
+        canvas->drawRect(SkRect::MakeWH(201, 100), SkPaint());
 
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
+        this->drawClippedRect(canvas, SkRect::MakeLTRB(0, 83, 17, 100));
+        this->drawClippedRect(canvas, SkRect::MakeLTRB(17, 83, 67, 100));
+        this->drawClippedRect(canvas, SkRect::MakeLTRB(67, 83, 167, 100));
+        this->drawClippedRect(canvas, SkRect::MakeLTRB(167, 83, 184, 100));
+        this->drawClippedRect(canvas, SkRect::MakeLTRB(184, 83, 201, 100));
 
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
-
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
-        }
-
+        canvas->restore();
     }
 
 private:
