@@ -202,7 +202,6 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
         SkNx_shuffle<0, 0, 2, 2>(r).store(fX);
         SkNx_shuffle<1, 3, 1, 3>(r).store(fY);
         fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
-        fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
     } else {
         Sk4f rx(rect.fLeft, rect.fLeft, rect.fRight, rect.fRight);
         Sk4f ry(rect.fTop, rect.fBottom, rect.fTop, rect.fBottom);
@@ -220,12 +219,17 @@ GrPerspQuad::GrPerspQuad(const SkRect& rect, const SkMatrix& m) {
             Sk4f w2(m.get(SkMatrix::kMPersp2));
             auto w = SkNx_fma(w0, rx, SkNx_fma(w1, ry, w2));
             w.store(fW);
-            w.invert().store(fIW);
         } else {
             fW[0] = fW[1] = fW[2] = fW[3] = 1.f;
-            fIW[0] = fIW[1] = fIW[2] = fIW[3] = 1.f;
         }
     }
+}
+
+// Private constructor used by GrQuadList to quickly fill in a quad's values from the channel arrays
+GrPerspQuad::GrPerspQuad(const float* xs, const float* ys, const float* ws) {
+    memcpy(fX, xs, 4 * sizeof(float));
+    memcpy(fY, ys, 4 * sizeof(float));
+    memcpy(fW, ws, 4 * sizeof(float));
 }
 
 bool GrPerspQuad::aaHasEffectOnRect() const {
