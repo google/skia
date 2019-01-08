@@ -227,22 +227,23 @@ static SkPath hiragino_maru_gothic_pro_dash() {
     return path;
 }
 
-static void show_bold(SkCanvas* canvas, const void* text, int len,
-                      SkScalar x, SkScalar y, const SkPaint& paint) {
-        SkPaint p(paint);
-        canvas->drawText(text, len, x, y, p);
-        p.setFakeBoldText(true);
-        canvas->drawText(text, len, x, y + SkIntToScalar(120), p);
+static void show_bold(SkCanvas* canvas, const char* text,
+                      SkScalar x, SkScalar y, const SkPaint& paint, const SkFont& font) {
+        canvas->drawString(text, x, y, font, paint);
+        SkFont f(font);
+        f.setEmbolden(true);
+        canvas->drawString(text, x, y + 120, f, paint);
 }
 
-static void path_bold(SkCanvas* canvas, const SkPath& path, const SkPaint& paint) {
+static void path_bold(SkCanvas* canvas, const SkPath& path,
+                      const SkPaint& paint, float textSize) {
         SkPaint p(paint);
         canvas->drawPath(path, p);
         p.setStyle(SkPaint::kStrokeAndFill_Style);
-        SkScalar fakeBoldScale = SkScalarInterpFunc(p.getTextSize(),
+        SkScalar fakeBoldScale = SkScalarInterpFunc(textSize,
                 kStdFakeBoldInterpKeys, kStdFakeBoldInterpValues,
                 kStdFakeBoldInterpLength);
-        SkScalar extra = p.getTextSize() * fakeBoldScale;
+        SkScalar extra = textSize * fakeBoldScale;
         p.setStrokeWidth(extra);
         canvas->save();
         canvas->translate(0, 120);
@@ -255,21 +256,19 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(88);
 
+        // use the portable typeface to generically test the fake bold code everywhere
+        // (as long as the freetype option to do the bolding itself isn't enabled)
+        SkFont font(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()), 100);
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(100));
         paint.setStrokeWidth(SkIntToScalar(5));
 
         // use paths instead of text to test the path data on all platforms, since the
         // Mac-specific font may change or is not available everywhere
-        path_bold(canvas, papyrus_hello(), paint);
-        path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint);
+        path_bold(canvas, papyrus_hello(), paint, font.getSize());
+        path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint, font.getSize());
 
-        // use the portable typeface to generically test the fake bold code everywhere
-        // (as long as the freetype option to do the bolding itself isn't enabled)
-        sk_tool_utils::set_portable_typeface(&paint, "serif");
-        const unsigned char hiThere[] = "Hi There";
-        show_bold(canvas, hiThere, SK_ARRAY_COUNT(hiThere), x + SkIntToScalar(430), y, paint);
+        show_bold(canvas, "Hi There", x + SkIntToScalar(430), y, paint, font);
 
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
 

@@ -79,6 +79,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        SkPaint textPaint;
+        SkFont font(sk_tool_utils::create_portable_typeface(), 12);
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
 
@@ -136,14 +138,8 @@ protected:
                         x += r.width() * 4 / 3;
                     }
                 }
-                {
-                    SkPaint p;
-                    SkString str;
-                    p.setAntiAlias(true);
-                    sk_tool_utils::set_portable_typeface(&p);
-                    str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    canvas->drawString(str, x, y + r.height() * 2 / 3, p);
-                }
+                canvas->drawString(SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
+                                   x, y + r.height() * 2 / 3, font, textPaint);
 
                 y += r.height() * 4 / 3;
             }

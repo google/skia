@@ -6,9 +6,11 @@
  */
 
 #include "gm.h"
+
 #include "SkColorSpace.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkDashPathEffect.h"
+#include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkString.h"
 
@@ -33,8 +35,8 @@ static SkColor4f transform(SkColor4f c, SkColorSpace* src, SkColorSpace* dst) {
 static void compare_pixel(const char* label,
                           SkCanvas* canvas, int x, int y,
                           SkColor4f color, SkColorSpace* cs) {
-    SkPaint text;
-    text.setAntiAlias(true);
+    SkPaint paint;
+    SkFont font;
     auto canvas_cs = canvas->imageInfo().refColorSpace();
 
     // I'm not really sure if this makes things easier or harder to follow,
@@ -50,7 +52,7 @@ static void compare_pixel(const char* label,
     bm.allocPixels(SkImageInfo::Make(1,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType, canvas_cs));
     if (!canvas->readPixels(bm, x,y)) {
         MarkGMGood(canvas, 140,40);
-        canvas->drawString("can't readPixels() on this canvas :(", 100,20, text);
+        canvas->drawString("can't readPixels() on this canvas :(", 100,20, font, paint);
         return;
     }
 
@@ -85,11 +87,11 @@ static void compare_pixel(const char* label,
     };
 
     SkAutoCanvasRestore saveRestore(canvas, true);
-    canvas->drawString(label, 80,20, text);
+    canvas->drawString(label, 80,20, font, paint);
     for (auto l : lines) {
         canvas->translate(0,20);
-        canvas->drawString(l.label,               80,20, text);
-        canvas->drawString(fmt(l.color).c_str(), 140,20, text);
+        canvas->drawString(l.label,               80,20, font, paint);
+        canvas->drawString(fmt(l.color).c_str(), 140,20, font, paint);
     }
 }
 

@@ -8,6 +8,7 @@
 #include "StatsLayer.h"
 
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkString.h"
 #include "SkTime.h"
 
@@ -136,19 +137,18 @@ void StatsLayer::onPaint(SkCanvas* canvas) {
         x += xStep;
     } while (i != fCurrentMeasurement);
 
-    paint.setTextSize(16);
-    SkString mainString;
-    mainString.appendf("%4.3f ms -> %4.3f ms", ms / SkTMax(1, count),
-                  fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount));
+    SkFont font(nullptr, 16);
     paint.setColor(SK_ColorWHITE);
-    canvas->drawString(mainString.c_str(), rect.fLeft + 3, rect.fTop + 14, paint);
+    double time = ms / SkTMax(1, count);
+    double measure = fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount);
+    canvas->drawString(SkStringPrintf("%4.3f ms -> %4.3f ms", time, measure),
+                       rect.fLeft + 3, rect.fTop + 14, font, paint);
 
     for (int timer = 0; timer < fTimers.count(); ++timer) {
-        SkString str;
-        str.appendf("%s: %4.3f ms", fTimers[timer].fLabel.c_str(),
-                    sumTimes[timer] / SkTMax(1, count));
         paint.setColor(fTimers[timer].fLabelColor);
-        canvas->drawString(str, rect.fLeft + 3, rect.fTop + 28 + (14 * timer), paint);
+        canvas->drawString(SkStringPrintf("%s: %4.3f ms", fTimers[timer].fLabel.c_str(),
+                                          sumTimes[timer] / SkTMax(1, count)),
+                           rect.fLeft + 3, rect.fTop + 28 + (14 * timer), font, paint);
     }
 
     canvas->restore();

@@ -34,10 +34,9 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     SkPaint paint;
     const SkRect dst = SkRect::MakeWH(177, 15);
 
-    paint.setTextSize(30);
     SkString str;
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
-//    canvas->drawString(str, 300, 100, paint);
+//    canvas->drawString(str, 300, 100, SkFont(nullptr, 30), paint);
 
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {

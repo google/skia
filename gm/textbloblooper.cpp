@@ -226,8 +226,6 @@ protected:
         SkPaint paint;
         canvas->translate(10, 40);
 
-        paint.setTextSize(40);
-
         SkRect bounds = fBlob->bounds();
 
         int y = 0;

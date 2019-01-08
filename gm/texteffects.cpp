@@ -40,9 +40,7 @@ static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
 
 namespace {
 
-sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
-    const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-
+sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const SkFont& font, const char* text) {
     const size_t textLen = strlen(text);
     const int glyphCount = font.countText(text, textLen, kUTF8_SkTextEncoding);
     SkAutoTArray<SkGlyphID> glyphs(glyphCount);
@@ -107,14 +105,14 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
     const SkPoint blobOffset = { 10, 80 };
 
     for (size_t font = 0; font < SK_ARRAY_COUNT(fam); ++font) {
-        sk_tool_utils::set_portable_typeface(&paint, fam[font]);
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
-            paint.setTextSize(textSize);
+            SkFont skFont(
+                    sk_tool_utils::create_portable_typeface(fam[font], SkFontStyle()), textSize);
             const SkScalar uWidth = textSize / 15;
             paint.setStrokeWidth(uWidth);
             paint.setStyle(SkPaint::kFill_Style);
 
-            sk_sp<SkTextBlob> blob = MakeFancyBlob(paint, test);
+            sk_sp<SkTextBlob> blob = MakeFancyBlob(paint, skFont, test);
             canvas->drawTextBlob(blob, blobOffset.x(), blobOffset.y(), paint);
 
             const SkScalar uPos = uWidth;

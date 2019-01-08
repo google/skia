@@ -156,15 +156,11 @@ protected:
         };
 
         SkPaint textPaint;
-        textPaint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&textPaint);
-        textPaint.setTextSize(SK_Scalar1*24);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 24);
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawString(gOps[op].fName,
-                             SkIntToScalar(75), SkIntToScalar(50),
-                             textPaint);
+            canvas->drawString(gOps[op].fName, 75.0f, 50.0f, font, textPaint);
 
             if (kAAClip_GeomType == fGeomType) {
                 this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);

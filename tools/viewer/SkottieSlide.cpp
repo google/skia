@@ -11,6 +11,7 @@
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkOSPath.h"
 #include "Skottie.h"
 #include "SkottieUtils.h"
@@ -24,7 +25,8 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(0xffeeeeee);
-    paint.setTextSize(kTextSize);
+
+    SkFont font(nullptr, kTextSize);
 
     canvas->drawRect(kR, paint);
 
@@ -32,24 +34,19 @@ static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::
 
     const auto json_size = SkStringPrintf("Json size: %lu bytes",
                                           stats.fJsonSize);
-    canvas->drawText(json_size.c_str(),
-                     json_size.size(), kR.x() + 10, kR.y() + kTextSize * 1, paint);
+    canvas->drawString(json_size, kR.x() + 10, kR.y() + kTextSize * 1, font, paint);
     const auto animator_count = SkStringPrintf("Animator count: %lu",
                                                stats.fAnimatorCount);
-    canvas->drawText(animator_count.c_str(),
-                     animator_count.size(), kR.x() + 10, kR.y() + kTextSize * 2, paint);
+    canvas->drawString(animator_count, kR.x() + 10, kR.y() + kTextSize * 2, font, paint);
     const auto json_parse_time = SkStringPrintf("Json parse time: %.3f ms",
                                                 stats.fJsonParseTimeMS);
-    canvas->drawText(json_parse_time.c_str(),
-                     json_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 3, paint);
+    canvas->drawString(json_parse_time, kR.x() + 10, kR.y() + kTextSize * 3, font, paint);
     const auto scene_parse_time = SkStringPrintf("Scene build time: %.3f ms",
                                                  stats.fSceneParseTimeMS);
-    canvas->drawText(scene_parse_time.c_str(),
-                     scene_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 4, paint);
+    canvas->drawString(scene_parse_time, kR.x() + 10, kR.y() + kTextSize * 4, font, paint);
     const auto total_load_time = SkStringPrintf("Total load time: %.3f ms",
                                                 stats.fTotalLoadTimeMS);
-    canvas->drawText(total_load_time.c_str(),
-                     total_load_time.size(), kR.x() + 10, kR.y() + kTextSize * 5, paint);
+    canvas->drawString(total_load_time, kR.x() + 10, kR.y() + kTextSize * 5, font, paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawRect(kR, paint);
