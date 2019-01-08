@@ -182,10 +182,11 @@ static sk_sp<SkPicture> make_picture(sk_sp<SkTypeface> tf0, sk_sp<SkTypeface> tf
     SkPictureRecorder rec;
     SkCanvas* canvas = rec.beginRecording(100, 100);
     SkPaint paint;
-    paint.setTypeface(tf0); canvas->drawText("hello", 5, 0, 0, paint);
-    paint.setTypeface(tf1); canvas->drawText("hello", 5, 0, 0, paint);
-    paint.setTypeface(tf0); canvas->drawText("hello", 5, 0, 0, paint);
-    paint.setTypeface(tf1); canvas->drawText("hello", 5, 0, 0, paint);
+    SkFont font;
+    font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf0); canvas->drawString("hello", 0, 0, font, paint);
+    font.setTypeface(tf1); canvas->drawString("hello", 0, 0, font, paint);
     return rec.finishRecordingAsPicture();
 }
 

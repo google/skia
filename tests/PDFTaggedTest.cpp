@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPDFDocument.h"
 #include "SkStream.h"
+#include "SkFont.h"
 
 using PDFTag = SkPDF::StructureElementNode;
 
@@ -106,42 +107,42 @@ DEF_TEST(SkPDF_tagged, r) {
             document->beginPage(pageSize.width(),
                                 pageSize.height());
     SkPDF::SetNodeId(canvas, 2);
-    paint.setTextSize(36);
+    SkFont font(nullptr, 36);
     const char* message = "This is the title";
     canvas->translate(72, 72);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 3);
-    paint.setTextSize(14);
+    font.setSize(14);
     message = "This is a simple paragraph.";
     canvas->translate(0, 72);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 6);
-    paint.setTextSize(14);
+    font.setSize(14);
     message = "*";
     canvas->translate(0, 72);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 7);
     message = "List item 1";
     canvas->translate(36, 0);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 8);
     message = "*";
     canvas->translate(-36, 36);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 9);
     message = "List item 2";
     canvas->translate(36, 0);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     SkPDF::SetNodeId(canvas, 10);
     message = "This is a paragraph that starts on one page";
     canvas->translate(-36, 6 * 72);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     document->endPage();
 
@@ -151,14 +152,14 @@ DEF_TEST(SkPDF_tagged, r) {
     SkPDF::SetNodeId(canvas, 10);
     message = "and finishes on the second page.";
     canvas->translate(72, 72);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     // This has a node ID but never shows up in the tag tree so it
     // won't be tagged.
     SkPDF::SetNodeId(canvas, 999);
     message = "Page 2";
     canvas->translate(468, -36);
-    canvas->drawText(message, strlen(message), 0, 0, paint);
+    canvas->drawString(message, 0, 0, font, paint);
 
     document->endPage();
 
