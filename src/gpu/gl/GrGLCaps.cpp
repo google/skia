@@ -68,6 +68,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
     fDetachStencilFromMSAABuffersBeforeReadPixels = false;
     fDontSetBaseOrMaxLevelForExternalTextures = false;
+    fDisableScissorAfterFBOBind = false;
     fProgramBinarySupport = false;
     fSamplerObjectSupport = false;
 
@@ -2535,6 +2536,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
     if (kQualcomm_GrGLVendor == ctxInfo.vendor()) {
         fDrawArraysBaseVertexIsBroken = true;
+    }
+
+    // Adreno 330 on Nexus 5 fails to generate mipmap levels when a scissor test was enabled
+    // (see crbug.com/skia/8644)
+    if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
+        fDisableScissorAfterFBOBind = true;
     }
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the

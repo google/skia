@@ -3101,6 +3101,11 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
             fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
         }
     }
+    // NOTE: this driver bug may be connected to the restore_scissor_on_fbo_change workaround
+    // but that workaround by itself does not fix the mipmap generation failure seen on the Nexus 5.
+    if (this->glCaps().disableScissorAfterFBOBind()) {
+        this->disableScissor();
+    }
 
     this->onFBOChanged();
 }

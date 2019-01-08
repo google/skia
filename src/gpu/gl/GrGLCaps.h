@@ -392,6 +392,12 @@ public:
         return fDontSetBaseOrMaxLevelForExternalTextures;
     }
 
+    // Older Adreno devices incorrectly generate mipmaps after FBO binding when a scissor was
+    // enabled from a prior draw. See skbug/8664
+    bool disableScissorAfterFBOBind() const {
+        return fDisableScissorAfterFBOBind;
+    }
+
     // Returns the observed maximum number of instances the driver can handle in a single draw call
     // without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
     // NOTE: the return value may be larger than pendingInstanceCount.
@@ -520,6 +526,7 @@ private:
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
+    bool fDisableScissorAfterFBOBind : 1;
     int fMaxInstancesPerDrawWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;
