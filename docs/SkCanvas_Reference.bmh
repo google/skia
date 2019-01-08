@@ -1006,7 +1006,7 @@ Canvas savable state consists of Clip and Matrix.
 Clip describes the area that may be drawn to.
 Matrix transforms the geometry.
 
-save(), saveLayer, saveLayerPreserveLCDTextRequests, and saveLayerAlpha
+save(), saveLayer, and saveLayerAlpha
 save state and return the depth of the stack.
 
 restore(), restoreToCount, and ~SkCanvas() revert state to its value when saved.
@@ -1062,7 +1062,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore() restoreToCount
+#SeeAlso save saveLayer saveLayerAlpha restore() restoreToCount
 
 #Method int save()
 
@@ -1090,7 +1090,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore restoreToCount
+#SeeAlso saveLayer saveLayerAlpha restore restoreToCount
 
 ##
 
@@ -1111,7 +1111,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restoreToCount
+#SeeAlso save saveLayer saveLayerAlpha restoreToCount
 
 ##
 
@@ -1223,7 +1223,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1258,40 +1258,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save restore saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
-
-##
-
-#Method int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint)
-
-#In Layer
-#Line # saves Clip and Matrix on stack; creates Layer for LCD text ##
-#Populate
-
-#Example
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setLCDRenderText(true);
-    paint.setTextSize(20);
-    for (auto preserve : { false, true } ) {
-        preserve ? canvas->saveLayerPreserveLCDTextRequests(nullptr, nullptr)
-                 : canvas->saveLayer(nullptr, nullptr);
-        SkPaint p;
-        p.setColor(SK_ColorWHITE);
-        // Comment out the next line to draw on a non-opaque background.
-        canvas->drawRect(SkRect::MakeLTRB(25, 40, 200, 70), p);
-        canvas->drawString("Hamburgefons", 30, 60, paint);
-
-        p.setColor(0xFFCCCCCC);
-        canvas->drawRect(SkRect::MakeLTRB(25, 70, 200, 100), p);
-        canvas->drawString("Hamburgefons", 30, 90, paint);
-
-        canvas->restore();
-        canvas->translate(0, 80);
-    }
-    ##
-
-#SeeAlso save restore saveLayer saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1314,7 +1281,7 @@ void draw(SkCanvas* canvas) {
     canvas->restore();
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests SaveLayerRec
+#SeeAlso save restore saveLayer SaveLayerRec
 
 ##
 
@@ -1330,14 +1297,8 @@ void draw(SkCanvas* canvas) {
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
-defining how Layer allocated by saveLayer operates. It may be set to zero,
-kPreserveLCDText_SaveLayerFlag, kInitWithPrevious_SaveLayerFlag, or both flags.
-
-#Const kPreserveLCDText_SaveLayerFlag 2
-#Line # creates Layer for LCD text ##
-  Creates Layer for LCD text. Flag is ignored if Layer Paint contains
-  Image_Filter or Color_Filter.
-##
+defining how Layer allocated by saveLayer operates. It may be set to zero or
+kInitWithPrevious_SaveLayerFlag.
 
 #Const kInitWithPrevious_SaveLayerFlag 4
 #Line # initializes with previous contents ##
@@ -1368,7 +1329,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
+#SeeAlso save restore saveLayer saveLayerAlpha SaveLayerRec
 
 #Enum ##
 
@@ -1419,10 +1380,9 @@ SaveLayerRec contains the state used to create the Layer.
 ##
 
 #Member SaveLayerFlags          fSaveLayerFlags
-#Line # preserves LCD Text, creates with prior Layer contents ##
+#Line # creates with prior Layer contents ##
     fSaveLayerFlags are used to create Layer without transparency,
-    create Layer for LCD text, and to create Layer with the
-    contents of the previous Layer.
+    and to create Layer with the ontents of the previous Layer.
 ##
 
 #Example
@@ -1458,8 +1418,8 @@ void draw(SkCanvas* canvas) {
 
 #Example
     SkCanvas::SaveLayerRec rec1;
-    rec1.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;
-    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, SkCanvas::kPreserveLCDText_SaveLayerFlag);
+    rec1.fSaveLayerFlags = SkCanvas::kInitWithPrevious_SaveLayerFlag;
+    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, SkCanvas::kInitWithPrevious_SaveLayerFlag);
     SkDebugf("rec1 %c= rec2\n", rec1.fBounds == rec2.fBounds
             && rec1.fPaint == rec2.fPaint
             && rec1.fBackdrop == rec2.fBackdrop
@@ -1469,7 +1429,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerAlpha
 
 ##
 
@@ -1488,7 +1448,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerAlpha
 
 ##
 
@@ -1508,7 +1468,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerAlpha
 
 ##
 
@@ -1544,7 +1504,7 @@ Outside of the circle the mandrill is brightened.
 
 #ToDo above example needs to replace GetResourceAsImage with way to select image in fiddle ##
 
-#SeeAlso save restore saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+#SeeAlso save restore saveLayer saveLayerAlpha
 
 ##
 
