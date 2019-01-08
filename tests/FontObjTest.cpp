@@ -10,30 +10,6 @@
 #include "SkTypeface.h"
 #include "Test.h"
 
-static void test_cachedfont(skiatest::Reporter* reporter,
-                            const SkPaint& paint, const SkFont& font) {
-    // Currently SkFont resolves null into the default, so only test if paint's is not null
-    if (paint.getTypeface()) {
-        REPORTER_ASSERT(reporter, font.getTypeface() == paint.getTypeface());
-    }
-    REPORTER_ASSERT(reporter, font.getSize() == paint.getTextSize());
-    REPORTER_ASSERT(reporter, font.getScaleX() == paint.getTextScaleX());
-    REPORTER_ASSERT(reporter, font.getSkewX() == paint.getTextSkewX());
-
-    uint32_t mask = SkPaint::kLinearText_Flag |
-                    SkPaint::kSubpixelText_Flag |
-                    SkPaint::kFakeBoldText_Flag |
-                    SkPaint::kEmbeddedBitmapText_Flag |
-                    SkPaint::kAutoHinting_Flag;
-
-    SkPaint p;
-    font.LEGACY_applyToPaint(&p);
-    uint32_t oldFlags = paint.getFlags() & mask;
-    uint32_t newFlags = p.getFlags() & mask;
-    REPORTER_ASSERT(reporter, oldFlags == newFlags);
-    REPORTER_ASSERT(reporter, paint.getHinting() == p.getHinting());
-}
-
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 static void test_fontmetrics(skiatest::Reporter* reporter,
                              const SkPaint& paint, const SkFont& font) {
@@ -51,28 +27,10 @@ static void test_fontmetrics(skiatest::Reporter* reporter,
     CMP(fLeading);
 #undef CMP
 }
-#endif
 
-static void test_cachedfont(skiatest::Reporter* reporter) {
-    static const char* const faces[] = {
-        nullptr,
-        "Arial", "Times", "Times New Roman", "Helvetica", "Courier",
-        "Courier New", "Verdana", "monospace",
-    };
-
-    static const struct {
-        SkScalar    fScaleX;
-        SkScalar    fSkewX;
-    } gScaleRec[] = {
-        { SK_Scalar1, 0 },
-        { SK_Scalar1/2, -SK_Scalar1/4 },
-    };
-
+DEF_TEST(FontObj_test_cachedfont, reporter) {
     SkPaint paint;
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     char txt[] = "long .text .with .lots .of.dots.";
-#endif
-
     unsigned mask = SkPaint::kAntiAlias_Flag            |
                     SkPaint::kFakeBoldText_Flag         |
                     SkPaint::kLinearText_Flag           |
@@ -82,8 +40,7 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                     SkPaint::kAutoHinting_Flag;
 
     paint.setStrokeWidth(2);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(faces); i++) {
-        paint.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
+    {
         for (unsigned flags = 0; flags <= 0xFFF; ++flags) {
             if (flags & ~mask) {
                 continue;
@@ -91,16 +48,11 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
             paint.setFlags(flags);
             for (int hint = 0; hint <= 3; ++hint) {
                 paint.setHinting((SkFontHinting)hint);
-                for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
-                    paint.setTextScaleX(gScaleRec[k].fScaleX);
-                    paint.setTextSkewX(gScaleRec[k].fSkewX);
+                {
                     for (auto style : { SkPaint::kFill_Style, SkPaint::kStroke_Style}) {
                         paint.setStyle(style);
 
                         const SkFont font(SkFont::LEGACY_ExtractFromPaint(paint));
-
-                        test_cachedfont(reporter, paint, font);
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
                         test_fontmetrics(reporter, paint, font);
 
                         SkRect pbounds, fbounds;
@@ -111,15 +63,15 @@ static void test_cachedfont(skiatest::Reporter* reporter) {
                                                           &fbounds, &paint);
                         REPORTER_ASSERT(reporter, pwidth == fwidth);
                         REPORTER_ASSERT(reporter, pbounds == fbounds);
-#endif
                     }
                 }
             }
         }
     }
 }
+#endif  // SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 
-static void test_aa_hinting(skiatest::Reporter* reporter) {
+DEF_TEST(FontObj_test_aa_hinting, reporter) {
     SkPaint paint;
 
     for (bool aa : {false, true}) {
@@ -134,11 +86,6 @@ static void test_aa_hinting(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, paint.getHinting() == p2.getHinting());
         }
     }
-}
-
-DEF_TEST(FontObj, reporter) {
-    test_cachedfont(reporter);
-    test_aa_hinting(reporter);
 }
 
 // need tests for SkStrSearch
