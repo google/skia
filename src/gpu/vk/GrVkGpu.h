@@ -57,10 +57,10 @@ public:
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
     GrVkCommandPool* cmdPool() const { return fCmdPool; }
-    VkPhysicalDeviceProperties physicalDeviceProperties() const {
+    const VkPhysicalDeviceProperties& physicalDeviceProperties() const {
         return fPhysDevProps;
     }
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties() const {
+    const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
 
@@ -165,6 +165,13 @@ public:
 
     uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&,
                                           const GrBackendFormat& format) override;
+
+    enum PersistentCacheKeyType : uint32_t {
+        kShader_PersistentCacheKeyType = 0,
+        kPipelineCache_PersistentCacheKeyType = 1,
+    };
+
+    void storeVkPipelineCacheData() override;
 
 private:
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,

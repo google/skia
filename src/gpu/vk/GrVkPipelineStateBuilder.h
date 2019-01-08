@@ -44,7 +44,11 @@ public:
                           GrPrimitiveType primitiveType,
                           GrVkGpu* gpu);
 
+        size_t shaderKeyLength() const { return fShaderKeyLength; }
+
     private:
+        size_t fShaderKeyLength;
+
         typedef GrProgramDesc INHERITED;
     };
 
