@@ -137,6 +137,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
+        paint.setAntiAlias(true);
         SkFont font(SkTypeface::MakeFromName("serif", SkFontStyle::Italic()), 18);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
