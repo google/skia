@@ -596,8 +596,7 @@ public:
     bool regenerate(Result*);
 
 private:
-    template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    bool doRegen(Result*);
+    bool doRegen(Result*, bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs);
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;
