@@ -98,6 +98,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kAlpha_half_GrPixelConfig,
         kAlpha_half_as_Red_GrPixelConfig,
         kRGBA_half_GrPixelConfig,
+        kRGB_ETC1_GrPixelConfig,
     };
     GR_STATIC_ASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
 
