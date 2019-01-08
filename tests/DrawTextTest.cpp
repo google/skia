@@ -29,10 +29,6 @@ static void create(SkBitmap* bm, SkIRect bound) {
     bm->allocN32Pixels(bound.width(), bound.height());
 }
 
-static void drawBG(SkCanvas* canvas) {
-    canvas->drawColor(bgColor);
-}
-
 /** Assumes that the ref draw was completely inside ref canvas --
     implies that everything outside is "bgColor".
     Checks that all overlap is the same and that all non-overlap on the
@@ -82,17 +78,17 @@ DEF_TEST(DrawText_dashout, reporter) {
     SkCanvas emptyCanvas(emptyBitmap);
 
     SkPoint point = SkPoint::Make(25.0f, 25.0f);
+    SkFont font(nullptr, 20);
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+    font.setSubpixel(true);
+
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
-    paint.setTextSize(SkIntToScalar(20));
-    paint.setAntiAlias(true);
-    paint.setSubpixelText(true);
-    paint.setLCDRenderText(true);
     paint.setStyle(SkPaint::kStroke_Style);
 
     // Draw a stroked "A" without a dash which will draw something.
-    drawBG(&drawTextCanvas);
-    drawTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+    drawTextCanvas.drawColor(SK_ColorWHITE);
+    drawTextCanvas.drawString("A", point.fX, point.fY, font, paint);
 
     // Draw an "A" but with a dash which will never draw anything.
     paint.setStrokeWidth(2);
@@ -100,11 +96,11 @@ DEF_TEST(DrawText_dashout, reporter) {
     static constexpr SkScalar intervals[] = { 1, bigInterval };
     paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 2));
 
-    drawBG(&drawDashedTextCanvas);
-    drawDashedTextCanvas.drawText("A", 1, point.fX, point.fY, paint);
+    drawDashedTextCanvas.drawColor(SK_ColorWHITE);
+    drawDashedTextCanvas.drawString("A", point.fX, point.fY, font, paint);
 
     // Draw nothing.
-    drawBG(&emptyCanvas);
+    emptyCanvas.drawColor(SK_ColorWHITE);
 
     REPORTER_ASSERT(reporter, !compare(drawTextBitmap, size, emptyBitmap, size));
     REPORTER_ASSERT(reporter, compare(drawDashedTextBitmap, size, emptyBitmap, size));
