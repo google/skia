@@ -17,176 +17,103 @@ enum RegenMask {
     kRegenPos   = 0x1,
     kRegenCol   = 0x2,
     kRegenTex   = 0x4,
-    kRegenGlyph = 0x8 | kRegenTex,  // we have to regenerate the texture coords when we regen glyphs
-
-    // combinations
-    kRegenPosCol = kRegenPos | kRegenCol,
-    kRegenPosTex = kRegenPos | kRegenTex,
-    kRegenPosTexGlyph = kRegenPos | kRegenGlyph,
-    kRegenPosColTex = kRegenPos | kRegenCol | kRegenTex,
-    kRegenPosColTexGlyph = kRegenPos | kRegenCol | kRegenGlyph,
-    kRegenColTex = kRegenCol | kRegenTex,
-    kRegenColTexGlyph = kRegenCol | kRegenGlyph,
+    kRegenGlyph = 0x8,
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// A large template to handle regenerating the vertices of a textblob with as few branches as
-// possible
-template <bool regenPos, bool regenCol, bool regenTexCoords>
-inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStride,
-                           bool useDistanceFields, SkScalar transX, SkScalar transY,
-                           GrColor color) {
+
+static void regen_positions(char* vertex, size_t vertexStride, SkScalar transX, SkScalar transY) {
+    SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
+    for (int i = 0; i < 4; ++i) {
+        point->fX += transX;
+        point->fY += transY;
+        point = SkTAddOffset<SkPoint>(point, vertexStride);
+    }
+}
+
+static void regen_colors(char* vertex, size_t vertexStride, GrColor color) {
+    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
+    // vertices, hence vertexStride - sizeof(SkIPoint16)
+    size_t colorOffset = vertexStride - sizeof(SkIPoint16) - sizeof(GrColor);
+    GrColor* vcolor = reinterpret_cast<GrColor*>(vertex + colorOffset);
+    for (int i = 0; i < 4; ++i) {
+        *vcolor = color;
+        vcolor = SkTAddOffset<GrColor>(vcolor, vertexStride);
+    }
+}
+
+static void regen_texcoords(char* vertex, size_t vertexStride, const GrGlyph* glyph,
+                            bool useDistanceFields) {
+    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
+    // vertices, hence vertexStride - sizeof(SkIPoint16)
+    size_t texCoordOffset = vertexStride - sizeof(SkIPoint16);
+
     uint16_t u0, v0, u1, v1;
+    SkASSERT(glyph);
+    int width = glyph->fBounds.width();
+    int height = glyph->fBounds.height();
+
+    if (useDistanceFields) {
+        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+        u1 = u0 + width - 2 * SK_DistanceFieldInset;
+        v1 = v0 + height - 2 * SK_DistanceFieldInset;
+    } else {
+        u0 = glyph->fAtlasLocation.fX;
+        v0 = glyph->fAtlasLocation.fY;
+        u1 = u0 + width;
+        v1 = v0 + height;
+    }
+    // We pack the 2bit page index in the low bit of the u and v texture coords
+    uint32_t pageIndex = glyph->pageIndex();
+    SkASSERT(pageIndex < 4);
+    uint16_t uBit = (pageIndex >> 1) & 0x1;
+    uint16_t vBit = pageIndex & 0x1;
+    u0 <<= 1;
+    u0 |= uBit;
+    v0 <<= 1;
+    v0 |= vBit;
+    u1 <<= 1;
+    u1 |= uBit;
+    v1 <<= 1;
+    v1 |= vBit;
+
+    uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+    textureCoords[0] = u0;
+    textureCoords[1] = v0;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u0;
+    textureCoords[1] = v1;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u1;
+    textureCoords[1] = v0;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u1;
+    textureCoords[1] = v1;
+
 #ifdef DISPLAY_PAGE_INDEX
     // Enable this to visualize the page from which each glyph is being drawn.
     // Green Red Magenta Cyan -> 0 1 2 3; Black -> error
-    SkColor hackColor;
+    GrColor hackColor;
+    switch (pageIndex) {
+        case 0:
+            hackColor = GrColorPackRGBA(0, 255, 0, 255);
+            break;
+        case 1:
+            hackColor = GrColorPackRGBA(255, 0, 0, 255);;
+            break;
+        case 2:
+            hackColor = GrColorPackRGBA(255, 0, 255, 255);
+            break;
+        case 3:
+            hackColor = GrColorPackRGBA(0, 255, 255, 255);
+            break;
+        default:
+            hackColor = GrColorPackRGBA(0, 0, 0, 255);
+            break;
+    }
+    regen_colors(vertex, vertexStride, hackColor);
 #endif
-    if (regenTexCoords) {
-        SkASSERT(glyph);
-        int width = glyph->fBounds.width();
-        int height = glyph->fBounds.height();
-
-        if (useDistanceFields) {
-            u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-            v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-            u1 = u0 + width - 2 * SK_DistanceFieldInset;
-            v1 = v0 + height - 2 * SK_DistanceFieldInset;
-        } else {
-            u0 = glyph->fAtlasLocation.fX;
-            v0 = glyph->fAtlasLocation.fY;
-            u1 = u0 + width;
-            v1 = v0 + height;
-        }
-        // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint32_t pageIndex = glyph->pageIndex();
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
-        u0 <<= 1;
-        u0 |= uBit;
-        v0 <<= 1;
-        v0 |= vBit;
-        u1 <<= 1;
-        u1 |= uBit;
-        v1 <<= 1;
-        v1 |= vBit;
-#ifdef DISPLAY_PAGE_INDEX
-        switch (pageIndex) {
-            case 0:
-                hackColor = SK_ColorGREEN;
-                break;
-            case 1:
-                hackColor = SK_ColorRED;
-                break;
-            case 2:
-                hackColor = SK_ColorMAGENTA;
-                break;
-            case 3:
-                hackColor = SK_ColorCYAN;
-                break;
-            default:
-                hackColor = SK_ColorBLACK;
-                break;
-        }
-#endif
-    }
-
-    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
-    // vertices, hence vertexStride - sizeof(SkIPoint16)
-    intptr_t texCoordOffset = vertexStride - sizeof(SkIPoint16);
-    intptr_t colorOffset = texCoordOffset - sizeof(GrColor);
-
-    // V0
-    if (regenPos) {
-        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-        point->fX += transX;
-        point->fY += transY;
-    }
-
-    if (regenCol) {
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = color;
-    }
-
-    if (regenTexCoords) {
-        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-        textureCoords[0] = u0;
-        textureCoords[1] = v0;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
-    }
-    vertex += vertexStride;
-
-    // V1
-    if (regenPos) {
-        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-        point->fX += transX;
-        point->fY += transY;
-    }
-
-    if (regenCol) {
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = color;
-    }
-
-    if (regenTexCoords) {
-        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-        textureCoords[0] = u0;
-        textureCoords[1] = v1;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
-    }
-    vertex += vertexStride;
-
-    // V2
-    if (regenPos) {
-        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-        point->fX += transX;
-        point->fY += transY;
-    }
-
-    if (regenCol) {
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = color;
-    }
-
-    if (regenTexCoords) {
-        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-        textureCoords[0] = u1;
-        textureCoords[1] = v0;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
-    }
-    vertex += vertexStride;
-
-    // V3
-    if (regenPos) {
-        SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-        point->fX += transX;
-        point->fY += transY;
-    }
-
-    if (regenCol) {
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = color;
-    }
-
-    if (regenTexCoords) {
-        uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-        textureCoords[0] = u1;
-        textureCoords[1] = v1;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
-    }
 }
 
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
@@ -231,9 +158,10 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     }
 }
 
-template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
-    static_assert(!regenGlyphs || regenTexCoords, "must regenTexCoords along regenGlyphs");
+bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result,
+                                            bool regenPos, bool regenCol, bool regenTexCoords,
+                                            bool regenGlyphs) {
+    SkASSERT(!regenGlyphs || regenTexCoords);
     sk_sp<GrTextStrike> strike;
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
@@ -297,9 +225,16 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                                                             tokenTracker->nextDrawToken());
         }
 
-        regen_vertices<regenPos, regenCol, regenTexCoords>(currVertex, glyph, vertexStride,
-                                                           fSubRun->drawAsDistanceFields(), fTransX,
-                                                           fTransY, fColor);
+        if (regenPos) {
+            regen_positions(currVertex, vertexStride, fTransX, fTransY);
+        }
+        if (regenCol) {
+            regen_colors(currVertex, vertexStride, fColor);
+        }
+        if (regenTexCoords) {
+            regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
+        }
+
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         ++result->fGlyphsRegenerated;
         ++fCurrGlyph;
@@ -331,47 +266,27 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
         fRegenFlags |= kRegenTex;
     }
 
-    switch (static_cast<RegenMask>(fRegenFlags)) {
-        case kRegenPos:
-            return this->doRegen<true, false, false, false>(result);
-        case kRegenCol:
-            return this->doRegen<false, true, false, false>(result);
-        case kRegenTex:
-            return this->doRegen<false, false, true, false>(result);
-        case kRegenGlyph:
-            return this->doRegen<false, false, true, true>(result);
+    if (fRegenFlags) {
+        return this->doRegen(result,
+                             fRegenFlags & kRegenPos,
+                             fRegenFlags & kRegenCol,
+                             fRegenFlags & kRegenTex,
+                             fRegenFlags & kRegenGlyph);
+    } else {
+        bool hasW = fSubRun->hasWCoord();
+        auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
+        result->fFinished = true;
+        result->fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;
+        result->fFirstVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
+                               fCurrGlyph * kVerticesPerGlyph * vertexStride;
+        fCurrGlyph = fSubRun->glyphCount();
 
-        // combinations
-        case kRegenPosCol:
-            return this->doRegen<true, true, false, false>(result);
-        case kRegenPosTex:
-            return this->doRegen<true, false, true, false>(result);
-        case kRegenPosTexGlyph:
-            return this->doRegen<true, false, true, true>(result);
-        case kRegenPosColTex:
-            return this->doRegen<true, true, true, false>(result);
-        case kRegenPosColTexGlyph:
-            return this->doRegen<true, true, true, true>(result);
-        case kRegenColTex:
-            return this->doRegen<false, true, true, false>(result);
-        case kRegenColTexGlyph:
-            return this->doRegen<false, true, true, true>(result);
-        case kNoRegen: {
-            bool hasW = fSubRun->hasWCoord();
-            auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
-            result->fFinished = true;
-            result->fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;
-            result->fFirstVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
-                                    fCurrGlyph * kVerticesPerGlyph * vertexStride;
-            fCurrGlyph = fSubRun->glyphCount();
-
-            // set use tokens for all of the glyphs in our subrun.  This is only valid if we
-            // have a valid atlas generation
-            fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                               fUploadTarget->tokenTracker()->nextDrawToken(),
-                                               fSubRun->maskFormat());
-            return true;
-        }
+        // set use tokens for all of the glyphs in our subrun.  This is only valid if we
+        // have a valid atlas generation
+        fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                           fUploadTarget->tokenTracker()->nextDrawToken(),
+                                           fSubRun->maskFormat());
+        return true;
     }
     SK_ABORT("Should not get here");
     return false;
