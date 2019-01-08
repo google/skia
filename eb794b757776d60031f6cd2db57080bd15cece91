@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4029dd34_4a20969b",
+        "filename": "gm/emptypath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-08T14:19:50Z",
+      "side": 1,
+      "message": "smallest of nits: 15 instead of 15.0f",
+      "range": {
+        "startLine": 64,
+        "startChar": 65,
+        "endLine": 64,
+        "endChar": 68
+      },
+      "revId": "eb794b757776d60031f6cd2db57080bd15cece91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
