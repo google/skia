@@ -164,11 +164,10 @@ cc_defaults {
 cc_defaults {
     name: "skia_deps",
     shared_libs: [
+        "libandroidicu",
         "libdng_sdk",
         "libexpat",
         "libft2",
-        "libicui18n",
-        "libicuuc",
         "libjpeg",
         "liblog",
         "libpiex",
