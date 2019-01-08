@@ -67,15 +67,17 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         // This should only be true if aa/non-aa status matches among all elements.
         SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+
+        if (GrClip::IsInsideClip(stackBounds, queryBounds)) {
+            fInitialState = InitialState::kAllIn;
+            return;
+        }
+
         if (!iter.prev()->isAA() || GrClip::IsPixelAligned(stackBounds)) {
             // The clip is a non-aa rect. Here we just implement the entire thing using fScissor.
             stackBounds.round(&fScissor);
             fHasScissor = true;
             fInitialState = fScissor.isEmpty() ? InitialState::kAllOut : InitialState::kAllIn;
-            return;
-        }
-        if (GrClip::IsInsideClip(stackBounds, queryBounds)) {
-            fInitialState = InitialState::kAllIn;
             return;
         }
 
