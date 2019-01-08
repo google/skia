@@ -22,6 +22,30 @@
       "revId": "eb794b757776d60031f6cd2db57080bd15cece91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c845f73d_a0a12e6e",
+        "filename": "gm/emptypath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-01-08T14:46:12Z",
+      "side": 1,
+      "message": "Done, here and everywhere else.",
+      "parentUuid": "4029dd34_4a20969b",
+      "range": {
+        "startLine": 64,
+        "startChar": 65,
+        "endLine": 64,
+        "endChar": 68
+      },
+      "revId": "eb794b757776d60031f6cd2db57080bd15cece91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
