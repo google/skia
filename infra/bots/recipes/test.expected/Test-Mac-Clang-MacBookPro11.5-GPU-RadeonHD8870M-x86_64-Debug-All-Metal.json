@@ -498,6 +498,7 @@
       "~^GrPipelineDynamicStateTest$",
       "~^InitialTextureClear$",
       "~^PromiseImageTest$",
+      "~^PromiseImageTextureReuse$",
       "~^ResourceAllocatorTest$",
       "~^RGB565TextureTest$",
       "~^RGBA4444TextureTest$",
