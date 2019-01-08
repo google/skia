@@ -139,11 +139,10 @@ protected:
                 }
                 if (textCanvas) {
                     SkPaint p;
-                    SkString str;
-                    p.setAntiAlias(true);
                     p.setLooper(fLooper);
-                    str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    textCanvas->drawString(str, x, y + r.height() * 2 / 3, p);
+                    textCanvas->drawString(
+                            SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
+                            x, y + r.height() * 2 / 3, SkFont(), p);
                 }
 
                 y += r.height() * 4 / 3;

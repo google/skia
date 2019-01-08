@@ -11,6 +11,7 @@
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkFont.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
@@ -42,10 +43,10 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
+        SkFont font(nullptr, 48);
         SkPaint paint;
 
         paint.setAntiAlias(true);
-        paint.setTextSize(48);
         paint.setFilterQuality(kHigh_SkFilterQuality);
 
         SkTime::DateTime time;
@@ -67,7 +68,7 @@ protected:
         }
         canvas->drawBitmap( fBM, 100, 100, &paint );
         canvas->restore();
-        canvas->drawString(text, 100, 400, paint );
+        canvas->drawString(text, 100, 400, font, paint);
     }
 
 private:

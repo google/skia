@@ -49,14 +49,16 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
 
     const SkScalar half = cellSize * SK_ScalarHalf;
     const char* s = "01234567890!@#$%^&*=+<>?abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    paint.setTextSize(28);
+    SkFont font(nullptr, 28);
+
     int i = 0;
     for (int y = 0; y < atlasSize; y += cellSize) {
         for (int x = 0; x < atlasSize; x += cellSize) {
             paint.setColor(rand.nextU());
             paint.setAlpha(0xFF);
             int index = i % strlen(s);
-            SkTextUtils::Draw(canvas, &s[index], 1, kUTF8_SkTextEncoding, x + half, y + half + half/2, SkFont(), paint,
+            SkTextUtils::Draw(canvas, &s[index], 1, kUTF8_SkTextEncoding,
+                              x + half, y + half + half/2, font, paint,
                               SkTextUtils::kCenter_Align);
             i += 1;
         }
