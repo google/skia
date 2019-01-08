@@ -69,6 +69,10 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
             return true;
+        case kRGB_ETC1_GrPixelConfig:
+            // converting to ETC2 which is a superset of ETC1
+            *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+            return true;
         case kAlpha_half_GrPixelConfig: // fall through
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
@@ -106,6 +110,8 @@ bool GrVkFormatPixelConfigPairIsValid(VkFormat format, GrPixelConfig config) {
                    kAlpha_8_as_Red_GrPixelConfig == config ||
                    kGray_8_GrPixelConfig == config ||
                    kGray_8_as_Red_GrPixelConfig == config;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+            return kRGB_ETC1_GrPixelConfig == config;
         case VK_FORMAT_R32G32B32A32_SFLOAT:
             return kRGBA_float_GrPixelConfig == config;
         case VK_FORMAT_R32G32_SFLOAT:

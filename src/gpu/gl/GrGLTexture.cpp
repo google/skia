@@ -43,11 +43,14 @@ static inline GrGLenum target_from_texture_type(GrTextureType type) {
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                         const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
+                         const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus, bool readOnly)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
+    if (readOnly) {
+        this->setReadOnly();
+    }
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
