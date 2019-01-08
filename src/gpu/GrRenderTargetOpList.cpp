@@ -177,7 +177,7 @@ GrRenderTargetOpList::OpChain::List GrRenderTargetOpList::OpChain::DoConcat(
                 auto result = a->combineIfPossible(chainB.head(), caps);
                 SkASSERT(result != GrOp::CombineResult::kCannotCombine);
                 merged = (result == GrOp::CombineResult::kMerged);
-                GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n", i,
+                GrOP_INFO("\t\t: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
                           chainB.head()->name(), chainB.head()->uniqueID(), a->name(),
                           a->uniqueID());
             }
@@ -254,7 +254,7 @@ GrRenderTargetOpList::OpChain::TryConcat(List chainA, const DstProxy& dstProxyA,
                 chainA = DoConcat(std::move(chainA), std::move(chainB), caps, pool, auditTrail);
                 return std::tuple<List, List>(std::move(chainA), List());
             case GrOp::CombineResult::kMerged: {
-                GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n", i,
+                GrOP_INFO("\t\t: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
                           chainB.tail()->name(), chainB.tail()->uniqueID(), chainB.head()->name(),
                           chainB.head()->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, chainA.tail(), chainB.head());
