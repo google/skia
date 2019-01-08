@@ -507,13 +507,6 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             break;
     }
 
-    if (!fDoAA) {
-        fFiniteBound.set(SkScalarRoundToScalar(fFiniteBound.fLeft),
-                         SkScalarRoundToScalar(fFiniteBound.fTop),
-                         SkScalarRoundToScalar(fFiniteBound.fRight),
-                         SkScalarRoundToScalar(fFiniteBound.fBottom));
-    }
-
     // Now determine the previous Element's bound information taking into
     // account that there may be no previous clip
     SkRect prevFinite;
