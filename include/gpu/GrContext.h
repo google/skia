@@ -283,6 +283,8 @@ public:
 
     bool supportsDistanceFieldText() const;
 
+    void storeVkPipelineCacheData();
+
 protected:
     GrContext(GrBackendApi, int32_t id = SK_InvalidGenID);
 

@@ -1517,6 +1517,9 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             context->contextPriv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
         }
     }
+    if (grOptions.fPersistentCache) {
+        context->storeVkPipelineCacheData();
+    }
     return "";
 }
 

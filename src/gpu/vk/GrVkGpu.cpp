@@ -170,10 +170,11 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendContext.fPhysicalDevice, &fPhysDevMemProps));
 
+    fResourceProvider.init();
+
     fCmdPool = fResourceProvider.findOrCreateCommandPool();
     fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
     SkASSERT(fCurrentCmdBuffer);
-    fResourceProvider.init();
     fCurrentCmdBuffer->begin(this);
 }
 
@@ -2201,5 +2202,11 @@ uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerStat
             samplerState, *ycbcrInfo);
 
     return sampler->uniqueID();
+}
+
+void GrVkGpu::storeVkPipelineCacheData() {
+    if (this->getContext()->contextPriv().getPersistentCache()) {
+        this->resourceProvider().storePipelineCacheData();
+    }
 }
 

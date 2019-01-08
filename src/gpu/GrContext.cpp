@@ -397,6 +397,16 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     fContext->fDrawingManager->flush(proxy);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void GrContext::storeVkPipelineCacheData() {
+    if (fGpu) {
+        fGpu->storeVkPipelineCacheData();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 // TODO: This will be removed when GrSurfaceContexts are aware of their color types.
 // (skbug.com/6718)
 static bool valid_premul_config(GrPixelConfig config) {

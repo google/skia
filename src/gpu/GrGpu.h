@@ -429,6 +429,8 @@ public:
         return 0;
     }
 
+    virtual void storeVkPipelineCacheData() {}
+
 protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
