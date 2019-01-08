@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c8ae840_154ad85a",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-01-08T18:24:22Z",
+      "side": 1,
+      "message": "After spending a minute working out where this number came from and how the header was structured, I feel like this could do with a comment to the effect of:\n\n// The pipeline cache header structure is defined in Section 9.6 (\"Pipeline Cache\") of the Vulkan spec.\n// The total size of the header is 16 bytes + VK_UUID_SIZE.",
+      "range": {
+        "startLine": 58,
+        "startChar": 43,
+        "endLine": 58,
+        "endChar": 45
+      },
+      "revId": "8a816da212769b1f9c173597ea3458914eef2441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d082cbfd_0857bcb5",
+        "filename": "src/gpu/vk/GrVkResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-01-08T18:24:22Z",
+      "side": 1,
+      "message": "Alignment in this method seems funky.",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 543,
+        "endChar": 0
+      },
+      "revId": "8a816da212769b1f9c173597ea3458914eef2441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
