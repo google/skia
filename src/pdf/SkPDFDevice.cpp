@@ -376,19 +376,14 @@ void SkPDFDevice::GraphicStackState::updateDrawingState(const SkPDFDevice::Graph
     }
 }
 
-static bool not_supported_for_layers(const SkPaint& layerPaint) {
+SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     // PDF does not support image filters, so render them on CPU.
     // Note that this rendering is done at "screen" resolution (100dpi), not
     // printer resolution.
+
     // TODO: It may be possible to express some filters natively using PDF
     // to improve quality and file size (https://bug.skia.org/3043)
-
-    // TODO: should we return true if there is a colorfilter?
-    return layerPaint.getImageFilter() != nullptr;
-}
-
-SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
-    if (layerPaint && not_supported_for_layers(*layerPaint)) {
+    if (layerPaint && (layerPaint->getImageFilter() || layerPaint->getColorFilter())) {
         // need to return a raster device, which we will detect in drawDevice()
         return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     }
