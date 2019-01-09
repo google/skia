@@ -2543,6 +2543,7 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
         this->drawTextBlob(SkTextBlob::MakeFromText(text, byteLength, font, encoding), x, y, paint);
     }
 }
+#ifdef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
 void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                         const SkPaint& paint) {
 #ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
@@ -2555,6 +2556,7 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
     }
 #endif
 }
+#endif
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
