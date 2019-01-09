@@ -260,6 +260,11 @@ public:
         SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
         return gPtsInVerb[verb];
     }
+
+    static bool IsAxisAligned(const SkPath& path) {
+        SkRect tmp;
+        return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
+    }
 };
 
 #endif
