@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86f6f0c0_6fee6bf0",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-09T18:49:14Z",
+      "side": 1,
+      "message": "I\u0027m not sure that I like nesting this in SkDeferredDisplayListRecorder, esp in light of discussion around having a public recording context to share an underlying GrDDLContext.",
+      "range": {
+        "startLine": 65,
+        "startChar": 10,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
