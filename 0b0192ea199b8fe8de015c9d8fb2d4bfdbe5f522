@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85e60dbe_4e40e6e4",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-01-09T20:59:48Z",
+      "side": 1,
+      "message": "I\u0027m pretty sure I can pass nullptr here and get the same result. But I suppose this is clearer of its intent? I don\u0027t have a strong preference.",
+      "range": {
+        "startLine": 346,
+        "startChar": 45,
+        "endLine": 346,
+        "endChar": 64
+      },
+      "revId": "0b0192ea199b8fe8de015c9d8fb2d4bfdbe5f522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
