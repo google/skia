@@ -141,6 +141,7 @@ public:
     void run(skiatest::Reporter* reporter, bool doStroke) {
         GrMockOptions mockOptions;
         mockOptions.fInstanceAttribSupport = true;
+        mockOptions.fHalfFloatVertexAttributeSupport = true;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderability =
                 GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
