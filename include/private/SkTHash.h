@@ -85,6 +85,15 @@ public:
         return nullptr;
     }
 
+    // If there is an entry in the table with this key, return it.  If not, null.
+    // This only works for pointer type T, and cannot be used to find an nullptr entry.
+    T findOrNull(const K& key) const {
+        if (T* p = this->find(key)) {
+            return *p;
+        }
+        return nullptr;
+    }
+
     // Remove the value with this key from the hash table.
     void remove(const K& key) {
         SkASSERT(this->find(key));
