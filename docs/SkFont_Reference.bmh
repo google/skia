@@ -782,17 +782,16 @@ Whether edge pixels draw opaque or with partial transparency.
     #Width 280
         void draw(SkCanvas* canvas) {
             SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setTextSize(50);
+            SkFont font(nullptr, 50);
             const char str[] = "Breakfast";
-            const int count = sizeof(str) - 1;
-            canvas->drawText(str, count, 25, 50, paint);
+            const int count = strlen(str);
+            canvas->drawSimpleText(str, count, kUTF8_SkTextEncoding,
+                                   25, 50, font, paint);
             SkScalar measuredWidth;
-            SkFont font;
-            font.setSize(50);
             int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,
-                    100, &measuredWidth);
-            canvas->drawText(str, partialBytes, 25, 100, paint);
+                                              100, &measuredWidth);
+            canvas->drawSimpleText(str, partialBytes, kUTF8_SkTextEncoding,
+                                   25, 100, font, paint);
             canvas->drawLine(25, 60, 25 + 100, 60, paint);
             canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);
         }
