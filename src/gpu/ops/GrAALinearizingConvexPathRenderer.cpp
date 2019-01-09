@@ -82,29 +82,12 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 // extract the result vertices and indices from the GrAAConvexTessellator
 static void extract_verts(const GrAAConvexTessellator& tess,
                           void* vertData,
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-                          GrColor color,
-#else
                           const GrVertexColor& color,
-#endif
                           uint16_t firstIndex,
-                          uint16_t* idxs,
-                          bool tweakAlphaForCoverage) {
+                          uint16_t* idxs) {
     GrVertexWriter verts{vertData};
     for (int i = 0; i < tess.numPts(); ++i) {
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-        verts.write(tess.point(i));
-        if (tweakAlphaForCoverage) {
-            SkASSERT(SkScalarRoundToInt(255.0f * tess.coverage(i)) <= 255);
-            unsigned scale = SkScalarRoundToInt(255.0f * tess.coverage(i));
-            GrColor scaledColor = (0xff == scale) ? color : SkAlphaMulQ(color, scale);
-            verts.write(scaledColor);
-        } else {
-            verts.write(color, tess.coverage(i));
-        }
-#else
         verts.write(tess.point(i), color, tess.coverage(i));
-#endif
     }
 
     for (int i = 0; i < tess.numIndices(); ++i) {
@@ -119,13 +102,8 @@ static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shade
                                                        bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-    Coverage::Type coverageType =
-        tweakAlphaForCoverage ? Coverage::kSolid_Type : Coverage::kAttribute_Type;
-#else
     Coverage::Type coverageType =
         tweakAlphaForCoverage ? Coverage::kAttributeTweakAlpha_Type : Coverage::kAttribute_Type;
-#endif
     LocalCoords::Type localCoordsType =
         usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
     Color::Type colorType =
@@ -182,11 +160,7 @@ public:
             bounds.outset(w, w);
         }
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-        fWideColor = false;
-#else
         fWideColor = !SkPMColor4fFitsInBytes(color);
-#endif
     }
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
@@ -311,13 +285,8 @@ private:
             }
 
             extract_verts(tess, vertices + vertexStride * vertexCount,
-#ifdef SK_LEGACY_TESSELLATOR_CPU_COVERAGE
-                          args.fColor.toBytes_RGBA(),
-#else
-                          GrVertexColor(args.fColor, fWideColor),
-#endif
-                          vertexCount, indices + indexCount,
-                          fHelper.compatibleWithAlphaAsCoverage());
+                          GrVertexColor(args.fColor, fWideColor), vertexCount,
+                          indices + indexCount);
             vertexCount += currentVertices;
             indexCount += currentIndices;
         }
