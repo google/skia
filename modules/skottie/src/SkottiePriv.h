@@ -33,6 +33,7 @@ class Color;
 class Matrix;
 class Path;
 class RenderNode;
+class Transform;
 } // namespace sksg
 
 namespace skottie {
@@ -71,10 +72,10 @@ public:
 
     sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
                                    const char prop_name[]) const;
-    sk_sp<sksg::Matrix> attachMatrix2D(const skjson::ObjectValue&, AnimatorScope*,
-                                       sk_sp<sksg::Matrix>) const;
-    sk_sp<sksg::Matrix> attachMatrix3D(const skjson::ObjectValue&, AnimatorScope*,
-                                       sk_sp<sksg::Matrix>) const;
+    sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, AnimatorScope*,
+                                          sk_sp<sksg::Transform>) const;
+    sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, AnimatorScope*,
+                                          sk_sp<sksg::Transform>) const;
     sk_sp<sksg::RenderNode> attachOpacity(const skjson::ObjectValue&, AnimatorScope*,
                                       sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::Path> attachPath(const skjson::Value&, AnimatorScope*) const;

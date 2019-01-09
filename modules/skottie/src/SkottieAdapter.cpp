@@ -73,12 +73,12 @@ TransformAdapter3D::Vec3::Vec3(const VectorValue& v) {
     fZ = v.size() > 2 ? v[2] : 0;
 }
 
-TransformAdapter3D::TransformAdapter3D(sk_sp<sksg::Matrix> matrix)
+TransformAdapter3D::TransformAdapter3D(sk_sp<sksg::Matrix44> matrix)
     : fMatrixNode(std::move(matrix)) {}
 
 TransformAdapter3D::~TransformAdapter3D() = default;
 
-SkMatrix TransformAdapter3D::totalMatrix() const {
+SkMatrix44 TransformAdapter3D::totalMatrix() const {
     SkMatrix44 t;
 
     t.setTranslate(-fAnchorPoint.fX, -fAnchorPoint.fY, -fAnchorPoint.fZ);
