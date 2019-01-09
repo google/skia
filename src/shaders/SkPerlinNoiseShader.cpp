@@ -1403,8 +1403,10 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
         const GrFPArgs& args) const {
     SkASSERT(args.fContext);
 
-    const auto localMatrix = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    const auto matrix = SkMatrix::Concat(*args.fViewMatrix, *localMatrix);
+    SkMatrix matrix;
+    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
+        return nullptr;
+    }
 
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
@@ -1415,10 +1417,6 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                                   fBaseFrequencyX,
                                                                   fBaseFrequencyY,
                                                                   matrix);
-
-    SkMatrix m = *args.fViewMatrix;
-    m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
-    m.setTranslateY(-localMatrix->getTranslateY() + SK_Scalar1);
 
     auto proxyProvider = args.fContext->contextPriv().proxyProvider();
     if (fType == kImprovedNoise_Type) {
@@ -1436,7 +1434,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                 GrMakeCachedImageProxy(proxyProvider, std::move(gradientImage)));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, std::move(paintingData),
                                                  std::move(permutationsTexture),
-                                                 std::move(gradientTexture), m);
+                                                 std::move(gradientTexture), matrix);
     }
 
     if (0 == fNumOctaves) {
@@ -1475,7 +1473,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                 std::move(paintingData),
                                                 std::move(permutationsProxy),
                                                 std::move(noiseProxy),
-                                                m);
+                                                matrix);
         return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
     }
     return nullptr;
