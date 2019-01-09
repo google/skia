@@ -23,58 +23,21 @@
 #include <cmath>
 #include <SkFont.h>
 
-static const SkColor bgColor = SK_ColorWHITE;
-
-static void create(SkBitmap* bm, SkIRect bound) {
-    bm->allocN32Pixels(bound.width(), bound.height());
-}
-
-/** Assumes that the ref draw was completely inside ref canvas --
-    implies that everything outside is "bgColor".
-    Checks that all overlap is the same and that all non-overlap on the
-    ref is "bgColor".
- */
-static bool compare(const SkBitmap& ref, const SkIRect& iref,
-                    const SkBitmap& test, const SkIRect& itest)
-{
-    const int xOff = itest.fLeft - iref.fLeft;
-    const int yOff = itest.fTop - iref.fTop;
-
-    for (int y = 0; y < test.height(); ++y) {
-        for (int x = 0; x < test.width(); ++x) {
-            SkColor testColor = test.getColor(x, y);
-            int refX = x + xOff;
-            int refY = y + yOff;
-            SkColor refColor;
-            if (refX >= 0 && refX < ref.width() &&
-                refY >= 0 && refY < ref.height())
-            {
-                refColor = ref.getColor(refX, refY);
-            } else {
-                refColor = bgColor;
-            }
-            if (refColor != testColor) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
 /** Test that drawing glyphs with empty paths is different from drawing glyphs without paths. */
 DEF_TEST(DrawText_dashout, reporter) {
-    SkIRect size = SkIRect::MakeWH(64, 64);
+    constexpr int kWidth = 64;
+    constexpr int kHeight = 64;
 
     SkBitmap drawTextBitmap;
-    create(&drawTextBitmap, size);
+    drawTextBitmap.allocN32Pixels(kWidth, kHeight);
     SkCanvas drawTextCanvas(drawTextBitmap);
 
     SkBitmap drawDashedTextBitmap;
-    create(&drawDashedTextBitmap, size);
+    drawDashedTextBitmap.allocN32Pixels(kWidth, kHeight);
     SkCanvas drawDashedTextCanvas(drawDashedTextBitmap);
 
     SkBitmap emptyBitmap;
-    create(&emptyBitmap, size);
+    emptyBitmap.allocN32Pixels(kWidth, kHeight);
     SkCanvas emptyCanvas(emptyBitmap);
 
     SkPoint point = SkPoint::Make(25.0f, 25.0f);
@@ -102,8 +65,8 @@ DEF_TEST(DrawText_dashout, reporter) {
     // Draw nothing.
     emptyCanvas.drawColor(SK_ColorWHITE);
 
-    REPORTER_ASSERT(reporter, !compare(drawTextBitmap, size, emptyBitmap, size));
-    REPORTER_ASSERT(reporter, compare(drawDashedTextBitmap, size, emptyBitmap, size));
+    REPORTER_ASSERT(reporter, !sk_tool_utils::equal_pixels(drawTextBitmap, emptyBitmap));
+    REPORTER_ASSERT(reporter,  sk_tool_utils::equal_pixels(drawDashedTextBitmap, emptyBitmap));
 }
 
 // Test drawing text at some unusual coordinates.

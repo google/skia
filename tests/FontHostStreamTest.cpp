@@ -6,86 +6,35 @@
  */
 
 #include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkColor.h"
 #include "SkFont.h"
 #include "SkFontDescriptor.h"
+#include "SkFontPriv.h"
 #include "SkGraphics.h"
-#include "SkPaint.h"
-#include "SkPaintPriv.h"
-#include "SkPoint.h"
-#include "SkRect.h"
-#include "SkStream.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
-static const SkColor bgColor = SK_ColorWHITE;
-
-static void create(SkBitmap* bm, SkIRect bound) {
-    bm->allocN32Pixels(bound.width(), bound.height());
-}
-
-static void drawBG(SkCanvas* canvas) {
-    canvas->drawColor(bgColor);
-}
-
-/** Assumes that the ref draw was completely inside ref canvas --
-    implies that everything outside is "bgColor".
-    Checks that all overlap is the same and that all non-overlap on the
-    ref is "bgColor".
- */
-static bool compare(const SkBitmap& ref, const SkIRect& iref,
-                    const SkBitmap& test, const SkIRect& itest)
-{
-    const int xOff = itest.fLeft - iref.fLeft;
-    const int yOff = itest.fTop - iref.fTop;
-
-    for (int y = 0; y < test.height(); ++y) {
-        for (int x = 0; x < test.width(); ++x) {
-            SkColor testColor = test.getColor(x, y);
-            int refX = x + xOff;
-            int refY = y + yOff;
-            SkColor refColor;
-            if (refX >= 0 && refX < ref.width() &&
-                refY >= 0 && refY < ref.height())
-            {
-                refColor = ref.getColor(refX, refY);
-            } else {
-                refColor = bgColor;
-            }
-            if (refColor != testColor) {
-                return false;
-            }
-        }
-    }
-    return true;
+static void draw_a(SkBitmap* bm, const SkFont& font) {
+    bm->allocN32Pixels(64, 64);
+    SkPaint paint;
+    paint.setColor(SK_ColorGRAY);
+    SkCanvas canvas(*bm);
+    canvas.drawColor(SK_ColorWHITE);
+    canvas.drawString("A", 24, 32, font, paint);
 }
 
 DEF_TEST(FontHostStream, reporter) {
     {
-        SkPaint paint;
-        paint.setColor(SK_ColorGRAY);
-
         SkFont font(SkTypeface::MakeFromName("Georgia", SkFontStyle()), 30);
-
-        SkIRect origRect = SkIRect::MakeWH(64, 64);
-        SkBitmap origBitmap;
-        create(&origBitmap, origRect);
-        SkCanvas origCanvas(origBitmap);
-
-        SkIRect streamRect = SkIRect::MakeWH(64, 64);
-        SkBitmap streamBitmap;
-        create(&streamBitmap, streamRect);
-        SkCanvas streamCanvas(streamBitmap);
-
-        SkPoint point = SkPoint::Make(24, 32);
+        SkBitmap origBitmap, streamBitmap;
 
         // Test: origTypeface and streamTypeface from orig data draw the same
-        drawBG(&origCanvas);
-        origCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
+        draw_a(&origBitmap, font);
 
-        sk_sp<SkTypeface> typeface = SkPaintPriv::RefTypefaceOrDefault(paint);
+        SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+        if (!typeface) {
+            ERRORF(reporter, "SkFontPriv::GetTypefaceOrDefault returned nullptr.");
+            return;
+        }
         int ttcIndex;
         std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
         if (!fontData) {
@@ -101,12 +50,10 @@ DEF_TEST(FontHostStream, reporter) {
         streamTypeface->getFontDescriptor(&desc, &isLocalStream);
         REPORTER_ASSERT(reporter, isLocalStream);
 
-        paint.setTypeface(streamTypeface);
-        drawBG(&streamCanvas);
-        streamCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
+        font.setTypeface(streamTypeface);
+        draw_a(&streamBitmap, font);
 
-        REPORTER_ASSERT(reporter,
-                        compare(origBitmap, origRect, streamBitmap, streamRect));
+        REPORTER_ASSERT(reporter, sk_tool_utils::equal_pixels(origBitmap, streamBitmap));
     }
     //Make sure the typeface is deleted and removed.
     SkGraphics::PurgeFontCache();
