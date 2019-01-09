@@ -22,7 +22,7 @@ public:
                     sk_sp<SkColorSpace>);
     ~SkImage_GpuBase() override;
 
-    GrContext* context() const final { return fContext.get(); }
+    GrContext* context1() const final { return fContext1.get(); }
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;
@@ -54,8 +54,8 @@ public:
 
 #if GR_TEST_UTILS
     void resetContext(sk_sp<GrContext> newContext) {
-        SkASSERT(fContext->uniqueID() == newContext->uniqueID());
-        fContext = newContext;
+        SkASSERT(fContext1->uniqueID() == newContext->uniqueID());
+        fContext1 = newContext;
     }
 #endif
 
@@ -91,7 +91,7 @@ protected:
                                  const sk_sp<GrTextureProxy> proxies[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
-    sk_sp<GrContext>      fContext;
+    sk_sp<GrContext>      fContext1;
     const SkAlphaType     fAlphaType;  // alpha type for final image
     sk_sp<SkColorSpace>   fColorSpace; // color space for final image
 
