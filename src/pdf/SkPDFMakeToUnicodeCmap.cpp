@@ -129,7 +129,7 @@ static void append_bfrange_section(const std::vector<BFRange>& bfrange,
 //
 // Current implementation guarantees bfchar and bfrange entries do not overlap.
 //
-// Current implementation does not attempt aggresive optimizations against
+// Current implementation does not attempt aggressive optimizations against
 // following case because the specification is not clear.
 //
 // 4 beginbfchar          1 beginbfchar

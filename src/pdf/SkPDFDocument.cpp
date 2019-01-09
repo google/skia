@@ -455,7 +455,7 @@ int SkPDFDocument::getMarkIdForNodeId(int nodeId) {
 static std::vector<const SkPDFFont*> get_fonts(const SkPDFCanon& canon) {
     std::vector<const SkPDFFont*> fonts;
     fonts.reserve(canon.fFontMap.count());
-    // Sort so the output PDF is reproducable.
+    // Sort so the output PDF is reproducible.
     canon.fFontMap.foreach([&fonts](uint64_t, const SkPDFFont& font) { fonts.push_back(&font); });
     std::sort(fonts.begin(), fonts.end(), [](const SkPDFFont* u, const SkPDFFont* v) {
         return u->indirectReference().fValue < v->indirectReference().fValue;

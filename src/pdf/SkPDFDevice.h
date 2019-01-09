@@ -49,7 +49,7 @@ public:
      *  @param pageSize Page size in point units.
      *         1 point == 127/360 mm == 1/72 inch
      *  @param document  A non-null pointer back to the
-     *         PDFDocument object.  The document is repsonsible for
+     *         PDFDocument object.  The document is responsible for
      *         de-duplicating across pages (via the SkPDFCanon) and
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).

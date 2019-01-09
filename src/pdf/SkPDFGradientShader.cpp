@@ -682,7 +682,7 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
 
         finalMatrix.preConcat(mapperMatrix);
 
-        // Preserves as much as posible in the final matrix, and only removes
+        // Preserves as much as possible in the final matrix, and only removes
         // the perspective. The inverse of the perspective is stored in
         // perspectiveInverseOnly matrix and has 3 useful numbers
         // (p0, p1, p2), while everything else is either 0 or 1.
