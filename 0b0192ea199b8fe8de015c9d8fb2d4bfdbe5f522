@@ -22,6 +22,30 @@
       "revId": "0b0192ea199b8fe8de015c9d8fb2d4bfdbe5f522",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd414a02_6dcd13b7",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-09T21:10:38Z",
+      "side": 1,
+      "message": "I like it being explicit.",
+      "parentUuid": "85e60dbe_4e40e6e4",
+      "range": {
+        "startLine": 346,
+        "startChar": 45,
+        "endLine": 346,
+        "endChar": 64
+      },
+      "revId": "0b0192ea199b8fe8de015c9d8fb2d4bfdbe5f522",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
