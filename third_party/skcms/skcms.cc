@@ -1105,7 +1105,11 @@ const skcms_TransferFunction* skcms_sRGB_TransferFunction() {
 
 const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction() {
     static const skcms_TransferFunction sRGB_inv =
+#ifndef SKCMS_LEGACY_TF_INVERT
+        {0.416666657f, 1.137283325f, -0.0f, 12.920000076f, 0.003130805f, -0.054969788f, -0.0f};
+#else
         { (float)(1/2.4), 1.137119f, 0, 12.92f, 0.0031308f, -0.055f, 0 };
+#endif
     return &sRGB_inv;
 }
 
@@ -1459,10 +1463,14 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     inv.b = -k * src->e;
     inv.e = -src->b / src->a;
 
-    // TODO(mtklein): we'd like to guarantee the edge cases more strongly:
-    //    inv(src(0)) = 0
-    //    inv(src(d)) = d
-    //    inv(src(1)) = 1
+#ifndef SKCMS_LEGACY_TF_INVERT
+    // Now in principle we're done.
+    // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f,
+    // we'll tweak e.  These two values should be close to each other,
+    // just down to numerical precision issues, especially from powf_.
+    float s = powf_(src->a + src->b, src->g) + src->e;
+    inv.e = 1.0f - powf_(inv.a * s + inv.b, inv.g);
+#endif
 
     *dst = inv;
     return tf_is_valid(dst);
