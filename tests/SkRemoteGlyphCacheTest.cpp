@@ -773,8 +773,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
 
         auto context = serverTf->createScalerContext(effects, desc, false);
-        SkGlyph glyph;
-        glyph.initWithGlyphID(lostGlyphID);
+        SkGlyph glyph{lostGlyphID};
         context->getMetrics(&glyph);
         realMask = glyph.fMaskFormat;
         REPORTER_ASSERT(reporter, realMask != MASK_FORMAT_UNKNOWN);
