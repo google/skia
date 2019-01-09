@@ -222,8 +222,20 @@ private:
     const std::unique_ptr<SkScalerContext> fScalerContext;
     SkFontMetrics          fFontMetrics;
 
-    // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
-    SkTHashTable<SkGlyph, SkPackedGlyphID, SkGlyph::HashTraits> fGlyphMap;
+    class GlyphMapHashTraits {
+    public:
+        static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
+            return glyph->getPackedID();
+        }
+        static uint32_t Hash(SkPackedGlyphID glyphId) {
+            return glyphId.hash();
+        }
+    };
+
+    // Map from a combined GlyphID and sub-pixel position to a SkGlyph*.
+    // The actual glyph is stored in the fAlloc. This structure provides an
+    // unchanging pointer as long as the cache is alive.
+    SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
 
     // so we don't grow our arrays a lot
     static constexpr size_t kMinGlyphCount = 8;

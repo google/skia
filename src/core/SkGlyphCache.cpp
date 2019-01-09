@@ -139,27 +139,25 @@ SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixe
 }
 
 SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
-    SkGlyph* glyph = fGlyphMap.find(packedGlyphID);
+    SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
 
-    if (nullptr == glyph) {
-        glyph = this->allocateNewGlyph(packedGlyphID, type);
+    if (nullptr == glyphPtr) {
+        glyphPtr = this->allocateNewGlyph(packedGlyphID, type);
+        fGlyphMap.set(glyphPtr);
     } else {
-        if (type == kFull_MetricsType && glyph->isJustAdvance()) {
-            fScalerContext->getMetrics(glyph);
+        if (type == kFull_MetricsType && glyphPtr->isJustAdvance()) {
+            fScalerContext->getMetrics(glyphPtr);
         }
     }
-    return glyph;
+    return glyphPtr;
 }
 
 SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType mtype) {
     fMemoryUsed += sizeof(SkGlyph);
 
-    SkGlyph* glyphPtr;
-    {
-        SkGlyph glyph;
-        glyph.initWithGlyphID(packedGlyphID);
-        glyphPtr = fGlyphMap.set(glyph);
-    }
+    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>();
+    glyphPtr->initWithGlyphID(packedGlyphID);
+    fGlyphMap.set(glyphPtr);
 
     if (kNothing_MetricsType == mtype) {
         return glyphPtr;
@@ -252,7 +250,7 @@ bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, siz
 }
 
 bool SkGlyphCache::belongsToCache(const SkGlyph* glyph) const {
-    return glyph && fGlyphMap.find(glyph->getPackedID()) == glyph;
+    return glyph && fGlyphMap.findOrNull(glyph->getPackedID()) == glyph;
 }
 
 const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,
@@ -261,8 +259,8 @@ const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,
         for (SkFixed subX = 0; subX < SK_Fixed1; subX += SK_FixedQuarter) {
             SkPackedGlyphID packedGlyphID{glyphID, subX, subY};
             if (packedGlyphID == vetoID) continue;
-            if (const auto* glyph = fGlyphMap.find(packedGlyphID)) {
-                return glyph;
+            if (SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID)) {
+                return glyphPtr;
             }
         }
     }
@@ -483,13 +481,13 @@ bool SkGlyphCache::hasPath(const SkGlyph& glyph) {
 #ifdef SK_DEBUG
 void SkGlyphCache::forceValidate() const {
     size_t memoryUsed = sizeof(*this);
-    fGlyphMap.foreach ([&memoryUsed](const SkGlyph& glyph) {
+    fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
         memoryUsed += sizeof(SkGlyph);
-        if (glyph.fImage) {
-            memoryUsed += glyph.computeImageSize();
+        if (glyphPtr->fImage) {
+            memoryUsed += glyphPtr->computeImageSize();
         }
-        if (glyph.fPathData) {
-            memoryUsed += compute_path_size(glyph.fPathData->fPath);
+        if (glyphPtr->fPathData) {
+            memoryUsed += compute_path_size(glyphPtr->fPathData->fPath);
         }
     });
     SkASSERT(fMemoryUsed == memoryUsed);
