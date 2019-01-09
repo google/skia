@@ -155,8 +155,7 @@ SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, Metr
 SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType mtype) {
     fMemoryUsed += sizeof(SkGlyph);
 
-    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>();
-    glyphPtr->initWithGlyphID(packedGlyphID);
+    SkGlyph* glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
     fGlyphMap.set(glyphPtr);
 
     if (kNothing_MetricsType == mtype) {

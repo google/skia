@@ -137,7 +137,7 @@ class SkGlyph {
     struct PathData;
 
 public:
-    constexpr SkGlyph() = default;
+    constexpr explicit SkGlyph(SkPackedGlyphID id = dotUndef) : fID{id} {}
     static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedID::kSubBits;
 
     bool isEmpty() const { return fWidth == 0 || fHeight == 0; }
@@ -148,7 +148,10 @@ public:
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
 
-    void initWithGlyphID(SkPackedGlyphID glyph_id);
+    void reset(SkPackedGlyphID glyphID) {
+        this->SkGlyph::~SkGlyph();
+        new (this) SkGlyph{glyphID};
+    }
     size_t formatAlignment() const;
     size_t allocImage(SkArenaAlloc* alloc);
     size_t rowBytes() const;
@@ -196,9 +199,13 @@ public:
     // This is a combination of SkMask::Format and SkGlyph state. The SkGlyph can be in one of two
     // states, just the advances have been calculated, and all the metrics are available. The
     // illegal mask format is used to signal that only the advances are available.
-    uint8_t   fMaskFormat = 0;
+    uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
 
 private:
+
+    // The undefined glyph, which seems to be perfectly well defined.
+    static constexpr SkGlyphID dotUndef = 0;
+
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
     // the fBounds contains the top and bottom of the underline. The fInterval pair contains the
