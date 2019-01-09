@@ -502,7 +502,7 @@ std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const 
 // that these factories could simply return the input FP. However, that doesn't have quite
 // the same effect as the returned compose FP will replace the FP's input with solid white and
 // ignore the original input. This could be implemented as:
-// RunInSeries(ConstColor(GrColor_WHITE, kIgnoreInput), inputFP).
+// RunInSeries(ConstColor(WHITE, kIgnoreInput), inputFP).
 
 std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
         std::unique_ptr<GrFragmentProcessor> dst, SkBlendMode mode) {
