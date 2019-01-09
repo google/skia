@@ -12,6 +12,7 @@
 import filecmp
 import os
 import uuid
+import sys
 
 
 class FileWriter(object):
