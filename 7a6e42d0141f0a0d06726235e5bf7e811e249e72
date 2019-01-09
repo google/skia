@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53eb83e3_cd1f80f1",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-09T22:01:58Z",
+      "side": 1,
+      "message": "Is it possible and does it make sense to remove this constructor and replace it with explicit SkGlyph{0}?\n\nOr maybe\n\n   constexpr explicit SkGlyph(SkPackedGlyphID id \u003d 0) : fID{id} {}\n\n?  I just find it a bit easier to reason about if we can keep a single constructor.",
+      "revId": "7a6e42d0141f0a0d06726235e5bf7e811e249e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79dccf14_a12ca550",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-09T22:01:58Z",
+      "side": 1,
+      "message": "Is this the same as SkPackedGlyphID fID \u003d 0?  If so, maybe put the zero in there?  I can never remember how these {} initializers work..",
+      "revId": "7a6e42d0141f0a0d06726235e5bf7e811e249e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
