@@ -31,7 +31,7 @@ void SkPDFWriteString(SkWStream* wStream, const char* cin, size_t len);
  */
 class SkPDFUnion {
 public:
-    // Move contstructor and assignemnt operator destroy the argument
+    // Move contstructor and assignment operator destroy the argument
     // and steal their references (if needed).
     SkPDFUnion(SkPDFUnion&& other);
     SkPDFUnion& operator=(SkPDFUnion&& other);
