@@ -27,6 +27,10 @@
 #include "SkSurfaceProps.h"
 #include "SkVertices.h"
 
+#ifndef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
+#define SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
+#endif
+
 class GrContext;
 class GrRenderTargetContext;
 class SkAndroidFrameworkUtils;
@@ -1817,6 +1821,7 @@ public:
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
     /** DEPRECATED. Use drawSimpleText or drawTextBlob.
         Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
@@ -1839,6 +1844,7 @@ public:
     */
     void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                   const SkPaint& paint);
+#endif  // SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
 
     /** Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
