@@ -171,16 +171,6 @@ public:
     // Returns the size allocated on the arena.
     size_t copyImageData(const SkGlyph& from, SkArenaAlloc* alloc);
 
-    class HashTraits {
-    public:
-        static SkPackedGlyphID GetKey(const SkGlyph& glyph) {
-            return glyph.fID;
-        }
-        static uint32_t Hash(SkPackedGlyphID glyphId) {
-            return glyphId.hash();
-        }
-    };
-
     void*     fImage    = nullptr;
 
     // Path data has tricky state. If the glyph isEmpty, then fPathData should always be nullptr,
