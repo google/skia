@@ -868,21 +868,10 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "SwiftShader") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_linux"))
 		}
-		if strings.Contains(name, "OpenCL") {
-			task.CipdPackages = append(task.CipdPackages,
-				b.MustGetCipdPackageFromAsset("opencl_headers"),
-				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
-			)
-		}
 	} else if strings.Contains(name, "Win") {
 		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_win"))
-		}
-		if strings.Contains(name, "OpenCL") {
-			task.CipdPackages = append(task.CipdPackages,
-				b.MustGetCipdPackageFromAsset("opencl_headers"),
-			)
 		}
 	} else if strings.Contains(name, "Mac") {
 		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_XCODE...)
@@ -1089,10 +1078,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		if strings.Contains(name, "Emulator") {
 			recipe = "test_skqp_emulator"
 		}
-	} else if strings.Contains(name, "OpenCL") {
-		// TODO(dogben): Longer term we may not want this to be called a "Test" task, but until we start
-		// running hs_bench or kx, it will be easier to fit into the current job name schema.
-		recipe = "compute_test"
 	} else if strings.Contains(name, "PathKit") {
 		recipe = "test_pathkit"
 	} else if strings.Contains(name, "CanvasKit") {
@@ -1374,12 +1359,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		}
 		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("mesa_intel_driver_linux"))
-		}
-		if strings.Contains(name, "OpenCL") {
-			pkgs = append(pkgs,
-				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
-				b.MustGetCipdPackageFromAsset("opencl_intel_neo_linux"),
-			)
 		}
 	}
 	if strings.Contains(name, "ProcDump") {
