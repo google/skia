@@ -559,9 +559,11 @@ static int lcanvas_drawText(lua_State* L) {
     if (lua_isstring(L, 2) && lua_isnumber(L, 3) && lua_isnumber(L, 4)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
-        get_ref<SkCanvas>(L, 1)->drawText(text, len,
-                                          lua2scalar(L, 3), lua2scalar(L, 4),
-                                          *get_obj<SkPaint>(L, 5));
+        get_ref<SkCanvas>(L, 1)->drawSimpleText(
+                text, len, kUTF8_SkTextEncoding,
+                lua2scalar(L, 3), lua2scalar(L, 4),
+                SkFont::LEGACY_ExtractFromPaint(*get_obj<SkPaint>(L, 5)),
+                *get_obj<SkPaint>(L, 5));
     }
     return 0;
 }

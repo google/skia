@@ -578,7 +578,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && text.text()) {
-                canvas->drawText(text.text(), text.length(), x, y, *paint);
+                canvas->drawSimpleText(text.text(), text.length(),
+                                       paint->private_internal_getTextEncoding(),
+                                       x, y, SkFont::LEGACY_ExtractFromPaint(*paint), *paint);
             }
         } break;
         case DRAW_TEXT_BLOB: {
@@ -606,7 +608,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             float top = ptr[2];
             float bottom = ptr[3];
             if (top < clip.fBottom && bottom > clip.fTop && paint && text.text()) {
-                canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], *paint);
+                canvas->drawSimpleText(text.text(), text.length(),
+                                       paint->private_internal_getTextEncoding(), ptr[0], ptr[1],
+                                       SkFont::LEGACY_ExtractFromPaint(*paint), *paint);
             }
         } break;
         case DRAW_TEXT_ON_PATH_RETIRED_08_2018_REMOVED_10_2018: {

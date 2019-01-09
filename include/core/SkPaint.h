@@ -1159,6 +1159,7 @@ private:
     friend class SkFont;
     friend class SkGlyphRunListPainter;
     friend class SkPaintPriv;
+    friend class SkPicturePlayback;
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
