@@ -104,6 +104,15 @@ public:
         return nullptr;
     }
 
+    // Return a pointer value, or nullptr if not found.  Only makes sense when T is a pointer type.
+    // Note this cannot distinguish between unset entries and entries which are nullptr themselves.
+    T findOrNull(const Key& key) const {
+        if (auto pp = this->find(key)) {
+            return *pp;
+        }
+        return nullptr;
+    }
+
     // Add an entry with this key.  We require that no entry with newEntry's key is already present.
     void add(T* newEntry) {
         SkASSERT(nullptr == this->find(GetKey(*newEntry)));

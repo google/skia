@@ -8,6 +8,7 @@
 #include "SkChecksum.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
+#include "SkTDynamicHash.h"
 #include "SkTHash.h"
 #include "Test.h"
 
@@ -176,4 +177,23 @@ DEF_TEST(HashSetCopyCounter, r) {
     set.add(copyCounter2);
     // We allow copies for same-value adds for now.
     REPORTER_ASSERT(r, globalCounter == 5);
+}
+
+DEF_TEST(HashFindOrNull, r) {
+    struct Entry {
+        int key = 0;
+        int val = 0;
+
+        static const int GetKey(const Entry* e) { return e->key; }
+        static uint32_t Hash(int key) { return key; }
+    };
+
+    SkTDynamicHash<Entry*, int> table;
+
+    REPORTER_ASSERT(r, nullptr == table.findOrNull(7));
+
+    Entry seven = { 7, 24 };
+    table.add(&seven):
+
+    REPORTER_ASSERT(r, &seven == table.findOrNull(7));
 }
