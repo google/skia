@@ -13,8 +13,6 @@
 #include "SkPath.h"
 #include "SkSGTransform.h"
 
-class SkMatrix;
-
 namespace sksg {
 
 /**
@@ -22,9 +20,10 @@ namespace sksg {
  */
 class GeometryTransform final : public GeometryNode {
 public:
-    static sk_sp<GeometryTransform> Make(sk_sp<GeometryNode> child, sk_sp<Matrix> matrix) {
-        return child && matrix
-            ? sk_sp<GeometryTransform>(new GeometryTransform(std::move(child), std::move(matrix)))
+    static sk_sp<GeometryTransform> Make(sk_sp<GeometryNode> child, sk_sp<Transform> transform) {
+        return child && transform
+            ? sk_sp<GeometryTransform>(new GeometryTransform(std::move(child),
+                                                             std::move(transform)))
             : nullptr;
     }
 
@@ -34,7 +33,7 @@ public:
 
     ~GeometryTransform() override;
 
-    const sk_sp<Matrix>& getMatrix() const { return fMatrix; }
+    const sk_sp<Transform>& getTransform() const { return fTransform; }
 
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;
@@ -44,11 +43,11 @@ protected:
     SkPath onAsPath() const override;
 
 private:
-    GeometryTransform(sk_sp<GeometryNode>, sk_sp<Matrix>);
+    GeometryTransform(sk_sp<GeometryNode>, sk_sp<Transform>);
 
     const sk_sp<GeometryNode> fChild;
-    const sk_sp<Matrix>       fMatrix;
-    SkPath                    fTransformed;
+    const sk_sp<Transform>    fTransform;
+    SkPath                    fTransformedPath;
 
     using INHERITED = GeometryNode;
 };
