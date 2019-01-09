@@ -87,6 +87,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR16Float;
             return true;
+		case kRGB_ETC1_GrPixelConfig:
+		    *format = MTLPixelFormatETC2_RGB8;
+			return true;
     }
     SK_ABORT("Unexpected config");
     return false;
@@ -123,7 +126,9 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kRGBA_half_GrPixelConfig;
         case MTLPixelFormatR16Float:
             return kAlpha_half_GrPixelConfig;
-        default:
+        case MTLPixelFormatETC2_RGB8:
+			return kRGB_ETC1_GrPixelConfig;
+		default:
             return kUnknown_GrPixelConfig;
     }
 }
