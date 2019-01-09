@@ -10,9 +10,9 @@
 #include "SkColor.h"
 #include "SkFont.h"
 #include "SkFontDescriptor.h"
+#include "SkFontPriv.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
-#include "SkPaintPriv.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkStream.h"
@@ -85,7 +85,11 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
 
-        sk_sp<SkTypeface> typeface = SkPaintPriv::RefTypefaceOrDefault(paint);
+        SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+        if (!typeface) {
+            ERRORF(reporter, "SkFontPriv::GetTypefaceOrDefault returned nullptr.");
+            return;
+        }
         int ttcIndex;
         std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
         if (!fontData) {
@@ -101,7 +105,7 @@ DEF_TEST(FontHostStream, reporter) {
         streamTypeface->getFontDescriptor(&desc, &isLocalStream);
         REPORTER_ASSERT(reporter, isLocalStream);
 
-        paint.setTypeface(streamTypeface);
+        font.setTypeface(streamTypeface);
         drawBG(&streamCanvas);
         streamCanvas.drawSimpleText("A", 1, kUTF8_SkTextEncoding, point.fX, point.fY, font, paint);
 
