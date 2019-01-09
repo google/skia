@@ -174,7 +174,6 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::SingleDraw::finalize(
         fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
         fStrokeDevWidth = 1;
 
-        // TODO4F: Preserve float colors
         // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
         fColor = fColor * coverage;
     }
@@ -350,9 +349,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 #endif
             op->recordInstance(fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
-            // TODO4F: Preserve float colors
             resources->appendDrawPathInstance().set(*fCacheEntry, fCachedMaskShift,
-                                                    fColor.toBytes_RGBA());
+                                                    SkPMColor4f_toFP16(fColor));
             return;
         }
     }
@@ -368,9 +366,8 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &devBounds, &devBounds45,
                 &devIBounds, &devToAtlasOffset)) {
         op->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
-        // TODO4F: Preserve float colors
         resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
-                                                fColor.toBytes_RGBA(), doEvenOddFill);
+                                                SkPMColor4f_toFP16(fColor), doEvenOddFill);
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);

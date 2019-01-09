@@ -56,15 +56,15 @@ public:
         SkRect fDevBounds45;  // Bounding box in "| 1  -1 | * devCoords" space.
                               //                  | 1   1 |
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
-        GrColor fColor;
+        uint64_t fColor;  // Color always stored as 4 x fp16
 
         void set(const SkRect& devBounds, const SkRect& devBounds45,
-                 const SkIVector& devToAtlasOffset, GrColor, DoEvenOddFill = DoEvenOddFill::kNo);
-        void set(const GrCCPathCacheEntry&, const SkIVector& shift, GrColor,
+                 const SkIVector& devToAtlasOffset, uint64_t, DoEvenOddFill = DoEvenOddFill::kNo);
+        void set(const GrCCPathCacheEntry&, const SkIVector& shift, uint64_t,
                  DoEvenOddFill = DoEvenOddFill::kNo);
     };
 
-    GR_STATIC_ASSERT(4 * 11 == sizeof(Instance));
+    GR_STATIC_ASSERT(4 * 12 == sizeof(Instance));
 
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
@@ -102,7 +102,7 @@ private:
             {"devbounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"devbounds45", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"dev_to_atlas_offset", kInt2_GrVertexAttribType, kInt2_GrSLType},
-            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType}
+            {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType}
     };
     static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType,
                                                                  kFloat4_GrSLType};
@@ -111,7 +111,7 @@ private:
 };
 
 inline void GrCCPathProcessor::Instance::set(const SkRect& devBounds, const SkRect& devBounds45,
-                                             const SkIVector& devToAtlasOffset, GrColor color,
+                                             const SkIVector& devToAtlasOffset, uint64_t color,
                                              DoEvenOddFill doEvenOddFill) {
     if (DoEvenOddFill::kYes == doEvenOddFill) {
         // "right < left" indicates even-odd fill type.

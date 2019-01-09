@@ -26,6 +26,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            caps.isConfigRenderable(kAlpha_half_GrPixelConfig) &&
            caps.isConfigTexturable(kAlpha_8_GrPixelConfig) &&
            caps.isConfigRenderable(kAlpha_8_GrPixelConfig) &&
+           caps.halfFloatVertexAttributeSupport() &&
            !caps.blacklistCoverageCounting();
 }
 
