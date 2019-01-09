@@ -254,7 +254,7 @@ DEF_BENCH(return new WritePDFTextBenchmark;)
 #if 0
 #include "SkExecutor.h"
 namespace {
-void big_pdf_test(const SkBitmap& background) {
+void big_pdf_test(bool fast, const SkBitmap& background) {
     static const char* kText[] = {
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
         "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad",
@@ -312,8 +312,11 @@ void big_pdf_test(const SkBitmap& background) {
     //SkFILEWStream wStream("/tmp/big_pdf.pdf");
     SkNullWStream wStream;
     SkPDF::Metadata metadata;
-    //std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
-    //metadata.fExecutor = executor.get();
+    std::unique_ptr<SkExecutor> executor;
+    if (fast) {
+        executor = SkExecutor::MakeFIFOThreadPool();
+        metadata.fExecutor = executor.get();
+    }
     sk_sp<SkDocument> doc = SkPDF::MakeDocument(&wStream, metadata);
 
     SkCanvas* canvas = nullptr;
@@ -321,18 +324,18 @@ void big_pdf_test(const SkBitmap& background) {
     float y = 36;
     constexpr size_t kLineCount = SK_ARRAY_COUNT(kText);
     constexpr int kLoopCount = 200;
+    SkFont font;
     SkPaint paint;
-    paint.setTextEncoding(kUTF8_SkTextEncoding);
     for (int loop = 0; loop < kLoopCount; ++loop) {
         for (size_t line = 0; line < kLineCount; ++line) {
-            y += paint.getFontSpacing();
+            y += font.getSpacing();
             if (!canvas || y > 792 - 36) {
-                y = 36 + paint.getFontSpacing();
+                y = 36 + font.getSpacing();
                 canvas = doc->beginPage(612, 792);
                 background.notifyPixelsChanged();
                 canvas->drawBitmap(background, 0, 0);
             }
-            canvas->drawText(kText[line], strlen(kText[line]), x, y, paint);
+            canvas->drawString(kText[line], x, y, font, paint);
         }
     }
 }
@@ -358,18 +361,22 @@ SkBitmap make_background() {
 }
 
 struct PDFBigDocBench : public Benchmark {
+    bool fFast;
+    SkString fName;
+    PDFBigDocBench(bool fast) : fFast(fast), fName(SkStringPrintf("PDFBigDocBench%d", fast)) {}
     SkBitmap fBackground;
     void onDelayedSetup() override { fBackground = make_background(); }
-    const char* onGetName() override { return "PDFBigDocBench"; }
+    const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) override {
         return backend == kNonRendering_Backend;
     }
     void onDraw(int loops, SkCanvas*) override {
-        while (loops-- > 0) { big_pdf_test(fBackground); }
+        while (loops-- > 0) { big_pdf_test(fFast, fBackground); }
     }
 };
 }  // namespace
-DEF_BENCH(return new PDFBigDocBench;)
+DEF_BENCH(return new PDFBigDocBench(false);)
+DEF_BENCH(return new PDFBigDocBench(true);)
 #endif
 
 #endif // SK_SUPPORT_PDF
