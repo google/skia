@@ -1841,8 +1841,23 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fIsVolatile = fIsVolatile;
         }
 
-        if (SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-            dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+        // Due to finite/fragile float numerics, we can't assume that a convex path remains
+        // convex after a transformation, so mark it as unknown here.
+        // However, some transformations are thought to be safe:
+        //    axis-aligned values under scale/translate.
+        //
+        // See skbug.com/8606
+        // If we can land a robust convex scan-converter, we may be able to relax/remove this
+        // check, and keep convex paths marked as such after a general transform...
+        //
+        if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
+            dst->setConvexity(convexity);
+        } else {
+            dst->setConvexity(kUnknown_Convexity);
+        }
+
+        if (this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
+            dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
         } else {
             SkScalar det2x2 =
                 matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
