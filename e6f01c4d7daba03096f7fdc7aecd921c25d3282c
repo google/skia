@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d158a2f_949c1f1f",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-09T16:42:47Z",
+      "side": 1,
+      "message": "Null check?",
+      "revId": "e6f01c4d7daba03096f7fdc7aecd921c25d3282c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
