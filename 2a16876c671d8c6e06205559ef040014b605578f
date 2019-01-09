@@ -22,6 +22,138 @@
       "revId": "2a16876c671d8c6e06205559ef040014b605578f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef4f0a1c_cbcb041d",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "change to textureDoneProc here \u0026 below ?",
+      "range": {
+        "startLine": 81,
+        "startChar": 35,
+        "endLine": 81,
+        "endChar": 42
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dee4272d_db685b7a",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "es ?",
+      "range": {
+        "startLine": 431,
+        "startChar": 13,
+        "endLine": 431,
+        "endChar": 14
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6727152_4dd28d8b",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "\\n",
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c23d0910_c7dccded",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 221,
+        "startChar": 36,
+        "endLine": 221,
+        "endChar": 43
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4550c812_f991b71f",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "textureDoneProc ?",
+      "range": {
+        "startLine": 108,
+        "startChar": 77,
+        "endLine": 108,
+        "endChar": 84
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d353850c_6254f8a3",
+        "filename": "tests/PromiseImageTest.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-09T20:52:45Z",
+      "side": 1,
+      "message": "fulfill ?",
+      "range": {
+        "startLine": 30,
+        "startChar": 71,
+        "endLine": 30,
+        "endChar": 78
+      },
+      "revId": "2a16876c671d8c6e06205559ef040014b605578f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
