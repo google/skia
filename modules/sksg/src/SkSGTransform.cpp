@@ -10,53 +10,75 @@
 #include "SkCanvas.h"
 
 namespace sksg {
+
 namespace {
 
-class ComposedMatrix final : public Matrix {
+// Always compose in 4x4 for now.
+class Concat final : public Transform {
 public:
-    ComposedMatrix(const SkMatrix& m, sk_sp<Matrix> parent)
-        : INHERITED(m)
-        , fParent(std::move(parent)) {
-        SkASSERT(fParent);
-        this->observeInval(fParent);
+    Concat(sk_sp<Transform> a, sk_sp<Transform> b)
+        : fA(std::move(a)), fB(std::move(b)) {
+        SkASSERT(fA);
+        SkASSERT(fB);
+
+        this->observeInval(fA);
+        this->observeInval(fB);
     }
 
-    ~ComposedMatrix() override {
-        this->unobserveInval(fParent);
+    ~Concat() override {
+        this->unobserveInval(fA);
+        this->unobserveInval(fB);
     }
 
-    const SkMatrix& getTotalMatrix() const override {
-        SkASSERT(!this->hasInval());
-        return fTotalMatrix;
+    SkMatrix asMatrix() const override {
+        return fComposed;
+    }
+
+    SkMatrix44 asMatrix44() const override {
+        return fComposed;
     }
 
 protected:
     SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
-        fParent->revalidate(ic, ctm);
-        fTotalMatrix = SkMatrix::Concat(fParent->getTotalMatrix(), this->getMatrix());
+        fA->revalidate(ic, ctm);
+        fB->revalidate(ic, ctm);
+
+        fComposed.setConcat(fA->asMatrix44(), fB->asMatrix44());
         return SkRect::MakeEmpty();
     }
 
 private:
-    const sk_sp<Matrix> fParent;
-    SkMatrix            fTotalMatrix; // cached during revalidation.
+    const sk_sp<Transform> fA, fB;
+    SkMatrix44             fComposed;
 
-    using INHERITED = Matrix;
+    using INHERITED = Transform;
 };
 
 } // namespace
 
-sk_sp<Matrix> Matrix::Make(const SkMatrix& m, sk_sp<Matrix> parent) {
-    return sk_sp<Matrix>(parent ? new ComposedMatrix(m, std::move(parent))
-                                : new Matrix(m));
+// Transform nodes don't generate damage on their own, but via ancestor TransformEffects.
+Transform::Transform() : INHERITED(kBubbleDamage_Trait) {}
+
+sk_sp<Transform> Transform::MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b) {
+    if (!a) {
+        return b;
+    }
+
+    return b ? sk_make_sp<Concat>(std::move(a), std::move(b))
+             : a;
 }
 
-// Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
-Matrix::Matrix(const SkMatrix& m)
-    : INHERITED(kBubbleDamage_Trait)
-    , fMatrix(m) {}
+sk_sp<Matrix> Matrix::Make(const SkMatrix& m) {
+    return sk_sp<Matrix>(new Matrix(m));
+}
 
-const SkMatrix& Matrix::getTotalMatrix() const {
+Matrix::Matrix(const SkMatrix& m) : fMatrix(m) {}
+
+SkMatrix Matrix::asMatrix() const {
+    return fMatrix;
+}
+
+SkMatrix44 Matrix::asMatrix44() const {
     return fMatrix;
 }
 
@@ -64,30 +86,48 @@ SkRect Matrix::onRevalidate(InvalidationController*, const SkMatrix&) {
     return SkRect::MakeEmpty();
 }
 
-Transform::Transform(sk_sp<RenderNode> child, sk_sp<Matrix> matrix)
+sk_sp<Matrix44> Matrix44::Make(const SkMatrix44& m) {
+    return sk_sp<Matrix44>(new Matrix44(m));
+}
+
+Matrix44::Matrix44(const SkMatrix44& m) : fMatrix(m) {}
+
+SkMatrix Matrix44::asMatrix() const {
+    return fMatrix;
+}
+
+SkMatrix44 Matrix44::asMatrix44() const {
+    return fMatrix;
+}
+
+SkRect Matrix44::onRevalidate(InvalidationController*, const SkMatrix&) {
+    return SkRect::MakeEmpty();
+}
+
+TransformEffect::TransformEffect(sk_sp<RenderNode> child, sk_sp<Transform> transform)
     : INHERITED(std::move(child))
-    , fMatrix(std::move(matrix)) {
-    this->observeInval(fMatrix);
+    , fTransform(std::move(transform)) {
+    this->observeInval(fTransform);
 }
 
-Transform::~Transform() {
-    this->unobserveInval(fMatrix);
+TransformEffect::~TransformEffect() {
+    this->unobserveInval(fTransform);
 }
 
-void Transform::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    const auto& m = fMatrix->getTotalMatrix();
+void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    const auto m = fTransform->asMatrix();
     SkAutoCanvasRestore acr(canvas, !m.isIdentity());
     canvas->concat(m);
     this->INHERITED::onRender(canvas, ctx);
 }
 
-SkRect Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     // We don't care about matrix reval results.
-    fMatrix->revalidate(ic, ctm);
+    fTransform->revalidate(ic, ctm);
 
-    const auto& m = fMatrix->getTotalMatrix();
+    const auto m = fTransform->asMatrix();
     auto bounds = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, m));
     m.mapRect(&bounds);
 

@@ -21,6 +21,7 @@ class Gradient;
 class Group;
 class LinearGradient;
 class Matrix;
+class Matrix44;
 class Path;
 class RadialGradient;
 class RRect;
@@ -105,7 +106,7 @@ private:
 
 class TransformAdapter3D final : public SkNVRefCnt<TransformAdapter3D> {
 public:
-    explicit TransformAdapter3D(sk_sp<sksg::Matrix>);
+    explicit TransformAdapter3D(sk_sp<sksg::Matrix44>);
     ~TransformAdapter3D();
 
     struct Vec3 {
@@ -124,12 +125,12 @@ public:
     ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
     ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
 
-    SkMatrix totalMatrix() const;
+    SkMatrix44 totalMatrix() const;
 
 private:
     void apply();
 
-    sk_sp<sksg::Matrix> fMatrixNode;
+    sk_sp<sksg::Matrix44> fMatrixNode;
 };
 
 class GradientAdapter : public SkRefCnt {

@@ -101,9 +101,10 @@ SkMatrix SlideMatrix(const sk_sp<Slide>& slide, const SkRect& dst) {
 } // namespace
 
 struct SlideDir::Rec {
-    sk_sp<Slide>           fSlide;
-    sk_sp<sksg::Transform> fTransform;
-    SkRect                 fRect;
+    sk_sp<Slide>            fSlide;
+    sk_sp<sksg::RenderNode> fSlideRoot;
+    sk_sp<sksg::Matrix>     fMatrix;
+    SkRect                  fRect;
 };
 
 class SlideDir::FocusController final : public sksg::Animator {
@@ -128,9 +129,9 @@ public:
         fTarget = target;
 
         // Move the shade & slide to front.
-        fDir->fRoot->removeChild(fTarget->fTransform);
+        fDir->fRoot->removeChild(fTarget->fSlideRoot);
         fDir->fRoot->addChild(fShade);
-        fDir->fRoot->addChild(fTarget->fTransform);
+        fDir->fRoot->addChild(fTarget->fSlideRoot);
 
         fM0 = SlideMatrix(fTarget->fSlide, fTarget->fRect);
         fM1 = SlideMatrix(fTarget->fSlide, fRect);
@@ -197,7 +198,7 @@ protected:
         }
 
         SkASSERT(fTarget);
-        fTarget->fTransform->getMatrix()->setMatrix(m);
+        fTarget->fMatrix->setMatrix(m);
 
         const auto shadeOpacity = fOpacity0 + map_t * (fOpacity1 - fOpacity0);
         fShadePaint->setOpacity(shadeOpacity);
@@ -305,7 +306,7 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
                                                  fCellSize.height()),
                     slideRect = cell.makeInset(kPadding.width(), kPadding.height());
 
-        auto slideMatrix = SlideMatrix(slide, slideRect);
+        auto slideMatrix = sksg::Matrix::Make(SlideMatrix(slide, slideRect));
         auto adapter     = sk_make_sp<SlideAdapter>(slide);
         auto slideGrp    = sksg::Group::Make();
         slideGrp->addChild(sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeIWH(slideSize.width(),
@@ -314,13 +315,13 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
         slideGrp->addChild(adapter);
         slideGrp->addChild(MakeLabel(slide->getName(),
                                      SkPoint::Make(slideSize.width() / 2, slideSize.height()),
-                                     slideMatrix));
-        auto slideTransform = sksg::Transform::Make(std::move(slideGrp), slideMatrix);
+                                     slideMatrix->getMatrix()));
+        auto slideRoot = sksg::TransformEffect::Make(std::move(slideGrp), slideMatrix);
 
         sceneAnimators.push_back(adapter->makeForwardingAnimator());
 
-        fRoot->addChild(slideTransform);
-        fRecs.push_back({ slide, slideTransform, slideRect });
+        fRoot->addChild(slideRoot);
+        fRecs.push_back({ slide, slideRoot, slideMatrix, slideRect });
     }
 
     fScene = sksg::Scene::Make(fRoot, std::move(sceneAnimators));

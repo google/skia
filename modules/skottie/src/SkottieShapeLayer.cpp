@@ -587,7 +587,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
         shape_wrapper = sksg::Group::Make(std::move(draws));
     }
 
-    sk_sp<sksg::Matrix> shape_matrix;
+    sk_sp<sksg::Transform> shape_transform;
     if (jtransform) {
         const AutoPropertyTracker apt(this, *jtransform);
 
@@ -596,8 +596,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
         // of the dangling/uncommitted ones.
         AnimatorScope local_scope;
 
-        if ((shape_matrix = this->attachMatrix2D(*jtransform, &local_scope, nullptr))) {
-            shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
+        if ((shape_transform = this->attachMatrix2D(*jtransform, &local_scope, nullptr))) {
+            shape_wrapper = sksg::TransformEffect::Make(std::move(shape_wrapper), shape_transform);
         }
         shape_wrapper = this->attachOpacity(*jtransform, &local_scope, std::move(shape_wrapper));
 
@@ -609,8 +609,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
     // Push transformed local geometries to parent list, for subsequent paints.
     for (auto& geo : geos) {
-        ctx->fGeometryStack->push_back(shape_matrix
-            ? sksg::GeometryTransform::Make(std::move(geo), shape_matrix)
+        ctx->fGeometryStack->push_back(shape_transform
+            ? sksg::GeometryTransform::Make(std::move(geo), shape_transform)
             : std::move(geo));
     }
 

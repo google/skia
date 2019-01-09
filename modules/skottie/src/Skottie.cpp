@@ -61,13 +61,13 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
     fLogger->log(lvl, buff, jsonstr.c_str());
 }
 
-sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& t,
-                                                     AnimatorScope* ascope,
-                                                     sk_sp<sksg::Matrix> parentMatrix) const {
+sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& t,
+                                                        AnimatorScope* ascope,
+                                                        sk_sp<sksg::Transform> parent) const {
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
 
-    auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
+    auto matrix = sksg::Matrix::Make(SkMatrix::I());
     auto adapter = sk_make_sp<TransformAdapter2D>(matrix);
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
@@ -104,16 +104,18 @@ sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix2D(const skjson::ObjectValue& 
 
     const auto dispatched = this->dispatchTransformProperty(adapter);
 
-    return (bound || dispatched) ? matrix : parentMatrix;
+    return (bound || dispatched)
+        ? sksg::Transform::MakeConcat(std::move(parent), std::move(matrix))
+        : parent;
 }
 
-sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
-                                                     AnimatorScope* ascope,
-                                                     sk_sp<sksg::Matrix> parentMatrix) const {
+sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& t,
+                                                        AnimatorScope* ascope,
+                                                        sk_sp<sksg::Transform> parent) const {
     static const VectorValue g_default_vec_0   = {  0,   0,   0},
                              g_default_vec_100 = {100, 100, 100};
 
-    auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
+    auto matrix = sksg::Matrix44::Make(SkMatrix::I());
     auto adapter = sk_make_sp<TransformAdapter3D>(matrix);
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
@@ -156,7 +158,9 @@ sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix3D(const skjson::ObjectValue& 
 
     // TODO: dispatch 3D transform properties
 
-    return bound ? matrix : parentMatrix;
+    return (bound)
+        ? sksg::Transform::MakeConcat(std::move(parent), std::move(matrix))
+        : parent;
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,

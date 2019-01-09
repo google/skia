@@ -372,7 +372,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         return std::move(image_node);
     }
 
-    return sksg::Transform::Make(std::move(image_node),
+    return sksg::TransformEffect::Make(std::move(image_node),
         SkMatrix::MakeRectToRect(SkRect::Make(image->bounds()),
                                  SkRect::Make(asset_size),
                                  SkMatrix::kCenter_ScaleToFit));
@@ -399,13 +399,13 @@ struct AnimationBuilder::AttachLayerContext {
     AttachLayerContext(const skjson::ArrayValue& jlayers, AnimatorScope* scope)
         : fLayerList(jlayers), fScope(scope) {}
 
-    const skjson::ArrayValue&            fLayerList;
-    AnimatorScope*                       fScope;
-    SkTHashMap<int, sk_sp<sksg::Matrix>> fLayerMatrixMap;
-    sk_sp<sksg::RenderNode>              fCurrentMatte;
+    const skjson::ArrayValue&               fLayerList;
+    AnimatorScope*                          fScope;
+    SkTHashMap<int, sk_sp<sksg::Transform>> fLayerMatrixMap;
+    sk_sp<sksg::RenderNode>                 fCurrentMatte;
 
-    sk_sp<sksg::Matrix> AttachLayerMatrix(const skjson::ObjectValue& jlayer,
-                                          const AnimationBuilder* abuilder) {
+    sk_sp<sksg::Transform> attachLayerTransform(const skjson::ObjectValue& jlayer,
+                                                const AnimationBuilder* abuilder) {
         const auto layer_index = ParseDefault<int>(jlayer["ind"], -1);
         if (layer_index < 0)
             return nullptr;
@@ -413,13 +413,13 @@ struct AnimationBuilder::AttachLayerContext {
         if (auto* m = fLayerMatrixMap.find(layer_index))
             return *m;
 
-        return this->AttachLayerMatrixImpl(jlayer, abuilder, layer_index);
+        return this->attachLayerTransformImpl(jlayer, abuilder, layer_index);
     }
 
 private:
-    sk_sp<sksg::Matrix> AttachParentLayerMatrix(const skjson::ObjectValue& jlayer,
-                                                const AnimationBuilder* abuilder,
-                                                int layer_index) {
+    sk_sp<sksg::Transform> attachParentLayerTransform(const skjson::ObjectValue& jlayer,
+                                                      const AnimationBuilder* abuilder,
+                                                      int layer_index) {
         const auto parent_index = ParseDefault<int>(jlayer["parent"], -1);
         if (parent_index < 0 || parent_index == layer_index)
             return nullptr;
@@ -431,29 +431,29 @@ private:
             if (!l) continue;
 
             if (ParseDefault<int>((*l)["ind"], -1) == parent_index) {
-                return this->AttachLayerMatrixImpl(*l, abuilder, parent_index);
+                return this->attachLayerTransformImpl(*l, abuilder, parent_index);
             }
         }
 
         return nullptr;
     }
 
-    sk_sp<sksg::Matrix> AttachLayerMatrixImpl(const skjson::ObjectValue& jlayer,
-                                              const AnimationBuilder* abuilder,
-                                              int layer_index) {
+    sk_sp<sksg::Transform> attachLayerTransformImpl(const skjson::ObjectValue& jlayer,
+                                                    const AnimationBuilder* abuilder,
+                                                    int layer_index) {
         SkASSERT(!fLayerMatrixMap.find(layer_index));
 
         // Add a stub entry to break recursion cycles.
         fLayerMatrixMap.set(layer_index, nullptr);
 
-        auto parent_matrix = this->AttachParentLayerMatrix(jlayer, abuilder, layer_index);
+        auto parent_matrix = this->attachParentLayerTransform(jlayer, abuilder, layer_index);
 
         if (const skjson::ObjectValue* jtransform = jlayer["ks"]) {
-            auto matrix_node = (ParseDefault<int>(jlayer["ddd"], 0) == 0)
+            auto transform_node = (ParseDefault<int>(jlayer["ddd"], 0) == 0)
                 ? abuilder->attachMatrix2D(*jtransform, fScope, std::move(parent_matrix))
                 : abuilder->attachMatrix3D(*jtransform, fScope, std::move(parent_matrix));
 
-            return *fLayerMatrixMap.set(layer_index, std::move(matrix_node));
+            return *fLayerMatrixMap.set(layer_index, std::move(transform_node));
         }
         return nullptr;
     }
@@ -509,8 +509,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachLayer(const skjson::ObjectValue*
     layer = AttachMask((*jlayer)["masksProperties"], this, &layer_animators, std::move(layer));
 
     // Optional layer transform.
-    if (auto layerMatrix = layerCtx->AttachLayerMatrix(*jlayer, this)) {
-        layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
+    if (auto layer_transform = layerCtx->attachLayerTransform(*jlayer, this)) {
+        layer = sksg::TransformEffect::Make(std::move(layer), std::move(layer_transform));
     }
 
     // Optional layer opacity.

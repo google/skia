@@ -11,44 +11,44 @@
 
 namespace sksg {
 
-GeometryTransform::GeometryTransform(sk_sp<GeometryNode> child, sk_sp<Matrix> matrix)
+GeometryTransform::GeometryTransform(sk_sp<GeometryNode> child, sk_sp<Transform> transform)
     : fChild(std::move(child))
-    , fMatrix(std::move(matrix)) {
+    , fTransform(std::move(transform)) {
     this->observeInval(fChild);
-    this->observeInval(fMatrix);
+    this->observeInval(fTransform);
 }
 
 GeometryTransform::~GeometryTransform() {
     this->unobserveInval(fChild);
-    this->unobserveInval(fMatrix);
+    this->unobserveInval(fTransform);
 }
 
 void GeometryTransform::onClip(SkCanvas* canvas, bool antiAlias) const {
-    canvas->clipPath(fTransformed, SkClipOp::kIntersect, antiAlias);
+    canvas->clipPath(fTransformedPath, SkClipOp::kIntersect, antiAlias);
 }
 
 void GeometryTransform::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    canvas->drawPath(fTransformed, paint);
+    canvas->drawPath(fTransformedPath, paint);
 }
 
 SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     // We don't care about matrix reval results.
-    fMatrix->revalidate(ic, ctm);
-    const auto& m = fMatrix->getMatrix();
+    fTransform->revalidate(ic, ctm);
+    const auto m = fTransform->asMatrix();
 
     auto bounds = fChild->revalidate(ic, ctm);
-    fTransformed = fChild->asPath();
-    fTransformed.transform(m);
-    fTransformed.shrinkToFit();
+    fTransformedPath = fChild->asPath();
+    fTransformedPath.transform(m);
+    fTransformedPath.shrinkToFit();
 
     m.mapRect(&bounds);
     return  bounds;
 }
 
 SkPath GeometryTransform::onAsPath() const {
-    return fTransformed;
+    return fTransformedPath;
 }
 
 } // namespace sksg

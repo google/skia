@@ -144,7 +144,7 @@ protected:
             SkMatrix::MakeRectToRect(SkRect::MakeWH(1, 1),
                                      SkRect::MakeIWH(this->width(), this->height()),
                                      SkMatrix::kFill_ScaleToFit));
-        auto root = sksg::Transform::Make(std::move(group), fContentMatrix);
+        auto root = sksg::TransformEffect::Make(std::move(group), fContentMatrix);
         fScene = sksg::Scene::Make(std::move(root), sksg::AnimatorList());
 
         // Off we go.
