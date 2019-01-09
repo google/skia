@@ -76,8 +76,9 @@ public:
         @param colorSpace          range of colors; may be nullptr
         @param textureFulfillProc  function called to get actual gpu texture
         @param textureReleaseProc  function called when texture can be released
-        @param promiseDoneProc     function called when we will no longer call textureFulfillProc
-        @param textureContext      state passed to textureFulfillProc and textureReleaseProc
+        @param textureDoneProc     function called when we will no longer call textureFulfillProc
+        @param textureContext      state passed to textureFulfillProc, textureReleaseProc, and
+                                   promiseDoneProc
         @return                    created SkImage, or nullptr
      */
     static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
@@ -89,10 +90,10 @@ public:
                                              SkColorType colorType,
                                              SkAlphaType alphaType,
                                              sk_sp<SkColorSpace> colorSpace,
-                                             TextureFulfillProc textureFulfillProc,
-                                             TextureReleaseProc textureReleaseProc,
-                                             PromiseDoneProc promiseDoneProc,
-                                             TextureContext textureContext);
+                                             PromiseImageTextureFulfillProc textureFulfillProc,
+                                             PromiseImageTextureReleaseProc textureReleaseProc,
+                                             PromiseImageTextureDoneProc textureDoneProc,
+                                             PromiseImageTextureContext textureContext);
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture yuvaTextures[],
