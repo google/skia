@@ -471,8 +471,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // Write glyphs images.
     serializer->emplace<uint64_t>(fPendingGlyphImages.size());
     for (const auto& glyphID : fPendingGlyphImages) {
-        SkGlyph glyph;
-        glyph.initWithGlyphID(glyphID);
+        SkGlyph glyph{glyphID};
         fContext->getMetrics(&glyph);
         writeGlyph(&glyph, serializer);
 
@@ -489,8 +488,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // Write glyphs paths.
     serializer->emplace<uint64_t>(fPendingGlyphPaths.size());
     for (const auto& glyphID : fPendingGlyphPaths) {
-        SkGlyph glyph;
-        glyph.initWithGlyphID(glyphID);
+        SkGlyph glyph{glyphID};
         fContext->getMetrics(&glyph);
         writeGlyph(&glyph, serializer);
         writeGlyphPath(glyphID, serializer);
@@ -503,8 +501,7 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
     auto* glyph = fGlyphMap.find(glyphID);
     if (glyph == nullptr) {
         this->ensureScalerContext();
-        glyph = fGlyphMap.set(glyphID, SkGlyph());
-        glyph->initWithGlyphID(glyphID);
+        glyph = fGlyphMap.set(glyphID, SkGlyph{glyphID});
         fContext->getMetrics(glyph);
     }
 
@@ -597,7 +594,7 @@ SkStrikeClient::~SkStrikeClient() = default;
 static bool readGlyph(SkGlyph* glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
-    glyph->initWithGlyphID(glyphID);
+    glyph->reset(glyphID);
     if (!deserializer->read<float>(&glyph->fAdvanceX)) return false;
     if (!deserializer->read<float>(&glyph->fAdvanceY)) return false;
     if (!deserializer->read<uint16_t>(&glyph->fWidth)) return false;
