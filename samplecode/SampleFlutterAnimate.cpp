@@ -11,6 +11,7 @@
 #include "SkUTF.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkFont.h"
 #include "SkImage.h"
 #include "SkRandom.h"
 #include "SkTime.h"
@@ -44,10 +45,8 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
-        paint.setTypeface(fTypeface);
-        paint.setAntiAlias(true);
         paint.setFilterQuality(kMedium_SkFilterQuality);
-        paint.setTextSize(50);
+        SkFont font(fTypeface, 50);
 
         // rough center of each glyph
         static constexpr auto kMidX = 35;
@@ -61,7 +60,7 @@ protected:
             canvas->translate(fChars[i].fPosition.fX + kMidX, fChars[i].fPosition.fY - kMidY);
             canvas->rotate(SkRadiansToDegrees(rot));
             canvas->translate(-35,+50);
-            canvas->drawString(fChars[i].fChar, 0, 0, paint);
+            canvas->drawString(fChars[i].fChar, 0, 0, font, paint);
             canvas->restore();
         }
     }

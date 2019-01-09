@@ -9,6 +9,7 @@
 #include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkFont.h"
 #include "SkInterpolator.h"
 #include "SkGradientShader.h"
 #include "SkData.h"
@@ -275,18 +276,18 @@ protected:
         const SkScalar textX = fCell.width() * 2 + 30;
 
         SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setTextSize(36);
+        SkFont font;
+        font.setSize(36);
         SkString str;
         str.appendScalar(fScale);
-        canvas->drawString(str, textX, 100, paint);
+        canvas->drawString(str, textX, 100, font, paint);
         str.reset(); str.appendScalar(fAngle);
-        canvas->drawString(str, textX, 150, paint);
+        canvas->drawString(str, textX, 150, font, paint);
 
         str.reset(); str.appendScalar(trans[0]);
-        canvas->drawString(str, textX, 200, paint);
+        canvas->drawString(str, textX, 200, font, paint);
         str.reset(); str.appendScalar(trans[1]);
-        canvas->drawString(str, textX, 250, paint);
+        canvas->drawString(str, textX, 250, font, paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

@@ -34,17 +34,15 @@ protected:
         SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
         paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(SkIntToScalar(180));
+        SkFont font(sk_tool_utils::create_portable_typeface(), 180);
         SkPoint pts[2] = { SkPoint::Make(0, 0),
                            SkPoint::Make(0, SkIntToScalar(80)) };
         SkScalar pos[2] = { 0, SkIntToScalar(80) };
         paint.setShader(SkGradientShader::MakeLinear(
             pts, fColors, pos, 2, SkShader::kClamp_TileMode));
         const char* str = "e";
-        canvas.drawString(str, SkIntToScalar(-10), SkIntToScalar(80), paint);
+        canvas.drawString(str, SkIntToScalar(-10), SkIntToScalar(80), font, paint);
     }
 
     SkISize onISize() override {
