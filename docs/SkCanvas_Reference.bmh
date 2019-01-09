@@ -210,7 +210,7 @@ The actual output depends on the installed fonts.
     const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black, 12 point text
-    canvas.drawString("!", 1, 10, paint);  // 1 char at baseline (1, 10)
+    canvas.drawString("!", 1, 10, SkFont(), paint);  // 1 char at baseline (1, 10)
     for (int y = 0; y < bitmap.height(); ++y) {
         for (int x = 0; x < bitmap.width(); ++x) {
             SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
@@ -260,7 +260,7 @@ The actual output depends on the installed fonts.
     const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black, 12 point text
-    canvas.drawString("!", 1, 10, paint);  // 1 char at baseline (1, 10)
+    canvas.drawString("!", 1, 10, SkFont(), paint);  // 1 char at baseline (1, 10)
     for (int y = 0; y < bitmap.height(); ++y) {
         for (int x = 0; x < bitmap.width(); ++x) {
             SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
@@ -307,12 +307,12 @@ void draw(SkCanvas* canvas) {
     {
         SkCanvas offscreen(bitmap);
         SkPaint paint;
-        paint.setTextSize(100);
-        offscreen.drawString("ABC", 20, 160, paint);
+        SkFont font(nullptr, 100);
+        offscreen.drawString("ABC", 20, 160, font, paint);
         SkRect layerBounds = SkRect::MakeXYWH(32, 32, 192, 192);
         offscreen.saveLayerAlpha(&layerBounds, 128);
         offscreen.clear(SK_ColorWHITE);
-        offscreen.drawString("DEF", 20, 160, paint);
+        offscreen.drawString("DEF", 20, 160, font, paint);
     }
     canvas->drawBitmap(bitmap, 0, 0, nullptr);
 }
@@ -529,12 +529,12 @@ The Layer and blended result appear on the CPU and GPU but the large dotted
 ##
 void draw(SkCanvas* canvas) {
   SkPaint paint;
-  paint.setTextSize(100);
-  canvas->drawString("ABC", 20, 160, paint);
+  SkFont font(nullptr, 100);
+  canvas->drawString("ABC", 20, 160, font, paint);
   SkRect layerBounds = SkRect::MakeXYWH(32, 32, 192, 192);
   canvas->saveLayerAlpha(&layerBounds, 128);
   canvas->clear(SK_ColorWHITE);
-  canvas->drawString("DEF", 20, 160, paint);
+  canvas->drawString("DEF", 20, 160, font, paint);
   SkImageInfo imageInfo;
   size_t rowBytes;
   SkIPoint origin;
@@ -1622,10 +1622,10 @@ void draw(SkCanvas* canvas) {
 #Height 192
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setTextSize(96);
-    canvas->drawString("A1", 130, 100, paint);
+    SkFont font(nullptr, 96);
+    canvas->drawString("A1", 130, 100, font, paint);
     canvas->rotate(180, 130, 100);
-    canvas->drawString("A1", 130, 100, paint);
+    canvas->drawString("A1", 130, 100, font, paint);
 }
 ##
 
@@ -1650,20 +1650,20 @@ void draw(SkCanvas* canvas) {
         Blue text combines sx and sy skew to rotate and scale.
     ##
     SkPaint paint;
-    paint.setTextSize(128);
+    SkFont font(nullptr, 128);
     canvas->translate(30, 130);
     canvas->save();
     canvas->skew(-.5, 0);
-    canvas->drawString("A1", 0, 0, paint);
+    canvas->drawString("A1", 0, 0, font, paint);
     canvas->restore();
     canvas->save();
     canvas->skew(0, .5);
     paint.setColor(SK_ColorRED);
-    canvas->drawString("A1", 0, 0, paint);
+    canvas->drawString("A1", 0, 0, font, paint);
     canvas->restore();
     canvas->skew(-.5, .5);
     paint.setColor(SK_ColorBLUE);
-    canvas->drawString("A1", 0, 0, paint);
+    canvas->drawString("A1", 0, 0, font, paint);
 ##
 
 #SeeAlso concat() translate() rotate() scale() setMatrix
@@ -1681,17 +1681,17 @@ void draw(SkCanvas* canvas) {
 #Example
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setTextSize(80);
-    paint.setTextScaleX(.3);
+    SkFont font(nullptr, 80);
+    font.setScaleX(.3);
     SkMatrix matrix;
     SkRect rect[2] = {{ 10, 20, 90, 110 }, { 40, 130, 140, 180 }};
     matrix.setRectToRect(rect[0], rect[1], SkMatrix::kFill_ScaleToFit);
     canvas->drawRect(rect[0], paint);
     canvas->drawRect(rect[1], paint);
     paint.setColor(SK_ColorWHITE);
-    canvas->drawString("Here", rect[0].fLeft + 10, rect[0].fBottom - 10, paint);
+    canvas->drawString("Here", rect[0].fLeft + 10, rect[0].fBottom - 10, font, paint);
     canvas->concat(matrix);
-    canvas->drawString("There", rect[0].fLeft + 10, rect[0].fBottom - 10, paint);
+    canvas->drawString("There", rect[0].fLeft + 10, rect[0].fBottom - 10, font, paint);
 }
 ##
 
@@ -1711,12 +1711,13 @@ void draw(SkCanvas* canvas) {
 #Height 128
 void draw(SkCanvas* canvas) {
     SkPaint paint;
+    SkFont font;
     canvas->scale(4, 6);
-    canvas->drawString("truth", 2, 10, paint);
+    canvas->drawString("truth", 2, 10, font, paint);
     SkMatrix matrix;
     matrix.setScale(2.8f, 6);
     canvas->setMatrix(matrix);
-    canvas->drawString("consequences", 2, 20, paint);
+    canvas->drawString("consequences", 2, 20, font, paint);
 }
 ##
 
@@ -1736,11 +1737,12 @@ void draw(SkCanvas* canvas) {
 #Height 128
 void draw(SkCanvas* canvas) {
     SkPaint paint;
+    SkFont font;
     canvas->scale(4, 6);
-    canvas->drawString("truth", 2, 10, paint);
+    canvas->drawString("truth", 2, 10, font, paint);
     canvas->resetMatrix();
     canvas->scale(2.8f, 6);
-    canvas->drawString("consequences", 2, 20, paint);
+    canvas->drawString("consequences", 2, 20, font, paint);
 }
 ##
 
@@ -3918,35 +3920,6 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Method void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws null terminated string at (x, y) using font advance ##
-#Populate
-
-#Example
-#Height 48
-   SkPaint paint;
-   canvas->drawString("a small hello", 20, 20, paint);
-##
-
-#SeeAlso drawText drawTextBlob
-
-##
-
-#Method void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)
-#Populate
-
-#Example
-   SkPaint paint;
-   SkString string("a small hello");
-   canvas->drawString(string, 20, 20, paint);
-##
-
-#SeeAlso drawText drawTextBlob
-
-##
-
 # ------------------------------------------------------------------------------
 
 #Method void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
@@ -4339,13 +4312,14 @@ void draw(SkCanvas* canvas) {
     SkPoint text[] = { {3,0.9f}, {4,2.5f}, {5,0.9f}, {7.5f,3.2f}, {5.5f,4.2f},
             {7.5f,5.2f}, {5,7.5f}, {4,5.9f}, {3,7.5f}, {0.5f,5.2f}, {2.5f,4.2f},
             {0.5f,3.2f} };
-    paint.setTextSize(18.f / 30);
+
+    SkFont font(nullptr, 18.f / 30);
     for (int i = 0; i< 10; ++i) {
        char digit = '0' + i;
-       canvas->drawText(&digit, 1, text[i].fX, text[i].fY, paint);
+       canvas->drawSimpleText(&digit, kUTF8_SkTextEncoding, 1, text[i].fX, text[i].fY, font, paint);
     }
-    canvas->drawString("10", text[10].fX, text[10].fY, paint);
-    canvas->drawString("11", text[11].fX, text[11].fY, paint);
+    canvas->drawString("10", text[10].fX, text[10].fY, font, paint);
+    canvas->drawString("11", text[11].fX, text[11].fY, font, paint);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, 12, cubics, paint);
     canvas->drawLine(cubics[11].fX, cubics[11].fY, cubics[0].fX, cubics[0].fY, paint);

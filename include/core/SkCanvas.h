@@ -27,10 +27,6 @@
 #include "SkSurfaceProps.h"
 #include "SkVertices.h"
 
-#ifndef SK_SUPPORT_LEGACY_DRAWSTRING
-#define SK_SUPPORT_LEGACY_DRAWSTRING
-#endif
-
 class GrContext;
 class GrRenderTargetContext;
 class SkAndroidFrameworkUtils;
@@ -1867,59 +1863,6 @@ public:
      */
     void drawSimpleText(const void* text, size_t byteLength, SkTextEncoding encoding,
                         SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint);
-
-#ifdef SK_SUPPORT_LEGACY_DRAWSTRING
-    /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
-        SkPaint paint.
-
-        string meaning depends on SkTextEncoding; by default, strings are encoded
-        as UTF-8. Other values of SkTextEncoding are unlikely to produce the desired
-        results, since zero bytes may be embedded in the string.
-
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
-        string draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
-
-        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
-        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
-        filled 12 point black glyphs.
-
-        @param string  character code points or glyphs drawn,
-                       ending with a char value of zero
-        @param x       start of string on x-axis
-        @param y       start of string on y-axis
-        @param paint   text size, blend, color, and so on, used to draw
-    */
-    void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint) {
-        if (!string) {
-            return;
-        }
-        this->drawText(string, strlen(string), x, y, paint);
-    }
-
-    /** Draws null terminated string, with origin at (x, y), using clip, SkMatrix, and
-        SkPaint paint.
-
-        string meaning depends on SkTextEncoding; by default, strings are encoded
-        as UTF-8. Other values of SkTextEncoding are unlikely to produce the desired
-        results, since zero bytes may be embedded in the string.
-
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
-        string draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
-
-        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
-        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
-        filled 12 point black glyphs.
-
-        @param string  character code points or glyphs drawn,
-                       ending with a char value of zero
-        @param x       start of string on x-axis
-        @param y       start of string on y-axis
-        @param paint   text size, blend, color, and so on, used to draw
-    */
-    void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint);
-#endif
 
     // Experimental
     void drawString(const char str[], SkScalar x, SkScalar y, const SkFont& font,
