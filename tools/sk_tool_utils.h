@@ -30,7 +30,6 @@ class SkBitmap;
 class SkCanvas;
 class SkFontStyle;
 class SkImage;
-class SkPaint;
 class SkPath;
 class SkPixmap;
 class SkRRect;
@@ -64,12 +63,6 @@ namespace sk_tool_utils {
      * Returns a string describing the platform font manager, if we're using one, otherwise "".
      */
     const char* platform_font_manager();
-
-    /**
-     * Sets the paint to use a platform-independent text renderer
-     */
-    void set_portable_typeface(SkPaint* paint, const char* name = nullptr,
-                               SkFontStyle style = SkFontStyle());
 
     /**
      * Returns a platform-independent text renderer.

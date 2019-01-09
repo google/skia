@@ -78,8 +78,4 @@ sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) 
     return create_font(name, style);
 }
 
-void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) {
-    paint->setTypeface(create_font(name, style));
-}
-
 }
