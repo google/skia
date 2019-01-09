@@ -276,7 +276,7 @@ def codec_srcs(limited):
             "src/codec/*Webp*.cpp",
             "src/codec/*Png*",
         ]
-    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
+    return native.glob(["src/codec/*.cpp", "third_party/etc1/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
 
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = struct(
@@ -414,6 +414,7 @@ INCLUDES = [
     "src/shaders/gradients",
     "src/sksl",
     "src/utils",
+    "third_party/etc1",
     "third_party/gif",
 ]
 

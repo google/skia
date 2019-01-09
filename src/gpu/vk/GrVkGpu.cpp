@@ -371,27 +371,38 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
     }
 
     bool success = false;
-    bool linearTiling = vkTex->isLinearTiled();
-    if (linearTiling) {
-        if (mipLevelCount > 1) {
-            SkDebugf("Can't upload mipmap data to linear tiled texture");
-            return false;
-        }
-        if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
-            // Need to change the layout to general in order to perform a host write
-            vkTex->setImageLayout(this,
-                                  VK_IMAGE_LAYOUT_GENERAL,
-                                  VK_ACCESS_HOST_WRITE_BIT,
-                                  VK_PIPELINE_STAGE_HOST_BIT,
-                                  false);
-            this->submitCommandBuffer(kForce_SyncQueue);
-        }
-        success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
-                                            texels[0].fPixels, texels[0].fRowBytes);
+    if (GrPixelConfigIsCompressed(vkTex->config())) {
+        // We check that config == desc.fConfig in GrGpu::getWritePixelsInfo()
+        SkASSERT(GrColorTypeToPixelConfig(srcColorType, GrSRGBEncoded::kNo) == vkTex->config());
+        // TODO: add compressed texture support
+        // delete the following two lines and uncomment the two after that when ready
+        vkTex->unref();
+        return false;
+        //success = this->uploadCompressedTexData(vkTex->desc(), buffer, false, left, top, width,
+        //                                       height);
     } else {
-        SkASSERT(mipLevelCount <= vkTex->texturePriv().maxMipMapLevel() + 1);
-        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
-                                             mipLevelCount);
+        bool linearTiling = vkTex->isLinearTiled();
+        if (linearTiling) {
+            if (mipLevelCount > 1) {
+                SkDebugf("Can't upload mipmap data to linear tiled texture");
+                return false;
+            }
+            if (VK_IMAGE_LAYOUT_PREINITIALIZED != vkTex->currentLayout()) {
+                // Need to change the layout to general in order to perform a host write
+                vkTex->setImageLayout(this,
+                                      VK_IMAGE_LAYOUT_GENERAL,
+                                      VK_ACCESS_HOST_WRITE_BIT,
+                                      VK_PIPELINE_STAGE_HOST_BIT,
+                                      false);
+                this->submitCommandBuffer(kForce_SyncQueue);
+            }
+            success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
+                                                texels[0].fPixels, texels[0].fRowBytes);
+        } else {
+            SkASSERT(mipLevelCount <= vkTex->texturePriv().maxMipMapLevel() + 1);
+            success = this->uploadTexDataOptimal(vkTex, left, top, width, height, srcColorType, texels,
+                                                 mipLevelCount);
+        }
     }
 
     return success;
@@ -511,6 +522,10 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
+    // If we're uploading compressed data then we should be using uploadCompressedTexData
+    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
+                                                                 GrSRGBEncoded::kNo)));
+
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
         SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
@@ -568,6 +583,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
     SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
+
+    // If we're uploading compressed data then we should be using uploadCompressedTexData
+    SkASSERT(!GrPixelConfigIsCompressed(GrColorTypeToPixelConfig(dataColorType,
+                                                                 GrSRGBEncoded::kNo)));
 
     if (width == 0 || height == 0) {
         return false;
@@ -833,6 +852,11 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         this->currentCommandBuffer()->clearColorImage(this, tex.get(), &zeroClearColor, 1, &range);
     }
     return std::move(tex);
+}
+
+sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                    const GrMipLevel texels[], int mipLevelCount) {
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
