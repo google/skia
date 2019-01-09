@@ -343,6 +343,12 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
 
 sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy)
 {
+    return Make(SkColor4f::FromColor(color), sk_srgb_singleton(), sigma, dx, dy);
+}
+
+sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor4f color, SkColorSpace* cs,
+        SkScalar sigma, SkScalar dx, SkScalar dy)
+{
     sk_sp<SkMaskFilter> blur = nullptr;
     if (sigma > 0.0f) {
         blur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, true);
@@ -361,7 +367,7 @@ sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScal
     blurInfo.fOffset = SkVector::Make(dx, dy);
     SkPaint* paint = builder.addLayer(blurInfo);
     paint->setMaskFilter(std::move(blur));
-    paint->setColor(color);
+    paint->setColor4f(color, cs);
 
     return builder.detach();
 }
