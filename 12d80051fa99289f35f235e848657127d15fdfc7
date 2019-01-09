@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82755602_e14ff637",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-09T19:16:38Z",
+      "side": 1,
+      "message": "may be clearer as two lines?\n\n  glyphPtr \u003d this-\u003eallocateNewGlyph(packedGlyphID, type);\n  fGlyphMap.set(glyphPtr);",
+      "revId": "12d80051fa99289f35f235e848657127d15fdfc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
