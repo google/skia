@@ -30,14 +30,12 @@ protected:
         SkCanvas canvas(fBitmap);
         canvas.clear(0x0);
         SkPaint paint;
-        paint.setAntiAlias(true);
-        sk_tool_utils::set_portable_typeface(&paint);
         const char* str1 = "ABC";
         const char* str2 = "XYZ";
         paint.setColor(0xFFFFFFFF);
-        paint.setTextSize(64);
-        canvas.drawString(str1, 10, 55, paint);
-        canvas.drawString(str2, 10, 110, paint);
+        SkFont font(sk_tool_utils::create_portable_typeface(), 64);
+        canvas.drawString(str1, 10, 55, font, paint);
+        canvas.drawString(str2, 10, 110, font, paint);
     }
 
     SkISize onISize() override {

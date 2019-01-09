@@ -339,7 +339,7 @@ protected:
                     SkRect dot = SkRect::MakeXYWH(pos.x() - 2, pos.y() - 2, 4, 4);
                     canvas->drawRect(dot, labelP);
                     canvas->drawString(label,
-                        pos.x() - tan.x() * 1.25f, pos.y() - tan.y() * 1.25f, labelP);
+                        pos.x() - tan.x() * 1.25f, pos.y() - tan.y() * 1.25f, SkFont(), labelP);
                 }
             }
             ++index;
@@ -399,7 +399,7 @@ protected:
                 SkString label;
                 label.appendS32(index);
                 canvas->drawString(label,
-                    pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, paint);
+                    pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, SkFont(), paint);
             }
         }
     }
@@ -525,11 +525,13 @@ protected:
         SkString label;
         label.printf("%0.3g", value);
         paint.setColor(0xFF000000);
-        paint.setTextSize(11.0f);
+
+        SkFont font;
+        font.setSize(11.0f);
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString(label, bounds.fLeft + 5, yPos - 5, paint);
-        paint.setTextSize(13.0f);
-        canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, paint);
+        canvas->drawString(label, bounds.fLeft + 5, yPos - 5, font, paint);
+        font.setSize(13.0f);
+        canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, font, paint);
     }
 
     void setForGeometry() {
