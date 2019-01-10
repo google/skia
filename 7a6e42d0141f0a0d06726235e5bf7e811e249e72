@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f719da52_50854944",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-10T16:39:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53eb83e3_cd1f80f1",
+      "revId": "7a6e42d0141f0a0d06726235e5bf7e811e249e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79dccf14_a12ca550",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "7a6e42d0141f0a0d06726235e5bf7e811e249e72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae6354da_18b15c17",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-10T16:39:19Z",
+      "side": 1,
+      "message": "fID{} is actually ~0. But, I\u0027m just forcing it to the True Type .undef glyph.",
+      "parentUuid": "79dccf14_a12ca550",
+      "revId": "7a6e42d0141f0a0d06726235e5bf7e811e249e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
