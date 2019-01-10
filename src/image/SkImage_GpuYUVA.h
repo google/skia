@@ -53,7 +53,6 @@ public:
     // Returns a ref-ed texture proxy with miplevels
     sk_sp<GrTextureProxy> asMippedTextureProxyRef() const;
 
-
     /**
         Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
         The main difference is that the client doesn't have the backend textures on the gpu yet but
@@ -90,8 +89,9 @@ public:
         @param imageColorSpace     range of colors; may be nullptr
         @param textureFulfillProc  function called to get actual gpu texture
         @param textureReleaseProc  function called when texture can be released
-        @param promiseDoneProc     function called when we will no longer call textureFulfillProc
-        @param textureContext      state passed to textureFulfillProc and textureReleaseProc
+        @param textureDoneProc     function called when we will no longer call textureFulfillProc
+        @param textureContexts     per-texture state passed to textureFulfillProc,
+                                   textureReleaseProc, and textureDoneProc
         @return                    created SkImage, or nullptr
      */
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
@@ -103,10 +103,10 @@ public:
                                                  int height,
                                                  GrSurfaceOrigin imageOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace,
-                                                 TextureFulfillProc textureFulfillProc,
-                                                 TextureReleaseProc textureReleaseProc,
-                                                 PromiseDoneProc promiseDoneProc,
-                                                 TextureContext textureContexts[]);
+                                                 PromiseImageTextureFulfillProc textureFulfillProc,
+                                                 PromiseImageTextureReleaseProc textureReleaseProc,
+                                                 PromiseImageTextureDoneProc textureDoneProc,
+                                                 PromiseImageTextureContext textureContexts[]);
 
 private:
     // This array will usually only be sparsely populated.
