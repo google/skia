@@ -1856,6 +1856,11 @@ void Viewer::drawImGui() {
                 if (ImGui::Checkbox("Pause", &isPaused)) {
                     fAnimTimer.togglePauseResume();
                 }
+
+                float speed = fAnimTimer.getSpeed();
+                if (ImGui::DragFloat("Speed", &speed, 0.1f)) {
+                    fAnimTimer.setSpeed(speed);
+                }
             }
         }
         if (paramsChanged) {
