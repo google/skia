@@ -16,6 +16,24 @@
       "revId": "ec7b8863e69592cb18acd647a40fef84e1da201c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a738071a_ec03fa5d",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-10T20:01:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2b1f5df3_3abc7b3d",
+      "revId": "ec7b8863e69592cb18acd647a40fef84e1da201c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
