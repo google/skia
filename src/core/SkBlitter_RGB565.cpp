@@ -75,9 +75,6 @@ bool SkRGB565_Shader_Blitter::Supports(const SkPixmap& device, const SkPaint& pa
         paint.getBlendMode() != SkBlendMode::kSrc) {
         return false;
     }
-    if (paint.isLCDRenderText()) {
-        return false;
-    }
     if (paint.isDither()) {
         return false;
     }
