@@ -43,6 +43,7 @@
 #include "ios_utils.h"
 #include "sk_tool_utils.h"
 
+#include <sanitizer/lsan_interface.h>
 #include <vector>
 
 #ifdef SK_PDF_IMAGE_STATS
@@ -1446,6 +1447,8 @@ int main(int argc, char** argv) {
 
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
+
+    __lsan_do_leak_check();
 
     return 0;
 }
