@@ -24,6 +24,7 @@ public:
     ~SkImage_GpuBase() override;
 
     GrContext* context() const final { return fContext.get(); }
+    uint32_t contextID() const final { return fContext->uniqueID(); }
 
     bool getROPixels(SkBitmap*, CachingHint) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset) const final;

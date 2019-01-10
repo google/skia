@@ -184,14 +184,17 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrContext* context,
+                                                    const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
-        GrContext* context = ((SkImage_GpuBase*) as_IB(image))->context();
+        if (as_IB(image)->contextID() != context->uniqueID()) {
+            return nullptr;
+        }
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
                                    as_IB(image)->onImageInfo().refColorSpace(), props);
