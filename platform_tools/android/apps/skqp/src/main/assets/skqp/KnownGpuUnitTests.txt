@@ -84,7 +84,6 @@ ResourceCacheCache
 ResourceCacheMisc
 ResourceCacheStencilBuffers
 ResourceCacheWrappedResources
-SRGBReadWritePixels
 SkImage_MakeCrossContextFromEncodedRelease
 SkImage_MakeCrossContextFromPixmapRelease
 SkImage_NewFromTextureRelease
