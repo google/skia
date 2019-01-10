@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c771cb1b_d6b18761",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-10T22:05:03Z",
+      "side": 1,
+      "message": "Here want the SkSpecial image to have the possibly more powerful GrContext from the caller rather than the potentially weaker one from the SkImage.",
+      "revId": "6ba102eab010a1d4c48d4a02d69fc5704c3f768d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
