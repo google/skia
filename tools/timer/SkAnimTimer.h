@@ -12,7 +12,8 @@
 #define SkAnimTimer_DEFINED
 
 /**
- *  Class to track a "timer". It supports 3 states: stopped, paused, running.
+ *  Class to track a "timer". It supports 3 states: stopped, paused, and running.
+ *  Playback speed is variable.
  *
  *  The caller must call updateTime() to resync with the clock (typically just before
  *  using the timer). Forcing the caller to do this ensures that the timer's return values
@@ -30,12 +31,13 @@ public:
     /**
      *  Class begins in the "stopped" state.
      */
-    SkAnimTimer() : fBaseTimeNanos(0), fCurrTimeNanos(0), fState(kStopped_State) {}
+    SkAnimTimer() : fPreviousNanos(0), fElapsedNanos(0), fSpeed(1), fState(kStopped_State) {}
 
-    SkAnimTimer(double base, double curr, State state)
-        : fBaseTimeNanos(base)
-        , fCurrTimeNanos(curr)
-        , fState(state) {}
+    SkAnimTimer(double elapsed)
+        : fPreviousNanos(0)
+        , fElapsedNanos(elapsed)
+        , fSpeed(1)
+        , fState(kRunning_State) {}
 
     bool isStopped() const { return kStopped_State == fState; }
     bool isRunning() const { return kRunning_State == fState; }
@@ -57,7 +59,13 @@ public:
     }
 
     /**
-     *  If the timer is stopped, this has no effect, else it toggles between paused and running.
+     *  Control the rate at which time advances.
+     */
+    float getSpeed() const { return fSpeed; }
+    void setSpeed(float speed) { fSpeed = speed; }
+
+    /**
+     *  If the timer is stopped, start running, else it toggles between paused and running.
      */
     void togglePauseResume() {
         if (kRunning_State == fState) {
@@ -76,7 +84,9 @@ public:
      */
     void updateTime() {
         if (kRunning_State == fState) {
-            fCurrTimeNanos = SkTime::GetNSecs();
+            double now = SkTime::GetNSecs();
+            fElapsedNanos += (now - fPreviousNanos) * fSpeed;
+            fPreviousNanos = now;
         }
     }
 
@@ -86,7 +96,7 @@ public:
      *  has been running longer than SK_MSecMax.
      */
     SkMSec msec() const {
-        const double msec = (fCurrTimeNanos - fBaseTimeNanos) * 1e-6;
+        const double msec = fElapsedNanos * 1e-6;
         SkASSERT(SK_MSecMax >= msec);
         return static_cast<SkMSec>(msec);
     }
@@ -95,7 +105,7 @@ public:
      *  Return the time in seconds the timer has been in the running state.
      *  Returns 0 if the timer is stopped.
      */
-    double secs() const { return (fCurrTimeNanos - fBaseTimeNanos) * 1e-9; }
+    double secs() const { return fElapsedNanos * 1e-9; }
 
     /**
      *  Return the time in seconds the timer has been in the running state,
@@ -128,14 +138,15 @@ public:
     }
 
 private:
-    double  fBaseTimeNanos;
-    double  fCurrTimeNanos;
-    State   fState;
+    double fPreviousNanos;
+    double fElapsedNanos;
+    float  fSpeed;
+    State  fState;
 
     void setState(State newState) {
         switch (newState) {
             case kStopped_State:
-                fBaseTimeNanos = fCurrTimeNanos = 0;
+                fPreviousNanos = fElapsedNanos = 0;
                 fState = kStopped_State;
                 break;
             case kPaused_State:
@@ -146,13 +157,12 @@ private:
             case kRunning_State:
                 switch (fState) {
                     case kStopped_State:
-                        fBaseTimeNanos = fCurrTimeNanos = SkTime::GetNSecs();
+                        fPreviousNanos = SkTime::GetNSecs();
+                        fElapsedNanos = 0;
                         break;
-                    case kPaused_State: {// they want "resume"
-                        double now = SkTime::GetNSecs();
-                        fBaseTimeNanos += now - fCurrTimeNanos;
-                        fCurrTimeNanos = now;
-                    } break;
+                    case kPaused_State:  // they want "resume"
+                        fPreviousNanos = SkTime::GetNSecs();
+                        break;
                     case kRunning_State:
                         break;
                 }

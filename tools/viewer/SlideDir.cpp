@@ -82,7 +82,7 @@ protected:
 
 private:
     void tick(SkMSec t) {
-        fSlide->animate(SkAnimTimer(0, t * 1e6, SkAnimTimer::kRunning_State));
+        fSlide->animate(SkAnimTimer(t * 1e6));
         this->invalidate();
     }
 
