@@ -478,6 +478,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+    fCommands.addCommand('a', "Transform", "Toggle Animation", [this]() {
+        fAnimTimer.togglePauseResume();
+    });
     fCommands.addCommand('u', "GUI", "Zoom UI", [this]() {
         fZoomUI = !fZoomUI;
         fStatsLayer.setDisplayScale(fZoomUI ? 2.0f : 1.0f);
@@ -1846,6 +1849,13 @@ void Viewer::drawImGui() {
 
                 // Allow direct editing of gamut
                 ImGui_Primaries(&fColorSpacePrimaries, &fImGuiGamutPaint);
+            }
+
+            if (ImGui::CollapsingHeader("Animation")) {
+                bool isPaused = fAnimTimer.isPaused();
+                if (ImGui::Checkbox("Pause", &isPaused)) {
+                    fAnimTimer.togglePauseResume();
+                }
             }
         }
         if (paramsChanged) {
