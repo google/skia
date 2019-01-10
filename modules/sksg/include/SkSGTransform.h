@@ -26,6 +26,8 @@ public:
 protected:
     Transform();
 
+    virtual bool is44() const = 0;
+
     virtual SkMatrix   asMatrix  () const = 0;
     virtual SkMatrix44 asMatrix44() const = 0;
 
@@ -49,6 +51,8 @@ protected:
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
+    bool is44() const override { return false; }
+
     SkMatrix   asMatrix  () const override;
     SkMatrix44 asMatrix44() const override;
 
@@ -71,6 +75,8 @@ protected:
     explicit Matrix44(const SkMatrix44&);
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+    bool is44() const override { return true; }
 
     SkMatrix   asMatrix  () const override;
     SkMatrix44 asMatrix44() const override;
