@@ -932,12 +932,20 @@ public:
         of GPU texture returned. offset translates the returned SkImage to keep subsequent
         animation frames aligned with respect to each other.
 
+        @param context     the GrContext in play - if it exists
         @param filter      how SkImage is sampled when transformed
         @param subset      bounds of SkImage processed by filter
         @param clipBounds  expected bounds of filtered SkImage
         @param outSubset   storage for returned SkImage bounds
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
+    */
+    sk_sp<SkImage> makeWithFilter(GrContext* context,
+                                  const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset) const;
+
+    /** To be deprecated.
     */
     sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,

@@ -50,6 +50,7 @@ public:
                               int srcX, int srcY, CachingHint) const = 0;
 
     virtual GrContext* context() const { return nullptr; }
+    virtual uint32_t contextID() const { return 0; }
 #if SK_SUPPORT_GPU
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }

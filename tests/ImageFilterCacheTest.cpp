@@ -166,14 +166,16 @@ DEF_TEST(ImageFilterCache_RasterBacked, reporter) {
 
 
 // Shared test code for both the raster and gpu-backed image cases
-static void test_image_backed(skiatest::Reporter* reporter, const sk_sp<SkImage>& srcImage) {
+static void test_image_backed(skiatest::Reporter* reporter,
+                              GrContext* context,
+                              const sk_sp<SkImage>& srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
-    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(full, srcImage));
+    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(context, full, srcImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(subset, srcImage));
+    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(context, subset, srcImage));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);
@@ -186,7 +188,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
     sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, nullptr, srcImage);
 }
 
 #include "GrContext.h"
@@ -242,7 +244,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
     REPORTER_ASSERT(reporter, readBackOrigin == texOrigin);
 
-    test_image_backed(reporter, srcImage);
+    test_image_backed(reporter, context, srcImage);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
