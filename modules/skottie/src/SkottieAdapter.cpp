@@ -47,7 +47,7 @@ void RRectAdapter::apply() {
    fRRectNode->setRRect(rr);
 }
 
-TransformAdapter2D::TransformAdapter2D(sk_sp<sksg::Matrix> matrix)
+TransformAdapter2D::TransformAdapter2D(sk_sp<sksg::Matrix<SkMatrix>> matrix)
     : fMatrixNode(std::move(matrix)) {}
 
 TransformAdapter2D::~TransformAdapter2D() = default;
@@ -73,7 +73,7 @@ TransformAdapter3D::Vec3::Vec3(const VectorValue& v) {
     fZ = v.size() > 2 ? v[2] : 0;
 }
 
-TransformAdapter3D::TransformAdapter3D(sk_sp<sksg::Matrix44> matrix)
+TransformAdapter3D::TransformAdapter3D(sk_sp<sksg::Matrix<SkMatrix44>> matrix)
     : fMatrixNode(std::move(matrix)) {}
 
 TransformAdapter3D::~TransformAdapter3D() = default;
