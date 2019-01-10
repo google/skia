@@ -169,12 +169,12 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/kitchen/${platform}",
 			Path:    ".",
-			Version: "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd",
+			Version: "git_revision:074bb031426a238dd38b67314312d334d9d13ae7",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci-auth/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c",
+			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
 		},
 	}, CIPD_PKGS_PYTHON...)
 
@@ -187,12 +187,12 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/git/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:0ae21738597e5601ba90372315145fec18582fc4",
+			Version: "git_revision:c9c8a52bfeaf8bc00ece22fdfd447822c8fcad77",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/git-credential-luci/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c",
+			Version: "git_revision:2c805f1c716f6c5ad2126b27ec88b8585a09481e",
 		},
 	}
 
