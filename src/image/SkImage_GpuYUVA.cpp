@@ -206,20 +206,19 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
-        GrContext* context,
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin imageOrigin,
-        sk_sp<SkColorSpace> imageColorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc promiseDoneProc,
-        PromiseImageTextureContext textureContexts[]) {
+sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
+                                                       SkYUVColorSpace yuvColorSpace,
+                                                       const GrBackendFormat yuvaFormats[],
+                                                       const SkISize yuvaSizes[],
+                                                       const SkYUVAIndex yuvaIndices[4],
+                                                       int imageWidth,
+                                                       int imageHeight,
+                                                       GrSurfaceOrigin imageOrigin,
+                                                       sk_sp<SkColorSpace> imageColorSpace,
+                                                       TextureFulfillProc textureFulfillProc,
+                                                       TextureReleaseProc textureReleaseProc,
+                                                       PromiseDoneProc promiseDoneProc,
+                                                       TextureContext textureContexts[]) {
     int numTextures;
     bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
 
@@ -290,3 +289,4 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
                                        kNeedNewImageUniqueID, yuvColorSpace, proxies, numTextures,
                                        yuvaIndices, imageOrigin, std::move(imageColorSpace));
 }
+
