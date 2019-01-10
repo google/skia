@@ -158,15 +158,15 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
 
         size_t vertexStride = gp->vertexStride();
         const int kVertexCount = 1024;
         const GrBuffer* vertexBuffer = nullptr;
         int firstVertex = 0;
-        void* verts = target->makeVertexSpace(vertexStride, kVertexCount, &vertexBuffer,
-                                              &firstVertex);
+        void* verts = flushState->makeVertexSpace(vertexStride, kVertexCount, &vertexBuffer,
+                                                  &firstVertex);
         if (!verts) {
             return;
         }
@@ -219,12 +219,12 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(kVertexCount);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
-                                         target->detachAppliedClip());
-        target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = flushState->makePipeline(0, GrProcessorSet::MakeEmptySet(),
+                                             flushState->detachAppliedClip());
+        flushState->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Mode fMode;

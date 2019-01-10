@@ -108,24 +108,25 @@ private:
 
 class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
 public:
-    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
+    DynamicVertexAllocator(size_t stride, GrOpFlushState* flushState)
             : VertexAllocator(stride)
-            , fTarget(target)
+            , fFlushState(flushState)
             , fVertexBuffer(nullptr)
             , fVertices(nullptr) {}
     void* lock(int vertexCount) override {
         fVertexCount = vertexCount;
-        fVertices = fTarget->makeVertexSpace(stride(), vertexCount, &fVertexBuffer, &fFirstVertex);
+        fVertices =
+                fFlushState->makeVertexSpace(stride(), vertexCount, &fVertexBuffer, &fFirstVertex);
         return fVertices;
     }
     void unlock(int actualCount) override {
-        fTarget->putBackVertices(fVertexCount - actualCount, stride());
+        fFlushState->putBackVertices(fVertexCount - actualCount, stride());
         fVertices = nullptr;
     }
     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
     int firstVertex() const { return fFirstVertex; }
 private:
-    GrMeshDrawOp::Target* fTarget;
+    GrOpFlushState* fFlushState;
     const GrBuffer* fVertexBuffer;
     int fVertexCount;
     int fFirstVertex;
@@ -239,9 +240,10 @@ private:
         return path;
     }
 
-    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void draw(GrOpFlushState* flushState, sk_sp<const GrGeometryProcessor> gp,
+              size_t vertexStride) {
         SkASSERT(!fAntiAlias);
-        GrResourceProvider* rp = target->resourceProvider();
+        GrResourceProvider* rp = flushState->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
         // construct a cache key from the path's genID and the view matrix
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -263,7 +265,7 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
         if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, std::move(gp), cachedVertexBuffer.get(), 0, actualCount);
+            this->drawVertices(flushState, std::move(gp), cachedVertexBuffer.get(), 0, actualCount);
             return;
         }
 
@@ -275,23 +277,24 @@ private:
         }
         vmi.mapRect(&clipBounds);
         bool isLinear;
-        bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+        bool canMapVB = GrCaps::kNone_MapFlags != flushState->caps().mapBufferFlags();
         StaticVertexAllocator allocator(vertexStride, rp, canMapVB);
         int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator, false,
                                                    &isLinear);
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), 0, count);
+        this->drawVertices(flushState, std::move(gp), allocator.vertexBuffer(), 0, count);
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
-        fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
+        fShape.addGenIDChangeListener(
+                sk_make_sp<PathInvalidator>(key, flushState->contextUniqueID()));
     }
 
-    void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void drawAA(GrOpFlushState* flushState, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -301,17 +304,17 @@ private:
         path.transform(fViewMatrix);
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
-        DynamicVertexAllocator allocator(vertexStride, target);
+        DynamicVertexAllocator allocator(vertexStride, flushState);
         int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
                                                    &isLinear);
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), allocator.firstVertex(),
-                           count);
+        this->drawVertices(flushState, std::move(gp), allocator.vertexBuffer(),
+                           allocator.firstVertex(), count);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -331,11 +334,11 @@ private:
                 coverageType = Coverage::kSolid_Type;
             }
             if (fAntiAlias) {
-                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(flushState->caps().shaderCaps(),
                                                                  color, coverageType,
                                                                  localCoordsType, fViewMatrix);
             } else {
-                gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::Make(flushState->caps().shaderCaps(),
                                                    color, coverageType, localCoordsType,
                                                    fViewMatrix);
             }
@@ -345,20 +348,20 @@ private:
         }
         size_t vertexStride = gp->vertexStride();
         if (fAntiAlias) {
-            this->drawAA(target, std::move(gp), vertexStride);
+            this->drawAA(flushState, std::move(gp), vertexStride);
         } else {
-            this->draw(target, std::move(gp), vertexStride);
+            this->draw(flushState, std::move(gp), vertexStride);
         }
     }
 
-    void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrBuffer* vb,
-                      int firstVertex, int count) {
-        GrMesh* mesh = target->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
-                                                               : GrPrimitiveType::kTriangles);
+    void drawVertices(GrOpFlushState* flushState, sk_sp<const GrGeometryProcessor> gp,
+                      const GrBuffer* vb, int firstVertex, int count) {
+        GrMesh* mesh = flushState->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
+                                                                   : GrPrimitiveType::kTriangles);
         mesh->setNonIndexedNonInstanced(count);
         mesh->setVertexData(vb, firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Helper fHelper;

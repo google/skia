@@ -313,13 +313,13 @@ private:
         int fInstancesToFlush;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         int instanceCount = fShapes.count();
 
         static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;
         GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
 
-        auto pipe = fHelper.makePipeline(target, kMaxTextures);
+        auto pipe = fHelper.makePipeline(flushState, kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
         const auto proxies = fAtlas->getProxies();
         for (int i = 0; i < numActiveProxies; ++i) {
@@ -352,7 +352,7 @@ private:
                 matrix = &SkMatrix::I();
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
+                    *flushState->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
                     fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
@@ -363,9 +363,9 @@ private:
             }
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getProxies(),
-                    fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
-                    invert, false);
+                    *flushState->caps().shaderCaps(), this->color(), fWideColor,
+                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampNearest(),
+                    kA8_GrMaskFormat, invert, false);
         }
 
         // allocate vertices
@@ -377,12 +377,11 @@ private:
         if (instanceCount > SK_MaxS32 / kVerticesPerQuad) {
             return;
         }
-        GrVertexWriter vertices{target->makeVertexSpace(kVertexStride,
-                                                        kVerticesPerQuad * instanceCount,
-                                                        &vertexBuffer,
-                                                        &flushInfo.fVertexOffset)};
+        GrVertexWriter vertices{flushState->makeVertexSpace(kVertexStride, kVerticesPerQuad *
+                                                            instanceCount, &vertexBuffer,
+                                                            &flushInfo.fVertexOffset)};
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-        flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        flushInfo.fIndexBuffer = flushState->resourceProvider()->refQuadIndexBuffer();
         if (!vertices.fPtr || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -451,7 +450,7 @@ private:
                     SkScalar scale = desiredDimension / maxDim;
 
                     shapeData = new ShapeData;
-                    if (!this->addDFPathToAtlas(target,
+                    if (!this->addDFPathToAtlas(flushState,
                                                 &flushInfo,
                                                 fAtlas,
                                                 shapeData,
@@ -475,7 +474,7 @@ private:
                     }
 
                     shapeData = new ShapeData;
-                    if (!this->addBMPathToAtlas(target,
+                    if (!this->addBMPathToAtlas(flushState,
                                                 &flushInfo,
                                                 fAtlas,
                                                 shapeData,
@@ -487,7 +486,7 @@ private:
                 }
             }
 
-            auto uploadTarget = target->deferredUploadTarget();
+            auto uploadTarget = flushState->deferredUploadTarget();
             fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
             this->writePathVertices(fAtlas, vertices, GrVertexColor(args.fColor, fWideColor),
@@ -495,14 +494,14 @@ private:
             flushInfo.fInstancesToFlush++;
         }
 
-        this->flush(target, &flushInfo);
+        this->flush(flushState, &flushInfo);
     }
 
-    bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+    bool addToAtlas(GrOpFlushState* flushState, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
                     int width, int height, const void* image,
                     GrDrawOpAtlas::AtlasID* id, SkIPoint16* atlasLocation) const {
-        auto resourceProvider = target->resourceProvider();
-        auto uploadTarget = target->deferredUploadTarget();
+        auto resourceProvider = flushState->resourceProvider();
+        auto uploadTarget = flushState->deferredUploadTarget();
 
         GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, id,
                                                           uploadTarget, width, height,
@@ -512,7 +511,7 @@ private:
         }
 
         if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-            this->flush(target, flushInfo);
+            this->flush(flushState, flushInfo);
 
             code = atlas->addToAtlas(resourceProvider, id, uploadTarget, width, height,
                                      image, atlasLocation);
@@ -521,7 +520,7 @@ private:
         return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
     }
 
-    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addDFPathToAtlas(GrOpFlushState* flushState, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
 
@@ -612,7 +611,7 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
 
-        if (!this->addToAtlas(target, flushInfo, atlas,
+        if (!this->addToAtlas(flushState, flushInfo, atlas,
                               width, height, dfStorage.get(), &id, &atlasLocation)) {
             return false;
         }
@@ -648,9 +647,8 @@ private:
         return true;
     }
 
-    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
-                          const SkMatrix& ctm) const {
+    bool addBMPathToAtlas(GrOpFlushState* flushState, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+                          ShapeData* shapeData, const GrShape& shape, const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -714,7 +712,7 @@ private:
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
 
-        if (!this->addToAtlas(target, flushInfo, atlas,
+        if (!this->addToAtlas(flushState, flushInfo, atlas,
                               dst.width(), dst.height(), dst.addr(), &id, &atlasLocation)) {
             return false;
         }
@@ -774,7 +772,7 @@ private:
         }
     }
 
-    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    void flush(GrOpFlushState* flushState, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
         int numAtlasTextures = SkToInt(fAtlas->numActivePages());
         auto proxies = fAtlas->getProxies();
@@ -794,15 +792,15 @@ private:
         }
 
         if (flushInfo->fInstancesToFlush) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
             mesh->setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
                                       kVerticesPerQuad, flushInfo->fInstancesToFlush,
                                       maxInstancesPerDraw);
             mesh->setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-            target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
-                         flushInfo->fFixedDynamicState, mesh);
+            flushState->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
+                             flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
         }

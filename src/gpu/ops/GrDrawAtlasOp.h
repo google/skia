@@ -51,7 +51,7 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepare(GrOpFlushState*) override;
 
     const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }

@@ -49,8 +49,9 @@ protected:
         this->setBounds(rect, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    Target::PipelineAndFixedDynamicState makePipeline(Target* target) {
-        return target->makePipeline(0, std::move(fProcessorSet), target->detachAppliedClip());
+    GrOpFlushState::PipelineAndFixedDynamicState makePipeline(GrOpFlushState* flushState) {
+        return flushState->makePipeline(0, std::move(fProcessorSet),
+                                        flushState->detachAppliedClip());
     }
 
     sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
@@ -99,9 +100,9 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
-        QuadHelper helper(target, sizeof(Vertex), 1);
+        QuadHelper helper(flushState, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
             return;
@@ -113,8 +114,8 @@ private:
             SkPoint3 pt3 = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
             fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
         }
-        auto pipe = this->makePipeline(target);
-        helper.recordDraw(target, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = this->makePipeline(flushState);
+        helper.recordDraw(flushState, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     SkMatrix fKLM;
@@ -321,9 +322,9 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkASSERT(this->gp()->vertexStride() == sizeof(Vertex));
-        QuadHelper helper(target, sizeof(Vertex), 1);
+        QuadHelper helper(flushState, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
             return;
@@ -331,8 +332,8 @@ private:
         SkRect rect = this->rect();
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         fDevToUV.apply(verts, 4, sizeof(Vertex), sizeof(SkPoint));
-        auto pipe = this->makePipeline(target);
-        helper.recordDraw(target, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = this->makePipeline(flushState);
+        helper.recordDraw(flushState, this->gp(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     GrPathUtils::QuadUVMatrix fDevToUV;

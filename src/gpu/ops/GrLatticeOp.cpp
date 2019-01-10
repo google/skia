@@ -205,8 +205,8 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
-        GrGpu* gpu = target->resourceProvider()->priv().gpu();
+    void onPrepare(GrOpFlushState* flushState) override {
+        GrGpu* gpu = flushState->resourceProvider()->priv().gpu();
         auto gp = LatticeGP::Make(gpu, fProxy.get(), fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -224,9 +224,9 @@ private:
         }
 
         const size_t kVertexStride = gp->vertexStride();
-        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
-                             kVertsPerRect, kIndicesPerRect, numRects);
+        sk_sp<const GrBuffer> indexBuffer = flushState->resourceProvider()->refQuadIndexBuffer();
+        PatternHelper helper(flushState, GrPrimitiveType::kTriangles, kVertexStride,
+                             indexBuffer.get(), kVertsPerRect, kIndicesPerRect, numRects);
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -280,9 +280,9 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto pipe = fHelper.makePipeline(target, 1);
+        auto pipe = fHelper.makePipeline(flushState, 1);
         pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

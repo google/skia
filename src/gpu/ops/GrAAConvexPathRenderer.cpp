@@ -713,8 +713,8 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
-        auto pipe = fHelper.makePipeline(target);
+    void onPrepare(GrOpFlushState* flushState) override {
+        auto pipe = fHelper.makePipeline(flushState);
         int instanceCount = fPaths.count();
 
         SkMatrix invert;
@@ -764,8 +764,8 @@ private:
             const GrBuffer* vertexBuffer;
             int firstVertex;
 
-            GrVertexWriter verts{target->makeVertexSpace(kVertexStride, vertexCount,
-                                                         &vertexBuffer, &firstVertex)};
+            GrVertexWriter verts{flushState->makeVertexSpace(kVertexStride, vertexCount,
+                                                             &vertexBuffer, &firstVertex)};
 
             if (!verts.fPtr) {
                 SkDebugf("Could not allocate vertices\n");
@@ -775,7 +775,7 @@ private:
             const GrBuffer* indexBuffer;
             int firstIndex;
 
-            uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+            uint16_t *idxs = flushState->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
             if (!idxs) {
                 SkDebugf("Could not allocate indices\n");
                 return;
@@ -785,7 +785,7 @@ private:
             GrVertexColor color(args.fColor, fWideColor);
             create_vertices(segments, fanPt, color, &draws, verts, idxs, kVertexStride);
 
-            GrMesh* meshes = target->allocMeshes(draws.count());
+            GrMesh* meshes = flushState->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
                 meshes[j].setPrimitiveType(GrPrimitiveType::kTriangles);
@@ -795,8 +795,8 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, nullptr, meshes,
-                         draws.count());
+            flushState->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, nullptr,
+                             meshes, draws.count());
         }
     }
 

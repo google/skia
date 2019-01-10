@@ -1155,7 +1155,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -1168,8 +1168,8 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
-                                                        &vertexBuffer, &firstVertex)};
+        GrVertexWriter vertices{flushState->makeVertexSpace(gp->vertexStride(), fVertCount,
+                                                            &vertexBuffer, &firstVertex)};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1177,7 +1177,7 @@ private:
 
         const GrBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
-        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        uint16_t* indices = flushState->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -1282,12 +1282,12 @@ private:
             currStartVertex += circle_type_to_vert_count(circle.fStroked);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -1481,7 +1481,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -1493,8 +1493,8 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
-                                                        &vertexBuffer, &firstVertex)};
+        GrVertexWriter vertices{flushState->makeVertexSpace(gp->vertexStride(), fVertCount,
+                                                            &vertexBuffer, &firstVertex)};
         if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -1502,7 +1502,7 @@ private:
 
         const GrBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
-        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        uint16_t* indices = flushState->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -1566,12 +1566,12 @@ private:
             currStartVertex += circle_type_to_vert_count(true);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -1760,7 +1760,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -1769,7 +1769,7 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor,
                                                                    localMatrix));
-        QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
+        QuadHelper helper(flushState, gp->vertexStride(), fEllipses.count());
         GrVertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             return;
@@ -1803,8 +1803,8 @@ private:
                             origin_centered_tri_strip(xMaxOffset, yMaxOffset),
                             invRadii);
         }
-        auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = fHelper.makePipeline(flushState);
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -1981,12 +1981,12 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(
                 new DIEllipseGeometryProcessor(fWideColor, this->viewMatrix(), this->style()));
 
-        QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
+        QuadHelper helper(flushState, gp->vertexStride(), fEllipses.count());
         GrVertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
             return;
@@ -2017,8 +2017,8 @@ private:
                             origin_centered_tri_strip(innerRatioX + offsetDx,
                                                       innerRatioY + offsetDy));
         }
-        auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = fHelper.makePipeline(flushState);
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -2346,7 +2346,7 @@ private:
                     outerRadius, innerRadius);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         // Invert the view matrix as a local matrix (if any other processors require coords).
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
@@ -2361,8 +2361,8 @@ private:
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        GrVertexWriter verts{target->makeVertexSpace(gp->vertexStride(), fVertCount,
-                                                     &vertexBuffer, &firstVertex)};
+        GrVertexWriter verts{flushState->makeVertexSpace(gp->vertexStride(), fVertCount,
+                                                         &vertexBuffer, &firstVertex)};
         if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -2370,7 +2370,7 @@ private:
 
         const GrBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
-        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        uint16_t* indices = flushState->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -2441,12 +2441,12 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -2631,7 +2631,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         SkMatrix localMatrix;
         if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
             return;
@@ -2644,9 +2644,9 @@ private:
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;
         sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
-                fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
+                fStroked ? kStroke_RRectType : kFill_RRectType, flushState->resourceProvider());
 
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
+        PatternHelper helper(flushState, GrPrimitiveType::kTriangles, gp->vertexStride(),
                              indexBuffer.get(), kVertsPerStandardRRect, indicesPerInstance,
                              fRRects.count());
         GrVertexWriter verts{helper.vertices()};
@@ -2709,8 +2709,8 @@ private:
                             reciprocalRadii);
             }
         }
-        auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = fHelper.makePipeline(flushState);
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

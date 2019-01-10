@@ -64,11 +64,11 @@ namespace {
 
 class PathGeoBuilder {
 public:
-    PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
+    PathGeoBuilder(GrPrimitiveType primitiveType, GrOpFlushState* flushState,
                    sk_sp<const GrGeometryProcessor> geometryProcessor, const GrPipeline* pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState)
             : fPrimitiveType(primitiveType)
-            , fTarget(target)
+            , fFlushState(flushState)
             , fVertexStride(sizeof(SkPoint))
             , fGeometryProcessor(std::move(geometryProcessor))
             , fPipeline(pipeline)
@@ -229,12 +229,9 @@ private:
         static const int kMinVerticesPerChunk = GrPathUtils::kMaxPointsPerCurve + 2;
         static const int kFallbackVerticesPerChunk = 16384;
 
-        fVertices = static_cast<SkPoint*>(fTarget->makeVertexSpaceAtLeast(fVertexStride,
-                                                                          kMinVerticesPerChunk,
-                                                                          kFallbackVerticesPerChunk,
-                                                                          &fVertexBuffer,
-                                                                          &fFirstVertex,
-                                                                          &fVerticesInChunk));
+        fVertices = static_cast<SkPoint*>(fFlushState->makeVertexSpaceAtLeast(
+                fVertexStride, kMinVerticesPerChunk, kFallbackVerticesPerChunk, &fVertexBuffer,
+                &fFirstVertex, &fVerticesInChunk));
 
         if (this->isIndexed()) {
             // Similar to above: Ensure we get enough indices for one worst-case quad/cubic.
@@ -243,9 +240,9 @@ private:
             const int kMinIndicesPerChunk = GrPathUtils::kMaxPointsPerCurve * this->indexScale();
             const int kFallbackIndicesPerChunk = kFallbackVerticesPerChunk * this->indexScale();
 
-            fIndices = fTarget->makeIndexSpaceAtLeast(kMinIndicesPerChunk, kFallbackIndicesPerChunk,
-                                                      &fIndexBuffer, &fFirstIndex,
-                                                      &fIndicesInChunk);
+            fIndices = fFlushState->makeIndexSpaceAtLeast(
+                    kMinIndicesPerChunk, kFallbackIndicesPerChunk, &fIndexBuffer, &fFirstIndex,
+                    &fIndicesInChunk);
         }
 
         fCurVert = fVertices;
@@ -271,7 +268,7 @@ private:
         SkASSERT(indexCount <= fIndicesInChunk);
 
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
-            GrMesh* mesh = fTarget->allocMesh(fPrimitiveType);
+            GrMesh* mesh = fFlushState->allocMesh(fPrimitiveType);
             if (!this->isIndexed()) {
                 mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
@@ -279,11 +276,11 @@ private:
                                  GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(fVertexBuffer, fFirstVertex);
-            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
+            fFlushState->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
         }
 
-        fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
-        fTarget->putBackVertices((size_t)(fVerticesInChunk - vertexCount), fVertexStride);
+        fFlushState->putBackIndices((size_t)(fIndicesInChunk - indexCount));
+        fFlushState->putBackVertices((size_t)(fVerticesInChunk - vertexCount), fVertexStride);
     }
 
     void needSpace(int vertsNeeded, int indicesNeeded = 0) {
@@ -313,7 +310,7 @@ private:
     }
 
     GrPrimitiveType fPrimitiveType;
-    GrMeshDrawOp::Target* fTarget;
+    GrOpFlushState* fFlushState;
     size_t fVertexStride;
     sk_sp<const GrGeometryProcessor> fGeometryProcessor;
     const GrPipeline* fPipeline;
@@ -400,7 +397,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -408,7 +405,7 @@ private:
             Coverage coverage(this->coverage());
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            gp = GrDefaultGeoProcFactory::Make(flushState->caps().shaderCaps(),
                                                color,
                                                coverage,
                                                localCoords,
@@ -430,8 +427,8 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-        auto pipe = fHelper.makePipeline(target);
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp), pipe.fPipeline,
+        auto pipe = fHelper.makePipeline(flushState);
+        PathGeoBuilder pathGeoBuilder(primitiveType, flushState, std::move(gp), pipe.fPipeline,
                                       pipe.fFixedDynamicState);
 
         // fill buffers

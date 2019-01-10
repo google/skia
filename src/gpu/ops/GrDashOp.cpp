@@ -322,7 +322,7 @@ private:
         bool fHasEndRect;
     };
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         int instanceCount = fLines.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -338,7 +338,7 @@ private:
             Color color(this->color());
             LocalCoords::Type localCoordsType =
                     fUsesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-            gp = MakeForDeviceSpace(target->caps().shaderCaps(),
+            gp = MakeForDeviceSpace(flushState->caps().shaderCaps(),
                                     color,
                                     Coverage::kSolid_Type,
                                     localCoordsType,
@@ -571,7 +571,7 @@ private:
             return;
         }
 
-        QuadHelper helper(target, gp->vertexStride(), totalRectCount);
+        QuadHelper helper(flushState, gp->vertexStride(), totalRectCount);
         GrVertexWriter vertices{ helper.vertices() };
         if (!vertices.fPtr) {
             return;
@@ -624,9 +624,9 @@ private:
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
-        auto pipe = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
-                                         target->detachAppliedClip());
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = flushState->makePipeline(pipelineFlags, std::move(fProcessorSet),
+                                             flushState->detachAppliedClip());
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
