@@ -16,6 +16,24 @@
       "revId": "874be1d998e222aee05157d2760c82036f5661fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74097499_205eb3ce",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-10T18:20:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07c9ca93_85a37e43",
+      "revId": "874be1d998e222aee05157d2760c82036f5661fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
