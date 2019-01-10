@@ -76,7 +76,7 @@ private:
     typedef GrDrawOp INHERITED;
 };
 
-class GrMeshDrawOp::Target {
+class GrMeshDrawOp::Target : public GrPipeline::QueryInitArgs {
 public:
     virtual ~Target() {}
 
@@ -141,9 +141,11 @@ public:
      * @param args
      * @return
      */
-    template <typename... Args>
-    GrPipeline* allocPipeline(Args&&... args) {
-        return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
+    GrPipeline* allocPipeline(
+            GrPipeline::Flags flags, const GrUserStencilSettings* stencil,
+            GrProcessorSet&& processorSet, GrAppliedClip&& clip) {
+        return this->pipelineArena()->make<GrPipeline>(this, std::move(processorSet),
+                                                       std::move(clip), flags, stencil);
     }
 
     GrMesh* allocMesh(GrPrimitiveType primitiveType) {
@@ -177,8 +179,7 @@ public:
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
      * GrAppliedClip and uses a fixed dynamic state.
      */
-    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&&,
-                                              GrAppliedClip&&,
+    PipelineAndFixedDynamicState makePipeline(GrPipeline::Flags, GrProcessorSet&&, GrAppliedClip&&,
                                               int numPrimitiveProcessorTextures = 0);
 
     virtual GrRenderTargetProxy* proxy() const = 0;

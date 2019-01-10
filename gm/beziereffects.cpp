@@ -50,7 +50,8 @@ protected:
     }
 
     Target::PipelineAndFixedDynamicState makePipeline(Target* target) {
-        return target->makePipeline(0, std::move(fProcessorSet), target->detachAppliedClip());
+        return target->makePipeline(GrPipeline::kNone_Flag, std::move(fProcessorSet),
+                                    target->detachAppliedClip());
     }
 
     sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }

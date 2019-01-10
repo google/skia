@@ -222,7 +222,7 @@ private:
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(kVertexCount);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
+        auto pipe = target->makePipeline(GrPipeline::kNone_Flag, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
         target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }

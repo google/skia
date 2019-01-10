@@ -16,11 +16,16 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline::GrPipeline(const InitArgs& args,
-                       GrProcessorSet&& processors,
-                       GrAppliedClip&& appliedClip) {
-    SkASSERT(args.fProxy);
+GrPipeline::GrPipeline(const QueryInitArgs* query, GrProcessorSet&& processors,
+                       GrAppliedClip&& appliedClip, GrPipeline::Flags flags,
+                       const GrUserStencilSettings* stencil)
+        : fUserStencilSettings(stencil) {
     SkASSERT(processors.isFinalized());
+    SkASSERT(fUserStencilSettings);
+
+    InitArgs args;
+    query->queryPipelineInitArgs(&args, flags);
+    SkASSERT(args.fProxy);
 
     fProxy.reset(args.fProxy);
 
@@ -33,11 +38,9 @@ GrPipeline::GrPipeline(const InitArgs& args,
     }
 
     fWindowRectsState = appliedClip.windowRectsState();
-    if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
+    if (!fUserStencilSettings->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
     }
-
-    fUserStencilSettings = args.fUserStencil;
 
     fXferProcessor = processors.refXferProcessor();
 

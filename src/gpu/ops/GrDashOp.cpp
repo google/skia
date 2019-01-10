@@ -620,7 +620,7 @@ private:
             }
             rectIndex++;
         }
-        uint32_t pipelineFlags = 0;
+        GrPipeline::Flags pipelineFlags = GrPipeline::kNone_Flag;
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }

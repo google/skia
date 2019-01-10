@@ -44,7 +44,10 @@ protected:
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
     GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
-    inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
+    inline GrPipeline::Flags pipelineFlags() {
+        return (GrAATypeIsHW(fAAType))
+                ? GrPipeline::kHWAntialias_Flag : GrPipeline::kNone_Flag;
+    }
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
                                                         const GrAppliedClip* clip) {
         bool isMixedSamples = GrAAType::kMixedSamples == fAAType;

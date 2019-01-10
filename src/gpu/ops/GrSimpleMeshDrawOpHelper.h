@@ -96,7 +96,7 @@ public:
     /** Makes a pipeline that consumes the processor set and the op's applied clip. */
     PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target* target,
                                               int numPrimitiveProcessorTextures = 0) {
-        return this->internalMakePipeline(target, this->pipelineInitArgs(target),
+        return this->internalMakePipeline(target, &GrUserStencilSettings::kUnused,
                                           numPrimitiveProcessorTextures);
     }
 
@@ -125,17 +125,13 @@ public:
     }
 
 protected:
-    uint32_t pipelineFlags() const { return fPipelineFlags; }
-
-    GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
-
     PipelineAndFixedDynamicState internalMakePipeline(GrMeshDrawOp::Target*,
-                                                      const GrPipeline::InitArgs&,
+                                                      const GrUserStencilSettings*,
                                                       int numPrimitiveProcessorTextures);
 
 private:
     GrProcessorSet* fProcessors;
-    unsigned fPipelineFlags : 8;
+    GrPipeline::Flags fPipelineFlags : 8;
     unsigned fAAType : 2;
     unsigned fRequiresDstTexture : 1;
     unsigned fUsesLocalCoords : 1;

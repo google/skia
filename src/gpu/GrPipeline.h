@@ -41,6 +41,7 @@ public:
     /// @name Creation
 
     enum Flags {
+        kNone_Flag = 0,
         /**
          * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
          * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
@@ -51,15 +52,6 @@ public:
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
         kSnapVerticesToPixelCenters_Flag = 0x2,
-    };
-
-    struct InitArgs {
-        uint32_t fFlags = 0;
-        const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrRenderTargetProxy* fProxy = nullptr;
-        const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
-        GrXferProcessor::DstProxy fDstProxy;
     };
 
     /**
@@ -90,14 +82,29 @@ public:
         GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
+    struct InitArgs {
+        uint32_t fFlags = 0;
+        GrRenderTargetProxy* fProxy = nullptr;
+        const GrCaps* fCaps = nullptr;
+        GrResourceProvider* fResourceProvider = nullptr;
+        GrXferProcessor::DstProxy fDstProxy;
+    };
+
+    class QueryInitArgs {
+    public:
+        virtual void queryPipelineInitArgs(InitArgs*, Flags) const = 0;
+        virtual ~QueryInitArgs() {}
+    };
+
+    GrPipeline(const QueryInitArgs*, GrProcessorSet&&, GrAppliedClip&&, Flags = kNone_Flag,
+               const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
      * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
     GrPipeline(GrRenderTargetProxy*, GrScissorTest, SkBlendMode);
-
-    GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
     GrPipeline(const GrPipeline&) = delete;
     GrPipeline& operator=(const GrPipeline&) = delete;
@@ -233,5 +240,7 @@ private:
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;
 };
+
+GR_MAKE_BITFIELD_OPS(GrPipeline::Flags)
 
 #endif

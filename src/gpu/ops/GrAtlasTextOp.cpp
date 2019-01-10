@@ -302,8 +302,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
     GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
-    static const uint32_t kPipelineFlags = 0;
-    auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
+    auto pipe = target->makePipeline(GrPipeline::kNone_Flag, std::move(fProcessors),
                                      target->detachAppliedClip(), kMaxTextures);
     for (unsigned i = 0; i < numActiveProxies; ++i) {
         pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();

@@ -399,14 +399,9 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         return;  // Setup failed.
     }
 
-    GrPipeline::InitArgs initArgs;
-    initArgs.fProxy = flushState->drawOpArgs().fProxy;
-    initArgs.fCaps = &flushState->caps();
-    initArgs.fResourceProvider = flushState->resourceProvider();
-    initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline pipeline(flushState, std::move(fProcessors), std::move(clip));
 
     int baseInstance = fBaseInstance;
     SkASSERT(baseInstance >= 0);  // Make sure setupResources() has been called.

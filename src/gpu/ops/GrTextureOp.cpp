@@ -383,12 +383,9 @@ private:
                 std::move(fTextureColorSpaceXform));
 
         GrPipeline::InitArgs args;
-        args.fProxy = target->proxy();
-        args.fCaps = &target->caps();
-        args.fResourceProvider = target->resourceProvider();
-        args.fFlags = 0;
+        GrPipeline::Flags pipelineFlags = GrPipeline::kNone_Flag;
         if (aaType == GrAAType::kMSAA) {
-            args.fFlags |= GrPipeline::kHWAntialias_Flag;
+            pipelineFlags |= GrPipeline::kHWAntialias_Flag;
         }
 
         auto clip = target->detachAppliedClip();
@@ -403,8 +400,9 @@ private:
             fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
             fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
-        const auto* pipeline =
-                target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
+        const auto* pipeline = target->allocPipeline(
+                pipelineFlags, &GrUserStencilSettings::kUnused, GrProcessorSet::MakeEmptySet(),
+                std::move(clip));
 
         size_t vertexSize = gp->vertexStride();
 

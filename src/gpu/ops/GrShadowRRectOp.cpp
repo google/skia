@@ -589,8 +589,7 @@ private:
             }
         }
 
-        static const uint32_t kPipelineFlags = 0;
-        auto pipe = target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet(),
+        auto pipe = target->makePipeline(GrPipeline::kNone_Flag, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);

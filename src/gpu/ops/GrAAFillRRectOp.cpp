@@ -460,14 +460,9 @@ void GrAAFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     Processor proc(fFlags);
     SkASSERT(proc.instanceStride() == (size_t)fInstanceStride);
 
-    GrPipeline::InitArgs initArgs;
-    initArgs.fProxy = flushState->drawOpArgs().fProxy;
-    initArgs.fCaps = &flushState->caps();
-    initArgs.fResourceProvider = flushState->resourceProvider();
-    initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline pipeline(flushState, std::move(fProcessors), std::move(clip));
 
     GrMesh mesh(GrPrimitiveType::kTriangles);
     mesh.setIndexedInstanced(indexBuffer.get(), SK_ARRAY_COUNT(kIndexData), fInstanceBuffer,

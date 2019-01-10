@@ -77,6 +77,8 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
+    void queryPipelineInitArgs(GrPipeline::InitArgs*, GrPipeline::Flags) const final;
+
     void draw(sk_sp<const GrGeometryProcessor>,
               const GrPipeline*,
               const GrPipeline::FixedDynamicState*,

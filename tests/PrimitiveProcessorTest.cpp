@@ -104,7 +104,7 @@ private:
         QuadHelper helper(target, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
-        auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
+        auto pipe = target->makePipeline(GrPipeline::kNone_Flag, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }

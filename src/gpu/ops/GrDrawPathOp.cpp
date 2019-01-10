@@ -30,27 +30,15 @@ SkString GrDrawPathOp::dumpInfo() const {
 }
 #endif
 
-GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
-    static constexpr GrUserStencilSettings kCoverPass{
-            GrUserStencilSettings::StaticInit<
-                    0x0000,
-                    GrUserStencilTest::kNotEqual,
-                    0xffff,
-                    GrUserStencilOp::kZero,
-                    GrUserStencilOp::kKeep,
-                    0xffff>()
-    };
-    GrPipeline::InitArgs args;
-    if (GrAATypeIsHW(fAAType)) {
-        args.fFlags |= GrPipeline::kHWAntialias_Flag;
-    }
-    args.fUserStencil = &kCoverPass;
-    args.fProxy = state.drawOpArgs().fProxy;
-    args.fCaps = &state.caps();
-    args.fResourceProvider = state.resourceProvider();
-    args.fDstProxy = state.drawOpArgs().fDstProxy;
-    return args;
-}
+static constexpr GrUserStencilSettings kCoverPass{
+        GrUserStencilSettings::StaticInit<
+                0x0000,
+                GrUserStencilTest::kNotEqual,
+                0xffff,
+                GrUserStencilOp::kZero,
+                GrUserStencilOp::kKeep,
+                0xffff>()
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -77,8 +65,8 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrContext* context,
 void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrAppliedClip appliedClip = state->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState(appliedClip.scissorState().rect());
-    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
-                        std::move(appliedClip));
+    GrPipeline pipeline(state, this->detachProcessors(), std::move(appliedClip),
+                        this->pipelineFlags(), &kCoverPass);
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;

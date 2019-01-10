@@ -94,7 +94,8 @@ private:
 
         SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
 
-        auto pipe = target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip());
+        auto pipe = target->makePipeline(GrPipeline::kNone_Flag, std::move(fProcessors),
+                                         target->detachAppliedClip());
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 

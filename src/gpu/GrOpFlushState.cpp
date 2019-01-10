@@ -98,6 +98,15 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
     return fTokenTracker->nextTokenToFlush();
 }
 
+void GrOpFlushState::queryPipelineInitArgs(GrPipeline::InitArgs* initArgs,
+                                           GrPipeline::Flags pipelineFlags) const {
+    initArgs->fProxy = fOpArgs->fProxy;
+    initArgs->fCaps = fGpu->caps();
+    initArgs->fFlags = pipelineFlags;
+    initArgs->fResourceProvider = fResourceProvider;
+    initArgs->fDstProxy = fOpArgs->fDstProxy;
+}
+
 void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
                           const GrPipeline::FixedDynamicState* fixedDynamicState,
                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
