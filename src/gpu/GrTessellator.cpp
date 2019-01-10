@@ -146,7 +146,7 @@ void list_remove(T* t, T** head, T** tail) {
  */
 
 struct Vertex {
-  Vertex(const SkPoint& point, uint8_t alpha)
+  Vertex(const SkPoint& point, float alpha)
     : fPoint(point), fPrev(nullptr), fNext(nullptr)
     , fFirstEdgeAbove(nullptr), fLastEdgeAbove(nullptr)
     , fFirstEdgeBelow(nullptr), fLastEdgeBelow(nullptr)
@@ -167,7 +167,7 @@ struct Vertex {
     Edge*   fLeftEnclosingEdge;   // Nearest edge in the AEL left of this vertex.
     Edge*   fRightEnclosingEdge;  // Nearest edge in the AEL right of this vertex.
     Vertex* fPartner;             // Corresponding inner or outer vertex (for AA).
-    uint8_t fAlpha;
+    float   fAlpha;
 #if LOGGING_ENABLED
     float   fID;                  // Identifier used for logging.
 #endif
@@ -199,16 +199,16 @@ inline void* emit_vertex(Vertex* v, bool emitCoverage, void* data) {
     verts.write(v->fPoint);
 
     if (emitCoverage) {
-        verts.write(GrNormalizeByteToFloat(v->fAlpha));
+        verts.write(v->fAlpha);
     }
 
     return verts.fPtr;
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, bool emitCoverage, void* data) {
-    LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
-    LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
-    LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
+    LOG("emit_triangle %g (%g, %g) %g\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
+    LOG("              %g (%g, %g) %g\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
+    LOG("              %g (%g, %g) %g\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
     data = emit_vertex(v0, emitCoverage, data);
     data = emit_vertex(v1, emitCoverage, data);
@@ -395,7 +395,7 @@ struct Edge {
     void recompute() {
         fLine = Line(fTop, fBottom);
     }
-    bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const {
+    bool intersect(const Edge& other, SkPoint* p, float* alpha = nullptr) const {
         LOG("intersecting %g -> %g with %g -> %g\n",
                fTop->fID, fBottom->fID,
                other.fTop->fID, other.fBottom->fID);
@@ -427,9 +427,9 @@ struct Edge {
                 double t = tNumer / denom;
                 *alpha = (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha;
             } else if (fType == Type::kOuter && other.fType == Type::kOuter) {
-                *alpha = 0;
+                *alpha = 0.0f;
             } else {
-                *alpha = 255;
+                *alpha = 1.0f;
             }
         }
         return true;
@@ -466,14 +466,14 @@ struct EdgeList {
 };
 
 struct Event {
-    Event(Edge* edge, bool isOuterBoundary, const SkPoint& point, uint8_t alpha)
+    Event(Edge* edge, bool isOuterBoundary, const SkPoint& point, float alpha)
       : fEdge(edge), fIsOuterBoundary(isOuterBoundary), fPoint(point), fAlpha(alpha)
       , fPrev(nullptr), fNext(nullptr) {
     }
     Edge* fEdge;
     bool  fIsOuterBoundary;
     SkPoint fPoint;
-    uint8_t fAlpha;
+    float fAlpha;
     Event* fPrev;
     Event* fNext;
     void apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc);
@@ -489,9 +489,9 @@ void create_event(Edge* e, bool isOuterBoundary, EventList* events, SkArenaAlloc
     Edge bisector1(e->fTop, e->fTop->fPartner, 1, Edge::Type::kConnector);
     Edge bisector2(e->fBottom, e->fBottom->fPartner, 1, Edge::Type::kConnector);
     SkPoint p;
-    uint8_t alpha;
+    float alpha;
     if (bisector1.intersect(bisector2, &p, &alpha)) {
-        LOG("found overlap edge %g -> %g, will collapse to %g,%g alpha %d\n",
+        LOG("found overlap edge %g -> %g, will collapse to %g,%g alpha %g\n",
             e->fTop->fID, e->fBottom->fID, p.fX, p.fY, alpha);
         e->fEvent = alloc.make<Event>(e, isOuterBoundary, p, alpha);
         events->insert(e->fEvent);
@@ -669,7 +669,7 @@ Poly* new_poly(Poly** head, Vertex* v, int winding, SkArenaAlloc& alloc) {
 }
 
 void append_point_to_contour(const SkPoint& p, VertexList* contour, SkArenaAlloc& alloc) {
-    Vertex* v = alloc.make<Vertex>(p, 255);
+    Vertex* v = alloc.make<Vertex>(p, 1.0f);
 #if LOGGING_ENABLED
     static float gID = 0.0f;
     v->fID = gID++;
@@ -1166,7 +1166,7 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
     mesh->remove(src);
 }
 
-Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
+Vertex* create_sorted_vertex(const SkPoint& p, float alpha, VertexList* mesh,
                              Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
     Vertex* prevV = reference;
     while (prevV && c.sweep_lt(p, prevV->fPoint)) {
@@ -1223,7 +1223,7 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
         return false;
     }
     SkPoint p;
-    uint8_t alpha;
+    float alpha;
     if (left->intersect(*right, &p, &alpha) && p.isFinite()) {
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
@@ -1259,7 +1259,7 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
                 if (line1.intersect(line2, &p)) {
                     LOG("synthesizing partner (%g,%g) for intersection vertex %g\n",
                         p.fX, p.fY, v->fID);
-                    v->fPartner = alloc.make<Vertex>(p, 255 - v->fAlpha);
+                    v->fPartner = alloc.make<Vertex>(p, 1.0f - v->fAlpha);
                 }
             }
         }
@@ -1417,9 +1417,9 @@ void merge_sort(VertexList* vertices) {
 void dump_mesh(const VertexList& mesh) {
 #if LOGGING_ENABLED
     for (Vertex* v = mesh.fHead; v; v = v->fNext) {
-        LOG("vertex %g (%g, %g) alpha %d", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+        LOG("vertex %g (%g, %g) alpha %g", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
         if (Vertex* p = v->fPartner) {
-            LOG(", partner %g (%g, %g) alpha %d\n", p->fID, p->fPoint.fX, p->fPoint.fY, p->fAlpha);
+            LOG(", partner %g (%g, %g) alpha %g\n", p->fID, p->fPoint.fX, p->fPoint.fY, p->fAlpha);
         } else {
             LOG(", null partner\n");
         }
@@ -1482,7 +1482,7 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
         Edge* rightEnclosingEdge;
         bool restartChecks;
         do {
-            LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+            LOG("\nvertex %g: (%g,%g), alpha %g\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
             find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
             v->fLeftEnclosingEdge = leftEnclosingEdge;
@@ -1536,7 +1536,7 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             continue;
         }
 #if LOGGING_ENABLED
-        LOG("\nvertex %g: (%g,%g), alpha %d\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+        LOG("\nvertex %g: (%g,%g), alpha %g\n", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
 #endif
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
@@ -1768,7 +1768,7 @@ void Event::apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     Vertex* top = fEdge->fTop;
     Vertex* bottom = fEdge->fBottom;
     Vertex* dest = create_sorted_vertex(fPoint, fAlpha, mesh, fEdge->fTop, c, alloc);
-    LOG("collapsing edge %g -> %g to %g (%g, %g) alpha %d\n",
+    LOG("collapsing edge %g -> %g to %g (%g, %g) alpha %g\n",
         top->fID, bottom->fID, dest->fID, fPoint.fX, fPoint.fY, fAlpha);
     reconnect_all_overlap_edges(top, dest, fEdge, c);
     reconnect_all_overlap_edges(bottom, dest, fEdge, c);
@@ -1956,10 +1956,10 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                     innerPoint1.fX, innerPoint1.fY, innerPoint2.fX, innerPoint2.fY);
                 LOG("outer (%g, %g), (%g, %g)\n",
                     outerPoint1.fX, outerPoint1.fY, outerPoint2.fX, outerPoint2.fY);
-                Vertex* innerVertex1 = alloc.make<Vertex>(innerPoint1, 255);
-                Vertex* innerVertex2 = alloc.make<Vertex>(innerPoint2, 255);
-                Vertex* outerVertex1 = alloc.make<Vertex>(outerPoint1, 0);
-                Vertex* outerVertex2 = alloc.make<Vertex>(outerPoint2, 0);
+                Vertex* innerVertex1 = alloc.make<Vertex>(innerPoint1, 1.0f);
+                Vertex* innerVertex2 = alloc.make<Vertex>(innerPoint2, 1.0f);
+                Vertex* outerVertex1 = alloc.make<Vertex>(outerPoint1, 0.0f);
+                Vertex* outerVertex2 = alloc.make<Vertex>(outerPoint2, 0.0f);
                 innerVertex1->fPartner = outerVertex1;
                 innerVertex2->fPartner = outerVertex2;
                 outerVertex1->fPartner = innerVertex1;
@@ -1977,8 +1977,8 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
             } else {
                 LOG("inner (%g, %g), ", innerPoint.fX, innerPoint.fY);
                 LOG("outer (%g, %g)\n", outerPoint.fX, outerPoint.fY);
-                Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 255);
-                Vertex* outerVertex = alloc.make<Vertex>(outerPoint, 0);
+                Vertex* innerVertex = alloc.make<Vertex>(innerPoint, 1.0f);
+                Vertex* outerVertex = alloc.make<Vertex>(outerPoint, 0.0f);
                 innerVertex->fPartner = outerVertex;
                 outerVertex->fPartner = innerVertex;
                 if (!inversion(innerVertices.fTail, innerVertex, prevEdge, c)) {
