@@ -8,6 +8,7 @@
 #include "SkSGTransform.h"
 
 #include "SkCanvas.h"
+#include "SkSGTransformPriv.h"
 
 namespace sksg {
 
@@ -30,21 +31,22 @@ public:
         this->unobserveInval(fB);
     }
 
+protected:
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
+        fA->revalidate(ic, ctm);
+        fB->revalidate(ic, ctm);
+
+        fComposed.setConcat(TransformPriv::AsMatrix44(fA),
+                            TransformPriv::AsMatrix44(fB));
+        return SkRect::MakeEmpty();
+    }
+
     SkMatrix asMatrix() const override {
         return fComposed;
     }
 
     SkMatrix44 asMatrix44() const override {
         return fComposed;
-    }
-
-protected:
-    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
-        fA->revalidate(ic, ctm);
-        fB->revalidate(ic, ctm);
-
-        fComposed.setConcat(fA->asMatrix44(), fB->asMatrix44());
-        return SkRect::MakeEmpty();
     }
 
 private:
@@ -115,7 +117,7 @@ TransformEffect::~TransformEffect() {
 }
 
 void TransformEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    const auto m = fTransform->asMatrix();
+    const auto m = TransformPriv::AsMatrix(fTransform);
     SkAutoCanvasRestore acr(canvas, !m.isIdentity());
     canvas->concat(m);
     this->INHERITED::onRender(canvas, ctx);
@@ -127,7 +129,7 @@ SkRect TransformEffect::onRevalidate(InvalidationController* ic, const SkMatrix&
     // We don't care about matrix reval results.
     fTransform->revalidate(ic, ctm);
 
-    const auto m = fTransform->asMatrix();
+    const auto m = TransformPriv::AsMatrix(fTransform);
     auto bounds = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, m));
     m.mapRect(&bounds);
 

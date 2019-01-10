@@ -8,6 +8,7 @@
 #include "SkSGGeometryTransform.h"
 
 #include "SkCanvas.h"
+#include "SkSGTransformPriv.h"
 
 namespace sksg {
 
@@ -36,7 +37,7 @@ SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatri
 
     // We don't care about matrix reval results.
     fTransform->revalidate(ic, ctm);
-    const auto m = fTransform->asMatrix();
+    const auto m = TransformPriv::AsMatrix(fTransform);
 
     auto bounds = fChild->revalidate(ic, ctm);
     fTransformedPath = fChild->asPath();

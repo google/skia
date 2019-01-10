@@ -23,14 +23,15 @@ public:
     // Compose T = A x B
     static sk_sp<Transform> MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b);
 
-    // TODO: hide these from public API?
-    virtual SkMatrix   asMatrix  () const = 0;
-    virtual SkMatrix44 asMatrix44() const = 0;
-
 protected:
     Transform();
 
+    virtual SkMatrix   asMatrix  () const = 0;
+    virtual SkMatrix44 asMatrix44() const = 0;
+
 private:
+    friend class TransformPriv;
+
     using INHERITED = Node;
 };
 
@@ -43,13 +44,13 @@ public:
 
     SG_ATTRIBUTE(Matrix, SkMatrix, fMatrix)
 
-    SkMatrix   asMatrix  () const override;
-    SkMatrix44 asMatrix44() const override;
-
 protected:
     explicit Matrix(const SkMatrix&);
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+    SkMatrix   asMatrix  () const override;
+    SkMatrix44 asMatrix44() const override;
 
 private:
     SkMatrix fMatrix;
@@ -66,13 +67,13 @@ public:
 
     SG_ATTRIBUTE(Matrix, SkMatrix44, fMatrix)
 
-    SkMatrix   asMatrix  () const override;
-    SkMatrix44 asMatrix44() const override;
-
 protected:
     explicit Matrix44(const SkMatrix44&);
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+    SkMatrix   asMatrix  () const override;
+    SkMatrix44 asMatrix44() const override;
 
 private:
     SkMatrix44 fMatrix;
