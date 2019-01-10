@@ -132,9 +132,9 @@ public:
         : config(conf), document(doc), pageCanvas(nullptr) {
         white_paint.setColor(SK_ColorWHITE);
         glyph_paint.setColor(SK_ColorBLACK);
-        glyph_paint.setFlags(SkPaint::kAntiAlias_Flag |
-                             SkPaint::kSubpixelText_Flag);
+        glyph_paint.setAntiAlias(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        font.setSubpixel(true);
         font.setSize(SkDoubleToScalar(config->font_size.value));
     }
 

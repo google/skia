@@ -450,6 +450,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawPoints(mode, count, pts, *paint);
             }
         } break;
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
         case DRAW_POS_TEXT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text(reader, paint);
@@ -519,6 +520,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
+#endif
         case DRAW_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             SkRect rect;
@@ -570,6 +572,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->private_draw_shadow_rec(path, rec);
         } break;
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
         case DRAW_TEXT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text(reader, paint);
@@ -583,6 +586,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                        x, y, SkFont::LEGACY_ExtractFromPaint(*paint), *paint);
             }
         } break;
+#endif
         case DRAW_TEXT_BLOB: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkTextBlob* blob = fPictureData->getTextBlob(reader);
@@ -594,6 +598,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawTextBlob(blob, x, y, *paint);
             }
         } break;
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
         case DRAW_TEXT_TOP_BOTTOM: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text(reader, paint);
@@ -642,6 +647,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawTextBlob(blob, 0, 0, *paint);
             }
         } break;
+#endif
         case DRAW_VERTICES_OBJECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);

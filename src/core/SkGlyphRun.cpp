@@ -165,8 +165,7 @@ void SkGlyphRunBuilder::drawTextUTF8(const SkPaint& paint, const SkFont& font, c
     auto glyphIDs = textToGlyphIDs(font, bytes, byteLength, kUTF8_SkTextEncoding);
     if (!glyphIDs.empty()) {
         this->initialize(glyphIDs.size());
-        this->simplifyDrawText(SkFont::LEGACY_ExtractFromPaint(paint),
-                               glyphIDs, origin, fPositions);
+        this->simplifyDrawText(font, glyphIDs, origin, fPositions);
     }
 
     this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));

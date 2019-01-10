@@ -439,28 +439,35 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('L', "Paint", "Subpixel Antialias Mode", [this]() {
-        if (!(fPaintOverrides.fFlags & SkPaint::kLCDRenderText_Flag)) {
-            fPaintOverrides.fFlags |= SkPaint::kLCDRenderText_Flag;
-            fPaint.setLCDRenderText(false);
+        if (!fFontOverrides.fEdging) {
+            fFontOverrides.fEdging = true;
+            fFont.setEdging(SkFont::Edging::kAlias);
         } else {
-            if (!fPaint.isLCDRenderText()) {
-                fPaint.setLCDRenderText(true);
-            } else {
-                fPaintOverrides.fFlags &= ~SkPaint::kLCDRenderText_Flag;
+            switch (fFont.getEdging()) {
+                case SkFont::Edging::kAlias:
+                    fFont.setEdging(SkFont::Edging::kAntiAlias);
+                    break;
+                case SkFont::Edging::kAntiAlias:
+                    fFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+                    break;
+                case SkFont::Edging::kSubpixelAntiAlias:
+                    fFont.setEdging(SkFont::Edging::kAlias);
+                    fFontOverrides.fEdging = false;
+                    break;
             }
         }
         this->updateTitle();
         fWindow->inval();
     });
     fCommands.addCommand('S', "Paint", "Subpixel Position Mode", [this]() {
-        if (!(fPaintOverrides.fFlags & SkPaint::kSubpixelText_Flag)) {
-            fPaintOverrides.fFlags |= SkPaint::kSubpixelText_Flag;
-            fPaint.setSubpixelText(false);
+        if (!fFontOverrides.fSubpixel) {
+            fFontOverrides.fSubpixel = true;
+            fFont.setSubpixel(false);
         } else {
-            if (!fPaint.isSubpixelText()) {
-                fPaint.setSubpixelText(true);
+            if (!fFont.isSubpixel()) {
+                fFont.setSubpixel(true);
             } else {
-                fPaintOverrides.fFlags &= ~SkPaint::kSubpixelText_Flag;
+                fFontOverrides.fSubpixel = false;
             }
         }
         this->updateTitle();
@@ -702,6 +709,7 @@ void Viewer::updateTitle() {
 
     paintFlag(SkPaint::kAntiAlias_Flag, &SkPaint::isAntiAlias, "Antialias", "Alias");
     paintFlag(SkPaint::kDither_Flag, &SkPaint::isDither, "DITHER", "No Dither");
+#if 0
     paintFlag(SkPaint::kFakeBoldText_Flag, &SkPaint::isFakeBoldText, "Fake Bold", "No Fake Bold");
     paintFlag(SkPaint::kLinearText_Flag, &SkPaint::isLinearText, "Linear Text", "Non-Linear Text");
     paintFlag(SkPaint::kSubpixelText_Flag, &SkPaint::isSubpixelText, "Subpixel Text", "Pixel Text");
@@ -710,6 +718,7 @@ void Viewer::updateTitle() {
               "Bitmap Text", "No Bitmap Text");
     paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
               "Force Autohint", "No Force Autohint");
+#endif
 
     if (fFontOverrides.fHinting) {
         switch (fFont.getHinting()) {

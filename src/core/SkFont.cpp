@@ -490,6 +490,7 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
 
 #include "SkPaint.h"
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
     paint->setTypeface(fTypeface);
     paint->setTextSize(fSize);
@@ -551,6 +552,7 @@ void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
     }
     this->setEdging(edging);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

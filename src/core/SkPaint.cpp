@@ -212,6 +212,7 @@ void SkPaint::setDither(bool doDither) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doDither, kDither_Flag));
 }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 void SkPaint::setSubpixelText(bool doSubpixel) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doSubpixel, kSubpixelText_Flag));
 }
@@ -235,6 +236,7 @@ void SkPaint::setLinearText(bool doLinearText) {
 void SkPaint::setFakeBoldText(bool doFakeBold) {
     this->setFlags(set_clear_mask(fBitfields.fFlags, doFakeBold, kFakeBoldText_Flag));
 }
+#endif
 
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
