@@ -37,6 +37,8 @@ public:
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
 
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const final;
+
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
         difference is that the client doesn't have the backend texture on the gpu yet but they know

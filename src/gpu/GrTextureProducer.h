@@ -109,6 +109,7 @@ public:
     bool isAlphaOnly() const { return fIsAlphaOnly; }
     virtual SkAlphaType alphaType() const = 0;
     virtual SkColorSpace* colorSpace() const = 0;
+    virtual SkColorSpace* targetColorSpace() const { return nullptr; }
 
 protected:
     friend class GrTextureProducer_TestAccess;
