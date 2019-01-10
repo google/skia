@@ -78,10 +78,6 @@ public:
     GrBackendFormat getBackendFormatFromGrColorType(GrColorType ct,
                                                     GrSRGBEncoded srgbEncoded) const override;
 
-    bool performPartialClearsAsDraws() const override {
-        return true;
-    }
-
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
 

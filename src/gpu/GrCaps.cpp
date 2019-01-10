@@ -38,6 +38,9 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
+    fPerformPartialClearsAsDraws = false;
+    fPerformColorClearsAsDraws = false;
+    fPerformStencilClearsAsDraws = false;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
@@ -86,6 +89,17 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         // SkASSERT(!fBlacklistCoverageCounting);
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
+        SkASSERT(!fPerformColorClearsAsDraws);
+        SkASSERT(!fPerformStencilClearsAsDraws);
+        // Don't check the partial-clear workaround, since that is a backend limitation, not a
+        // driver workaround (it just so happens the fallbacks are the same).
+    }
+    if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfClear) {
+        fPerformColorClearsAsDraws = false;
+        fPerformStencilClearsAsDraws = false;
+    } else if (GrContextOptions::Enable::kYes == options.fUseDrawInsteadOfClear) {
+        fPerformColorClearsAsDraws = true;
+        fPerformStencilClearsAsDraws = true;
     }
 
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
@@ -186,6 +200,10 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Half float vertex attribute support", fHalfFloatVertexAttributeSupport);
     writer->appendBool("Specify GeometryProcessor textures as a dynamic state array",
                        fDynamicStateArrayGeometryProcessorTextureSupport);
+    writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
+    writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
+    writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
+    writer->appendBool("Clamp-to-border", fClampToBorderSupport);
 
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);

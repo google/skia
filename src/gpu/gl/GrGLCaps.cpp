@@ -61,8 +61,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
-    fUseDrawToClearColor = false;
-    fUseDrawToClearStencilClip = false;
     fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
@@ -1155,8 +1153,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
     writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
-    writer->appendBool("Draw To clear color", fUseDrawToClearColor);
-    writer->appendBool("Draw To clear stencil clip", fUseDrawToClearStencilClip);
+
     writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
@@ -2428,14 +2425,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
         (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
          ctxInfo.driver() != kChromium_GrGLDriver)) {
-        fUseDrawToClearColor = true;
+        fPerformColorClearsAsDraws = true;
     }
 #endif
 
     // A lot of GPUs have trouble with full screen clears (skbug.com/7195)
     if (kAMDRadeonHD7xxx_GrGLRenderer == ctxInfo.renderer() ||
         kAMDRadeonR9M4xx_GrGLRenderer == ctxInfo.renderer()) {
-        fUseDrawToClearColor = true;
+        fPerformColorClearsAsDraws = true;
     }
 
 #ifdef SK_BUILD_FOR_MAC
@@ -2447,7 +2444,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Retina MBP Early 2015 with Iris 6100. It is possibly fixed on earlier drivers as well.
     if (kIntel_GrGLVendor == ctxInfo.vendor() &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(10, 30, 12)) {
-        fUseDrawToClearColor = true;
+        fPerformColorClearsAsDraws = true;
     }
 #endif
 
@@ -2456,21 +2453,21 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620
     // but only for D3D11 ANGLE.
     if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend()) {
-        fUseDrawToClearColor = true;
+        fPerformColorClearsAsDraws = true;
     }
 
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||
         kAdreno4xx_other_GrGLRenderer == ctxInfo.renderer()) {
         // This is known to be fixed sometime between driver 145.0 and 219.0
         if (ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0, 0)) {
-            fUseDrawToClearStencilClip = true;
+            fPerformStencilClearsAsDraws = true;
         }
         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
     }
 
     if (fDriverBugWorkarounds.gl_clear_broken) {
-        fUseDrawToClearColor = true;
-        fUseDrawToClearStencilClip = true;
+        fPerformColorClearsAsDraws = true;
+        fPerformStencilClearsAsDraws = true;
     }
 
     // This was reproduced on the following configurations:
@@ -2755,17 +2752,10 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fClearToBoundaryValuesIsBroken);
         SkASSERT(0 == fMaxInstancesPerDrawWithoutCrashing);
         SkASSERT(!fDrawArraysBaseVertexIsBroken);
-        SkASSERT(!fUseDrawToClearColor);
-        SkASSERT(!fUseDrawToClearStencilClip);
         SkASSERT(!fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
         SkASSERT(!fUseDrawInsteadOfAllRenderTargetWrites);
         SkASSERT(!fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines);
         SkASSERT(!fDetachStencilFromMSAABuffersBeforeReadPixels);
-    }
-    if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfGLClear) {
-        fUseDrawToClearColor = false;
-    } else if (GrContextOptions::Enable::kYes == options.fUseDrawInsteadOfGLClear) {
-        fUseDrawToClearColor = true;
     }
     if (options.fDoManualMipmapping) {
         fDoManualMipmapping = true;
