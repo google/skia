@@ -27,10 +27,6 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
-#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-#define SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-#endif
-
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
