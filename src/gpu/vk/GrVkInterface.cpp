@@ -26,6 +26,10 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     if (getProc == nullptr) {
         return;
     }
+
+    // Determine API version for device-level Vulkan functionality.
+    uint32_t usableDeviceApiVersion = std::min(instanceVersion, physicalDeviceVersion);
+
     // Global/Loader Procs.
     ACQUIRE_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateInstanceExtensionProperties, VK_NULL_HANDLE, VK_NULL_HANDLE);
@@ -168,7 +172,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     ACQUIRE_PROC(CmdExecuteCommands, VK_NULL_HANDLE, device);
 
     // Functions for VK_KHR_get_physical_device_properties2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(GetPhysicalDeviceFeatures2, instance, VK_NULL_HANDLE);
         ACQUIRE_PROC(GetPhysicalDeviceProperties2, instance, VK_NULL_HANDLE);
         ACQUIRE_PROC(GetPhysicalDeviceFormatProperties2, instance, VK_NULL_HANDLE);
@@ -189,7 +193,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     }
 
     // Functions for VK_KHR_get_memory_requirements2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(GetImageMemoryRequirements2, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(GetBufferMemoryRequirements2, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(GetImageSparseMemoryRequirements2, VK_NULL_HANDLE, device);
@@ -200,7 +204,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     }
 
     // Functions for VK_KHR_bind_memory2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(BindBufferMemory2, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(BindImageMemory2, VK_NULL_HANDLE, device);
     } else if (extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
@@ -209,21 +213,21 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     }
 
     // Functions for VK_KHR_maintenance1 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(TrimCommandPool, VK_NULL_HANDLE, device);
     } else if (extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
         ACQUIRE_PROC_SUFFIX(TrimCommandPool, KHR, VK_NULL_HANDLE, device);
     }
 
     // Functions for VK_KHR_maintenance3 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(GetDescriptorSetLayoutSupport, VK_NULL_HANDLE, device);
     } else if (extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
         ACQUIRE_PROC_SUFFIX(GetDescriptorSetLayoutSupport, KHR, VK_NULL_HANDLE, device);
     }
 
     // Functions for VK_KHR_external_memory_capabilities
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(GetPhysicalDeviceExternalBufferProperties, instance, VK_NULL_HANDLE);
     } else if (extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
         ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceExternalBufferProperties, KHR, instance,
@@ -231,7 +235,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     }
 
     // Functions for VK_KHR_sampler_ycbcr_conversion
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(DestroySamplerYcbcrConversion, VK_NULL_HANDLE, device);
     } else if (extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
@@ -262,6 +266,9 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
 
 bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
                              const GrVkExtensions* extensions) const {
+    // Determine API version for device-level Vulkan functionality.
+    uint32_t usableDeviceApiVersion = std::min(instanceVersion, physicalDeviceVersion);
+
     // functions that are always required
     if (nullptr == fFunctions.fCreateInstance ||
         nullptr == fFunctions.fDestroyInstance ||
@@ -402,7 +409,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_get_physical_device_properties2 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetPhysicalDeviceFeatures2 ||
             nullptr == fFunctions.fGetPhysicalDeviceProperties2 ||
@@ -416,7 +423,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_get_memory_requirements2 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetImageMemoryRequirements2 ||
             nullptr == fFunctions.fGetBufferMemoryRequirements2 ||
@@ -426,7 +433,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_bind_memory2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fBindBufferMemory2 ||
             nullptr == fFunctions.fBindImageMemory2) {
@@ -435,7 +442,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_maintenance1 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fTrimCommandPool) {
             RETURN_FALSE_INTERFACE
@@ -443,7 +450,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_maintenance3 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetDescriptorSetLayoutSupport) {
             RETURN_FALSE_INTERFACE
@@ -451,7 +458,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_external_memory_capabilities
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties) {
             RETURN_FALSE_INTERFACE
@@ -459,7 +466,7 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
     }
 
     // Functions for VK_KHR_sampler_ycbcr_conversion
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+    if (usableDeviceApiVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fCreateSamplerYcbcrConversion ||
             nullptr == fFunctions.fDestroySamplerYcbcrConversion) {
