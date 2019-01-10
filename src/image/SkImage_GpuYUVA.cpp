@@ -48,6 +48,28 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, int width, int height
     memcpy(fYUVAIndices, yuvaIndices, 4*sizeof(SkYUVAIndex));
 }
 
+// For onMakeColorSpace()
+SkImage_GpuYUVA::SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace> targetCS)
+    : INHERITED(image->fContext, image->width(), image->height(), kNeedNewImageUniqueID,
+                // If an alpha channel is present we always switch to kPremul. This is because,
+                // although the planar data is always un-premul, the final interleaved RGB image
+                // is/would-be premul.
+                GetAlphaTypeFromYUVAIndices(image->fYUVAIndices), image->fColorSpace)
+    , fNumProxies(image->fNumProxies)
+    , fYUVColorSpace(image->fYUVColorSpace)
+    , fOrigin(image->fOrigin)
+    , fTargetColorSpace(targetCS) {
+        // The caller should have done this work, just verifying
+    SkDEBUGCODE(int textureCount;)
+        SkASSERT(SkYUVAIndex::AreValidIndices(image->fYUVAIndices, &textureCount));
+    SkASSERT(textureCount == fNumProxies);
+
+    for (int i = 0; i < fNumProxies; ++i) {
+        fProxies[i] = image->fProxies[i];  // we ref in this case, not move
+    }
+    memcpy(fYUVAIndices, image->fYUVAIndices, 4 * sizeof(SkYUVAIndex));
+}
+
 SkImage_GpuYUVA::~SkImage_GpuYUVA() {}
 
 SkImageInfo SkImage_GpuYUVA::onImageInfo() const {
@@ -117,6 +139,22 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
 
     // failed to generate mips
     return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    // we may need a mutex here but for now we expect usage to be in a single thread
+    if (fOnMakeColorSpaceTarget &&
+        SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {
+        return fOnMakeColorSpaceResult;
+    }
+    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(this, target));
+    if (result) {
+        fOnMakeColorSpaceTarget = target;
+        fOnMakeColorSpaceResult = result;
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

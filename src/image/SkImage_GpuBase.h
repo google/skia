@@ -49,8 +49,6 @@ public:
 
     GrTexture* onGetTexture() const final;
 
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const final;
-
     bool onIsValid(GrContext*) const final;
 
 #if GR_TEST_UTILS
