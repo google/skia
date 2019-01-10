@@ -284,6 +284,9 @@ public:
     */
     void setDither(bool dither);
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+private:
+#endif
     /** Returns true if text is converted to SkPath before drawing and measuring.
 
         Equivalent to getFlags() masked with kLinearText_Flag.
@@ -408,6 +411,9 @@ public:
         @param fakeBoldText  setting for kFakeBoldText_Flag
     */
     void setFakeBoldText(bool fakeBoldText);
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+public:
+#endif
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
