@@ -8,17 +8,16 @@
 #ifndef PromiseImageHelper_DEFINED
 #define PromiseImageHelper_DEFINED
 
-#include "GrBackendSurface.h"
 #include "SkBitmap.h"
-#include "SkCachedData.h"
-#include "SkDeferredDisplayListRecorder.h"
-#include "SkPromiseImageTexture.h"
 #include "SkTArray.h"
-#include "SkTLazy.h"
+
+#include "GrBackendSurface.h"
+#include "SkCachedData.h"
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
 class GrContext;
+class SkDeferredDisplayListRecorder;
 class SkImage;
 class SkPicture;
 struct SkYUVAIndex;
@@ -55,10 +54,6 @@ public:
 
     void uploadAllToGPU(GrContext* context);
 
-    // Change the backing store texture for half the images. (Must ensure all fulfilled images are
-    // released before calling this.).
-    void replaceEveryOtherPromiseTexture(GrContext*);
-
     // reinflate a deflated SKP, replacing all the indices with promise images.
     sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
                                   SkData* compressedPicture,
@@ -81,37 +76,16 @@ private:
 
         ~PromiseImageCallbackContext();
 
-        void setBackendTexture(const GrBackendTexture& backendTexture);
-
-        void fulfill() {
-            SkASSERT(fUnreleasedFulfills >= 0);
-            ++fUnreleasedFulfills;
-            ++fTotalFulfills;
+        void setBackendTexture(const GrBackendTexture& backendTexture) {
+            SkASSERT(!fBackendTexture.isValid());
+            fBackendTexture = backendTexture;
         }
 
-        void release() {
-            SkASSERT(fUnreleasedFulfills > 0);
-            --fUnreleasedFulfills;
-            ++fTotalReleases;
-        }
-
-        void done() {
-            ++fDoneCnt;
-            SkASSERT(fDoneCnt <= fNumImages);
-        }
-
-        void wasAddedToImage() { fNumImages++; }
-
-        SkPromiseImageTexture* promiseImageTexture() { return &fPromiseImageTexture; }
+        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
 
     private:
-        GrContext* fContext;
-        SkPromiseImageTexture fPromiseImageTexture;
-        int fNumImages = 0;
-        int fTotalFulfills = 0;
-        int fTotalReleases = 0;
-        int fUnreleasedFulfills = 0;
-        int fDoneCnt = 0;
+        GrContext*       fContext;
+        GrBackendTexture fBackendTexture;
 
         typedef SkRefCnt INHERITED;
     };
@@ -160,7 +134,7 @@ private:
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             fCallbackContexts[index] = callbackContext;
         }
-        PromiseImageCallbackContext* callbackContext(int index) const {
+        PromiseImageCallbackContext* callbackContext(int index) {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
             return fCallbackContexts[index].get();
         }
@@ -171,7 +145,7 @@ private:
 
         const GrBackendTexture& backendTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
-            return fCallbackContexts[index]->promiseImageTexture()->backendTexture();
+            return fCallbackContexts[index]->backendTexture();
         }
 
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
@@ -216,24 +190,21 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static SkPromiseImageTexture* PromiseImageFulfillProc(void* textureContext) {
+    static void PromiseImageFulfillProc(void* textureContext, GrBackendTexture* outTexture) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->promiseImageTexture()->isValid());
-        callbackContext->fulfill();
-        return callbackContext->promiseImageTexture();
+        SkASSERT(callbackContext->backendTexture().isValid());
+        *outTexture = callbackContext->backendTexture();
     }
 
-    static void PromiseImageReleaseProc(void* textureContext,
-                                        const SkPromiseImageTexture* texture) {
+    static void PromiseImageReleaseProc(void* textureContext) {
+#ifdef SK_DEBUG
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->release();
-        SkASSERT(texture == callbackContext->promiseImageTexture());
-        SkASSERT(callbackContext->promiseImageTexture()->isValid());
+        SkASSERT(callbackContext->backendTexture().isValid());
+#endif
     }
 
     static void PromiseImageDoneProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->done();
         callbackContext->unref();
     }
 
@@ -241,7 +212,6 @@ private:
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
-    void uploadImage(GrContext*, PromiseImageInfo*);
 
     // returns -1 if not found
     int findImage(SkImage* image) const;

@@ -6,7 +6,7 @@
  */
 
 #include "SkDeferredDisplayListRecorder.h"
-#include "SkMessageBus.h"
+
 #include "SkDeferredDisplayList.h"
 #include "SkSurface.h"
 #include "SkSurfaceCharacterization.h"
@@ -31,58 +31,26 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         SkColorType colorType,
         SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
-        const GrBackendFormat& backendFormat,
-        int width,
-        int height,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-        LegacyPromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext) {
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
     return nullptr;
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin imageOrigin,
-        sk_sp<SkColorSpace> imageColorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[]) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin imageOrigin,
-        sk_sp<SkColorSpace> imageColorSpace,
-        LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-        LegacyPromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[]) {
+                                                        SkYUVColorSpace yuvColorSpace,
+                                                        const GrBackendFormat yuvaFormats[],
+                                                        const SkISize yuvaSizes[],
+                                                        const SkYUVAIndex yuvaIndices[4],
+                                                        int imageWidth,
+                                                        int imageHeight,
+                                                        GrSurfaceOrigin imageOrigin,
+                                                        sk_sp<SkColorSpace> imageColorSpace,
+                                                        TextureFulfillProc textureFulfillProc,
+                                                        TextureReleaseProc textureReleaseProc,
+                                                        PromiseDoneProc promiseDoneProc,
+                                                        TextureContext textureContexts[]) {
     return nullptr;
 }
 
@@ -92,11 +60,10 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
+
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkImage_GpuYUVA.h"
-#include "SkMakeUnique.h"
-#include "SkPromiseImageTexture.h"
 #include "SkSurface_Gpu.h"
 #include "SkYUVASizeInfo.h"
 
@@ -249,10 +216,10 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         SkColorType colorType,
         SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext) {
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
     if (!fContext) {
         return nullptr;
     }
@@ -268,105 +235,8 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            std::move(colorSpace),
                                            textureFulfillProc,
                                            textureReleaseProc,
-                                           textureDoneProc,
+                                           promiseDoneProc,
                                            textureContext);
-}
-
-// Converts from the old legacy APIs based on GrBackendTexture to the new implementation based on
-// PromiseImageTexture.
-static void wrap_legacy(
-        SkDeferredDisplayListRecorder::LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-        SkDeferredDisplayListRecorder::LegacyPromiseImageTextureReleaseProc textureReleaseProc,
-        SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc textureDoneProc,
-        const SkDeferredDisplayListRecorder::PromiseImageTextureContext textureContexts[],
-        int numTextures,
-        SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc* wrappedFulfillProc,
-        SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc* wrappedReleaseProc,
-        SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc* wrappedDoneProc,
-        SkDeferredDisplayListRecorder::PromiseImageTextureContext wrappedTextureContext[]) {
-    struct WrapperContext {
-        SkDeferredDisplayListRecorder::LegacyPromiseImageTextureFulfillProc fLegacyFulfill;
-        SkDeferredDisplayListRecorder::LegacyPromiseImageTextureReleaseProc fLegacyRelease;
-        SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc fDone;
-        SkDeferredDisplayListRecorder::PromiseImageTextureContext fOriginalContext;
-        std::unique_ptr<SkPromiseImageTexture> fPromiseImageTexture;
-    };
-    *wrappedFulfillProc = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext context) {
-        auto* wc = static_cast<WrapperContext*>(context);
-        GrBackendTexture backendTexture;
-        wc->fLegacyFulfill(wc->fOriginalContext, &backendTexture);
-        wc->fPromiseImageTexture = skstd::make_unique<SkPromiseImageTexture>(backendTexture);
-        return wc->fPromiseImageTexture.get();
-    };
-    *wrappedReleaseProc = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext context,
-                             const SkPromiseImageTexture*) {
-        auto* wc = static_cast<WrapperContext*>(context);
-        wc->fLegacyRelease(wc->fOriginalContext);
-        wc->fPromiseImageTexture.reset();
-    };
-    *wrappedDoneProc = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext context) {
-        const auto* wc = static_cast<WrapperContext*>(context);
-        wc->fDone(wc->fOriginalContext);
-        SkASSERT(!wc->fPromiseImageTexture);
-        delete wc;
-    };
-    for (int i = 0; i < numTextures; ++i) {
-        wrappedTextureContext[i] = new WrapperContext{textureFulfillProc, textureReleaseProc,
-                                                      textureDoneProc, textureContexts[i], nullptr};
-    }
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
-        const GrBackendFormat& backendFormat,
-        int width,
-        int height,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-        LegacyPromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContext) {
-    if (!fContext) {
-        return nullptr;
-    }
-
-    SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc wrappedFulfillProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc wrappedReleaseProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc wrappedDoneProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureContext wrappedTextureContext;
-    if (!textureDoneProc) {
-        return nullptr;
-    }
-    if (!textureFulfillProc || !textureReleaseProc) {
-        textureDoneProc(textureContext);
-        return nullptr;
-    }
-
-    wrap_legacy(textureFulfillProc,
-                textureReleaseProc,
-                textureDoneProc,
-                &textureContext,
-                1,
-                &wrappedFulfillProc,
-                &wrappedReleaseProc,
-                &wrappedDoneProc,
-                &wrappedTextureContext);
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
-                                           backendFormat,
-                                           width,
-                                           height,
-                                           mipMapped,
-                                           origin,
-                                           colorType,
-                                           alphaType,
-                                           std::move(colorSpace),
-                                           wrappedFulfillProc,
-                                           wrappedReleaseProc,
-                                           wrappedDoneProc,
-                                           wrappedTextureContext);
 }
 
 sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
@@ -378,10 +248,10 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         int imageHeight,
         GrSurfaceOrigin imageOrigin,
         sk_sp<SkColorSpace> imageColorSpace,
-        PromiseImageTextureFulfillProc textureFulfillProc,
-        PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[]) {
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContexts[]) {
     if (!fContext) {
         return nullptr;
     }
@@ -397,66 +267,8 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                                                    std::move(imageColorSpace),
                                                    textureFulfillProc,
                                                    textureReleaseProc,
-                                                   textureDoneProc,
+                                                   promiseDoneProc,
                                                    textureContexts);
 }
 
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin imageOrigin,
-        sk_sp<SkColorSpace> imageColorSpace,
-        LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-        LegacyPromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc textureDoneProc,
-        PromiseImageTextureContext textureContexts[]) {
-    if (!fContext) {
-        return nullptr;
-    }
-
-    int numTextures;
-    bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
-
-    SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc wrappedFulfillProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc wrappedReleaseProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureDoneProc wrappedDoneProc;
-    SkDeferredDisplayListRecorder::PromiseImageTextureContext wrappedTextureContexts[4];
-    if (!textureDoneProc) {
-        return nullptr;
-    }
-    if (!valid || !textureFulfillProc || !textureReleaseProc) {
-        for (int i = 0; i < numTextures; ++i) {
-            textureDoneProc(textureContexts[i]);
-        }
-        return nullptr;
-    }
-
-    wrap_legacy(textureFulfillProc,
-                textureReleaseProc,
-                textureDoneProc,
-                textureContexts,
-                numTextures,
-                &wrappedFulfillProc,
-                &wrappedReleaseProc,
-                &wrappedDoneProc,
-                wrappedTextureContexts);
-
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
-                                                   yuvColorSpace,
-                                                   yuvaFormats,
-                                                   yuvaSizes,
-                                                   yuvaIndices,
-                                                   imageWidth,
-                                                   imageHeight,
-                                                   imageOrigin,
-                                                   std::move(imageColorSpace),
-                                                   wrappedFulfillProc,
-                                                   wrappedReleaseProc,
-                                                   wrappedDoneProc,
-                                                   wrappedTextureContexts);
-}
 #endif
