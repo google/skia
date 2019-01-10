@@ -140,7 +140,7 @@ protected:
         group->addChild(sksg::Draw::Make(fBall.objectNode, ball_paint));
 
         // Handle everything in a normalized 1x1 space.
-        fContentMatrix = sksg::Matrix::Make(
+        fContentMatrix = sksg::Matrix<SkMatrix>::Make(
             SkMatrix::MakeRectToRect(SkRect::MakeWH(1, 1),
                                      SkRect::MakeIWH(this->width(), this->height()),
                                      SkMatrix::kFill_ScaleToFit));
@@ -283,14 +283,14 @@ private:
         catcher->spd.fY = (yIntercept - catcher->pos.fY) / t;
     }
 
-    std::unique_ptr<sksg::Scene> fScene;
-    sk_sp<sksg::Matrix>          fContentMatrix;
-    Object                       fPaddle0, fPaddle1, fBall;
-    SkRandom                     fRand;
+    std::unique_ptr<sksg::Scene>  fScene;
+    sk_sp<sksg::Matrix<SkMatrix>> fContentMatrix;
+    Object                        fPaddle0, fPaddle1, fBall;
+    SkRandom                      fRand;
 
-    SkMSec                       fLastTick  = 0;
-    SkScalar                     fTimeScale = 1.0f;
-    bool                         fShowInval = false;
+    SkMSec                        fLastTick  = 0;
+    SkScalar                      fTimeScale = 1.0f;
+    bool                          fShowInval = false;
 
     typedef Sample INHERITED;
 };
