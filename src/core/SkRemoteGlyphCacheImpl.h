@@ -86,9 +86,19 @@ private:
     const SkFont* fFont{nullptr};
     SkScalerContextEffects fEffects;
 
+    class GlyphMapHashTraits {
+    public:
+        static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
+            return glyph->getPackedID();
+        }
+        static uint32_t Hash(SkPackedGlyphID glyphId) {
+            return glyphId.hash();
+        }
+    };
+
     // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
     // we cache them here.
-    SkTHashMap<SkPackedGlyphID, SkGlyph> fGlyphMap;
+    SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap;
 
     SkArenaAlloc fAlloc{256};
 };

@@ -498,14 +498,15 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 }
 
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
-    auto* glyph = fGlyphMap.find(glyphID);
-    if (glyph == nullptr) {
+    SkGlyph* glyphPtr = fGlyphMap.findOrNull(glyphID);
+    if (glyphPtr == nullptr) {
+        glyphPtr = fAlloc.make<SkGlyph>(glyphID);
+        fGlyphMap.set(glyphPtr);
         this->ensureScalerContext();
-        glyph = fGlyphMap.set(glyphID, SkGlyph{glyphID});
-        fContext->getMetrics(glyph);
+        fContext->getMetrics(glyphPtr);
     }
 
-    return *glyph;
+    return *glyphPtr;
 }
 
 void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
