@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15fd191f_4f528f9b",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-10T21:18:52Z",
+      "side": 1,
+      "message": "We will promise that SkImages can always return the contextID",
+      "revId": "50c93b40ab1fe6e6639cd75b0a067e8c6f216803",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de40eee9_1675bd53",
+        "filename": "src/effects/imagefilters/SkImageSource.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-10T21:18:52Z",
+      "side": 1,
+      "message": "special images will always have a GrContext more powerful or equal to that of the SkImages",
+      "revId": "50c93b40ab1fe6e6639cd75b0a067e8c6f216803",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
