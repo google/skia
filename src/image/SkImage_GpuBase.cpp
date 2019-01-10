@@ -256,42 +256,6 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
     return proxy->peekTexture();
 }
 
-sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
-    auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
-                                               target.get(),      fAlphaType);
-    SkASSERT(xform);
-
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
-
-    GrBackendFormat format = proxy->backendFormat().makeTexture2D();
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->contextPriv().makeDeferredRenderTargetContextWithFallback(
-            format, SkBackingFit::kExact, this->width(), this->height(),
-            proxy->config(), nullptr));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(std::move(proxy), SkMatrix::I());
-    paint.addColorFragmentProcessor(std::move(xform));
-
-    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                  SkRect::MakeIWH(this->width(), this->height()));
-    if (!renderTargetContext->asTextureProxy()) {
-        return nullptr;
-    }
-
-    // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
-                                   renderTargetContext->asTextureProxyRef(), std::move(target));
-}
-
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {
     // The base class has already checked that context isn't abandoned (if it's not nullptr)
     if (fContext->abandoned()) {
