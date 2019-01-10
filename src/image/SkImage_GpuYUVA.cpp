@@ -60,11 +60,11 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
     for (int i = 0; i < fNumProxies; ++i) {
         GrTextureProducer::CopyParams copyParams;
         int mipCount = SkMipMap::ComputeLevelCount(fProxies[i]->width(), fProxies[i]->height());
-        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->contextPriv().caps(),
+        if (mipCount && GrGpu::IsACopyNeededForMips(fContext1->contextPriv().caps(),
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
-            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), fProxies[i].get());
+            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext1.get(), fProxies[i].get());
             if (!mippedProxy) {
                 return false;
             }
@@ -79,11 +79,11 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     if (!fRGBProxy) {
         const GrBackendFormat format =
-            fContext->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            fContext1->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            fContext->contextPriv().makeDeferredRenderTargetContext(
+            fContext1->contextPriv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kExact, this->width(), this->height(),
                 kRGBA_8888_GrPixelConfig, fColorSpace, 1, GrMipMapped::kNo, fOrigin));
         if (!renderTargetContext) {
@@ -91,7 +91,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
         }
 
         const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
-        if (!RenderYUVAToRGBA(fContext.get(), renderTargetContext.get(), rect, fYUVColorSpace,
+        if (!RenderYUVAToRGBA(fContext1.get(), renderTargetContext.get(), rect, fYUVColorSpace,
                               fProxies, fYUVAIndices)) {
             return nullptr;
         }
@@ -110,7 +110,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
     }
 
     // need to generate mips for the proxy
-    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext.get(), proxy.get())) {
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(fContext1.get(), proxy.get())) {
         fRGBProxy = mippedProxy;
         return mippedProxy;
     }
@@ -206,7 +206,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
+sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(const GrCaps* caps,
                                                        SkYUVColorSpace yuvColorSpace,
                                                        const GrBackendFormat yuvaFormats[],
                                                        const SkISize yuvaSizes[],
@@ -239,7 +239,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         return nullptr;
     }
 
-    if (!context) {
+    if (!caps) {
         return nullptr;
     }
 
@@ -267,11 +267,11 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
         }
     }
 
+#if 0
     // Get lazy proxies
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        GrPixelConfig config =
-                context->contextPriv().caps()->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
+        GrPixelConfig config = caps->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
         if (config == kUnknown_GrPixelConfig) {
             return nullptr;
         }
@@ -288,5 +288,9 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(GrContext* context,
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageWidth, imageHeight,
                                        kNeedNewImageUniqueID, yuvColorSpace, proxies, numTextures,
                                        yuvaIndices, imageOrigin, std::move(imageColorSpace));
+#else
+    return nullptr;
+#endif
+
 }
 

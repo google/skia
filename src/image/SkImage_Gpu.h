@@ -61,7 +61,6 @@ public:
         called when we call the textureDoneProc. Thus when the textureDoneProc gets called the
         client is able to cleanup all GPU objects and meta data needed for the textureFulfill call.
 
-        @param context             Gpu context
         @param backendFormat       format of promised gpu texture
         @param width               width of promised gpu texture
         @param height              height of promised gpu texture
@@ -80,7 +79,7 @@ public:
         @param textureContext      state passed to textureFulfillProc and textureReleaseProc
         @return                    created SkImage, or nullptr
      */
-    static sk_sp<SkImage> MakePromiseTexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseTexture(const GrCaps* caps,
                                              const GrBackendFormat& backendFormat,
                                              int width,
                                              int height,
@@ -97,7 +96,8 @@ public:
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrContext*, SkYUVColorSpace yuvColorSpace,
                                                    const GrBackendTexture yuvaTextures[],
                                                    const SkYUVAIndex yuvaIndices[4],
-                                                   SkISize imageSize, GrSurfaceOrigin imageOrigin,
+                                                   SkISize imageSize,
+                                                   GrSurfaceOrigin imageOrigin,
                                                    GrRenderTargetContext*);
 
 private:

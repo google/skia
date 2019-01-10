@@ -1005,8 +1005,8 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, cache->hasUniqueKey(key3));
     REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
-    typedef GrUniqueKeyInvalidatedMessage Msg;
-    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage> Bus;
+    typedef GrUniqueKeyInvalidatedMessage17 Msg;
+    typedef SkMessageBus<GrUniqueKeyInvalidatedMessage17> Bus;
 
     // Invalidate two of the three, they should be purged and no longer accessible via their keys.
     Bus::Post(Msg(key1, context->uniqueID()));

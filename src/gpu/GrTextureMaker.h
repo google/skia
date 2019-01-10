@@ -39,8 +39,6 @@ protected:
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                           AllowedTexGenType genType) = 0;
 
-    GrContext* context() const { return fContext; }
-
 private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
                                                      bool willBeMipped,

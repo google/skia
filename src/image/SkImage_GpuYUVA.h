@@ -94,7 +94,7 @@ public:
         @param textureContext      state passed to textureFulfillProc and textureReleaseProc
         @return                    created SkImage, or nullptr
      */
-    static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseYUVATexture(const GrCaps* caps,
                                                  SkYUVColorSpace yuvColorSpace,
                                                  const GrBackendFormat yuvaFormats[],
                                                  const SkISize yuvaSizes[],

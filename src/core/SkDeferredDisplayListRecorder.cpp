@@ -62,8 +62,6 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
 #include "GrTexture.h"
 
 #include "SkGr.h"
-#include "SkImage_Gpu.h"
-#include "SkImage_GpuYUVA.h"
 #include "SkSurface_Gpu.h"
 #include "SkYUVASizeInfo.h"
 
@@ -205,70 +203,6 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     // SkSurface to be regenerated for each DDL.
     fSurface = nullptr;
     return ddl;
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
-        const GrBackendFormat& backendFormat,
-        int width,
-        int height,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        TextureFulfillProc textureFulfillProc,
-        TextureReleaseProc textureReleaseProc,
-        PromiseDoneProc promiseDoneProc,
-        TextureContext textureContext) {
-    if (!fContext) {
-        return nullptr;
-    }
-
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
-                                           backendFormat,
-                                           width,
-                                           height,
-                                           mipMapped,
-                                           origin,
-                                           colorType,
-                                           alphaType,
-                                           std::move(colorSpace),
-                                           textureFulfillProc,
-                                           textureReleaseProc,
-                                           promiseDoneProc,
-                                           textureContext);
-}
-
-sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin imageOrigin,
-        sk_sp<SkColorSpace> imageColorSpace,
-        TextureFulfillProc textureFulfillProc,
-        TextureReleaseProc textureReleaseProc,
-        PromiseDoneProc promiseDoneProc,
-        TextureContext textureContexts[]) {
-    if (!fContext) {
-        return nullptr;
-    }
-
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
-                                                   yuvColorSpace,
-                                                   yuvaFormats,
-                                                   yuvaSizes,
-                                                   yuvaIndices,
-                                                   imageWidth,
-                                                   imageHeight,
-                                                   imageOrigin,
-                                                   std::move(imageColorSpace),
-                                                   textureFulfillProc,
-                                                   textureReleaseProc,
-                                                   promiseDoneProc,
-                                                   textureContexts);
 }
 
 #endif

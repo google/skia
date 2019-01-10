@@ -12,6 +12,7 @@
 #include "SkTArray.h"
 
 #include "GrBackendSurface.h"
+#include "GrContext.h"
 #include "SkCachedData.h"
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
@@ -46,7 +47,7 @@ struct SkYUVAIndex;
 // all the replaying is complete. This will pin the GrBackendTextures in VRAM.
 class DDLPromiseImageHelper {
 public:
-    DDLPromiseImageHelper() { }
+    DDLPromiseImageHelper(sk_sp<GrContextThreadSafeProxy> c) : fThreadSafeContext(c) { }
     ~DDLPromiseImageHelper();
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
@@ -55,12 +56,13 @@ public:
     void uploadAllToGPU(GrContext* context);
 
     // reinflate a deflated SKP, replacing all the indices with promise images.
-    sk_sp<SkPicture> reinflateSKP(SkDeferredDisplayListRecorder*,
-                                  SkData* compressedPicture,
+    sk_sp<SkPicture> reinflateSKP(SkData* compressedPicture,
                                   SkTArray<sk_sp<SkImage>>* promiseImages) const;
 
     // Remove this class' refs on the PromiseImageCallbackContexts
     void reset() { fImageInfo.reset(); }
+
+    GrContextThreadSafeProxy* foo() const { return fThreadSafeContext.get(); }
 
 private:
     // This class acts as a proxy for a GrBackendTexture that is part of an image.
@@ -185,7 +187,6 @@ private:
     // This stack-based context allows each thread to re-inflate the image indices into
     // promise images while still using the same GrBackendTexture.
     struct PerRecorderContext {
-        SkDeferredDisplayListRecorder* fRecorder;
         const DDLPromiseImageHelper*   fHelper;
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
@@ -222,7 +223,8 @@ private:
     // returns -1 on failure
     int findOrDefineImage(SkImage* image);
 
-    SkTArray<PromiseImageInfo> fImageInfo;
+    sk_sp<GrContextThreadSafeProxy> fThreadSafeContext;
+    SkTArray<PromiseImageInfo>      fImageInfo;
 };
 
 #endif
