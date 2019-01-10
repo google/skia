@@ -88,7 +88,8 @@ public:
         typedef GpuDrawHandler INHERITED;
     };
 
-    typedef void (*DrawProc)(TestDrawable*, const GrVkDrawableInfo&);
+    typedef void (*DrawProc)(TestDrawable*, const SkMatrix&, const SkIRect&,
+                             const SkImageInfo&, const GrVkDrawableInfo&);
     typedef void (*SubmitProc)(TestDrawable*);
 
     // Exercises the exporting of a secondary command buffer from one GrContext and then importing
@@ -96,11 +97,17 @@ public:
     // GrContext.
     class DrawHandlerImport : public GpuDrawHandler {
     public:
-        DrawHandlerImport(TestDrawable* td, DrawProc drawProc, SubmitProc submitProc)
+        DrawHandlerImport(TestDrawable* td, DrawProc drawProc, SubmitProc submitProc,
+                          const SkMatrix& matrix,
+                          const SkIRect& clipBounds,
+                          const SkImageInfo& bufferInfo)
             : INHERITED()
             , fTestDrawable(td)
             , fDrawProc(drawProc)
-            , fSubmitProc(submitProc) {}
+            , fSubmitProc(submitProc)
+            , fMatrix(matrix)
+            , fClipBounds(clipBounds)
+            , fBufferInfo(bufferInfo) {}
         ~DrawHandlerImport() override {
             fSubmitProc(fTestDrawable);
         }
@@ -109,28 +116,32 @@ public:
             GrVkDrawableInfo vkInfo;
             SkAssertResult(info.getVkDrawableInfo(&vkInfo));
 
-            fDrawProc(fTestDrawable, vkInfo);
+            fDrawProc(fTestDrawable, fMatrix, fClipBounds, fBufferInfo, vkInfo);
         }
     private:
-        TestDrawable* fTestDrawable;
-        DrawProc      fDrawProc;
-        SubmitProc    fSubmitProc;
+        TestDrawable*     fTestDrawable;
+        DrawProc          fDrawProc;
+        SubmitProc        fSubmitProc;
+        const SkMatrix    fMatrix;
+        const SkIRect     fClipBounds;
+        const SkImageInfo fBufferInfo;
 
         typedef GpuDrawHandler INHERITED;
     };
 
     // Helper function to test drawing to a secondary command buffer that we imported into the
     // GrContext using a GrVkSecondaryCBDrawContext.
-    static void ImportDraw(TestDrawable* td, const GrVkDrawableInfo& info) {
-        SkImageInfo imageInfo = SkImageInfo::Make(td->fWidth, td->fHeight, kRGBA_8888_SkColorType,
-                                                  kPremul_SkAlphaType);
-
-        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fContext, imageInfo, info, nullptr);
+    static void ImportDraw(TestDrawable* td, const SkMatrix& matrix, const SkIRect& clipBounds,
+                           const SkImageInfo& bufferInfo, const GrVkDrawableInfo& info) {
+        td->fDrawContext = GrVkSecondaryCBDrawContext::Make(td->fContext, bufferInfo, info, nullptr);
         if (!td->fDrawContext) {
             return;
         }
 
         SkCanvas* canvas = td->fDrawContext->getCanvas();
+        canvas->clipRect(SkRect::Make(clipBounds));
+        canvas->setMatrix(matrix);
+
         SkIRect rect = SkIRect::MakeXYWH(td->fWidth/2, 0, td->fWidth/4, td->fHeight);
         SkPaint paint;
         paint.setColor(SK_ColorRED);
@@ -139,7 +150,7 @@ public:
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
         sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fContext, SkBudgeted::kYes,
-                                                            imageInfo);
+                                                            bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
@@ -171,13 +182,15 @@ public:
 
     std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi backendApi,
                                                          const SkMatrix& matrix,
-                                                         const SkIRect& clipBounds) override {
+                                                         const SkIRect& clipBounds,
+                                                         const SkImageInfo& bufferInfo) override {
         if (backendApi != GrBackendApi::kVulkan) {
             return nullptr;
         }
         std::unique_ptr<GpuDrawHandler> draw;
         if (fContext) {
-            draw.reset(new DrawHandlerImport(this, ImportDraw, ImportSubmitted));
+            draw.reset(new DrawHandlerImport(this, ImportDraw, ImportSubmitted, matrix,
+                                             clipBounds, bufferInfo));
         } else {
             draw.reset(new DrawHandlerBasic(fInterface, fWidth, fHeight));
         }
