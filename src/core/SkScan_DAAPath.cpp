@@ -31,7 +31,6 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
     return;
 }
 #else
-///////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -47,23 +46,19 @@ don't ever have to worry about under/overflow.
 
 */
 
-///////////////////////////////////////////////////////////////////////////////
-
-// The following helper functions are the same as those from SkScan_AAAPath.cpp
-// except that we use SkFixed everywhere instead of SkAlpha.
 
 static inline SkFixed SkFixedMul_lowprec(SkFixed a, SkFixed b) {
     return (a >> 8) * (b >> 8);
 }
 
 // Return the alpha of a trapezoid whose height is 1
-static inline SkFixed trapezoidToAlpha(SkFixed l1, SkFixed l2) {
+static inline SkFixed trapezoid_to_alpha(SkFixed l1, SkFixed l2) {
     SkASSERT(l1 >= 0 && l2 >= 0);
     return (l1 + l2) >> 1;
 }
 
 // The alpha of right-triangle (a, a*b)
-static inline SkFixed partialTriangleToAlpha(SkFixed a, SkFixed b) {
+static inline SkFixed partial_triangle_to_alpha(SkFixed a, SkFixed b) {
     SkASSERT(a <= SK_Fixed1);
     // SkFixedMul(SkFixedMul(a, a), b) >> 1
     // return ((((a >> 8) * (a >> 8)) >> 8) * (b >> 8)) >> 1;
@@ -75,52 +70,82 @@ static inline SkFixed getPartialAlpha(SkFixed alpha, SkFixed partialMultiplier) 
     return SkFixedMul_lowprec(alpha, partialMultiplier);
 }
 
-///////////////////////////////////////////////////////////////////////////////
+template <bool kMayBePartialRow, class Deltas>
+static inline void add_coverage_delta_segment(int y,
+                                              SkFixed rowHeight,
+                                              const SkAnalyticEdge* edge,
+                                              SkFixed nextX,
+                                              Deltas* deltas) {
+    SkASSERT(0 <= rowHeight && rowHeight <= SK_Fixed1);
 
-template<bool isPartial, class Deltas>
-static inline void add_coverage_delta_segment(int y, SkFixed rowHeight, const SkAnalyticEdge* edge,
-        SkFixed nextX, Deltas* deltas) { // rowHeight=fullAlpha
-    SkASSERT(rowHeight <= SK_Fixed1 && rowHeight >= 0);
-
-    // Let's see if multiplying sign is faster than multiplying edge->fWinding.
-    // (Compiler should be able to optimize multiplication with 1/-1?)
+    // We thought multiplying by sign would be faster than by edge->fWinding.
+    // TODO(mtklein): I'm skeptical.  Try replacing sign with edge->fWinding.
     int sign = edge->fWinding == 1 ? 1 : -1;
 
     SkFixed l = SkTMin(edge->fX, nextX);
-    SkFixed r = edge->fX + nextX - l;
-    int     L = SkFixedFloorToInt(l);
-    int     R = SkFixedCeilToInt(r);
-    int     len = R - L;
+    SkFixed r = edge->fX + nextX - l;    // a.k.a. SkTMax(edge->fX, nextX)
+    SkASSERT(r == SkTMax(edge->fX, nextX));
 
-    switch (len) {
+    int L = SkFixedFloorToInt(l),
+        R = SkFixedCeilToInt (r),
+        pixelsHit = R - L;
+
+    SkASSERT(SkIntToFixed(L) <= l && l <= r && r <= SkIntToFixed(R));
+
+    switch (pixelsHit) {
+        // A few special cases for steep slopes (above y=x).
+        //
+        // The general pattern is,
+        //    - pixelsHit pixels will have partial coverage deltas
+        //    - all the rest of the coverage will go to the next pixel at x=R.
+
         case 0: {
-            deltas->addDelta(L, y, rowHeight * sign);
+            // The edge falls exactly vertically between pixels.
+            //
+            // There's no partial coverage to distribute... it all goes to the next pixel at x=R.
+            deltas->addDelta(R, y, rowHeight * sign);
             return;
         }
+
         case 1: {
-            SkFixed fixedR  = SkIntToFixed(R);
-            SkFixed alpha   = trapezoidToAlpha(fixedR - l, fixedR - r);
-            if (isPartial) {
-                alpha = getPartialAlpha(alpha, rowHeight);
+            // The edge intersects only one pixel, splitting the pixel into two trapezoids.
+            //
+            // This pixel's coverage is proportional to the area of the trapezoid under the edge,
+            // then as usual the next pixel at x=R gets a delta up to full coverage.
+            SkFixed alpha = trapezoid_to_alpha(SkIntToFixed(R) - l,
+                                               SkIntToFixed(R) - r);
+            if (kMayBePartialRow) {
+                // Note: we do sometimes see rowHeight == SK_Fixed1 when kMayBePartialRow is true.
+                // And, sadly, SkFixedMul_lowproc(alpha, SK_Fixed1) is not just alpha.  :(
+                alpha = SkFixedMul_lowproc(alpha, rowHeight);
             }
-            deltas->addDelta(L,     y,  alpha * sign);
-            deltas->addDelta(L + 1, y,  (rowHeight - alpha) * sign);
+            deltas->addDelta(L, y, (            alpha) * sign);
+            deltas->addDelta(R, y, (rowHeight - alpha) * sign);
             return;
         }
+
         case 2: {
-            SkFixed middle  = SkIntToFixed(L + 1);
-            SkFixed x1      = middle - l;
-            SkFixed x2      = r - middle;
-            SkFixed alpha1  = partialTriangleToAlpha(x1, edge->fDY);
-            SkFixed alpha2  = rowHeight - partialTriangleToAlpha(x2, edge->fDY);
-            deltas->addDelta(L,     y,  alpha1 * sign);
-            deltas->addDelta(L + 1, y,  (alpha2 - alpha1) * sign);
-            deltas->addDelta(L + 2, y,  (rowHeight - alpha2) * sign);
+            // The edge intersects two pixels, with a triangle under the edge
+            // in the first pixel, and a triangle above the edge in the second.
+            //
+            // The the first pixel gets coverage proportional to its triangle,
+            // and the second proportional to all but its triangle,
+            // then as usual the next pixel at x=R gets a delta up to full coverage.
+
+            SkFixed middle  = SkIntToFixed(L+1);
+            SkFixed alpha1  =             partial_triangle_to_alpha(middle - l, edge->fDY);
+            SkFixed alpha2  = rowHeight - partial_triangle_to_alpha(r - middle, edge->fDY);
+
+            deltas->addDelta(L  , y,  (            alpha1) * sign);
+            deltas->addDelta(L+1, y,  (alpha2    - alpha1) * sign);
+            deltas->addDelta(R  , y,  (rowHeight - alpha2) * sign);
             return;
         }
     }
 
-    // When len > 2, computations are similar to computeAlphaAboveLine in SkScan_AAAPath.cpp
+    // TODO(mtklein): learn, recomment.
+
+    // When pixelsHit > 2, computations are similar to computeAlphaAboveLine in SkScan_AAAPath.cpp
     SkFixed dY      = edge->fDY;
     SkFixed fixedL  = SkIntToFixed(L);
     SkFixed fixedR  = SkIntToFixed(R);
@@ -132,12 +157,12 @@ static inline void add_coverage_delta_segment(int y, SkFixed rowHeight, const Sk
     SkFixed alpha1  = firstH + (dY >> 1);                       // rectangle plus triangle
     deltas->addDelta(L, y, alpha0 * sign);
     deltas->addDelta(L + 1, y, (alpha1 - alpha0) * sign);
-    for(int i = 2; i < len - 1; ++i) {
+    for(int i = 2; i < pixelsHit - 1; ++i) {
         deltas->addDelta(L + i, y, dY * sign); // the increment is always a rect of height = dY
     }
 
-    SkFixed alphaR2     = alpha1 + dY * (len - 3);                      // the alpha at R - 2
-    SkFixed lastAlpha   = rowHeight - partialTriangleToAlpha(last, dY); // the alpha at R - 1
+    SkFixed alphaR2     = alpha1 + dY * (pixelsHit - 3);                   // the alpha at R - 2
+    SkFixed lastAlpha   = rowHeight - partial_triangle_to_alpha(last, dY); // the alpha at R - 1
     deltas->addDelta(R - 1, y, (lastAlpha - alphaR2) * sign);
     deltas->addDelta(R,     y, (rowHeight - lastAlpha) * sign);
 }
