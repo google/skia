@@ -466,7 +466,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     SkAutoMalloc tmpGlyphImageStorage;
 
     if (fMaskFilter) {   // restore the prefilter bounds
-
         // need the original bounds, sans our maskfilter
         sk_sp<SkMaskFilter> mf = std::move(fMaskFilter);
         this->getMetrics(&tmpGlyph);
