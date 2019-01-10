@@ -98,14 +98,15 @@ public:
                      SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                      const SkMatrix& matrix)
         {
-            SkVector vec[2] = {
-                { SkScalarInvert(baseFrequencyX),   SkScalarInvert(baseFrequencyY)  },
-                { SkIntToScalar(tileSize.fWidth),   SkIntToScalar(tileSize.fHeight) },
-            };
-            matrix.mapVectors(vec, 2);
+            SkVector tileVec;
+            matrix.mapVector(SkIntToScalar(tileSize.fWidth), SkIntToScalar(tileSize.fHeight),
+                             &tileVec);
 
-            fBaseFrequency.set(SkScalarInvert(vec[0].fX), SkScalarInvert(vec[0].fY));
-            fTileSize.set(SkScalarRoundToInt(vec[1].fX), SkScalarRoundToInt(vec[1].fY));
+            SkSize scale;
+            matrix.decomposeScale(&scale, nullptr);
+            fBaseFrequency.set(baseFrequencyX * SkScalarInvert(scale.width()),
+                               baseFrequencyY * SkScalarInvert(scale.height()));
+            fTileSize.set(SkScalarRoundToInt(tileVec.fX), SkScalarRoundToInt(tileVec.fY));
             this->init(seed);
             if (!fTileSize.isEmpty()) {
                 this->stitch();
@@ -1404,7 +1405,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     SkASSERT(args.fContext);
 
     const auto localMatrix = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);
-    const auto matrix = SkMatrix::Concat(*args.fViewMatrix, *localMatrix);
+    const auto paintMatrix = SkMatrix::Concat(*args.fViewMatrix, *localMatrix);
 
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
@@ -1414,7 +1415,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                                   fSeed,
                                                                   fBaseFrequencyX,
                                                                   fBaseFrequencyY,
-                                                                  matrix);
+                                                                  paintMatrix);
 
     SkMatrix m = *args.fViewMatrix;
     m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
