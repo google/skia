@@ -248,17 +248,18 @@ static void test_advances(skiatest::Reporter* reporter) {
 
     static const struct {
         SkFontHinting   hinting;
-        unsigned        flags;
+        bool            linear;
+        bool            subpixel;
     } settings[] = {
-        { kNo_SkFontHinting,     0                               },
-        { kNo_SkFontHinting,     SkPaint::kLinearText_Flag       },
-        { kNo_SkFontHinting,     SkPaint::kSubpixelText_Flag     },
-        { kSlight_SkFontHinting, 0                               },
-        { kSlight_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kSlight_SkFontHinting, SkPaint::kSubpixelText_Flag     },
-        { kNormal_SkFontHinting, 0                               },
-        { kNormal_SkFontHinting, SkPaint::kLinearText_Flag       },
-        { kNormal_SkFontHinting, SkPaint::kSubpixelText_Flag     },
+        { kNo_SkFontHinting,     false, false },
+        { kNo_SkFontHinting,     true,  false },
+        { kNo_SkFontHinting,     false, true  },
+        { kSlight_SkFontHinting, false, false },
+        { kSlight_SkFontHinting, true,  false },
+        { kSlight_SkFontHinting, false, true  },
+        { kNormal_SkFontHinting, false, false },
+        { kNormal_SkFontHinting, true,  false },
+        { kNormal_SkFontHinting, false, true  },
     };
 
     static const struct {
@@ -280,8 +281,8 @@ static void test_advances(skiatest::Reporter* reporter) {
 
         for (size_t j = 0; j  < SK_ARRAY_COUNT(settings); j++) {
             font.setHinting(settings[j].hinting);
-            font.setLinearMetrics((settings[j].flags & SkPaint::kLinearText_Flag) != 0);
-            font.setSubpixel((settings[j].flags & SkPaint::kSubpixelText_Flag) != 0);
+            font.setLinearMetrics(settings[j].linear);
+            font.setSubpixel(settings[j].subpixel);
 
             for (size_t k = 0; k < SK_ARRAY_COUNT(gScaleRec); ++k) {
                 font.setScaleX(gScaleRec[k].fScaleX);

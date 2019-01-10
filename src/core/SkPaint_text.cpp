@@ -78,9 +78,11 @@ bool SkPaint::containsText(const void* text, size_t length) const {
 }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar textData[]) const {
     SkFont::LEGACY_ExtractFromPaint(*this).glyphsToUnichars(glyphs, count, textData);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -192,6 +194,7 @@ SkFontPriv::GlyphCacheProc SkFontPriv::GetGlyphCacheProc(SkTextEncoding encoding
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 SkScalar SkPaint::setupForAsPaths() {
 
     constexpr uint32_t flagsToIgnore = SkPaint::kLinearText_Flag         |
@@ -240,6 +243,7 @@ private:
     SkScalar         fScale;
     SkTLazy<SkPaint> fLazy;
 };
+#endif
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
     bounds->set(SkIntToScalar(g.fLeft),

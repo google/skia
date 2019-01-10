@@ -487,6 +487,7 @@ public:
     */
     SkScalar getSpacing() const { return this->getMetrics(nullptr); }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     /** Deprecated.
     */
     void LEGACY_applyToPaint(SkPaint* paint) const;
@@ -496,6 +497,7 @@ public:
     /** Deprecated.
     */
     static SkFont LEGACY_ExtractFromPaint(const SkPaint& paint);
+#endif
 
     /** Experimental.
      *  Dumps fields of the font to SkDebugf. May change its output over time, so clients should

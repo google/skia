@@ -71,6 +71,7 @@ DEF_TEST(FontObj_test_cachedfont, reporter) {
 }
 #endif  // SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
 DEF_TEST(FontObj_test_aa_hinting, reporter) {
     SkPaint paint;
 
@@ -87,5 +88,6 @@ DEF_TEST(FontObj_test_aa_hinting, reporter) {
         }
     }
 }
+#endif
 
 // need tests for SkStrSearch

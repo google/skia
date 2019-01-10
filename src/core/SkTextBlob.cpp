@@ -758,9 +758,14 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
         reader.readPoint(&offset);
         SkFont font;
         if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
             SkPaint paint;
             reader.readPaint(&paint);
             font = SkFont::LEGACY_ExtractFromPaint(paint);
+#else
+            reader.validate(false);
+            return nullptr;
+#endif
         } else {
             SkFontPriv::Unflatten(&font, reader);
         }

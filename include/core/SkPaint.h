@@ -27,10 +27,6 @@
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
-#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-#define SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-#endif
-
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
@@ -212,6 +208,7 @@ public:
     enum Flags {
         kAntiAlias_Flag          = 0x01,   //!< mask for setting anti-alias
         kDither_Flag             = 0x04,   //!< mask for setting dither
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
@@ -220,6 +217,9 @@ public:
         kAutoHinting_Flag        = 0x800,  //!< mask for setting force hinting
                                            // 0x1000 used to be kVertical
         kAllFlags                = 0xFFFF, //!< mask of all Flags
+#else
+        kAllFlags                = 0x05,
+#endif
     };
 
     #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -284,9 +284,7 @@ public:
     */
     void setDither(bool dither);
 
-#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-private:
-#endif
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     /** Returns true if text is converted to SkPath before drawing and measuring.
 
         Equivalent to getFlags() masked with kLinearText_Flag.
@@ -411,8 +409,6 @@ private:
         @param fakeBoldText  setting for kFakeBoldText_Flag
     */
     void setFakeBoldText(bool fakeBoldText);
-#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-public:
 #endif
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
@@ -929,6 +925,7 @@ public:
     bool containsText(const void* text, size_t byteLength) const;
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     /** Converts glyphs into text if possible.
         Glyph values without direct Unicode equivalents are mapped to zero.
         Uses the SkTypeface, but is unaffected
@@ -941,6 +938,7 @@ public:
         @param text    storage for character codes, one per glyph
     */
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Deprecated; use SkFont::countText instead

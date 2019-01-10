@@ -45,6 +45,8 @@ public:
         bool fTextScaleX = false;
         bool fTextSkewX = false;
         bool fHinting = false;
+        bool fEdging = false;
+        bool fSubpixel = false;
     };
     struct SkPaintFields {
         bool fPathEffect = false;

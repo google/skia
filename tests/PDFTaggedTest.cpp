@@ -99,7 +99,6 @@ DEF_TEST(SkPDF_tagged, r) {
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
-    paint.setSubpixelText(true);
     paint.setHinting(kNo_SkFontHinting);
 
     // First page.
