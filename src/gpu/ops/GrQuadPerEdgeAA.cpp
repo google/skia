@@ -6,6 +6,8 @@
  */
 
 #include "GrQuadPerEdgeAA.h"
+
+#include "GrOpFlushState.h"
 #include "GrQuad.h"
 #include "GrVertexWriter.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -463,11 +465,11 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrPerspQuad& devi
     return vb.fPtr;
 }
 
-bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const VertexSpec& spec,
+bool ConfigureMeshIndices(GrOpFlushState* flushState, GrMesh* mesh, const VertexSpec& spec,
                           int quadCount) {
     if (spec.usesCoverageAA()) {
         // AA quads use 8 vertices, basically nested rectangles
-        sk_sp<const GrBuffer> ibuffer = get_index_buffer(target->resourceProvider());
+        sk_sp<const GrBuffer> ibuffer = get_index_buffer(flushState->resourceProvider());
         if (!ibuffer) {
             return false;
         }
@@ -478,7 +480,7 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
     } else {
         // Non-AA quads use 4 vertices, and regular triangle strip layout
         if (quadCount > 1) {
-            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+            sk_sp<const GrBuffer> ibuffer = flushState->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 return false;
             }

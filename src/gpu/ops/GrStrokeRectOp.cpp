@@ -168,7 +168,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -176,7 +176,7 @@ private:
             LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
-            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(), color,
+            gp = GrDefaultGeoProcFactory::Make(flushState->caps().shaderCaps(), color,
                                                Coverage::kSolid_Type, localCoordsType,
                                                fViewMatrix);
         }
@@ -190,8 +190,8 @@ private:
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        void* verts =
-                target->makeVertexSpace(kVertexStride, vertexCount, &vertexBuffer, &firstVertex);
+        void* verts = flushState->makeVertexSpace(kVertexStride, vertexCount, &vertexBuffer,
+                                                  &firstVertex);
 
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -214,11 +214,11 @@ private:
             vertex[4].set(fRect.fLeft, fRect.fTop);
         }
 
-        GrMesh* mesh = target->allocMesh(primType);
+        GrMesh* mesh = flushState->allocMesh(primType);
         mesh->setNonIndexedNonInstanced(vertexCount);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     // TODO: override onCombineIfPossible
@@ -411,7 +411,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepare(GrOpFlushState*) override;
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -456,8 +456,8 @@ private:
     typedef GrMeshDrawOp INHERITED;
 };
 
-void AAStrokeRectOp::onPrepareDraws(Target* target) {
-    sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),
+void AAStrokeRectOp::onPrepare(GrOpFlushState* flushState) {
+    sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(flushState->caps().shaderCaps(),
                                                            fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
                                                            fHelper.usesLocalCoords(),
@@ -474,9 +474,9 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     int instanceCount = fRects.count();
 
     sk_sp<const GrBuffer> indexBuffer =
-            GetIndexBuffer(target->resourceProvider(), this->miterStroke());
-    PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(), indexBuffer.get(),
-                         verticesPerInstance, indicesPerInstance, instanceCount);
+            GetIndexBuffer(flushState->resourceProvider(), this->miterStroke());
+    PatternHelper helper(flushState, GrPrimitiveType::kTriangles, gp->vertexStride(),
+                         indexBuffer.get(), verticesPerInstance, indicesPerInstance, instanceCount);
     GrVertexWriter vertices{ helper.vertices() };
     if (!vertices.fPtr || !indexBuffer) {
         SkDebugf("Could not allocate vertices\n");
@@ -495,8 +495,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            info.fDegenerate,
                                            fHelper.compatibleWithAlphaAsCoverage());
     }
-    auto pipe = fHelper.makePipeline(target);
-    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+    auto pipe = fHelper.makePipeline(flushState);
+    helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 sk_sp<const GrBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,

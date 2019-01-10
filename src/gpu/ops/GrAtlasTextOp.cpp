@@ -275,8 +275,8 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
     }
 }
 
-void GrAtlasTextOp::onPrepareDraws(Target* target) {
-    auto resourceProvider = target->resourceProvider();
+void GrAtlasTextOp::onPrepare(GrOpFlushState* flushState) {
+    auto resourceProvider = flushState->resourceProvider();
 
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
@@ -285,8 +285,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    GrAtlasManager* atlasManager = target->atlasManager();
-    GrGlyphCache* glyphCache = target->glyphCache();
+    GrAtlasManager* atlasManager = flushState->atlasManager();
+    GrGlyphCache* glyphCache = flushState->glyphCache();
 
     GrMaskFormat maskFormat = this->maskFormat();
 
@@ -303,8 +303,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
     static const uint32_t kPipelineFlags = 0;
-    auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
-                                     target->detachAppliedClip(), kMaxTextures);
+    auto pipe = flushState->makePipeline(kPipelineFlags, std::move(fProcessors),
+                                         flushState->detachAppliedClip(), kMaxTextures);
     for (unsigned i = 0; i < numActiveProxies; ++i) {
         pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
     }
@@ -315,13 +315,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor(*target->caps().shaderCaps(),
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(*flushState->caps().shaderCaps(),
                                                               proxies, numActiveProxies);
     } else {
         GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            *target->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
+            *flushState->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
             samplerState, maskFormat, localMatrix, vmPerspective);
     }
 
@@ -331,10 +331,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
 
-    void* vertices = target->makeVertexSpace(
+    void* vertices = flushState->makeVertexSpace(
             vertexStride, glyphCount * kVerticesPerGlyph, &vertexBuffer, &flushInfo.fVertexOffset);
     flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-    flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+    flushInfo.fIndexBuffer = flushState->resourceProvider()->refQuadIndexBuffer();
     if (!vertices || !flushInfo.fVertexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
@@ -350,7 +350,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
-                args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
+                args.fColor.toBytes_RGBA(), flushState->deferredUploadTarget(), glyphCache,
                 atlasManager, &autoGlyphCache);
         bool done = false;
         while (!done) {
@@ -387,20 +387,20 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             }
             flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
             if (!result.fFinished) {
-                this->flush(target, &flushInfo);
+                this->flush(flushState, &flushInfo);
             }
             currVertex += vertexBytes;
         }
     }
-    this->flush(target, &flushInfo);
+    this->flush(flushState, &flushInfo);
 }
 
-void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+void GrAtlasTextOp::flush(GrOpFlushState* flushState, FlushInfo* flushInfo) const {
     if (!flushInfo->fGlyphsToFlush) {
         return;
     }
 
-    auto atlasManager = target->atlasManager();
+    auto atlasManager = flushState->atlasManager();
 
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
@@ -431,12 +431,12 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     }
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-    GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+    GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
     mesh->setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
                               flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh->setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-    target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline, flushInfo->fFixedDynamicState,
-                 mesh);
+    flushState->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
+                             flushInfo->fFixedDynamicState, mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }

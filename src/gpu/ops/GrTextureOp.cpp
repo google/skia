@@ -333,7 +333,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
         GrQuadType quadType = GrQuadType::kRect;
         Domain domain = Domain::kNo;
@@ -355,7 +355,7 @@ private:
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 numTotalQuads += op.fProxies[p].fQuadCnt;
                 auto* proxy = op.fProxies[p].fProxy;
-                if (!proxy->instantiate(target->resourceProvider())) {
+                if (!proxy->instantiate(flushState->resourceProvider())) {
                     return;
                 }
                 SkASSERT(proxy->config() == config);
@@ -373,42 +373,42 @@ private:
 
         GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                      this->filter());
-        GrGpu* gpu = target->resourceProvider()->priv().gpu();
+        GrGpu* gpu = flushState->resourceProvider()->priv().gpu();
         uint32_t extraSamplerKey = gpu->getExtraSamplerKeyForProgram(
                 samplerState, fProxies[0].fProxy->backendFormat());
 
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
-                vertexSpec, *target->caps().shaderCaps(),
+                vertexSpec, *flushState->caps().shaderCaps(),
                 textureType, config, samplerState, extraSamplerKey,
                 std::move(fTextureColorSpaceXform));
 
         GrPipeline::InitArgs args;
-        args.fProxy = target->proxy();
-        args.fCaps = &target->caps();
-        args.fResourceProvider = target->resourceProvider();
+        args.fProxy = flushState->proxy();
+        args.fCaps = &flushState->caps();
+        args.fResourceProvider = flushState->resourceProvider();
         args.fFlags = 0;
         if (aaType == GrAAType::kMSAA) {
             args.fFlags |= GrPipeline::kHWAntialias_Flag;
         }
 
-        auto clip = target->detachAppliedClip();
+        auto clip = flushState->detachAppliedClip();
         // We'll use a dynamic state array for the GP textures when there are multiple ops.
         // Otherwise, we use fixed dynamic state to specify the single op's proxy.
         GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
         GrPipeline::FixedDynamicState* fixedDynamicState;
         if (numProxies > 1) {
-            dynamicStateArrays = target->allocDynamicStateArrays(numProxies, 1, false);
-            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 0);
+            dynamicStateArrays = flushState->allocDynamicStateArrays(numProxies, 1, false);
+            fixedDynamicState = flushState->allocFixedDynamicState(clip.scissorState().rect(), 0);
         } else {
-            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
+            fixedDynamicState = flushState->allocFixedDynamicState(clip.scissorState().rect(), 1);
             fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxies[0].fProxy;
         }
         const auto* pipeline =
-                target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
+                flushState->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
 
         size_t vertexSize = gp->vertexStride();
 
-        GrMesh* meshes = target->allocMeshes(numProxies);
+        GrMesh* meshes = flushState->allocMeshes(numProxies);
         const GrBuffer* vbuffer;
         int vertexOffsetInBuffer = 0;
         int numQuadVerticesLeft = numTotalQuads * vertexSpec.verticesPerQuad();
@@ -423,7 +423,7 @@ private:
                 auto* proxy = op.fProxies[p].fProxy;
                 int meshVertexCnt = quadCnt * vertexSpec.verticesPerQuad();
                 if (numAllocatedVertices < meshVertexCnt) {
-                    vdata = target->makeVertexSpaceAtLeast(
+                    vdata = flushState->makeVertexSpaceAtLeast(
                             vertexSize, meshVertexCnt, numQuadVerticesLeft, &vbuffer,
                             &vertexOffsetInBuffer, &numAllocatedVertices);
                     SkASSERT(numAllocatedVertices <= numQuadVerticesLeft);
@@ -436,7 +436,7 @@ private:
 
                 op.tess(vdata, vertexSpec, proxy, q, quadCnt);
 
-                if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, &(meshes[m]), vertexSpec,
+                if (!GrQuadPerEdgeAA::ConfigureMeshIndices(flushState, &(meshes[m]), vertexSpec,
                                                            quadCnt)) {
                     SkDebugf("Could not allocate indices");
                     return;
@@ -455,8 +455,8 @@ private:
         }
         SkASSERT(!numQuadVerticesLeft);
         SkASSERT(!numAllocatedVertices);
-        target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
-                     numProxies);
+        flushState->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
+                         numProxies);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

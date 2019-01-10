@@ -114,7 +114,7 @@ private:
         int fVertexOffset;
     };
 
-    void onPrepareDraws(Target*) override;
+    void onPrepare(GrOpFlushState*) override;
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {
@@ -145,7 +145,7 @@ private:
                kLCDBGRDistanceField_MaskType == fMaskType;
     }
 
-    inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
+    inline void flush(GrOpFlushState*, FlushInfo* flushInfo) const;
 
     const SkPMColor4f& color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }

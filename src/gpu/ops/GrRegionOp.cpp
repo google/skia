@@ -92,8 +92,8 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fViewMatrix,
+    void onPrepare(GrOpFlushState* flushState) override {
+        sk_sp<GrGeometryProcessor> gp = make_gp(flushState->caps().shaderCaps(), fViewMatrix,
                                                 fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -109,8 +109,8 @@ private:
         if (!numRects) {
             return;
         }
-        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
+        sk_sp<const GrBuffer> indexBuffer = flushState->resourceProvider()->refQuadIndexBuffer();
+        PatternHelper helper(flushState, GrPrimitiveType::kTriangles, gp->vertexStride(),
                              indexBuffer.get(), kVertsPerInstance, kIndicesPerInstance, numRects);
         GrVertexWriter vertices{helper.vertices()};
         if (!vertices.fPtr || !indexBuffer) {
@@ -127,8 +127,8 @@ private:
                 iter.next();
             }
         }
-        auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = fHelper.makePipeline(flushState);
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

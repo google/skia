@@ -53,7 +53,7 @@ private:
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         class GP : public GrGeometryProcessor {
         public:
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
@@ -101,12 +101,12 @@ private:
         };
         sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
         size_t vertexStride = gp->vertexStride();
-        QuadHelper helper(target, vertexStride, 1);
+        QuadHelper helper(flushState, vertexStride, 1);
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.vertices());
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
-        auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
-                                         target->detachAppliedClip());
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = flushState->makePipeline(0, GrProcessorSet::MakeEmptySet(),
+                                             flushState->detachAppliedClip());
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     int fNumAttribs;

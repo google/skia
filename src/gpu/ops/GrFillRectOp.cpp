@@ -169,7 +169,7 @@ private:
             const GrRenderTargetContext::QuadSetEntry quads[], int quadCount,
             const GrUserStencilSettings* stencilSettings);
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         TRACE_EVENT0("skia", TRACE_FUNC);
 
         using Domain = GrQuadPerEdgeAA::Domain;
@@ -190,7 +190,7 @@ private:
         int vertexOffsetInBuffer = 0;
 
         // Fill the allocated vertex data
-        void* vdata = target->makeVertexSpace(
+        void* vdata = flushState->makeVertexSpace(
                 vertexSize, this->quadCount() * vertexSpec.verticesPerQuad(),
                 &vbuffer, &vertexOffsetInBuffer);
         if (!vdata) {
@@ -218,15 +218,16 @@ private:
         }
 
         // Configure the mesh for the vertex data
-        GrMesh* mesh = target->allocMeshes(1);
-        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(target, mesh, vertexSpec, this->quadCount())) {
+        GrMesh* mesh = flushState->allocMeshes(1);
+        if (!GrQuadPerEdgeAA::ConfigureMeshIndices(
+                    flushState, mesh, vertexSpec, this->quadCount())) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
         mesh->setVertexData(vbuffer, vertexOffsetInBuffer);
 
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
    }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
