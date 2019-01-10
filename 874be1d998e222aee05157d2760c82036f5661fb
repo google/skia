@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07c9ca93_85a37e43",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-10T17:21:33Z",
+      "side": 1,
+      "message": "Seems like we should be using the new info here",
+      "revId": "874be1d998e222aee05157d2760c82036f5661fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
