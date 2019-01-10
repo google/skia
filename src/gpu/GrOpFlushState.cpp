@@ -130,6 +130,50 @@ void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline*
     }
 }
 
+GrPipeline::FixedDynamicState* GrOpFlushState::allocFixedDynamicState(
+        const SkIRect& rect, int numPrimitiveProcessorTextures) {
+    auto result = fArena.make<GrPipeline::FixedDynamicState>(rect);
+    if (numPrimitiveProcessorTextures) {
+        result->fPrimitiveProcessorTextures =
+                this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures);
+    }
+    return result;
+}
+
+GrPipeline::DynamicStateArrays* GrOpFlushState::allocDynamicStateArrays(
+        int numMeshes, int numPrimitiveProcessorTextures, bool allocScissors) {
+    auto result = fArena.make<GrPipeline::DynamicStateArrays>();
+    if (allocScissors) {
+        result->fScissorRects = fArena.makeArray<SkIRect>(numMeshes);
+    }
+    if (numPrimitiveProcessorTextures) {
+        result->fPrimitiveProcessorTextures = this->allocPrimitiveProcessorTextureArray(
+                numPrimitiveProcessorTextures * numMeshes);
+    }
+    return result;
+}
+
+GrOpFlushState::PipelineAndFixedDynamicState GrOpFlushState::makePipeline(
+        uint32_t pipelineFlags, GrProcessorSet&& processorSet, GrAppliedClip&& clip,
+        int numPrimProcTextures) {
+    GrPipeline::InitArgs pipelineArgs;
+    pipelineArgs.fFlags = pipelineFlags;
+    pipelineArgs.fProxy = this->proxy();
+    pipelineArgs.fDstProxy = this->dstProxy();
+    pipelineArgs.fCaps = &this->caps();
+    pipelineArgs.fResourceProvider = this->resourceProvider();
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+    if (clip.scissorState().enabled() || numPrimProcTextures) {
+        fixedDynamicState = this->allocFixedDynamicState(clip.scissorState().rect());
+        if (numPrimProcTextures) {
+            fixedDynamicState->fPrimitiveProcessorTextures =
+                    this->allocPrimitiveProcessorTextureArray(numPrimProcTextures);
+        }
+    }
+    return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)),
+            fixedDynamicState};
+}
+
 void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer** buffer,
                                       int* startVertex) {
     return fVertexPool.makeSpace(vertexSize, vertexCount, buffer, startVertex);

@@ -122,9 +122,9 @@ SkString GrDrawAtlasOp::dumpInfo() const {
 }
 #endif
 
-void GrDrawAtlasOp::onPrepareDraws(Target* target) {
+void GrDrawAtlasOp::onPrepare(GrOpFlushState* flushState) {
     // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
+    sk_sp<GrGeometryProcessor> gp(make_gp(flushState->caps().shaderCaps(),
                                           this->hasColors(),
                                           this->color(),
                                           this->viewMatrix()));
@@ -133,7 +133,7 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     size_t vertexStride = gp->vertexStride();
 
     int numQuads = this->quadCount();
-    QuadHelper helper(target, vertexStride, numQuads);
+    QuadHelper helper(flushState, vertexStride, numQuads);
     void* verts = helper.vertices();
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -148,8 +148,8 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
-    auto pipe = fHelper.makePipeline(target);
-    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+    auto pipe = fHelper.makePipeline(flushState);
+    helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 GrOp::CombineResult GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

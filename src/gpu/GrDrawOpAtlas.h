@@ -76,7 +76,7 @@ public:
 
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
-     * should only be used inside of GrMeshDrawOp::onPrepareDraws.
+     * should only be used inside of GrMeshDrawOp::onPrepare.
      *  @param GrPixelConfig    The pixel config which this atlas will store
      *  @param width            width in pixels of the atlas
      *  @param height           height in pixels of the atlas

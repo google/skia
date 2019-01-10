@@ -23,7 +23,7 @@ class GrGpuRTCommandBuffer;
 class GrResourceProvider;
 
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
-class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
+class GrOpFlushState final : public GrDeferredUploadTarget {
 public:
     // vertexSpace and indexSpace may either be null or an alloation of size
     // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
@@ -76,41 +76,94 @@ public:
     GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
-    /** Overrides of GrMeshDrawOp::Target. */
     void draw(sk_sp<const GrGeometryProcessor>,
               const GrPipeline*,
               const GrPipeline::FixedDynamicState*,
               const GrPipeline::DynamicStateArrays*,
               const GrMesh[],
-              int meshCnt) final;
-    void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
-                          int* startVertex) final;
-    uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) final;
-    void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
-                                 const GrBuffer**, int* startVertex, int* actualVertexCount) final;
-    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount, const GrBuffer**,
-                                    int* startIndex, int* actualIndexCount) final;
-    void putBackIndices(int indexCount) final;
-    void putBackVertices(int vertices, size_t vertexStride) final;
-    GrRenderTargetProxy* proxy() const final { return fOpArgs->fProxy; }
-    GrAppliedClip detachAppliedClip() final;
-    const GrXferProcessor::DstProxy& dstProxy() const final { return fOpArgs->fDstProxy; }
-    GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
-    const GrCaps& caps() const final;
-    GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
+              int meshCnt);
 
-    GrGlyphCache* glyphCache() const final;
+    /** Helper for drawing a single GrMesh. */
+    void draw(sk_sp<const GrGeometryProcessor> gp,
+              const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState,
+              const GrMesh* mesh) {
+        this->draw(std::move(gp), pipeline, fixedDynamicState, nullptr, mesh, 1);
+    }
+
+    /**
+     * Allocate space for a pipeline. The target ensures this pipeline lifetime is at least
+     * as long as any deferred execution of draws added via draw().
+     * @tparam Args
+     * @param args
+     * @return
+     */
+    template <typename... Args>
+    GrPipeline* allocPipeline(Args&&... args) {
+        return fArena.make<GrPipeline>(std::forward<Args>(args)...);
+    }
+
+    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
+        return fArena.make<GrMesh>(primitiveType);
+    }
+
+    GrMesh* allocMeshes(int n) { return fArena.makeArray<GrMesh>(n); }
+
+    GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
+                                                          int numPrimitiveProcessorTextures = 0);
+
+    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
+                                                            int numPrimitiveProcessorTextures,
+                                                            bool allocScissors);
+
+    GrTextureProxy** allocPrimitiveProcessorTextureArray(int n) {
+        SkASSERT(n > 0);
+        return fArena.makeArrayDefault<GrTextureProxy*>(n);
+    }
+
+    // Once we have C++17 structured bindings make this just be a tuple because then we can do:
+    //      auto [pipeline, fixedDynamicState] = target->makePipeline(...);
+    // in addition to:
+    //      std::tie(flushInfo.fPipeline, flushInfo.fFixedState) = target->makePipeline(...);
+    struct PipelineAndFixedDynamicState {
+        const GrPipeline* fPipeline;
+        GrPipeline::FixedDynamicState* fFixedDynamicState;
+    };
+
+    /**
+     * Helper that makes a pipeline targeting the op's render target that incorporates the op's
+     * GrAppliedClip and uses a fixed dynamic state.
+     */
+    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&&,
+                                              GrAppliedClip&&,
+                                              int numPrimitiveProcessorTextures = 0);
+
+    void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
+                          int* startVertex);
+    uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex);
+    void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
+                                 const GrBuffer**, int* startVertex, int* actualVertexCount);
+    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount, const GrBuffer**,
+                                    int* startIndex, int* actualIndexCount);
+    void putBackIndices(int indexCount);
+    void putBackVertices(int vertices, size_t vertexStride);
+    GrRenderTargetProxy* proxy() const { return fOpArgs->fProxy; }
+    GrAppliedClip detachAppliedClip();
+    const GrXferProcessor::DstProxy& dstProxy() const { return fOpArgs->fDstProxy; }
+    GrDeferredUploadTarget* deferredUploadTarget() { return this; }
+    const GrCaps& caps() const;
+    GrResourceProvider* resourceProvider() const { return fResourceProvider; }
+    uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
+
+    GrGlyphCache* glyphCache() const;
 
     // At this point we know we're flushing so full access to the GrAtlasManager is required (and
     // permissible).
-    GrAtlasManager* atlasManager() const final;
+    GrAtlasManager* atlasManager() const;
 
     GrDeinstantiateProxyTracker* deinstantiateProxyTracker() { return &fDeinstantiateProxyTracker; }
 
 private:
-    /** GrMeshDrawOp::Target override. */
-    SkArenaAlloc* pipelineArena() override { return &fArena; }
-
     struct InlineUpload {
         InlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
                 : fUpload(std::move(upload)), fUploadBeforeToken(token) {}

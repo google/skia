@@ -69,10 +69,10 @@ private:
         kSkColor,
     };
 
-    void onPrepareDraws(Target*) override;
+    void onPrepare(GrOpFlushState*) override;
 
-    void drawVolatile(Target*);
-    void drawNonVolatile(Target*);
+    void drawVolatile(GrOpFlushState*);
+    void drawNonVolatile(GrOpFlushState*);
 
     void fillBuffers(bool hasColorAttribute,
                      bool hasLocalCoordsAttribute,
@@ -81,7 +81,7 @@ private:
                      void* verts,
                      uint16_t* indices) const;
 
-    void drawVertices(Target*,
+    void drawVertices(GrOpFlushState*,
                       sk_sp<const GrGeometryProcessor>,
                       const GrBuffer* vertexBuffer,
                       int firstVertex,

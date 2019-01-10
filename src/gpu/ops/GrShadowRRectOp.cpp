@@ -536,7 +536,7 @@ private:
 
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
 
@@ -545,7 +545,7 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        CircleVertex* verts = (CircleVertex*)target->makeVertexSpace(
+        CircleVertex* verts = (CircleVertex*)flushState->makeVertexSpace(
                 sizeof(CircleVertex), fVertCount, &vertexBuffer, &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -554,7 +554,7 @@ private:
 
         const GrBuffer* indexBuffer = nullptr;
         int firstIndex = 0;
-        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        uint16_t* indices = flushState->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -590,14 +590,14 @@ private:
         }
 
         static const uint32_t kPipelineFlags = 0;
-        auto pipe = target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet(),
-                                         target->detachAppliedClip());
+        auto pipe = flushState->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet(),
+                                             flushState->detachAppliedClip());
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

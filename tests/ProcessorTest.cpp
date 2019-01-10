@@ -61,7 +61,7 @@ private:
         this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void onPrepareDraws(Target* target) override { return; }
+    void onPrepare(GrOpFlushState*) override { return; }
 
     GrProcessorSet fProcessors;
 

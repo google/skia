@@ -89,7 +89,7 @@ protected:
     SkRect      fRect;
 
 private:
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         using namespace GrDefaultGeoProcFactory;
 
         // The vertex attrib order is always pos, color, local coords.
@@ -97,7 +97,7 @@ private:
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
 
         sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                GrDefaultGeoProcFactory::Make(flushState->caps().shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
@@ -112,7 +112,7 @@ private:
 
         const GrBuffer* indexBuffer;
         int firstIndex;
-        uint16_t* indices = target->makeIndexSpace(6, &indexBuffer, &firstIndex);
+        uint16_t* indices = flushState->makeIndexSpace(6, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Indices could not be allocated for GrAtlasedOp.\n");
             return;
@@ -120,7 +120,7 @@ private:
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        void* vertices = target->makeVertexSpace(vertexStride, 4, &vertexBuffer, &firstVertex);
+        void* vertices = flushState->makeVertexSpace(vertexStride, 4, &vertexBuffer, &firstVertex);
         if (!vertices) {
             SkDebugf("Vertices could not be allocated for GrAtlasedOp.\n");
             return;
@@ -154,12 +154,12 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 
-        auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        auto pipe = fHelper.makePipeline(flushState);
+        flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Helper fHelper;

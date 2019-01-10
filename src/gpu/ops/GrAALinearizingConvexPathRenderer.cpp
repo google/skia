@@ -193,16 +193,17 @@ public:
     }
 
 private:
-    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
-              const GrPipeline::FixedDynamicState* fixedDynamicState, int vertexCount,
-              size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
+    void draw(GrOpFlushState* flushState, sk_sp<const GrGeometryProcessor> gp,
+              const GrPipeline* pipeline, const GrPipeline::FixedDynamicState* fixedDynamicState,
+              int vertexCount, size_t vertexStride, void* vertices, int indexCount,
+              uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
         const GrBuffer* vertexBuffer;
         int firstVertex;
-        void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
-                                              &firstVertex);
+        void* verts = flushState->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
+                                                  &firstVertex);
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -211,23 +212,23 @@ private:
 
         const GrBuffer* indexBuffer;
         int firstIndex;
-        uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
+        uint16_t* idxs = flushState->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {
             SkDebugf("Could not allocate indices\n");
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
+        flushState->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
-    void onPrepareDraws(Target* target) override {
-        auto pipe = fHelper.makePipeline(target);
+    void onPrepare(GrOpFlushState* flushState) override {
+        auto pipe = fHelper.makePipeline(flushState);
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
+        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(flushState->caps().shaderCaps(),
                                                            fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
                                                            fHelper.usesLocalCoords(),
@@ -259,7 +260,7 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp, pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                this->draw(flushState, gp, pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
                            vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
@@ -291,8 +292,8 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->draw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
-                       vertexStride, vertices, indexCount, indices);
+            this->draw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState,
+                       vertexCount, vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);
         sk_free(indices);

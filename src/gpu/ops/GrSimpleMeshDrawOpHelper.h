@@ -94,9 +94,9 @@ public:
 
     using PipelineAndFixedDynamicState = GrOpFlushState::PipelineAndFixedDynamicState;
     /** Makes a pipeline that consumes the processor set and the op's applied clip. */
-    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target* target,
+    PipelineAndFixedDynamicState makePipeline(GrOpFlushState* flushState,
                                               int numPrimitiveProcessorTextures = 0) {
-        return this->internalMakePipeline(target, this->pipelineInitArgs(target),
+        return this->internalMakePipeline(flushState, this->pipelineInitArgs(flushState),
                                           numPrimitiveProcessorTextures);
     }
 
@@ -127,10 +127,9 @@ public:
 protected:
     uint32_t pipelineFlags() const { return fPipelineFlags; }
 
-    GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
+    GrPipeline::InitArgs pipelineInitArgs(GrOpFlushState*) const;
 
-    PipelineAndFixedDynamicState internalMakePipeline(GrMeshDrawOp::Target*,
-                                                      const GrPipeline::InitArgs&,
+    PipelineAndFixedDynamicState internalMakePipeline(GrOpFlushState*, const GrPipeline::InitArgs&,
                                                       int numPrimitiveProcessorTextures);
 
 private:
@@ -181,7 +180,7 @@ public:
                       const SkRect& thisBounds, const SkRect& thatBounds,
                       bool noneAACompatibleWithCoverage = false) const;
 
-    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*,
+    PipelineAndFixedDynamicState makePipeline(GrOpFlushState*,
                                               int numPrimitiveProcessorTextures = 0);
 
 #ifdef SK_DEBUG

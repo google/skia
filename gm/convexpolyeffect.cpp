@@ -74,19 +74,19 @@ private:
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepare(GrOpFlushState* flushState) override {
         using namespace GrDefaultGeoProcFactory;
 
         Color color(fColor);
         sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
-                target->caps().shaderCaps(),
+                flushState->caps().shaderCaps(),
                 color,
                 Coverage::kSolid_Type,
                 LocalCoords::kUnused_Type,
                 SkMatrix::I()));
 
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
-        QuadHelper helper(target, sizeof(SkPoint), 1);
+        QuadHelper helper(flushState, sizeof(SkPoint), 1);
         SkPoint* verts = reinterpret_cast<SkPoint*>(helper.vertices());
         if (!verts) {
             return;
@@ -94,8 +94,9 @@ private:
 
         SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
 
-        auto pipe = target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip());
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = flushState->makePipeline(0, std::move(fProcessors),
+                                             flushState->detachAppliedClip());
+        helper.recordDraw(flushState, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     SkPMColor4f fColor;

@@ -845,7 +845,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) override;
+    void onPrepare(GrOpFlushState*) override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -908,7 +908,7 @@ private:
 
 }  // anonymous namespace
 
-void AAHairlineOp::onPrepareDraws(Target* target) {
+void AAHairlineOp::onPrepare(GrOpFlushState* flushState) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -937,7 +937,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
     int quadCount = 0;
 
     int instanceCount = fPaths.count();
-    bool convertConicsToQuads = !target->caps().shaderCaps()->floatIs32Bits();
+    bool convertConicsToQuads = !flushState->caps().shaderCaps()->floatIs32Bits();
     for (int i = 0; i < instanceCount; i++) {
         const PathData& args = fPaths[i];
         quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
@@ -955,7 +955,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    auto pipe = fHelper.makePipeline(target);
+    auto pipe = fHelper.makePipeline(flushState);
     // do lines first
     if (lineCount) {
         sk_sp<GrGeometryProcessor> lineGP;
@@ -966,19 +966,20 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            lineGP = GrDefaultGeoProcFactory::Make(flushState->caps().shaderCaps(),
                                                    color, Coverage::kAttribute_Type, localCoords,
                                                    *geometryProcessorViewM);
         }
 
-        sk_sp<const GrBuffer> linesIndexBuffer = get_lines_index_buffer(target->resourceProvider());
+        sk_sp<const GrBuffer> linesIndexBuffer =
+                get_lines_index_buffer(flushState->resourceProvider());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
         SkASSERT(sizeof(LineVertex) == lineGP->vertexStride());
         int vertexCount = kLineSegNumVertices * lineCount;
-        LineVertex* verts = reinterpret_cast<LineVertex*>(target->makeVertexSpace(
+        LineVertex* verts = reinterpret_cast<LineVertex*>(flushState->makeVertexSpace(
                 sizeof(LineVertex), vertexCount, &vertexBuffer, &firstVertex));
 
         if (!verts|| !linesIndexBuffer) {
@@ -990,18 +991,18 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
         mesh->setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg, kLineSegNumVertices,
                                   lineCount, kLineSegsNumInIdxBuffer);
         mesh->setVertexData(vertexBuffer, firstVertex);
-        target->draw(std::move(lineGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        flushState->draw(std::move(lineGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     if (quadCount || conicCount) {
         sk_sp<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
                                                              *geometryProcessorViewM,
                                                              GrClipEdgeType::kHairlineAA,
-                                                             target->caps(),
+                                                             flushState->caps(),
                                                              *geometryProcessorLocalM,
                                                              fHelper.usesLocalCoords(),
                                                              this->coverage()));
@@ -1009,7 +1010,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         sk_sp<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
                                                                *geometryProcessorViewM,
                                                                GrClipEdgeType::kHairlineAA,
-                                                               target->caps(),
+                                                               flushState->caps(),
                                                                *geometryProcessorLocalM,
                                                                fHelper.usesLocalCoords(),
                                                                this->coverage()));
@@ -1017,13 +1018,14 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
+        sk_sp<const GrBuffer> quadsIndexBuffer =
+                get_quads_index_buffer(flushState->resourceProvider());
 
         SkASSERT(sizeof(BezierVertex) == quadGP->vertexStride());
         SkASSERT(sizeof(BezierVertex) == conicGP->vertexStride());
         int vertexCount = kQuadNumVertices * quadAndConicCount;
-        void* vertices = target->makeVertexSpace(sizeof(BezierVertex), vertexCount, &vertexBuffer,
-                                                 &firstVertex);
+        void* vertices = flushState->makeVertexSpace(sizeof(BezierVertex), vertexCount,
+                                                     &vertexBuffer, &firstVertex);
 
         if (!vertices || !quadsIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -1045,20 +1047,20 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         }
 
         if (quadCount > 0) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
             mesh->setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                       quadCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->draw(std::move(quadGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+            flushState->draw(std::move(quadGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
         if (conicCount > 0) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            GrMesh* mesh = flushState->allocMesh(GrPrimitiveType::kTriangles);
             mesh->setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                       conicCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->draw(std::move(conicGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+            flushState->draw(std::move(conicGP), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
         }
     }
 }

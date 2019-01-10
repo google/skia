@@ -208,20 +208,20 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCa
     }
 }
 
-void GrDrawVerticesOp::onPrepareDraws(Target* target) {
-    bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+void GrDrawVerticesOp::onPrepare(GrOpFlushState* flushState) {
+    bool hasMapBufferSupport = GrCaps::kNone_MapFlags != flushState->caps().mapBufferFlags();
     if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
-        this->drawVolatile(target);
+        this->drawVolatile(flushState);
     } else {
-        this->drawNonVolatile(target);
+        this->drawNonVolatile(flushState);
     }
 }
 
-void GrDrawVerticesOp::drawVolatile(Target* target) {
+void GrDrawVerticesOp::drawVolatile(GrOpFlushState* flushState) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(flushState->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
                                                  &hasBoneAttribute);
@@ -230,7 +230,8 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     size_t vertexStride = gp->vertexStride();
     const GrBuffer* vertexBuffer = nullptr;
     int firstVertex = 0;
-    void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
+    void* verts =
+            flushState->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;
@@ -240,7 +241,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     int firstIndex = 0;
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
-        indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        indices = flushState->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
             return;
@@ -256,16 +257,17 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
                       indices);
 
     // Draw the vertices.
-    this->drawVertices(target, std::move(gp), vertexBuffer, firstVertex, indexBuffer, firstIndex);
+    this->drawVertices(flushState, std::move(gp), vertexBuffer, firstVertex, indexBuffer,
+                       firstIndex);
 }
 
-void GrDrawVerticesOp::drawNonVolatile(Target* target) {
+void GrDrawVerticesOp::drawNonVolatile(GrOpFlushState* flushState) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
 
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(flushState->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
                                                  &hasBoneAttribute);
@@ -273,7 +275,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
 
     // Get the resource provider.
-    GrResourceProvider* rp = target->resourceProvider();
+    GrResourceProvider* rp = flushState->resourceProvider();
 
     // Generate keys for the buffers.
     GrUniqueKey vertexKey, indexKey;
@@ -293,7 +295,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
 
     // Draw using the cached buffers if possible.
     if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+        this->drawVertices(flushState, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
         return;
     }
 
@@ -342,7 +344,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
 
     // Draw the vertices.
-    this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+    this->drawVertices(flushState, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
 }
 
 void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
@@ -456,13 +458,13 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
     }
 }
 
-void GrDrawVerticesOp::drawVertices(Target* target,
+void GrDrawVerticesOp::drawVertices(GrOpFlushState* flushState,
                                     sk_sp<const GrGeometryProcessor> gp,
                                     const GrBuffer* vertexBuffer,
                                     int firstVertex,
                                     const GrBuffer* indexBuffer,
                                     int firstIndex) {
-    GrMesh* mesh = target->allocMesh(this->primitiveType());
+    GrMesh* mesh = flushState->allocMesh(this->primitiveType());
     if (this->isIndexed()) {
         mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1,
                          GrPrimitiveRestart::kNo);
@@ -470,8 +472,8 @@ void GrDrawVerticesOp::drawVertices(Target* target,
         mesh->setNonIndexedNonInstanced(fVertexCount);
     }
     mesh->setVertexData(vertexBuffer, firstVertex);
-    auto pipe = fHelper.makePipeline(target);
-    target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+    auto pipe = fHelper.makePipeline(flushState);
+    flushState->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }
 
 GrOp::CombineResult GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
