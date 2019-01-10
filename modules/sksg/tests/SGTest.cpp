@@ -60,7 +60,7 @@ static void inval_test1(skiatest::Reporter* reporter) {
     auto r1     = sksg::Rect::Make(SkRect::MakeWH(100, 100)),
          r2     = sksg::Rect::Make(SkRect::MakeWH(100, 100));
     auto grp    = sksg::Group::Make();
-    auto matrix = sksg::Matrix::Make(SkMatrix::I());
+    auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
     auto root   = sksg::TransformEffect::Make(grp, matrix);
 
     grp->addChild(sksg::Draw::Make(r1, color));
@@ -128,8 +128,8 @@ static void inval_test1(skiatest::Reporter* reporter) {
 static void inval_test2(skiatest::Reporter* reporter) {
     auto color = sksg::Color::Make(0xff000000);
     auto rect  = sksg::Rect::Make(SkRect::MakeWH(100, 100));
-    auto m1    = sksg::Matrix::Make(SkMatrix::I()),
-         m2    = sksg::Matrix::Make(SkMatrix::I());
+    auto m1    = sksg::Matrix<SkMatrix>::Make(SkMatrix::I()),
+         m2    = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
     auto t1    = sksg::TransformEffect::Make(sksg::Draw::Make(rect, color),
                                              sksg::Transform::MakeConcat(m1, m2)),
          t2    = sksg::TransformEffect::Make(sksg::Draw::Make(rect, color), m1);

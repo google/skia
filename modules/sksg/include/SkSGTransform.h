@@ -38,51 +38,40 @@ private:
 };
 
 /**
- * Concrete, SkMatrix-backed transformation.
+ * Concrete, matrix-backed Transform.
+ *
+ * Supported instantiations: SkMatrix, SkMatrix44.
+ *
+ * Sample use:
+ *
+ *   auto m33 = Matrix<SkMatrix>::Make(SkMatrix::I());
+ *   ...
+ *   m33->setMatrix(SkMatrix::MakeTrans(10, 10));
+ *
  */
+template <typename T>
 class Matrix final : public Transform {
 public:
-    static sk_sp<Matrix> Make(const SkMatrix& m);
+    template <typename = std::enable_if<std::is_same<T, SkMatrix  >::value ||
+                                        std::is_same<T, SkMatrix44>::value>>
+    static sk_sp<Matrix> Make(const T& m) { return sk_sp<Matrix>(new Matrix(m)); }
 
-    SG_ATTRIBUTE(Matrix, SkMatrix, fMatrix)
-
-protected:
-    explicit Matrix(const SkMatrix&);
-
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
-
-    bool is44() const override { return false; }
-
-    SkMatrix   asMatrix  () const override;
-    SkMatrix44 asMatrix44() const override;
-
-private:
-    SkMatrix fMatrix;
-
-    using INHERITED = Transform;
-};
-
-/**
- * Concrete, SkMatrix44-backed transformation.
- */
-class Matrix44 final : public Transform {
-public:
-    static sk_sp<Matrix44> Make(const SkMatrix44& m);
-
-    SG_ATTRIBUTE(Matrix, SkMatrix44, fMatrix)
+    SG_ATTRIBUTE(Matrix, T, fMatrix)
 
 protected:
-    explicit Matrix44(const SkMatrix44&);
+    explicit Matrix(const T& m) : fMatrix(m) {}
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override {
+        return SkRect::MakeEmpty();
+    }
 
-    bool is44() const override { return true; }
+    bool is44() const override { return std::is_same<T, SkMatrix44>::value; }
 
-    SkMatrix   asMatrix  () const override;
-    SkMatrix44 asMatrix44() const override;
+    SkMatrix   asMatrix  () const override { return fMatrix; }
+    SkMatrix44 asMatrix44() const override { return fMatrix; }
 
 private:
-    SkMatrix44 fMatrix;
+    T fMatrix;
 
     using INHERITED = Transform;
 };
@@ -99,7 +88,7 @@ public:
     }
 
     static sk_sp<TransformEffect> Make(sk_sp<RenderNode> child, const SkMatrix& m) {
-        return Make(std::move(child), Matrix::Make(m));
+        return Make(std::move(child), Matrix<SkMatrix>::Make(m));
     }
 
     ~TransformEffect() override;

@@ -8,6 +8,7 @@
 #include "SkSGGeometryTransform.h"
 
 #include "SkCanvas.h"
+#include "SkSGTransform.h"
 #include "SkSGTransformPriv.h"
 
 namespace sksg {

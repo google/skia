@@ -101,10 +101,10 @@ SkMatrix SlideMatrix(const sk_sp<Slide>& slide, const SkRect& dst) {
 } // namespace
 
 struct SlideDir::Rec {
-    sk_sp<Slide>            fSlide;
-    sk_sp<sksg::RenderNode> fSlideRoot;
-    sk_sp<sksg::Matrix>     fMatrix;
-    SkRect                  fRect;
+    sk_sp<Slide>                  fSlide;
+    sk_sp<sksg::RenderNode>       fSlideRoot;
+    sk_sp<sksg::Matrix<SkMatrix>> fMatrix;
+    SkRect                        fRect;
 };
 
 class SlideDir::FocusController final : public sksg::Animator {
@@ -306,7 +306,7 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
                                                  fCellSize.height()),
                     slideRect = cell.makeInset(kPadding.width(), kPadding.height());
 
-        auto slideMatrix = sksg::Matrix::Make(SlideMatrix(slide, slideRect));
+        auto slideMatrix = sksg::Matrix<SkMatrix>::Make(SlideMatrix(slide, slideRect));
         auto adapter     = sk_make_sp<SlideAdapter>(slide);
         auto slideGrp    = sksg::Group::Make();
         slideGrp->addChild(sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeIWH(slideSize.width(),

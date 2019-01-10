@@ -67,7 +67,7 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix2D(const skjson::ObjectValu
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
 
-    auto matrix = sksg::Matrix::Make(SkMatrix::I());
+    auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
     auto adapter = sk_make_sp<TransformAdapter2D>(matrix);
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
@@ -115,7 +115,7 @@ sk_sp<sksg::Transform> AnimationBuilder::attachMatrix3D(const skjson::ObjectValu
     static const VectorValue g_default_vec_0   = {  0,   0,   0},
                              g_default_vec_100 = {100, 100, 100};
 
-    auto matrix = sksg::Matrix44::Make(SkMatrix::I());
+    auto matrix = sksg::Matrix<SkMatrix44>::Make(SkMatrix::I());
     auto adapter = sk_make_sp<TransformAdapter3D>(matrix);
 
     auto bound = this->bindProperty<VectorValue>(t["a"], ascope,

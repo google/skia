@@ -79,42 +79,6 @@ sk_sp<Transform> Transform::MakeConcat(sk_sp<Transform> a, sk_sp<Transform> b) {
         : sk_sp<Transform>(new Concat<SkMatrix  >(std::move(a), std::move(b)));
 }
 
-sk_sp<Matrix> Matrix::Make(const SkMatrix& m) {
-    return sk_sp<Matrix>(new Matrix(m));
-}
-
-Matrix::Matrix(const SkMatrix& m) : fMatrix(m) {}
-
-SkMatrix Matrix::asMatrix() const {
-    return fMatrix;
-}
-
-SkMatrix44 Matrix::asMatrix44() const {
-    return fMatrix;
-}
-
-SkRect Matrix::onRevalidate(InvalidationController*, const SkMatrix&) {
-    return SkRect::MakeEmpty();
-}
-
-sk_sp<Matrix44> Matrix44::Make(const SkMatrix44& m) {
-    return sk_sp<Matrix44>(new Matrix44(m));
-}
-
-Matrix44::Matrix44(const SkMatrix44& m) : fMatrix(m) {}
-
-SkMatrix Matrix44::asMatrix() const {
-    return fMatrix;
-}
-
-SkMatrix44 Matrix44::asMatrix44() const {
-    return fMatrix;
-}
-
-SkRect Matrix44::onRevalidate(InvalidationController*, const SkMatrix&) {
-    return SkRect::MakeEmpty();
-}
-
 TransformEffect::TransformEffect(sk_sp<RenderNode> child, sk_sp<Transform> transform)
     : INHERITED(std::move(child))
     , fTransform(std::move(transform)) {

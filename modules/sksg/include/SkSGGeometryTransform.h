@@ -11,9 +11,12 @@
 #include "SkSGGeometryNode.h"
 
 #include "SkPath.h"
-#include "SkSGTransform.h"
+
+class SkMatrix;
 
 namespace sksg {
+
+class Transform;
 
 /**
  * Concrete Effect node, binding a Matrix to a GeometryNode.
@@ -25,10 +28,6 @@ public:
             ? sk_sp<GeometryTransform>(new GeometryTransform(std::move(child),
                                                              std::move(transform)))
             : nullptr;
-    }
-
-    static sk_sp<GeometryTransform> Make(sk_sp<GeometryNode> child, const SkMatrix& m) {
-        return Make(std::move(child), Matrix::Make(m));
     }
 
     ~GeometryTransform() override;

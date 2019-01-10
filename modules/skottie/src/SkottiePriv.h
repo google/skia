@@ -30,7 +30,6 @@ class Value;
 
 namespace sksg {
 class Color;
-class Matrix;
 class Path;
 class RenderNode;
 class Transform;
