@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef99cc74_246f5223",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-10T21:27:46Z",
+      "side": 0,
+      "message": "Maybe revert this?",
+      "revId": "14e9177492e631a5e55132a0580ece0f45d48e79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

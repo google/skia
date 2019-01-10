@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2a276a2_237852cb",
+        "filename": "src/core/SkDelayedConstructor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-10T21:27:46Z",
+      "side": 1,
+      "message": "Use SkTLazy?",
+      "revId": "7b419326bcca2758786bd3fbb78edd88438ee22d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
