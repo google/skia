@@ -171,7 +171,8 @@ public:
 
     std::unique_ptr<GpuDrawHandler> onSnapGpuDrawHandler(GrBackendApi backendApi,
                                                          const SkMatrix& matrix,
-                                                         const SkIRect& clipBounds) override {
+                                                         const SkIRect& clipBounds,
+                                                         const SkImageInfo& bufferInfo) override {
         if (backendApi != GrBackendApi::kVulkan) {
             return nullptr;
         }
