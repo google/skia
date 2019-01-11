@@ -1538,7 +1538,8 @@ If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache
 
 # ------------------------------------------------------------------------------
 
-#Method sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+#Method sk_sp<SkImage> makeWithFilter(GrContext* context,
+                                  const SkImageFilter* filter, const SkIRect& subset,
                                   const SkIRect& clipBounds, SkIRect* outSubset,
                                   SkIPoint* offset) const
 #In Constructors
@@ -1563,7 +1564,8 @@ By translating canvas by returned offset, Image appears stationary.
     clipBounds.outset(60, 60);
     SkIRect outSubset;
     SkIPoint offset;
-    sk_sp<SkImage> filtered(image->makeWithFilter(offsetFilter.get(), subset, clipBounds,
+    sk_sp<SkImage> filtered(image->makeWithFilter(canvas->getGrContext(),
+                            offsetFilter.get(), subset, clipBounds,
                             &outSubset, &offset));
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -1576,6 +1578,19 @@ By translating canvas by returned offset, Image appears stationary.
 
 #SeeAlso makeShader SkPaint::setImageFilter
 
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkImage> makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+                                  const SkIRect& clipBounds, SkIRect* outSubset,
+                                  SkIPoint* offset) const
+#In  Constructors
+#Line # creates filtered, clipped Image ##
+#Populate
+#NoExample
+##
+#SeeAlso makeShader SkPaint::setImageFilter
 #Method ##
 
 # ------------------------------------------------------------------------------
