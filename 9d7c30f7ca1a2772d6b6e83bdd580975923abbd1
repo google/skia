@@ -22,6 +22,30 @@
       "revId": "9d7c30f7ca1a2772d6b6e83bdd580975923abbd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72115b2e_b4d3d973",
+        "filename": "site/dev/chrome/blink.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5800
+      },
+      "writtenOn": "2019-01-11T16:04:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1e9d140_af84fcd2",
+      "range": {
+        "startLine": 17,
+        "startChar": 36,
+        "endLine": 17,
+        "endChar": 54
+      },
+      "revId": "9d7c30f7ca1a2772d6b6e83bdd580975923abbd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
