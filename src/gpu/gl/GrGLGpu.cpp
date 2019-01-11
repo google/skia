@@ -2009,7 +2009,7 @@ void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
 
     this->handleDirtyContext();
 
-    if (this->glCaps().useDrawToClearColor()) {
+    if (this->caps()->performColorClearsAsDraws()) {
         this->clearColorAsDraw(clip, color, target, origin);
         return;
     }
@@ -2070,7 +2070,7 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     SkASSERT(target);
     this->handleDirtyContext();
 
-    if (this->glCaps().useDrawToClearStencilClip()) {
+    if (this->caps()->performStencilClearsAsDraws()) {
         this->clearStencilClipAsDraw(clip, insideStencilMask, target, origin);
         return;
     }
