@@ -53,15 +53,14 @@ public:
     std::unique_ptr<SkDeferredDisplayList> detach();
 
     using PromiseImageTextureContext = void*;
-    using PromiseImageTextureFulfillProc = SkPromiseImageTexture* (*)(PromiseImageTextureContext);
-    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext,
-                                                    const SkPromiseImageTexture*);
+    using PromiseImageTextureFulfillProc =
+            sk_sp<SkPromiseImageTexture> (*)(PromiseImageTextureContext);
+    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
     using PromiseImageTextureDoneProc = void (*)(PromiseImageTextureContext);
 
     // Deprecated types. To be removed.
     using LegacyPromiseImageTextureFulfillProc = void (*)(PromiseImageTextureContext,
                                                           GrBackendTexture*);
-    using LegacyPromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
     using TextureContext = PromiseImageTextureContext;
 
     /**
@@ -131,7 +130,7 @@ public:
                                       SkAlphaType alphaType,
                                       sk_sp<SkColorSpace> colorSpace,
                                       LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-                                      LegacyPromiseImageTextureReleaseProc textureReleaseProc,
+                                      PromiseImageTextureReleaseProc textureReleaseProc,
                                       PromiseImageTextureDoneProc textureDoneProc,
                                       PromiseImageTextureContext textureContext);
 
@@ -164,7 +163,7 @@ public:
                                           GrSurfaceOrigin imageOrigin,
                                           sk_sp<SkColorSpace> imageColorSpace,
                                           LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-                                          LegacyPromiseImageTextureReleaseProc textureReleaseProc,
+                                          PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureDoneProc textureDoneProc,
                                           PromiseImageTextureContext textureContexts[]);
 

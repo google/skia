@@ -21,24 +21,21 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fUnreleasedFulfills);
     SkASSERT(fTotalReleases == fTotalFulfills);
     SkASSERT(!fTotalFulfills || fDoneCnt);
-    GrGpu* gpu = fContext->contextPriv().getGpu();
 
-    if (fPromiseImageTexture.isValid()) {
-        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture.backendTexture());
+    if (fPromiseImageTexture) {
+        GrGpu* gpu = fContext->contextPriv().getGpu();
+        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
 
 void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
         const GrBackendTexture& backendTexture) {
     SkASSERT(!fUnreleasedFulfills);
-    if (fPromiseImageTexture.isValid()) {
+    if (fPromiseImageTexture) {
         GrGpu* gpu = fContext->contextPriv().getGpu();
-
-        if (fPromiseImageTexture.isValid()) {
-            gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture.backendTexture());
-        }
+        gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
-    fPromiseImageTexture = SkPromiseImageTexture{backendTexture};
+    fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +125,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
                 callbackContext->setBackendTexture(create_yuva_texture(gpu, yuvPixmap,
                                                                        info.yuvaIndices(), j));
-                SkASSERT(callbackContext->promiseImageTexture()->isValid());
+                SkASSERT(callbackContext->promiseImageTexture());
 
                 fImageInfo[i].setCallbackContext(j, std::move(callbackContext));
             }
@@ -168,7 +165,7 @@ void DDLPromiseImageHelper::replaceEveryOtherPromiseTexture(GrContext* context) 
                 const SkPixmap& yuvPixmap = info.yuvPixmap(j);
                 info.callbackContext(j)->setBackendTexture(
                         create_yuva_texture(gpu, yuvPixmap, info.yuvaIndices(), j));
-                SkASSERT(info.callbackContext(j)->promiseImageTexture()->isValid());
+                SkASSERT(info.callbackContext(j)->promiseImageTexture());
             }
         } else {
             const SkBitmap& bm = info.normalBitmap();
@@ -210,7 +207,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
     const DDLPromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
-    if (!curImage.backendTexture(0).isValid()) {
+    if (!curImage.promiseTexture(0)) {
         SkASSERT(!curImage.isYUV());
         // We weren't able to make a backend texture for this SkImage. In this case we create
         // a separate bitmap-backed image for each thread.
@@ -228,7 +225,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         int textureCount;
         SkAssertResult(SkYUVAIndex::AreValidIndices(curImage.yuvaIndices(), &textureCount));
         for (int i = 0; i < textureCount; ++i) {
-            const GrBackendTexture& backendTex = curImage.backendTexture(i);
+            const GrBackendTexture& backendTex = curImage.promiseTexture(i)->backendTexture();
             backendFormats[i] = backendTex.getBackendFormat();
             SkASSERT(backendFormats[i].isValid());
             contexts[i] = curImage.refCallbackContext(i).release();
@@ -254,7 +251,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             curImage.callbackContext(i)->wasAddedToImage();
         }
     } else {
-        const GrBackendTexture& backendTex = curImage.backendTexture(0);
+        const GrBackendTexture& backendTex = curImage.promiseTexture(0)->backendTexture();
         GrBackendFormat backendFormat = backendTex.getBackendFormat();
         SkASSERT(backendFormat.isValid());
 

@@ -10,6 +10,7 @@
 
 #include "../private/GrResourceKey.h"
 #include "GrBackendSurface.h"
+#include "SkRefCnt.h"
 
 #if SK_SUPPORT_GPU
 /**
@@ -20,17 +21,23 @@
  * the PromiseImageTextureFulfillProc rather than recreating PromiseImageTextures representing
  * the same underlying backend API texture.
  */
-class SK_API SkPromiseImageTexture {
+class SK_API SkPromiseImageTexture : public SkNVRefCnt<SkPromiseImageTexture> {
 public:
-    SkPromiseImageTexture() = default;
+    SkPromiseImageTexture() = delete;
     SkPromiseImageTexture(const SkPromiseImageTexture&) = delete;
-    explicit SkPromiseImageTexture(const GrBackendTexture& backendTexture);
-    SkPromiseImageTexture(SkPromiseImageTexture&&);
+    SkPromiseImageTexture(SkPromiseImageTexture&&) = delete;
     ~SkPromiseImageTexture();
     SkPromiseImageTexture& operator=(const SkPromiseImageTexture&) = delete;
-    SkPromiseImageTexture& operator=(SkPromiseImageTexture&&);
+    SkPromiseImageTexture& operator=(SkPromiseImageTexture&&) = delete;
+
+    static sk_sp<SkPromiseImageTexture> Make(const GrBackendTexture& backendTexture) {
+        if (!backendTexture.isValid()) {
+            return nullptr;
+        }
+        return sk_sp<SkPromiseImageTexture>(new SkPromiseImageTexture(backendTexture));
+    }
+
     const GrBackendTexture& backendTexture() const { return fBackendTexture; }
-    bool isValid() const { return SkToBool(fUniqueID); }
 
     void addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key);
     uint32_t uniqueID() const { return fUniqueID; }
@@ -40,6 +47,8 @@ public:
 #endif
 
 private:
+    explicit SkPromiseImageTexture(const GrBackendTexture& backendTexture);
+
     SkSTArray<1, GrUniqueKeyInvalidatedMessage> fMessages;
     GrBackendTexture fBackendTexture;
     uint32_t fUniqueID = SK_InvalidUniqueID;
