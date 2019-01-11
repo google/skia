@@ -233,14 +233,14 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
 
     int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->contextPriv().caps()->mipMapSupport();
+                        fContext3->contextPriv().caps()->mipMapSupport();
 
     auto result = this->onRefTextureProxyForParams(sampler, willBeMipped, scaleAdjust);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !fContext->contextPriv().caps()->isConfigCopyable(result->config()));
+             !fContext3->contextPriv().caps()->isConfigCopyable(result->config()));
 
     // Check that the "no scaling expected" case always returns a proxy of the same size as the
     // producer.
@@ -257,14 +257,14 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
 
     int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
     bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->contextPriv().caps()->mipMapSupport();
+                        fContext3->contextPriv().caps()->mipMapSupport();
 
     auto result = this->onRefTextureProxyForParams(sampler, willBeMipped, nullptr);
 
     // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
     // maps, unless the config is not copyable.
     SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes ||
-             !fContext->contextPriv().caps()->isConfigCopyable(result->config()));
+             !fContext3->contextPriv().caps()->isConfigCopyable(result->config()));
 
     // Check that no scaling occured and we returned a proxy of the same size as the producer.
     SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));
