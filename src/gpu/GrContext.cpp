@@ -240,6 +240,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 }
 
 void GrContext::abandonContext() {
+    SkDebugf("GrContext::abandonContext %d\n", this->uniqueID());
     ASSERT_SINGLE_OWNER
 
     fProxyProvider->abandon();
