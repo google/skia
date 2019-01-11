@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b46d152_fd01ac22",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "// The coverage of right-triangle (width, height) \u003d (width, width * slope)\n// Conceptually, coverage \u003d width * width * slope / 2",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 39
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3a0ee98_7b0cfb69",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "partial_triangle_to_coverage",
+      "range": {
+        "startLine": 61,
+        "startChar": 22,
+        "endLine": 61,
+        "endChar": 47
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd69e8b4_e6bc6a6e",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "slope \u003e 1 or above the line y \u003d x. It should be obvious that y\u003dx describes a line, but it wasn\u0027t at first reading.",
+      "range": {
+        "startLine": 91,
+        "startChar": 48,
+        "endLine": 91,
+        "endChar": 59
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d568666a_f81e8e0a",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "Having this be a function provides no information. Can you inline this? Can\u0027t this be \n(r + l)/2 - SkIntToFixed(R)?",
+      "range": {
+        "startLine": 110,
+        "startChar": 28,
+        "endLine": 110,
+        "endChar": 47
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d0d8c1e_f95a04de",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "alpha1 -\u003e leftCoverage",
+      "range": {
+        "startLine": 131,
+        "startChar": 20,
+        "endLine": 131,
+        "endChar": 27
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90bd8a53_61f320ce",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "Extra credit: change fDY to something that means slope.",
+      "range": {
+        "startLine": 131,
+        "startChar": 86,
+        "endLine": 131,
+        "endChar": 89
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b3d21f_73201dc1",
+        "filename": "src/core/SkScan_DAAPath.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-11T19:38:09Z",
+      "side": 1,
+      "message": "I don\u0027t think that this is correct. It should be diminishing the area of the rectangle proportional to (rowHeight - (r - middle) * edge-\u003efDY). Just documenting.",
+      "range": {
+        "startLine": 132,
+        "startChar": 30,
+        "endLine": 132,
+        "endChar": 91
+      },
+      "revId": "62c65c4932a60155aac5e68901e036f8deba14ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
