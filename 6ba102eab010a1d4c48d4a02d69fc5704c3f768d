@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ed17668a_4eb66e73",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-11T14:04:08Z",
+      "side": 1,
+      "message": "Is this the context of \"this\" or the result? It seems a little weird to have to pass the context of \"this\". Do things not just work out if the SkImage is on a DDL context?",
+      "revId": "6ba102eab010a1d4c48d4a02d69fc5704c3f768d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c771cb1b_d6b18761",
         "filename": "src/core/SkSpecialImage.cpp",
         "patchSetId": 3
