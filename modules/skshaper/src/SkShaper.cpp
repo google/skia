@@ -9,9 +9,10 @@
 
 #include "SkTextBlobPriv.h"
 
-SkShaper::LineHandler::Buffer SkTextBlobBuilderLineHandler::newLineBuffer(const SkFont& font,
-                                                                          int glyphCount,
-                                                                          int textCount) {
+SkShaper::RunHandler::Buffer SkTextBlobBuilderRunHandler::newRunBuffer(const RunInfo&,
+                                                                       const SkFont& font,
+                                                                       int glyphCount,
+                                                                       int textCount) {
     const auto& runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(&fBuilder, font, glyphCount,
                                                                    textCount, SkString());
     return { runBuffer.glyphs,
@@ -20,6 +21,6 @@ SkShaper::LineHandler::Buffer SkTextBlobBuilderLineHandler::newLineBuffer(const 
              runBuffer.clusters };
 }
 
-sk_sp<SkTextBlob> SkTextBlobBuilderLineHandler::makeBlob() {
+sk_sp<SkTextBlob> SkTextBlobBuilderRunHandler::makeBlob() {
     return fBuilder.make();
 }
