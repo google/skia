@@ -123,8 +123,24 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
         return nullptr;
     }
 
-    this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    sk_sp<GrTexture> tex;
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        // We shouldn't be rendering into this
+        SkASSERT(!isRT);
+        SkASSERT(1 == desc.fSampleCnt);
+
+        if (!this->caps()->npotTextureTileSupport() &&
+            (!SkIsPow2(desc.fWidth) || !SkIsPow2(desc.fHeight))) {
+            return nullptr;
+        }
+
+        //*** does it make sense to roll this into onCreateTexture?
+        this->handleDirtyContext();
+        tex = this->onCreateCompressedTexture(desc, budgeted, texels, mipLevelCount);
+    } else {
+        this->handleDirtyContext();
+        tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    }
     if (tex) {
         if (!this->caps()->reuseScratchTextures() && !isRT) {
             tex->resourcePriv().removeScratchKey();
@@ -149,6 +165,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            bool purgeImmediately) {
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
+    SkASSERT(this->caps());
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
     }
@@ -247,6 +264,10 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
                                               &left, &top, &width, &height,
                                               &buffer,
                                               &rowBytes)) {
+        return false;
+    }
+
+    if (GrPixelConfigIsCompressed(surface->config())) {
         return false;
     }
 
