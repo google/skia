@@ -135,7 +135,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
         return; // nothing to do
     }
 
-    // SkColor is not necesarily RGBA or BGRA, but it is one of them on little-endian,
+    // SkColor is not necessarily RGBA or BGRA, but it is one of them on little-endian,
     // and in either case, the alpha-byte is always in the same place, so we can safely call
     // SkPreMultiplyColor()
     //
@@ -449,9 +449,9 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return std::move(cachedTexture);
             }
             GrBackendTexture backendTexture;
-            SkPromiseImageTexture* promiseTexture = fFulfillProc(fContext);
+            sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(fContext);
             if (!promiseTexture) {
-                fReleaseProc(fContext, nullptr);
+                fReleaseProc(fContext);
                 return sk_sp<GrTexture>();
             }
             bool same = promiseTexture->uniqueID() == fLastFulfillID;
@@ -478,7 +478,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             if (!backendTexture.isValid()) {
                 // Even though the GrBackendTexture is not valid, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext, promiseTexture);
+                fReleaseProc(fContext);
                 return sk_sp<GrTexture>();
             }
 
@@ -487,10 +487,10 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             if (!tex) {
                 // Even though we failed to wrap the backend texture, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext, promiseTexture);
+                fReleaseProc(fContext);
                 return sk_sp<GrTexture>();
             }
-            fIdleContext = sk_make_sp<IdleContext>(fReleaseProc, fContext, promiseTexture);
+            fIdleContext = sk_make_sp<IdleContext>(fReleaseProc, fContext);
             // The texture gets a ref, which is balanced when the idle callback is called.
             fIdleContext->ref();
             tex->setIdleProc(IdleProc, fIdleContext.get());
@@ -510,18 +510,16 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     private:
         struct IdleContext : public SkNVRefCnt<IdleContext> {
-            IdleContext(PromiseImageTextureReleaseProc proc, PromiseImageTextureContext context,
-                        const SkPromiseImageTexture* texture)
-                    : fReleaseProc(proc), fTextureContext(context), fPromiseImageTexture(texture) {}
+            IdleContext(PromiseImageTextureReleaseProc proc, PromiseImageTextureContext context)
+                    : fReleaseProc(proc), fTextureContext(context) {}
             PromiseImageTextureReleaseProc fReleaseProc;
             PromiseImageTextureContext fTextureContext;
-            const SkPromiseImageTexture* fPromiseImageTexture;
             std::atomic<bool> fWasReleased{false};
         };
         static void IdleProc(void* context) {
             IdleContext* rc = static_cast<IdleContext*>(context);
             SkASSERT(!rc->fWasReleased.load());
-            rc->fReleaseProc(rc->fTextureContext, rc->fPromiseImageTexture);
+            rc->fReleaseProc(rc->fTextureContext);
             rc->fWasReleased.store(true);
             // Drop the texture's implicit ref on the IdleContext.
             rc->unref();
