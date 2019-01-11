@@ -134,7 +134,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         PromiseTextureChecker promiseChecker(backendTex);
         GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
         sk_sp<SkImage> refImg(
-                SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
+                SkImage_Gpu::MakePromiseTexture(sk_make_sp<GrContextWeakest>(ctx),
+                                                backendFormat, kWidth, kHeight,
                                                 GrMipMapped::kNo, texOrigin,
                                                 kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                                 nullptr,

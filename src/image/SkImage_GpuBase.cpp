@@ -6,10 +6,12 @@
  */
 
 #include "SkImage_GpuBase.h"
+
 #include "GrBackendSurface.h"
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrContextThreadSafeProxyPriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrTextureAdjuster.h"
@@ -19,14 +21,30 @@
 #include "SkReadPixelsRec.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
+
 SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, int width, int height, uint32_t uniqueID,
                                  SkAlphaType at, sk_sp<SkColorSpace> cs)
         : INHERITED(width, height, uniqueID)
-        , fContext(std::move(context))
+        , fContext1(std::move(context))
+        , fAlphaType(at)
+        , fColorSpace(std::move(cs)) {
+    SkASSERT(fContext1);
+    fThreadSafeProxy = fContext1->threadSafeProxy();
+}
+
+SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                                 int width, int height,
+                                 uint32_t uniqueID, SkAlphaType at, sk_sp<SkColorSpace> cs)
+        : INHERITED(width, height, uniqueID)
+        , fThreadSafeProxy(std::move(threadSafeProxy))
         , fAlphaType(at)
         , fColorSpace(std::move(cs)) {}
 
 SkImage_GpuBase::~SkImage_GpuBase() {}
+
+uint32_t SkImage_GpuBase::contextID() const {
+    return fThreadSafeProxy->priv().contextUniqueID();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +71,7 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
-    if (!fContext->contextPriv().resourceProvider()) {
+    if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -78,7 +96,7 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
         }
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext = fContext1->contextPriv().makeWrappedSurfaceContext(
         this->asTextureProxyRef(),
         fColorSpace);
     if (!sContext) {
@@ -97,6 +115,10 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
 }
 
 sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
+    if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
+        return nullptr;
+    }
+
     sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef();
 
     GrSurfaceDesc desc;
@@ -110,7 +132,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     }
 
     // TODO: Should this inherit our proxy's budgeted status?
-    sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext(fContext1->contextPriv().makeDeferredSurfaceContext(
             format, desc, proxy->origin(), GrMipMapped::kNo, SkBackingFit::kExact,
             proxy->isBudgeted()));
     if (!sContext) {
@@ -122,7 +144,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset) const {
     }
 
     // MDB: this call is okay bc we know 'sContext' was kExact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+    return sk_make_sp<SkImage_Gpu>(fContext1, kNeedNewImageUniqueID, fAlphaType,
                                    sContext->asTextureProxyRef(), fColorSpace);
 }
 
@@ -150,7 +172,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                    int srcX, int srcY, CachingHint) const {
-    if (!fContext->contextPriv().resourceProvider()) {
+    if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
         // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
         return false;
     }
@@ -172,7 +194,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext = fContext1->contextPriv().makeWrappedSurfaceContext(
         this->asTextureProxyRef(), fColorSpace);
     if (!sContext) {
         return false;
@@ -199,12 +221,12 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
                                                          const GrSamplerState& params,
                                                          SkScalar scaleAdjust[2]) const {
-    if (context->uniqueID() != fContext->uniqueID()) {
+    if (context->uniqueID() != fThreadSafeProxy->priv().contextUniqueID()) {
         SkASSERT(0);
         return nullptr;
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), this->asTextureProxyRef(), fAlphaType,
+    GrTextureAdjuster adjuster(context, this->asTextureProxyRef(), fAlphaType,
                                this->uniqueID(), fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, scaleAdjust);
 }
@@ -214,20 +236,22 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
     SkASSERT(proxy);
 
-    if (!fContext->contextPriv().resourceProvider() && !proxy->isInstantiated()) {
-        // This image was created with a DDL context and cannot be instantiated.
-        return GrBackendTexture();
-}
+    if (!proxy->isInstantiated() || flushPendingGrContextIO) {
+        if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
+            // This image was created with a DDL context and cannot be instantiated.
+            return GrBackendTexture();
+        }
 
-    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
-        return GrBackendTexture(); // invalid
+        if (!proxy->instantiate(fContext1->contextPriv().resourceProvider())) {
+            return GrBackendTexture(); // invalid
+        }
     }
 
     GrTexture* texture = proxy->peekTexture();
 
     if (texture) {
         if (flushPendingGrContextIO) {
-            fContext->contextPriv().prepareSurfaceForExternalIO(proxy.get());
+            fContext1->contextPriv().prepareSurfaceForExternalIO(proxy.get());
         }
         if (origin) {
             *origin = proxy->origin();
@@ -244,30 +268,80 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
     }
 
     sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef();
-    if (!fContext->contextPriv().resourceProvider() && !proxyRef->isInstantiated()) {
-        // This image was created with a DDL context and cannot be instantiated.
-        return nullptr;
-    }
 
-    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
-        return nullptr;
+    if (!proxyRef->isInstantiated()) {
+        if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
+            // This image was created with a DDL context and cannot be instantiated.
+            return nullptr;
+        }
+
+        if (!proxy->instantiate(fContext1->contextPriv().resourceProvider())) {
+            return nullptr;
+        }
     }
 
     return proxy->peekTexture();
 }
 
-bool SkImage_GpuBase::onIsValid(GrContext* context) const {
-    // The base class has already checked that context isn't abandoned (if it's not nullptr)
-    if (fContext->abandoned()) {
+sk_sp<SkImage> SkImage_GpuBase::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    if (!fContext1 || !fContext1->contextPriv().resourceProvider()) {
         return false;
     }
 
-    if (context && context != fContext.get()) {
+    auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
+                                               target.get(),      fAlphaType);
+    SkASSERT(xform);
+
+    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
+
+    GrBackendFormat format = proxy->backendFormat().makeTexture2D();
+    if (!format.isValid()) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        fContext1->contextPriv().makeDeferredRenderTargetContextWithFallback(
+            format, SkBackingFit::kExact, this->width(), this->height(),
+            proxy->config(), nullptr));
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    GrPaint paint;
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint.addColorTextureProcessor(std::move(proxy), SkMatrix::I());
+    paint.addColorFragmentProcessor(std::move(xform));
+
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                  SkRect::MakeIWH(this->width(), this->height()));
+    if (!renderTargetContext->asTextureProxy()) {
+        return nullptr;
+    }
+
+    // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    return sk_make_sp<SkImage_Gpu>(fContext1, kNeedNewImageUniqueID, fAlphaType,
+                                   renderTargetContext->asTextureProxyRef(), std::move(target));
+}
+
+bool SkImage_GpuBase::onIsValid(GrContext* context) const {
+    // The base class has already checked that 'context' isn't abandoned (if it's not nullptr)
+    if (fContext1 && fContext1->abandoned()) {
+        return false;
+    }
+
+    if (context && context->uniqueID() != fThreadSafeProxy->priv().contextUniqueID()) {
         return false;
     }
 
     return true;
 }
+
+#if GR_TEST_UTILS
+void SkImage_GpuBase::resetContext17(sk_sp<GrContext> newContext) {
+    SkASSERT(fContext1->uniqueID() == newContext->uniqueID());
+    fContext1 = newContext;
+}
+#endif
 
 bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
                                              int numTextures, const SkYUVAIndex yuvaIndices[4],
@@ -354,7 +428,8 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
-        GrContext* context, int width, int height, GrSurfaceOrigin origin, GrPixelConfig config,
+        GrContextWeakest* context,
+        int width, int height, GrSurfaceOrigin origin, GrPixelConfig config,
         GrBackendFormat backendFormat, GrMipMapped mipMapped,
         PromiseImageTextureFulfillProc fulfillProc,
         PromiseImageTextureReleaseProc releaseProc,
@@ -422,8 +497,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // If we didn't just call the done proc above then it will get called when the texture
             // is removed from the cache after this message is processed.
             if (fLastFulfilledKey.isValid()) {
-                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                        GrUniqueKeyInvalidatedMessage(fLastFulfilledKey, fContextID));
+                SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(
+                        GrUniqueKeyInvalidatedMessage17(fLastFulfilledKey, fContextID));
             }
         }
 

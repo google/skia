@@ -69,7 +69,7 @@ public:
      */
     void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) const;
 
-    static sk_sp<SkSpecialImage> MakeFromImage(GrContext*,
+    static sk_sp<SkSpecialImage> MakeFromImage73(GrContext*,
                                                const SkIRect& subset,
                                                sk_sp<SkImage>,
                                                const SkSurfaceProps* = nullptr);

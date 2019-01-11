@@ -40,16 +40,16 @@ struct TessInfo {
 };
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
+class PathInvalidator : public SkPathRef::GenIDChangeListener2 {
 public:
     PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID) {}
 
 private:
-    GrUniqueKeyInvalidatedMessage fMsg;
+    GrUniqueKeyInvalidatedMessage17 fMsg;
 
     void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg);
     }
 };
 
@@ -288,7 +288,7 @@ private:
         info.fCount = count;
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
-        fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
+        fShape.addGenIDChangeListener3(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
     }
 
     void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {

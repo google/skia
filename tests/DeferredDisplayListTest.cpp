@@ -748,6 +748,8 @@ static void dummy_done_proc(void*) { }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
+
     {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
         sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
@@ -771,14 +773,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
 
         GrBackendFormat format = create_backend_format(context, kRGBA_8888_SkColorType,
                                                        kRGBA_8888_GrPixelConfig);
-        sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           kRGBA_8888_SkColorType,
-                                                           kPremul_SkAlphaType, nullptr,
-                                                           dummy_fulfill_proc,
-                                                           dummy_release_proc,
-                                                           dummy_done_proc,
-                                                           nullptr);
+        sk_sp<SkImage> image = proxy->makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         kPremul_SkAlphaType, nullptr,
+                                                         dummy_fulfill_proc,
+                                                         dummy_release_proc,
+                                                         dummy_done_proc,
+                                                         nullptr);
         REPORTER_ASSERT(reporter, !image);
     }
 
@@ -863,6 +865,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
+
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
     sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
 
@@ -875,14 +879,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
         for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
-            sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, mipMapped,
-                                                               kTopLeft_GrSurfaceOrigin,
-                                                               kRGBA_8888_SkColorType,
-                                                               kPremul_SkAlphaType, nullptr,
-                                                               dummy_fulfill_proc,
-                                                               dummy_release_proc,
-                                                               dummy_done_proc,
-                                                               nullptr);
+            sk_sp<SkImage> image = proxy->makePromiseTexture(format, 32, 32, mipMapped,
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             kRGBA_8888_SkColorType,
+                                                             kPremul_SkAlphaType, nullptr,
+                                                             dummy_fulfill_proc,
+                                                             dummy_release_proc,
+                                                             dummy_done_proc,
+                                                             nullptr);
             if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipMapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;

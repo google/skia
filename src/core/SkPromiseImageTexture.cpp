@@ -25,7 +25,7 @@ SkPromiseImageTexture::SkPromiseImageTexture(SkPromiseImageTexture&& that) {
 
 SkPromiseImageTexture& SkPromiseImageTexture::operator=(SkPromiseImageTexture&& that) {
     for (const auto& msg : fMessages) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(msg);
     }
     fMessages = that.fMessages;
     that.fMessages.reset();
@@ -38,7 +38,7 @@ SkPromiseImageTexture& SkPromiseImageTexture::operator=(SkPromiseImageTexture&& 
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {
     for (const auto& msg : fMessages) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(msg);
     }
 }
 

@@ -394,7 +394,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     GrSurfaceOrigin origin =
             random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     auto proxy = context->contextPriv().proxyProvider()->createProxy(
             format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
 
