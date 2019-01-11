@@ -913,7 +913,8 @@ Layout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER)* */
+            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER | PLS | PLSIN |
+            PLSOUT)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
@@ -988,6 +989,18 @@ Modifiers Parser::modifiers() {
             case Token::HASSIDEEFFECTS:
                 this->nextToken();
                 flags |= Modifiers::kHasSideEffects_Flag;
+                break;
+            case Token::PLS:
+                this->nextToken();
+                flags |= Modifiers::kPLS_Flag;
+                break;
+            case Token::PLSIN:
+                this->nextToken();
+                flags |= Modifiers::kPLSIn_Flag;
+                break;
+            case Token::PLSOUT:
+                this->nextToken();
+                flags |= Modifiers::kPLSOut_Flag;
                 break;
             default:
                 return Modifiers(layout, flags);

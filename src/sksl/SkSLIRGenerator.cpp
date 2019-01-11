@@ -822,8 +822,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     bool foundRTAdjust = false;
     for (size_t i = 0; i < intf.fDeclarations.size(); i++) {
         std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
-                                                                         *intf.fDeclarations[i],
-                                                                         Variable::kGlobal_Storage);
+                                                                 *intf.fDeclarations[i],
+                                                                 Variable::kInterfaceBlock_Storage);
         if (!decl) {
             return nullptr;
         }

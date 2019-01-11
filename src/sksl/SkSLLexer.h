@@ -87,6 +87,12 @@ struct Token {
         BUFFER,
 #undef HASSIDEEFFECTS
         HASSIDEEFFECTS,
+#undef PLS
+        PLS,
+#undef PLSIN
+        PLSIN,
+#undef PLSOUT
+        PLSOUT,
 #undef STRUCT
         STRUCT,
 #undef LAYOUT

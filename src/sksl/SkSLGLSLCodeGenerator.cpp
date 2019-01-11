@@ -1112,6 +1112,15 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
     }
+    if (modifiers.fFlags & Modifiers::kPLS_Flag) {
+        this->write("__pixel_localEXT ");
+    }
+    if (modifiers.fFlags & Modifiers::kPLSIn_Flag) {
+        this->write("__pixel_local_inEXT ");
+    }
+    if (modifiers.fFlags & Modifiers::kPLSOut_Flag) {
+        this->write("__pixel_local_outEXT ");
+    }
     if (usesPrecisionModifiers()) {
         if (modifiers.fFlags & Modifiers::kLowp_Flag) {
             this->write("lowp ");
@@ -1460,7 +1469,8 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                     this->writeVarDeclarations(decl, true);
                     this->writeLine();
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
-                           fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
+                           fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
+                           ((VarDeclaration&) *decl.fVars[0]).fVar->fWriteCount) {
                     if (fProgram.fSettings.fFragColorIsInOut) {
                         this->write("inout ");
                     } else {
