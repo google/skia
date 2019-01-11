@@ -21,6 +21,7 @@
 #include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
+#include "SkShaper.h"
 #include "SkTextBlob.h"
 #include "SkTextUtils.h"
 #include "SkTo.h"
@@ -259,42 +260,139 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     font.setSubpixel(true);
     font.setEdging(SkFont::Edging::kAntiAlias);
 
-    const auto align_fract = [](SkTextUtils::Align align) {
-        switch (align) {
-        case SkTextUtils::kLeft_Align:   return  0.0f;
-        case SkTextUtils::kCenter_Align: return -0.5f;
-        case SkTextUtils::kRight_Align:  return -1.0f;
-        }
-        return 0.0f; // go home, msvc...
-    }(fText.fAlign);
+//    const auto align_fract = [](SkTextUtils::Align align) {
+//        switch (align) {
+//        case SkTextUtils::kLeft_Align:   return  0.0f;
+//        case SkTextUtils::kCenter_Align: return -0.5f;
+//        case SkTextUtils::kRight_Align:  return -1.0f;
+//        }
+//        return 0.0f; // go home, msvc...
+//    }(fText.fAlign);
 
-    const auto line_spacing = font.getSpacing();
-    float y_off             = 0;
-    SkSTArray<256, SkGlyphID, true> line_glyph_buffer;
-    SkTextBlobBuilder builder;
+//    const auto line_spacing = font.getSpacing();
+//    float y_off             = 0;
+//    SkSTArray<256, SkGlyphID, true> line_glyph_buffer;
 
-    const auto& push_line = [&](const char* start, const char* end) {
-        if (end > start) {
-            const auto len   = SkToSizeT(end - start);
-            line_glyph_buffer.reset(font.countText(start, len, kUTF8_SkTextEncoding));
-            SkAssertResult(font.textToGlyphs(start, len, kUTF8_SkTextEncoding, line_glyph_buffer.data(),
-                    line_glyph_buffer.count())
-                           == line_glyph_buffer.count());
+    class BlobMaker final : public SkShaper::RunHandler {
+    public:
+        BlobMaker(const SkFont& font, SkTextUtils::Align align)
+            : fFont(font)
+            , fAlignFactor(AlignFactor(align)) {}
 
-            const auto x_off = align_fract != 0
-                    ? align_fract * font.measureText(start, len, kUTF8_SkTextEncoding)
-                    : 0;
-            const auto& buf  = builder.allocRun(font, line_glyph_buffer.count(), x_off, y_off);
-            if (!buf.glyphs) {
-                return;
+        Buffer newRunBuffer(const RunInfo& info, const SkFont& font, int glyphCount,
+                            int utf8textCount) override {
+            this->commitRun();
+
+            if (info.fLineIndex != fPendingRunInfo.fLineIndex) {
+                SkASSERT(info.fLineIndex > fPendingRunInfo.fLineIndex);
+                this->commitLine();
             }
 
-            memcpy(buf.glyphs, line_glyph_buffer.data(),
-                   SkToSizeT(line_glyph_buffer.count()) * sizeof(SkGlyphID));
+            fPendingRunInfo = info;
+            fPendingLineAdvance += info.fAdvance.x(); // Do we ever care about advance.y?
 
-            y_off += line_spacing;
+            fGlyphs.push_back_n(glyphCount);
+            fPositions.push_back_n(glyphCount);
+
+            return {
+                &fGlyphs[fPendingRunIndex],
+                &fPositions[fPendingRunIndex],
+                nullptr,
+                nullptr
+            };
         }
+
+        sk_sp<SkTextBlob> makeBlob() {
+            this->commitRun();
+            this->commitLine();
+
+            SkTextBlobBuilder builder;
+
+            // TODO: this is not correct, the font may vary per run.
+            const auto& buffer = builder.allocRunPos(fFont, SkToInt(this->size()));
+            memcpy(buffer.glyphs, fGlyphs.data(), this->size() * sizeof(SkGlyphID));
+            memcpy(buffer.pos, fPositions.data(), this->size() * sizeof(SkPoint));
+
+            return builder.make();
+        }
+
+        void commitLine() {
+            if (fAlignFactor) {
+                const auto offset = fPendingLineAdvance * fAlignFactor;
+
+                for (auto i = fPendingLineIndex; i < this->size(); ++i) {
+                    fPositions[SkToInt(i)].offset(offset, 0);
+                }
+            }
+
+            fPendingLineAdvance = 0;
+            fPendingLineIndex = this->size();
+        }
+
+    private:
+        static float AlignFactor(SkTextUtils::Align align) {
+            switch (align) {
+            case SkTextUtils::kLeft_Align:   return  0.0f;
+            case SkTextUtils::kCenter_Align: return -0.5f;
+            case SkTextUtils::kRight_Align:  return -1.0f;
+            }
+            return 0.0f; // go home, msvc...
+        }
+
+        size_t size() const {
+            SkASSERT(fGlyphs.size() == fPositions.size());
+            return fGlyphs.size();
+        }
+
+        void commitRun() {
+            for (auto i = fPendingRunIndex; i < this->size(); ++i) {
+                fPositions[SkToInt(i)].offset(0, fPendingRunInfo.fAscent);
+            }
+
+            fPendingRunIndex = this->size();
+        }
+
+        const SkFont                    fFont;
+        const SkScalar                  fAlignFactor;
+
+        SkSTArray<128, SkGlyphID, true> fGlyphs;
+        SkSTArray<128, SkPoint  , true> fPositions;
+        size_t                          fPendingRunIndex = 0;
+        SkShaper::RunHandler::RunInfo   fPendingRunInfo = { 0, { 0, 0 }, 0, 0, 0 };
+        size_t                          fPendingLineIndex = 0;
+        SkScalar                        fPendingLineAdvance = 0;
     };
+
+    BlobMaker blobMaker(font, fText.fAlign);
+
+    const auto& push_line = [&](const char* start, const char* end) {
+        SkShaper shaper(font.refTypeface());
+        shaper.shape(&blobMaker, font, start, SkToSizeT(end - start), true, { 0, 0 }, SK_ScalarMax);
+        blobMaker.commitLine();
+    };
+
+//    const auto& push_line = [&](const char* start, const char* end) {
+//        if (end > start) {
+//            const auto len   = SkToSizeT(end - start);
+//            line_glyph_buffer.reset(font.countText(start, len, kUTF8_SkTextEncoding));
+//            SkAssertResult(font.textToGlyphs(start, len, kUTF8_SkTextEncoding, line_glyph_buffer.data(),
+//                    line_glyph_buffer.count())
+//                           == line_glyph_buffer.count());
+
+//            const auto x_off = align_fract != 0
+//                    ? align_fract * font.measureText(start, len, kUTF8_SkTextEncoding)
+//                    : 0;
+//            const auto& buf  = builder.allocRun(font, line_glyph_buffer.count(), x_off, y_off);
+//            if (!buf.glyphs) {
+//                return;
+//            }
+
+//            memcpy(buf.glyphs, line_glyph_buffer.data(),
+//                   SkToSizeT(line_glyph_buffer.count()) * sizeof(SkGlyphID));
+
+//            y_off += line_spacing;
+//        }
+//    };
 
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
@@ -313,7 +411,7 @@ sk_sp<SkTextBlob> TextAdapter::makeBlob() const {
     }
     push_line(line_start, ptr);
 
-    return builder.make();
+    return blobMaker.makeBlob();
 }
 
 void TextAdapter::apply() {
