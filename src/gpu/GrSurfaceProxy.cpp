@@ -72,6 +72,11 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantia
     } else {
         SkASSERT(is_valid_non_lazy(desc));
     }
+
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        SkASSERT(!SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag));
+        fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
+    }
 }
 
 // Wrapped version
