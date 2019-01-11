@@ -103,7 +103,9 @@ public:
                              &tileVec);
 
             SkSize scale;
-            matrix.decomposeScale(&scale, nullptr);
+            if (!matrix.decomposeScale(&scale, nullptr)) {
+                scale.set(SK_ScalarNearlyZero, SK_ScalarNearlyZero);
+            }
             fBaseFrequency.set(baseFrequencyX * SkScalarInvert(scale.width()),
                                baseFrequencyY * SkScalarInvert(scale.height()));
             fTileSize.set(SkScalarRoundToInt(tileVec.fX), SkScalarRoundToInt(tileVec.fY));
