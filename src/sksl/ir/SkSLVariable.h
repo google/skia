@@ -25,6 +25,7 @@ struct Expression;
 struct Variable : public Symbol {
     enum Storage {
         kGlobal_Storage,
+        kInterfaceBlock_Storage,
         kLocal_Storage,
         kParameter_Storage
     };
@@ -52,7 +53,9 @@ struct Variable : public Symbol {
     }
 
     bool dead() const {
-        return !fWriteCount || (!fReadCount && !(fModifiers.fFlags & Modifiers::kOut_Flag));
+        return !fWriteCount || (!fReadCount && !(fModifiers.fFlags & (Modifiers::kOut_Flag |
+                                                                      Modifiers::kPLS_Flag |
+                                                                      Modifiers::kPLSOut_Flag)));
     }
 
     mutable Modifiers fModifiers;
