@@ -16,6 +16,24 @@
       "revId": "817a743c74621def3203b7b10bd476643164276e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5270f662_249ba9f8",
+        "filename": "tests/ClearTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-11T20:26:46Z",
+      "side": 1,
+      "message": "Nope! That was a holdover when trying to sort out which clear_op_test call was failing.",
+      "parentUuid": "0aa71b51_5d0ade7b",
+      "revId": "817a743c74621def3203b7b10bd476643164276e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
