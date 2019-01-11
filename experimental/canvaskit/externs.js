@@ -93,7 +93,7 @@ var CanvasKit = {
 		drawRect: function() {},
 		drawRoundRect: function() {},
 		drawShadow: function() {},
-		drawText: function() {},
+		drawTextBlob: function() {},
 		drawVertices: function() {},
 		flush: function() {},
 		getTotalMatrix: function() {},
@@ -162,7 +162,6 @@ var CanvasKit = {
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
 		getStrokeWidth: function() {},
-		getTextSize: function() {},
 		setAntiAlias: function() {},
 		setBlendMode: function() {},
 		setColor: function() {},
@@ -175,8 +174,6 @@ var CanvasKit = {
 		setStrokeMiter: function() {},
 		setStrokeWidth: function() {},
 		setStyle: function() {},
-		setTextSize: function() {},
-		setTypeface: function() {},
 
 		//private API
 		delete: function() {},
@@ -244,6 +241,11 @@ var CanvasKit = {
 		_flush: function() {},
 		_getRasterN32PremulSurface: function() {},
 		delete: function() {},
+	},
+
+	SkTextBlob: {
+		MakeFromText: function() {},
+		_MakeFromText: function() {},
 	},
 
 	SkVertices: {
@@ -384,6 +386,13 @@ var CanvasKit = {
 		Miter: {},
 		Round: {},
 		Bevel: {},
+	},
+
+	TextEncoding: {
+		UTF8: {},
+		UTF16: {},
+		UTF32: {},
+		GlyphID: {},
 	},
 
 	TileMode: {
