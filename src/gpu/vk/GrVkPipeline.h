@@ -51,11 +51,14 @@ public:
 
 protected:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}
+    ~GrVkPipeline() { SkASSERT(freed); }
 
     VkPipeline  fPipeline;
 
 private:
     void freeGPUData(GrVkGpu* gpu) const override;
+
+    bool freed = false;
 
     typedef GrVkResource INHERITED;
 };

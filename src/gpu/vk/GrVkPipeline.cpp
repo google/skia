@@ -563,6 +563,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
                                                                           nullptr, &vkPipeline));
     if (err) {
         SkDebugf("Failed to create pipeline. Error: %d\n", err);
+        this->freed = true; // Avoid assertion.
         return nullptr;
     }
 
@@ -571,6 +572,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
 
 void GrVkPipeline::freeGPUData(GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
+    this->freed = true;
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
