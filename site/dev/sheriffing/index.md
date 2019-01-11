@@ -157,14 +157,14 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 * (Preferred but slower) Make a separate Blink patch by editing LayoutTests/TestExpectations
   * Add # comment about what has changed (I usually paraphrase the crbug text)
   * Add line(s) like the following after the comment:
-      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsManualRebaseline ]
+      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ Skip ]  # needs rebaseline
   * Commit the patch you created and wait until it lands and rolls into Chrome
 
 * Retry the DEPS roll (for the 1st/dispreferred option this usually means just retrying the layout bots)
 * Make a Blink patch by editing LayoutTests/TestExpectations
   * Add # comment about what has changed
   * Add line(s) like the following after the comment:
-      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ NeedsRebaseline ]
+      * crbug.com/<bug#youjustcreated> foo/bar/test-name.html [ Skip ]  # needs rebaseline
         * (if you took the second option above you can just edit the existing line(s))
 
 * If you took the first/dispreferred option above:
