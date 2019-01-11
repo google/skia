@@ -195,6 +195,9 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     // Max vertex attribs is the same on all devices
     fMaxVertexAttributes = 31;
 
+    // Metal does not support scissor + clear
+    fPerformPartialClearsAsDraws = true;
+
     // RenderTarget and Texture size
     if (this->isMac()) {
         fMaxRenderTargetSize = 16384;
