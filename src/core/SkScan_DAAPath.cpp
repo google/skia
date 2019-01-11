@@ -82,25 +82,23 @@ static inline void add_coverage_delta_segment(int y,
     SkASSERT(SkIntToFixed(L) <= l && l <= r && r <= SkIntToFixed(R));
 
     switch (pixelsHit) {
-        // A few special cases for steep slopes (above y=x).
+        // If the edge intersects only one pixel, it splits the pixel into two trapezoids.
         //
-        // The general pattern is,
-        //    - pixelsHit pixels will have partial coverage deltas
-        //    - all the rest of the coverage will go to the next pixel at x=R.
-
+        // The pixel's coverage is proportional to the area of the trapezoid under the edge,
+        // and then the next pixel at x=R gets a delta up to full coverage.
+        //
+        // If the edge lies exactly on a pixel boundary vertically, it intersects zero pixels.
+        // This is an edge case (ahem) of the single-pixel scenario and can use the same math.
+        // In the end no matter what we calculate for alpha, we'll put the full coverage at
+        // the pixel at x=L=R.  (alpha at L, rowHeight - alpha at R).  In practice alpha=0.
+        //
+        // TODO(mtklein):  I've kept a separate pixelsHit=0 case here because the call to
+        // deltas->addDelta(L,y, 0) actually seems to make things draw differently.  :'(
         case 0: {
-            // The edge falls exactly vertically between pixels.
-            //
-            // There's no partial coverage to distribute... it all goes to the next pixel at x=R.
             deltas->addDelta(R, y, rowHeight * sign);
             return;
         }
-
         case 1: {
-            // The edge intersects only one pixel, splitting the pixel into two trapezoids.
-            //
-            // This pixel's coverage is proportional to the area of the trapezoid under the edge,
-            // then as usual the next pixel at x=R gets a delta up to full coverage.
             SkFixed alpha = ( (SkIntToFixed(R) - l) +
                               (SkIntToFixed(R) - r) ) / 2;
 
@@ -114,14 +112,16 @@ static inline void add_coverage_delta_segment(int y,
             return;
         }
 
+        // The edge intersects two pixels, with a triangle under the edge
+        // in the first pixel, and a triangle above the edge in the second.
+        //
+        // The the first pixel gets coverage proportional to its triangle,
+        // and the second proportional to all but its triangle,
+        // then the third pixel at x=R gets the final delta up to full coverage.
+        //
+        // TODO(mtklein): I think can actually be seen as the general "3+" case below, in
+        // the limit where there are zero pixels between the two triangle-shaped end caps.
         case 2: {
-            // The edge intersects two pixels, with a triangle under the edge
-            // in the first pixel, and a triangle above the edge in the second.
-            //
-            // The the first pixel gets coverage proportional to its triangle,
-            // and the second proportional to all but its triangle,
-            // then as usual the next pixel at x=R gets a delta up to full coverage.
-
             SkFixed middle  = SkIntToFixed(L+1);
             SkFixed alpha1  =             partial_triangle_to_alpha(middle - l, edge->fDY);
             SkFixed alpha2  = rowHeight - partial_triangle_to_alpha(r - middle, edge->fDY);
