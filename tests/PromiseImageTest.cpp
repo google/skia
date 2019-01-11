@@ -17,11 +17,11 @@ using namespace sk_gpu_test;
 
 struct PromiseTextureChecker {
     explicit PromiseTextureChecker(const GrBackendTexture& tex)
-            : fTexture(tex)
+            : fTexture(SkPromiseImageTexture::Make(tex))
             , fFulfillCount(0)
             , fReleaseCount(0)
             , fDoneCount(0) {}
-    SkPromiseImageTexture fTexture;
+    sk_sp<SkPromiseImageTexture> fTexture;
     int fFulfillCount;
     int fReleaseCount;
     int fDoneCount;
@@ -33,29 +33,26 @@ struct PromiseTextureChecker {
      * it is deleted. The default argument will remove the existing texture without installing a
      * valid replacement.
      */
-    SkPromiseImageTexture replaceTexture(const GrBackendTexture& tex = GrBackendTexture()) {
+    sk_sp<const SkPromiseImageTexture> replaceTexture(
+            const GrBackendTexture& tex = GrBackendTexture()) {
         // Can't change this while in active fulfillment.
         SkASSERT(fFulfillCount == fReleaseCount);
         auto temp = std::move(fTexture);
-        fTexture = SkPromiseImageTexture(tex);
-        return temp;
+        fTexture = SkPromiseImageTexture::Make(tex);
+        return std::move(temp);
     }
 
     SkTArray<GrUniqueKey> uniqueKeys() const {
-        return fTexture.testingOnly_uniqueKeysToInvalidate();
+        return fTexture->testingOnly_uniqueKeysToInvalidate();
     }
 
-    static SkPromiseImageTexture* Fulfill(void* self) {
+    static sk_sp<SkPromiseImageTexture> Fulfill(void* self) {
         auto checker = static_cast<PromiseTextureChecker*>(self);
-        SkASSERT(checker->fTexture.isValid());
         checker->fFulfillCount++;
-        checker->fLastFulfilledTexture = checker->fTexture.backendTexture();
-        return &checker->fTexture;
+        checker->fLastFulfilledTexture = checker->fTexture->backendTexture();
+        return checker->fTexture;
     }
-    static void Release(void* self, const SkPromiseImageTexture* texture) {
-        SkASSERT(&static_cast<PromiseTextureChecker*>(self)->fTexture == texture);
-        static_cast<PromiseTextureChecker*>(self)->fReleaseCount++;
-    }
+    static void Release(void* self) { static_cast<PromiseTextureChecker*>(self)->fReleaseCount++; }
     static void Done(void* self) {
         static_cast<PromiseTextureChecker*>(self)->fDoneCount++;
     }
@@ -347,7 +344,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                                              reporter));
     REPORTER_ASSERT(reporter,
                     GrBackendTexture::TestingOnly_Equals(
-                            promiseChecker.replaceTexture().backendTexture(), backendTex1));
+                            promiseChecker.replaceTexture()->backendTexture(), backendTex1));
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
 
     ctx->contextPriv().getResourceCache()->purgeAsNeeded();
@@ -427,9 +424,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
 
     // Now we test keeping tex2 alive but fulfilling with a new texture.
-    SkPromiseImageTexture promiseImageTexture2 = promiseChecker.replaceTexture(backendTex3);
+    sk_sp<const SkPromiseImageTexture> promiseImageTexture2 =
+            promiseChecker.replaceTexture(backendTex3);
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(
-                                      promiseImageTexture2.backendTexture(), backendTex2));
+                                      promiseImageTexture2->backendTexture(), backendTex2));
 
     canvas->drawImage(refImg, 0, 0);
 
@@ -454,7 +452,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     ctx->contextPriv().getResourceCache()->purgeAsNeeded();
     REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
     REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));
-    gpu->deleteTestingOnlyBackendTexture(promiseImageTexture2.backendTexture());
+    gpu->deleteTestingOnlyBackendTexture(promiseImageTexture2->backendTexture());
 
     // Make a new promise image also backed by texture 3.
     sk_sp<SkImage> refImg2(
@@ -497,7 +495,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     // If we delete the SkPromiseImageTexture we should trigger both key removals.
     REPORTER_ASSERT(reporter,
                     GrBackendTexture::TestingOnly_Equals(
-                            promiseChecker.replaceTexture().backendTexture(), backendTex3));
+                            promiseChecker.replaceTexture()->backendTexture(), backendTex3));
 
     ctx->contextPriv().getResourceCache()->purgeAsNeeded();
     REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));

@@ -83,10 +83,12 @@ private:
 
         void setBackendTexture(const GrBackendTexture& backendTexture);
 
-        void fulfill() {
+        sk_sp<SkPromiseImageTexture> fulfill() {
+            SkASSERT(fPromiseImageTexture);
             SkASSERT(fUnreleasedFulfills >= 0);
             ++fUnreleasedFulfills;
             ++fTotalFulfills;
+            return fPromiseImageTexture;
         }
 
         void release() {
@@ -102,11 +104,13 @@ private:
 
         void wasAddedToImage() { fNumImages++; }
 
-        SkPromiseImageTexture* promiseImageTexture() { return &fPromiseImageTexture; }
+        const SkPromiseImageTexture* promiseImageTexture() const {
+          return fPromiseImageTexture.get();
+        }
 
     private:
         GrContext* fContext;
-        SkPromiseImageTexture fPromiseImageTexture;
+        sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
         int fNumImages = 0;
         int fTotalFulfills = 0;
         int fTotalReleases = 0;
@@ -169,9 +173,9 @@ private:
             return fCallbackContexts[index];
         }
 
-        const GrBackendTexture& backendTexture(int index) const {
+        const SkPromiseImageTexture* promiseTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVASizeInfo::kMaxCount : 1));
-            return fCallbackContexts[index]->promiseImageTexture()->backendTexture();
+            return fCallbackContexts[index]->promiseImageTexture();
         }
 
         void setNormalBitmap(const SkBitmap& bm) { fBitmap = bm; }
@@ -216,19 +220,14 @@ private:
         SkTArray<sk_sp<SkImage>>*      fPromiseImages;
     };
 
-    static SkPromiseImageTexture* PromiseImageFulfillProc(void* textureContext) {
+    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        SkASSERT(callbackContext->promiseImageTexture()->isValid());
-        callbackContext->fulfill();
-        return callbackContext->promiseImageTexture();
+        return callbackContext->fulfill();
     }
 
-    static void PromiseImageReleaseProc(void* textureContext,
-                                        const SkPromiseImageTexture* texture) {
+    static void PromiseImageReleaseProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
         callbackContext->release();
-        SkASSERT(texture == callbackContext->promiseImageTexture());
-        SkASSERT(callbackContext->promiseImageTexture()->isValid());
     }
 
     static void PromiseImageDoneProc(void* textureContext) {
