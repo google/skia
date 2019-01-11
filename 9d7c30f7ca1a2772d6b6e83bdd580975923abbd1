@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1e9d140_af84fcd2",
+        "filename": "site/dev/chrome/blink.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-11T15:59:10Z",
+      "side": 1,
+      "message": "You\u0027re trying to remove NeedsManualRebaseline because it seems mechanically the same as Skip, but also acknowledging that NeedsManualRebaseline is different in policy by asking for a comment. I find it odd that the linked bug states that there are stale NeedsManualRebaseline in test expectations and then proposes to replace it with Skip so that the problem can go unnoticed in the future. Also, isn\u0027t NeedsManualRebaseline more like [ Pass Failure Timeout Crash ] and not like Skip? With Skip the test isn\u0027t run at all I think, leading to gaps in monitoring and hiding the output from those looking at layout test results. \n\nWithout the signalling of NeedsManualRebaseline, I think these instructions are better written as [ Failure Pass ] since it isn\u0027t the intent to ignore new crashes and timeouts in the general case. In the exceptional case that it is the intent, someone can go figure out they need to use Skip or use a better method to get the code change into Chromium.\n\nThis entire file is now very out of date and needs to be re-worked anyway. Should probably get around to that at some point.",
+      "range": {
+        "startLine": 17,
+        "startChar": 36,
+        "endLine": 17,
+        "endChar": 54
+      },
+      "revId": "9d7c30f7ca1a2772d6b6e83bdd580975923abbd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
