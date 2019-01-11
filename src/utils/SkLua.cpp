@@ -1879,7 +1879,7 @@ static int lsk_newTextBlob(lua_State* L) {
 #else
     SkFont font;
 #endif
-    SkTextBlobBuilderLineHandler builder;
+    SkTextBlobBuilderRunHandler builder;
     SkPoint end = shaper.shape(&builder, font, text, strlen(text), true,
                                { bounds.left(), bounds.top() }, bounds.width());
 

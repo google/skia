@@ -31,7 +31,7 @@ unsigned utf8_lead_byte_to_count(const char* ptr) {
     return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
 }
 
-SkPoint SkShaper::shape(LineHandler* handler,
+SkPoint SkShaper::shape(RunHandler* handler,
                         const SkFont& srcFont,
                         const char* utf8text,
                         size_t textBytes,
@@ -52,7 +52,14 @@ SkPoint SkShaper::shape(LineHandler* handler,
     font.getMetrics(&metrics);
     point.fY -= metrics.fAscent;
 
-    const auto buffer = handler->newLineBuffer(font, glyphCount, textBytes);
+    const RunHandler::RunInfo info = {
+        0,
+        { font.measureText(utf8text, textBytes, SkTextEncoding::kUTF8), 0 },
+        metrics.fAscent,
+        metrics.fDescent,
+        metrics.fLeading,
+    };
+    const auto buffer = handler->newRunBuffer(info, font, glyphCount, textBytes);
     SkAssertResult(font.textToGlyphs(utf8text, textBytes, SkTextEncoding::kUTF8, buffer.glyphs,
                                      glyphCount) == glyphCount);
     font.getPos(buffer.glyphs, glyphCount, buffer.positions, point);

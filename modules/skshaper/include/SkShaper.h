@@ -27,9 +27,17 @@ public:
     SkShaper(sk_sp<SkTypeface> face);
     ~SkShaper();
 
-    class LineHandler {
+    class RunHandler {
     public:
-        virtual ~LineHandler() = default;
+        virtual ~RunHandler() = default;
+
+        struct RunInfo {
+            size_t   fLineIndex;
+            SkVector fAdvance;
+            SkScalar fAscent,
+                     fDescent,
+                     fLeading;
+        };
 
         struct Buffer {
             SkGlyphID* glyphs;    // required
@@ -38,11 +46,12 @@ public:
             uint32_t*  clusters;  // optional
         };
 
-        virtual Buffer newLineBuffer(const SkFont&, int glyphCount, int utf8textCount) = 0;
+        virtual Buffer newRunBuffer(const RunInfo&, const SkFont&, int glyphCount,
+                                    int utf8textCount) = 0;
     };
 
     bool good() const;
-    SkPoint shape(LineHandler* handler,
+    SkPoint shape(RunHandler* handler,
                   const SkFont& srcPaint,
                   const char* utf8text,
                   size_t textBytes,
@@ -61,11 +70,11 @@ private:
 /**
  * Helper for shaping text directly into a SkTextBlob.
  */
-class SkTextBlobBuilderLineHandler final : public SkShaper::LineHandler {
+class SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
 public:
     sk_sp<SkTextBlob> makeBlob();
 
-    SkShaper::LineHandler::Buffer newLineBuffer(const SkFont&, int, int) override;
+    SkShaper::RunHandler::Buffer newRunBuffer(const RunInfo&, const SkFont&, int, int) override;
 
 private:
     SkTextBlobBuilder fBuilder;

@@ -407,17 +407,19 @@ struct ShapedRun {
     SkFont fFont;
     UBiDiLevel fLevel;
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
+    SkVector fAdvance = { 0, 0 };
 };
 
 static constexpr bool is_LTR(UBiDiLevel level) {
     return (level & 1) == 0;
 }
 
-static void append(SkShaper::LineHandler* handler, const ShapedRun& run, int start, int end,
+static void append(SkShaper::RunHandler* handler, const SkShaper::RunHandler::RunInfo& runInfo,
+                   const ShapedRun& run, int start, int end,
                    SkPoint* p) {
     unsigned len = end - start;
 
-    const auto buffer = handler->newLineBuffer(run.fFont, len, run.fUtf8End - run.fUtf8Start);
+    const auto buffer = handler->newRunBuffer(runInfo, run.fFont, len, run.fUtf8End - run.fUtf8Start);
     SkASSERT(buffer.glyphs);
     SkASSERT(buffer.positions);
 
@@ -522,7 +524,7 @@ bool SkShaper::good() const {
            fImpl->fBreakIterator;
 }
 
-SkPoint SkShaper::shape(LineHandler* handler,
+SkPoint SkShaper::shape(RunHandler* handler,
                         const SkFont& srcPaint,
                         const char* utf8,
                         size_t utf8Bytes,
@@ -647,6 +649,7 @@ SkPoint SkShaper::shape(LineHandler* handler,
         hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
         double textSizeY = run.fFont.getSize() / scaleY;
         double textSizeX = run.fFont.getSize() / scaleX * run.fFont.getScaleX();
+        SkVector runAdvance = { 0, 0 };
         for (unsigned i = 0; i < len; i++) {
             ShapedGlyph& glyph = run.fGlyphs[i];
             glyph.fID = info[i].codepoint;
@@ -658,7 +661,10 @@ SkPoint SkShaper::shape(LineHandler* handler,
             glyph.fHasVisual = true; //!font->currentTypeface()->glyphBoundsAreZero(glyph.fID);
             //info->mask safe_to_break;
             glyph.fMustLineBreakBefore = false;
+
+            runAdvance += glyph.fAdvance;
         }
+        run.fAdvance = runAdvance;
 
         int32_t clusterOffset = utf8Start - utf8;
         uint32_t previousCluster = 0xFFFFFFFF;
@@ -729,6 +735,7 @@ SkPoint SkShaper::shape(LineHandler* handler,
     SkScalar maxDescent = 0;
     SkScalar maxLeading = 0;
     int previousRunIndex = -1;
+    size_t lineIndex = 0;
     while (glyphIterator.current()) {
         int runIndex = glyphIterator.fRunIndex;
         int glyphIndex = glyphIterator.fGlyphIndex;
@@ -767,7 +774,16 @@ SkPoint SkShaper::shape(LineHandler* handler,
             int endGlyphIndex = (logicalIndex == runIndex)
                               ? glyphIndex + 1
                               : runs[logicalIndex].fNumGlyphs;
-            append(handler, runs[logicalIndex], startGlyphIndex, endGlyphIndex, &currentPoint);
+
+            const auto& run = runs[logicalIndex];
+            const RunHandler::RunInfo info = {
+                lineIndex,
+                run.fAdvance,
+                maxAscent,
+                maxDescent,
+                maxLeading,
+            };
+            append(handler, info, run, startGlyphIndex, endGlyphIndex, &currentPoint);
         }
 
         currentPoint.fY += maxDescent + maxLeading;
@@ -776,6 +792,7 @@ SkPoint SkShaper::shape(LineHandler* handler,
         maxDescent = 0;
         maxLeading = 0;
         previousRunIndex = -1;
+        ++lineIndex;
         previousBreak = glyphIterator;
     }
 }
