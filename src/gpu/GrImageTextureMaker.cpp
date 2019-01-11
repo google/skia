@@ -81,6 +81,9 @@ SkAlphaType GrYUVAImageTextureMaker::alphaType() const {
 SkColorSpace* GrYUVAImageTextureMaker::colorSpace() const {
     return fImage->colorSpace();
 }
+SkColorSpace* GrYUVAImageTextureMaker::targetColorSpace() const {
+    return fImage->targetColorSpace();
+}
 
 std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProcessor(
     const SkMatrix& textureMatrix,

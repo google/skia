@@ -692,7 +692,8 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,
             false,
             GrMipMapped::kNo,
             2*bm.width());
-    } else {
+    }
+    if (!tex.isValid()) {
         tex = gpu->createTestingOnlyBackendTexture(
             bm.getPixels(),
             bm.width(),
@@ -719,14 +720,18 @@ namespace skiagm {
 // YV12
 class WackyYUVFormatsGM : public GM {
 public:
-    WackyYUVFormatsGM() {
+    WackyYUVFormatsGM(bool useTargetColorSpace) : fUseTargetColorSpace(useTargetColorSpace) {
         this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
 
     SkString onShortName() override {
-        return SkString("wacky_yuv_formats");
+        SkString name("wacky_yuv_formats");
+        if (fUseTargetColorSpace) {
+            name += "_cs";
+        }
+        return name;
     }
 
     SkISize onISize() override {
@@ -753,6 +758,10 @@ protected:
             SkTDArray<SkRect> circles;
             SkPath path = create_splat(origin, innerRadius, outerRadius, 1.0f, 7, &circles);
             fOriginalBMs[1] = make_bitmap(path, circles, true);
+        }
+
+        if (fUseTargetColorSpace) {
+            fTargetColorSpace = SkColorSpace::MakeSRGB()->makeColorSpin();
         }
     }
 
@@ -850,8 +859,13 @@ protected:
 
                 for (int format = kAYUV_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, y, format);
-                    canvas->drawImage(fImages[opaque][cs][format], x, y);
-
+                    if (fUseTargetColorSpace && fImages[opaque][cs][format]) {
+                        sk_sp<SkImage> csImage =
+                            fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace);
+                        canvas->drawImage(csImage, x, y);
+                    } else {
+                        canvas->drawImage(fImages[opaque][cs][format], x, y);
+                    }
                     y += kTileWidthHeight + kPad;
                 }
 
@@ -863,11 +877,14 @@ protected:
 private:
     SkBitmap       fOriginalBMs[2];
     sk_sp<SkImage> fImages[2][kLastEnum_SkYUVColorSpace+1][kLast_YUVFormat+1];
+    bool           fUseTargetColorSpace;
+    sk_sp<SkColorSpace> fTargetColorSpace;
 
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new WackyYUVFormatsGM;)
+DEF_GM(return new WackyYUVFormatsGM(false);)
+DEF_GM(return new WackyYUVFormatsGM(true);)
 }
