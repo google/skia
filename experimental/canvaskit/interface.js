@@ -453,6 +453,29 @@
       return font;
     }
 
+    CanvasKit.SkTextBlob.MakeFromText = function(str, font) {
+      // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+      // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+      // Add 1 for null terminator
+      var strLen = lengthBytesUTF8(str) + 1;
+      var strPtr = CanvasKit._malloc(strLen);
+      // Add 1 for the null terminator.
+      stringToUTF8(str, strPtr, strLen);
+
+      var blob = CanvasKit.SkTextBlob._MakeFromText(strPtr, strLen - 1, font, CanvasKit.TextEncoding.UTF8);
+      if (!blob) {
+        SkDebug('Could not make textblob from string "' + str + '"');
+        return null;
+      }
+
+      var origDelete = blob.delete.bind(blob);
+      blob.delete = function() {
+        CanvasKit._free(strPtr);
+        origDelete();
+      }
+      return blob;
+    }
+
     // Run through the JS files that are added at compile time.
     if (CanvasKit._extraInitializations) {
       CanvasKit._extraInitializations.forEach(function(init) {
