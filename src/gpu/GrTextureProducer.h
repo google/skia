@@ -115,7 +115,7 @@ protected:
     friend class GrTextureProducer_TestAccess;
 
     GrTextureProducer(GrContext* context, int width, int height, bool isAlphaOnly)
-        : fContext(context)
+        : fContext3(context)
         , fWidth(width)
         , fHeight(height)
         , fIsAlphaOnly(isAlphaOnly) {}
@@ -175,7 +175,7 @@ protected:
             const SkRect& domain,
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
-    GrContext* fContext;
+    GrContext* fContext3;
 
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
