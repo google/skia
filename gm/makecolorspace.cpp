@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkImage.h"
 #include "SkImagePriv.h"
 
@@ -82,3 +83,37 @@ private:
 };
 
 DEF_GM(return new MakeCSGM;)
+
+DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE) {
+    sk_sp<SkImage> images[] = {
+        GetResourceAsImage("images/mandrill_128.png"),
+        GetResourceAsImage("images/color_wheel.png"),
+    };
+    auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
+
+    // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            // Unmodified
+            canvas->drawImage(images[j], 0, 0);
+
+            // 565 in a wide color space (should be visibly quantized).
+            // With the lazy color_wheel image, this fails to draw, because we refuse to decode
+            // transparent sources to opaque color types. Sigh.
+            canvas->drawImage(images[j]->makeColorTypeAndColorSpace(kRGB_565_SkColorType, rec2020),
+                              128, 0);
+
+            // Grayscale in the original color space. This fails in even more cases, due to the
+            // above opaque issue, and because Ganesh doesn't support drawing to gray, at all.
+            canvas->drawImage(images[j]->makeColorTypeAndColorSpace(kGray_8_SkColorType,
+                                                                    images[j]->refColorSpace()),
+                              256, 0);
+
+            images[j] = canvas->getGrContext()
+                    ? images[j]->makeTextureImage(canvas->getGrContext(), nullptr)
+                    : images[j]->makeRasterImage();
+
+            canvas->translate(0, 128);
+        }
+    }
+}
