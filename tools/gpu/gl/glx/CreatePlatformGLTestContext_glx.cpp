@@ -266,7 +266,7 @@ void GLXGLTestContext::destroyGLContext() {
         if (fContext) {
             if (glXGetCurrentContext() == fContext) {
                 // This will ensure that the context is immediately deleted.
-                glXMakeContextCurrent(fDisplay, None, None, nullptr);
+                SkASSERT(glXMakeContextCurrent(fDisplay, None, None, nullptr));
             }
             glXDestroyContext(fDisplay, fContext);
             fContext = nullptr;

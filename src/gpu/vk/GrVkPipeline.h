@@ -24,6 +24,7 @@ struct SkIRect;
 
 class GrVkPipeline : public GrVkResource {
 public:
+    static void assert();
     static GrVkPipeline* Create(GrVkGpu* gpu,
                                 const GrPrimitiveProcessor& primProc,
                                 const GrPipeline& pipeline,
@@ -51,11 +52,14 @@ public:
 
 protected:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}
+    ~GrVkPipeline() { SkASSERT(freed); }
 
     VkPipeline  fPipeline;
 
 private:
     void freeGPUData(GrVkGpu* gpu) const override;
+
+    bool freed = false;
 
     typedef GrVkResource INHERITED;
 };

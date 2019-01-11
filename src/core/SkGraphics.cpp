@@ -7,6 +7,7 @@
 
 #include "SkGraphics.h"
 
+#include "GrVkPipeline.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkCpu.h"
@@ -59,6 +60,9 @@ void SkGraphics::PurgeAllCaches() {
     SkGraphics::PurgeFontCache();
     SkGraphics::PurgeResourceCache();
     SkImageFilter::PurgeCache();
+#ifdef SK_VULKAN
+    GrVkPipeline::assert();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
