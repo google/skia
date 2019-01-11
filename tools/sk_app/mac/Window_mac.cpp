@@ -71,28 +71,10 @@ bool Window_mac::initWindow() {
     fWindowID = SDL_GetWindowID(fWindow);
     gWindowMap.add(this);
 
-    fGLContext = SDL_GL_CreateContext(fWindow);
-    if (!fGLContext) {
-        SkDebugf("%s\n", SDL_GetError());
-        this->closeWindow();
-        return false;
-    }
-
-    // Workaround for a bug in SDL that causes a black screen until you move the window on 10.14.
-    SDL_PumpEvents();
-    int actualWidth, actualHeight;
-    SDL_GetWindowSize(fWindow, &actualWidth, &actualHeight);
-    SDL_SetWindowSize(fWindow, actualWidth, actualHeight);
-
     return true;
 }
 
 void Window_mac::closeWindow() {
-    if (fGLContext) {
-        SDL_GL_DeleteContext(fGLContext);
-        fGLContext = nullptr;
-    }
-
     if (fWindow) {
         gWindowMap.remove(fWindowID);
         SDL_DestroyWindow(fWindow);
@@ -269,11 +251,21 @@ bool Window_mac::attach(BackendType attachType) {
 
     window_context_factory::MacWindowInfo info;
     info.fWindow = fWindow;
-    info.fGLContext = fGLContext;
     switch (attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
+
+#ifdef SK_DAWN
+        case kDawn_BackendType:
+#ifdef SK_DAWN_METAL
+            fWindowContext = window_context_factory::NewDawnMTLForMac(info, fRequestedDisplayParams);
+#endif
+#ifdef SK_DAWN_OPENGL
+            fWindowContext = window_context_factory::NewDawnGLForMac(info, fRequestedDisplayParams);
+#endif
+            break;
+#endif
 
         case kNativeGL_BackendType:
         default:
