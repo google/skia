@@ -37,7 +37,7 @@ public:
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxy.get()); }
 
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
 
     /**
         Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
