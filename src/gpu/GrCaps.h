@@ -251,8 +251,23 @@ public:
         return fDynamicStateArrayGeometryProcessorTextureSupport;
     }
 
-    virtual bool performPartialClearsAsDraws() const {
-        return false;
+    // Not all backends support clearing with a scissor test (e.g. Metal).
+    // FIXME(michaelludwig): This should always return true if performColorClearsAsDraws() returns
+    // true, but the current partial-clear code doesn't handle transparent clear colors correctly
+    bool performPartialClearsAsDraws() const {
+        return fPerformPartialClearsAsDraws;
+    }
+
+    // Many drivers have issues with color clears.
+    bool performColorClearsAsDraws() const {
+        return fPerformColorClearsAsDraws;
+    }
+
+    /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
+    /// clears. The minimal repro steps are not precisely known but drawing a rect with a stencil
+    /// op instead of using glClear seems to resolve the issue.
+    bool performStencilClearsAsDraws() const {
+        return fPerformStencilClearsAsDraws;
     }
 
     /**
@@ -331,6 +346,9 @@ protected:
     bool fSupportsAHardwareBufferImages              : 1;
     bool fHalfFloatVertexAttributeSupport            : 1;
     bool fClampToBorderSupport                       : 1;
+    bool fPerformPartialClearsAsDraws                : 1;
+    bool fPerformColorClearsAsDraws                  : 1;
+    bool fPerformStencilClearsAsDraws                : 1;
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;

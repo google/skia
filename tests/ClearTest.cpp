@@ -225,13 +225,14 @@ static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
+    // Regular clear
     clear_op_test(reporter, ctxInfo.grContext());
-    if (ctxInfo.backend() == GrBackendApi::kOpenGL) {
-        GrContextOptions options(ctxInfo.options());
-        options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
-        sk_gpu_test::GrContextFactory workaroundFactory(options);
-        clear_op_test(reporter, workaroundFactory.get(ctxInfo.type()));
-    }
+
+    // Force drawing for clears
+    GrContextOptions options(ctxInfo.options());
+    options.fUseDrawInsteadOfClear = GrContextOptions::Enable::kYes;
+    sk_gpu_test::GrContextFactory workaroundFactory(options);
+    clear_op_test(reporter, workaroundFactory.get(ctxInfo.type()));
 }
 
 void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* context) {
@@ -290,11 +291,12 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* c
 }
 // From crbug.com/768134
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
+    // Regular clear
     fullscreen_clear_with_layer_test(reporter, ctxInfo.grContext());
-    if (ctxInfo.backend() == GrBackendApi::kOpenGL) {
-        GrContextOptions options(ctxInfo.options());
-        options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
-        sk_gpu_test::GrContextFactory workaroundFactory(options);
-        fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
-    }
+
+    // Use draws for clears
+    GrContextOptions options(ctxInfo.options());
+    options.fUseDrawInsteadOfClear = GrContextOptions::Enable::kYes;
+    sk_gpu_test::GrContextFactory workaroundFactory(options);
+    fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
 }
