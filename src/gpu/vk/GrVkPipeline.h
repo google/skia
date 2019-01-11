@@ -24,6 +24,7 @@ struct SkIRect;
 
 class GrVkPipeline : public GrVkResource {
 public:
+    static void assertZeroCount();
     static GrVkPipeline* Create(GrVkGpu* gpu,
                                 const GrPrimitiveProcessor& primProc,
                                 const GrPipeline& pipeline,
