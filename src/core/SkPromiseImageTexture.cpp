@@ -13,27 +13,9 @@
 std::atomic<uint32_t> SkPromiseImageTexture::gUniqueID{1};
 
 SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendTexture) {
-    if (backendTexture.isValid()) {
-        fBackendTexture = backendTexture;
-        fUniqueID = gUniqueID++;
-    }
-}
-
-SkPromiseImageTexture::SkPromiseImageTexture(SkPromiseImageTexture&& that) {
-    *this = std::move(that);
-}
-
-SkPromiseImageTexture& SkPromiseImageTexture::operator=(SkPromiseImageTexture&& that) {
-    for (const auto& msg : fMessages) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
-    }
-    fMessages = that.fMessages;
-    that.fMessages.reset();
-    fBackendTexture = that.fBackendTexture;
-    that.fBackendTexture = {};
-    fUniqueID = that.fUniqueID;
-    that.fUniqueID = SK_InvalidUniqueID;
-    return *this;
+    SkASSERT(backendTexture.isValid());
+    fBackendTexture = backendTexture;
+    fUniqueID = gUniqueID++;
 }
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {
