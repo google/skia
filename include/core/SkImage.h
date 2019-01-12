@@ -1020,18 +1020,6 @@ public:
     */
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
-    /** Creates SkImage in target SkColorType and SkColorSpace.
-        Returns nullptr if SkImage could not be created.
-
-        Returns original SkImage if it is in target SkColorType and SkColorSpace.
-
-        @param targetColorType  SkColorType of returned SkImage
-        @param targetColorSpace SkColorSpace of returned SkImage
-        @return                 created SkImage in target SkColorType and SkColorSpace
-    */
-    sk_sp<SkImage> makeColorTypeAndColorSpace(SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetColorSpace) const;
-
 private:
     SkImage(int width, int height, uint32_t uniqueID);
     friend class SkImage_Base;

@@ -53,7 +53,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* subset,
-                                   const SkColorType* colorType, sk_sp<SkColorSpace> colorSpace)
+                                   sk_sp<SkColorSpace> colorSpace)
         : fSharedGenerator(std::move(gen)) {
     if (!fSharedGenerator) {
         return;
@@ -84,13 +84,8 @@ SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* su
 
     fInfo   = info.makeWH(subset->width(), subset->height());
     fOrigin = SkIPoint::Make(subset->x(), subset->y());
-    if (colorType || colorSpace) {
-        if (colorType) {
-            fInfo = fInfo.makeColorType(*colorType);
-        }
-        if (colorSpace) {
-            fInfo = fInfo.makeColorSpace(colorSpace);
-        }
+    if (colorSpace) {
+        fInfo = fInfo.makeColorSpace(colorSpace);
         fUniqueID = SkNextID::ImageID();
     }
 }
@@ -254,33 +249,30 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
     SkASSERT(fInfo.bounds() != subset);
 
     const SkIRect generatorSubset = subset.makeOffset(fOrigin.x(), fOrigin.y());
-    const SkColorType colorType = fInfo.colorType();
-    Validator validator(fSharedGenerator, &generatorSubset, &colorType, fInfo.refColorSpace());
+    Validator validator(fSharedGenerator, &generatorSubset, fInfo.refColorSpace());
     return validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
 }
 
-sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                          sk_sp<SkColorSpace> targetCS) const {
-    SkAutoExclusive autoAquire(fOnMakeColorTypeAndSpaceMutex);
-    if (fOnMakeColorTypeAndSpaceResult &&
-        targetCT == fOnMakeColorTypeAndSpaceResult->colorType() &&
-        SkColorSpace::Equals(targetCS.get(), fOnMakeColorTypeAndSpaceResult->colorSpace())) {
-        return fOnMakeColorTypeAndSpaceResult;
+sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+    SkAutoExclusive autoAquire(fOnMakeColorSpaceMutex);
+    if (fOnMakeColorSpaceTarget &&
+        SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {
+        return fOnMakeColorSpaceResult;
     }
     const SkIRect generatorSubset =
             SkIRect::MakeXYWH(fOrigin.x(), fOrigin.y(), fInfo.width(), fInfo.height());
-    Validator validator(fSharedGenerator, &generatorSubset, &targetCT, targetCS);
+    Validator validator(fSharedGenerator, &generatorSubset, target);
     sk_sp<SkImage> result = validator ? sk_sp<SkImage>(new SkImage_Lazy(&validator)) : nullptr;
     if (result) {
-        fOnMakeColorTypeAndSpaceResult = result;
+        fOnMakeColorSpaceTarget = target;
+        fOnMakeColorSpaceResult = result;
     }
     return result;
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> generator,
                                           const SkIRect* subset) {
-    SkImage_Lazy::Validator
-            validator(SharedGenerator::Make(std::move(generator)), subset, nullptr, nullptr);
+    SkImage_Lazy::Validator validator(SharedGenerator::Make(std::move(generator)), subset, nullptr);
 
     return validator ? sk_make_sp<SkImage_Lazy>(&validator) : nullptr;
 }
@@ -435,10 +427,9 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
 
-        // The pixels in the texture will be in the generator's color space.
-        // If onMakeColorTypeAndColorSpace has been called then this will not match this image's
-        // color space. To correct this, apply a color space conversion from the generator's color
-        // space to this image's color space.
+        // The pixels in the texture will be in the generator's color space. If onMakeColorSpace
+        // has been called then this will not match this image's color space. To correct this, apply
+        // a color space conversion from the generator's color space to this image's color space.
         SkColorSpace* generatorColorSpace = fSharedGenerator->fGenerator->getInfo().colorSpace();
         SkColorSpace* thisColorSpace = fInfo.colorSpace();
 
