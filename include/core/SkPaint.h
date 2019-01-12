@@ -231,6 +231,9 @@ public:
     };
     #endif
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_FLAGS_API
+private:
+#endif
     /** Returns paint settings described by SkPaint::Flags. Each setting uses one
         bit, and can be tested with SkPaint::Flags members.
 
@@ -244,6 +247,7 @@ public:
         @param flags  union of SkPaint::Flags for SkPaint
     */
     void setFlags(uint32_t flags);
+public:
 
     /** Returns true if pixels on the active edges of SkPath may be drawn with partial transparency.
 

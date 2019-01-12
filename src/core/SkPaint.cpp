@@ -391,7 +391,9 @@ static inline int BPF_Mask(int bits) {
 }
 
 static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
-    paint->setFlags(packed >> 16);
+    unsigned paint_flags = packed >> 16;
+    paint->setAntiAlias((paint_flags & 1) != 0);
+    paint->setDither((paint_flags & 4) != 0);
     paint->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
