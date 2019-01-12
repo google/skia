@@ -897,7 +897,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
 
-    uint64_t workbuf_len = imgcfg.workbuf_len().max_incl;
+    uint64_t workbuf_len = wuffs_gif__decoder__workbuf_len(decoder.get()).max_incl;
     void*    workbuf_ptr_raw = workbuf_len <= SIZE_MAX ? sk_malloc_canfail(workbuf_len) : nullptr;
     if (!workbuf_ptr_raw) {
         *result = SkCodec::kInternalError;
