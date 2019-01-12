@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdc10385_dcb40ef4",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-12T16:14:20Z",
+      "side": 1,
+      "message": "Either put Experimental at the beginning of the dox, or update SkImage_Reference.bmh. Either will fix the per-commit bot",
+      "range": {
+        "startLine": 1032,
+        "startChar": 19,
+        "endLine": 1032,
+        "endChar": 45
+      },
+      "revId": "f855c3c785bb783446b00b7b8fad02be6b1bf465",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
