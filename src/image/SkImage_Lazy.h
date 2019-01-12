@@ -20,8 +20,7 @@ class SharedGenerator;
 class SkImage_Lazy : public SkImage_Base {
 public:
     struct Validator {
-        Validator(sk_sp<SharedGenerator>, const SkIRect* subset, const SkColorType* colorType,
-                  sk_sp<SkColorSpace> colorSpace);
+        Validator(sk_sp<SharedGenerator>, const SkIRect* subset, sk_sp<SkColorSpace> colorSpace);
 
         operator bool() const { return fSharedGenerator.get(); }
 
@@ -56,7 +55,7 @@ public:
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
     bool onIsLazyGenerated() const override { return true; }
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
 
     bool onIsValid(GrContext*) const override;
 
@@ -78,16 +77,17 @@ private:
 
     sk_sp<SharedGenerator> fSharedGenerator;
     // Note that fInfo is not necessarily the info from the generator. It may be cropped by
-    // onMakeSubset and its color type/space may be changed by onMakeColorTypeAndColorSpace.
+    // onMakeSubset and its color space may be changed by onMakeColorSpace.
     const SkImageInfo      fInfo;
     const SkIPoint         fOrigin;
 
     uint32_t fUniqueID;
 
-    // Repeated calls to onMakeColorTypeAndColorSpace will result in a proliferation of unique IDs
-    // and SkImage_Lazy instances. Cache the result of the last successful call.
-    mutable SkMutex             fOnMakeColorTypeAndSpaceMutex;
-    mutable sk_sp<SkImage>      fOnMakeColorTypeAndSpaceResult;
+    // Repeated calls to onMakeColorSpace will result in a proliferation of unique IDs and
+    // SkImage_Lazy instances. Cache the result of the last successful onMakeColorSpace call.
+    mutable SkMutex             fOnMakeColorSpaceMutex;
+    mutable sk_sp<SkColorSpace> fOnMakeColorSpaceTarget;
+    mutable sk_sp<SkImage>      fOnMakeColorSpaceResult;
 
 #if SK_SUPPORT_GPU
     // When the SkImage_Lazy goes away, we will iterate over all the unique keys we've used and

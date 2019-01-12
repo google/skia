@@ -36,7 +36,7 @@ public:
 
     virtual bool onIsTextureBacked() const override { return SkToBool(fProxies[0].get()); }
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const final;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const final;
 
     virtual bool isYUVA() const override { return true; }
     virtual bool asYUVATextureProxiesRef(sk_sp<GrTextureProxy> proxies[4],
