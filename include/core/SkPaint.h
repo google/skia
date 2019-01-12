@@ -208,7 +208,6 @@ public:
     enum Flags {
         kAntiAlias_Flag          = 0x01,   //!< mask for setting anti-alias
         kDither_Flag             = 0x04,   //!< mask for setting dither
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
@@ -217,9 +216,6 @@ public:
         kAutoHinting_Flag        = 0x800,  //!< mask for setting force hinting
                                            // 0x1000 used to be kVertical
         kAllFlags                = 0xFFFF, //!< mask of all Flags
-#else
-        kAllFlags                = 0x05,
-#endif
     };
 
     #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
