@@ -68,9 +68,7 @@ static int32_t next_id() {
     return id;
 }
 
-GrContext::GrContext(GrBackendApi backend, int32_t id)
-        : fBackend(backend)
-        , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
+GrContext::GrContext(GrBackendApi backend, int32_t uniqueID) : INHERITED(backend, uniqueID) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
@@ -79,18 +77,18 @@ GrContext::GrContext(GrBackendApi backend, int32_t id)
 
 bool GrContext::initCommon(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fCaps);  // needs to have been initialized by derived classes
+    SkASSERT(this->caps());  // needs to have been initialized by derived classes
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
 
     if (fGpu) {
-        fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, fUniqueID);
+//        fCaps = fGpu->refCaps();
+        fResourceCache = new GrResourceCache(this->caps(), &fSingleOwner, this->uniqueID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
                                                    options.fExplicitlyAllocateGPUResources);
         fProxyProvider =
-                new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
+                new GrProxyProvider(fResourceProvider, fResourceCache, this->refCaps(), &fSingleOwner);
     } else {
-        fProxyProvider = new GrProxyProvider(this->uniqueID(), fCaps, &fSingleOwner);
+        fProxyProvider = new GrProxyProvider(this->uniqueID(), this->refCaps(), &fSingleOwner);
     }
 
     if (fResourceCache) {
@@ -139,7 +137,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                                options.fSortRenderTargets,
                                                options.fReduceOpListSplitting));
 
-    fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
+    fGlyphCache = new GrGlyphCache(this->caps(), options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID()));
@@ -169,6 +167,31 @@ GrContext::~GrContext() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrContextWeakest::GrContextWeakest(GrBackendApi backend,
+                                   const GrContextOptions& options,
+                                   uint32_t uniqueID)
+        : fBackend1(backend)
+        , fOptions(options)
+        , fUniqueID(SK_InvalidGenID == uniqueID ? next_id() : uniqueID) {
+}
+
+GrContextWeakest::~GrContextWeakest() {
+}
+
+bool GrContextWeakest::matches(GrContext* context) const {
+    return context->uniqueID() == fUniqueID;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
+
+}
+
+#if 0
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
                                                    GrBackendApi backend,
                                                    const GrContextOptions& options,
@@ -178,6 +201,7 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
         , fBackend(backend)
         , fOptions(options)
         , fFPFactoryCache(std::move(cache)) {}
+#endif
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
@@ -238,6 +262,68 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
                                      surfaceProps);
 }
+
+#include "SkImage_Gpu.h"
+#include "SkImage_GpuYUVA.h"
+#include "SkYUVAIndex.h"
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
+    return SkImage_Gpu::MakePromiseTexture(this,
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           promiseDoneProc,
+                                           textureContext);
+}
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makeYUVAPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkISize yuvaSizes[],
+        const SkYUVAIndex yuvaIndices[4],
+        int imageWidth,
+        int imageHeight,
+        GrSurfaceOrigin imageOrigin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContexts[]) {
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(this,
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaSizes,
+                                                   yuvaIndices,
+                                                   imageWidth,
+                                                   imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
@@ -346,18 +432,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
+int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 
-int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
+int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->isConfigTexturable(config);
+    return this->caps()->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1083,7 +1169,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
         if (!GrPixelConfigToColorType(config, &colorType)) {
             return nullptr;
         }
-        localFormat = fContext->fCaps->getBackendFormatFromColorType(colorType);
+        localFormat = fContext->caps()->getBackendFormatFromColorType(colorType);
     }
 
     return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config,
@@ -1171,7 +1257,7 @@ bool GrContext::validPMUPMConversionExists() {
 }
 
 bool GrContext::supportsDistanceFieldText() const {
-    return fCaps->shaderCaps()->supportsDistanceFieldText();
+    return this->caps()->shaderCaps()->supportsDistanceFieldText();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1218,10 +1304,10 @@ SkString GrContextPriv::dump() const {
     GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
     GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
     GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
-    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");
-    fContext->fCaps->dumpJSON(&writer);
+    fContext->caps()->dumpJSON(&writer);
 
     writer.appendName("gpu");
     fContext->fGpu->dumpJSON(&writer);

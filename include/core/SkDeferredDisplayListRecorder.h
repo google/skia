@@ -16,13 +16,14 @@
 
 class GrBackendFormat;
 class GrBackendTexture;
+
 class GrContext;
 class SkCanvas;
 class SkImage;
 class SkPromiseImageTexture;
 class SkSurface;
-struct SkYUVAIndex;
-struct SkYUVASizeInfo;
+//struct SkYUVAIndex;
+//struct SkYUVASizeInfo;
 
 /*
  * This class is intended to be used as:
@@ -174,7 +175,7 @@ private:
     const SkSurfaceCharacterization             fCharacterization;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrContext>                            fContext;
+    sk_sp<GrRecordingContext>                   fContext;
     sk_sp<SkDeferredDisplayList::LazyProxyData> fLazyProxyData;
     sk_sp<SkSurface>                            fSurface;
 #endif

@@ -14,20 +14,37 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class SK_API GrDDLContext : public GrContext {
+class SK_API GrDDLContext : public GrRecordingContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->priv().backend(), proxy->priv().contextUniqueID()) {
-        fCaps = proxy->priv().refCaps();
-        fFPFactoryCache = proxy->priv().fpFactoryCache();
-        SkASSERT(fFPFactoryCache);
-        fThreadSafeProxy = std::move(proxy);
+            : INHERITED(proxy->priv().backend(),
+                        proxy->priv().contextOptions(),
+                        proxy->priv().contextUniqueID()) {
+//        fFPFactoryCache = proxy->priv().fpFactoryCache();
+//        SkASSERT(fFPFactoryCache);
+//        fThreadSafeProxy = std::move(proxy);
+//        this->init17(proxy->priv().refCaps(), proxy->priv().contextOptions());
     }
 
     ~GrDDLContext() override {
         // The GrDDLContext doesn't actually own the fRestrictedAtlasManager so don't delete it
     }
 
+    static sk_sp<GrRecordingContext> Make(const sk_sp<GrContextThreadSafeProxy>& proxy) {
+        sk_sp<GrDDLContext> context(new GrDDLContext(proxy));
+
+        // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
+        // also not be created
+        if (!context->init17(proxy->priv().refCaps(),
+                             proxy->priv().fpFactoryCache())) {
+            return nullptr;
+        }
+
+        return context;
+    }
+
+
+#if 0
     void abandonContext() override {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::abandonContext();
@@ -42,35 +59,35 @@ public:
         SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::freeGpuResources();
     }
+#endif
 
 protected:
-    bool init(const GrContextOptions& options) override {
-        SkASSERT(fCaps);  // should've been set in ctor
-        SkASSERT(fThreadSafeProxy); // should've been set in the ctor
-
-        if (!INHERITED::initCommon(options)) {
+    bool init17(sk_sp<const GrCaps> caps,
+                sk_sp<GrSkSLFPFactoryCache> cache) override {
+        if (!INHERITED::init17(std::move(caps), std::move(cache))) {
             return false;
         }
+
+//        SkASSERT(fThreadSafeProxy); // should've been set in the ctor
+
+//        if (!INHERITED::initCommon(options)) {
+//            return false;
+//        }
 
         return true;
     }
 
+#if 0
     GrAtlasManager* onGetAtlasManager() override {
         SkASSERT(0);   // the DDL Recorders should never invoke this
         return nullptr;
     }
+#endif
 
 private:
-    typedef GrContext INHERITED;
+    typedef GrRecordingContext INHERITED;
 };
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
-    sk_sp<GrContext> context(new GrDDLContext(proxy));
-
-    // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
-    // also not be created
-    if (!context->init(proxy->priv().contextOptions())) {
-        return nullptr;
-    }
-    return context;
+sk_sp<GrRecordingContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
+    return GrDDLContext::Make(std::move(proxy));
 }

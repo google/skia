@@ -51,9 +51,98 @@ class SkSurfaceCharacterization;
 class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
+struct SkYUVAIndex;
+//struct SkYUVASizeInfo;
 
-class SK_API GrContext : public SkRefCnt {
+#include "GrCaps.h"
+
+class GrImageContext;
+class GrRecordingContext;
+
+// This context only has the caps and the unique ID - thread-safe context
+class SK_API GrContextWeakest : public SkRefCnt {
 public:
+    virtual ~GrContextWeakest();
+
+    /*
+     * The 3D API backing this context
+     */
+    GrBackendApi backend() const { return fBackend1; }
+
+    const GrContextOptions& options() const { return fOptions; }
+
+    /**
+     * An ID associated with this context, guaranteed to be unique.
+     */
+    uint32_t uniqueID() const { return fUniqueID; }
+
+    bool matches(GrContext* context) const;
+
+    // TODO: hide these ?'
+    const GrCaps* caps() const { return fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+
+    GrContextWeakest* weakest() { return this; }
+    virtual GrImageContext* asImageContext() { return nullptr; }
+    virtual GrRecordingContext* asRecordingContext() { return nullptr; }
+    virtual GrContext* asDirectContext() { return nullptr; }
+
+protected:
+    // must be called after the ctor!
+    virtual bool init17(sk_sp<const GrCaps> caps,
+                        sk_sp<GrSkSLFPFactoryCache> cache) {
+        fCaps = std::move(caps);
+        return true;
+    };
+
+private:
+    friend class GrImageContext; // for ctor
+
+    GrContextWeakest(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID);
+
+    const GrBackendApi     fBackend1;
+    const GrContextOptions fOptions;
+    const uint32_t         fUniqueID;
+    sk_sp<const GrCaps>    fCaps;
+
+    typedef SkRefCnt INHERITED;
+};
+
+// This context can create GrSurfaceProxies (and thus has a proxy provider) - **new**
+class SK_API GrImageContext : public GrContextWeakest {
+public:
+
+    GrImageContext* asImageContext() override { return this; }
+
+private:
+    friend class GrRecordingContext; // for ctor
+
+    GrImageContext(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID)
+            : INHERITED(backend, options, uniqueID) {}
+
+    typedef GrContextWeakest INHERITED;
+};
+
+// This context can record ops (and thus has a drawing manager) - recording/DDL context
+class SK_API GrRecordingContext : public GrImageContext {
+public:
+    GrRecordingContext* asRecordingContext() override { return this; }
+
+private:
+    friend class GrContext;    // for ctor
+    friend class GrDDLContext; // for ctor
+
+    GrRecordingContext(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {}
+
+    typedef GrImageContext INHERITED;
+};
+
+// This context can flush (and thus has a resourceProvider and a gpu) - direct context
+class SK_API GrContext : public GrRecordingContext {
+public:
+    GrContext* asDirectContext() override { return this; }
+
     /**
      * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
      * GrGLMakeNativeInterface() is used if it succeeds.
@@ -268,11 +357,6 @@ public:
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
 
-    /**
-     * An ID associated with this context, guaranteed to be unique.
-     */
-    uint32_t uniqueID() { return fUniqueID; }
-
     // Provides access to functions that aren't part of the public API.
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
@@ -286,15 +370,13 @@ public:
     void storeVkPipelineCacheData();
 
 protected:
-    GrContext(GrBackendApi, int32_t id = SK_InvalidGenID);
+    GrContext(GrBackendApi, const GrContextOptions& options, int32_t id = SK_InvalidGenID);
 
     bool initCommon(const GrContextOptions&);
-    virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    const GrBackendApi                         fBackend;
-    sk_sp<const GrCaps>                     fCaps;
+//    sk_sp<const GrCaps>                     fCaps;
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
     sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
 
@@ -326,8 +408,6 @@ private:
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
-    const uint32_t                          fUniqueID;
-
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
@@ -356,18 +436,16 @@ private:
      */
     static void TextBlobCacheOverBudgetCB(void* data);
 
-    typedef SkRefCnt INHERITED;
+    typedef GrRecordingContext INHERITED;
 };
 
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
-class SK_API GrContextThreadSafeProxy : public SkRefCnt {
+class SK_API GrContextThreadSafeProxy : public GrContextWeakest {
 public:
-    ~GrContextThreadSafeProxy();
-
-    bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
+    ~GrContextThreadSafeProxy() override;
 
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
@@ -406,9 +484,93 @@ public:
                                   const SkSurfaceProps& surfaceProps,
                                   bool isMipMapped, bool willUseGLFBO0 = false);
 
+    // Matches the defines in SkImage_GpuBase.h
+    typedef void* TextureContext;
+    typedef void (*TextureReleaseProc)(TextureContext textureContext);
+    typedef void (*TextureFulfillProc)(TextureContext textureContext, GrBackendTexture* outTexture);
+    typedef void (*PromiseDoneProc)(TextureContext textureContext);
+
+    /**
+        Create a new SkImage that is very similar to an SkImage created by MakeFromTexture. The main
+        difference is that the client doesn't have the backend texture on the gpu yet but they know
+        all the properties of the texture. So instead of passing in a GrBackendTexture the client
+        supplies a GrBackendFormat, width, height, and GrMipMapped state.
+
+        When we actually send the draw calls to the GPU, we will call the textureFulfillProc and
+        the client will return a GrBackendTexture to us. The properties of the GrBackendTexture must
+        match those set during the SkImage creation, and it must have a valid backend gpu texture.
+        The gpu texture supplied by the client must stay valid until we call the textureReleaseProc.
+
+        When we are done with the texture returned by the textureFulfillProc we will call the
+        textureReleaseProc passing in the textureContext. This is a signal to the client that they
+        are free to delete the underlying gpu texture. If future draws also use the same promise
+        image we will call the textureFulfillProc again if we've already called the
+        textureReleaseProc. We will always call textureFulfillProc and textureReleaseProc in pairs.
+        In other words we will never call textureFulfillProc or textureReleaseProc multiple times
+        for the same textureContext before calling the other.
+
+        We call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
+        pass in the textureContext as a parameter to the promiseDoneProc. We also guarantee that
+        there will be no outstanding textureReleaseProcs that still need to be called when we call
+        the textureDoneProc. Thus when the textureDoneProc gets called the client is able to cleanup
+        all GPU objects and meta data needed for the textureFulfill call.
+
+        This call is only valid if the SkDeferredDisplayListRecorder is backed by a gpu context.
+
+        @param backendFormat       format of promised gpu texture
+        @param width               width of promised gpu texture
+        @param height              height of promised gpu texture
+        @param mipMapped           mip mapped state of promised gpu texture
+        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param colorType           one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                                   kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                                   kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                                   kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param alphaType           one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                                   kPremul_SkAlphaType, kUnpremul_SkAlphaType
+        @param colorSpace          range of colors; may be nullptr
+        @param textureFulfillProc  function called to get actual gpu texture
+        @param textureReleaseProc  function called when texture can be released
+        @param promiseDoneProc     function called when we will no longer call textureFulfillProc
+        @param textureContext      state passed to textureFulfillProc and textureReleaseProc
+        @return                    created SkImage, or nullptr
+     */
+    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
+                                      int width,
+                                      int height,
+                                      GrMipMapped mipMapped,
+                                      GrSurfaceOrigin origin,
+                                      SkColorType colorType,
+                                      SkAlphaType alphaType,
+                                      sk_sp<SkColorSpace> colorSpace,
+                                      TextureFulfillProc textureFulfillProc,
+                                      TextureReleaseProc textureReleaseProc,
+                                      PromiseDoneProc promiseDoneProc,
+                                      TextureContext textureContext);
+
+    /**
+        This entry point operates the same as 'makePromiseTexture' except that its
+        textureFulfillProc can be called up to four times to fetch the required YUVA
+        planes (passing a different textureContext to each call). So, if the 'yuvaIndices'
+        indicate that only the first two backend textures are used, 'textureFulfillProc' will
+        be called with the first two 'textureContexts'.
+     */
+    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
+                                          const GrBackendFormat yuvaFormats[],
+                                          const SkISize yuvaSizes[],
+                                          const SkYUVAIndex yuvaIndices[4],
+                                          int imageWidth,
+                                          int imageHeight,
+                                          GrSurfaceOrigin imageOrigin,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          TextureFulfillProc textureFulfillProc,
+                                          TextureReleaseProc textureReleaseProc,
+                                          PromiseDoneProc promiseDoneProc,
+                                          TextureContext textureContexts[]);
+
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (fContextUniqueID == that.fContextUniqueID));
+        SkASSERT((this == &that) == (this->uniqueID() == that.uniqueID()));
         return this == &that;
     }
 
@@ -418,24 +580,42 @@ public:
     GrContextThreadSafeProxyPriv priv();
     const GrContextThreadSafeProxyPriv priv() const;
 
+    static sk_sp<GrContextThreadSafeProxy> Make(GrBackendApi backend,
+                                                uint32_t uniqueID,
+                                                sk_sp<const GrCaps> caps,
+                                                const GrContextOptions& options,
+                                                sk_sp<GrSkSLFPFactoryCache> cache) {
+        sk_sp<GrContextThreadSafeProxy> context(new GrContextThreadSafeProxy(backend, options, uniqueID));
+
+        if (!context->init17(std::move(caps), std::move(cache))) {
+            return nullptr;
+        }
+
+        return context;
+    }
+
 private:
+    GrContextThreadSafeProxy(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID);
+
+#if 0
     // DDL TODO: need to add unit tests for backend & maybe options
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
                              uint32_t uniqueID,
                              GrBackendApi backend,
                              const GrContextOptions& options,
                              sk_sp<GrSkSLFPFactoryCache> cache);
+#endif
 
-    sk_sp<const GrCaps>         fCaps;
-    const uint32_t              fContextUniqueID;
-    const GrBackendApi             fBackend;
-    const GrContextOptions      fOptions;
+//    sk_sp<const GrCaps>         fCaps;
+//    const uint32_t              fContextUniqueID;
+//    const GrBackendApi          fBackend;
+//    GrContextOptions            fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 
-    friend class GrDirectContext; // To construct this object
+//    friend class GrDirectContext; // To construct this object
     friend class GrContextThreadSafeProxyPriv;
 
-    typedef SkRefCnt INHERITED;
+    typedef GrContextWeakest INHERITED;
 };
 
 #endif

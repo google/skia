@@ -37,7 +37,7 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contex
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
                                                              bool willBeMipped) {
-    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = fContext3->contextPriv().proxyProvider();
 
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key);
@@ -52,7 +52,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext3, std::move(proxy), copyParams, willBeMipped);
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -79,20 +79,20 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
-    if (!fContext) {
+    if (!fContext3) {
         // The texture was abandoned.
         return nullptr;
     }
 
-    SkASSERT(this->width() <= fContext->contextPriv().caps()->maxTextureSize() &&
-             this->height() <= fContext->contextPriv().caps()->maxTextureSize());
+    SkASSERT(this->width() <= fContext3->contextPriv().caps()->maxTextureSize() &&
+             this->height() <= fContext3->contextPriv().caps()->maxTextureSize());
 
     bool needsCopyForMipsOnly = false;
     if (!params.isRepeated() ||
-        !GrGpu::IsACopyNeededForRepeatWrapMode(fContext->contextPriv().caps(), proxy.get(),
+        !GrGpu::IsACopyNeededForRepeatWrapMode(fContext3->contextPriv().caps(), proxy.get(),
                                                proxy->width(), proxy->height(), params.filter(),
                                                &copyParams, scaleAdjust)) {
-        needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(fContext->contextPriv().caps(),
+        needsCopyForMipsOnly = GrGpu::IsACopyNeededForMips(fContext3->contextPriv().caps(),
                                                            proxy.get(), params.filter(),
                                                            &copyParams);
         if (!needsCopyForMipsOnly) {
