@@ -308,6 +308,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     return std::move(tex);
 }
 
+sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                     const GrMipLevel texels[], int mipLevelCount) {
+    return nullptr;
+}
+
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex,
                                                GrWrapOwnership ownership) {
     GrMtlTextureInfo textureInfo;

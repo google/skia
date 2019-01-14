@@ -456,6 +456,9 @@ private:
     // onCreateTexture is called.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
                                              const GrMipLevel texels[], int mipLevelCount) = 0;
+    virtual sk_sp<GrTexture> onCreateCompressedTexture(const GrSurfaceDesc&, SkBudgeted,
+                                                       const GrMipLevel texels[],
+                                                       int mipLevelCount) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership,
                                                   GrIOType, bool purgeImmediately) = 0;
