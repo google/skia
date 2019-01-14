@@ -88,9 +88,6 @@ public:
 
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
-    // TODO: it would be nice for this to be hidden
-    void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
-
 protected:
     bool isInstantiated() const;
 
