@@ -6,11 +6,9 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeMiter(10);
   this._paint.setStrokeCap(CanvasKit.StrokeCap.Butt);
   this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
-  this._paint.setTextSize(10);
-  this._paint.setTypeface(null);
   this._fontString = '10px monospace';
 
-  this._font = new CanvasKit.SkFont();
+  this._font = new CanvasKit.SkFont(null, 10);
 
   this._strokeStyle    = CanvasKit.BLACK;
   this._fillStyle      = CanvasKit.BLACK;
@@ -106,8 +104,6 @@ function CanvasRenderingContext2D(skcanvas) {
         // tf is a "dict" according to closure, that is, the field
         // names are not minified. Thus, we need to access it via
         // bracket notation to tell closure not to minify these names.
-        this._paint.setTextSize(tf['sizePx']);
-        this._paint.setTypeface(tf['typeface']);
         this._font.setSize(tf['sizePx']);
         this._font.setTypeface(tf['typeface']);
         this._fontString = newFont;
@@ -694,16 +690,19 @@ function CanvasRenderingContext2D(skcanvas) {
 
   this.fillText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
-    var fillPaint = this._fillPaint()
+    var fillPaint = this._fillPaint();
+    var blob = CanvasKit.SkTextBlob.MakeFromText(text, this._font);
+
     var shadowPaint = this._shadowPaint(fillPaint);
     if (shadowPaint) {
       this._canvas.save();
       this._canvas.concat(this._shadowOffsetMatrix());
-      this._canvas.drawText(text, x, y, shadowPaint);
+      this._canvas.drawTextBlob(blob, x, y, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
     }
-    this._canvas.drawText(text, x, y, fillPaint);
+    this._canvas.drawTextBlob(blob, x, y, fillPaint);
+    blob.delete();
     fillPaint.dispose();
   }
 
@@ -1085,16 +1084,18 @@ function CanvasRenderingContext2D(skcanvas) {
   this.strokeText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
     var strokePaint = this._strokePaint();
+    var blob = CanvasKit.SkTextBlob.MakeFromText(text, this._font);
 
     var shadowPaint = this._shadowPaint(strokePaint);
     if (shadowPaint) {
       this._canvas.save();
       this._canvas.concat(this._shadowOffsetMatrix());
-      this._canvas.drawText(text, x, y, shadowPaint);
+      this._canvas.drawTextBlob(blob, x, y, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
     }
-    this._canvas.drawText(text, x, y, strokePaint);
+    this._canvas.drawTextBlob(blob, x, y, strokePaint);
+    blob.delete();
     strokePaint.dispose();
   }
 

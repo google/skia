@@ -41,9 +41,10 @@ CanvasKitInit({
   ctx.drawImage(img, 100, 150, 400, 350, 10, 200, 150, 100);
 
   console.log('<img src="' + canvas.toDataURL() + '" />');
+
+  fancyAPI(CanvasKit);
 });
 
-// Not currently called
 function fancyAPI(CanvasKit) {
   let surface = CanvasKit.MakeSurface(300, 300);
   const canvas = surface.getCanvas();
@@ -56,9 +57,9 @@ function fancyAPI(CanvasKit) {
 
   const textPaint = new CanvasKit.SkPaint();
   textPaint.setColor(CanvasKit.Color(40, 0, 0));
-  textPaint.setTextSize(30);
   textPaint.setAntiAlias(true);
-  textPaint.setTypeface(roboto);
+
+  const textFont = new CanvasKit.SkFont(roboto, 30);
 
   const skpath = starPath(CanvasKit);
   const dpe = CanvasKit.MakeSkDashPathEffect([15, 5, 5, 10], 1);
@@ -72,7 +73,7 @@ function fancyAPI(CanvasKit) {
   canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
   canvas.drawPath(skpath, paint);
-  canvas.drawText('Try Clicking!', 10, 280, textPaint);
+  canvas.drawText('Try Clicking!', 10, 280, textFont, textPaint);
 
   surface.flush();
 
@@ -97,6 +98,7 @@ function fancyAPI(CanvasKit) {
   textPaint.delete();
   paint.delete();
   roboto.delete();
+  textFont.delete();
 
   surface.dispose();
 }

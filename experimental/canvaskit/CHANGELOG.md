@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.drawArc`, `SkCanvas.drawLine`, `SkCanvas.drawOval`, `SkCanvas.drawRoundRect` exposed.
  - Can import/export a SkPath to an array of commands. See `CanvasKit.MakePathFromCmds` and
    `SkPath.toCmds`.
+ - `SkCanvas.drawTextBlob()` and `SkCanvas.SkTextBlob.MakeFromText()` to draw text to a canvas.
+ - `CanvasKit.TextEncoding` enum. For use with `SkTextBlob`.
+
+### Changed
+ - `SkCanvas.drawText()` now requires an `SkFont` object.
+
+### Removed
+ -  `SkPaint.setTextSize()`, `SkPaint.getTextSize()`, `SkPaint.setTypeface()`
+   which should be replaced by using `SkFont`.
+
 
 ### Fixed
  - Potential bug in `ready()` if already loaded.

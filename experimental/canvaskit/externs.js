@@ -94,6 +94,7 @@ var CanvasKit = {
 		drawRoundRect: function() {},
 		drawShadow: function() {},
 		drawText: function() {},
+		drawTextBlob: function() {},
 		drawVertices: function() {},
 		flush: function() {},
 		getTotalMatrix: function() {},
@@ -105,6 +106,7 @@ var CanvasKit = {
 		translate: function() {},
 
 		// private API
+		_drawSimpleText: function() {},
 		_readPixels: function() {},
 		_writePixels: function() {},
 		delete: function() {},
@@ -162,7 +164,6 @@ var CanvasKit = {
 		getStrokeJoin: function() {},
 		getStrokeMiter: function() {},
 		getStrokeWidth: function() {},
-		getTextSize: function() {},
 		setAntiAlias: function() {},
 		setBlendMode: function() {},
 		setColor: function() {},
@@ -175,8 +176,6 @@ var CanvasKit = {
 		setStrokeMiter: function() {},
 		setStrokeWidth: function() {},
 		setStyle: function() {},
-		setTextSize: function() {},
-		setTypeface: function() {},
 
 		//private API
 		delete: function() {},
@@ -244,6 +243,11 @@ var CanvasKit = {
 		_flush: function() {},
 		_getRasterN32PremulSurface: function() {},
 		delete: function() {},
+	},
+
+	SkTextBlob: {
+		MakeFromText: function() {},
+		_MakeFromText: function() {},
 	},
 
 	SkVertices: {
@@ -386,6 +390,13 @@ var CanvasKit = {
 		Bevel: {},
 	},
 
+	TextEncoding: {
+		UTF8: {},
+		UTF16: {},
+		UTF32: {},
+		GlyphID: {},
+	},
+
 	TileMode: {
 		Clamp: {},
 		Repeat: {},
@@ -458,6 +469,7 @@ CanvasKit.SkVertices.prototype.applyBones = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
 
+CanvasKit.SkCanvas.prototype.drawText = function() {};
 /** @return {Uint8Array} */
 CanvasKit.SkCanvas.prototype.readPixels = function() {};
 CanvasKit.SkCanvas.prototype.writePixels = function() {};
