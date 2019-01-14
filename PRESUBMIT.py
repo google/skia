@@ -62,36 +62,6 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   return []
 
 
-def _PythonChecks(input_api, output_api):
-  """Run checks on any modified Python files."""
-  blacklist = [
-      r'infra[\\\/]bots[\\\/]recipes.py',
-
-      # Blacklist DEPS. Those under third_party are already covered by
-      # input_api.DEFAULT_BLACK_LIST.
-      r'common[\\\/].*',
-      r'buildtools[\\\/].*',
-      r'.*[\\\/]\.recipe_deps[\\\/].*',
-  ]
-  blacklist.extend(input_api.DEFAULT_BLACK_LIST)
-
-  pylint_disabled_warnings = (
-      'F0401',  # Unable to import.
-      'E0611',  # No name in module.
-      'W0232',  # Class has no __init__ method.
-      'E1002',  # Use of super on an old style class.
-      'W0403',  # Relative import used.
-      'R0201',  # Method could be a function.
-      'E1003',  # Using class name in super.
-      'W0613',  # Unused argument.
-      'W0105',  # String statement has no effect.
-  )
-  return input_api.canned_checks.RunPylint(
-      input_api, output_api,
-      disabled_warnings=pylint_disabled_warnings,
-      black_list=blacklist)
-
-
 def _JsonChecks(input_api, output_api):
   """Run checks on any modified json files."""
   failing_files = []
@@ -251,7 +221,6 @@ def _CommonChecks(input_api, output_api):
         input_api, output_api, source_file_filter=sources))
     results.extend(input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
         input_api, output_api, source_file_filter=sources))
-  results.extend(_PythonChecks(input_api, output_api))
   results.extend(_JsonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
