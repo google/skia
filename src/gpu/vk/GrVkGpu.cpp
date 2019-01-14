@@ -247,6 +247,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
         if (DisconnectType::kCleanup == type) {
             this->destroyResources();
         } else {
+            SkASSERTF(false, "GrVkGpu::disconnect(DisconnectType::kAbandon)");
             if (fCmdPool) {
                 fCmdPool->unrefAndAbandon();
                 fCmdPool = nullptr;
@@ -2209,4 +2210,3 @@ void GrVkGpu::storeVkPipelineCacheData() {
         this->resourceProvider().storePipelineCacheData();
     }
 }
-

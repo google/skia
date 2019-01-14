@@ -114,6 +114,7 @@ void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
 }
 
 void GrVkDescriptorSetManager::abandon() {
+    SkASSERTF(false, "GrVkDescriptorSetManager::abandon");
     fPoolManager.abandonGPUResources();
 
     for (int i = 0; i < fFreeSets.count(); ++i) {
@@ -324,6 +325,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* 
 }
 
 void GrVkDescriptorSetManager::DescriptorPoolManager::abandonGPUResources() {
+    SkASSERTF(false, "GrVkDescriptorSetManager::DescriptorPoolManager::abandonGPUResources");
     fDescLayout = VK_NULL_HANDLE;
     if (fPool) {
         fPool->unrefAndAbandon();

@@ -12,6 +12,7 @@
 #include <GL/glx.h>
 #include <GL/glu.h>
 
+#include <atomic>
 #include <vector>
 #include <utility>
 
@@ -99,7 +100,7 @@ std::function<void()> context_restorer() {
     if (!display) {
         display = get_display();
     }
-    return [display, drawable, context] { glXMakeCurrent(display, drawable, context); };
+    return [display, drawable, context] { SkASSERT(glXMakeCurrent(display, drawable, context)); };
 }
 
 GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* shareContext)
@@ -234,7 +235,8 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     SkScopeExit restorer(context_restorer());
     //SkDebugf("Making context current.\n");
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
-      SkDebugf("Could not set the context.\n");
+        SkDebugf("Could not set the context.\n");
+        SkASSERT(false);
         this->destroyGLContext();
         return;
     }
@@ -266,7 +268,7 @@ void GLXGLTestContext::destroyGLContext() {
         if (fContext) {
             if (glXGetCurrentContext() == fContext) {
                 // This will ensure that the context is immediately deleted.
-                glXMakeContextCurrent(fDisplay, None, None, nullptr);
+                SkASSERT(glXMakeContextCurrent(fDisplay, None, None, nullptr));
             }
             glXDestroyContext(fDisplay, fContext);
             fContext = nullptr;
@@ -351,6 +353,7 @@ GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXF
 void GLXGLTestContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
+        SkASSERT(false);
     }
 }
 
