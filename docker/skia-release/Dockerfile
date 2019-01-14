@@ -24,6 +24,7 @@ extra_cflags = [  \n\
   "-I/tmp/swiftshader/include",  \n\
   "-DGR_EGL_TRY_GLES3_THEN_GLES2",  \n\
   "-g0",  \n\
+  "-Wno-error",  \n\
 ]  \n\
 extra_ldflags = [  \n\
   "-L/usr/local/lib",  \n\
