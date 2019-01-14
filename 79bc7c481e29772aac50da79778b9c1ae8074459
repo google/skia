@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "69fe5695_e306a95c",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-14T22:37:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "934cf93f_244be57e",
+      "range": {
+        "startLine": 579,
+        "startChar": 53,
+        "endLine": 579,
+        "endChar": 96
+      },
+      "revId": "79bc7c481e29772aac50da79778b9c1ae8074459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e7d55b5_23c41e66",
         "filename": "src/core/SkReadBuffer.h",
         "patchSetId": 5
@@ -59,6 +83,30 @@
       "writtenOn": "2019-01-14T22:30:22Z",
       "side": 1,
       "message": "readPaintAndFont()?",
+      "range": {
+        "startLine": 117,
+        "startChar": 22,
+        "endLine": 117,
+        "endChar": 31
+      },
+      "revId": "79bc7c481e29772aac50da79778b9c1ae8074459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88c385b3_b2353345",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-14T22:37:11Z",
+      "side": 1,
+      "message": "could, but I\u0027m hoping this will die soon.",
+      "parentUuid": "0e7d55b5_23c41e66",
       "range": {
         "startLine": 117,
         "startChar": 22,
