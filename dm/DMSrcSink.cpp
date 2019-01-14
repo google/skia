@@ -389,7 +389,7 @@ static void set_bitmap_color_space(SkImageInfo* info) {
 Error CodecSrc::draw(SkCanvas* canvas) const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        return SkStringPrintf("Couldn't open %s as SkData.", fPath.c_str());
     }
 
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
@@ -774,7 +774,7 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
 Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        return SkStringPrintf("Couldn't open %s as SkData.", fPath.c_str());
     }
     std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(encoded));
     if (nullptr == codec) {
@@ -870,7 +870,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        return SkStringPrintf("Couldn't open %s as SkData.", fPath.c_str());
     }
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -1002,7 +1002,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        return SkStringPrintf("Couldn't open %s as SkData.", fPath.c_str());
     }
 
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
@@ -1088,13 +1088,15 @@ Name ColorCodecSrc::name() const {
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
-static sk_sp<SkPicture> read_skp(const char* path, const SkDeserialProcs* procs = nullptr) {
+static sk_sp<SkPicture> read_skp(const char* path, Error* err, const SkDeserialProcs* procs = nullptr) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
     if (!stream) {
+        *err = SkStringPrintf("Couldn't open file %s as stream.", path);
         return nullptr;
     }
     sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get(), procs));
     if (!pic) {
+        *err = SkStringPrintf("Couldn't create SKP from %s - invalid format?", path);
         return nullptr;
     }
     stream = nullptr;  // Might as well drop this when we're done with it.
@@ -1103,9 +1105,10 @@ static sk_sp<SkPicture> read_skp(const char* path, const SkDeserialProcs* procs 
 }
 
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    sk_sp<SkPicture> pic = read_skp(fPath.c_str());
+    Error err("");
+    sk_sp<SkPicture> pic = read_skp(fPath.c_str(), &err);
     if (!pic) {
-        return SkStringPrintf("Couldn't read %s.", fPath.c_str());
+        return err;
     }
 
     canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
