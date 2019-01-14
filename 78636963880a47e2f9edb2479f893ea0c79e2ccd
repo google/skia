@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b62a3f79_b8a548f5",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-14T21:09:45Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem like a good place to use auto.  It\u0027s not clear what type reservation is, and it\u0027s confusing that it\u0027s unused.\n\nMight want to add an explicit scope around all this just to make it stand out, even if it\u0027s not necessary?\n\n{\n    AutoBufferManager reservation \u003d this-\u003eensureBuffers(glyphRunList);\n    ...\n}\n\nOnce you get an Auto/Scoped in the type name, you might even just use \"_\" as the variable name?",
+      "range": {
+        "startLine": 162,
+        "startChar": 4,
+        "endLine": 162,
+        "endChar": 8
+      },
+      "revId": "78636963880a47e2f9edb2479f893ea0c79e2ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0f5c269_65358170",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-14T21:09:45Z",
+      "side": 1,
+      "message": "// Sizes SkGlyphRunListPainter temporary buffers for a batch of N glyphs, cleaning up on scope exit.\n\nMaybe give it a name like AutoBufferManager or ScopedBufferManager so it stands out as something that does interesting work when it goes out of scope?",
+      "revId": "78636963880a47e2f9edb2479f893ea0c79e2ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4ab8f68_7d1def68",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-14T21:09:45Z",
+      "side": 1,
+      "message": "int batchSize?\n\nUsually we count things that aren\u0027t bytes with ints.",
+      "range": {
+        "startLine": 115,
+        "startChar": 54,
+        "endLine": 115,
+        "endChar": 65
+      },
+      "revId": "78636963880a47e2f9edb2479f893ea0c79e2ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b797fb_443123f5",
+        "filename": "src/core/SkGlyphRunPainter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-14T21:09:45Z",
+      "side": 1,
+      "message": "It can be nice to write these so you can see the size change directly under the test, e.g.\n\nif (fPainter-\u003efMaxRunSize \u003c size) {\n    fPainter-\u003efMaxRunSuze \u003d size;\n    ...\n}\n\nif (fPainter-\u003efMaxRunSize \u003e 200) {\n    fPainter-\u003efMaxRunSize \u003d   0;\n    ...\n}",
+      "revId": "78636963880a47e2f9edb2479f893ea0c79e2ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
