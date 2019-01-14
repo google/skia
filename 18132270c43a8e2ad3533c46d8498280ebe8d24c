@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2f0a1d9d_7ac51c48",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-14T21:02:08Z",
+      "side": 1,
+      "message": "I think it could be both things. The old clear-as-draw shaders were very stripped down, and direct GLSL while the new shader goes through the full SkSL transformation (so even once it\u0027s cached, there will be some overhead here). The op creation could be a mixed bag; it may help in some cases due to batching, but in general the rect op is larger than the clear op and has more logic in it.\n\nI will do some local tests to see numbers.",
+      "parentUuid": "7407ec65_2504023c",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-14T17:22:04Z",
       "side": 1,
       "message": "I think I might find this slightly odd that we set the load op to discard, when normally we will turn around and set it right back to clear. What if we didn\u0027t change the load op here, and instead the calling code did something like:\n\n opList-\u003ereset();\n if (!caps.performClearsAsDraws())\n     opList-\u003esetColorLoadOp(kClear)...\n else\n     opList-\u003esetColorLoadOp(kDiscard)...",
+      "range": {
+        "startLine": 531,
+        "startChar": 4,
+        "endLine": 531,
+        "endChar": 37
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c88210a_d82b4f77",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-14T21:02:08Z",
+      "side": 1,
+      "message": "I do like this approach, and it will parallel setStencilLoadOp then. I will keep the name as resetForFullscreenClear(), since it\u0027s not a guaranteed reset of the oplist state.",
+      "parentUuid": "1e508e4d_5077de37",
       "range": {
         "startLine": 531,
         "startChar": 4,
