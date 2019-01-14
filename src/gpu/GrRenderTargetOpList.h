@@ -88,9 +88,6 @@ public:
 
     void discard();
 
-    /** Clears the entire render target */
-    void fullClear(GrContext*, const SkPMColor4f& color);
-
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
      * reserved vertex/index data (as though a draw call was made). The src pixels
@@ -115,6 +112,27 @@ public:
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
+
+    // The RTC and RTOpList have to work together to handle buffer clears. In most cases, buffer
+    // clearing can be done natively, in which case the op list's load ops are sufficient. In other
+    // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
+    // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
+    friend class GrRenderTargetContext;
+
+    // Must only be called if native stencil buffer clearing is enabled
+    void setStencilLoadOp(GrLoadOp op);
+    // Must only be called if native color buffer clearing is enabled.
+    void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
+    // Sets the clear color to transparent black
+    void setColorLoadOp(GrLoadOp op) {
+        static const SkPMColor4f kDefaultClearColor = {0.f, 0.f, 0.f, 0.f};
+        this->setColorLoadOp(op, kDefaultClearColor);
+    }
+
+    // Perform book-keeping for a fullscreen clear, regardless of how the clear is implemented later
+    // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
+    // Returns true if the clear can be converted into a load op (barring device caps).
+    bool resetForFullscreenClear();
 
     void deleteOps();
 
