@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a794d6fb_72f34fe0",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-14T22:30:22Z",
+      "side": 1,
+      "message": "\"...ForFont\" ?",
+      "range": {
+        "startLine": 402,
+        "startChar": 0,
+        "endLine": 407,
+        "endChar": 46
+      },
+      "revId": "79bc7c481e29772aac50da79778b9c1ae8074459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "934cf93f_244be57e",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-14T22:30:22Z",
+      "side": 1,
+      "message": "Unflatten_PreV68 returns the right SkReadPaintResult, I think you can just pass through?",
+      "range": {
+        "startLine": 579,
+        "startChar": 53,
+        "endLine": 579,
+        "endChar": 96
+      },
+      "revId": "79bc7c481e29772aac50da79778b9c1ae8074459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e7d55b5_23c41e66",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-14T22:30:22Z",
+      "side": 1,
+      "message": "readPaintAndFont()?",
+      "range": {
+        "startLine": 117,
+        "startChar": 22,
+        "endLine": 117,
+        "endChar": 31
+      },
+      "revId": "79bc7c481e29772aac50da79778b9c1ae8074459",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
