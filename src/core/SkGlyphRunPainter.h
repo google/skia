@@ -111,7 +111,16 @@ public:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
 private:
-    void ensureBitmapBuffers(size_t runSize);
+    struct ScopedBuffers {
+        ScopedBuffers(SkGlyphRunListPainter* painter, int size);
+        ~ScopedBuffers();
+        SkGlyphRunListPainter* fPainter;
+    };
+
+    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList);
+
+    // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
+    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
 
     void processARGBFallback(
             SkScalar maxGlyphDimension, const SkPaint& fallbackPaint, const SkFont& fallbackFont,
@@ -123,8 +132,14 @@ private:
     const SkSurfaceProps fBitmapFallbackProps;
     const SkColorType fColorType;
     const SkScalerContextFlags fScalerContextFlags;
-    size_t fMaxRunSize{0};
+
+    int fMaxRunSize{0};
     SkAutoTMalloc<SkPoint> fPositions;
+    SkAutoTMalloc<const SkGlyph*> fMaskGlyphs;
+    SkAutoTMalloc<SkPoint> fMaskPositions;
+
+    std::vector<const SkGlyph*> fPathGlyphs;
+    std::vector<SkPoint> fPathPositions;
 
     // Vectors for tracking ARGB fallback information.
     std::vector<SkGlyphID> fARGBGlyphsIDs;
