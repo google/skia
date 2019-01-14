@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkColorSpace.h"
 #include "SkImage.h"
 #include "SkImagePriv.h"
 
@@ -82,3 +83,50 @@ private:
 };
 
 DEF_GM(return new MakeCSGM;)
+
+DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE) {
+    sk_sp<SkImage> images[] = {
+        GetResourceAsImage("images/mandrill_128.png"),
+        GetResourceAsImage("images/color_wheel.png"),
+    };
+    auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
+
+    // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
+    for (bool lazy : {true, false}) {
+        for (int j = 0; j < 2; ++j) {
+            const SkImage* image = images[j].get();
+            if (!image) {
+                // Can happen on bots that abandon the GPU context
+                continue;
+            }
+
+            // Unmodified
+            canvas->drawImage(image, 0, 0);
+
+            // Change the color type/space of the image in a couple ways. In both cases, codec
+            // may fail, because we refude to decode transparent sources to opaque color types.
+            // Guard against that, to avoid cascading failures in DDL.
+
+            // 565 in a wide color space (should be visibly quantized). Fails with the color_wheel,
+            // because of the codec issues mentioned above.
+            auto image565 = image->makeColorTypeAndColorSpace(kRGB_565_SkColorType, rec2020);
+            if (!lazy || image565->makeRasterImage()) {
+                canvas->drawImage(image565, 128, 0);
+            }
+
+            // Grayscale in the original color space. This fails in even more cases, due to the
+            // above opaque issue, and because Ganesh doesn't support drawing to gray, at all.
+            auto imageGray = image->makeColorTypeAndColorSpace(kGray_8_SkColorType,
+                                                               image->refColorSpace());
+            if (!lazy || imageGray->makeRasterImage()) {
+                canvas->drawImage(imageGray, 256, 0);
+            }
+
+            images[j] = canvas->getGrContext()
+                    ? image->makeTextureImage(canvas->getGrContext(), nullptr)
+                    : image->makeRasterImage();
+
+            canvas->translate(0, 128);
+        }
+    }
+}
