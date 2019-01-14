@@ -13,6 +13,16 @@
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkUtil.h"
+#include <atomic>
+
+static std::atomic<int32_t> gPipelineCnt;
+
+// static
+void GrVkPipeline::assertZeroCount() {
+    int pipelineCnt = gPipelineCnt.load(std::memory_order_acquire);
+    SkASSERTF(pipelineCnt <= 0,
+              "Seems to be %d VkPipelines that haven't been destroyed.", pipelineCnt);
+}
 
 static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
     switch (type) {
@@ -566,11 +576,15 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
         return nullptr;
     }
 
+    gPipelineCnt.fetch_add(+1, std::memory_order_relaxed);
     return new GrVkPipeline(vkPipeline);
 }
 
 void GrVkPipeline::freeGPUData(GrVkGpu* gpu) const {
+    SkASSERT(!freed);
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
+    gPipelineCnt.fetch_add(-1, std::memory_order_acq_rel);
+    freed = true;
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
