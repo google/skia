@@ -141,7 +141,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
-        if (GrBackendApi::kOpenGL != fContext->contextPriv().getBackend() ||
+        if (GrBackendApi::kOpenGL != fContext->backend() ||
             fCharacterization.isTextureable()) {
             return false;
         }
@@ -381,7 +381,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         return nullptr;
     }
 
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext,
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,
@@ -440,7 +440,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
                 &wrappedDoneProc,
                 wrappedTextureContexts);
 
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext1,
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,

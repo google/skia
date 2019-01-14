@@ -162,7 +162,7 @@ static void test_specialimage_image(skiatest::Reporter* reporter) {
 
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
-    sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
+    sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage73(
                                                             nullptr,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             fullImage));
@@ -170,7 +170,7 @@ static void test_specialimage_image(skiatest::Reporter* reporter) {
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(nullptr, subset, fullImage));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage73(nullptr, subset, fullImage));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -306,8 +306,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_ReadbackAndCachingSubsets_Gpu, r
     }
 
     auto image = surface->makeImageSnapshot();
-    auto redImg  = SkSpecialImage::MakeFromImage(context, SkIRect::MakeXYWH(10, 30, 10, 10), image);
-    auto blueImg = SkSpecialImage::MakeFromImage(context, SkIRect::MakeXYWH(30, 10, 10, 10), image);
+    auto redImg  = SkSpecialImage::MakeFromImage73(context, SkIRect::MakeXYWH(10, 30, 10, 10), image);
+    auto blueImg = SkSpecialImage::MakeFromImage73(context, SkIRect::MakeXYWH(30, 10, 10, 10), image);
 
     // This isn't necessary, but if it ever becomes false, then the cache collision bug that we're
     // checking below is irrelevant.

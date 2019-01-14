@@ -132,10 +132,10 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
 
 SkImage_Lazy::~SkImage_Lazy() {
 #if SK_SUPPORT_GPU
-    for (int i = 0; i < fUniqueKeyInvalidatedMessages.count(); ++i) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fUniqueKeyInvalidatedMessages[i]);
+    for (int i = 0; i < fUniqueKeyInvalidatedMessages31.count(); ++i) {
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(*fUniqueKeyInvalidatedMessages31[i]);
     }
-    fUniqueKeyInvalidatedMessages.deleteAll();
+    fUniqueKeyInvalidatedMessages31.deleteAll();
 #endif
 }
 
@@ -416,8 +416,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
-                *fUniqueKeyInvalidatedMessages.append() =
-                        new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+                *fUniqueKeyInvalidatedMessages31.append() =
+                        new GrUniqueKeyInvalidatedMessage17(key, ctx->uniqueID());
                 return proxy;
             }
         }
@@ -449,8 +449,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
-            *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+            *fUniqueKeyInvalidatedMessages31.append() =
+                    new GrUniqueKeyInvalidatedMessage17(key, ctx->uniqueID());
             return proxy;
         }
     }
@@ -468,8 +468,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
-            *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+            *fUniqueKeyInvalidatedMessages31.append() =
+                    new GrUniqueKeyInvalidatedMessage17(key, ctx->uniqueID());
             return proxy;
         }
     }
@@ -481,8 +481,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         // generate the rest of the mips.
         SkASSERT(willBeMipped);
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
-        *fUniqueKeyInvalidatedMessages.append() =
-                new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+        *fUniqueKeyInvalidatedMessages31.append() =
+                new GrUniqueKeyInvalidatedMessage17(key, ctx->uniqueID());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;

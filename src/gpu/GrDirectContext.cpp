@@ -57,13 +57,19 @@ public:
     }
 
 protected:
-    bool init(const GrContextOptions& options) override {
-        SkASSERT(fCaps);  // should've been set in ctor
+    bool init17(sk_sp<const GrCaps> caps,
+                sk_sp<GrSkSLFPFactoryCache> cache) override {
+        if (!INHERITED::init17(std::move(caps), std::move(cache))) {
+            return false;
+        }
+
+        SkASSERT(this->caps());  // should've been set in ctor
         SkASSERT(!fThreadSafeProxy);
         SkASSERT(!fFPFactoryCache);
         fFPFactoryCache.reset(new GrSkSLFPFactoryCache());
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
-                                                            fBackend, options, fFPFactoryCache));
+        fThreadSafeProxy = GrContextThreadSafeProxy::Make(this->backend(), this->uniqueID(),
+                                                          this->refCaps(), options,
+                                                          fFPFactoryCache);
 
         if (!INHERITED::initCommon(options)) {
             return false;
@@ -72,7 +78,7 @@ protected:
         GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
         if (GrContextOptions::Enable::kNo == options.fAllowMultipleGlyphCacheTextures ||
             // multitexturing supported only if range can represent the index + texcoords fully
-            !(fCaps->shaderCaps()->floatIs32Bits() || fCaps->shaderCaps()->integerSupport())) {
+            !(this->caps()->shaderCaps()->floatIs32Bits() || this->caps()->shaderCaps()->integerSupport())) {
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
         } else {
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
@@ -113,15 +119,14 @@ sk_sp<GrContext> GrContext::MakeGL() {
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kOpenGL, options));
 
     context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
 
-    context->fCaps = context->fGpu->refCaps();
-    if (!context->init(options)) {
+    if (!context->init17(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
     return context;
@@ -134,15 +139,14 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kMock, options));
 
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
 
-    context->fCaps = context->fGpu->refCaps();
-    if (!context->init(options)) {
+    if (!context->init17(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
     return context;
@@ -160,16 +164,14 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext)
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
                                        const GrContextOptions& options) {
 #ifdef SK_VULKAN
-    GrContextOptions defaultOptions;
-    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kVulkan));
+    sk_sp<GrContext> context(new GrDirectContext(GrBackendApi::kVulkan, options));
 
     context->fGpu = GrVkGpu::Make(backendContext, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
 
-    context->fCaps = context->fGpu->refCaps();
-    if (!context->init(options)) {
+    if (!context->init17(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
     return context;

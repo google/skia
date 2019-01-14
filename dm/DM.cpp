@@ -851,7 +851,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     SkBitmap bitmap;
     SkDynamicMemoryWStream stream;
     SkString log;
-    Error err = sink->draw(justOneRect, &bitmap, &stream, &log);
+    Error err = sink->drawSink(justOneRect, &bitmap, &stream, &log);
     if (err.isFatal()) {
         info("Could not run %s: %s\n", config.getTag().c_str(), err.c_str());
         exit(1);
@@ -1108,7 +1108,7 @@ struct Task {
             SkDynamicMemoryWStream stream;
             start(task.sink.tag.c_str(), task.src.tag.c_str(),
                   task.src.options.c_str(), name.c_str());
-            Error err = task.sink->draw(*task.src, &bitmap, &stream, &log);
+            Error err = task.sink->drawSink(*task.src, &bitmap, &stream, &log);
             if (!log.isEmpty()) {
                 info("%s %s %s %s:\n%s\n", task.sink.tag.c_str()
                                          , task.src.tag.c_str()
