@@ -760,8 +760,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
         if (reader.isVersionLT(SkReadBuffer::kSerializeFonts_Version)) {
 #ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
             SkPaint paint;
-            reader.readPaint(&paint);
-            font = SkFont::LEGACY_ExtractFromPaint(paint);
+            reader.readPaint(&paint, &font);
 #else
             reader.validate(false);
             return nullptr;

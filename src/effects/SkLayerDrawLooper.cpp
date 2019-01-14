@@ -268,7 +268,7 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         info.fColorMode = (SkBlendMode)buffer.readInt();
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
-        buffer.readPaint(builder.addLayerOnTop(info));
+        buffer.readPaint(builder.addLayerOnTop(info), nullptr);
         if (!buffer.isValid()) {
             return nullptr;
         }
