@@ -143,15 +143,18 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage_GpuYUVA::onMakeColorTypeAndColorSpace(SkColorType,
+                                                             sk_sp<SkColorSpace> targetCS) const {
+    // We explicitly ignore color type changes, for now.
+
     // we may need a mutex here but for now we expect usage to be in a single thread
     if (fOnMakeColorSpaceTarget &&
-        SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {
+        SkColorSpace::Equals(targetCS.get(), fOnMakeColorSpaceTarget.get())) {
         return fOnMakeColorSpaceResult;
     }
-    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(this, target));
+    sk_sp<SkImage> result = sk_sp<SkImage>(new SkImage_GpuYUVA(this, targetCS));
     if (result) {
-        fOnMakeColorSpaceTarget = target;
+        fOnMakeColorSpaceTarget = targetCS;
         fOnMakeColorSpaceResult = result;
     }
     return result;

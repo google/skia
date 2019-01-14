@@ -101,7 +101,7 @@ public:
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>) const override;
 
     bool onIsValid(GrContext* context) const override { return true; }
     void notifyAddedToRasterCache() const override {
@@ -337,12 +337,13 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                            sk_sp<SkColorSpace> targetCS) const {
     SkPixmap src;
     SkAssertResult(fBitmap.peekPixels(&src));
 
     SkBitmap dst;
-    dst.allocPixels(fBitmap.info().makeColorSpace(target));
+    dst.allocPixels(fBitmap.info().makeColorType(targetCT).makeColorSpace(targetCS));
 
     SkAssertResult(dst.writePixels(src));
     dst.setImmutable();

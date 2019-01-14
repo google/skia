@@ -60,10 +60,11 @@ SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), colorType, fAlphaType, fColorSpace);
 }
 
-sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
+sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                         sk_sp<SkColorSpace> targetCS) const {
     auto xform = GrColorSpaceXformEffect::Make(fColorSpace.get(), fAlphaType,
-                                               target.get(), fAlphaType);
-    SkASSERT(xform);
+                                               targetCS.get(), fAlphaType);
+    SkASSERT(xform || targetCT != this->colorType());
 
     sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef();
 
@@ -75,7 +76,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fContext->contextPriv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kExact, this->width(), this->height(),
-            proxy->config(), nullptr));
+            SkColorType2GrPixelConfig(targetCT), nullptr));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -83,7 +84,9 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     paint.addColorTextureProcessor(std::move(proxy), SkMatrix::I());
-    paint.addColorFragmentProcessor(std::move(xform));
+    if (xform) {
+        paint.addColorFragmentProcessor(std::move(xform));
+    }
 
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(),
                                   SkRect::MakeIWH(this->width(), this->height()));
@@ -93,7 +96,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
-                                   renderTargetContext->asTextureProxyRef(), std::move(target));
+                                   renderTargetContext->asTextureProxyRef(), std::move(targetCS));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
