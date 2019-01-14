@@ -156,9 +156,9 @@
 
     const textPaint = new CanvasKit.SkPaint();
     textPaint.setColor(CanvasKit.RED);
-    textPaint.setTextSize(30);
     textPaint.setAntiAlias(true);
-    textPaint.setTypeface(roboto);
+
+    const textFont = new CanvasKit.SkFont(roboto, 30);
 
     let i = 0;
 
@@ -183,7 +183,7 @@
       canvas.clear(CanvasKit.TRANSPARENT);
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try Clicking!', 10, 280, textPaint);
+      canvas.drawText('Try Clicking!', 10, 280, textFont, textPaint);
 
       surface.flush();
 
@@ -205,7 +205,9 @@
     document.getElementById('patheffect').addEventListener('pointerdown', interact);
     preventScrolling(document.getElementById('patheffect'));
     // A client would need to delete this if it didn't go on for ever.
-    //paint.delete();
+    // paint.delete();
+    // textPaint.delete();
+    // textFont.delete();
   }
 
   function PathExample(CanvasKit) {
@@ -1067,8 +1069,13 @@
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
-    paint.setTextSize(75);
-    canvas.drawText('Radial', 10, 200, paint);
+    const textFont = new CanvasKit.SkFont(null, 75);
+    const textBlob = CanvasKit.SkTextBlob.MakeFromText('Radial', textFont);
+
+    canvas.drawTextBlob(textBlob, 10, 200, paint);
+    paint.delete()
+    textFont.delete();
+    textBlob.delete();
     surface.flush();
   }
 </script>
