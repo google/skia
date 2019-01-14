@@ -45,25 +45,25 @@ GrGLExtensions& GrGLExtensions::operator=(const GrGLExtensions& that) {
     return *this;
 }
 
-static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
-    if (!in) {
-        return;
-    }
-    while (true) {
-        // skip over multiple spaces between extensions
-        while (' ' == *in) {
-            ++in;
-        }
-        // quit once we reach the end of the string.
-        if ('\0' == *in) {
-            break;
-        }
-        // we found an extension
-        size_t length = strcspn(in, " ");
-        out->push_back().set(in, length);
-        in += length;
-    }
-}
+//static void eat_space_sep_strings(SkTArray<SkString>* out, const char in[]) {
+//    if (!in) {
+//        return;
+//    }
+//    while (true) {
+//        // skip over multiple spaces between extensions
+//        while (' ' == *in) {
+//            ++in;
+//        }
+//        // quit once we reach the end of the string.
+//        if ('\0' == *in) {
+//            break;
+//        }
+//        // we found an extension
+//        size_t length = strcspn(in, " ");
+//        out->push_back().set(in, length);
+//        in += length;
+//    }
+//}
 
 bool GrGLExtensions::init(GrGLStandard standard,
                           GrGLFunction<GrGLGetStringFn> getString,
@@ -85,31 +85,31 @@ bool GrGLExtensions::init(GrGLStandard standard,
         return false;
     }
 
-    bool indexed = version >= GR_GL_VER(3, 0);
+    //bool indexed = version >= GR_GL_VER(3, 0);
 
-    if (indexed) {
-        if (!getStringi || !getIntegerv) {
-            return false;
-        }
-        GrGLint extensionCnt = 0;
-        getIntegerv(GR_GL_NUM_EXTENSIONS, &extensionCnt);
-        fStrings.push_back_n(extensionCnt);
-        for (int i = 0; i < extensionCnt; ++i) {
-            const char* ext = (const char*) getStringi(GR_GL_EXTENSIONS, i);
-            fStrings[i] = ext;
-        }
-    } else {
-        const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (!extensions) {
-            return false;
-        }
-        eat_space_sep_strings(&fStrings, extensions);
-    }
-    if (queryString) {
-        const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
-
-        eat_space_sep_strings(&fStrings, extensions);
-    }
+    //if (indexed) {
+    //    if (!getStringi || !getIntegerv) {
+    //        return false;
+    //    }
+    //    GrGLint extensionCnt = 0;
+    //    getIntegerv(GR_GL_NUM_EXTENSIONS, &extensionCnt);
+    //    fStrings.push_back_n(extensionCnt);
+    //    for (int i = 0; i < extensionCnt; ++i) {
+    //        const char* ext = (const char*) getStringi(GR_GL_EXTENSIONS, i);
+    //        fStrings[i] = ext;
+    //    }
+    //} else {
+    //    const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
+    //    if (!extensions) {
+    //        return false;
+    //    }
+    //    eat_space_sep_strings(&fStrings, extensions);
+    //}
+    //if (queryString) {
+    //    const char* extensions = queryString(eglDisplay, GR_EGL_EXTENSIONS);
+    //
+    //    eat_space_sep_strings(&fStrings, extensions);
+    //}
     if (!fStrings.empty()) {
         SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
         SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
