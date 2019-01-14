@@ -73,6 +73,11 @@ public:
 
         font contains attributes used to define the run text.
 
+        This function uses the default character-to-glyph mapping from the
+        SkTypeface in font.  It does not perform typeface fallback for
+        charaters not found in the SkTypeface.  It does not perform kerning;
+        glyphs are positioned based on their default advances.
+
         @param text        character code points or glyphs drawn
         @param byteLength  byte length of text array
         @param font       text size, typeface, text scale, and so on, used to draw
