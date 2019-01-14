@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6907e1c_31755bbb",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-14T15:42:09Z",
+      "side": 1,
+      "message": "can the method be const too then ?",
+      "range": {
+        "startLine": 107,
+        "startChar": 56,
+        "endLine": 107,
+        "endChar": 58
+      },
+      "revId": "32ef15c1403786b2562cd1da33dc0629939a6016",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
