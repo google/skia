@@ -15,6 +15,7 @@
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkMakeUnique.h"
+#include "SkNWayCanvas.h"
 #include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
 #include "SkTLazy.h"
@@ -342,11 +343,19 @@ private:
 
 std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
                                                         sk_sp<SkColorSpace> targetCS) {
-    std::unique_ptr<SkColorSpaceXformer> xformer = SkColorSpaceXformer::Make(targetCS);
-    if (!xformer) {
-        return nullptr;
+    // To make porting away from SkColorSpaceXformCanvas easier,
+    // if the target SkCanvas already is tagged with targetCS, make this a pass-through.
+    if (SkColorSpace::Equals(targetCS.get(),
+                             target->imageInfo().colorSpace())) {
+        SkISize size = target->getBaseLayerSize();
+        auto proxy = skstd::make_unique<SkNWayCanvas>(size.width(), size.height());
+        proxy->addCanvas(target);
+        return std::move(proxy);
     }
 
-    return skstd::make_unique<SkColorSpaceXformCanvas>(target, std::move(targetCS),
+    std::unique_ptr<SkColorSpaceXformer> xformer = SkColorSpaceXformer::Make(targetCS);
+    SkASSERT(xformer);
+    return skstd::make_unique<SkColorSpaceXformCanvas>(target,
+                                                       std::move(targetCS),
                                                        std::move(xformer));
 }
