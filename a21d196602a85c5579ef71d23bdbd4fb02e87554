@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64a07391_a994468f",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1766,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-14T17:22:04Z",
+      "side": 0,
+      "message": "Any reason we switched to \"clearStencilOnLoad\"? I think \"setStencilLoadOp(kClear)\" might be more clear to me as a reader, since it communicates explicitly that it will be done as a load op, rather than clearing the memory.",
+      "range": {
+        "startLine": 1766,
+        "startChar": 27,
+        "endLine": 1766,
+        "endChar": 43
+      },
+      "revId": "a21d196602a85c5579ef71d23bdbd4fb02e87554",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7407ec65_2504023c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-14T17:22:04Z",
+      "side": 1,
+      "message": "Just curious why you think it will be less optimal? Do you mean the shader itself? Or more the fact that we are creating ops now? Can this be tested locally so we have an idea before landing?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e508e4d_5077de37",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-14T17:22:04Z",
+      "side": 1,
+      "message": "I think I might find this slightly odd that we set the load op to discard, when normally we will turn around and set it right back to clear. What if we didn\u0027t change the load op here, and instead the calling code did something like:\n\n opList-\u003ereset();\n if (!caps.performClearsAsDraws())\n     opList-\u003esetColorLoadOp(kClear)...\n else\n     opList-\u003esetColorLoadOp(kDiscard)...",
+      "range": {
+        "startLine": 531,
+        "startChar": 4,
+        "endLine": 531,
+        "endChar": 37
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
