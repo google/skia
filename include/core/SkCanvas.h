@@ -1851,6 +1851,13 @@ public:
         Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
 
+        When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32, this function uses the default
+        character-to-glyph mapping from the SkTypeface in font.  It does not
+        perform typeface fallback for characters not found in the SkTypeface.
+        It does not perform kerning or other complex shaping; glyphs are
+        positioned based on their default advances.
+
         Text meaning depends on SkTextEncoding.
 
         Text size is affected by SkMatrix and SkFont text size. Default text
@@ -1875,6 +1882,11 @@ public:
 
         Draws null terminated string, with origin at (x, y), using clip, SkMatrix,
         SkFont font, and SkPaint paint.
+
+        This function uses the default character-to-glyph mapping from the
+        SkTypeface in font.  It does not perform typeface fallback for
+        characters not found in the SkTypeface.  It does not perform kerning;
+        glyphs are positioned based on their default advances.
 
         String str is encoded as UTF-8.
 
@@ -1901,6 +1913,11 @@ public:
 
         Draws SkString, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
+
+        This function uses the default character-to-glyph mapping from the
+        SkTypeface in font.  It does not perform typeface fallback for
+        characters not found in the SkTypeface.  It does not perform kerning;
+        glyphs are positioned based on their default advances.
 
         SkString str is encoded as UTF-8.
 
