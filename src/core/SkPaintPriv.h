@@ -18,6 +18,12 @@ class SkImage;
 class SkReadBuffer;
 class SkWriteBuffer;
 
+enum SkReadPaintResult {
+    kFailed_ReadPaint,
+    kSuccess_JustPaint,
+    kSuccess_PaintAndFont,
+};
+
 class SkPaintPriv {
 public:
     enum ShaderOverrideOpacity {
@@ -91,18 +97,22 @@ public:
     static void Flatten(const SkPaint& paint, SkWriteBuffer& buffer);
 
     /** Populates SkPaint, typically from a serialized stream, created by calling
-    flatten() at an earlier time.
+        flatten() at an earlier time.
 
-    SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
-    by the client.
+        SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
+        by the client.
 
-    @param buffer  serialized data describing SkPaint content
-    @return        false if the buffer contains invalid data
+        Older formats also stored font info in the serialized data. On success, this
+        returns if it deserialized just a paint, or both a font and paint. The font
+        param is optional.
+
+        @param buffer  serialized data describing SkPaint content
+        @return        false if the buffer contains invalid data
     */
-    static bool Unflatten(SkPaint* paint, SkReadBuffer& buffer);
+    static SkReadPaintResult Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font);
 
 private:
-    static bool Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer);
+    static SkReadPaintResult Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont*);
 };
 
 #endif
