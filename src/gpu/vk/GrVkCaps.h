@@ -32,6 +32,7 @@ public:
              uint32_t instanceVersion, const GrVkExtensions& extensions);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
+        SkASSERT(fConfigTable);
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 

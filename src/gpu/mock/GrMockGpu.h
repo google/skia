@@ -58,6 +58,11 @@ private:
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel[],
                                      int mipLevelCount) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                               const GrMipLevel texels[],
+                                               int mipLevelCount) override {
+        return this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
+    }
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership, GrIOType,
                                           bool purgeImmediately) override;

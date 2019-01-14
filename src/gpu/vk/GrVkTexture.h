@@ -64,7 +64,7 @@ private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView,
-                GrMipMapsStatus);
+                GrMipMapsStatus, bool readOnly = false);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&, const GrVkImageInfo&,
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView, GrMipMapsStatus,
                 GrBackendObjectOwnership, GrIOType ioType, bool purgeImmediately);

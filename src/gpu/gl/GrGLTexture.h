@@ -62,7 +62,8 @@ public:
 
     static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
 
-    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus);
+    GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus,
+                bool readOnly = false);
 
     ~GrGLTexture() override {
         // check that invokeReleaseProc has been called (if needed)
