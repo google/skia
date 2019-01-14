@@ -2187,6 +2187,7 @@ if (skia_enable_tools) {
       "tools/viewer/GMSlide.cpp",
       "tools/viewer/ImGuiLayer.cpp",
       "tools/viewer/ImageSlide.cpp",
+      "tools/viewer/ParticlesSlide.cpp",
       "tools/viewer/SKPSlide.cpp",
       "tools/viewer/SampleSlide.cpp",
       "tools/viewer/SkottieSlide.cpp",
