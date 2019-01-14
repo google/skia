@@ -342,11 +342,15 @@ private:
 
 std::unique_ptr<SkCanvas> SkCreateColorSpaceXformCanvas(SkCanvas* target,
                                                         sk_sp<SkColorSpace> targetCS) {
-    std::unique_ptr<SkColorSpaceXformer> xformer = SkColorSpaceXformer::Make(targetCS);
-    if (!xformer) {
-        return nullptr;
+    // To make porting away from SkColorSpaceXformCanvas easier,
+    // if the target SkCanvas already is tagged with targetCS, make this a pass-through.
+    if (SkColorSpace::Equals(targetCS.get(),
+                             target->imageInfo().colorSpace())) {
+        targetCS = nullptr;
     }
 
+    std::unique_ptr<SkColorSpaceXformer> xformer = SkColorSpaceXformer::Make(targetCS);
+    SkASSERT(xformer);
     return skstd::make_unique<SkColorSpaceXformCanvas>(target, std::move(targetCS),
                                                        std::move(xformer));
 }
