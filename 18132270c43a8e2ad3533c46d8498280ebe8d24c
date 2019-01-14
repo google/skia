@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d6ca3ff8_f87e3531",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-14T22:03:28Z",
+      "side": 1,
+      "message": "Local benchmarks for my Linux desktop with clear-as-draws forced on:\nEmulated scissor clears went from 300ns to 3.3us\nEmulated full screen clears went from 80ns to 290ns\n\nTesting on a Nexus5 with Adreno 330 (which is a device that normally has clear-as-draws on):\nEmulated scissor clears went from 47us to 68us\nEmulated full screen clears went from 17us to 49us\n\nThe desktop performance regression likely doesn\u0027t matter so much, and the regression is less bad on the Adreno 330 (relatively speaking). These were running just the Clear-Partial and Clear-Full nanobenches, I can also see how SKPs might change if there\u0027s one we know of that will do clears a lot.",
+      "parentUuid": "2f0a1d9d_7ac51c48",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
@@ -93,6 +117,30 @@
       "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8107d46_b3e9c485",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-14T22:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c88210a_d82b4f77",
+      "range": {
+        "startLine": 531,
+        "startChar": 4,
+        "endLine": 531,
+        "endChar": 37
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
