@@ -73,25 +73,41 @@ public:
 
         font contains attributes used to define the run text.
 
+        When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32, this function uses the default
+        character-to-glyph mapping from the SkTypeface in font.  It does not
+        perform typeface fallback for characters not found in the SkTypeface.
+        It does not perform kerning or other complex shaping; glyphs are
+        positioned based on their default advances.
+
         @param text        character code points or glyphs drawn
         @param byteLength  byte length of text array
-        @param font       text size, typeface, text scale, and so on, used to draw
+        @param font        text size, typeface, text scale, and so on, used to draw
+        @param encoding    text encoding used in the text array
         @return            SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromText(const void* text, size_t byteLength, const SkFont& font,
-                                      SkTextEncoding encoding = kUTF8_SkTextEncoding);
+                                          SkTextEncoding encoding = kUTF8_SkTextEncoding);
 
     /** Creates SkTextBlob with a single run. string meaning depends on SkTextEncoding;
         by default, string is encoded as UTF-8.
 
         font contains attributes used to define the run text.
 
-        @param string  character code points or glyphs drawn
-        @param font   text size, typeface, text scale, and so on, used to draw
-        @return        SkTextBlob constructed from one run
+        When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32, this function uses the default
+        character-to-glyph mapping from the SkTypeface in font.  It does not
+        perform typeface fallback for characters not found in the SkTypeface.
+        It does not perform kerning or other complex shaping; glyphs are
+        positioned based on their default advances.
+
+        @param string   character code points or glyphs drawn
+        @param font     text size, typeface, text scale, and so on, used to draw
+        @param encoding text encoding used in the text array
+        @return         SkTextBlob constructed from one run
     */
     static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkFont& font,
-                                    SkTextEncoding encoding = kUTF8_SkTextEncoding) {
+                                            SkTextEncoding encoding = kUTF8_SkTextEncoding) {
         if (!string) {
             return nullptr;
         }
