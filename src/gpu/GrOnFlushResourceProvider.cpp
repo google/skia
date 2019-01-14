@@ -99,5 +99,5 @@ uint32_t GrOnFlushResourceProvider::contextUniqueID() const {
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {
-    return fDrawingMgr->getContext()->contextPriv().caps();
+    return fDrawingMgr->getContext()->caps();
 }

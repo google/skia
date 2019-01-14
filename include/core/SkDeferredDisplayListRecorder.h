@@ -16,13 +16,14 @@
 
 class GrBackendFormat;
 class GrBackendTexture;
+
 class GrContext;
 class SkCanvas;
 class SkImage;
 class SkPromiseImageTexture;
 class SkSurface;
-struct SkYUVAIndex;
-struct SkYUVASizeInfo;
+//struct SkYUVAIndex;
+//struct SkYUVASizeInfo;
 
 /*
  * This class is intended to be used as:

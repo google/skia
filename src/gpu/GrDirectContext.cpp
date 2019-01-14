@@ -57,13 +57,13 @@ public:
     }
 
 protected:
-    bool init(const GrContextOptions& options) override {
-        SkASSERT(fCaps);  // should've been set in ctor
+    bool init17(const GrContextOptions& options) override {
+        SkASSERT(this->caps());  // should've been set in ctor
         SkASSERT(!fThreadSafeProxy);
         SkASSERT(!fFPFactoryCache);
         fFPFactoryCache.reset(new GrSkSLFPFactoryCache());
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
-                                                            fBackend, options, fFPFactoryCache));
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(this->refCaps(), this->uniqueID(),
+                                                            this->backend(), options, fFPFactoryCache));
 
         if (!INHERITED::initCommon(options)) {
             return false;
@@ -72,7 +72,7 @@ protected:
         GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
         if (GrContextOptions::Enable::kNo == options.fAllowMultipleGlyphCacheTextures ||
             // multitexturing supported only if range can represent the index + texcoords fully
-            !(fCaps->shaderCaps()->floatIs32Bits() || fCaps->shaderCaps()->integerSupport())) {
+            !(this->caps()->shaderCaps()->floatIs32Bits() || this->caps()->shaderCaps()->integerSupport())) {
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
         } else {
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;

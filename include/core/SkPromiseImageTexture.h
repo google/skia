@@ -40,7 +40,7 @@ public:
 #endif
 
 private:
-    SkSTArray<1, GrUniqueKeyInvalidatedMessage> fMessages;
+    SkSTArray<1, GrUniqueKeyInvalidatedMessage17> fMessages;
     GrBackendTexture fBackendTexture;
     uint32_t fUniqueID = SK_InvalidUniqueID;
     static std::atomic<uint32_t> gUniqueID;

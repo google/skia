@@ -25,7 +25,7 @@ GrProxyProvider* GrProcessorTestData::proxyProvider() {
     return fContext->contextPriv().proxyProvider();
 }
 
-const GrCaps* GrProcessorTestData::caps() { return fContext->contextPriv().caps(); }
+const GrCaps* GrProcessorTestData::caps() { return fContext->caps(); }
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 class GrFragmentProcessor;

@@ -73,7 +73,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->contextPriv().makeDeferredRenderTargetContextWithFallback(
+        fContext1->contextPriv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kExact, this->width(), this->height(),
             proxy->config(), nullptr));
     if (!renderTargetContext) {
@@ -92,7 +92,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
     }
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, fAlphaType,
+    return sk_make_sp<SkImage_Gpu>(fContext1, kNeedNewImageUniqueID, fAlphaType,
                                    renderTargetContext->asTextureProxyRef(), std::move(target));
 }
 
@@ -349,7 +349,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
+sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(sk_sp<GrContextWeakest> context,
                                                const GrBackendFormat& backendFormat,
                                                int width,
                                                int height,
@@ -383,20 +383,21 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    GrPixelConfig config =
-            context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
+    GrCaps* caps = context->caps();
+
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, colorType);
     if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
 
     callDone.clear();
-    auto proxy = MakePromiseImageLazyProxy(context, width, height, origin, config, backendFormat,
+    auto proxy = MakePromiseImageLazyProxy(context.get(), width, height, origin, config, backendFormat,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
                                            promiseDoneProc, textureContext);
     if (!proxy) {
         return nullptr;
     }
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
+    return sk_make_sp<SkImage_Gpu>(std::move(context), kNeedNewImageUniqueID, alphaType,
                                    std::move(proxy), std::move(colorSpace));
 }
 

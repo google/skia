@@ -71,7 +71,7 @@ uint32_t SkPixelRef::getGenerationID() const {
     return id & ~1u;  // Mask off bottom unique bit.
 }
 
-void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
+void SkPixelRef::addGenIDChangeListener1(GenIDChangeListener1* listener) {
     if (nullptr == listener || !this->genIDIsUnique()) {
         // No point in tracking this if we're not going to call it.
         delete listener;
