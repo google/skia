@@ -403,24 +403,15 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                                        PromiseImageTextureContext context,
                                        GrPixelConfig config)
                 : fFulfillProc(fulfillProc)
-                , fReleaseProc(releaseProc)
-                , fContext(context)
                 , fConfig(config) {
-            fDoneHelper = sk_make_sp<GrReleaseProcHelper>(doneProc, context);
+            auto doneHelper = sk_make_sp<GrReleaseProcHelper>(doneProc, context);
+            fIdleContext = sk_make_sp<IdleContext>(releaseProc, context, std::move(doneHelper));
             static std::atomic<uint32_t> gUniqueID;
             fUniqueID = gUniqueID.fetch_add(1) + 1;
         }
+
         ~PromiseLazyInstantiateCallback() {
-            // If we've already released the texture then it is safe to call done now. Here we may
-            // be on any thread.
-            if (fIdleContext && fIdleContext->fWasReleased.load()) {
-                // We still own a ref on fDoneHelper so no other thread can be calling the done
-                // proc.
-                fDoneHelper->callAndClear();
-            }
             // Remove the key from the texture so that the texture will be removed from the cache.
-            // If we didn't just call the done proc above then it will get called when the texture
-            // is removed from the cache after this message is processed.
             if (fLastFulfilledKey.isValid()) {
                 SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
                         GrUniqueKeyInvalidatedMessage(fLastFulfilledKey, fContextID));
@@ -443,15 +434,15 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
             // If the release callback hasn't been called already by releasing the GrTexture
             // then we can be sure that won't happen so long as we have a ref to the texture.
-            // Moreoever, only this thread should be able to change the atomic to true, hence the
-            // relaxed memory order.
-            if (cachedTexture && !fIdleContext->fWasReleased.load(std::memory_order_relaxed)) {
+            if (cachedTexture && !fIdleContext->wasReleased()) {
                 return std::move(cachedTexture);
             }
             GrBackendTexture backendTexture;
-            sk_sp<SkPromiseImageTexture> promiseTexture = fFulfillProc(fContext);
+            sk_sp<SkPromiseImageTexture> promiseTexture =
+                    fFulfillProc(fIdleContext->textureContext());
+            fIdleContext->reset();
             if (!promiseTexture) {
-                fReleaseProc(fContext);
+                IdleContext::IdleProc(fIdleContext.get());
                 return sk_sp<GrTexture>();
             }
             bool same = promiseTexture->uniqueID() == fLastFulfillID;
@@ -460,16 +451,10 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 SkASSERT(fIdleContext->unique());
                 // Reset the purgeable context so that we balance the new fulfill with a release.
                 fIdleContext->ref();
-                SkASSERT(fIdleContext->fReleaseProc == fReleaseProc);
-                SkASSERT(fIdleContext->fTextureContext == fContext);
-                // Memory order relaxed because only this thread can change fWasReleased to true.
-                fIdleContext->fWasReleased.store(false, std::memory_order_relaxed);
-                cachedTexture->setIdleProc(IdleProc, fIdleContext.get());
+                cachedTexture->setIdleProc(IdleContext::IdleProc, fIdleContext.get());
                 return std::move(cachedTexture);
             } else if (cachedTexture) {
                 cachedTexture->resourcePriv().removeUniqueKey();
-                // We don't want calling the client's done proc to be tied to the old texture.
-                cachedTexture->setRelease(nullptr);
             }
             fLastFulfillID = promiseTexture->uniqueID();
 
@@ -478,7 +463,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             if (!backendTexture.isValid()) {
                 // Even though the GrBackendTexture is not valid, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext);
+                IdleContext::IdleProc(fIdleContext.get());
                 return sk_sp<GrTexture>();
             }
 
@@ -487,14 +472,12 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             if (!tex) {
                 // Even though we failed to wrap the backend texture, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseProc(fContext);
+                IdleContext::IdleProc(fIdleContext.get());
                 return sk_sp<GrTexture>();
             }
-            fIdleContext = sk_make_sp<IdleContext>(fReleaseProc, fContext);
             // The texture gets a ref, which is balanced when the idle callback is called.
             fIdleContext->ref();
-            tex->setIdleProc(IdleProc, fIdleContext.get());
-            tex->setRelease(fDoneHelper);
+            tex->setIdleProc(IdleContext::IdleProc, fIdleContext.get());
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey::Builder builder(&fLastFulfilledKey, kDomain, 2, "promise");
             builder[0] = promiseTexture->uniqueID();
@@ -509,29 +492,47 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
         }
 
     private:
-        struct IdleContext : public SkNVRefCnt<IdleContext> {
-            IdleContext(PromiseImageTextureReleaseProc proc, PromiseImageTextureContext context)
-                    : fReleaseProc(proc), fTextureContext(context) {}
+        // The GrTexture's idle callback mechanism is used to call the client's Release proc via
+        // this class. This also owns a ref counted helper that calls the client's ReleaseProc when
+        // the ref count reaches zero. The callback and any Fulfilled but un-Released texture share
+        // ownership of the IdleContext. Thus, the IdleContext is destroyed and calls the Done proc
+        // after the last fulfilled texture goes idle and calls the Release proc or the proxy's
+        // destructor destroys the lazy callback, whichever comes last.
+        class IdleContext : public SkNVRefCnt<IdleContext> {
+        public:
+            IdleContext() = delete;
+            IdleContext(PromiseImageTextureReleaseProc releaseProc,
+                        PromiseImageTextureContext textureContext,
+                        sk_sp<GrReleaseProcHelper> doneHelper)
+                    : fReleaseProc(releaseProc)
+                    , fTextureContext(textureContext)
+                    , fDoneHelper(std::move(doneHelper)) {}
+
+            ~IdleContext() { SkASSERT(fWasReleased); }
+
+            void reset() { fWasReleased = false; }
+            bool wasReleased() const { return fWasReleased; }
+
+            PromiseImageTextureContext textureContext() const { return fTextureContext; }
+
+            static void IdleProc(void* context) {
+                IdleContext* rc = static_cast<IdleContext*>(context);
+                rc->fReleaseProc(rc->fTextureContext);
+                rc->fWasReleased = true;
+                // Drop the texture's implicit ref on the IdleContext.
+                rc->unref();
+            }
+
+        private:
             PromiseImageTextureReleaseProc fReleaseProc;
             PromiseImageTextureContext fTextureContext;
-            std::atomic<bool> fWasReleased{false};
+            sk_sp<GrReleaseProcHelper> fDoneHelper;
+            bool fWasReleased = true;
         };
-        static void IdleProc(void* context) {
-            IdleContext* rc = static_cast<IdleContext*>(context);
-            SkASSERT(!rc->fWasReleased.load());
-            rc->fReleaseProc(rc->fTextureContext);
-            rc->fWasReleased.store(true);
-            // Drop the texture's implicit ref on the IdleContext.
-            rc->unref();
-        }
 
-        PromiseImageTextureFulfillProc fFulfillProc;
-        PromiseImageTextureReleaseProc fReleaseProc;
-        PromiseImageTextureContext fContext;
-
-        GrPixelConfig fConfig;
         sk_sp<IdleContext> fIdleContext;
-        sk_sp<GrReleaseProcHelper> fDoneHelper;
+        PromiseImageTextureFulfillProc fFulfillProc;
+        GrPixelConfig fConfig;
 
         // ID of the last SkPromiseImageTexture given to us by the client.
         uint32_t fLastFulfillID = 0;

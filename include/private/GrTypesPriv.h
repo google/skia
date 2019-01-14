@@ -1395,18 +1395,10 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
-    ~GrReleaseProcHelper() override {
-        if (fReleaseProc) {
-            fReleaseProc(fReleaseCtx);
-        }
+    GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {
+        SkASSERT(proc);
     }
-
-    void callAndClear() {
-        fReleaseProc(fReleaseCtx);
-        fReleaseProc = nullptr;
-        fReleaseCtx = nullptr;
-    }
+    ~GrReleaseProcHelper() override { fReleaseProc(fReleaseCtx); }
 
 private:
     ReleaseProc fReleaseProc;
