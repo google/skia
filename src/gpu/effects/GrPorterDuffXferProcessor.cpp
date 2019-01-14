@@ -838,12 +838,6 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
     if (!formula.modifiesDst() || !formula.usesInputColor()) {
         props |= AnalysisProperties::kIgnoresInputColor;
     }
-    // Ignore the effect of coverage here for overlap stencil and cover property
-    auto colorFormula = gBlendTable[color.isOpaque()][0][(int)mode];
-    SkASSERT(kAdd_GrBlendEquation == colorFormula.equation());
-    if (!colorFormula.usesDstColor()) {
-        props |= AnalysisProperties::kCanCombineOverlappedStencilAndCover;
-    }
     return props;
 }
 

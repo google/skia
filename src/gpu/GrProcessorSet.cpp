@@ -212,12 +212,6 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
             this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps);
     if (!this->numCoverageFragmentProcessors() &&
         GrProcessorAnalysisCoverage::kNone == coverageInput) {
-        analysis.fCanCombineOverlappedStencilAndCover = SkToBool(
-                props & GrXPFactory::AnalysisProperties::kCanCombineOverlappedStencilAndCover);
-    } else {
-        // If we have non-clipping coverage processors we don't try to merge stencil steps as its
-        // unclear whether it will be correct. We don't expect this to happen in practice.
-        analysis.fCanCombineOverlappedStencilAndCover = false;
     }
     analysis.fRequiresDstTexture =
             SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);

@@ -81,9 +81,6 @@ public:
         bool isInitialized() const { return fIsInitialized; }
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool requiresDstTexture() const { return fRequiresDstTexture; }
-        bool canCombineOverlappedStencilAndCover() const {
-            return fCanCombineOverlappedStencilAndCover;
-        }
         bool requiresBarrierBetweenOverlappingDraws() const {
             return fRequiresBarrierBetweenOverlappingDraws;
         }
@@ -99,7 +96,6 @@ public:
                 : fUsesLocalCoords(false)
                 , fCompatibleWithCoverageAsAlpha(true)
                 , fRequiresDstTexture(false)
-                , fCanCombineOverlappedStencilAndCover(true)
                 , fRequiresBarrierBetweenOverlappingDraws(false)
                 , fIsInitialized(true)
                 , fInputColorType(kOriginal_InputColorType) {}
@@ -116,7 +112,6 @@ public:
         PackedBool fUsesLocalCoords : 1;
         PackedBool fCompatibleWithCoverageAsAlpha : 1;
         PackedBool fRequiresDstTexture : 1;
-        PackedBool fCanCombineOverlappedStencilAndCover : 1;
         PackedBool fRequiresBarrierBetweenOverlappingDraws : 1;
         PackedBool fIsInitialized : 1;
         PackedInputColorType fInputColorType : 2;

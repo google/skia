@@ -270,11 +270,6 @@ public:
          */
         kIgnoresInputColor = 0x4,
         /**
-         * If set overlapping stencil and cover operations can be replaced by a combined stencil
-         * followed by a combined cover.
-         */
-        kCanCombineOverlappedStencilAndCover = 0x8,
-        /**
          * The destination color will be provided to the fragment processor using a texture. This is
          * additional information about the implementation of kReadsDstInShader.
          */
