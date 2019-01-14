@@ -1309,14 +1309,16 @@ int main(int argc, char** argv) {
                          , config);
             } else if (FLAGS_quiet) {
                 const char* mark = " ";
-                const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+                const double stddev_percent =
+                    sk_ieee_double_divide(100 * sqrt(stats.var), stats.mean);
                 if (stddev_percent >  5) mark = "?";
                 if (stddev_percent > 10) mark = "!";
 
                 SkDebugf("%10.2f %s\t%s\t%s\n",
                          stats.median*1e3, mark, bench->getUniqueName(), config);
             } else if (FLAGS_csv) {
-                const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+                const double stddev_percent =
+                    sk_ieee_double_divide(100 * sqrt(stats.var), stats.mean);
                 SkDebugf("%g,%g,%g,%g,%g,%s,%s\n"
                          , stats.min
                          , stats.median
@@ -1328,7 +1330,8 @@ int main(int argc, char** argv) {
                          );
             } else {
                 const char* format = "%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n";
-                const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+                const double stddev_percent =
+                    sk_ieee_double_divide(100 * sqrt(stats.var), stats.mean);
                 SkDebugf(format
                         , sk_tools::getCurrResidentSetSizeMB()
                         , sk_tools::getMaxResidentSetSizeMB()
