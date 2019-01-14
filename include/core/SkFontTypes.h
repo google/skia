@@ -12,6 +12,10 @@
 // remove me once google3 uses IWYU
 #include "SkTypeface.h"
 
+#ifndef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#define SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#endif
+
 enum class SkTextEncoding {
     kUTF8,      //!< uses bytes to represent UTF-8 or ASCII
     kUTF16,     //!< uses two byte words to represent most of Unicode
