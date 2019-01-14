@@ -117,13 +117,6 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(
     return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
-void SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
-    if (runSize > fMaxRunSize) {
-        fPositions.reset(runSize);
-        fMaxRunSize = runSize;
-    }
-}
-
 static bool check_glyph_position(SkPoint position) {
     // Prevent glyphs from being drawn outside of or straddling the edge of device space.
     // Comparisons written a little weirdly so that NaN coordinates are treated safely.
@@ -166,11 +159,11 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                   ? fDeviceProps
                   : fBitmapFallbackProps;
 
+    auto reservation =  this->ensureBuffers(glyphRunList);
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
         const SkFont& runFont = glyphRun.font();
         auto runSize = glyphRun.runSize();
-        this->ensureBitmapBuffers(runSize);
 
         if (ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
             SkMatrix::MakeTrans(origin.x(), origin.y()).mapPoints(
@@ -379,6 +372,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerEmptyT&& perEmpty, PerGlyphT&& perGlyph, PerPathT&& perPath) {
+    auto reservation = this->ensureBuffers(glyphRun);
 
     SkMatrix mapping = deviceMatrix;
     mapping.preTranslate(origin.x(), origin.y());
@@ -386,7 +380,6 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     mapping.postTranslate(rounding.x(), rounding.y());
 
     auto runSize = glyphRun.runSize();
-    this->ensureBitmapBuffers(runSize);
     mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
     const SkPoint* mappedPtCursor = fPositions;
     for (auto glyphID : glyphRun.glyphsIDs()) {
