@@ -247,6 +247,10 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         return nullptr;
     }
 
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        return nullptr; // TODO: add compressed texture support
+    }
+
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
@@ -306,6 +310,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         // Do initial clear of the texture
     }
     return std::move(tex);
+}
+
+sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                     const GrMipLevel texels[], int mipLevelCount) {
+    return nullptr;
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex,
