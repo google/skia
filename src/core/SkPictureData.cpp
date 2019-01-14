@@ -410,7 +410,8 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             const int count = SkToInt(size);
 
             for (int i = 0; i < count; ++i) {
-                if (!buffer.readPaint(&fPaints.push_back())) {
+                // Do we need to keep an array of fFonts for legacy draws?
+                if (!buffer.readPaint(&fPaints.push_back(), nullptr)) {
                     return;
                 }
             }

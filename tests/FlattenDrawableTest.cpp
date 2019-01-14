@@ -71,7 +71,7 @@ public:
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
         SkPaint paint;
-        buffer.readPaint(&paint);
+        buffer.readPaint(&paint, nullptr);
         return sk_sp<PaintDrawable>(new PaintDrawable(paint));
     }
 
