@@ -44,6 +44,7 @@
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
+#include "SkTextBlob.h"
 #include "SkTrimPathEffect.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
@@ -479,6 +480,10 @@ namespace emscripten {
         template<>
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
+
+        template<>
+        void raw_destructor<SkTextBlob>(SkTextBlob *ptr) {
+        }
     }
 }
 
@@ -685,13 +690,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
                                       SkColor(ambientColor), SkColor(spotColor), flags);
         }))
-        .function("drawText", optional_override([](SkCanvas& self, std::string text, SkScalar x,
-                                                   SkScalar y, const SkPaint& p) {
-            // TODO(kjlubick): This does not work well for non-ascii
-            // Need to maybe add a helper in interface.js that supports UTF-8
-            // Otherwise, go with std::wstring and set UTF-32 encoding.
-            self.drawText(text.c_str(), text.length(), x, y, p);
+        .function("_drawSimpleText", optional_override([](SkCanvas& self, uintptr_t /* char* */ sptr,
+                                                          size_t len, SkScalar x, SkScalar y, const SkFont& font,
+                                                          const SkPaint& paint) {
+            // See comment above for uintptr_t explanation
+            const char* str = reinterpret_cast<const char*>(sptr);
+
+            self.drawSimpleText(str, len, SkTextEncoding::kUTF8, x, y, font, paint);
         }))
+        .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
         .function("flush", &SkCanvas::flush)
         .function("getTotalMatrix", optional_override([](const SkCanvas& self)->SimpleMatrix {
@@ -798,7 +805,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getStrokeJoin", &SkPaint::getStrokeJoin)
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
         .function("getStrokeWidth", &SkPaint::getStrokeWidth)
-        .function("getTextSize", &SkPaint::getTextSize)
         .function("setAntiAlias", &SkPaint::setAntiAlias)
         .function("setBlendMode", &SkPaint::setBlendMode)
         .function("setColor", optional_override([](SkPaint& self, JSColor color)->void {
@@ -814,9 +820,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setStrokeJoin", &SkPaint::setStrokeJoin)
         .function("setStrokeMiter", &SkPaint::setStrokeMiter)
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
-        .function("setStyle", &SkPaint::setStyle)
-        .function("setTypeface", &SkPaint::setTypeface)
-        .function("setTextSize", &SkPaint::setTextSize);
+        .function("setStyle", &SkPaint::setStyle);
 
     class_<SkPathEffect>("SkPathEffect")
         .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>");
@@ -885,6 +889,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>()>(&SkSurface::makeImageSnapshot))
         .function("makeImageSnapshot", select_overload<sk_sp<SkImage>(const SkIRect& bounds)>(&SkSurface::makeImageSnapshot))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
+
+    class_<SkTextBlob>("SkTextBlob")
+        .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
+        .class_function("_MakeFromText",optional_override([](uintptr_t /* char* */ sptr,
+                                                             size_t len, const SkFont& font,
+                                                             SkTextEncoding encoding)->sk_sp<SkTextBlob> {
+            // See comment above for uintptr_t explanation
+            const char* str = reinterpret_cast<const char*>(sptr);
+            return SkTextBlob::MakeFromText(str, len, font, encoding);
+        }), allow_raw_pointers());
+
 
     class_<SkTypeface>("SkTypeface")
         .smart_ptr<sk_sp<SkTypeface>>("sk_sp<SkTypeface>");
@@ -1006,12 +1021,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Round", SkPaint::Join::kRound_Join)
         .value("Bevel", SkPaint::Join::kBevel_Join);
 
-    value_object<StrokeOpts>("StrokeOpts")
-        .field("width",       &StrokeOpts::width)
-        .field("miter_limit", &StrokeOpts::miter_limit)
-        .field("join",        &StrokeOpts::join)
-        .field("cap",         &StrokeOpts::cap)
-        .field("precision",   &StrokeOpts::precision);
+    enum_<SkTextEncoding>("TextEncoding")
+        .value("UTF8",    SkTextEncoding::kUTF8)
+        .value("UTF16",   SkTextEncoding::kUTF16)
+        .value("UTF32",   SkTextEncoding::kUTF32)
+        .value("GlyphID", SkTextEncoding::kGlyphID);
 
     enum_<SkShader::TileMode>("TileMode")
         .value("Clamp",    SkShader::TileMode::kClamp_TileMode)
@@ -1066,6 +1080,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
     value_object<SkISize>("SkISize")
         .field("w",   &SkISize::fWidth)
         .field("h",   &SkISize::fHeight);
+
+    value_object<StrokeOpts>("StrokeOpts")
+        .field("width",       &StrokeOpts::width)
+        .field("miter_limit", &StrokeOpts::miter_limit)
+        .field("join",        &StrokeOpts::join)
+        .field("cap",         &StrokeOpts::cap)
+        .field("precision",   &StrokeOpts::precision);
 
     // Allows clients to supply a 1D array of 9 elements and the bindings
     // will automatically turn it into a 3x3 2D matrix.
