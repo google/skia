@@ -11,6 +11,7 @@
 #include "SkColorFilter.h"
 #include "SkSerialProcs.h"
 #include "SkDrawLooper.h"
+#include "SkFont.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
@@ -112,7 +113,10 @@ public:
     void readRegion(SkRegion* region);
 
     void readPath(SkPath* path);
-    bool readPaint(SkPaint* paint) { return SkPaintPriv::Unflatten(paint, *this); }
+
+    SkReadPaintResult readPaint(SkPaint* paint, SkFont* font) {
+        return SkPaintPriv::Unflatten(paint, *this, font);
+    }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {
@@ -288,7 +292,13 @@ public:
     void readRegion (SkRegion*  out) { *out = SkRegion();         }
     void readString (SkString*  out) { *out = SkString();         }
     void readPath   (SkPath*    out) { *out = SkPath();           }
-    bool readPaint  (SkPaint*   out) { *out = SkPaint(); return false; }
+    SkReadPaintResult readPaint  (SkPaint*   out, SkFont* font) {
+        *out = SkPaint();
+        if (font) {
+            *font = SkFont();
+        }
+        return kFailed_ReadPaint;
+    }
 
     SkPoint readPoint() { return {0,0}; }
 

@@ -390,8 +390,45 @@ static inline int BPF_Mask(int bits) {
     return (1 << bits) - 1;
 }
 
-static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
-    paint->setFlags(packed >> 16);
+// SkPaint originally defined flags, some of which now apply to SkFont. These are renames
+// of those flags, split into categories depending on which objects they (now) apply to.
+
+enum PaintFlagsForPaint {
+    kAA_PaintFlagForPaint     = 0x01,
+    kDither_PaintFlagForPaint = 0x04,
+};
+
+enum PaintFlagsForFont {
+    kFakeBold_PaintFlagForPaint       = 0x20,
+    kLinear_PaintFlagForPaint         = 0x40,
+    kSubpixel_PaintFlagForPaint       = 0x80,
+    kLCD_PaintFlagForPaint            = 0x200,
+    kEmbeddedBitmap_PaintFlagForPaint = 0x400,
+    kAutoHinting_PaintFlagForPaint    = 0x800,
+};
+
+static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed, SkFont* font) {
+    uint32_t f = packed >> 16;
+    paint->setAntiAlias((f & kAA_PaintFlagForPaint) != 0);
+    paint->setDither((f & kDither_PaintFlagForPaint) != 0);
+    if (font) {
+        font->setEmbolden((f & kFakeBold_PaintFlagForPaint) != 0);
+        font->setLinearMetrics((f & kLinear_PaintFlagForPaint) != 0);
+        font->setSubpixel((f & kSubpixel_PaintFlagForPaint) != 0);
+        font->setEmbeddedBitmaps((f & kEmbeddedBitmap_PaintFlagForPaint) != 0);
+        font->setForceAutoHinting((f & kAutoHinting_PaintFlagForPaint) != 0);
+
+        if (f & kAA_PaintFlagForPaint) {
+            if (f & kLCD_PaintFlagForPaint) {
+                font->setEdging(SkFont::Edging::kSubpixelAntiAlias);
+            } else {
+                font->setEdging(SkFont::Edging::kAntiAlias);
+            }
+        } else {
+            font->setEdging(SkFont::Edging::kAlias);
+        }
+    }
+
     paint->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
@@ -475,12 +512,17 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     }
 }
 
-bool SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer) {
+SkReadPaintResult SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
     SkSafeRange safe;
 
-    paint->setTextSize(buffer.readScalar());
-    paint->setTextScaleX(buffer.readScalar());
-    paint->setTextSkewX(buffer.readScalar());
+    if (font) {
+        font->setSize(buffer.readScalar());
+        font->setScaleX(buffer.readScalar());
+        font->setSkewX(buffer.readScalar());
+    } else {
+        buffer.skipT<SkScalar>(3);
+    }
+
     paint->setStrokeWidth(buffer.readScalar());
     paint->setStrokeMiter(buffer.readScalar());
     if (buffer.isVersionLT(SkReadBuffer::kFloat4PaintColor_Version)) {
@@ -491,7 +533,7 @@ bool SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer) {
         paint->setColor4f(color, sk_srgb_singleton());
     }
 
-    unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt());
+    unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt(), font);
 
     uint32_t tmp = buffer.readUInt();
     paint->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, SkPaint::kLast_Cap));
@@ -500,10 +542,12 @@ bool SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer) {
     paint->private_internal_setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_SkTextEncoding));
     paint->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
+    sk_sp<SkTypeface> tf;
     if (flatFlags & kHasTypeface_FlatFlag) {
-        paint->setTypeface(buffer.readTypeface());
-    } else {
-        paint->setTypeface(nullptr);
+        tf = buffer.readTypeface();
+    }
+    if (font) {
+        font->setTypeface(tf);
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
@@ -525,14 +569,14 @@ bool SkPaintPriv::Unflatten_PreV68(SkPaint* paint, SkReadBuffer& buffer) {
 
     if (!buffer.validate(safe)) {
         paint->reset();
-        return false;
+        return kFailed_ReadPaint;
     }
-    return true;
+    return kSuccess_PaintAndFont;
 }
 
-bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
+SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
     if (buffer.isVersionLT(SkReadBuffer::kPaintDoesntSerializeFonts_Version)) {
-        return Unflatten_PreV68(paint, buffer);
+        return Unflatten_PreV68(paint, buffer, font) ? kSuccess_PaintAndFont : kFailed_ReadPaint;
     }
 
     SkSafeRange safe;
@@ -565,9 +609,9 @@ bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
 
     if (!buffer.validate(safe)) {
         paint->reset();
-        return false;
+        return kFailed_ReadPaint;
     }
-    return true;
+    return kSuccess_JustPaint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
