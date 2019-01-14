@@ -1088,26 +1088,16 @@ Name ColorCodecSrc::name() const {
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
-static sk_sp<SkPicture> read_skp(const char* path, const SkDeserialProcs* procs = nullptr) {
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
-    if (!stream) {
-        return nullptr;
-    }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get(), procs));
-    if (!pic) {
-        return nullptr;
-    }
-    stream = nullptr;  // Might as well drop this when we're done with it.
-
-    return pic;
-}
-
 Error SKPSrc::draw(SkCanvas* canvas) const {
-    sk_sp<SkPicture> pic = read_skp(fPath.c_str());
-    if (!pic) {
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
+    if (!stream) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-
+    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
+    if (!pic) {
+        return SkStringPrintf("Couldn't parse file %s.", fPath.c_str());
+    }
+    stream = nullptr;  // Might as well drop this when we're done with it.
     canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
     canvas->drawPicture(pic);
     return "";
