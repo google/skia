@@ -23,6 +23,9 @@ def create_asset(target_dir):
   cmd = [
     'docker', 'run', '--volume', '%s:/OUT' % target_dir,
     '--env', 'MESA_VERSION=%s' % MESA_VERSION,
+    # It's importart to have frame pointers and debugging symbols for xSAN
+    # suppressions.
+    '--env', 'CPPFLAGS=-fno-omit-frame-pointer -g',
     DOCKER_IMAGE, BUILD_SCRIPT
   ]
   print('Running docker cmd', cmd)
