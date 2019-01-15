@@ -52,6 +52,24 @@
       "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "237c5983_a860eab4",
+        "filename": "DEPS",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-15T20:56:52Z",
+      "side": 1,
+      "message": "So src shouldn\u0027t exist at all, but we\u0027re incorrectly looking there for these gclient args.  I think this is the repo which should contain the gclient_args.gni file: https://chromium.googlesource.com/chromium/src/build/config/+/master  But I don\u0027t see it there.  I\u0027m rather stumped.",
+      "parentUuid": "ec9261ad_58b71ed9",
+      "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
