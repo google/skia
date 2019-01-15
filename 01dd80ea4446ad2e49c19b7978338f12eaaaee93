@@ -16,6 +16,24 @@
       "revId": "01dd80ea4446ad2e49c19b7978338f12eaaaee93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4e03afe_37ccd034",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T16:36:16Z",
+      "side": 1,
+      "message": "It appears there are other users that rely on the ref counted nature of this.",
+      "parentUuid": "26c3cc0e_4263e277",
+      "revId": "01dd80ea4446ad2e49c19b7978338f12eaaaee93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
