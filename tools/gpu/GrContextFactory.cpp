@@ -59,12 +59,15 @@ void GrContextFactory::destroyContexts() {
         Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (context.fTestContext) {
+            context.fTestContext->submit();
+            context.fTestContext->finish();
             restore = context.fTestContext->makeCurrentAndAutoRestore();
         }
         if (!context.fGrContext->unique()) {
             context.fGrContext->releaseResourcesAndAbandonContext();
             context.fAbandoned = true;
         }
+        context.fGrContext->flush();
         context.fGrContext->unref();
         delete context.fTestContext;
     }
