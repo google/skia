@@ -3898,9 +3898,11 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkFont font;
     float textSizes[] = { 12, 18, 24, 36 };
+    const char text[] = "Aa";
+    const SkTextEncoding enc = kUTF8_SkTextEncoding;
     for (auto size: textSizes ) {
         font.setSize(size);
-        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10, 20, font, paint);
+        canvas->drawSimpleText(text, strlen(text), enc, 10, 20, font, paint);
         canvas->translate(0, size * 2);
     }
     font.setSize(12);
@@ -3910,7 +3912,7 @@ void draw(SkCanvas* canvas) {
         canvas->resetMatrix();
         canvas->translate(100, 0);
         canvas->scale(scale, scale);
-        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10 / scale, yPos / scale, font, paint);
+        canvas->drawSimpleText(text, strlen(text), enc, 10 / scale, yPos / scale, font, paint);
         yPos += size * 2;
     }
 }
