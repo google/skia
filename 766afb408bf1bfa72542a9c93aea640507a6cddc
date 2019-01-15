@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00716b98_41124562",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T15:48:58Z",
+      "side": 1,
+      "message": "ints?",
+      "range": {
+        "startLine": 378,
+        "startChar": 4,
+        "endLine": 378,
+        "endChar": 10
+      },
+      "revId": "766afb408bf1bfa72542a9c93aea640507a6cddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2581b1c_2f8b3172",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T15:48:58Z",
+      "side": 1,
+      "message": "Where do we check we don\u0027t overrun this?\n\nIs it better served by SkSTArray\u003c1, const SkGlyph*\u003e, or an array you manage with ScopedBuffers like the others?",
+      "revId": "766afb408bf1bfa72542a9c93aea640507a6cddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2ddfafe_488d921a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T15:48:58Z",
+      "side": 1,
+      "message": "If we\u0027re building these arrays together (here and below), maybe we should just build arrays of\n\n  struct PositionedGlyph {\n     const SkGlyph* glyph;\n     SkPoint        position;\n  };\n\n?  That\u0027ll cut down on the number of moving pieces to track and the number of allocations.",
+      "revId": "766afb408bf1bfa72542a9c93aea640507a6cddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
