@@ -23,7 +23,7 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
-    return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
+    return fImage->lockTextureProxy(fContext3, fOriginalKey, fCachingHint,
                                     willBeMipped, onlyIfFast);
 }
 

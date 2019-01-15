@@ -31,9 +31,10 @@ public:
     /**
      * Create a GrContext without a resource cache
      */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+    static sk_sp<GrRecordingContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
-    const GrCaps* caps() const { return fContext->fCaps.get(); }
+    // legacy
+    const GrCaps* caps() const { return fContext->caps(); }
 
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
@@ -182,7 +183,8 @@ public:
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
-    GrBackendApi getBackend() const { return fContext->fBackend; }
+    // legacy
+    GrBackendApi getBackend() const { return fContext->backend(); }
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
@@ -279,9 +281,11 @@ public:
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
 
+#if 0
     sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() {
         return fContext->fFPFactoryCache;
     }
+#endif
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
