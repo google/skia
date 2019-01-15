@@ -42,13 +42,13 @@ def RunSteps(api):
       'CPPFLAGS': '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1'}
   api.checkout.bot_update(
       checkout_root=checkout_root,
-      checkout_chromium=True,
+      checkout_chromium_recreate_skps=True,
       extra_gclient_env=extra_gclient_env)
 
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
   api.flavor.setup()
 
-  src_dir = checkout_root.join('src')
+  src_dir = checkout_root.join('src_recreate_skps')
   skia_dir = checkout_root.join('skia')
   out_dir = src_dir.join('out', 'Release')
 
