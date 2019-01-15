@@ -353,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "35700e4b_1f0a9ba6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T18:43:42Z",
+      "side": 1,
+      "message": "That seems out of data, too. We used to promote textures to MIP mapped but egdaniel@ made it so that we copy to a new texture created with MIP levels.",
+      "parentUuid": "af0aa7e1_ee79d1d1",
+      "range": {
+        "startLine": 1066,
+        "startChar": 0,
+        "endLine": 1071,
+        "endChar": 39
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fee8da11_540d8782",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 20
