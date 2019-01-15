@@ -9,7 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkRandom.h"
 
-#if SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_GOOGLE3)
 #include "etc1.h"
 
 #include "GrContext.h"
