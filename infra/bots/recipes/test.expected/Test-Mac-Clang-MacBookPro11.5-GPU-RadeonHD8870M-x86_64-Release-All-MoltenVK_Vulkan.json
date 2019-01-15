@@ -499,7 +499,8 @@
       "~^RGBA4444TextureTest$",
       "~^WritePixelsNonTextureMSAA_Gpu$",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

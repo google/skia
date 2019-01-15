@@ -974,7 +974,8 @@
       "--match",
       "~gradients_view_perspective_nodither",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

@@ -459,7 +459,8 @@
       "_",
       "complexclip4_aa",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

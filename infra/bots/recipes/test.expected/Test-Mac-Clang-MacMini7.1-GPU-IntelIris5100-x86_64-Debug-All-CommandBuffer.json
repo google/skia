@@ -488,7 +488,8 @@
       "--match",
       "~HalfFloatAlphaTextureTest",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

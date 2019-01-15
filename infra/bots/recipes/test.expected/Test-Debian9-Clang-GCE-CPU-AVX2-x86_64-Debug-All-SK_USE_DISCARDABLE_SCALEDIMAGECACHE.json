@@ -272,7 +272,8 @@
       "gen_platf",
       "error",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

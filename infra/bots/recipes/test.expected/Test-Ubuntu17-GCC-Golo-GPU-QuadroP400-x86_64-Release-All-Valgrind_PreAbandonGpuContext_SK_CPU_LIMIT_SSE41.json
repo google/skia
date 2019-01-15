@@ -305,6 +305,7 @@
       "--nonativeFonts",
       "--reduceOpListSplitting",
       "--verbose",
+      "--pre_log",
       "--preAbandonGpuContext"
     ],
     "env": {

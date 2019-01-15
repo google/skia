@@ -315,7 +315,8 @@
       "gen_platf",
       "error",
       "--gdi",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

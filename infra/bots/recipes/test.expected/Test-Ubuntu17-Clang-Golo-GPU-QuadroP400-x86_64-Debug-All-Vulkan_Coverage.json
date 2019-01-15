@@ -293,7 +293,8 @@
       ".SRW",
       "--nonativeFonts",
       "--reduceOpListSplitting",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

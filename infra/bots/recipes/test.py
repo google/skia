@@ -817,6 +817,7 @@ def dm_flags(api, bot):
 
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
+  args.append('--pre_log')
 
   return args
 

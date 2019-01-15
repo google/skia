@@ -458,7 +458,8 @@
       "~RGBA4444TextureTest",
       "~RGB565TextureTest",
       "--nonativeFonts",
-      "--verbose"
+      "--verbose",
+      "--pre_log"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
