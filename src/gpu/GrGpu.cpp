@@ -123,6 +123,10 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
         return nullptr;
     }
 
+    // We shouldn't be rendering into compressed textures
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig) || !isRT);
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig) || 1 == desc.fSampleCnt);
+
     this->handleDirtyContext();
     sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
     if (tex) {
@@ -149,6 +153,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            bool purgeImmediately) {
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
+    SkASSERT(this->caps());
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
     }
@@ -247,6 +252,10 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
                                               &left, &top, &width, &height,
                                               &buffer,
                                               &rowBytes)) {
+        return false;
+    }
+
+    if (GrPixelConfigIsCompressed(surface->config())) {
         return false;
     }
 

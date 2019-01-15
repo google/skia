@@ -102,7 +102,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture, reporter
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
 
     auto texture = sk_make_sp<GrGLTexture>(gpu, SkBudgeted::kNo, desc, idDesc,
-                                           GrMipMapsStatus::kNotAllocated);
+                                           GrMipMapsStatus::kNotAllocated, false);
 
     ValidateMemoryDumps(reporter, context, texture->gpuMemorySize(), true /* isOwned */);
 }
