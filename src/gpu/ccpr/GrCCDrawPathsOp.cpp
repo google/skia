@@ -138,13 +138,12 @@ GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
 #endif
 }
 
-GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
-                                                       const GrAppliedClip* clip) {
+GrProcessorSet::Analysis GrCCDrawPathsOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
     SkASSERT(1 == fNumDraws);  // There should only be one single path draw in this Op right now.
     return fDraws.head().finalize(caps, clip, &fProcessors);
 }
 
-GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::SingleDraw::finalize(
+GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
         const GrCaps& caps, const GrAppliedClip* clip, GrProcessorSet* processors) {
     const GrProcessorSet::Analysis& analysis = processors->finalize(
             fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip, false, caps,
@@ -178,7 +177,7 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::SingleDraw::finalize(
         fColor = fColor * coverage;
     }
 
-    return RequiresDstTexture(analysis.requiresDstTexture());
+    return analysis;
 }
 
 GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {

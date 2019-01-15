@@ -57,10 +57,9 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        auto analysis = fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip,
-                                             false, caps, &fColor);
-        return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps,
+                                    &fColor);
     }
 
 private:
