@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fee8da11_540d8782",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-01-15T16:31:31Z",
+      "side": 1,
+      "message": "I\u0027m not sure what to do about this -- it\u0027s asserting in the InitialTextureClear test. I could either ignore clears or return a null texture and/or skip compressed configs in the test.",
+      "range": {
+        "startLine": 1796,
+        "startChar": 8,
+        "endLine": 1796,
+        "endChar": 77
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
