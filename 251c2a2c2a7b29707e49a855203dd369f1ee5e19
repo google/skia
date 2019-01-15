@@ -16,6 +16,24 @@
       "revId": "251c2a2c2a7b29707e49a855203dd369f1ee5e19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "972cdfa4_7a9d278c",
+        "filename": "gm/skbug_8664.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-15T17:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f055b14d_496e03f6",
+      "revId": "251c2a2c2a7b29707e49a855203dd369f1ee5e19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
