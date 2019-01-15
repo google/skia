@@ -856,9 +856,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 		}
-		if strings.Contains(name, "Vulkan") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
-		}
 		if parts["target_arch"] == "mips64el" || parts["target_arch"] == "loongson3a" {
 			if parts["compiler"] != "GCC" {
 				glog.Fatalf("mips64el toolchain is GCC, but compiler is %q in %q", parts["compiler"], name)
@@ -1368,9 +1365,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if strings.Contains(name, "Ubuntu") || strings.Contains(name, "Debian") {
 		if strings.Contains(name, "SAN") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
-		}
-		if strings.Contains(name, "Vulkan") {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
 		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("mesa_intel_driver_linux"))
