@@ -193,6 +193,30 @@
     },
     {
       "key": {
+        "uuid": "be2ab07c_b5906d51",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-15T18:50:06Z",
+      "side": 1,
+      "message": "So I do not have a complete answer to that question, but when running rectangle benchmarks, I do see an increase in render time correlating with an increase in rectangle area. Since this CL moves the clears over to GrFillRectOp, and it seems to be GPU bound, that would explain the trend shown in the clear benchmarks.\n\nNow, why that op would be GPU bound is curious and deserves some more investigation (I did confirm, the size-based slowdown exists at tip of tree too).",
+      "parentUuid": "89b849a7_1490e064",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
