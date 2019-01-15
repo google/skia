@@ -16,6 +16,24 @@
       "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0793d2b_2d2774a1",
+        "filename": "DEPS",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-15T19:30:42Z",
+      "side": 1,
+      "message": "I have no idea. Is it possible that ../src is still present?",
+      "parentUuid": "e546d50e_2128c6f0",
+      "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
