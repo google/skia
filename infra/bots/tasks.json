@@ -7015,11 +7015,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -8201,11 +8196,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -8722,11 +8712,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -10281,11 +10266,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -10415,11 +10395,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -20176,7 +20151,7 @@
       "cipd_packages": [
         {
           "name": "skia/bots/win_toolchain",
-          "path": "win_toolchain",
+          "path": "t",
           "version": "version:9"
         }
       ],
@@ -29127,11 +29102,6 @@
           "version": "version:9"
         },
         {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
-        },
-        {
           "name": "skia/bots/mesa_intel_driver_linux",
           "path": "mesa_intel_driver_linux",
           "version": "version:0"
@@ -29364,11 +29334,6 @@
           "version": "version:9"
         },
         {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
-        },
-        {
           "name": "skia/bots/mesa_intel_driver_linux",
           "path": "mesa_intel_driver_linux",
           "version": "version:0"
@@ -29599,11 +29564,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         },
         {
           "name": "skia/bots/mesa_intel_driver_linux",
@@ -32917,11 +32877,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -33263,11 +33218,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -33845,11 +33795,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -34191,11 +34136,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -53925,11 +53865,6 @@
           "version": "version:9"
         },
         {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
-        },
-        {
           "name": "skia/bots/mesa_intel_driver_linux",
           "path": "mesa_intel_driver_linux",
           "version": "version:0"
@@ -54160,11 +54095,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         },
         {
           "name": "skia/bots/mesa_intel_driver_linux",
@@ -54638,11 +54568,6 @@
           "version": "version:9"
         },
         {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
-        },
-        {
           "name": "skia/bots/mesa_intel_driver_linux",
           "path": "mesa_intel_driver_linux",
           "version": "version:0"
@@ -54994,11 +54919,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         },
         {
           "name": "skia/bots/mesa_intel_driver_linux",
@@ -59701,11 +59621,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -60049,11 +59964,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -60165,11 +60075,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -60281,11 +60186,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -60745,11 +60645,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -60982,11 +60877,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -61209,11 +61099,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -62014,11 +61899,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -62362,11 +62242,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -62478,11 +62353,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -62594,11 +62464,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -63058,11 +62923,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -63295,11 +63155,6 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:13"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [
@@ -63522,11 +63377,6 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:1"
         }
       ],
       "command": [

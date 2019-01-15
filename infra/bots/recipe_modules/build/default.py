@@ -57,7 +57,6 @@ def compile_fn(api, checkout_root, out_dir):
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
-  linux_vulkan_sdk = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
 
@@ -211,8 +210,6 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
     args['skia_use_vulkan'] = 'true'
     args['skia_enable_vulkan_debug_layers'] = 'false'
-    if api.vars.is_linux:
-      args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
     if 'MoltenVK' in extra_tokens:
       args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Metal' in extra_tokens:
