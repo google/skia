@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "404c2492_59d40a77",
+        "filename": "gm/etc1.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "Could we also test the mip mapped case?",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 83,
+        "endChar": 29
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf9a20f_f0965a2d",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 1182,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "missing spaces",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "976a50ed_e4851eaa",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 20
@@ -110,6 +150,29 @@
     },
     {
       "key": {
+        "uuid": "82418622_189343f7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "I don\u0027t think this is right. We no longer allow adding MIP maps to a texture dynamically.",
+      "range": {
+        "startLine": 1066,
+        "startChar": 0,
+        "endLine": 1071,
+        "endChar": 39
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fee8da11_540d8782",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 20
@@ -121,6 +184,30 @@
       "writtenOn": "2019-01-15T16:31:31Z",
       "side": 1,
       "message": "I\u0027m not sure what to do about this -- it\u0027s asserting in the InitialTextureClear test. I could either ignore clears or return a null texture and/or skip compressed configs in the test.",
+      "range": {
+        "startLine": 1796,
+        "startChar": 8,
+        "endLine": 1796,
+        "endChar": 77
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ab70aec_e2e100b5",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "I think we should we require that compressed textures are created with data (fail if not) and then either fail when the initial clear flag is set (and update the test\u0027s expectation) or just ignore it since the texture is guaranteed to be fully initialized, even if not by clearing.",
+      "parentUuid": "fee8da11_540d8782",
       "range": {
         "startLine": 1796,
         "startChar": 8,
@@ -172,6 +259,98 @@
         "startChar": 37,
         "endLine": 392,
         "endChar": 50
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa2c5e7b_db439e94",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "Can we just disallow updating compressed textures and assume a new texture?",
+      "range": {
+        "startLine": 393,
+        "startChar": 51,
+        "endLine": 395,
+        "endChar": 20
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d6d2db3_a3c1fafe",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "Could this checl GrPixelConfigIsCompressed(desc.fConfig) rather than adding a param?",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 16
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa7434e4_2adb834a",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "Same Q as in GrGLTexture, can we just check the config?",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 5
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d7a8509_86a3b1dc",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T17:00:08Z",
+      "side": 1,
+      "message": "Maybe GrPixelConfigIsCompressed?",
+      "range": {
+        "startLine": 122,
+        "startChar": 32,
+        "endLine": 122,
+        "endChar": 65
       },
       "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
