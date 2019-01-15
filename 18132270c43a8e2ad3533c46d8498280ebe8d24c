@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "e710e5b0_5266c93b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-15T17:06:45Z",
+      "side": 1,
+      "message": "\u003e Emulated scissor clears went from 300ns to 3.3us\n\u003e Emulated full screen clears went from 80ns to 290ns\n\nSo the runtime for scissored clear increased by 3000ns (10x), and for fullscreen clear, 210ns (only 2.5x). I wonder why a partial clear is so much more expensive? In both cases aren\u0027t we just sending a single quad to the GPU? I\u0027m not very concerned about ClearBench perf, but I would like to understand the discrepancy between these two numbers. It seems like there might be something else slowing down partial clears in addition to normal Op overhead.",
+      "parentUuid": "4b20c5a0_2f039769",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
