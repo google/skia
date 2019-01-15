@@ -184,7 +184,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage73(GrContext* context,
                                                     const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {

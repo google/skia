@@ -68,91 +68,12 @@ static int32_t next_id() {
     return id;
 }
 
-GrContext::GrContext(GrBackendApi backend, int32_t id)
-        : fBackend(backend)
-        , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
+GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
     fGlyphCache = nullptr;
-}
-
-bool GrContext::initCommon(const GrContextOptions& options) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(fCaps);  // needs to have been initialized by derived classes
-    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
-
-    if (fGpu) {
-        fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, fUniqueID);
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
-                                                   options.fExplicitlyAllocateGPUResources);
-        fProxyProvider =
-                new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
-    } else {
-        fProxyProvider = new GrProxyProvider(this->uniqueID(), fCaps, &fSingleOwner);
-    }
-
-    if (fResourceCache) {
-        fResourceCache->setProxyProvider(fProxyProvider);
-    }
-
-    fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
-    fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
-    fDidTestPMConversions = false;
-
-    GrPathRendererChain::Options prcOptions;
-    prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
-#if GR_TEST_UTILS
-    prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
-#endif
-    if (options.fDisableCoverageCountingPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
-    }
-    if (options.fDisableDistanceFieldPaths) {
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-    }
-
-    if (!fResourceCache) {
-        // DDL TODO: remove this crippling of the path renderer chain
-        // Disable the small path renderer bc of the proxies in the atlas. They need to be
-        // unified when the opLists are added back to the destination drawing manager.
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
-        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kStencilAndCover;
-    }
-
-    GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
-    textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
-#if SK_SUPPORT_ATLAS_TEXT
-    if (GrContextOptions::Enable::kYes == options.fDistanceFieldGlyphVerticesAlwaysHaveW) {
-        textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
-    }
-#endif
-
-    bool explicitlyAllocatingResources = fResourceProvider
-                                            ? fResourceProvider->explicitlyAllocateGPUResources()
-                                            : false;
-    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               &fSingleOwner, explicitlyAllocatingResources,
-                                               options.fSortRenderTargets,
-                                               options.fReduceOpListSplitting));
-
-    fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
-
-    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
-                                             this, this->uniqueID()));
-
-    // DDL TODO: we need to think through how the task group & persistent cache
-    // get passed on to/shared between all the DDLRecorders created with this context.
-    if (options.fExecutor) {
-        fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
-    }
-
-    fPersistentCache = options.fPersistentCache;
-
-    return true;
 }
 
 GrContext::~GrContext() {
@@ -169,6 +90,36 @@ GrContext::~GrContext() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrContextWeakest::GrContextWeakest(GrBackendApi backend,
+                                   const GrContextOptions& options,
+                                   uint32_t uniqueID)
+        : fBackend1(backend)
+        , fOptions1(options)
+        , fUniqueID1(SK_InvalidGenID == uniqueID ? next_id() : uniqueID) {
+}
+
+GrContextWeakest::~GrContextWeakest() {
+}
+
+bool GrContextWeakest::matches(GrContext* context) const {
+    return context->uniqueID() == fUniqueID1;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+GrProxyProvider* GrImageContext::proxyProvider() {
+    return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
+
+}
+
+#if 0
 GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
                                                    GrBackendApi backend,
                                                    const GrContextOptions& options,
@@ -178,6 +129,7 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
         , fBackend(backend)
         , fOptions(options)
         , fFPFactoryCache(std::move(cache)) {}
+#endif
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
@@ -200,32 +152,34 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!fCaps->mipMapSupport()) {
+    const GrCaps* caps = this->caps();
+
+    if (!caps->mipMapSupport()) {
         isMipMapped = false;
     }
 
-    GrPixelConfig config = fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, ii.colorType());
     if (config == kUnknown_GrPixelConfig) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!SkSurface_Gpu::Valid(fCaps.get(), config, ii.colorSpace())) {
+    if (!SkSurface_Gpu::Valid(caps, config, ii.colorSpace())) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, config);
+    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, config);
     if (!sampleCnt) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     GrFSAAType FSAAType = GrFSAAType::kNone;
     if (sampleCnt > 1) {
-        FSAAType = fCaps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
+        FSAAType = caps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
     }
 
     // This surface characterization factory assumes that the resulting characterization is
     // textureable.
-    if (!fCaps->isConfigTexturable(config)) {
+    if (!caps->isConfigTexturable(config)) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -238,6 +192,68 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
                                      surfaceProps);
 }
+
+#include "SkImage_Gpu.h"
+#include "SkImage_GpuYUVA.h"
+#include "SkYUVAIndex.h"
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
+    return SkImage_Gpu::MakePromiseTexture(sk_make_sp<GrContextWeakest>(this),
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           promiseDoneProc,
+                                           textureContext);
+}
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makeYUVAPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkISize yuvaSizes[],
+        const SkYUVAIndex yuvaIndices[4],
+        int imageWidth,
+        int imageHeight,
+        GrSurfaceOrigin imageOrigin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContexts[]) {
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(sk_make_sp<GrContextWeakest>(this),
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaSizes,
+                                                   yuvaIndices,
+                                                   imageWidth,
+                                                   imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
@@ -346,18 +362,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
+int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 
-int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
+int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->isConfigTexturable(config);
+    return this->caps()->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1083,7 +1099,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
         if (!GrPixelConfigToColorType(config, &colorType)) {
             return nullptr;
         }
-        localFormat = fContext->fCaps->getBackendFormatFromColorType(colorType);
+        localFormat = fContext->caps()->getBackendFormatFromColorType(colorType);
     }
 
     return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config,
@@ -1171,7 +1187,7 @@ bool GrContext::validPMUPMConversionExists() {
 }
 
 bool GrContext::supportsDistanceFieldText() const {
-    return fCaps->shaderCaps()->supportsDistanceFieldText();
+    return this->caps()->shaderCaps()->supportsDistanceFieldText();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1218,10 +1234,10 @@ SkString GrContextPriv::dump() const {
     GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
     GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
     GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
-    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");
-    fContext->fCaps->dumpJSON(&writer);
+    fContext->caps()->dumpJSON(&writer);
 
     writer.appendName("gpu");
     fContext->fGpu->dumpJSON(&writer);

@@ -80,7 +80,8 @@ protected:
                 SkIRect subset = SkIRect::MakeXYWH(25, 25, 50, 50);
                 SkIRect outSubset;
                 SkIPoint offset;
-                sk_sp<SkImage> result = source->makeWithFilter(filters[i].get(), subset, clipBound,
+                sk_sp<SkImage> result = source->makeWithFilter(canvas->getGrContext(),
+                                                               filters[i].get(), subset, clipBound,
                                                                &outSubset, &offset);
                 SkASSERT(result);
                 SkASSERT(source->isTextureBacked() == result->isTextureBacked());
