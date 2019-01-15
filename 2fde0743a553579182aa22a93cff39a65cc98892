@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c1bd118_30e4102b",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T21:13:22Z",
+      "side": 1,
+      "message": "// We expect one empty glyph, at 4 subpixel positions in X.\n\n?",
+      "revId": "2fde0743a553579182aa22a93cff39a65cc98892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d3b23a4_ccf21cd3",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T21:13:22Z",
+      "side": 1,
+      "message": "Can we avoid the goto?  It makes me nervous when things like ScopedBuffers are involved.\n\nif (std::any_of(emptyGlyphs.begin(), emptyGlyphs.end(), \n                [\u003d](const SkGlyph* g) { return g-\u003egetGlyphID() \u003d\u003d glyphID; })) {\n    continue;\n}",
+      "revId": "2fde0743a553579182aa22a93cff39a65cc98892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24746636_9b001ed2",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T21:13:22Z",
+      "side": 1,
+      "message": "// This happens when ... and is {very bad, harmless}.\n\n?",
+      "revId": "2fde0743a553579182aa22a93cff39a65cc98892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69d5ff4a_b891f439",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-15T21:13:22Z",
+      "side": 1,
+      "message": "might wanna glyphCount++ ?  I could go either way.",
+      "range": {
+        "startLine": 409,
+        "startChar": 27,
+        "endLine": 409,
+        "endChar": 37
+      },
+      "revId": "2fde0743a553579182aa22a93cff39a65cc98892",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
