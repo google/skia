@@ -377,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "fcb06459_c537b51d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-15T18:44:59Z",
+      "side": 1,
+      "message": "Maybe removing the mip level count checks should be done in a separate change, either before this or after.",
+      "parentUuid": "35700e4b_1f0a9ba6",
+      "range": {
+        "startLine": 1066,
+        "startChar": 0,
+        "endLine": 1071,
+        "endChar": 39
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fee8da11_540d8782",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 20
