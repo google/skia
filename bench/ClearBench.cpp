@@ -62,6 +62,10 @@ protected:
 
             canvas->clear(color);
             canvas->restore();
+
+            // Loop to prevent batching between ops (which matters for fullscreen clears that just
+            // overwrite each other and only one thing is executed regardless of the loop count)
+            canvas->flush();
         }
     }
 
