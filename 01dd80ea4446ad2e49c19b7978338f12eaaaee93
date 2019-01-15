@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26c3cc0e_4263e277",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:32:25Z",
+      "side": 1,
+      "message": "Do we even need this class anymore ?",
+      "revId": "01dd80ea4446ad2e49c19b7978338f12eaaaee93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
