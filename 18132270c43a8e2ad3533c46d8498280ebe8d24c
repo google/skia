@@ -169,6 +169,30 @@
     },
     {
       "key": {
+        "uuid": "89b849a7_1490e064",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-15T18:00:52Z",
+      "side": 1,
+      "message": "Got it! That makes sense.\n\nFinal question, I promise :-) If fullscreen clear takes longer, that would suggest we are GPU bound. But if we are GPU bound, then why is there a small slowdown still?",
+      "parentUuid": "d0d96e06_c28ef131",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
