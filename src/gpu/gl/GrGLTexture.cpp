@@ -48,6 +48,9 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
         , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        this->setReadOnly();
+    }
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,

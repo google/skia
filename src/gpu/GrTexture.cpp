@@ -65,14 +65,16 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture>&& texture,
 }
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
-    const GrRenderTarget* rt = this->asRenderTarget();
-    int sampleCount = 1;
-    if (rt) {
-        sampleCount = rt->numStencilSamples();
+    if (!GrPixelConfigIsCompressed(this->config())) {
+        const GrRenderTarget* rt = this->asRenderTarget();
+        int sampleCount = 1;
+        if (rt) {
+            sampleCount = rt->numStencilSamples();
+        }
+        GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
+                                         SkToBool(rt), sampleCount,
+                                         this->texturePriv().mipMapped(), key);
     }
-    GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                     SkToBool(rt), sampleCount,
-                                     this->texturePriv().mipMapped(), key);
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,

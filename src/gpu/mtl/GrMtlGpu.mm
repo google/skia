@@ -247,6 +247,10 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         return nullptr;
     }
 
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        return nullptr; // TODO: add compressed texture support
+    }
+
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is

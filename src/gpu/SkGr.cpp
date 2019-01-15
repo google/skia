@@ -358,6 +358,7 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
+        case kRGB_ETC1_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:
         case kAlpha_8_as_Red_GrPixelConfig:

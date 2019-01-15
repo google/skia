@@ -77,6 +77,9 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrContext* context,
                                      &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
+    if (GrPixelConfigIsCompressed(dstProxy->config())) {
+        return nullptr;
+    }
 
     GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
