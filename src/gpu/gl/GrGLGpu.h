@@ -387,6 +387,13 @@ private:
                        GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
+    // helper for onCreateCompressedTexture. Compressed textures are read-only so we
+    // only use this to populate a new texture.
+    bool uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
+                                 GrGLenum target, GrPixelConfig dataConfig,
+                                 const GrMipLevel texels[], int mipLevelCount,
+                                 GrMipMapsStatus* mipMapsStatus = nullptr);
+
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
 

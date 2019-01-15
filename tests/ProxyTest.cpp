@@ -113,10 +113,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128, 1048576 }) {
             for (auto config : { kAlpha_8_GrPixelConfig, kRGB_565_GrPixelConfig,
-                                 kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
+                                 kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig,
+                                 kRGB_ETC1_GrPixelConfig }) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
+                            // We don't have recycling support for compressed textures
+                            if (GrPixelConfigIsCompressed(config) && SkBackingFit::kApprox == fit) {
+                                continue;
+                            }
+
                             GrSurfaceDesc desc;
                             desc.fFlags = kRenderTarget_GrSurfaceFlag;
                             desc.fWidth = widthHeight;
