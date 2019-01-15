@@ -3900,7 +3900,7 @@ void draw(SkCanvas* canvas) {
     float textSizes[] = { 12, 18, 24, 36 };
     for (auto size: textSizes ) {
         font.setSize(size);
-        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10, 20, font, paint);
+        canvas->drawSimpleText("Aa", 2, kUTF8_SkTextEncoding, 10, 20, font, paint);
         canvas->translate(0, size * 2);
     }
     font.setSize(12);
@@ -3910,7 +3910,8 @@ void draw(SkCanvas* canvas) {
         canvas->resetMatrix();
         canvas->translate(100, 0);
         canvas->scale(scale, scale);
-        canvas->drawText("Aa", 2, kUTF8_SkTextEncoding, 10 / scale, yPos / scale, font, paint);
+        canvas->drawSimpleText("Aa", 2, kUTF8_SkTextEncoding,
+                               10 / scale, yPos / scale, font, paint);
         yPos += size * 2;
     }
 }
