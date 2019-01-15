@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "d0d96e06_c28ef131",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-15T17:19:47Z",
+      "side": 1,
+      "message": "That timing measurement was misleading. The clear benchmark I was using in timing did not flush between clears, so when the GrClearOp was being used, every single loop would get consolidated into a single, final operation (its batching logic checks to see if it overwrites the prior clear, even if it was a partial clear). \n\nWhen switching to the GrFillRectOp, this consolidation could not happen for partial clears (not implemented in GrFillRectOps\u0027 batching logic). However, fullscreen clears remained closer to original performance because it could reset the op list to only hold on to a single op.\n\nI have a short CL that fixes the benchmark, and after rerunning nanobench, both the desktop and Nexus5 saw a more consistent increase time.  Additionally, the fullscreen clear as draw takes longer than a partial clear as draw on both devices, which I would expect when forced to go through regular rasterization.",
+      "parentUuid": "e710e5b0_5266c93b",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 63
+      },
+      "revId": "18132270c43a8e2ad3533c46d8498280ebe8d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e508e4d_5077de37",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 6
