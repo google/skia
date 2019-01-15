@@ -506,6 +506,15 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
+static void wrappedCreate(GrVkGpu* gpu, VkPipelineCache cache, VkGraphicsPipelineCreateInfo* pipelineCreateInfo, VkPipeline* vkPipeline) {
+    gPipelineCnt.fetch_add(+1, std::memory_order_relaxed);
+    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
+                                                                          cache, 1,
+                                                                          pipelineCreateInfo,
+                                                                          nullptr, vkPipeline));
+    SkASSERTF(!err, "Failed to create pipeline. Error: %d\n", err);
+}
+
 GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& primProc,
                                    const GrPipeline& pipeline, const GrStencilSettings& stencil,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
@@ -567,16 +576,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
     pipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline vkPipeline;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          cache, 1,
-                                                                          &pipelineCreateInfo,
-                                                                          nullptr, &vkPipeline));
-    if (err) {
-        SkDebugf("Failed to create pipeline. Error: %d\n", err);
-        return nullptr;
-    }
-
-    gPipelineCnt.fetch_add(+1, std::memory_order_relaxed);
+    wrappedCreate(gpu, cache, &pipelineCreateInfo, &vkPipeline);
     return new GrVkPipeline(vkPipeline);
 }
 
