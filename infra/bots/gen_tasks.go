@@ -153,7 +153,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/vpython/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:b6cdec8586c9f8d3d728b1bc0bd4331330ba66fc",
+			Version: "git_revision:96f81e737868d43124b4661cf1c325296ca04944",
 		},
 	}
 
@@ -169,7 +169,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/kitchen/${platform}",
 			Path:    ".",
-			Version: "git_revision:074bb031426a238dd38b67314312d334d9d13ae7",
+			Version: "git_revision:d8f38ca9494b5af249942631f9cee45927f6b4bc",
 		},
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci-auth/${platform}",
