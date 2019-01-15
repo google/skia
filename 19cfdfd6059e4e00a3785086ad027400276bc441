@@ -2,6 +2,114 @@
   "comments": [
     {
       "key": {
+        "uuid": "976a50ed_e4851eaa",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "// This type doesn\u0027t appear in SkColorType at all\n\n?",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fb666f8_8560f2d1",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "This doesn\u0027t work for ETC1 ?",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c915cc0f_776de047",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "// why\n\n?",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80f04c0c_7518e2c3",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 1051,
+        "startChar": 10,
+        "endLine": 1051,
+        "endChar": 25
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1b510fc_97d73b4c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "missing stuff",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9c41a37_f5a07b14",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "assert compressed config ?",
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fee8da11_540d8782",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 20
@@ -18,6 +126,52 @@
         "startChar": 8,
         "endLine": 1796,
         "endChar": 77
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1849c20_0125e459",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "desc ?",
+      "range": {
+        "startLine": 391,
+        "startChar": 46,
+        "endLine": 391,
+        "endChar": 50
+      },
+      "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "462bccf2_102519f2",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-15T16:59:35Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 392,
+        "startChar": 37,
+        "endLine": 392,
+        "endChar": 50
       },
       "revId": "19cfdfd6059e4e00a3785086ad027400276bc441",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
