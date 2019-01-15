@@ -70,7 +70,7 @@ protected:
         }
 
         GrContext* context = canvas->getGrContext();
-        if (!context) {
+        if (!context || context->abandoned()) {
             return;
         }
 
