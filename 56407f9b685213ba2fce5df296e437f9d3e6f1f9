@@ -34,6 +34,24 @@
       "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec9261ad_58b71ed9",
+        "filename": "DEPS",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-15T20:50:49Z",
+      "side": 1,
+      "message": "Looks like both ../src and ../src_recreate_skps were created even though only \"checkout_chromium_recreate_skps \u003d True\" was passed in.\n\nI don\u0027t understand the error either:\n\"\"\"\nIOError: [Errno 2] No such file or directory: \u0027/mnt/pd0/s/w/ir/cache/work/src/build/config/gclient_args.gni\u0027\n\"\"\"",
+      "parentUuid": "e0793d2b_2d2774a1",
+      "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
