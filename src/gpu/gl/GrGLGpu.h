@@ -387,6 +387,18 @@ private:
                        GrPixelConfig dataConfig, const GrMipLevel texels[], int mipLevelCount,
                        GrMipMapsStatus* mipMapsStatus = nullptr);
 
+    // helper for onCreateCompressedTexture. If width and height are
+    // set to -1, then this function will use desc.fWidth and desc.fHeight
+    // for the size of the data. The isNewTexture flag should be set to true
+    // whenever a new texture needs to be created. Otherwise, we assume that
+    // the texture is already in GPU memory and that it's going to be updated
+    // with new data.
+    bool uploadCompressedTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
+                                 GrGLenum target, UploadType uploadType, int left, int top,
+                                 int width, int height, GrPixelConfig dataConfig,
+                                 const GrMipLevel texels[], int mipLevelCount,
+                                 GrMipMapsStatus* mipMapsStatus = nullptr);
+
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
 

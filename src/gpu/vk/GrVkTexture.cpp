@@ -24,13 +24,17 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageInfo& info,
                          sk_sp<GrVkImageLayout> layout,
                          const GrVkImageView* view,
-                         GrMipMapsStatus mipMapsStatus)
+                         GrMipMapsStatus mipMapsStatus,
+                         bool readOnly)
         : GrSurface(gpu, desc)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kOwned)
         , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
     this->registerWithCache(budgeted);
+    if (readOnly) {
+        this->setReadOnly();
+    }
 }
 
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
@@ -89,8 +93,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
     }
     sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info.fImageLayout));
 
+    bool readOnly = GrPixelConfigIsCompressed(desc.fConfig);
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, desc, info, std::move(layout),
-                                              imageView, mipMapsStatus));
+                                              imageView, mipMapsStatus, readOnly));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
