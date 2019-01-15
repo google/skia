@@ -458,6 +458,12 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
+
+    // Make sure load ops are not kClear if the GPU needs to use draws for clears
+    SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
+             !flushState->gpu()->caps()->performColorClearsAsDraws());
+    SkASSERT(fStencilLoadOp != GrLoadOp::kClear ||
+             !flushState->gpu()->caps()->performStencilClearsAsDraws());
     GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget.get()->peekRenderTarget(),
@@ -513,13 +519,28 @@ void GrRenderTargetOpList::discard() {
     }
 }
 
-void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& color) {
+void GrRenderTargetOpList::setStencilLoadOp(GrLoadOp op) {
+    fStencilLoadOp = op;
+}
 
-    // This is conservative. If the opList is marked as needing a stencil buffer then there
-    // may be a prior op that writes to the stencil buffer. Although the clear will ignore the
-    // stencil buffer, following draw ops may not so we can't get rid of all the preceding ops.
-    // Beware! If we ever add any ops that have a side effect beyond modifying the stencil
-    // buffer we will need a more elaborate tracking system (skbug.com/7002).
+void GrRenderTargetOpList::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
+    fColorLoadOp = op;
+    fLoadClearColor = color;
+}
+
+bool GrRenderTargetOpList::resetForFullscreenClear() {
+    // Mark the color load op as discard (this may be followed by a clearColorOnLoad call to make
+    // the load op kClear, or it may be followed by an explicit op). In the event of an absClear()
+    // after a regular clear(), we could end up with a clear load op and a real clear op in the list
+    // if the load op were not reset here.
+    fColorLoadOp = GrLoadOp::kDiscard;
+
+    // Regardless of how the clear is implemented (native clear or a fullscreen quad), all prior ops
+    // would be overwritten, so discard them entirely. The one exception is if the opList is marked
+    // as needing a stencil buffer then there may be a prior op that writes to the stencil buffer.
+    // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
+    // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
+    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
     if (this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) {
         this->deleteOps();
         fDeferredProxies.reset();
@@ -527,20 +548,11 @@ void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& colo
         // If the opList is using a render target which wraps a vulkan command buffer, we can't do a
         // clear load since we cannot change the render pass that we are using. Thus we fall back to
         // making a clear op in this case.
-        if (!fTarget.get()->asRenderTargetProxy()->wrapsVkSecondaryCB()) {
-            fColorLoadOp = GrLoadOp::kClear;
-            fLoadClearColor = color;
-            return;
-        }
+        return !fTarget.get()->asRenderTargetProxy()->wrapsVkSecondaryCB();
     }
 
-    std::unique_ptr<GrClearOp> op(GrClearOp::Make(context, GrFixedClip::Disabled(),
-                                                  color, fTarget.get()));
-    if (!op) {
-        return;
-    }
-
-    this->recordOp(std::move(op), *context->contextPriv().caps());
+    // Could not empty the list, so an op must be added to handle the clear
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

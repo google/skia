@@ -277,6 +277,89 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
                         canClearFullscreen);
 }
 
+void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
+                                      const SkPMColor4f& color,
+                                      CanClearFullscreen canClearFullscreen) {
+    ASSERT_SINGLE_OWNER_PRIV
+    RETURN_IF_ABANDONED_PRIV
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "clear",
+                                   fRenderTargetContext->fContext);
+
+    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
+    fRenderTargetContext->internalClear(clip, color, canClearFullscreen);
+}
+
+static void clear_to_grpaint(const SkPMColor4f& color, GrPaint* paint) {
+    paint->setColor4f(color);
+    if (color.isOpaque()) {
+        // Can just rely on the src-over blend mode to do the right thing
+        paint->setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+    } else {
+        // A clear overwrites the prior color, so even if it's transparent, it behaves as if it
+        // were src blended
+        paint->setPorterDuffXPFactory(SkBlendMode::kSrc);
+    }
+}
+
+void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
+                                          const SkPMColor4f& color,
+                                          CanClearFullscreen canClearFullscreen) {
+    bool isFull = false;
+    if (!clip.hasWindowRectangles()) {
+        isFull = !clip.scissorEnabled() ||
+                 (CanClearFullscreen::kYes == canClearFullscreen &&
+                  this->caps()->preferFullscreenClears()) ||
+                 clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
+    }
+
+    if (isFull) {
+        if (this->getRTOpList()->resetForFullscreenClear() &&
+            !this->caps()->performColorClearsAsDraws()) {
+            // The op list was emptied and native clears are allowed, so just use the load op
+            this->getRTOpList()->setColorLoadOp(GrLoadOp::kClear, color);
+            return;
+        } else {
+            // Will use an op for the clear, reset the load op to discard since the op will
+            // blow away the color buffer contents
+            this->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
+        }
+
+        // Must add an op to the list (either because we couldn't use a load op, or because the
+        // clear load op isn't supported)
+        if (this->caps()->performColorClearsAsDraws()) {
+            SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
+            GrPaint paint;
+            clear_to_grpaint(color, &paint);
+            this->addDrawOp(GrFixedClip::Disabled(),
+                            GrFillRectOp::Make(fContext, std::move(paint),
+                                               GrAAType::kNone, SkMatrix::I(), rtRect));
+        } else {
+            this->getRTOpList()->addOp(GrClearOp::Make(fContext, SkIRect::MakeEmpty(), color,
+                                                       /* fullscreen */ true), *this->caps());
+        }
+    } else {
+        if (this->caps()->performPartialClearsAsDraws()) {
+            // performPartialClearsAsDraws() also returns true if any clear has to be a draw.
+            SkRect scissor = SkRect::Make(clip.scissorRect());
+            GrPaint paint;
+            clear_to_grpaint(color, &paint);
+
+            this->addDrawOp(clip, GrFillRectOp::Make(fContext, std::move(paint), GrAAType::kNone,
+                                                     SkMatrix::I(), scissor));
+        } else {
+            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
+                                                     this->asSurfaceProxy()));
+            // This version of the clear op factory can return null if the clip doesn't intersect
+            // with the surface proxy's boundary
+            if (!op) {
+                return;
+            }
+            this->getRTOpList()->addOp(std::move(op), *this->caps());
+        }
+    }
+}
+
 void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMColor4f& color) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
@@ -300,79 +383,54 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const SkPMCol
     }
 
     // TODO: in a post-MDB world this should be handled at the OpList level.
-    // An op-list that is initially cleared and has no other ops should receive an
-    // extra draw.
-    // This path doesn't handle coalescing of full screen clears b.c. it
-    // has to clear the entire render target - not just the content area.
-    // It could be done but will take more finagling.
-    if (clearRect && fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
-        GrPaint paint;
-        paint.setColor4f(color);
-        SkRect scissor = SkRect::Make(rtRect);
-        std::unique_ptr<GrDrawOp> op(GrFillRectOp::Make(fRenderTargetContext->fContext,
-                                                        std::move(paint), GrAAType::kNone,
-                                                        SkMatrix::I(), scissor));
-        if (!op) {
-            return;
-        }
-        fRenderTargetContext->addDrawOp(GrFixedClip(), std::move(op));
-    }
-    else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(fRenderTargetContext->fContext, rtRect,
-                                                 color, !clearRect));
-        if (!op) {
-            return;
-        }
-        fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
-    }
-}
-
-void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
-                                      const SkPMColor4f& color,
-                                      CanClearFullscreen canClearFullscreen) {
-    ASSERT_SINGLE_OWNER_PRIV
-    RETURN_IF_ABANDONED_PRIV
-    SkDEBUGCODE(fRenderTargetContext->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "clear",
-                                   fRenderTargetContext->fContext);
-
-    AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-    fRenderTargetContext->internalClear(clip, color, canClearFullscreen);
-}
-
-void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
-                                          const SkPMColor4f& color,
-                                          CanClearFullscreen canClearFullscreen) {
-    bool isFull = false;
-    if (!clip.hasWindowRectangles()) {
-        isFull = !clip.scissorEnabled() ||
-                 (CanClearFullscreen::kYes == canClearFullscreen &&
-                  this->caps()->preferFullscreenClears()) ||
-                 clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
-    }
-
-    if (isFull) {
-        this->getRTOpList()->fullClear(fContext, color);
-    } else {
-        if (this->caps()->performPartialClearsAsDraws()) {
+    // This makes sure to always add an op to the list, instead of marking the clear as a load op.
+    // This code follows very similar logic to internalClear() below, but critical differences are
+    // highlighted in line related to absClear()'s unique behavior.
+    if (clearRect) {
+        if (fRenderTargetContext->caps()->performPartialClearsAsDraws()) {
             GrPaint paint;
-            paint.setColor4f(color);
-            SkRect scissor = SkRect::Make(clip.scissorRect());
-            std::unique_ptr<GrDrawOp> op(GrFillRectOp::Make(fContext, std::move(paint),
-                                                            GrAAType::kNone, SkMatrix::I(),
-                                                            scissor));
-            if (!op) {
-                return;
-            }
-            this->addDrawOp(clip, std::move(op));
+            clear_to_grpaint(color, &paint);
+
+            // Use the disabled clip; the rect geometry already matches the clear rectangle and
+            // if it were added to a scissor, that would be intersected with the logical surface
+            // bounds and not the worst case dimensions required here.
+            fRenderTargetContext->addDrawOp(GrFixedClip::Disabled(),
+                                            GrFillRectOp::Make(fRenderTargetContext->fContext,
+                                                               std::move(paint),
+                                                               GrAAType::kNone,
+                                                               SkMatrix::I(),
+                                                               SkRect::Make(rtRect)));
+        } else {
+            // Must use the ClearOp factory that takes a boolean (false) instead of a surface
+            // proxy. The surface proxy variant would intersect the clip rect with its logical
+            // bounds, which is not desired in this special case.
+            fRenderTargetContext->getRTOpList()->addOp(
+                    GrClearOp::Make(fRenderTargetContext->fContext, rtRect, color,
+                                    /* fullscreen */ false),
+                    *fRenderTargetContext->caps());
         }
-        else {
-            std::unique_ptr<GrOp> op(GrClearOp::Make(fContext, clip, color,
-                                                     this->asSurfaceProxy()));
-            if (!op) {
-                return;
-            }
-            this->getRTOpList()->addOp(std::move(op), *this->caps());
+    } else {
+        // Reset the oplist like in internalClear(), but do not rely on a load op for the clear
+        fRenderTargetContext->getRTOpList()->resetForFullscreenClear();
+        fRenderTargetContext->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
+
+        if (fRenderTargetContext->caps()->performColorClearsAsDraws()) {
+            // This draws a quad covering the worst case dimensions instead of just the logical
+            // width and height like in internalClear().
+            GrPaint paint;
+            clear_to_grpaint(color, &paint);
+            fRenderTargetContext->addDrawOp(GrFixedClip::Disabled(),
+                                            GrFillRectOp::Make(fRenderTargetContext->fContext,
+                                                               std::move(paint),
+                                                               GrAAType::kNone,
+                                                               SkMatrix::I(),
+                                                               SkRect::Make(rtRect)));
+        } else {
+            // Nothing special about this path in absClear compared to internalClear()
+            fRenderTargetContext->getRTOpList()->addOp(
+                    GrClearOp::Make(fRenderTargetContext->fContext, SkIRect::MakeEmpty(), color,
+                                    /* fullscreen */ true),
+                    *fRenderTargetContext->caps());
         }
     }
 }
@@ -652,13 +710,32 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
-    GrRenderTargetProxy* rtProxy = fRenderTargetContext->fRenderTargetProxy.get();
-    std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(fRenderTargetContext->fContext,
-                                                        clip, insideStencilMask, rtProxy));
-    if (!op) {
-        return;
+    fRenderTargetContext->internalStencilClear(clip, insideStencilMask);
+}
+
+void GrRenderTargetContext::internalStencilClear(const GrFixedClip& clip, bool insideStencilMask) {
+    if (this->caps()->performStencilClearsAsDraws()) {
+        const GrUserStencilSettings* ss = GrStencilSettings::SetClipBitSettings(insideStencilMask);
+        SkRect rtRect = SkRect::MakeWH(this->width(), this->height());
+
+        // Configure the paint to have no impact on the color buffer
+        GrPaint paint;
+        paint.setColor4f({0.f, 0.f, 0.f, 0.f});
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
+
+        // Mark stencil usage here before addDrawOp() so that it doesn't try to re-call
+        // internalStencilClear() just because the op has stencil settings.
+        this->setNeedsStencil();
+        this->addDrawOp(clip, GrFillRectOp::Make(fContext, std::move(paint),
+                        GrAAType::kNone, SkMatrix::I(), rtRect, ss));
+    } else {
+        std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(fContext, clip, insideStencilMask,
+                                                            fRenderTargetProxy.get()));
+        if (!op) {
+            return;
+        }
+        this->getRTOpList()->addOp(std::move(op), *this->caps());
     }
-    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
@@ -1763,7 +1840,19 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
 
     if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
         appliedClip.hasStencilClip()) {
-        this->getOpList()->setStencilLoadOp(GrLoadOp::kClear);
+        if (this->caps()->performStencilClearsAsDraws()) {
+            // Must use an op to perform the clear of the stencil buffer before this op, but only
+            // have to clear the first time any draw needs it (this also ensures we don't loop
+            // forever when the internal stencil clear adds a draw op that has stencil settings).
+            if (!fRenderTargetProxy->needsStencil()) {
+                // Send false so that the stencil buffer is fully cleared to 0
+                this->internalStencilClear(GrFixedClip::Disabled(), /* inside mask */ false);
+            }
+        } else {
+            // Just make sure the stencil buffer is cleared before the draw op, easy to do it as
+            // a load at the start
+            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
+        }
 
         this->setNeedsStencil();
     }

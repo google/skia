@@ -18,11 +18,16 @@
 
 void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, const SkPMColor4f& color) {
     SkASSERT(fRenderTarget);
-
+    // A clear at this level will always be a true clear, so make sure clears were not supposed to
+    // be redirected to draws instead
+    SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
+    SkASSERT(!clip.scissorEnabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     this->onClear(clip, color);
 }
 
 void GrGpuRTCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+    // As above, make sure the stencil clear wasn't supposed to be a draw rect with stencil settings
+    SkASSERT(!this->gpu()->caps()->performStencilClearsAsDraws());
     this->onClearStencilClip(clip, insideStencilMask);
 }
 

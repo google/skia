@@ -252,11 +252,10 @@ public:
         return fDynamicStateArrayGeometryProcessorTextureSupport;
     }
 
-    // Not all backends support clearing with a scissor test (e.g. Metal).
-    // FIXME(michaelludwig): This should always return true if performColorClearsAsDraws() returns
-    // true, but the current partial-clear code doesn't handle transparent clear colors correctly
+    // Not all backends support clearing with a scissor test (e.g. Metal), this will always
+    // return true if performColorClearsAsDraws() returns true.
     bool performPartialClearsAsDraws() const {
-        return fPerformPartialClearsAsDraws;
+        return fPerformColorClearsAsDraws || fPerformPartialClearsAsDraws;
     }
 
     // Many drivers have issues with color clears.

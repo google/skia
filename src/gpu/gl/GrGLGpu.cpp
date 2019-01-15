@@ -2157,13 +2157,10 @@ void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
                     GrRenderTarget* target, GrSurfaceOrigin origin) {
     // parent class should never let us get here with no RT
     SkASSERT(target);
+    SkASSERT(!this->caps()->performColorClearsAsDraws());
+    SkASSERT(!clip.scissorEnabled() || !this->caps()->performPartialClearsAsDraws());
 
     this->handleDirtyContext();
-
-    if (this->caps()->performColorClearsAsDraws()) {
-        this->clearColorAsDraw(clip, color, target, origin);
-        return;
-    }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
@@ -2191,6 +2188,8 @@ void GrGLGpu::clear(const GrFixedClip& clip, const SkPMColor4f& color,
 }
 
 void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+    SkASSERT(!this->caps()->performStencilClearsAsDraws());
+
     if (!target) {
         return;
     }
@@ -2219,12 +2218,8 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
                                bool insideStencilMask,
                                GrRenderTarget* target, GrSurfaceOrigin origin) {
     SkASSERT(target);
+    SkASSERT(!this->caps()->performStencilClearsAsDraws());
     this->handleDirtyContext();
-
-    if (this->caps()->performStencilClearsAsDraws()) {
-        this->clearStencilClipAsDraw(clip, insideStencilMask, target, origin);
-        return;
-    }
 
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
@@ -3594,234 +3589,6 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GL_CALL(DeleteShader(fshader));
 
     return true;
-}
-
-bool GrGLGpu::createStencilClipClearProgram() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-
-    if (!fStencilClipClearArrayBuffer) {
-        static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
-        fStencilClipClearArrayBuffer.reset(GrGLBuffer::Create(
-                this, sizeof(vdata), kVertex_GrBufferType, kStatic_GrAccessPattern, vdata));
-        if (!fStencilClipClearArrayBuffer) {
-            return false;
-        }
-    }
-
-    SkASSERT(!fStencilClipClearProgram);
-    GL_CALL_RET(fStencilClipClearProgram, CreateProgram());
-    if (!fStencilClipClearProgram) {
-        return false;
-    }
-
-    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
-    const char* version = this->caps()->shaderCaps()->versionDeclString();
-
-    SkString vshaderTxt(version);
-    aVertex.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
-    vshaderTxt.append(";");
-    vshaderTxt.append(
-            "// Stencil Clip Clear Program VS\n"
-            "void main() {"
-            "  sk_Position = float4(a_vertex.x, a_vertex.y, 0, 1);"
-            "}");
-
-    SkString fshaderTxt(version);
-    fshaderTxt.appendf(
-            "// Stencil Clip Clear Program FS\n"
-            "void main() {"
-            "  sk_FragColor = half4(0);"
-            "}");
-
-    const char* str;
-    GrGLint length;
-
-    str = vshaderTxt.c_str();
-    length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = this->caps()->shaderCaps();
-    SkSL::String glsl;
-    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER,
-                                                          &str, &length, 1, settings, &glsl);
-    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram,
-                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
-                                                  &fStats, settings);
-    SkASSERT(program->fInputs.isEmpty());
-
-    str = fshaderTxt.c_str();
-    length = SkToInt(fshaderTxt.size());
-    program = GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
-    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram,
-                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
-                                                  &fStats, settings);
-    SkASSERT(program->fInputs.isEmpty());
-
-    GL_CALL(LinkProgram(fStencilClipClearProgram));
-
-    GL_CALL(BindAttribLocation(fStencilClipClearProgram, 0, "a_vertex"));
-
-    GL_CALL(DeleteShader(vshader));
-    GL_CALL(DeleteShader(fshader));
-
-    return true;
-}
-
-void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencilMask,
-                                     GrRenderTarget* rt, GrSurfaceOrigin origin) {
-    // TODO: This should swizzle the output to match dst's config, though it is a debugging
-    // visualization.
-
-    this->handleDirtyContext();
-    if (!fStencilClipClearProgram) {
-        if (!this->createStencilClipClearProgram()) {
-            SkDebugf("Failed to create stencil clip clear program.\n");
-            return;
-        }
-    }
-
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
-    this->flushRenderTarget(glRT);
-
-    this->flushProgram(fStencilClipClearProgram);
-
-    fHWVertexArrayState.setVertexArrayID(this, 0);
-
-    GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fStencilClipClearArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
-
-    GrXferProcessor::BlendInfo blendInfo;
-    blendInfo.reset();
-    this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(false);
-    this->flushHWAAState(glRT, false, false);
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
-    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
-    GrStencilAttachment* sb = rt->renderTargetPriv().getStencilAttachment();
-    // This should only be called internally when we know we have a stencil buffer.
-    SkASSERT(sb);
-    GrStencilSettings settings = GrStencilSettings(
-            *GrStencilSettings::SetClipBitSettings(insideStencilMask), false, sb->bits());
-    this->flushStencil(settings);
-    GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
-}
-
-bool GrGLGpu::createClearColorProgram() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-
-    if (!fClearProgramArrayBuffer) {
-        static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
-        fClearProgramArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
-                                                          kStatic_GrAccessPattern, vdata));
-        if (!fClearProgramArrayBuffer) {
-            return false;
-        }
-    }
-
-    SkASSERT(!fClearColorProgram.fProgram);
-    GL_CALL_RET(fClearColorProgram.fProgram, CreateProgram());
-    if (!fClearColorProgram.fProgram) {
-        return false;
-    }
-
-    GrShaderVar aVertex("a_vertex", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
-    const char* version = this->caps()->shaderCaps()->versionDeclString();
-
-    SkString vshaderTxt(version);
-    aVertex.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
-    vshaderTxt.append(";");
-    vshaderTxt.append(R"(
-            // Clear Color Program VS
-            void main() {
-                sk_Position = float4(a_vertex.x, a_vertex.y, 0, 1);
-            })");
-
-    GrShaderVar uColor("u_color", kHalf4_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    SkString fshaderTxt(version);
-    uColor.appendDecl(this->caps()->shaderCaps(), &fshaderTxt);
-    fshaderTxt.append(";");
-    fshaderTxt.appendf(R"(
-            // Clear Color Program FS
-            void main() {
-              sk_FragColor = u_color;
-            })");
-
-    const char* str;
-    GrGLint length;
-
-    str = vshaderTxt.c_str();
-    length = SkToInt(vshaderTxt.size());
-    SkSL::Program::Settings settings;
-    settings.fCaps = this->caps()->shaderCaps();
-    SkSL::String glsl;
-    GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER, &str, &length, 1, settings, &glsl);
-    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fClearColorProgram.fProgram,
-                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
-                                                  &fStats, settings);
-
-    str = fshaderTxt.c_str();
-    length = SkToInt(fshaderTxt.size());
-    GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
-    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fClearColorProgram.fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
-                                                  &fStats, settings);
-
-    GL_CALL(LinkProgram(fClearColorProgram.fProgram));
-
-    GL_CALL(BindAttribLocation(fClearColorProgram.fProgram, 0, "a_vertex"));
-
-    GL_CALL_RET(fClearColorProgram.fColorUniform,
-                GetUniformLocation(fClearColorProgram.fProgram, "u_color"));
-
-    GL_CALL(DeleteShader(vshader));
-    GL_CALL(DeleteShader(fshader));
-
-    return true;
-}
-
-void GrGLGpu::clearColorAsDraw(const GrFixedClip& clip, const SkPMColor4f& color,
-                               GrRenderTarget* dst, GrSurfaceOrigin origin) {
-    if (!fClearColorProgram.fProgram) {
-        if (!this->createClearColorProgram()) {
-            SkDebugf("Failed to create clear color program.\n");
-            return;
-        }
-    }
-
-    GrGLIRect dstVP;
-    this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
-    this->flushViewport(dstVP);
-    fHWBoundRenderTargetUniqueID.makeInvalid();
-
-    this->flushProgram(fClearColorProgram.fProgram);
-
-    fHWVertexArrayState.setVertexArrayID(this, 0);
-
-    GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fClearProgramArrayBuffer.get(), kFloat2_GrVertexAttribType,
-                 kFloat2_GrSLType, 2 * sizeof(GrGLfloat), 0);
-
-    GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(dst);
-    this->flushScissor(clip.scissorState(), glrt->getViewport(), origin);
-    this->flushWindowRectangles(clip.windowRectsState(), glrt, origin);
-
-    GL_CALL(Uniform4f(fClearColorProgram.fColorUniform, color.fR, color.fG, color.fB, color.fA));
-
-    GrXferProcessor::BlendInfo blendInfo;
-    blendInfo.reset();
-    this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(true);
-    this->flushHWAAState(nullptr, false, false);
-    this->disableStencil();
-    if (this->glCaps().srgbWriteControl()) {
-        this->flushFramebufferSRGB(true);
-    }
-
-    GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
-    this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, dst);
-    this->didWriteToSurface(dst, origin, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
 }
 
 bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
