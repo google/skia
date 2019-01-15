@@ -2,6 +2,7 @@ use_relative_paths = True
 
 vars = {
   "checkout_chromium": False,
+  "checkout_chromium_recreate_skps": False,
 }
 
 deps = {
@@ -40,11 +41,17 @@ deps = {
     "url": "https://chromium.googlesource.com/chromium/src.git@df35166fd2ae545e9d31701a2d9b9cb286dc5ad6",
     "condition": "checkout_chromium",
   },
+
+  "../src_recreate_skps": {
+    "url": "https://chromium.googlesource.com/chromium/src.git",
+    "condition": "checkout_chromium_recreate_skps",
+  },
 }
 
 recursedeps = [
   "common",
   "../src",
+  "../src_recreate_skps",
 ]
 
-gclient_gn_args_from = 'src'
+gclient_gn_args_from = 'src_recreate_skps'
