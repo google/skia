@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c48a810_87473213",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-15T16:14:49Z",
+      "side": 1,
+      "message": "I am guessing this does not work.\n\nShould we do a  \u0027@\u0027 +  Var(\u0027chromium_revision\u0027) where we use \u0027HEAD\u0027 for checkout_chromium_recreate_skps ?\nor should it just use a different directory and have the recreate_skps recipe point to it?",
+      "revId": "7e0bb0007a1e4e24cb7b242d348829daee884a92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
