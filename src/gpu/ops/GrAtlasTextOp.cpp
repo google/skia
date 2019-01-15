@@ -140,8 +140,7 @@ GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
     return FixedFunctionFlags::kNone;
 }
 
-GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
-                                                     const GrAppliedClip* clip) {
+GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
     if (kColorBitmapMask_MaskType == fMaskType) {
@@ -166,10 +165,10 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
     }
     auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, &fGeoData[0].fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
-    fCanCombineOnTouchOrOverlap =
+    fCanCombineOnTouchOrOverlap =  // TODO: kill
             !analysis.requiresDstTexture() &&
             !(fProcessors.xferProcessor() && fProcessors.xferProcessor()->xferBarrierType(caps));
-    return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
+    return analysis;
 }
 
 static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* blobVertices,
