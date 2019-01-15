@@ -150,9 +150,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
-    if (tex) {
-        return tex;
+    // Compressed textures are read-only so they don't support re-use for scratch.
+    if (!GrPixelConfigIsCompressed(desc.fConfig)) {
+        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
+        if (tex) {
+            return tex;
+        }
     }
 
     return fGpu->createTexture(desc, budgeted);
@@ -164,6 +167,11 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     SkASSERT(Flags::kNone == flags || Flags::kNoPendingIO == flags);
 
     if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    // Currently we don't recycle compressed textures as scratch.
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
         return nullptr;
     }
 
@@ -195,6 +203,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc, Flags flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
     SkASSERT(fCaps->validateSurfaceDesc(desc, GrMipMapped::kNo));
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
