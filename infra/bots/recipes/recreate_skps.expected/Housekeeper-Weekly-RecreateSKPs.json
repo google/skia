@@ -33,7 +33,7 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'custom_vars': {'checkout_chromium': True}, 'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[START_DIR]/cache/git'\nsolutions = [{'custom_vars': {'checkout_chromium_recreate_skps': True}, 'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
@@ -130,11 +130,11 @@
   },
   {
     "cmd": [
-      "[START_DIR]/cache/work/src/buildtools/linux64/gn",
+      "[START_DIR]/cache/work/src_recreate_skps/buildtools/linux64/gn",
       "gen",
-      "[START_DIR]/cache/work/src/out/Release"
+      "[START_DIR]/cache/work/src_recreate_skps/out/Release"
     ],
-    "cwd": "[START_DIR]/cache/work/src",
+    "cwd": "[START_DIR]/cache/work/src_recreate_skps",
     "env": {
       "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
@@ -147,10 +147,10 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/src/out/Release",
+      "[START_DIR]/cache/work/src_recreate_skps/out/Release",
       "chrome"
     ],
-    "cwd": "[START_DIR]/cache/work/src",
+    "cwd": "[START_DIR]/cache/work/src_recreate_skps",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
@@ -190,9 +190,9 @@
       "python",
       "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create.py",
       "--chrome_src_path",
-      "[START_DIR]/cache/work/src",
+      "[START_DIR]/cache/work/src_recreate_skps",
       "--browser_executable",
-      "[START_DIR]/cache/work/src/out/Release/chrome",
+      "[START_DIR]/cache/work/src_recreate_skps/out/Release/chrome",
       "--target_dir",
       "[START_DIR]/skp_output"
     ],
