@@ -1846,9 +1846,7 @@ public:
                   const SkPaint& paint);
 #endif  // SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
 
-    /** Experimental.
-
-        Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
+    /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
 
         Text meaning depends on SkTextEncoding.
