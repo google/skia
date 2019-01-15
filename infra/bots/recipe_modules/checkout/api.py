@@ -30,7 +30,8 @@ class CheckoutApi(recipe_api.RecipeApi):
       return self.m.properties['revision']
 
   def bot_update(self, checkout_root, gclient_cache=None,
-                 checkout_chromium=False, checkout_flutter=False,
+                 checkout_chromium=False, checkout_chromium_recreate_skps=False,
+                 checkout_flutter=False,
                  extra_gclient_env=None, parent_rev=False,
                  flutter_android=False):
     """Run the steps to obtain a checkout using bot_update.
@@ -40,6 +41,8 @@ class CheckoutApi(recipe_api.RecipeApi):
       gclient_cache: Optional, directory of the gclient cache.
       checkout_chromium: If True, will check out chromium/src.git in addition
           to the primary repo.
+      checkout_chromium_recreate_skps: If True, will check out chromium/src.git
+          for recreating skps in addition to the primary repo.
       checkout_flutter: If True, will checkout flutter in addition to the
           primary repo.
       extra_gclient_env: Map of extra environment variable names to their values
@@ -49,6 +52,9 @@ class CheckoutApi(recipe_api.RecipeApi):
           (no patch) for try jobs.
       flutter_android: Indicates that we're checking out flutter for Android.
     """
+    if checkout_chromium and checkout_chromium_recreate_skps:
+      raise Exception('Both checkout_chromium and '
+                      'checkout_chromium_recreate_skps cannot be True.')
     if not gclient_cache:
       gclient_cache = self.m.vars.cache_dir.join('git')
     if not extra_gclient_env:
@@ -110,6 +116,10 @@ class CheckoutApi(recipe_api.RecipeApi):
     if checkout_chromium:
       main.custom_vars['checkout_chromium'] = True
       extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
+    if checkout_chromium_recreate_skps:
+      main.custom_vars['checkout_chromium_recreate_skps'] = True
+      extra_gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
+
 
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443
@@ -139,7 +149,7 @@ class CheckoutApi(recipe_api.RecipeApi):
           patch_refs=patch_refs,
       )
 
-    if checkout_chromium or checkout_flutter:
+    if checkout_chromium or checkout_chromium_recreate_skps or checkout_flutter:
       gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
       if extra_gclient_env:
         gclient_env.update(extra_gclient_env)

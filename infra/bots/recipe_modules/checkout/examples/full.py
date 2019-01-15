@@ -22,6 +22,7 @@ def RunSteps(api):
 
   checkout_root = api.checkout.default_checkout_root
   checkout_chromium = False
+  checkout_chromium_recreate_skps = False
   checkout_flutter = False
   extra_gclient_env = {}
   flutter_android = False
@@ -29,7 +30,7 @@ def RunSteps(api):
   if 'CommandBuffer' in api.vars.builder_name:
     checkout_chromium = True
   if 'RecreateSKPs' in api.vars.builder_name:
-    checkout_chromium = True
+    checkout_chromium_recreate_skps = True
     extra_gclient_env['CPPFLAGS'] = (
         '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
   if 'Flutter' in api.vars.builder_name:
@@ -44,6 +45,7 @@ def RunSteps(api):
     api.checkout.bot_update(
         checkout_root=checkout_root,
         checkout_chromium=checkout_chromium,
+        checkout_chromium_recreate_skps=checkout_chromium_recreate_skps,
         checkout_flutter=checkout_flutter,
         extra_gclient_env=extra_gclient_env,
         flutter_android=flutter_android,
