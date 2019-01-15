@@ -19,7 +19,7 @@ public:
 
     const char* name() const override { return "GrAAFillRRectOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*) override;
     CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn, VisitorType) const override {
         fProcessors.visitProxies(fn);

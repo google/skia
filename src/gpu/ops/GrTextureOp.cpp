@@ -186,14 +186,14 @@ public:
     }
 #endif
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkASSERT(!fFinalized);
         fFinalized = true;
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             fProxies[p].fProxy->addPendingRead();
             fProxies[p].fProxy->unref();
         }
-        return RequiresDstTexture::kNo;
+        return GrProcessorSet::EmptySetAnalysis();
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override {

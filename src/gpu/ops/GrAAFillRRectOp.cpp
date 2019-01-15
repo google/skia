@@ -79,8 +79,7 @@ GrAAFillRRectOp::GrAAFillRRectOp(const GrShaderCaps& shaderCaps, const SkMatrix&
     // We will write the color and local rect attribs during finalize().
 }
 
-GrDrawOp::RequiresDstTexture GrAAFillRRectOp::finalize(const GrCaps& caps,
-                                                       const GrAppliedClip* clip) {
+GrProcessorSet::Analysis GrAAFillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
     SkASSERT(1 == fInstanceCount);
 
     SkPMColor4f overrideColor;
@@ -97,7 +96,7 @@ GrDrawOp::RequiresDstTexture GrAAFillRRectOp::finalize(const GrCaps& caps,
     }
     fInstanceStride = fInstanceData.count();
 
-    return RequiresDstTexture(analysis.requiresDstTexture());
+    return analysis;
 }
 
 GrDrawOp::CombineResult GrAAFillRRectOp::onCombineIfPossible(GrOp* op, const GrCaps&) {

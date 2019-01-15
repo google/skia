@@ -257,7 +257,7 @@ public:
         return flags;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         GrProcessorAnalysisCoverage coverage;
         if (AAMode::kNone == fAAMode && !clip->numClipCoverageFragmentProcessors()) {
             coverage = GrProcessorAnalysisCoverage::kNone;
@@ -269,7 +269,7 @@ public:
                                            (fProcessorSet.xferProcessor() &&
                                             fProcessorSet.xferProcessor()->xferBarrierType(caps));
         fUsesLocalCoords = analysis.usesLocalCoords();
-        return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
+        return analysis;
     }
 
 private:
