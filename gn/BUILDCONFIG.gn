@@ -33,7 +33,6 @@ declare_args() {
 
   clang_win = ""
 
-  skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_moltenvk_path = ""
 }
 declare_args() {
