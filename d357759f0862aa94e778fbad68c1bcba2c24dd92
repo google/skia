@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "033ff9cc_b4d87e05",
+        "filename": "modules/skottie/src/SkottieAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-16T22:18:11Z",
+      "side": 1,
+      "message": "The shaper always knows when it is done with a line, would it be helpful to put this call on RunHandler? Then you wouldn\u0027t need to commit the last line outside of the shape call. The call in SkShaper_harfbuzz would be right after the last for loop.",
+      "range": {
+        "startLine": 290,
+        "startChar": 13,
+        "endLine": 290,
+        "endChar": 23
+      },
+      "revId": "d357759f0862aa94e778fbad68c1bcba2c24dd92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
