@@ -28,7 +28,7 @@
 #include "SkVertices.h"
 
 #ifndef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
-#define SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
+//#define SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
 #endif
 
 class GrContext;
