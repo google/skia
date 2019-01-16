@@ -38,7 +38,7 @@ def main(target_dir):
     # Upload the new version, land the update CL as the recreate-skps user.
     with git_utils.GitBranch(branch_name='update_skp_version',
                              commit_msg=COMMIT_MSG,
-                             commit_queue=True):
+                             commit_queue=False):
       upload_script = os.path.join(
           os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
       subprocess.check_call(['python', upload_script, '-t', target_dir])
