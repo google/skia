@@ -227,6 +227,7 @@ public:
     };
     #endif
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
     /** Returns paint settings described by SkPaint::Flags. Each setting uses one
         bit, and can be tested with SkPaint::Flags members.
 
@@ -240,6 +241,7 @@ public:
         @param flags  union of SkPaint::Flags for SkPaint
     */
     void setFlags(uint32_t flags);
+#endif
 
     /** Returns true if pixels on the active edges of SkPath may be drawn with partial transparency.
 
@@ -248,7 +250,7 @@ public:
         @return  kAntiAlias_Flag state
     */
     bool isAntiAlias() const {
-        return SkToBool(this->getFlags() & kAntiAlias_Flag);
+        return SkToBool(this->internal_getFlags() & kAntiAlias_Flag);
     }
 
     /** Requests, but does not require, that edge pixels draw opaque or with
@@ -268,7 +270,7 @@ public:
         @return  kDither_Flag state
     */
     bool isDither() const {
-        return SkToBool(this->getFlags() & kDither_Flag);
+        return SkToBool(this->internal_getFlags() & kDither_Flag);
     }
 
     /** Requests, but does not require, to distribute color error.
@@ -288,7 +290,7 @@ public:
         @return  kLinearText_Flag state
     */
     bool isLinearText() const {
-        return SkToBool(this->getFlags() & kLinearText_Flag);
+        return SkToBool(this->internal_getFlags() & kLinearText_Flag);
     }
 
     /** Requests, but does not require, that glyphs are converted to SkPath
@@ -309,7 +311,7 @@ public:
         @return  kSubpixelText_Flag state
     */
     bool isSubpixelText() const {
-        return SkToBool(this->getFlags() & kSubpixelText_Flag);
+        return SkToBool(this->internal_getFlags() & kSubpixelText_Flag);
     }
 
     /** Requests, but does not require, that glyphs respect sub-pixel positioning.
@@ -328,7 +330,7 @@ public:
         @return  kLCDRenderText_Flag state
     */
     bool isLCDRenderText() const {
-        return SkToBool(this->getFlags() & kLCDRenderText_Flag);
+        return SkToBool(this->internal_getFlags() & kLCDRenderText_Flag);
     }
 
     /** Requests, but does not require, that glyphs use LCD striping for glyph edges.
@@ -347,7 +349,7 @@ public:
         @return  kEmbeddedBitmapText_Flag state
     */
     bool isEmbeddedBitmapText() const {
-        return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
+        return SkToBool(this->internal_getFlags() & kEmbeddedBitmapText_Flag);
     }
 
     /** Requests, but does not require, to use bitmaps in fonts instead of outlines.
@@ -368,7 +370,7 @@ public:
         @return  kAutoHinting_Flag state
     */
     bool isAutohinted() const {
-        return SkToBool(this->getFlags() & kAutoHinting_Flag);
+        return SkToBool(this->internal_getFlags() & kAutoHinting_Flag);
     }
 
     /** Sets whether to always hint glyphs.
@@ -394,7 +396,7 @@ public:
         @return  kFakeBoldText_Flag state
     */
     bool isFakeBoldText() const {
-        return SkToBool(this->getFlags() & kFakeBoldText_Flag);
+        return SkToBool(this->internal_getFlags() & kFakeBoldText_Flag);
     }
 
     /** Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
@@ -1091,6 +1093,12 @@ private:
         uint32_t fBitfieldsUInt;
     };
 
+    uint32_t internal_getFlags() const { return fBitfields.fFlags; }
+
+    void internal_setFlags(uint32_t flags) {
+        fBitfields.fFlags = flags;
+    }
+
     SkTextEncoding private_internal_getTextEncoding() const {
         return (SkTextEncoding)fBitfields.fTextEncoding;
     }
@@ -1146,7 +1154,7 @@ private:
     friend class SkPaintPriv;
     friend class SkPicturePlayback;
     friend class SkPDFDevice;
-    friend class SkScalerContext;  // for computeLuminanceColor()
+    friend class SkScalerContext;
     friend class SkTextBaseIter;
     friend class SkTextBlobCacheDiffCanvas;
 };

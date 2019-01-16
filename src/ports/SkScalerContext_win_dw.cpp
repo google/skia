@@ -1003,9 +1003,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
     draw.fRC = &rc;
 
     SkPaint paint;
-    if (fRenderingMode != DWRITE_RENDERING_MODE_ALIASED) {
-        paint.setFlags(SkPaint::Flags::kAntiAlias_Flag);
-    }
+    paint.setAntiAlias(fRenderingMode != DWRITE_RENDERING_MODE_ALIASED);
 
     BOOL hasNextRun = FALSE;
     while (SUCCEEDED(colorLayers->MoveNext(&hasNextRun)) && hasNextRun) {
