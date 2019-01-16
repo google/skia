@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAtlasGlyphCache_DEFINED
-#define GrAtlasGlyphCache_DEFINED
+#ifndef GrStrikeCache_DEFINED
+#define GrStrikeCache_DEFINED
 
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
@@ -15,16 +15,16 @@
 #include "SkStrike.h"
 #include "SkTDynamicHash.h"
 
-class GrGlyphCache;
 class GrAtlasManager;
 class GrGpu;
+class GrStrikeCache;
 
 /**
  *  The GrTextStrike manages a pool of CPU backing memory for GrGlyphs. This backing memory
- *  is indexed by a PackedID and SkGlyphCache. The SkGlyphCache is what actually creates the mask.
- *  The GrTextStrike may outlive the generating SkGlyphCache. However, it retains a copy
- *  of it's SkDescriptor as a key to access (or regenerate) the SkGlyphCache. GrTextStrikes are
- *  created by and owned by a GrGlyphCache.
+ *  is indexed by a PackedID and SkStrike. The SkStrike is what actually creates the mask.
+ *  The GrTextStrike may outlive the generating SkStrike. However, it retains a copy
+ *  of it's SkDescriptor as a key to access (or regenerate) the SkStrike. GrTextStrikes are
+ *  created by and owned by a GrStrikeCache.
  */
 class GrTextStrike : public SkNVRefCnt<GrTextStrike> {
 public:
@@ -61,7 +61,7 @@ public:
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
-                                             GrGlyphCache*, GrAtlasManager*, GrGlyph*,
+                                             GrStrikeCache*, GrAtlasManager*, GrGlyph*,
                                              SkStrike*, GrMaskFormat expectedMaskFormat,
                                              bool isScaledGlyph);
 
@@ -94,17 +94,17 @@ private:
 
     GrGlyph* generateGlyph(const SkGlyph&);
 
-    friend class GrGlyphCache;
+    friend class GrStrikeCache;
 };
 
 /**
- * GrGlyphCache manages strikes which are indexed by a SkGlyphCache. These strikes can then be
+ * GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
  * used to generate individual Glyph Masks.
  */
-class GrGlyphCache {
+class GrStrikeCache {
 public:
-    GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes);
-    ~GrGlyphCache();
+    GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes);
+    ~GrStrikeCache();
 
     void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
 
@@ -141,4 +141,4 @@ private:
     std::unique_ptr<const SkMasks> f565Masks;
 };
 
-#endif
+#endif  // GrStrikeCache_DEFINED

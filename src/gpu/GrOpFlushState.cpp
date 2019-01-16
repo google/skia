@@ -165,7 +165,7 @@ GrAppliedClip GrOpFlushState::detachAppliedClip() {
     return fOpArgs->fAppliedClip ? std::move(*fOpArgs->fAppliedClip) : GrAppliedClip();
 }
 
-GrGlyphCache* GrOpFlushState::glyphCache() const {
+GrStrikeCache* GrOpFlushState::glyphCache() const {
     return fGpu->getContext()->contextPriv().getGlyphCache();
 }
 

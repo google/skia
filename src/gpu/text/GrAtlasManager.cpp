@@ -8,9 +8,9 @@
 #include "GrAtlasManager.h"
 
 #include "GrGlyph.h"
-#include "GrGlyphCache.h"
+#include "GrStrikeCache.h"
 
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* glyphCache,
                                size_t maxTextureBytes,
                                GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
             : fAllowMultitexturing{allowMultitexturing}
@@ -64,7 +64,7 @@ bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
 // add to texture atlas that matches this format
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
                                 GrResourceProvider* resourceProvider,
-                                GrGlyphCache* glyphCache,
+                                GrStrikeCache* glyphCache,
                                 GrTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
@@ -186,7 +186,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         fAtlases[index] = GrDrawOpAtlas::Make(
                 fProxyProvider, format, config, atlasDimensions.width(), atlasDimensions.height(),
                 plotDimensions.width(), plotDimensions.height(), fAllowMultitexturing,
-                &GrGlyphCache::HandleEviction, fGlyphCache);
+                &GrStrikeCache::HandleEviction, fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }
