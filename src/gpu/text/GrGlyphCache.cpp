@@ -80,7 +80,7 @@ static void expand_bits(INT_TYPE* dst,
     }
 }
 
-static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, int width,
+static bool get_packed_glyph_image(SkStrike* cache, const SkGlyph& glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
     SkASSERT(glyph.fWidth == width);
@@ -196,7 +196,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrGlyphCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
-                                   SkGlyphCache* cache,
+                                   SkStrike* cache,
                                    GrMaskFormat expectedMaskFormat,
                                    bool isScaledGlyph) {
     SkASSERT(glyph);

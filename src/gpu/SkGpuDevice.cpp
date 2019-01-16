@@ -24,7 +24,6 @@
 #include "GrTracing.h"
 #include "SkCanvasPriv.h"
 #include "SkDraw.h"
-#include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"

@@ -7,10 +7,10 @@
 
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkGlyphCache.h"
 #include "SkPaintPriv.h"
 #include "SkRasterClip.h"
 #include "SkScalerContext.h"
+#include "SkStrike.h"
 #include "SkTextToPathIter.h"
 #include "SkUtils.h"
 

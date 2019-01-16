@@ -12,11 +12,11 @@
 #include <unordered_set>
 
 #include "SkDescriptor.h"
-#include "SkGlyphCache.h"
+#include "SkStrike.h"
 #include "SkSpinlock.h"
 #include "SkTemplates.h"
 
-class SkGlyphCache;
+class SkStrike;
 class SkTraceMemoryDump;
 
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
@@ -56,9 +56,9 @@ public:
         ExclusiveStrikePtr& operator = (ExclusiveStrikePtr&&);
         ~ExclusiveStrikePtr();
 
-        SkGlyphCache* get() const;
-        SkGlyphCache* operator -> () const;
-        SkGlyphCache& operator *  () const;
+        SkStrike* get() const;
+        SkStrike* operator -> () const;
+        SkStrike& operator *  () const;
         explicit operator bool () const;
         friend bool operator == (const ExclusiveStrikePtr&, const ExclusiveStrikePtr&);
         friend bool operator == (const ExclusiveStrikePtr&, decltype(nullptr));
@@ -111,7 +111,7 @@ public:
     // suitable as substitutes for similar calls in SkScalerContext.
     bool desperationSearchForImage(const SkDescriptor& desc,
                                    SkGlyph* glyph,
-                                   SkGlyphCache* targetCache);
+                                   SkStrike* targetCache);
     bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
 
     static ExclusiveStrikePtr FindOrCreateStrikeExclusive(
@@ -121,7 +121,7 @@ public:
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
-    SkGlyphCacheInterface* findOrCreateGlyphCache(
+    SkStrikeInterface* findOrCreateGlyphCache(
             const SkFont& font,
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
@@ -191,7 +191,7 @@ private:
     // Returns number of bytes freed.
     size_t internalPurge(size_t minBytesNeeded = 0);
 
-    void forEachStrike(std::function<void(const SkGlyphCache&)> visitor) const;
+    void forEachStrike(std::function<void(const SkStrike&)> visitor) const;
 
     mutable SkSpinlock fLock;
     Node*              fHead{nullptr};

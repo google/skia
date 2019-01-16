@@ -7,11 +7,11 @@
 
 #include "Resources.h"
 #include "SkDraw.h"
-#include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkRemoteGlyphCacheImpl.h"
+#include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
@@ -458,7 +458,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     SkRect glyphBounds;
     font.getWidths(runBuffer.glyphs, 1, nullptr, &glyphBounds);
 
-    REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+    REPORTER_ASSERT(reporter, glyphBounds.width() > SkStrikeCommon::kSkSideTooBigForAtlas);
 
     for (int i = 0; i < runSize; i++) {
         runBuffer.pos[i] = i * 10;

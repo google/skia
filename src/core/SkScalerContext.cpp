@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkScalerContext.h"
 

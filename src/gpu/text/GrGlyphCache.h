@@ -11,8 +11,8 @@
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
 #include "SkArenaAlloc.h"
-#include "SkGlyphCache.h"
 #include "SkMasks.h"
+#include "SkStrike.h"
 #include "SkTDynamicHash.h"
 
 class GrGlyphCache;
@@ -43,7 +43,7 @@ public:
     // draw a clear square.
     // skbug:4143 crbug:510931
     GrGlyph* getGlyph(SkPackedGlyphID packed,
-                      SkGlyphCache* cache) {
+                      SkStrike* cache) {
         GrGlyph* glyph = fCache.find(packed);
         if (!glyph) {
             // We could return this to the caller, but in practice it adds code complexity for
@@ -62,7 +62,7 @@ public:
     // get the actual glyph image itself when we get the glyph metrics.
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
                                              GrGlyphCache*, GrAtlasManager*, GrGlyph*,
-                                             SkGlyphCache*, GrMaskFormat expectedMaskFormat,
+                                             SkStrike*, GrMaskFormat expectedMaskFormat,
                                              bool isScaledGlyph);
 
     // testing
@@ -88,7 +88,7 @@ private:
     int fAtlasedGlyphs{0};
     bool fIsAbandoned{false};
 
-    static const SkGlyph& GrToSkGlyph(SkGlyphCache* cache, SkPackedGlyphID id) {
+    static const SkGlyph& GrToSkGlyph(SkStrike* cache, SkPackedGlyphID id) {
         return cache->getGlyphIDMetrics(id.code(), id.getSubXFixed(), id.getSubYFixed());
     }
 
@@ -112,7 +112,7 @@ public:
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
-    sk_sp<GrTextStrike> getStrike(const SkGlyphCache* cache) {
+    sk_sp<GrTextStrike> getStrike(const SkStrike* cache) {
         sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(cache->getDescriptor()));
         if (!strike) {
             strike = this->generateStrike(cache);
@@ -127,7 +127,7 @@ public:
     static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
 
 private:
-    sk_sp<GrTextStrike> generateStrike(const SkGlyphCache* cache) {
+    sk_sp<GrTextStrike> generateStrike(const SkStrike* cache) {
         // 'fCache' get the construction ref
         sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(cache->getDescriptor()));
         fCache.add(strike.get());
