@@ -78,12 +78,6 @@ bool SkPaint::containsText(const void* text, size_t length) const {
 }
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar textData[]) const {
-    SkFont::LEGACY_ExtractFromPaint(*this).glyphsToUnichars(glyphs, count, textData);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache,

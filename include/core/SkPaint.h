@@ -921,21 +921,6 @@ public:
     bool containsText(const void* text, size_t byteLength) const;
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-    /** Converts glyphs into text if possible.
-        Glyph values without direct Unicode equivalents are mapped to zero.
-        Uses the SkTypeface, but is unaffected
-        by SkTextEncoding; the text values returned are equivalent to kUTF32_SkTextEncoding.
-
-        Only supported on platforms that use FreeType as the font engine.
-
-        @param glyphs  array of indices into font
-        @param count   length of glyph array
-        @param text    storage for character codes, one per glyph
-    */
-    void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
-#endif
-
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
     /** Deprecated; use SkFont::countText instead
     */

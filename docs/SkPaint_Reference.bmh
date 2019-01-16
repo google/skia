@@ -3061,38 +3061,6 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void glyphsToUnichars(const SkGlyphID glyphs[],
-                              int count, SkUnichar text[]) const
-#In Utility
-#Line # converts Glyphs into text ##
-#Populate
-
-# crashes fiddle, draws missing characters locally ##
-#Bug 8608
-#NoExample
-    #Height 64
-    #Description
-    Convert UTF-8 text to glyphs; then convert glyphs to Unichar code points.
-    ##
-    void draw(SkCanvas* canvas) {
-        SkPaint paint;
-        const char hello[] = "Hello!";
-        const int count = sizeof(hello) - 1;
-        SkGlyphID glyphs[count];
-        if (count != paint.textToGlyphs(hello, count, glyphs)) {
-            return;
-        }
-        SkUnichar unichars[count];
-        paint.glyphsToUnichars(glyphs, count, unichars);
-        paint.setTextEncoding(kUTF32_SkTextEncoding);
-        canvas->drawText(unichars, sizeof(unichars), 10, 30, paint);
-    }
-    ##
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool nothingToDraw() const
 #In Utility
 #Line # returns true if Paint prevents all drawing ##
