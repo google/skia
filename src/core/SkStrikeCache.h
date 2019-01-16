@@ -121,13 +121,6 @@ public:
             SkScalerContextFlags scalerContextFlags,
             const SkMatrix& deviceMatrix);
 
-    SkStrikeInterface* findOrCreateGlyphCache(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            SkScalerContextFlags scalerContextFlags,
-            const SkMatrix& deviceMatrix);
-
     Node* findOrCreateStrike(
             const SkFont& font,
             const SkPaint& paint,
