@@ -4,21 +4,24 @@ How SkQP Generates Render Test Models
 We will, at regular intervals, generate new models from the [master branch of
 Skia][1].  Here is how that process works:
 
+0.  Choose a commit to make the branch from
+
+        COMMIT=origin/master
+
 1.  Get the positively triaged results from Gold:
 
         cd SKIA_SOURCE_DIRECTORY
         git fetch origin
-        git checkout origin/master
-        tools/skqp/get_gold_export_url.py HEAD~10 HEAD
+        git checkout "$COMMIT"
+        python tools/skqp/get_gold_results.py "${COMMIT}~10" "$COMMIT"
 
-    Open the resulting URL in a browser and download the resulting `meta.json` file.
-
-        bin/sysopen $(tools/skqp/get_gold_export_url.py HEAD~10 HEAD)
+    This will produce a file `meta_YYYMMMDDD_HHHMMMSS_COMMIT_COMMIT.json` in
+    the current directory.
 
 2.  From a checkout of Skia's master branch, execute:
 
         cd SKIA_SOURCE_DIRECTORY
-        git checkout origin/master
+        git checkout "$COMMIT"
         tools/skqp/cut_release META_JSON_FILE
 
     This will create the following files:
@@ -37,6 +40,19 @@ Skia][1].  Here is how that process works:
 
         git push origin HEAD:refs/for/skqp/dev
         bin/sysopen https://review.skia.org/$(bin/gerrit-number HEAD)
+
+    (Optional) Make a SkQP APK.
+
+        tools/skqp/docker_build_universal_apk.sh
+
+    (Optional) Test the SkQP APK:
+
+        adb uninstall org.skia.skqp
+        tools/skqp/test_apk.sh LOCATION/skqp-universal-debug.apk
+
+    (Once changes land) Upload the SkQP APK.
+
+        tools/skqp/upload_apk LOCATION/skqp-universal-debug.apk
 
 
 `tools/skqp/cut_release`
