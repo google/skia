@@ -179,15 +179,6 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeExclusive(
                     font, paint, surfaceProps, scalerContextFlags,deviceMatrix));
 }
 
-SkStrikeInterface* SkStrikeCache::findOrCreateGlyphCache(
-        const SkFont& font,
-        const SkPaint& paint,
-        const SkSurfaceProps& surfaceProps,
-        SkScalerContextFlags scalerContextFlags,
-        const SkMatrix& deviceMatrix) {
-    return findOrCreateStrike(font, paint, surfaceProps, scalerContextFlags, deviceMatrix);
-}
-
 auto SkStrikeCache::findOrCreateStrike(
         const SkFont& font,
         const SkPaint& paint,
