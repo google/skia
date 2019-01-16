@@ -9,7 +9,6 @@
 
 #include "SkData.h"
 #include "SkFont.h"
-#include "SkGlyphCache.h"
 #include "SkImagePriv.h"
 #include "SkMacros.h"
 #include "SkMakeUnique.h"
@@ -27,6 +26,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkStrike.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
@@ -180,13 +180,13 @@ static SkGlyphID first_nonzero_glyph_for_single_byte_encoding(SkGlyphID gid) {
     return gid != 0 ? gid - (gid - 1) % 255 : 1;
 }
 
-static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
+static bool has_outline_glyph(SkGlyphID gid, SkStrike* cache) {
     const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
     return glyph.isEmpty() || cache->findPath(glyph);
 }
 
 SkPDFFont* SkPDFFont::GetFontResource(SkPDFDocument* doc,
-                                      SkGlyphCache* cache,
+                                      SkStrike* cache,
                                       SkTypeface* face,
                                       SkGlyphID glyphID) {
     SkASSERT(doc);
@@ -561,7 +561,7 @@ struct ImageAndOffset {
     sk_sp<SkImage> fImage;
     SkIPoint fOffset;
 };
-static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
+static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
     (void)cache->findImage(cache->getGlyphIDMetrics(gid));
     SkMask mask;
     cache->getGlyphIDMetrics(gid).toMask(&mask);
@@ -604,7 +604,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkGlyphCache* cache) {
 
 static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
                                                const SkTypeface* typeface,
-                                               SkGlyphCache* cache) {
+                                               SkStrike* cache) {
     if (SkPDFIndirectReference* ptr = doc->fType3FontDescriptors.find(typeface->uniqueID())) {
         return *ptr;
     }

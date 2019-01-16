@@ -8,8 +8,8 @@
 #include "SkPDFMakeCIDGlyphWidthsArray.h"
 
 #include "SkPDFGlyphUse.h"
-#include "SkGlyphCache.h"
 #include "SkPaint.h"
+#include "SkStrike.h"
 #include "SkTo.h"
 
 #include <vector>
@@ -143,7 +143,7 @@ static void compose_advance_data(const AdvanceMetric& range,
 /** Retrieve advance data for glyphs. Used by the PDF backend. */
 // TODO(halcanary): this function is complex enough to need its logic
 // tested with unit tests.
-std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkGlyphCache* cache,
+std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(SkStrike* cache,
                                                          const SkPDFGlyphUse* subset,
                                                          uint16_t emSize,
                                                          int16_t* defaultAdvance) {

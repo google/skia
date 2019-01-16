@@ -10,9 +10,9 @@
 
 #include "SkArenaAlloc.h"
 #include "SkGlyph.h"
-#include "SkGlyphCache.h"
 #include "SkMatrixPriv.h"
 #include "SkPaint.h"
+#include "SkStrike.h"
 #include "SkTemplates.h"
 #include "SkUTF.h"
 #include <utility>
@@ -39,7 +39,7 @@ public:
     static void ProcessPosText(
         const SkGlyphID[], int count,
         SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
-        SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
+        SkStrike* cache, ProcessOneGlyph&& processOneGlyph);
 
     // The SubpixelAlignment function produces a suitable position for the glyph cache to
     // produce the correct sub-pixel alignment. If a position is aligned with an axis a shortcut
@@ -226,7 +226,7 @@ private:
     template<typename ProcessOneGlyph, SkAxisAlignment kAxisAlignment>
     class GlyphFindAndPlaceSubpixel final : public GlyphFindAndPlaceInterface<ProcessOneGlyph> {
     public:
-        explicit GlyphFindAndPlaceSubpixel(SkGlyphCache* cache) : fCache(cache) {}
+        explicit GlyphFindAndPlaceSubpixel(SkStrike* cache) : fCache(cache) {}
 
         SkPoint findAndPositionGlyph(SkGlyphID glyphID, SkPoint position, ProcessOneGlyph&& processOneGlyph) override {
             // Find the glyph.
@@ -243,7 +243,7 @@ private:
         }
 
     private:
-        SkGlyphCache* fCache;
+        SkStrike* fCache;
     };
 
     // GlyphFindAndPlaceFullPixel handles finding and placing glyphs when no sub-pixel
@@ -251,7 +251,7 @@ private:
     template<typename ProcessOneGlyph>
     class GlyphFindAndPlaceFullPixel final : public GlyphFindAndPlaceInterface<ProcessOneGlyph> {
     public:
-        explicit GlyphFindAndPlaceFullPixel(SkGlyphCache* cache) : fCache(cache) {}
+        explicit GlyphFindAndPlaceFullPixel(SkStrike* cache) : fCache(cache) {}
 
         SkPoint findAndPositionGlyph(
             SkGlyphID glyphID, SkPoint position,
@@ -267,12 +267,12 @@ private:
         }
 
     private:
-        SkGlyphCache* fCache;
+        SkStrike* fCache;
     };
 
     template <typename ProcessOneGlyph>
     static GlyphFindAndPlaceInterface<ProcessOneGlyph>* getSubpixel(
-        SkArenaAlloc* arena, SkAxisAlignment axisAlignment, SkGlyphCache* cache)
+        SkArenaAlloc* arena, SkAxisAlignment axisAlignment, SkStrike* cache)
     {
         switch (axisAlignment) {
             case kX_SkAxisAlignment:
@@ -294,7 +294,7 @@ template<typename ProcessOneGlyph>
 inline void SkFindAndPlaceGlyph::ProcessPosText(
     const SkGlyphID glyphs[], int count,
     SkPoint offset, const SkMatrix& matrix, const SkScalar pos[], int scalarsPerPosition,
-    SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
+    SkStrike* cache, ProcessOneGlyph&& processOneGlyph) {
 
     SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
     uint32_t mtype = matrix.getType();

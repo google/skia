@@ -16,7 +16,7 @@
 #include "SkTypes.h"
 
 class SkArenaAlloc;
-class SkGlyphCache;
+class SkStrike;
 class SkScalerContext;
 
 // needs to be != to any valid SkMask::Format
@@ -216,8 +216,8 @@ private:
         bool       fHasPath{false};
     };
 
-    // TODO(herb) remove friend statement after SkGlyphCache cleanup.
-    friend class SkGlyphCache;
+    // TODO(herb) remove friend statement after SkStrike cleanup.
+    friend class SkStrike;
     SkPackedGlyphID fID;
 };
 

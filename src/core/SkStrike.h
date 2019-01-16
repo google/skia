@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
  */
 
-#ifndef SkGlyphCache_DEFINED
-#define SkGlyphCache_DEFINED
+#ifndef SkStrike_DEFINED
+#define SkStrike_DEFINED
 
 #include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
@@ -30,11 +30,11 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkGlyphCache : public SkGlyphCacheInterface {
+class SkStrike : public SkStrikeInterface {
 public:
-    SkGlyphCache(const SkDescriptor& desc,
-                 std::unique_ptr<SkScalerContext> scaler,
-                 const SkFontMetrics&);
+    SkStrike(const SkDescriptor& desc,
+             std::unique_ptr<SkScalerContext> scaler,
+             const SkFontMetrics&);
 
     const SkDescriptor& getDescriptor() const;
 
@@ -154,7 +154,7 @@ public:
 
     class AutoValidate : SkNoncopyable {
     public:
-        AutoValidate(const SkGlyphCache* cache) : fCache(cache) {
+        AutoValidate(const SkStrike* cache) : fCache(cache) {
             if (fCache) {
                 fCache->validate();
             }
@@ -168,7 +168,7 @@ public:
             fCache = nullptr;
         }
     private:
-        const SkGlyphCache* fCache;
+        const SkStrike* fCache;
     };
 
 private:
@@ -253,4 +253,4 @@ private:
     const SkAxisAlignment   fAxisAlignment;
 };
 
-#endif  // SkGlyphCache_DEFINED
+#endif  // SkStrike_DEFINED

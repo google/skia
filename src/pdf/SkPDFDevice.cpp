@@ -18,7 +18,6 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkGlyphCache.h"
 #include "SkGlyphRun.h"
 #include "SkImageFilterCache.h"
 #include "SkJpegEncoder.h"
@@ -40,6 +39,7 @@
 #include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkScopeExit.h"
+#include "SkStrike.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
@@ -989,7 +989,7 @@ struct PositionedGlyph {
 };
 }
 
-static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
+static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkStrike* cache,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
     const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
@@ -1048,7 +1048,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
     }
 }
 
-static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkGlyphCache* cache,
+static bool needs_new_font(SkPDFFont* font, SkGlyphID gid, SkStrike* cache,
                            SkAdvancedTypefaceMetrics::FontType fontType) {
     if (!font || !font->hasGlyph(gid)) {
         return true;

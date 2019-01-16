@@ -7,10 +7,10 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "sk_tool_utils.h"
 

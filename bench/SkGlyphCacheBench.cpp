@@ -6,7 +6,7 @@
  */
 
 
-#include "SkGlyphCache.h"
+#include "SkStrike.h"
 
 #include "Benchmark.h"
 #include "SkCanvas.h"

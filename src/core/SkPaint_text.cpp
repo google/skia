@@ -9,7 +9,6 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
-#include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkPaintDefaults.h"
 #include "SkPaintPriv.h"
@@ -19,6 +18,7 @@
 #include "SkScalerContext.h"
 #include "SkShader.h"
 #include "SkShaderBase.h"
+#include "SkStrike.h"
 #include "SkStringUtils.h"
 #include "SkTLazy.h"
 #include "SkTextBlob.h"
@@ -58,7 +58,6 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkGlyphCache.h"
 #include "SkUtils.h"
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
@@ -80,7 +79,7 @@ bool SkPaint::containsText(const void* text, size_t length) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getMetrics_utf8_next(SkStrike* cache,
                                               const char** text,
                                               const char* stop) {
     SkASSERT(cache != nullptr);
@@ -89,7 +88,7 @@ static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache,
     return cache->getUnicharMetrics(SkUTF::NextUTF8(text, stop));
 }
 
-static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getMetrics_utf16_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -99,7 +98,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
             SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop));
 }
 
-static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getMetrics_utf32_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -108,7 +107,7 @@ static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
     return cache->getUnicharMetrics(SkUTF::NextUTF32((const int32_t**)text, (const int32_t*)stop));
 }
 
-static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getMetrics_glyph_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -121,7 +120,7 @@ static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
     return cache->getGlyphIDMetrics(glyphID);
 }
 
-static const SkGlyph& sk_getAdvance_utf8_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getAdvance_utf8_next(SkStrike* cache,
                                               const char** text,
                                               const char* stop) {
     SkASSERT(cache != nullptr);
@@ -130,7 +129,7 @@ static const SkGlyph& sk_getAdvance_utf8_next(SkGlyphCache* cache,
     return cache->getUnicharAdvance(SkUTF::NextUTF8(text, stop));
 }
 
-static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getAdvance_utf16_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -140,7 +139,7 @@ static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
             SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop));
 }
 
-static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getAdvance_utf32_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -149,7 +148,7 @@ static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
     return cache->getUnicharAdvance(SkUTF::NextUTF32((const int32_t**)text, (const int32_t*)stop));
 }
 
-static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
+static const SkGlyph& sk_getAdvance_glyph_next(SkStrike* cache,
                                                const char** text,
                                                const char* stop) {
     SkASSERT(cache != nullptr);
@@ -258,7 +257,7 @@ static SkScalar advance(const SkGlyph& glyph) {
     return SkFloatToScalar(glyph.fAdvanceX);
 }
 
-SkScalar SkPaint::measure_text(SkGlyphCache* cache,
+SkScalar SkPaint::measure_text(SkStrike* cache,
                                const char* text, size_t byteLength,
                                int* count, SkRect* bounds) const {
     SkASSERT(count);

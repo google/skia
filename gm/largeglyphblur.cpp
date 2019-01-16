@@ -13,7 +13,7 @@
 #include "SkMaskFilter.h"
 #include "SkTextBlob.h"
 
-// This test ensures that glyphs whose point size is less than the SkGlyphCache's maxmium, but
+// This test ensures that glyphs whose point size is less than the SkStrike's maxmium, but
 // who have a large blur, are still handled correctly
 DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
     const char text[] = "Hamburgefons";

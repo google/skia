@@ -39,7 +39,7 @@ class SkGlyphRunBuilder;
 class SkGlyphRun;
 class SkGlyphRunListPainter;
 struct SkRect;
-class SkGlyphCache;
+class SkStrike;
 class SkImageFilter;
 class SkMaskFilter;
 class SkPath;
@@ -1098,7 +1098,7 @@ private:
         fBitfields.fTextEncoding = (unsigned)e;
     }
 
-    SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
+    SkScalar measure_text(SkStrike*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
     /*

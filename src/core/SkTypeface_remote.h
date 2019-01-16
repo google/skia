@@ -27,7 +27,7 @@ public:
                          const SkDescriptor* desc,
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
 
-    void initCache(SkGlyphCache*, SkStrikeCache*);
+    void initCache(SkStrike*, SkStrikeCache*);
 
 protected:
     unsigned generateGlyphCount() override;
@@ -41,7 +41,7 @@ protected:
 
 private:
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
-    SkGlyphCache* fCache = nullptr;
+    SkStrike* fCache = nullptr;
     SkStrikeCache* fStrikeCache = nullptr;
     typedef SkScalerContext INHERITED;
 };

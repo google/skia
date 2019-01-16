@@ -9,7 +9,6 @@
 #include "GrTextBlob.h"
 #include "GrTextTarget.h"
 #include "SkDistanceFieldGen.h"
-#include "SkGlyphCache.h"
 #include "ops/GrAtlasTextOp.h"
 
 enum RegenMask {

@@ -16,8 +16,8 @@
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkGlyphRun.h"
-#include "SkGlyphCache.h"
 #include "SkRemoteGlyphCacheImpl.h"
+#include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
@@ -163,7 +163,7 @@ private:
 // Paths use a SkWriter32 which requires 4 byte alignment.
 static const size_t kPathAlignment  = 4u;
 
-bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkGlyphCache* cache) {
+bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkStrike* cache) {
     uint64_t pathSize = 0u;
     if (!deserializer->read<uint64_t>(&pathSize)) return false;
 
@@ -529,12 +529,12 @@ void SkStrikeServer::SkGlyphCacheState::setFontAndEffects(
 }
 
 SkVector SkStrikeServer::SkGlyphCacheState::rounding() const {
-    return SkGlyphCacheCommon::PixelRounding(fIsSubpixel, fAxisAlignmentForHText);
+    return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignmentForHText);
 }
 
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::getGlyphMetrics(
         SkGlyphID glyphID, SkPoint position) {
-    SkIPoint lookupPoint = SkGlyphCacheCommon::SubpixelLookup(fAxisAlignmentForHText, position);
+    SkIPoint lookupPoint = SkStrikeCommon::SubpixelLookup(fAxisAlignmentForHText, position);
     SkPackedGlyphID packedGlyphID = fIsSubpixel ? SkPackedGlyphID{glyphID, lookupPoint}
                                                 : SkPackedGlyphID{glyphID};
 

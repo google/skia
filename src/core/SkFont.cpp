@@ -7,10 +7,10 @@
 
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkScalerContext.h"
+#include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "SkTo.h"
 #include "SkTLazy.h"
@@ -396,7 +396,7 @@ void VisitGlyphs(const SkFont& origFont, const SkPaint* paint, const uint16_t gl
 void SkFont::getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths[], SkRect bounds[],
                              const SkPaint* paint) const {
     VisitGlyphs(*this, paint, glyphs, count, [widths, bounds]
-                (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         for (int i = 0; i < count; ++i) {
             const SkGlyph* g;
             if (bounds) {
@@ -414,7 +414,7 @@ void SkFont::getWidthsBounds(const uint16_t glyphs[], int count, SkScalar widths
 
 void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint origin) const {
     VisitGlyphs(*this, nullptr, glyphs, count, [pos, origin]
-                      (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                      (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         SkPoint loc = origin;
         for (int i = 0; i < count; ++i) {
             pos[i] = loc;
@@ -425,7 +425,7 @@ void SkFont::getPos(const uint16_t glyphs[], int count, SkPoint pos[], SkPoint o
 
 void SkFont::getXPos(const uint16_t glyphs[], int count, SkScalar xpos[], SkScalar origin) const {
     VisitGlyphs(*this, nullptr, glyphs, count, [xpos, origin]
-                      (SkGlyphCache* cache, const uint16_t glyphs[], int count, SkScalar scale) {
+                      (SkStrike* cache, const uint16_t glyphs[], int count, SkScalar scale) {
         SkScalar x = origin;
         for (int i = 0; i < count; ++i) {
             xpos[i] = x;

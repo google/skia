@@ -13,7 +13,6 @@
 #include "GrStyle.h"
 #include "GrTextTarget.h"
 #include "SkColorFilter.h"
-#include "SkGlyphCache.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
 #include "SkTextToPathIter.h"

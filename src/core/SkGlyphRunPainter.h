@@ -19,16 +19,16 @@ class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
 
-class SkGlyphCacheInterface {
+class SkStrikeInterface {
 public:
-    virtual ~SkGlyphCacheInterface() = default;
+    virtual ~SkStrikeInterface() = default;
     virtual SkVector rounding() const = 0;
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool hasImage(const SkGlyph& glyph) = 0;
     virtual bool hasPath(const SkGlyph& glyph) = 0;
 };
 
-class SkGlyphCacheCommon {
+class SkStrikeCommon {
 public:
     static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment);
 
@@ -80,7 +80,7 @@ public:
 
     template <typename EmptiesT, typename MasksT, typename PathsT>
     void drawGlyphRunAsBMPWithPathFallback(
-            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
 
@@ -103,13 +103,13 @@ public:
     // fallback glyphIDs and positions to fallbackARGB.
     template <typename PerEmptyT, typename PerPath>
     void drawGlyphRunAsPathWithARGBFallback(
-            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar textScale,
             PerEmptyT&& perEmpty, PerPath&& perPath, ARGBFallback&& fallbackARGB);
 
     template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
     void drawGlyphRunAsSDFWithARGBFallback(
-            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textRatio,
             PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& perFallback);
 

@@ -28,7 +28,6 @@
 #include "SkEndian.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGeometry.h"
-#include "SkGlyphCache.h"
 #include "SkHRESULT.h"
 #include "SkIStream.h"
 #include "SkImage.h"
