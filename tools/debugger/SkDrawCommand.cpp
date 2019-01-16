@@ -1980,6 +1980,18 @@ Json::Value SkDrawRectCommand::toJSON(UrlDataManager& urlDataManager) const {
     return result;
 }
 
+SkDrawEdgeAARectCommand::SkDrawEdgeAARectCommand(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                                 const SkPaint& paint)
+    : INHERITED(kDrawEdgeAARect_OpType) {
+    fRect = rect;
+    fAA = aa;
+    fPaint = paint;
+}
+
+void SkDrawEdgeAARectCommand::execute(SkCanvas* canvas) const {
+    canvas->experimental_DrawEdgeAARectV1(fRect, fAA, fPaint);
+}
+
 SkDrawRRectCommand::SkDrawRRectCommand(const SkRRect& rrect, const SkPaint& paint)
     : INHERITED(kDrawRRect_OpType) {
     fRRect = rrect;

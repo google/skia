@@ -162,6 +162,14 @@ void SkNWayCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkNWayCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                    const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->experimental_DrawEdgeAARectV1(rect, aa, paint);
+    }
+}
+
 void SkNWayCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

@@ -855,6 +855,37 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
             viewMatrix, croppedRect, croppedLocalRect));
 }
 
+void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa,
+                                               GrQuadAAFlags edgeAA, const SkMatrix& viewMatrix,
+                                               const SkRect& rect) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithEdgeAA", fContext);
+
+
+    if (aa == GrAA::kNo || edgeAA == GrQuadAAFlags::kNone || edgeAA == GrQuadAAFlags::kAll) {
+        // This is equivalent to a regular filled rect draw, so route through there to take
+        // advantage of draw->clear optimizations
+        if (edgeAA == GrQuadAAFlags::kNone) {
+            aa = GrAA::kNo; // Must turn off aa here since this path drops edgeAA info early
+        }
+        // TODO(michaelludwig): Drop nullptr after clean up lands to drawFilledRect
+        SkAssertResult(this->drawFilledRect(clip, std::move(paint), aa, viewMatrix, rect, nullptr));
+        return;
+    }
+
+    SkRect croppedRect = rect;
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
+        return;
+    }
+
+    AutoCheckFlush acf(this->drawingManager());
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    this->addDrawOp(clip, GrFillRectOp::MakePerEdge(fContext, std::move(paint), aaType, edgeAA,
+                                                    viewMatrix, croppedRect));
+}
+
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, const SkPMColor4f& color,
                                         const SkRect& srcRect, const SkRect& dstRect,

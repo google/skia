@@ -151,6 +151,11 @@ void SkRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     this->append<SkRecords::DrawRect>(paint, rect);
 }
 
+void SkRecorder::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                  const SkPaint& paint) {
+    this->append<SkRecords::DrawEdgeAARect>(paint, rect, aa);
+}
+
 void SkRecorder::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     this->append<SkRecords::DrawRegion>(paint, region);
 }

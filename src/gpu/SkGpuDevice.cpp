@@ -402,6 +402,30 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
                                    this->ctm(), rect, &style);
 }
 
+void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAARect", fContext.get());
+
+    if (paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
+        paint.getPathEffect()) {
+        // Not compatible with edge AA, so ignore the flags (except to turn off aa on the paint),
+        // which is exactly what the default impl. does
+        this->INHERITED::drawEdgeAARect(r, aa, paint);
+        return;
+    }
+
+    // Use fillRectWithEdgeAA on the GrRTC
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
+                          this->ctm(), &grPaint)) {
+        return;
+    }
+
+    fRenderTargetContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint),
+                                             GrAA(paint.isAntiAlias()),
+                                             SkToGrQuadAAFlags(aa), this->ctm(), r);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {

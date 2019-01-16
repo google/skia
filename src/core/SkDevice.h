@@ -175,6 +175,10 @@ protected:
     virtual void drawDRRect(const SkRRect& outer,
                             const SkRRect& inner, const SkPaint&);
 
+    // Default impl always calls drawRect() with the provided paint, or a non-AA copy of paint if
+    // aa == kNone_QuadAAFlags.
+    virtual void drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, const SkPaint& paint);
+
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
      *  non-const pointer and modify it in place (as an optimization). Canvas

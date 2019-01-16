@@ -402,6 +402,11 @@ void SkDebugCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     addDrawCommand(new SkDrawRectCommand(rect, paint));
 }
 
+void SkDebugCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                     const SkPaint& paint) {
+    this->addDrawCommand(new SkDrawEdgeAARectCommand(rect, aa, paint));
+}
+
 void SkDebugCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawRRectCommand(rrect, paint));
 }

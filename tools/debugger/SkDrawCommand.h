@@ -51,6 +51,7 @@ public:
         kDrawPath_OpType,
         kDrawPoints_OpType,
         kDrawRect_OpType,
+        kDrawEdgeAARect_OpType,
         kDrawRRect_OpType,
         kDrawRegion_OpType,
         kDrawShadow_OpType,
@@ -538,6 +539,19 @@ public:
 
 private:
     SkRect  fRect;
+    SkPaint fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawEdgeAARectCommand : public SkDrawCommand {
+public:
+    SkDrawEdgeAARectCommand(const SkRect& rect, SkCanvas::QuadAAFlags aa, const SkPaint& paint);
+    void execute(SkCanvas* canvas) const override;
+
+private:
+    SkRect  fRect;
+    SkCanvas::QuadAAFlags fAA;
     SkPaint fPaint;
 
     typedef SkDrawCommand INHERITED;

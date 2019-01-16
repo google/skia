@@ -64,6 +64,14 @@ void SkPaintFilterCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkPaintFilterCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                           const SkPaint& paint) {
+    AutoPaintFilter apf(this, kRect_Type, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawEdgeAARect(rect, aa, *apf.paint());
+    }
+}
+
 void SkPaintFilterCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     AutoPaintFilter apf(this, kRRect_Type, paint);
     if (apf.shouldDraw()) {

@@ -66,6 +66,10 @@ void SkLiteRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
 void SkLiteRecorder::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fDL->drawRect(rect, paint);
 }
+void SkLiteRecorder::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                      const SkPaint& paint) {
+    fDL->drawEdgeAARect(rect, aa, paint);
+}
 void SkLiteRecorder::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     fDL->drawRegion(region, paint);
 }

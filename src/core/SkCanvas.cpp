@@ -1876,6 +1876,14 @@ void SkCanvas::experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int c
     this->onDrawImageSet(imageSet, cnt, filterQuality, mode);
 }
 
+void SkCanvas::experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA,
+                                           const SkPaint& paint) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    // To avoid redundant logic in our culling code and various backends, we always sort rects
+    // before passing them along.
+    this->onDrawEdgeAARect(r.makeSorted(), edgeAA, paint);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (bitmap.drawsNothing()) {
@@ -2082,6 +2090,33 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
         SkDrawIter iter(this);
         while (iter.next()) {
             iter.fDevice->drawRect(r, paint);
+        }
+    }
+}
+
+// TODO(michaelludwig) - If this experimental API sticks, should consolidate into onDrawRect somehow
+void SkCanvas::onDrawEdgeAARect(const SkRect& r, QuadAAFlags edgeAA, const SkPaint& paint) {
+    SkASSERT(r.isSorted());
+    if (paint.canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
+            return;
+        }
+    }
+
+    if (needs_autodrawlooper(this, paint)) {
+        LOOPER_BEGIN_CHECK_COMPLETE_OVERWRITE(paint, &r, false)
+
+        while (iter.next()) {
+            iter.fDevice->drawEdgeAARect(r, edgeAA, looper.paint());
+        }
+
+        LOOPER_END
+    } else if (!paint.nothingToDraw()) {
+        this->predrawNotify(&r, &paint, false);
+        SkDrawIter iter(this);
+        while (iter.next()) {
+            iter.fDevice->drawEdgeAARect(r, edgeAA, paint);
         }
     }
 }

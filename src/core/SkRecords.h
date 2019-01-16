@@ -67,6 +67,7 @@ namespace SkRecords {
     M(DrawPoints)                                                   \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
+    M(DrawEdgeAARect)                                               \
     M(DrawRegion)                                                   \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
@@ -286,6 +287,10 @@ RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect rect);
+RECORD(DrawEdgeAARect, kDraw_Tag|kHasPaint_Tag,
+       SkPaint paint;
+       SkRect rect;
+       SkCanvas::QuadAAFlags aa);
 RECORD(DrawRegion, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRegion region);

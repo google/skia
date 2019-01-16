@@ -129,6 +129,17 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
     this->drawPath(path, paint, true);
 }
 
+void SkBaseDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, const SkPaint& paint) {
+    if (aa == SkCanvas::kNone_QuadAAFlags && paint.isAntiAlias()) {
+        SkPaint nonAA = paint;
+        nonAA.setAntiAlias(false);
+        this->drawRect(r, nonAA);
+    } else {
+        // Default impl doesn't really know how to handle per-edge AA flags.
+        this->drawRect(r, paint);
+    }
+}
+
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, &this->ctm());
