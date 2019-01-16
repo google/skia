@@ -46,6 +46,7 @@ public:
     }
 
     void setIdleProc(IdleProc, void* context) override;
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,

@@ -47,6 +47,7 @@ public:
         fIdleProc = proc;
         fIdleProcContext = context;
     }
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
