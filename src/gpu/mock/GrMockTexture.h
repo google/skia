@@ -47,11 +47,15 @@ public:
     void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         fReleaseHelper = std::move(releaseHelper);
     }
+    ReleaseCtx releaseContext() const override {
+        return fReleaseHelper ? fReleaseHelper->context() : nullptr;
+    }
 
     void setIdleProc(IdleProc proc, void* context) override {
         fIdleProc = proc;
         fIdleProcContext = context;
     }
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     // constructor for subclasses

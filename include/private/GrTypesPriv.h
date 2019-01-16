@@ -1529,6 +1529,8 @@ public:
     }
     ~GrReleaseProcHelper() override { fReleaseProc(fReleaseCtx); }
 
+    ReleaseCtx context() const { return fReleaseCtx; }
+
 private:
     ReleaseProc fReleaseProc;
     ReleaseCtx  fReleaseCtx;

@@ -42,11 +42,15 @@ public:
         // on the GPU.
         fReleaseHelper = std::move(releaseHelper);
     }
+    ReleaseCtx releaseContext() const override {
+        return fReleaseHelper ? fReleaseHelper->context() : nullptr;
+    }
 
     void setIdleProc(IdleProc proc, void* context) override {
         fIdleProc = proc;
         fIdleProcContext = context;
     }
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrMtlTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
