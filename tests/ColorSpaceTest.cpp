@@ -115,7 +115,7 @@ static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, boo
 
 DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::MakeSRGB(), true);
-    test_serialize(r, SkColorSpace::MakeSRGBLinear(), true);
+    test_serialize(r, SkColorSpace::MakeSRGBLinear(), false);
 
     auto test = [&](const char* path) {
         sk_sp<SkData> data = GetResourceAsData(path);
