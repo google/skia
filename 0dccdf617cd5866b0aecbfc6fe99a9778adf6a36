@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05a9ef49_d607e7e8",
+        "filename": "gm/etc1.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-16T21:20:17Z",
+      "side": 1,
+      "message": "Just set to nullptr here ?",
+      "revId": "0dccdf617cd5866b0aecbfc6fe99a9778adf6a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
