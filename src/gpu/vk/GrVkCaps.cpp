@@ -533,9 +533,8 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    // FIXME: http://skbug.com/7733: Disable geometry shaders until Intel/Radeon GMs draw correctly.
-    // shaderCaps->fGeometryShaderSupport =
-    //         shaderCaps->fGSInvocationsSupport = features.features.geometryShader;
+    shaderCaps->fGeometryShaderSupport =
+            shaderCaps->fGSInvocationsSupport = features.features.geometryShader;
 
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 
