@@ -44,8 +44,12 @@ public:
         // Forward the release proc on to GrVkImage
         this->setResourceRelease(std::move(releaseHelper));
     }
+    GrTexture::ReleaseCtx releaseContext() const override {
+        return this->releaseHelper()->context();
+    }
 
     void setIdleProc(IdleProc, void* context) override;
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,

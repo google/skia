@@ -10,6 +10,7 @@
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrTexture.h"
 #include "SkImage_Gpu.h"
 #include "SkPromiseImageTexture.h"
 
@@ -267,11 +268,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     GrGpu* gpu = ctx->contextPriv().getGpu();
 
     GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
     GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
     GrBackendTexture backendTex3 = gpu->createTestingOnlyBackendTexture(
-            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
     REPORTER_ASSERT(reporter, backendTex1.isValid());
     REPORTER_ASSERT(reporter, backendTex2.isValid());
     REPORTER_ASSERT(reporter, backendTex3.isValid());
@@ -293,7 +294,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                             PromiseTextureChecker::Done,
                                             &promiseChecker));
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    SkImageInfo info =
+            SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
@@ -479,18 +481,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                                              expectedDoneCnt,
                                                              reporter));
 
-    // We currently expect each promise image to make and cache its own GrTexture. We will likely
-    // try to make these share in the future.
+    // The two images should share a single GrTexture by using the same key. The key is only
+    // dependent on the pixel config and the PromiseImageTexture key.
     keys = promiseChecker.uniqueKeys();
-    REPORTER_ASSERT(reporter, keys.count() == 2);
-    GrUniqueKey texKey4;
-    if (keys.count() == 2) {
+    REPORTER_ASSERT(reporter, keys.count() == 1);
+    if (keys.count() > 0) {
         REPORTER_ASSERT(reporter, texKey3 == keys[0]);
-        texKey4 = keys[1];
     }
     ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey4));
 
     // If we delete the SkPromiseImageTexture we should trigger both key removals.
     REPORTER_ASSERT(reporter,
@@ -499,7 +497,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
 
     ctx->contextPriv().getResourceCache()->purgeAsNeeded();
     REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));
-    REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey4));
     gpu->deleteTestingOnlyBackendTexture(backendTex3);
 
     // After deleting each image we should get a done call.
@@ -521,4 +518,93 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                                              true,
                                                              expectedDoneCnt,
                                                              reporter));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, reporter, ctxInfo) {
+    // Try making two promise SkImages backed by the same texture but with different configs.
+    // This will only be testable on backends where a single texture format (8bit red unorm) can
+    // be used for alpha and gray image color types.
+
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->contextPriv().getGpu();
+
+    GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kGray_8, false, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTex1.isValid());
+
+    GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTex2.isValid());
+
+    SkImageInfo info =
+            SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+
+    if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
+        gpu->deleteTestingOnlyBackendTexture(backendTex1);
+        gpu->deleteTestingOnlyBackendTexture(backendTex2);
+        return;
+    }
+    PromiseTextureChecker promiseChecker(backendTex1);
+    sk_sp<SkImage> alphaImg(SkImage_Gpu::MakePromiseTexture(
+            ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+            kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
+            PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+            PromiseTextureChecker::Done, &promiseChecker));
+    REPORTER_ASSERT(reporter, alphaImg);
+
+    sk_sp<SkImage> grayImg(SkImage_Gpu::MakePromiseTexture(
+            ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+            kBottomLeft_GrSurfaceOrigin, kGray_8_SkColorType, kOpaque_SkAlphaType, nullptr,
+            PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+            PromiseTextureChecker::Done, &promiseChecker));
+    REPORTER_ASSERT(reporter, grayImg);
+
+    canvas->drawImage(alphaImg, 0, 0);
+    canvas->drawImage(grayImg, 1, 1);
+    canvas->flush();
+    gpu->testingOnly_flushGpuAndSync();
+
+    int expectedFulfillCnt = 2;
+    int expectedReleaseCnt = 2;
+    int expectedDoneCnt = 0;
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             true,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    // Because they use different configs, each image should have created a different GrTexture
+    // and they both should still be cached.
+    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+
+    auto keys = promiseChecker.uniqueKeys();
+    REPORTER_ASSERT(reporter, keys.count() == 2);
+    for (const auto& key : keys) {
+        auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+        REPORTER_ASSERT(reporter, surf && surf->asTexture());
+        if (surf && surf->asTexture()) {
+            REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(
+                                              backendTex1, surf->asTexture()->getBackendTexture()));
+        }
+    }
+
+    // Change the backing texture, this should invalidate the keys. The cached textures should
+    // get purged after purgeAsNeeded is called.
+    promiseChecker.replaceTexture(backendTex2);
+    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+
+    for (const auto& key : keys) {
+        auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+        REPORTER_ASSERT(reporter, !surf);
+    }
+
+    gpu->deleteTestingOnlyBackendTexture(backendTex1);
+    gpu->deleteTestingOnlyBackendTexture(backendTex2);
 }

@@ -59,6 +59,7 @@ public:
         sk_sp<GrReleaseProcHelper> helper(new GrReleaseProcHelper(proc, ctx));
         this->setRelease(std::move(helper));
     }
+    virtual ReleaseCtx releaseContext() const = 0;
 
     /**
      * Installs a proc on this texture. It will be called when the texture becomes "idle". Idle is
@@ -70,6 +71,7 @@ public:
      */
     using IdleProc = void(void*);
     virtual void setIdleProc(IdleProc, void* context) = 0;
+    virtual void* idleContext() const = 0;
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
