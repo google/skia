@@ -11,10 +11,20 @@
 // operations, whereas the rounded-rect clear cannot be.
 
 #include "Benchmark.h"
+
 #include "SkCanvas.h"
+#include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkRect.h"
 #include "SkRRect.h"
+
+#include "GrRenderTargetContext.h"
+
+static sk_sp<SkShader> make_shader() {
+    static const SkPoint kPts[] = {{0, 0}, {10, 10}};
+    static const SkColor kColors[] = {SK_ColorBLUE, SK_ColorWHITE};
+    return SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2, SkShader::kClamp_TileMode);
+}
 
 class ClearBench : public Benchmark {
 public:
@@ -41,27 +51,47 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        const SkColor color = SK_ColorBLUE;
-        const SkRect partialClip = SkRect::MakeLTRB(50, 50, 400, 400);
-        const SkRRect complexClip = SkRRect::MakeRectXY(partialClip, 15, 15);
+        static const SkRect kPartialClip = SkRect::MakeLTRB(50, 50, 400, 400);
+        static const SkRRect kComplexClip = SkRRect::MakeRectXY(kPartialClip, 15, 15);
+        // Small to limit fill cost, but intersects the clips to confound batching
+        static const SkRect kInterruptRect = SkRect::MakeXYWH(200, 200, 3, 3);
 
-        // TODO (michaelludwig): Any benefit to changing the clip geometry?
+        // For the draw that sits between consecutive clears, use a shader that is simple but
+        // requires local coordinates so that Ganesh does not convert it into a solid color rect,
+        // which could then turn into a scissored-clear behind the scenes.
+        SkPaint interruptPaint;
+        interruptPaint.setShader(make_shader());
+
+        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (rtc) {
+            // Tricks the GrRenderTargetOpList into thinking it cannot reset its draw op list on
+            // a fullscreen clear. If we don't do this, fullscreen clear ops would be created and
+            // constantly discard the previous iteration's op so execution would only invoke one
+            // actual clear on the GPU (not what we want to measure).
+            rtc->setNeedsStencil();
+        }
+
         for (int i = 0; i < loops; i++) {
             canvas->save();
             switch(fType) {
                 case kPartial_ClearType:
-                    canvas->clipRect(partialClip);
+                    canvas->clipRect(kPartialClip);
                     break;
                 case kComplex_ClearType:
-                    canvas->clipRRect(complexClip);
+                    canvas->clipRRect(kComplexClip);
                     break;
                 case kFull_ClearType:
                     // Don't add any extra clipping, since it defaults to the entire "device"
                     break;
             }
 
-            canvas->clear(color);
+            // The clear we care about measuring
+            canvas->clear(SK_ColorBLUE);
             canvas->restore();
+
+            // Perform as minimal a draw as possible that intersects with the clear region in
+            // order to prevent the clear ops from being batched together.
+            canvas->drawRect(kInterruptRect, interruptPaint);
         }
     }
 
