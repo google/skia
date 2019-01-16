@@ -32,16 +32,10 @@ from cStringIO import StringIO
 #
 # url (str) - the url to the engine repo we want to use.
 # revision (str) - the git revision for the engine to get.
-# path_override (str) - the subdirectory in the engine repo we should use to
-#   find it's recipes.py entrypoint. This is here for completeness, but will
-#   essentially always be empty. It would be used if the recipes-py repo was
-#   merged as a subdirectory of some other repo and you depended on that
-#   subdirectory.
 # branch (str) - the branch to fetch for the engine as an absolute ref (e.g.
 #   refs/heads/master)
-# repo_type ("GIT"|"GITILES") - An ignored enum which will be removed soon.
 EngineDep = namedtuple('EngineDep',
-                       'url revision path_override branch repo_type')
+                       'url revision branch')
 
 
 class MalformedRecipesCfg(Exception):
@@ -86,19 +80,12 @@ def parse(repo_root, recipes_cfg_path):
         recipes_cfg_path)
 
     engine.setdefault('revision', '')
-    engine.setdefault('path_override', '')
     engine.setdefault('branch', 'refs/heads/master')
     recipes_path = pb.get('recipes_path', '')
 
     # TODO(iannucci): only support absolute refs
     if not engine['branch'].startswith('refs/'):
       engine['branch'] = 'refs/heads/' + engine['branch']
-
-    engine.setdefault('repo_type', 'GIT')
-    if engine['repo_type'] not in ('GIT', 'GITILES'):
-      raise MalformedRecipesCfg(
-        'Unsupported "repo_type" value in dependency "recipe_engine"',
-        recipes_cfg_path)
 
     recipes_path = os.path.join(
       repo_root, recipes_path.replace('/', os.path.sep))
@@ -160,28 +147,26 @@ def checkout_engine(engine_path, repo_root, recipes_cfg_path):
 
   if not engine_path:
     revision = dep.revision
-    subpath = dep.path_override
     branch = dep.branch
 
     # Ensure that we have the recipe engine cloned.
-    engine = os.path.join(recipes_path, '.recipe_deps', 'recipe_engine')
-    engine_path = os.path.join(engine, subpath)
+    engine_path = os.path.join(recipes_path, '.recipe_deps', 'recipe_engine')
 
     with open(os.devnull, 'w') as NUL:
       # Note: this logic mirrors the logic in recipe_engine/fetch.py
-      _git_check_call(['init', engine], stdout=NUL)
+      _git_check_call(['init', engine_path], stdout=NUL)
 
       try:
         _git_check_call(['rev-parse', '--verify', '%s^{commit}' % revision],
-                        cwd=engine, stdout=NUL, stderr=NUL)
+                        cwd=engine_path, stdout=NUL, stderr=NUL)
       except subprocess.CalledProcessError:
-        _git_check_call(['fetch', url, branch], cwd=engine, stdout=NUL,
+        _git_check_call(['fetch', url, branch], cwd=engine_path, stdout=NUL,
                         stderr=NUL)
 
     try:
-      _git_check_call(['diff', '--quiet', revision], cwd=engine)
+      _git_check_call(['diff', '--quiet', revision], cwd=engine_path)
     except subprocess.CalledProcessError:
-      _git_check_call(['reset', '-q', '--hard', revision], cwd=engine)
+      _git_check_call(['reset', '-q', '--hard', revision], cwd=engine_path)
 
   return engine_path
 
