@@ -38,6 +38,19 @@ Skia][1].  Here is how that process works:
         git push origin HEAD:refs/for/skqp/dev
         bin/sysopen https://review.skia.org/$(bin/gerrit-number HEAD)
 
+    (Optional) Make a SkQP APK.
+
+        tools/skqp/docker_build_universal_apk.sh
+
+    (Optional) Test the SkQP APK:
+
+        adb uninstall org.skia.skqp
+        tools/skqp/test_apk.sh LOCATION/skqp-universal-debug.apk
+
+    (Once changes land) Upload the SkQP APK.
+
+        tools/skqp/upload_apk LOCATION/skqp-universal-debug.apk
+
 
 `tools/skqp/cut_release`
 ------------------------
