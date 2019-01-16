@@ -70,6 +70,24 @@
       "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c56bf5f2_51fb35ad",
+        "filename": "DEPS",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-16T14:19:17Z",
+      "side": 1,
+      "message": "I suspect that, for whatever reason, the directory name needs to be src.\nAbandoning this for now because of https://bugs.chromium.org/p/skia/issues/detail?id\u003d8681#c4",
+      "parentUuid": "237c5983_a860eab4",
+      "revId": "56407f9b685213ba2fce5df296e437f9d3e6f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
