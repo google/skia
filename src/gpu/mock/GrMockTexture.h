@@ -52,6 +52,7 @@ public:
         fIdleProc = proc;
         fIdleProcContext = context;
     }
+    void* idleContext() const override { return fIdleProcContext; }
 
 protected:
     // constructor for subclasses

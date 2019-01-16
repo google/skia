@@ -86,6 +86,7 @@ public:
         fIdleProc = proc;
         fIdleProcContext = context;
     }
+    void* idleContext() const override { return fIdleProcContext; }
 
     // These functions are used to track the texture parameters associated with the texture.
     GrGpu::ResetTimestamp getCachedParamsTimestamp() const { return fParamsTimestamp; }

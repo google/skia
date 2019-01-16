@@ -27,6 +27,11 @@ SkPromiseImageTexture::~SkPromiseImageTexture() {
 void SkPromiseImageTexture::addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key) {
     SkASSERT(contextID != SK_InvalidUniqueID);
     SkASSERT(key.isValid());
+    for (const auto& msg : fMessages) {
+        if (msg.contextID() == contextID && msg.key() == key) {
+            return;
+        }
+    }
     fMessages.emplace_back(key, contextID);
 }
 
