@@ -137,6 +137,7 @@ public:
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
 protected:
+    const GrReleaseProcHelper* releaseHelper() const { return fResource->releaseHelper(); }
     void releaseImage(GrVkGpu* gpu);
     void abandonImage();
 
@@ -171,6 +172,7 @@ private:
         void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
             fReleaseHelper = std::move(releaseHelper);
         }
+        const GrReleaseProcHelper* releaseHelper() const { return fReleaseHelper.get(); }
 
         /**
          * These are used to coordinate calling the idle proc between the GrVkTexture and the
