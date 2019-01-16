@@ -20,7 +20,7 @@
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "text/GrAtlasManager.h"
-#include "text/GrGlyphCache.h"
+#include "text/GrStrikeCache.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,7 +286,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
 
     GrAtlasManager* atlasManager = target->atlasManager();
-    GrGlyphCache* glyphCache = target->glyphCache();
+    GrStrikeCache* glyphCache = target->glyphCache();
 
     GrMaskFormat maskFormat = this->maskFormat();
 

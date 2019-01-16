@@ -10,7 +10,7 @@
 
 #include "GrColor.h"
 #include "GrDrawOpAtlas.h"
-#include "GrGlyphCache.h"
+#include "GrStrikeCache.h"
 #include "GrTextTarget.h"
 #include "text/GrTextContext.h"
 #include "SkDescriptor.h"
@@ -55,7 +55,7 @@ public:
 
     class VertexRegenerator;
 
-    void generateFromGlyphRunList(GrGlyphCache* glyphCache,
+    void generateFromGlyphRunList(GrStrikeCache* glyphCache,
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
@@ -571,7 +571,7 @@ public:
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob*, int runIdx, int subRunIdx,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                      GrDeferredUploadTarget*, GrGlyphCache*, GrAtlasManager*,
+                      GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*,
                       SkExclusiveStrikePtr*);
 
     struct Result {
@@ -602,7 +602,7 @@ private:
     const SkMatrix& fViewMatrix;
     GrTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
-    GrGlyphCache* fGlyphCache;
+    GrStrikeCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
     SkExclusiveStrikePtr* fLazyCache;
     Run* fRun;

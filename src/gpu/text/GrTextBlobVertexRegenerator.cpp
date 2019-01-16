@@ -121,7 +121,7 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
                                                  const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                                  GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
-                                                 GrGlyphCache* glyphCache,
+                                                 GrStrikeCache* glyphCache,
                                                  GrAtlasManager* fullAtlasManager,
                                                  SkExclusiveStrikePtr* lazyCache)
         : fResourceProvider(resourceProvider)
@@ -137,7 +137,7 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // Compute translation if any
     fSubRun->computeTranslation(fViewMatrix, x, y, &fTransX, &fTransY);
 
-    // Because the GrGlyphCache may evict the strike a blob depends on using for
+    // Because the GrStrikeCache may evict the strike a blob depends on using for
     // generating its texture coords, we have to track whether or not the strike has
     // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
     // otherwise we have to get the new strike, and use that to get the correct glyphs.

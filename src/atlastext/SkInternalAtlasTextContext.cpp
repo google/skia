@@ -10,7 +10,7 @@
 #include "GrContextPriv.h"
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextRenderer.h"
-#include "text/GrGlyphCache.h"
+#include "text/GrStrikeCache.h"
 
 SkAtlasTextRenderer* SkGetAtlasTextRendererFromInternalContext(
         class SkInternalAtlasTextContext& internal) {
@@ -49,7 +49,7 @@ SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     }
 }
 
-GrGlyphCache* SkInternalAtlasTextContext::glyphCache() {
+GrStrikeCache* SkInternalAtlasTextContext::glyphCache() {
     return fGrContext->contextPriv().getGlyphCache();
 }
 
