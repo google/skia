@@ -1030,7 +1030,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
             // We can't call drawBitmap, or we'll infinitely recurse. Instead
             // we manually build a shader and draw that into our new mask
             SkPaint tmpPaint;
-            tmpPaint.setFlags(paint.getFlags());
+            tmpPaint.setAntiAlias(paint.isAntiAlias());
+            tmpPaint.setDither(paint.isDither());
             tmpPaint.setFilterQuality(paint.getFilterQuality());
             SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap);
             SkRect rr;
