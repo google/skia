@@ -21,23 +21,6 @@ static constexpr skcms_Matrix3x3 gNarrow_toXYZD50 = {{
     { 0.032925f,  0.153615f,  0.638669f },
 }};
 
-static inline void to_xyz_d50(SkMatrix44* toXYZD50, SkColorSpace::Gamut gamut) {
-    switch (gamut) {
-        case SkColorSpace::kSRGB_Gamut:
-            toXYZD50->set3x3RowMajorf(&SkNamedGamut::kSRGB.vals[0][0]);
-            break;
-        case SkColorSpace::kAdobeRGB_Gamut:
-            toXYZD50->set3x3RowMajorf(&SkNamedGamut::kAdobeRGB.vals[0][0]);
-            break;
-        case SkColorSpace::kDCIP3_D65_Gamut:
-            toXYZD50->set3x3RowMajorf(&SkNamedGamut::kDCIP3.vals[0][0]);
-            break;
-        case SkColorSpace::kRec2020_Gamut:
-            toXYZD50->set3x3RowMajorf(&SkNamedGamut::kRec2020.vals[0][0]);
-            break;
-    }
-}
-
 static inline bool color_space_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.01f;
 }
@@ -46,12 +29,6 @@ static inline bool color_space_almost_equal(float a, float b) {
 // in ICC format, which offers 16-bits of fractional precision.
 static inline bool transfer_fn_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
-}
-
-static inline bool is_zero_to_one(float v) {
-    // Because we allow a value just barely larger than 1, the client can use an
-    // entirely linear transfer function.
-    return (0.0f <= v) && (v <= nextafterf(1.0f, 2.0f));
 }
 
 static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
@@ -104,38 +81,38 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
     return true;
 }
 
-static inline bool is_almost_srgb(const SkColorSpaceTransferFn& coeffs) {
-    return transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.a, coeffs.fA) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.b, coeffs.fB) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.c, coeffs.fC) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.d, coeffs.fD) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.e, coeffs.fE) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.f, coeffs.fF) &&
-           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.g, coeffs.fG);
+static inline bool is_almost_srgb(const skcms_TransferFunction& coeffs) {
+    return transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.a, coeffs.a) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.b, coeffs.b) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.c, coeffs.c) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.d, coeffs.d) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.e, coeffs.e) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.f, coeffs.f) &&
+           transfer_fn_almost_equal(SkNamedTransferFn::kSRGB.g, coeffs.g);
 }
 
-static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
-    return transfer_fn_almost_equal(1.0f, coeffs.fA) &&
-           transfer_fn_almost_equal(0.0f, coeffs.fB) &&
-           transfer_fn_almost_equal(0.0f, coeffs.fE) &&
-           transfer_fn_almost_equal(2.2f, coeffs.fG) &&
-           coeffs.fD <= 0.0f;
+static inline bool is_almost_2dot2(const skcms_TransferFunction& coeffs) {
+    return transfer_fn_almost_equal(1.0f, coeffs.a) &&
+           transfer_fn_almost_equal(0.0f, coeffs.b) &&
+           transfer_fn_almost_equal(0.0f, coeffs.e) &&
+           transfer_fn_almost_equal(2.2f, coeffs.g) &&
+           coeffs.d <= 0.0f;
 }
 
-static inline bool is_almost_linear(const SkColorSpaceTransferFn& coeffs) {
+static inline bool is_almost_linear(const skcms_TransferFunction& coeffs) {
     // OutputVal = InputVal ^ 1.0f
     const bool linearExp =
-            transfer_fn_almost_equal(1.0f, coeffs.fA) &&
-            transfer_fn_almost_equal(0.0f, coeffs.fB) &&
-            transfer_fn_almost_equal(0.0f, coeffs.fE) &&
-            transfer_fn_almost_equal(1.0f, coeffs.fG) &&
-            coeffs.fD <= 0.0f;
+            transfer_fn_almost_equal(1.0f, coeffs.a) &&
+            transfer_fn_almost_equal(0.0f, coeffs.b) &&
+            transfer_fn_almost_equal(0.0f, coeffs.e) &&
+            transfer_fn_almost_equal(1.0f, coeffs.g) &&
+            coeffs.d <= 0.0f;
 
     // OutputVal = 1.0f * InputVal
     const bool linearFn =
-            transfer_fn_almost_equal(1.0f, coeffs.fC) &&
-            transfer_fn_almost_equal(0.0f, coeffs.fF) &&
-            coeffs.fD >= 1.0f;
+            transfer_fn_almost_equal(1.0f, coeffs.c) &&
+            transfer_fn_almost_equal(0.0f, coeffs.f) &&
+            coeffs.d >= 1.0f;
 
     return linearExp || linearFn;
 }
