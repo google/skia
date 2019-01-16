@@ -258,6 +258,12 @@ public:
         If encoding is kUTF8_SkTextEncoding and text contains an invalid UTF-8 sequence,
         zero is returned.
 
+        When encoding is SkTextEncoding::kUTF8, SkTextEncoding::kUTF16, or
+        SkTextEncoding::kUTF32; then each Unicode codepoint is mapped to a
+        single glyph.  This function uses the default character-to-glyph
+        mapping from the SkTypeface and maps characters not found in the
+        SkTypeface to zero.
+
         If maxGlyphCount is not sufficient to store all the glyphs, no glyphs are copied.
         The total glyph count is returned for subsequent buffer reallocation.
 
@@ -274,6 +280,8 @@ public:
 
     /** Returns glyph index for Unicode character.
 
+        If the character is not supported by the SkTypeface, returns 0.
+
         @param uni  Unicode character
         @return     glyph index
     */
@@ -282,6 +290,10 @@ public:
     }
 
     /** Returns number of glyphs represented by text.
+
+        If encoding is kUTF8_SkTextEncoding, kUTF16_SkTextEncoding, or
+        kUTF32_SkTextEncoding; then each Unicode codepoint is mapped to a
+        single glyph.
 
         @param text          character storage encoded with SkTextEncoding
         @param byteLength    length of character storage in bytes
