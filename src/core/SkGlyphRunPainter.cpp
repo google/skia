@@ -683,7 +683,7 @@ void GrTextBlob::Run::appendSourceSpaceGlyph(const sk_sp<GrTextStrike>& strike,
     }
 }
 
-void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
+void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                                           const GrShaderCaps& shaderCaps,
                                           const GrTextContext::Options& options,
                                           const SkPaint& paint,
@@ -703,7 +703,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
             auto subRun = fRun->initARGBFallback();
             SkExclusiveStrikePtr fallbackCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     fallbackFont, fallbackPaint, fProps, fScalerContextFlags, glyphCacheMatrix);
-            sk_sp<GrTextStrike> strike = fGlyphCache->getStrike(fallbackCache.get());
+            sk_sp<GrTextStrike> strike = fGrStrikeCache->getStrike(fallbackCache.get());
             fRun->setupFont(fallbackPaint, fallbackFont, fallbackCache->getDescriptor());
 
             SkASSERT(strike != nullptr);
@@ -726,7 +726,7 @@ void GrTextBlob::generateFromGlyphRunList(GrGlyphCache* glyphCache,
         GrTextBlob::Run* fRun;
         const SkSurfaceProps& fProps;
         const SkScalerContextFlags fScalerContextFlags;
-        GrGlyphCache* const fGlyphCache;
+        GrStrikeCache* const fGrStrikeCache;
     };
 
     SkPoint origin = glyphRunList.origin();
@@ -961,7 +961,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
 
     // Glyphs which are too large for the atlas still request images when computing the bounds
     // for the glyph, which is why its necessary to send both. See related code in
-    // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
+    // get_packed_glyph_bounds in GrStrikeCache.cpp and crbug.com/510931.
     auto processPaths = [glyphCacheState]
                    (SkSpan<const SkGlyphRunListPainter::GlyphAndPos> paths) {
         for (const auto& path : paths) {

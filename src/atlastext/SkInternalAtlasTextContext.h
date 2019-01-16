@@ -14,7 +14,7 @@
 #include "SkRefCnt.h"
 
 class GrContext;
-class GrGlyphCache;
+class GrStrikeCache;
 class GrTextBlobCache;
 
 class SkAtlasTextRenderer;
@@ -33,7 +33,7 @@ public:
     SkAtlasTextRenderer* renderer() const { return fRenderer.get(); }
 
     GrContext* grContext() const { return fGrContext.get(); }
-    GrGlyphCache* glyphCache();
+    GrStrikeCache* glyphCache();
     GrTextBlobCache* textBlobCache();
 
     const GrTokenTracker* tokenTracker() final { return &fTokenTracker; }

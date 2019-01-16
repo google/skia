@@ -139,7 +139,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                                options.fSortRenderTargets,
                                                options.fReduceOpListSplitting));
 
-    fGlyphCache = new GrGlyphCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
+    fGlyphCache = new GrStrikeCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID()));

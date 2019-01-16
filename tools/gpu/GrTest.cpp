@@ -29,7 +29,7 @@
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "ccpr/GrCCPathCache.h"
 #include "ops/GrMeshDrawOp.h"
-#include "text/GrGlyphCache.h"
+#include "text/GrStrikeCache.h"
 #include "text/GrTextBlobCache.h"
 
 #include <algorithm>

@@ -16,7 +16,7 @@
 
 class GrAtlasManager;
 class GrCaps;
-class GrGlyphCache;
+class GrStrikeCache;
 class GrOpFlushState;
 
 /**
@@ -190,7 +190,7 @@ public:
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
 
-    virtual GrGlyphCache* glyphCache() const = 0;
+    virtual GrStrikeCache* glyphCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
 
     virtual const GrCaps& caps() const = 0;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrGlyphCache.h"
+#include "GrStrikeCache.h"
 #include "GrAtlasManager.h"
 #include "GrCaps.h"
 #include "GrColor.h"
@@ -14,12 +14,12 @@
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 
-GrGlyphCache::GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes)
+GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
         , f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8)) { }
 
-GrGlyphCache::~GrGlyphCache() {
+GrStrikeCache::~GrStrikeCache() {
     StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
@@ -28,7 +28,7 @@ GrGlyphCache::~GrGlyphCache() {
     }
 }
 
-void GrGlyphCache::freeAll() {
+void GrStrikeCache::freeAll() {
     StrikeHash::Iter iter(&fCache);
     while (!iter.done()) {
         (*iter).fIsAbandoned = true;
@@ -38,8 +38,8 @@ void GrGlyphCache::freeAll() {
     fCache.rewind();
 }
 
-void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
-    GrGlyphCache* glyphCache = reinterpret_cast<GrGlyphCache*>(ptr);
+void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
+    GrStrikeCache* glyphCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
     StrikeHash::Iter iter(&glyphCache->fCache);
     for (; !iter.done(); ++iter) {
@@ -193,7 +193,7 @@ void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrResourceProvider* resourceProvider,
                                    GrDeferredUploadTarget* target,
-                                   GrGlyphCache* glyphCache,
+                                   GrStrikeCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
                                    SkStrike* cache,

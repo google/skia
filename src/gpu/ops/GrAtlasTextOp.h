@@ -11,7 +11,6 @@
 #include "ops/GrMeshDrawOp.h"
 #include "text/GrTextBlob.h"
 #include "text/GrDistanceFieldAdjustTable.h"
-#include "text/GrGlyphCache.h"
 
 class SkAtlasTextTarget;
 class GrContext;
