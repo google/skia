@@ -85,10 +85,12 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
     }
     if (kEntirePaint_Bits == bits) {
         // we've already computed these, so save it from the assignment
-        uint32_t f = dst->getFlags();
+        bool aa = dst->isAntiAlias();
+        bool di = dst->isDither();
         SkColor4f c = dst->getColor4f();
         *dst = src;
-        dst->setFlags(f);
+        dst->setAntiAlias(aa);
+        dst->setDither(di);
         dst->setColor4f(c, sk_srgb_singleton());
         return;
     }
