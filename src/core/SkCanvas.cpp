@@ -15,7 +15,6 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkDrawLooper.h"
-#include "SkGlyphCache.h"
 #include "SkGlyphRun.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"

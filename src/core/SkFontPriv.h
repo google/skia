@@ -13,7 +13,7 @@
 #include "SkTypeface.h"
 
 class SkGlyph;
-class SkGlyphCache;
+class SkStrike;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -47,7 +47,7 @@ public:
         return font.getTypeface() ? font.refTypeface() : SkTypeface::MakeDefault();
     }
 
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
+    typedef const SkGlyph& (*GlyphCacheProc)(SkStrike*, const char**, const char*);
 
     static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);
 

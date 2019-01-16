@@ -27,7 +27,7 @@
 class Serializer;
 enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
-class SkGlyphCache;
+class SkStrike;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkStrikeCache;
@@ -87,7 +87,7 @@ using SkDiscardableHandleId = uint32_t;
 // This class is not thread-safe.
 class SK_API SkStrikeServer {
 public:
-    // An interface used by the server to create handles for pinning SkGlyphCache
+    // An interface used by the server to create handles for pinning SkStrike
     // entries on the remote client.
     class SK_API DiscardableHandleManager {
     public:

@@ -84,7 +84,7 @@ public:
      *  @param glyphID   Specify which section of a large font is of interest.
      */
     static SkPDFFont* GetFontResource(SkPDFDocument* doc,
-                                      SkGlyphCache* cache,
+                                      SkStrike* cache,
                                       SkTypeface* typeface,
                                       SkGlyphID glyphID);
 

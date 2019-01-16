@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkGlyphCache.h"
+#include "SkStrike.h"
 
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
@@ -22,7 +22,7 @@ size_t compute_path_size(const SkPath& path) {
 }
 }  // namespace
 
-SkGlyphCache::SkGlyphCache(
+SkStrike::SkStrike(
     const SkDescriptor& desc,
     std::unique_ptr<SkScalerContext> scaler,
     const SkFontMetrics& fontMetrics)
@@ -36,11 +36,11 @@ SkGlyphCache::SkGlyphCache(
     fMemoryUsed = sizeof(*this);
 }
 
-const SkDescriptor& SkGlyphCache::getDescriptor() const {
+const SkDescriptor& SkStrike::getDescriptor() const {
     return *fDesc.getDesc();
 }
 
-SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
+SkStrike::CharGlyphRec* SkStrike::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
     if (!fPackedUnicharIDToPackedGlyphID) {
         fPackedUnicharIDToPackedGlyphID.reset(new CharGlyphRec[kHashCount]);
     }
@@ -54,7 +54,7 @@ SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(SkPackedUnicharID pack
 #define VALIDATE()
 #endif
 
-SkGlyphID SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
+SkGlyphID SkStrike::unicharToGlyph(SkUnichar charCode) {
     VALIDATE();
     SkPackedUnicharID packedUnicharID(charCode);
     CharGlyphRec* rec = this->getCharGlyphRec(packedUnicharID);
@@ -71,64 +71,64 @@ SkGlyphID SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     }
 }
 
-unsigned SkGlyphCache::getGlyphCount() const {
+unsigned SkStrike::getGlyphCount() const {
     return fScalerContext->getGlyphCount();
 }
 
-int SkGlyphCache::countCachedGlyphs() const {
+int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
 
-bool SkGlyphCache::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
+bool SkStrike::isGlyphCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
     SkPackedGlyphID packedGlyphID{glyphID, x, y};
     return fGlyphMap.find(packedGlyphID) != nullptr;
 }
 
-SkGlyph* SkGlyphCache::getRawGlyphByID(SkPackedGlyphID id) {
+SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
     return lookupByPackedGlyphID(id, kNothing_MetricsType);
 }
 
-const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
+const SkGlyph& SkStrike::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
     return *this->lookupByChar(charCode, kJustAdvance_MetricsType);
 }
 
-const SkGlyph& SkGlyphCache::getGlyphIDAdvance(uint16_t glyphID) {
+const SkGlyph& SkStrike::getGlyphIDAdvance(uint16_t glyphID) {
     VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID);
     return *this->lookupByPackedGlyphID(packedGlyphID, kJustAdvance_MetricsType);
 }
 
-const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode) {
+const SkGlyph& SkStrike::getUnicharMetrics(SkUnichar charCode) {
     VALIDATE();
     return *this->lookupByChar(charCode, kFull_MetricsType);
 }
 
-const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode, SkFixed x, SkFixed y) {
+const SkGlyph& SkStrike::getUnicharMetrics(SkUnichar charCode, SkFixed x, SkFixed y) {
     VALIDATE();
     return *this->lookupByChar(charCode, kFull_MetricsType, x, y);
 }
 
-const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID) {
+const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
     VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID);
     return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
-const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
+const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID, SkFixed x, SkFixed y) {
     VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID, x, y);
     return *this->lookupByPackedGlyphID(packedGlyphID, kFull_MetricsType);
 }
 
-void SkGlyphCache::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
+void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[]) {
     for (auto glyphID : glyphIDs) {
         auto glyph = this->getGlyphIDAdvance(glyphID);
         *advances++ = SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
     }
 }
 
-SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
+SkGlyph* SkStrike::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
     SkPackedUnicharID id(charCode, x, y);
     CharGlyphRec* rec = this->getCharGlyphRec(id);
     if (rec->fPackedUnicharID != id) {
@@ -138,7 +138,7 @@ SkGlyph* SkGlyphCache::lookupByChar(SkUnichar charCode, MetricsType type, SkFixe
     return this->lookupByPackedGlyphID(rec->fPackedGlyphID, type);
 }
 
-SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
+SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
     SkGlyph* glyphPtr = fGlyphMap.findOrNull(packedGlyphID);
 
     if (nullptr == glyphPtr) {
@@ -152,7 +152,7 @@ SkGlyph* SkGlyphCache::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, Metr
     return glyphPtr;
 }
 
-SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType mtype) {
+SkGlyph* SkStrike::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsType mtype) {
     fMemoryUsed += sizeof(SkGlyph);
 
     SkGlyph* glyphPtr = fAlloc.make<SkGlyph>(packedGlyphID);
@@ -171,7 +171,7 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
     return glyphPtr;
 }
 
-const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
+const void* SkStrike::findImage(const SkGlyph& glyph) {
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (nullptr == glyph.fImage) {
             SkDEBUGCODE(SkMask::Format oldFormat = (SkMask::Format)glyph.fMaskFormat);
@@ -191,7 +191,7 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     return glyph.fImage;
 }
 
-void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
+void SkStrike::initializeImage(const volatile void* data, size_t size, SkGlyph* glyph) {
     // Don't overwrite the image if we already have one. We could have used a fallback if the
     // glyph was missing earlier.
     if (glyph->fImage) return;
@@ -207,7 +207,7 @@ void SkGlyphCache::initializeImage(const volatile void* data, size_t size, SkGly
     }
 }
 
-const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
+const SkPath* SkStrike::findPath(const SkGlyph& glyph) {
 
     if (!glyph.isEmpty()) {
         // If the path already exists, return it.
@@ -229,7 +229,7 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
     return nullptr;
 }
 
-bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
+bool SkStrike::initializePath(SkGlyph* glyph, const volatile void* data, size_t size) {
     // Don't overwrite the path if we already have one. We could have used a fallback if the
     // glyph was missing earlier.
     if (glyph->fPathData) return true;
@@ -248,11 +248,11 @@ bool SkGlyphCache::initializePath(SkGlyph* glyph, const volatile void* data, siz
     return true;
 }
 
-bool SkGlyphCache::belongsToCache(const SkGlyph* glyph) const {
+bool SkStrike::belongsToCache(const SkGlyph* glyph) const {
     return glyph && fGlyphMap.findOrNull(glyph->getPackedID()) == glyph;
 }
 
-const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,
+const SkGlyph* SkStrike::getCachedGlyphAnySubPix(SkGlyphID glyphID,
                                                      SkPackedGlyphID vetoID) const {
     for (SkFixed subY = 0; subY < SK_Fixed1; subY += SK_FixedQuarter) {
         for (SkFixed subX = 0; subX < SK_Fixed1; subX += SK_FixedQuarter) {
@@ -267,19 +267,19 @@ const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,
     return nullptr;
 }
 
-void SkGlyphCache::initializeGlyphFromFallback(SkGlyph* glyph, const SkGlyph& fallback) {
+void SkStrike::initializeGlyphFromFallback(SkGlyph* glyph, const SkGlyph& fallback) {
     fMemoryUsed += glyph->copyImageData(fallback, &fAlloc);
 }
 
-SkVector SkGlyphCache::rounding() const {
-    return SkGlyphCacheCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
+SkVector SkStrike::rounding() const {
+    return SkStrikeCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
 }
 
-const SkGlyph& SkGlyphCache::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
+const SkGlyph& SkStrike::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
     if (!fIsSubpixel) {
         return this->getGlyphIDMetrics(glyphID);
     } else {
-        SkIPoint lookupPosition = SkGlyphCacheCommon::SubpixelLookup(fAxisAlignment, position);
+        SkIPoint lookupPosition = SkStrikeCommon::SubpixelLookup(fAxisAlignment, position);
 
         return this->getGlyphIDMetrics(glyphID, lookupPosition.x(), lookupPosition.y());
     }
@@ -306,7 +306,7 @@ static bool cubic_in_bounds(const SkScalar* pts, const SkScalar bounds[2]) {
     return bounds[0] < max;
 }
 
-void SkGlyphCache::OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
+void SkStrike::OffsetResults(const SkGlyph::Intercept* intercept, SkScalar scale,
                                  SkScalar xPos, SkScalar* array, int* count) {
     if (array) {
         array += *count;
@@ -317,12 +317,12 @@ void SkGlyphCache::OffsetResults(const SkGlyph::Intercept* intercept, SkScalar s
     *count += 2;
 }
 
-void SkGlyphCache::AddInterval(SkScalar val, SkGlyph::Intercept* intercept) {
+void SkStrike::AddInterval(SkScalar val, SkGlyph::Intercept* intercept) {
     intercept->fInterval[0] = SkTMin(intercept->fInterval[0], val);
     intercept->fInterval[1] = SkTMax(intercept->fInterval[1], val);
 }
 
-void SkGlyphCache::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2],
+void SkStrike::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bounds[2],
         bool yAxis, SkGlyph::Intercept* intercept) {
     for (int i = 0; i < ptCount; ++i) {
         SkScalar val = *(&pts[i].fY - yAxis);
@@ -332,7 +332,7 @@ void SkGlyphCache::AddPoints(const SkPoint* pts, int ptCount, const SkScalar bou
     }
 }
 
-void SkGlyphCache::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
+void SkStrike::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
                            SkGlyph::Intercept* intercept) {
     SkScalar t = yAxis ? sk_ieee_float_divide(axis - pts[0].fX, pts[1].fX - pts[0].fX)
                        : sk_ieee_float_divide(axis - pts[0].fY, pts[1].fY - pts[0].fY);
@@ -342,7 +342,7 @@ void SkGlyphCache::AddLine(const SkPoint pts[2], SkScalar axis, bool yAxis,
     }
 }
 
-void SkGlyphCache::AddQuad(const SkPoint pts[3], SkScalar axis, bool yAxis,
+void SkStrike::AddQuad(const SkPoint pts[3], SkScalar axis, bool yAxis,
                      SkGlyph::Intercept* intercept) {
     SkDQuad quad;
     quad.set(pts);
@@ -355,7 +355,7 @@ void SkGlyphCache::AddQuad(const SkPoint pts[3], SkScalar axis, bool yAxis,
     }
 }
 
-void SkGlyphCache::AddCubic(const SkPoint pts[4], SkScalar axis, bool yAxis,
+void SkStrike::AddCubic(const SkPoint pts[4], SkScalar axis, bool yAxis,
                       SkGlyph::Intercept* intercept) {
     SkDCubic cubic;
     cubic.set(pts);
@@ -368,7 +368,7 @@ void SkGlyphCache::AddCubic(const SkPoint pts[4], SkScalar axis, bool yAxis,
     }
 }
 
-const SkGlyph::Intercept* SkGlyphCache::MatchBounds(const SkGlyph* glyph,
+const SkGlyph::Intercept* SkStrike::MatchBounds(const SkGlyph* glyph,
                                                     const SkScalar bounds[2]) {
     if (!glyph->fPathData) {
         return nullptr;
@@ -383,7 +383,7 @@ const SkGlyph::Intercept* SkGlyphCache::MatchBounds(const SkGlyph* glyph,
     return nullptr;
 }
 
-void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
+void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
         bool yAxis, SkGlyph* glyph, SkScalar* array, int* count) {
     const SkGlyph::Intercept* match = MatchBounds(glyph, bounds);
 
@@ -452,7 +452,7 @@ void SkGlyphCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkSc
     OffsetResults(intercept, scale, xPos, array, count);
 }
 
-void SkGlyphCache::dump() const {
+void SkStrike::dump() const {
     const SkTypeface* face = fScalerContext->getTypeface();
     const SkScalerContextRec& rec = fScalerContext->getRec();
     SkMatrix matrix;
@@ -469,16 +469,16 @@ void SkGlyphCache::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
-bool SkGlyphCache::hasImage(const SkGlyph& glyph) {
+bool SkStrike::hasImage(const SkGlyph& glyph) {
     return !glyph.isEmpty() && this->findImage(glyph) != nullptr;
 }
 
-bool SkGlyphCache::hasPath(const SkGlyph& glyph) {
+bool SkStrike::hasPath(const SkGlyph& glyph) {
     return !glyph.isEmpty() && this->findPath(glyph) != nullptr;
 }
 
 #ifdef SK_DEBUG
-void SkGlyphCache::forceValidate() const {
+void SkStrike::forceValidate() const {
     size_t memoryUsed = sizeof(*this);
     fGlyphMap.foreach ([&memoryUsed](const SkGlyph* glyphPtr) {
         memoryUsed += sizeof(SkGlyph);
@@ -492,7 +492,7 @@ void SkGlyphCache::forceValidate() const {
     SkASSERT(fMemoryUsed == memoryUsed);
 }
 
-void SkGlyphCache::validate() const {
+void SkStrike::validate() const {
 #ifdef SK_DEBUG_GLYPH_CACHE
     forceValidate();
 #endif

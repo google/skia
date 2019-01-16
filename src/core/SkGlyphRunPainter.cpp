@@ -20,19 +20,19 @@
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkFontPriv.h"
-#include "SkGlyphCache.h"
 #include "SkMaskFilter.h"
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkRemoteGlyphCacheImpl.h"
+#include "SkStrike.h"
 #include "SkStrikeCache.h"
 #include "SkTDArray.h"
 #include "SkTraceEvent.h"
 
 // -- SkGlyphCacheCommon ---------------------------------------------------------------------------
 
-SkVector SkGlyphCacheCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
+SkVector SkStrikeCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
     if (!isSubpixel) {
         return {SK_ScalarHalf, SK_ScalarHalf};
     } else {
@@ -51,7 +51,7 @@ SkVector SkGlyphCacheCommon::PixelRounding(bool isSubpixel, SkAxisAlignment axis
     return {0, 0};
 }
 
-SkIPoint SkGlyphCacheCommon::SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position) {
+SkIPoint SkStrikeCommon::SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position) {
     // TODO: SkScalarFraction uses truncf to calculate the fraction. This should be floorf.
     SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.x())),
             lookupY = SkScalarToFixed(SkScalarFraction(position.y()));
@@ -66,7 +66,7 @@ SkIPoint SkGlyphCacheCommon::SubpixelLookup(SkAxisAlignment axisAlignment, SkPoi
     return {lookupX, lookupY};
 }
 
-bool SkGlyphCacheCommon::GlyphTooBigForAtlas(const SkGlyph& glyph) {
+bool SkStrikeCommon::GlyphTooBigForAtlas(const SkGlyph& glyph) {
     return glyph.fWidth > kSkSideTooBigForAtlas || glyph.fHeight > kSkSideTooBigForAtlas;
 }
 
@@ -296,7 +296,7 @@ void SkGlyphRunListPainter::processARGBFallback(
         // then this case is used.
 
         // Subtract 2 to account for the bilerp pad around the glyph
-        SkScalar maxAtlasDimension = SkGlyphCacheCommon::kSkSideTooBigForAtlas - 2;
+        SkScalar maxAtlasDimension = SkStrikeCommon::kSkSideTooBigForAtlas - 2;
 
         SkScalar runFontTextSize = runFont.getSize();
 
@@ -333,7 +333,7 @@ void SkGlyphRunListPainter::processARGBFallback(
 // will not be the same cache (which would cause two separate caches to be created).
 template <typename PerEmptyT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
-        SkGlyphCacheInterface* pathCache, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* pathCache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
@@ -370,7 +370,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
 
 template <typename EmptiesT, typename MasksT, typename PathsT>
 void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
-        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
@@ -398,7 +398,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
             const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
             if (glyph.isEmpty()) {
                 emptyGlyphs.push_back(&glyph);
-            } else if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+            } else if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
                 if (cache->hasPath(glyph)) {
                     fPaths.push_back({&glyph, mappedPt});
                 } else {
@@ -431,7 +431,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
 
 template <typename PerEmptyT, typename PerSDFT, typename PerPathT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
-        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+        SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkPaint& runPaint, const SkMatrix& viewMatrix, SkScalar textScale,
         PerEmptyT&& perEmpty, PerSDFT&& perSDF, PerPathT&& perPath, ARGBFallback&& argbFallback) {
     fARGBGlyphsIDs.clear();
@@ -445,7 +445,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithARGBFallback(
         if (glyph.isEmpty()) {
             perEmpty(glyph, glyphPos);
         } else if (glyph.fMaskFormat == SkMask::kSDF_Format) {
-            if (!SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
+            if (!SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
                 // TODO: this check is probably not needed. Remove when proven.
                 if (cache->hasImage(glyph)) {
                     perSDF(glyph, glyphPos);
