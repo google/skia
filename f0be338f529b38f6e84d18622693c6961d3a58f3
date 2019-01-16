@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35dd4ac5_ba15bef6",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-16T17:09:52Z",
+      "side": 1,
+      "message": ":-O",
+      "range": {
+        "startLine": 182,
+        "startChar": 46,
+        "endLine": 182,
+        "endChar": 56
+      },
+      "revId": "f0be338f529b38f6e84d18622693c6961d3a58f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
