@@ -14,7 +14,6 @@ flutter_defines = [
   "SK_DISABLE_DAA",
 
   # API staging
-  "SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS",
 
   # Flutter doesn't deserialize anything.
   "SK_DISABLE_READBUFFER",
