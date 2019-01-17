@@ -22,6 +22,30 @@
       "revId": "d357759f0862aa94e778fbad68c1bcba2c24dd92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1217101_a678fe65",
+        "filename": "modules/skottie/src/SkottieAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-17T16:35:46Z",
+      "side": 1,
+      "message": "Good idea, it should simplify a few things.  I\u0027ll do that in a follow-up.",
+      "parentUuid": "033ff9cc_b4d87e05",
+      "range": {
+        "startLine": 290,
+        "startChar": 13,
+        "endLine": 290,
+        "endChar": 23
+      },
+      "revId": "d357759f0862aa94e778fbad68c1bcba2c24dd92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
