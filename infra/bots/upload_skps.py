@@ -41,7 +41,13 @@ def main(target_dir):
                              commit_queue=True):
       upload_script = os.path.join(
           os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
-      subprocess.check_call(['python', upload_script, '-t', target_dir])
+      upload_cmd = ['python', upload_script, '-t', target_dir]
+      if args.chromium_path:
+        chromium_revision = (
+            subprocess.check_output(['git', 'rev-parse', 'HEAD']).rstrip())
+        upload_cmd.extend([
+            '--extra_tags', 'chromium_revision:%s' % chromium_revision])
+      subprocess.check_call(upload_cmd)
       subprocess.check_call(['go', 'run', gen_tasks])
       subprocess.check_call([
           'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
@@ -50,5 +56,6 @@ def main(target_dir):
 if '__main__' == __name__:
   parser = argparse.ArgumentParser()
   parser.add_argument("--target_dir")
+  parser.add_argument("--chromium_path")
   args = parser.parse_args()
   main(args.target_dir)
