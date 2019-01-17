@@ -27,7 +27,3 @@ skia_opts = {
   avx_sources = avx
   hsw_sources = hsw
 }
-
-# Skia Chromium defines. These flags will be defined in chromium If these
-# become 'permanent', they should be moved into Chrome's skia build file.
-skia_for_chromium_defines = []
