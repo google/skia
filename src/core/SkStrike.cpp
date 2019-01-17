@@ -497,6 +497,7 @@ void SkStrike::validate() const {
     forceValidate();
 #endif
 }
+
 #endif
 
 

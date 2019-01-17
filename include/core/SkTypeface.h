@@ -350,6 +350,18 @@ public:
         return this->onGetCTFontRef();
     }
 
+    /** Style specifies the intrinsic style attributes of a given typeface */
+    enum Style {
+        kNormal = 0,
+        kBold   = 0x01,
+        kItalic = 0x02,
+
+        // helpers
+                kBoldItalic = 0x03
+    };
+
+    static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
+
 protected:
     /** uniqueID must be unique and non-zero
     */
@@ -423,17 +435,8 @@ private:
     friend class SkRandomTypeface; // getAdvancedMetrics
     friend class SkPDFFont;        // getAdvancedMetrics
 
-    /** Style specifies the intrinsic style attributes of a given typeface */
-    enum Style {
-        kNormal = 0,
-        kBold   = 0x01,
-        kItalic = 0x02,
 
-        // helpers
-        kBoldItalic = 0x03
-    };
     static SkFontStyle FromOldStyle(Style oldStyle);
-    static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
 
     friend class SkFontPriv;       // GetDefaultTypeface
     friend class SkPaintPriv;      // GetDefaultTypeface
