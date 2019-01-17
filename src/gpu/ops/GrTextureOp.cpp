@@ -40,20 +40,6 @@ using Domain = GrQuadPerEdgeAA::Domain;
 using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 using ColorType = GrQuadPerEdgeAA::ColorType;
 
-static bool filter_has_effect_for_rect_stays_rect(const GrPerspQuad& quad, const SkRect& srcRect) {
-    SkASSERT(quad.quadType() == GrQuadType::kRect);
-    float ql = quad.x(0);
-    float qt = quad.y(0);
-    float qr = quad.x(3);
-    float qb = quad.y(3);
-    // Disable filtering when there is no scaling of the src rect and the src rect and dst rect
-    // align fractionally. If we allow inverted src rects this logic needs to consider that.
-    SkASSERT(srcRect.isSorted());
-    return (qr - ql) != srcRect.width() || (qb - qt) != srcRect.height() ||
-           SkScalarFraction(ql) != SkScalarFraction(srcRect.fLeft) ||
-           SkScalarFraction(qt) != SkScalarFraction(srcRect.fTop);
-}
-
 // if normalizing the domain then pass 1/width, 1/height, 1 for iw, ih, h. Otherwise pass
 // 1, 1, and height.
 static SkRect compute_domain(Domain domain, GrSamplerState::Filter filter, GrSurfaceOrigin origin,
@@ -229,7 +215,7 @@ private:
             // Disable filtering if possible (note AA optimizations for rects are automatically
             // handled above in GrResolveAATypeForQuad).
             if (this->filter() != GrSamplerState::Filter::kNearest &&
-                !filter_has_effect_for_rect_stays_rect(quad, srcRect)) {
+                !GrTextureOp::GetFilterHasEffect(viewMatrix, srcRect, dstRect)) {
                 fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
             }
         }
@@ -291,7 +277,8 @@ private:
             }
             if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
                 mustFilter = quadType != GrQuadType::kRect ||
-                             filter_has_effect_for_rect_stays_rect(quad, set[p].fSrcRect);
+                             GrTextureOp::GetFilterHasEffect(viewMatrix, set[p].fSrcRect,
+                                                             set[p].fDstRect);
             }
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
             SkPMColor4f color{alpha, alpha, alpha, alpha};
@@ -573,6 +560,29 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     return TextureOp::Make(context, set, cnt, filter, aaType, viewMatrix,
                            std::move(textureColorSpaceXform));
+}
+
+bool GetFilterHasEffect(const SkMatrix& viewMatrix, const SkRect& srcRect, const SkRect& dstRect) {
+    // Hypothetically we could disable bilerp filtering when flipping or rotating 90 degrees, but
+    // that makes the math harder and we don't want to increase the overhead of the checks
+    if (!viewMatrix.isScaleTranslate() ||
+        viewMatrix.getScaleX() < 0.0f || viewMatrix.getScaleY() < 0.0f) {
+        return true;
+    }
+
+    // Given the matrix conditions ensured above, this computes the device space coordinates for
+    // the top left corner of dstRect and its size.
+    SkScalar dw = viewMatrix.getScaleX() * dstRect.width();
+    SkScalar dh = viewMatrix.getScaleY() * dstRect.height();
+    SkScalar dl = viewMatrix.getScaleX() * dstRect.fLeft + viewMatrix.getTranslateX();
+    SkScalar dt = viewMatrix.getScaleY() * dstRect.fTop + viewMatrix.getTranslateY();
+
+    // Disable filtering when there is no scaling of the src rect and the src rect and dst rect
+    // align fractionally. If we allow inverted src rects this logic needs to consider that.
+    SkASSERT(srcRect.isSorted());
+    return dw != srcRect.width() || dh != srcRect.height() ||
+           SkScalarFraction(dl) != SkScalarFraction(srcRect.fLeft) ||
+           SkScalarFraction(dt) != SkScalarFraction(srcRect.fTop);
 }
 
 }  // namespace GrTextureOp

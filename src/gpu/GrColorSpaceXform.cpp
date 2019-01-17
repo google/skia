@@ -171,3 +171,16 @@ std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
     return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(std::move(child),
                                                                             std::move(xform)));
 }
+
+std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> child, sk_sp<GrColorSpaceXform> colorXform) {
+    if (!child) {
+        return nullptr;
+    }
+    if (!colorXform) {
+        return child;
+    }
+
+    return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(std::move(child),
+                                                                            std::move(colorXform)));
+}

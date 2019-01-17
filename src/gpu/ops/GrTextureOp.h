@@ -46,4 +46,11 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                GrAAType,
                                const SkMatrix& viewMatrix,
                                sk_sp<GrColorSpaceXform> textureXform);
+
+/**
+ * Returns true if bilerp texture filtering matters when rendering the src rect
+ * texels to dst rect, with the given view matrix.
+ */
+bool GetFilterHasEffect(const SkMatrix& viewMatrix, const SkRect& srcRect, const SkRect& dstRect);
+
 }

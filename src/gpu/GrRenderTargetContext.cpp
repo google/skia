@@ -939,17 +939,47 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
 }
 
 void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetEntry set[], int cnt,
-                                           GrSamplerState::Filter filter,
+                                           GrSamplerState::Filter filter, SkBlendMode mode,
                                            const SkMatrix& viewMatrix,
                                            sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureSet", fContext);
+
+    AutoCheckFlush acf(this->drawingManager());
+
     GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
-    auto op =
-            GrTextureOp::Make(fContext, set, cnt, filter, aaType, viewMatrix, std::move(texXform));
-    this->addDrawOp(clip, std::move(op));
+    if (mode != SkBlendMode::kSrcOver ||
+        !fContext->contextPriv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
+        const GrXPFactory* xpFactory = SkBlendMode_AsXPFactory(mode);
+        for (int i = 0; i < cnt; ++i) {
+            GrPaint paint;
+            paint.setColor4f({set[i].fAlpha, set[i].fAlpha, set[i].fAlpha, set[i].fAlpha});
+            paint.setXPFactory(xpFactory);
+
+            // See if we can disable bilerp filtering when the src and dst rects line up
+            if (filter != GrSamplerState::Filter::kNearest &&
+                !GrTextureOp::GetFilterHasEffect(viewMatrix, set[i].fSrcRect, set[i].fDstRect)) {
+                filter = GrSamplerState::Filter::kNearest;
+            }
+
+            auto fp = GrSimpleTextureEffect::Make(set[i].fProxy, SkMatrix::I(), filter);
+            fp = GrColorSpaceXformEffect::Make(std::move(fp), texXform);
+            paint.addColorFragmentProcessor(std::move(fp));
+
+            auto op = GrFillRectOp::MakePerEdgeWithLocalRect(fContext, std::move(paint), aaType,
+                                                             set[i].fAAFlags, viewMatrix,
+                                                             set[i].fDstRect, set[i].fSrcRect);
+            this->addDrawOp(clip, std::move(op));
+        }
+    } else {
+        // Can use a single op, avoiding GrPaint creation, and can batch across proxies
+        auto op = GrTextureOp::Make(fContext, set, cnt, filter, aaType, viewMatrix,
+                                    std::move(texXform));
+        this->addDrawOp(clip, std::move(op));
+    }
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
