@@ -148,14 +148,14 @@ private:
                 canvas->experimental_DrawImageSetV1(fSet, kM * kN, fm, SkBlendMode::kSrcOver);
                 canvas->restore();
             }
-            // A more exotic case with an unusual blend mode, all aa flags set, and alpha,
+            // A more exotic case with an unusual blend mode, mixed aa flags set, and alpha,
             // subsets the image
             SkCanvas::ImageSetEntry entry;
             entry.fSrcRect = SkRect::MakeWH(kTileW, kTileH).makeInset(kTileW / 4.f, kTileH / 4.f);
             entry.fDstRect = SkRect::MakeWH(2 * kTileW, 2 * kTileH).makeOffset(d / 4, 2 * d);
             entry.fImage = fSet[0].fImage;
             entry.fAlpha = 0.7f;
-            entry.fAAFlags = SkCanvas::kAll_QuadAAFlags;
+            entry.fAAFlags = SkCanvas::kLeft_QuadAAFlag | SkCanvas::kTop_QuadAAFlag;
             canvas->save();
             canvas->rotate(3.f);
             canvas->experimental_DrawImageSetV1(&entry, 1, fm, SkBlendMode::kExclusion);
