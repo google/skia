@@ -19,7 +19,7 @@ deps = {
   "third_party/externals/jsoncpp"         : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libjpeg-turbo"   : "https://skia.googlesource.com/external/github.com/libjpeg-turbo/libjpeg-turbo.git@2.0.0",
   "third_party/externals/libpng"          : "https://skia.googlesource.com/third_party/libpng.git@v1.6.33",
-  "third_party/externals/libwebp"         : "https://chromium.googlesource.com/webm/libwebp.git@v1.0.1",
+  "third_party/externals/libwebp"         : "https://chromium.googlesource.com/webm/libwebp.git@v1.0.2-rc1",
   "third_party/externals/lua"             : "https://skia.googlesource.com/external/github.com/lua/lua.git@v5-3-4",
   "third_party/externals/microhttpd"      : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
   "third_party/externals/opencl-lib"      : "https://skia.googlesource.com/external/github.com/GPUOpen-Tools/common-lib-amd-APPSDK-3.0@4e6d30e406d2e5a65e1d65e404fe6df5f772a32b",
