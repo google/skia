@@ -99,11 +99,6 @@ public:
                                  surfaceFlags);
     }
 
-    /*
-     * Create a texture proxy with data. It's assumed that the data is packed tightly.
-     */
-    sk_sp<GrTextureProxy> createProxy(sk_sp<SkData>, const GrSurfaceDesc& desc);
-
     // These match the definitions in SkImage & GrTexture.h, for whence they came
     typedef void* ReleaseContext;
     typedef void (*ReleaseProc)(ReleaseContext);
