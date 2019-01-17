@@ -57,6 +57,10 @@ public:
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override {
         fTarget->drawRect(rect, fXformer->apply(paint));
     }
+    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                          SkBlendMode mode) override {
+        fTarget->experimental_DrawEdgeAARectV1(rect, aa, fXformer->apply(color), mode);
+    }
     void onDrawOval(const SkRect& oval, const SkPaint& paint) override {
         fTarget->drawOval(oval, fXformer->apply(paint));
     }

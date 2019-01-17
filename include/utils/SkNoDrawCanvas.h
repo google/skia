@@ -51,6 +51,7 @@ protected:
     void onDrawPaint(const SkPaint&) override {}
     void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint&) override {}
     void onDrawRect(const SkRect&, const SkPaint&) override {}
+    void onDrawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode) override {}
     void onDrawRegion(const SkRegion&, const SkPaint&) override {}
     void onDrawOval(const SkRect&, const SkPaint&) override {}
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override {}
