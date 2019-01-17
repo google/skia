@@ -767,6 +767,7 @@ def dm_flags(api, bot):
     match.append('~^InitialTextureClear$')
     match.append('~^PromiseImageTest$')
     match.append('~^PromiseImageTextureReuse$')
+    match.append('~^PromiseImageTextureReuseDifferentConfig$')
     match.append('~^ResourceAllocatorTest$')
     match.append('~^RGB565TextureTest$')
     match.append('~^RGBA4444TextureTest$')
