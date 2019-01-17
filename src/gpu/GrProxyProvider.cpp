@@ -429,7 +429,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     }
 
     sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType,
-                                                                 GrWrapCacheable::kYes);
+                                                                 GrWrapCacheable::kNo);
     if (!tex) {
         return nullptr;
     }
