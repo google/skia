@@ -138,6 +138,8 @@ public:
 
     bool hasPath(const SkGlyph& glyph) override;
 
+    void outOfScope() override {}
+
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
 
