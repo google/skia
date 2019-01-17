@@ -412,42 +412,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                     fit, budgeted, surfaceFlags));
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrSurfaceDesc& desc) {
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
-    }
-
-    const GrColorType ct = GrPixelConfigToColorType(desc.fConfig);
-    const GrBackendFormat format = fCaps->getBackendFormatFromGrColorType(ct, GrSRGBEncoded::kNo);
-
-    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-        [desc, data](GrResourceProvider* resourceProvider) {
-            if (!resourceProvider) {
-                return sk_sp<GrTexture>();
-            }
-
-            GrMipLevel texels;
-            texels.fPixels = data->data();
-            texels.fRowBytes = GrBytesPerPixel(desc.fConfig)*desc.fWidth;
-            return resourceProvider->createTexture(desc, SkBudgeted::kYes, &texels, 1);
-        },
-        format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-        SkBudgeted::kYes);
-
-    if (!proxy) {
-        return nullptr;
-    }
-
-    if (fResourceProvider) {
-        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
-        // we're better off instantiating the proxy immediately here.
-        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
-            return nullptr;
-        }
-    }
-    return proxy;
-}
-
 sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
                                                           GrSurfaceOrigin origin,
                                                           GrWrapOwnership ownership,
