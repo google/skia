@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dedff17a_a7b746e5",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-17T20:42:03Z",
+      "side": 1,
+      "message": "yikes, do we have a bug on this?",
+      "range": {
+        "startLine": 1596,
+        "startChar": 8,
+        "endLine": 1602,
+        "endChar": 88
+      },
+      "revId": "d9368f30ed024645b48ba6e82667350dc9095d8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
