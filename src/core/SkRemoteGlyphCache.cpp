@@ -309,12 +309,19 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     SkAutoDescriptor descStorage;
     auto desc = create_descriptor(paint, font, matrix, props, flags, &descStorage, effects);
 
+    return this->getOrCreateCache(*desc, *font.getTypefaceOrDefault(), *effects);
+
+}
+
+SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
+        const SkDescriptor& desc, const SkTypeface& typeface, SkScalerContextEffects effects) {
+
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
     TRACE_EVENT1("skia", "RecForDesc", "rec",
             TRACE_STR_COPY(
-                    [desc](){
-                        auto ptr = desc->findEntry(kRec_SkDescriptorTag, nullptr);
+                    [&desc](){
+                        auto ptr = desc.findEntry(kRec_SkDescriptorTag, nullptr);
                         SkScalerContextRec rec;
                         std::memcpy(&rec, ptr, sizeof(rec));
                         return rec.dump();
@@ -323,22 +330,22 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     );
 
     // Already locked.
-    if (fLockedDescs.find(desc) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(desc);
+    if (fLockedDescs.find(&desc) != fLockedDescs.end()) {
+        auto it = fRemoteGlyphStateMap.find(&desc);
         SkASSERT(it != fRemoteGlyphStateMap.end());
         SkGlyphCacheState* cache = it->second.get();
-        cache->setFontAndEffects(font, SkScalerContextEffects{paint});
+        cache->setTypefaceAndEffects(&typeface, effects);
         return cache;
     }
 
     // Try to lock.
-    auto it = fRemoteGlyphStateMap.find(desc);
+    auto it = fRemoteGlyphStateMap.find(&desc);
     if (it != fRemoteGlyphStateMap.end()) {
         SkGlyphCacheState* cache = it->second.get();
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
             fLockedDescs.insert(it->first);
-            cache->setFontAndEffects(font, SkScalerContextEffects{paint});
+            cache->setTypefaceAndEffects(&typeface, effects);
             return cache;
         }
 
@@ -347,20 +354,20 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         fRemoteGlyphStateMap.erase(it);
     }
 
-    auto* tf = font.getTypefaceOrDefault();
-    const SkFontID typefaceId = tf->uniqueID();
+    const SkFontID typefaceId = typeface.uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
         fCachedTypefaces.add(typefaceId);
-        fTypefacesToSend.emplace_back(typefaceId, tf->countGlyphs(), tf->fontStyle(),
-                                      tf->isFixedPitch());
+        fTypefacesToSend.emplace_back(typefaceId, typeface.countGlyphs(),
+                                      typeface.fontStyle(),
+                                      typeface.isFixedPitch());
     }
 
-    auto context = tf->createScalerContext(*effects, desc);
+    auto context = typeface.createScalerContext(effects, &desc);
 
     // Create a new cache state and insert it into the map.
     auto newHandle = fDiscardableHandleManager->createHandle();
     auto cacheState = skstd::make_unique<SkGlyphCacheState>(
-            *desc, std::move(context), newHandle);
+            desc, std::move(context), newHandle);
 
     auto* cacheStatePtr = cacheState.get();
 
@@ -369,7 +376,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 
     checkForDeletedEntries();
 
-    cacheStatePtr->setFontAndEffects(font, SkScalerContextEffects{paint});
+    cacheStatePtr->setTypefaceAndEffects(&typeface, effects);
     return cacheStatePtr;
 }
 
@@ -493,19 +500,19 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
 
 void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
     if (fContext == nullptr) {
-        auto tf = fFont->getTypefaceOrDefault();
+        auto tf = fTypeface;
         fContext = tf->createScalerContext(fEffects, fDescriptor.getDesc());
     }
 }
 
 void SkStrikeServer::SkGlyphCacheState::resetScalerContext() {
     fContext.reset();
-    fFont = nullptr;
+    fTypeface = nullptr;
 }
 
-void SkStrikeServer::SkGlyphCacheState::setFontAndEffects(
-        const SkFont& font, SkScalerContextEffects effects) {
-    fFont = &font;
+void SkStrikeServer::SkGlyphCacheState::setTypefaceAndEffects(
+        const SkTypeface* typeface, SkScalerContextEffects effects) {
+    fTypeface = typeface;
     fEffects = effects;
 }
 

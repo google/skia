@@ -35,7 +35,7 @@ public:
 
     const SkGlyph& findGlyph(SkPackedGlyphID);
 
-    void setFontAndEffects(const SkFont& font, SkScalerContextEffects effects);
+    void setTypefaceAndEffects(const SkTypeface* font, SkScalerContextEffects effects);
 
     SkVector rounding() const override;
 
@@ -44,6 +44,14 @@ public:
     bool hasImage(const SkGlyph& glyph) override;
 
     bool hasPath(const SkGlyph& glyph) override;
+
+    const SkDescriptor& descriptor() const override {return *fDescriptor.getDesc(); }
+
+    SkStrikeSpec strikeSpec() const override {
+            return SkStrikeSpec(this->descriptor(), *fTypeface, fEffects);
+    }
+
+    void outOfScope() override {}
 
 private:
     bool hasPendingGlyphs() const {
@@ -76,7 +84,7 @@ private:
 
     // These fields are set everytime getOrCreateCache. This allows the code to maintain the
     // fContext as lazy as possible.
-    const SkFont* fFont{nullptr};
+    const SkTypeface* fTypeface{nullptr};
     SkScalerContextEffects fEffects;
 
     class GlyphMapHashTraits {

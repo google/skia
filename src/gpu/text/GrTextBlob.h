@@ -55,7 +55,7 @@ public:
 
     class VertexRegenerator;
 
-    void generateFromGlyphRunList(GrStrikeCache* glyphCache,
+    void generateFromGlyphRunList(GrStrikeCache* grStrikeCache,
                                   const GrShaderCaps& shaderCaps,
                                   const GrTextContext::Options& options,
                                   const SkPaint& paint,
@@ -448,6 +448,8 @@ private:
         void setupFont(const SkPaint& skPaint,
                        const SkFont& skFont,
                        const SkDescriptor& skCache);
+
+        void setupFont(const SkStrikeSpec& strikeSpec);
 
         void setRunFontAntiAlias(bool aa) {
             fAntiAlias = aa;
