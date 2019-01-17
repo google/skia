@@ -678,3 +678,17 @@ SKOTTIE_TOOL_SRCS = [
     "tools/flags/SkCommandLineFlags.cpp",
     "tools/flags/SkCommandLineFlags.h",
 ]
+
+################################################################################
+## SkShaper
+################################################################################
+
+SKSHAPER_INCLUDES = [
+    "modules/skshaper/include",
+]
+
+SKSHAPER_SOURCES = [
+    "modules/skshaper/include/SkShaper.h",
+    "modules/skshaper/src/SkShaper.cpp",
+    "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+]
