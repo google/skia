@@ -26,6 +26,64 @@ public:
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool hasImage(const SkGlyph& glyph) = 0;
     virtual bool hasPath(const SkGlyph& glyph) = 0;
+    virtual void outOfScope() = 0;
+};
+
+class SkStrikeCreatorInterface {
+public:
+    virtual ~SkStrikeCreatorInterface() = default;
+    virtual SkStrikeInterface* create() = 0;
+};
+
+class SkScopedStrike {
+public:
+    SkScopedStrike(SkStrikeInterface* strike) : fStrike{*strike} {}
+    ~SkScopedStrike() { fStrike.outOfScope(); }
+
+    SkStrikeInterface* get() const { return &fStrike; }
+    SkStrikeInterface* operator->() const { return this->get(); }
+    SkStrikeInterface& operator*() const { return *this->get(); }
+
+private:
+    SkStrikeInterface& fStrike;
+};
+
+class SkStrikeChooser {
+public:
+    SkStrikeChooser(const SkStrikeCreatorInterface* creator,
+                    const SkPaint&,
+                    const SkFont&,
+                    const SkMatrix&);
+
+    bool renderAsDFT() const;
+    bool renderAsPath() const;
+
+    SkScopedStrike chooseMask() const;
+    SkScopedStrike chooseDFT() const;
+    SkScopedStrike choosePath() const;
+    SkScopedStrike chooseARGBFallback() const;
+
+private:
+    SkStrikeCreatorInterface* const fCreator;
+    const SkPaint& fPaint;
+    const SkFont& fFont;
+    const SkMatrix& fMatrix;
+};
+
+class SkStrikeContext {
+public:
+    SkStrikeContext(
+            const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
+
+    SkStrikeChooser makeChooser(const SkPaint&, const SkFont&, const SkMatrix&) const;
+
+private:
+    // The props as on the actual device.
+    const SkSurfaceProps fDeviceProps;
+    // The props for when the bitmap device can't draw LCD text.
+    const SkSurfaceProps fBitmapFallbackProps;
+    const SkColorType fColorType;
+    const SkScalerContextFlags fScalerContextFlags;
 };
 
 class SkStrikeCommon {
@@ -82,6 +140,12 @@ public:
     void drawGlyphRunAsBMPWithPathFallback(
             SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
+            EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
+
+    template <typename EmptiesT, typename MasksT, typename PathsT>
+    void drawGlyphRunAsBMPWithPathFallback2(
+            const SkPaint& paint, const SkFont& font, const SkStrikeContext& strikeContext,
+            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
             EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };

@@ -70,6 +70,60 @@ bool SkStrikeCommon::GlyphTooBigForAtlas(const SkGlyph& glyph) {
     return glyph.fWidth > kSkSideTooBigForAtlas || glyph.fHeight > kSkSideTooBigForAtlas;
 }
 
+// -- SkStrikeChooser ------------------------------------------------------------------------------
+
+SkStrikeChooser::SkStrikeChooser(const SkStrikeCreatorInterface* creator, const SkPaint&,
+                                 const SkFont&, const SkMatrix&) {
+
+}
+
+bool SkStrikeChooser::renderAsDFT() const {
+    return false;
+}
+
+bool SkStrikeChooser::renderAsPath() const {
+    // hairline glyphs are fast enough so we don't need to cache them
+    if (SkPaint::kStroke_Style == fPaint.getStyle() && 0 == fPaint.getStrokeWidth()) {
+        return true;
+    }
+
+    // we don't cache perspective
+    if (fMatrix.hasPerspective()) {
+        return true;
+    }
+
+    return SkPaint::TooBigToUseCache(fMatrix, SkFontPriv::MakeTextMatrix(fFont), 1024);
+    return false;
+}
+
+SkScopedStrike SkStrikeChooser::chooseMask() const {
+    return SkScopedStrike(nullptr);
+}
+
+SkScopedStrike SkStrikeChooser::chooseDFT() const {
+    return SkScopedStrike(nullptr);
+}
+
+SkScopedStrike SkStrikeChooser::choosePath() const {
+    return SkScopedStrike(nullptr);
+}
+
+SkScopedStrike SkStrikeChooser::chooseARGBFallback() const {
+    return SkScopedStrike(nullptr);
+}
+
+// -- SkStrikeContext ------------------------------------------------------------------------------
+
+SkStrikeContext::SkStrikeContext(const SkSurfaceProps& props, SkColorType colorType,
+                                 SkScalerContextFlags flags) {
+
+}
+
+SkStrikeChooser SkStrikeContext::makeChooser(const SkPaint&, const SkFont&, const SkMatrix&) const {
+    return SkStrikeChooser(nullptr, SkPaint(), SkFont(), SkMatrix());
+}
+
+
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
@@ -373,6 +427,72 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
+    ScopedBuffers _ = this->ensureBuffers(glyphRun);
+
+    int glyphCount = 0;
+    // Four empty glyphs are expected; one for each horizontal subpixel position.
+    SkSTArray<4, const SkGlyph*> emptyGlyphs;
+
+    SkMatrix mapping = deviceMatrix;
+    mapping.preTranslate(origin.x(), origin.y());
+    SkVector rounding = cache->rounding();
+    mapping.postTranslate(rounding.x(), rounding.y());
+    mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
+
+    const SkPoint* posCursor = fPositions;
+    for (auto glyphID : glyphRun.glyphsIDs()) {
+        SkPoint mappedPt = *posCursor++;
+
+        if (std::any_of(emptyGlyphs.begin(), emptyGlyphs.end(),
+                        [glyphID](const SkGlyph* g) { return g->getGlyphID() == glyphID; })) {
+            continue;
+        }
+
+        if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+            const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+            if (glyph.isEmpty()) {
+                emptyGlyphs.push_back(&glyph);
+            } else if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
+                if (cache->hasPath(glyph)) {
+                    fPaths.push_back({&glyph, mappedPt});
+                } else {
+                    // This happens when a bitmap-only font is forced to scale very large. This
+                    // doesn't happen in practice.
+                    emptyGlyphs.push_back(&glyph);
+                }
+            } else {
+                if (cache->hasImage(glyph)) {
+                    fMasks[glyphCount++] = {&glyph, mappedPt};
+                } else {
+                    // In practice, this never happens.
+                    emptyGlyphs.push_back(&glyph);
+                }
+            }
+        }
+    }
+
+    if (!emptyGlyphs.empty()) {
+        processEmpties(SkSpan<const SkGlyph*>{emptyGlyphs.data(), emptyGlyphs.size()});
+    }
+    if (glyphCount > 0) {
+        mapping.mapPoints(fPositions, glyphCount);
+        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)});
+    }
+    if (!fPaths.empty()) {
+        processPaths(SkSpan<const GlyphAndPos>{fPaths});
+    }
+}
+
+
+template <typename EmptiesT, typename MasksT, typename PathsT>
+void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback2(
+        const SkPaint& paint, const SkFont& font, const SkStrikeContext& strikeContext,
+        const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
+        EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
+    SkStrikeChooser strikeChooser = strikeContext.makeChooser(paint, font, deviceMatrix);
+
+
+
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
 
     int glyphCount = 0;
@@ -1121,3 +1241,4 @@ SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
         fPainter->fARGBPositions.shrink_to_fit();
     }
 }
+
