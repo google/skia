@@ -46,6 +46,30 @@
       "revId": "01150a3ea8af75adf861a2720e3c15be654d4a5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96c45a09_bfea6252",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1832,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-17T15:20:45Z",
+      "side": 1,
+      "message": "I think it might be better to keep it simple for now. If we evolve the new APIs into a compositor API I think we probably won\u0027t be supporting the full range of SkPaint features in that API.",
+      "parentUuid": "a7b62860_1492861a",
+      "range": {
+        "startLine": 1829,
+        "startChar": 6,
+        "endLine": 1832,
+        "endChar": 18
+      },
+      "revId": "01150a3ea8af75adf861a2720e3c15be654d4a5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
