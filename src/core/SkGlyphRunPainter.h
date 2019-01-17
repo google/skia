@@ -9,6 +9,7 @@
 #define SkGlyphRunPainter_DEFINED
 
 #include "SkDistanceFieldGen.h"
+#include "SkFontPriv.h"
 #include "SkGlyphRun.h"
 #include "SkScalerContext.h"
 #include "SkSurfaceProps.h"
@@ -19,6 +20,26 @@ class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
 
+class SkStrikeSpec {
+public:
+    SkStrikeSpec(const SkDescriptor& desc,
+                 const SkTypeface& typeface,
+                 const SkScalerContextEffects& effects)
+            : fDesc{desc}
+            , fTypeface{typeface}
+            , fEffects{effects} {}
+
+
+    const SkDescriptor& desc() const { return fDesc; }
+    const SkTypeface& typeface() const { return fTypeface; }
+    SkScalerContextEffects effects() const {return fEffects; }
+
+private:
+    const SkDescriptor& fDesc;
+    const SkTypeface& fTypeface;
+    const SkScalerContextEffects fEffects;
+};
+
 class SkStrikeInterface {
 public:
     virtual ~SkStrikeInterface() = default;
@@ -26,6 +47,73 @@ public:
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool hasImage(const SkGlyph& glyph) = 0;
     virtual bool hasPath(const SkGlyph& glyph) = 0;
+    virtual const SkDescriptor& descriptor() const = 0;
+    virtual SkStrikeSpec strikeSpec() const = 0;
+    virtual void outOfScope() = 0;
+};
+
+class SkStrikeCreatorInterface {
+public:
+    virtual ~SkStrikeCreatorInterface() = default;
+
+    virtual SkStrikeInterface* create(const SkDescriptor& desc,
+                                      const SkScalerContextEffects& effects,
+                                      const SkTypeface& typeface) const = 0;
+};
+
+class SkScopedStrike {
+public:
+    SkScopedStrike(SkStrikeInterface* strike) : fStrike{*strike} {}
+    ~SkScopedStrike() { fStrike.outOfScope(); }
+
+    SkStrikeInterface* get() const { return &fStrike; }
+    SkStrikeInterface* operator->() const { return this->get(); }
+    SkStrikeInterface& operator*() const { return *this->get(); }
+
+private:
+    SkStrikeInterface& fStrike;
+};
+
+class SkStrikeContext;
+
+class SkStrikeSelector {
+public:
+    SkStrikeSelector(const SkStrikeContext* context,
+                    const SkPaint& paint,
+                    const SkFont& font,
+                    const SkMatrix& matrix);
+
+    bool renderAsDFT() const;
+    bool renderAsPath() const;
+
+    SkScopedStrike chooseMask() const;
+    SkScopedStrike chooseDFT() const;
+    SkScopedStrike choosePath() const;
+    SkScopedStrike chooseARGBFallback() const;
+
+private:
+    const SkStrikeContext* const fContext;
+    const SkPaint& fPaint;
+    const SkFont& fFont;
+    const SkMatrix& fMatrix;
+};
+
+class SkStrikeContext {
+public:
+    SkStrikeContext(const SkStrikeCreatorInterface& creator,
+                    const SkSurfaceProps& props,
+                    SkScalerContextFlags flags);
+
+    SkScopedStrike makeStrike(
+            const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) const;
+
+    SkStrikeSelector makeSelector(
+            const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) const;
+
+    // The props as on the actual device.
+    const SkStrikeCreatorInterface&  fCreator;
+    const SkSurfaceProps fDeviceProps;
+    const SkScalerContextFlags fScalerContextFlags;
 };
 
 class SkStrikeCommon {
@@ -82,6 +170,12 @@ public:
     void drawGlyphRunAsBMPWithPathFallback(
             SkStrikeInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
+            EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
+
+    template <typename EmptiesT, typename MasksT, typename PathsT>
+    void drawGlyphRunAsBMPWithPathFallback2(
+            const SkPaint& paint, const SkFont& font, const SkStrikeContext& strikeContext,
+            const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
             EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths);
 
     enum NeedsTransform : bool { kTransformDone = false, kDoTransform = true };
