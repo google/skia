@@ -909,6 +909,29 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
             viewMatrix, croppedRect, croppedLocalRect));
 }
 
+void GrRenderTargetContext::fillRectToRectWithEdgeAA(const GrClip& clip, GrPaint&& paint,
+                                                     GrQuadAAFlags edgeAA, const SkMatrix& view,
+                                                     const SkRect& rect, const SkRect& localRect) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectToRectWithEdgeAA", fContext);
+
+    SkRect clippedDstRect = rect;
+    SkRect clippedSrcRect = localRect;
+    if (!crop_filled_rect(this->width(), this->height(), clip, view, &clippedDstRect,
+                          &clippedSrcRect)) {
+        return;
+    }
+
+    AutoCheckFlush acf(this->drawingManager());
+    GrAAType aaType = this->chooseAAType(GrAA(edgeAA != GrQuadAAFlags::kNone),
+                                         GrAllowMixedSamples::kNo);
+    this->addDrawOp(clip, GrFillRectOp::MakePerEdgeWithLocalRect(fContext, std::move(paint), aaType,
+                                                                 edgeAA, view, clippedDstRect,
+                                                                 clippedSrcRect));
+}
+
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, const SkPMColor4f& color,
                                         const SkRect& srcRect, const SkRect& dstRect,
