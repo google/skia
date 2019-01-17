@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkImage.h"
 #include "SkRandom.h"
 
 #if SK_SUPPORT_GPU && !defined(SK_BUILD_FOR_GOOGLE3)
@@ -51,13 +52,13 @@ protected:
         }
 
         int size = etc1_get_encoded_data_size(bm.width(), bm.height());
-        fETC1Data.reset(size);
+        fETC1Data = SkData::MakeUninitialized(size);
 
-        unsigned char* pixels = (unsigned char*) fETC1Data.get();
+        unsigned char* pixels = (unsigned char*) fETC1Data->writable_data();
 
         if (etc1_encode_image((unsigned char*) bm.getAddr16(0, 0),
                               bm.width(), bm.height(), 2, bm.rowBytes(), pixels)) {
-            fETC1Data.reset();
+            fETC1Data = nullptr;
         }
     }
 
@@ -74,40 +75,11 @@ protected:
             return;
         }
 
-        GrBackendTexture tex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-            fETC1Data.get(),
-            kTexWidth,
-            kTexHeight,
-            GrColorType::kRGB_ETC1,
-            false,
-            GrMipMapped::kNo,
-            kTexWidth/2); // rowbytes are meaningless for compressed textures, but this is
-                          // basically right
+        sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, fETC1Data,
+                                                           kTexWidth, kTexHeight,
+                                                           SkImage::kETC1_CompressionType);
 
-        if (!tex.isValid()) {
-            return;
-        }
-
-        auto proxy = context->contextPriv().proxyProvider()->wrapBackendTexture(
-                                                                 tex, kTopLeft_GrSurfaceOrigin,
-                                                                 kAdopt_GrWrapOwnership,
-                                                                 kRead_GrIOType);
-        if (!proxy) {
-            return;
-        }
-
-        const SkMatrix trans = SkMatrix::MakeTrans(-kPad, -kPad);
-
-        auto fp = GrSimpleTextureEffect::Make(proxy, trans);
-
-        GrPaint grPaint;
-        grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-        grPaint.addColorFragmentProcessor(std::move(fp));
-
-        SkRect rect = SkRect::MakeXYWH(kPad, kPad, kTexWidth, kTexHeight);
-
-        renderTargetContext->priv().testingOnly_addDrawOp(
-            GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone, SkMatrix::I(), rect));
+        canvas->drawImage(image, 0, 0);
     }
 
 private:
@@ -115,7 +87,7 @@ private:
     static const int kTexWidth = 16;
     static const int kTexHeight = 20;
 
-    SkAutoTMalloc<char> fETC1Data;
+    sk_sp<SkData> fETC1Data;
 
     typedef GM INHERITED;
 };
