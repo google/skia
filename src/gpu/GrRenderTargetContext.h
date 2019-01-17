@@ -127,6 +127,14 @@ public:
                                  const SkRect& rect,
                                  const SkMatrix& localMatrix);
 
+    /**
+     * Creates an op that draws a fill rect with per-edge control over anti-aliasing, but takes an
+     * additional local rectangle for texture coordinates.
+     */
+    void fillRectToRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrQuadAAFlags edgeAA,
+                                  const SkMatrix& viewMatrix, const SkRect& rect,
+                                  const SkRect& localRect);
+
     /** Used with drawQuadSet */
     struct QuadSetEntry {
         SkRect fRect;

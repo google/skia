@@ -1498,9 +1498,13 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
     SkASSERT(count > 0);
     if (mode != SkBlendMode::kSrcOver ||
         !fContext->contextPriv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
-        INHERITED::drawImageSet(set, count, filterQuality, mode);
+        // Draw one at a time, which will produce the visually expected results, albeit slower
+        for (int i = 0; i < count; ++i) {
+            this->drawImageSetEntry(set[i], filterQuality, mode);
+        }
         return;
     }
+
     GrSamplerState sampler;
     sampler.setFilterMode(kNone_SkFilterQuality == filterQuality ? GrSamplerState::Filter::kNearest
                                                                  : GrSamplerState::Filter::kBilerp);
@@ -1560,6 +1564,62 @@ void SkGpuDevice::drawImageSet(const SkCanvas::ImageSetEntry set[], int count,
         }
     }
     draw();
+}
+
+void SkGpuDevice::drawImageSetEntry(const SkCanvas::ImageSetEntry& image,
+                                    SkFilterQuality filterQuality, SkBlendMode mode) {
+    // The bulk API that can process an entire image set at once handles SrcOver; shouldn't be using
+    // the one-at-a-time approach
+    SkASSERT(mode != SkBlendMode::kSrcOver);
+
+    uint32_t uniqueID;
+    sk_sp<GrTextureProxy> proxy = as_IB(image.fImage.get())->refPinnedTextureProxy(&uniqueID);
+    if (!proxy) {
+        proxy = as_IB(image.fImage.get())->asTextureProxyRef(fContext.get(),
+                                                             GrSamplerState::ClampBilerp(),
+                                                             nullptr);
+        if (!proxy) {
+            // If we failed to make a proxy, return without drawing anything
+            return;
+        }
+    }
+
+    // Unlike the ideal drawImageSet() conditions, which go through GrTextureOp to handle texturing
+    // and edge AA at the same time, this goes through GrFillRectOp to handle edge AA and the
+    // equivalent texturing must be emulated with a GrPaint.
+    GrPaint grPaint;
+    grPaint.setColor4f({image.fAlpha, image.fAlpha, image.fAlpha, image.fAlpha});
+
+    // Mimic logic in GrTextureOp to optimize texture filtering
+    const SkMatrix& view = this->ctm();
+    GrSamplerState::Filter filter = GrSamplerState::Filter::kNearest;
+    if (filterQuality != kNone_SkFilterQuality) {
+        // These are not wholly correct, even when rectStaysRect() is true, due to 90 degree
+        // rotations and mirrors. However, it is consistent with GrTextureOps internal logic.
+        SkScalar devWidth = view.getScaleX() * image.fDstRect.width();
+        SkScalar devHeight = view.getScaleY() * image.fDstRect.height();
+        SkScalar devLeft = view.getScaleX() * image.fDstRect.fLeft + view.getTranslateX();
+        SkScalar devTop = view.getScaleY() * image.fDstRect.fTop + view.getTranslateY();
+        if (!view.rectStaysRect() ||
+            image.fSrcRect.width() != devWidth || image.fSrcRect.height() != devHeight ||
+            SkScalarFraction(image.fSrcRect.fLeft) != SkScalarFraction(devLeft) ||
+            SkScalarFraction(image.fSrcRect.fTop) != SkScalarFraction(devTop)) {
+            // Must turn on filtering since the src rect is not pixel aligned with the dst rect
+            // in device space.
+            filter = GrSamplerState::Filter::kBilerp;
+        }
+    }
+
+    // While GrTextureOp can handle a domain restriction on the src rect, it is never used for the
+    // bulk API, so there is no need to emulate that behavior here and a simple texture FP
+    // + XP factory can be applied to the paint.
+    grPaint.addColorTextureProcessor(std::move(proxy), SkMatrix::I(),
+                                     GrSamplerState(GrSamplerState::WrapMode::kClamp, filter));
+    grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
+    // Use identity for local matrix since src rect is provided.
+    fRenderTargetContext->fillRectToRectWithEdgeAA(this->clip(), std::move(grPaint),
+                                                   SkToGrQuadAAFlags(image.fAAFlags),
+                                                   this->ctm(), image.fDstRect, image.fSrcRect);
 }
 
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,

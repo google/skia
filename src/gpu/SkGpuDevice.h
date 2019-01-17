@@ -157,6 +157,9 @@ private:
 
     const GrCaps* caps() const { return fContext->contextPriv().caps(); }
 
+    // Helper function for drawImageSet when it can't use a bulk API on the GrRTC.
+    void drawImageSetEntry(const SkCanvas::ImageSetEntry&, SkFilterQuality, SkBlendMode);
+
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
      * matrix, clip, and the device's render target has already been set on GrContext.
