@@ -373,6 +373,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     if (mipMapped == GrMipMapped::kYes &&
         GrTextureTypeHasRestrictedSampling(backendFormat.textureType())) {
+SkDebugf("Mipped!\n");
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
         doneProc(textureContext);

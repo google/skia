@@ -23,15 +23,14 @@ public:
     GrAARectEffect(const GrAARectEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AARectEffect"; }
-
 private:
     GrAARectEffect(GrClipEdgeType edgeType, SkRect rect)
-            : INHERITED(kGrAARectEffect_ClassID,
-                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fEdgeType(edgeType)
-            , fRect(rect) {}
+    : INHERITED(kGrAARectEffect_ClassID, (OptimizationFlags)  kCompatibleWithCoverageAsAlpha_OptimizationFlag )
+    , fEdgeType(edgeType)
+    , fRect(rect) {
+    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     GrClipEdgeType fEdgeType;

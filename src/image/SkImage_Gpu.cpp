@@ -375,6 +375,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
 
     SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
     if (!SkImageInfoIsValid(info)) {
+SkDebugf("Not valid!\n");
         return nullptr;
     }
 
@@ -389,6 +390,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     GrPixelConfig config =
             context->contextPriv().caps()->getConfigFromBackendFormat(backendFormat, colorType);
     if (config == kUnknown_GrPixelConfig) {
+SkDebugf("Unknown config!\n");
         return nullptr;
     }
 
@@ -397,6 +399,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                            mipMapped, textureFulfillProc, textureReleaseProc,
                                            promiseDoneProc, textureContext);
     if (!proxy) {
+SkDebugf("!proxy!\n");
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
