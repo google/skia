@@ -40,6 +40,18 @@ public:
         return fCache.decideCouldDrawFromPath(glyph);
     }
 
+    const SkDescriptor& descriptor() const override {
+        return fCache.descriptor();
+    }
+
+    SkStrikeSpec strikeSpec() const override {
+        return fCache.strikeSpec();
+    }
+
+    void outOfScope() override {
+        SkStrikeCache::GlobalStrikeCache()->attachNode(this);
+    }
+
     SkStrikeCache* const            fStrikeCache;
     Node*                           fNext{nullptr};
     Node*                           fPrev{nullptr};
@@ -153,6 +165,17 @@ SkExclusiveStrikePtr SkStrikeCache::findOrCreateStrikeExclusive(
 auto SkStrikeCache::findOrCreateStrike(const SkDescriptor& desc,
                                        const SkScalerContextEffects& effects,
                                        const SkTypeface& typeface) -> Node* {
+    Node* node = this->findAndDetachStrike(desc);
+    if (node == nullptr) {
+        auto scaler = CreateScalerContext(desc, effects, typeface);
+        node = this->createStrike(desc, std::move(scaler));
+    }
+    return node;
+}
+
+SkStrikeInterface* SkStrikeCache::findOrCreateStrike2(const SkDescriptor& desc,
+                                                      const SkScalerContextEffects& effects,
+                                                      const SkTypeface& typeface) {
     Node* node = this->findAndDetachStrike(desc);
     if (node == nullptr) {
         auto scaler = CreateScalerContext(desc, effects, typeface);
