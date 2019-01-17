@@ -82,6 +82,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/cost.c",
       "../externals/libwebp/src/dsp/cost_mips32.c",
       "../externals/libwebp/src/dsp/cost_mips_dsp_r2.c",
+      "../externals/libwebp/src/dsp/cost_neon.c",
       "../externals/libwebp/src/dsp/cost_sse2.c",
       "../externals/libwebp/src/dsp/cpu.c",
       "../externals/libwebp/src/dsp/dec.c",
