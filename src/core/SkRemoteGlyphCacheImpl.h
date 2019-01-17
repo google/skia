@@ -41,6 +41,14 @@ public:
 
     bool decideCouldDrawFromPath(const SkGlyph& glyph) override;
 
+    const SkDescriptor& descriptor() const override {return *fDescriptor.getDesc(); }
+
+    SkStrikeSpec strikeSpec() const override {
+            return SkStrikeSpec(this->descriptor(), *fTypeface, fEffects);
+    }
+
+    void outOfScope() override {}
+
 private:
     bool hasPendingGlyphs() const {
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
