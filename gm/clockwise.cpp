@@ -91,8 +91,8 @@ class ClockwiseTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context, bool readSkFragCoord, int y = 0) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context, bool readSkFragCoord, int y = 0) {
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<ClockwiseTestOp>(readSkFragCoord, y);
     }
 
@@ -140,7 +140,7 @@ private:
 // Test.
 
 void ClockwiseGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         DrawGpuOnlyMessage(canvas);
@@ -154,7 +154,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
     rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
-    if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
+    if (auto topLeftRTC = ctx->makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
             rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
@@ -170,7 +170,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
+    if (auto topLeftRTC = ctx->makeDeferredRenderTargetContext(
             rtc->asSurfaceProxy()->backendFormat(), SkBackingFit::kExact, 100, 200,
             rtc->asSurfaceProxy()->config(), nullptr, 1, GrMipMapped::kNo,
             kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {

@@ -122,13 +122,13 @@ protected:
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
-    GrContext* fContext;
-    GrAuditTrail* fAuditTrail;
+    GrRecordingContext* fContext;
+    GrAuditTrail*       fAuditTrail;
 
 private:
-    GrColorSpaceInfo fColorSpaceInfo;
+    GrColorSpaceInfo    fColorSpaceInfo;
 
-    GrDrawingManager* fDrawingManager;
+    GrDrawingManager*   fDrawingManager; //???
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

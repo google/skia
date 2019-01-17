@@ -27,6 +27,7 @@ class GrColorSpaceXform;
 class GrContext;
 class GrFragmentProcessor;
 class GrPaint;
+class GrRecordingContext;
 class GrResourceProvider;
 class GrTextureProxy;
 class GrUniqueKey;
@@ -189,7 +190,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBit
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext*,
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      GrTextureProxy* baseProxy);
 
 /*

@@ -52,9 +52,9 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
     if (GrColorType::kUnknown == colorType) {
         return false;
     }
-    return fContext->contextPriv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
-                                                     colorType, dstInfo.colorSpace(), dstBuffer,
-                                                     dstRowBytes, flags);
+    return fContext->priv().readSurfacePixels(this, x, y, dstInfo.width(), dstInfo.height(),
+                                              colorType, dstInfo.colorSpace(), dstBuffer,
+                                              dstRowBytes, flags);
 }
 
 bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -82,7 +82,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::copy");
 
-    if (!fContext->contextPriv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
+    if (!fContext->caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
                                                         dstPoint)) {
         return false;
     }

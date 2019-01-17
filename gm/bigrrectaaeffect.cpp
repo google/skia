@@ -56,8 +56,13 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
+            return;
+        }
+
+        auto recording = context->asRecordingContext();
+        if (!recording) {
             return;
         }
 
@@ -95,7 +100,7 @@ protected:
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
                     renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::Make(context, std::move(grPaint), GrAAType::kNone,
+                            GrFillRectOp::Make(recording, std::move(grPaint), GrAAType::kNone,
                                                SkMatrix::I(), bounds));
                 }
             canvas->restore();

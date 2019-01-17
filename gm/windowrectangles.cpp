@@ -172,7 +172,7 @@ static GrStencilClip make_stencil_only_clip() {
 };
 
 void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     if (!ctx || !rtc || rtc->priv().maxWindowRectangles() < kNumWindows) {
