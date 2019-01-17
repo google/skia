@@ -70,6 +70,30 @@
       "revId": "01150a3ea8af75adf861a2720e3c15be654d4a5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b24a81_308e240a",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1832,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-01-17T17:59:38Z",
+      "side": 1,
+      "message": "Sounds good, I will update",
+      "parentUuid": "96c45a09_bfea6252",
+      "range": {
+        "startLine": 1829,
+        "startChar": 6,
+        "endLine": 1832,
+        "endChar": 18
+      },
+      "revId": "01150a3ea8af75adf861a2720e3c15be654d4a5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
