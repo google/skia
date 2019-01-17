@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f465a1a_a042ce2d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-17T20:38:43Z",
+      "side": 1,
+      "message": "\\t",
+      "range": {
+        "startLine": 164,
+        "startChar": 3,
+        "endLine": 169,
+        "endChar": 14
+      },
+      "revId": "a8ad1ea456820e2f9c899fdc35d93b75f12b8c4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
