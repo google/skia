@@ -1,0 +1,15 @@
+{
+   "maxCount": 32,
+   "rate": 8,
+   "life": { "min": 1.000000, "max": 3.000000 },
+   "startColor": [ 1.000000, 1.000000, 1.000000, 1.000000 ],
+   "endColor": [ 1.000000, 1.000000, 1.000000, 0.250980 ],
+   "image": "images/explosion_sprites.png",
+   "imageCols": 8,
+   "imageRows": 8,
+   "emitter": {
+      "type": "Circle",
+      "center": { "x": 200.000000, "y": 200.000000 },
+      "radius": 0.000000
+   }
+}
