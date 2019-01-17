@@ -219,16 +219,16 @@ private:
 };
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
+class PathInvalidator : public SkPathRef::GenIDChangeListener2 {
 public:
     PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID) {}
 
 private:
-    GrUniqueKeyInvalidatedMessage fMsg;
+    GrUniqueKeyInvalidatedMessage17 fMsg;
 
     void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg);
     }
 };
 
@@ -373,7 +373,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (useCache) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
-            args.fShape->addGenIDChangeListener(
+            args.fShape->addGenIDChangeListener3(
                     sk_make_sp<PathInvalidator>(maskKey, args.fContext->uniqueID()));
         }
     }

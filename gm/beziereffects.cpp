@@ -153,7 +153,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -185,7 +185,7 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->caps(),
                                          SkMatrix::I(), false);
                 if (!gp) {
                     continue;
@@ -370,7 +370,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -400,7 +400,7 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->caps(),
                                         SkMatrix::I(), false);
                 if (!gp) {
                     continue;

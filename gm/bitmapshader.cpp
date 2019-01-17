@@ -118,8 +118,8 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
     // (See https://skia-review.googlesource.com/c/skia/+/73200)
     int bitmapW = 1;
     int bitmapH = 60000;
-    if (auto* ctx = canvas->getGrContext()) {
-        bitmapH = ctx->contextPriv().caps()->maxTextureSize() + 1;
+    if (auto ctx = canvas->getGrContext()) {
+        bitmapH = ctx->caps()->maxTextureSize() + 1;
     }
     bitmap.setInfo(SkImageInfo::MakeA8(bitmapW, bitmapH), bitmapW);
     uint8_t* pixels = new uint8_t[bitmapH];
