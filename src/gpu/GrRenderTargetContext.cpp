@@ -1912,8 +1912,8 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     }
 
     GrXferProcessor::DstProxy dstProxy;
-    GrProcessorSet::Analysis processorAnalysis = op->finalize(*this->caps(), &appliedClip);
-    if (processorAnalysis.requiresDstTexture()) {
+    GrProcessorSet::Analysis analysis = op->finalize(*this->caps(), &appliedClip);
+    if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, *op, &dstProxy)) {
             fContext->contextPriv().opMemoryPool()->release(std::move(op));
             return;
@@ -1925,7 +1925,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     if (willAddFn) {
         willAddFn(op.get(), opList->uniqueID());
     }
-    opList->addOp(std::move(op), *this->caps(), std::move(appliedClip), dstProxy);
+    opList->addDrawOp(std::move(op), *this->caps(), std::move(appliedClip), analysis, dstProxy);
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,

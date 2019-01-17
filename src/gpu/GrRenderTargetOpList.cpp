@@ -115,9 +115,13 @@ inline void GrRenderTargetOpList::OpChain::List::validate() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrRenderTargetOpList::OpChain::OpChain(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip,
+                                       GrProcessorSet::Analysis processorAnalysis,
                                        const DstProxy* dstProxy)
-        : fList{std::move(op)}, fAppliedClip(appliedClip) {
-    if (dstProxy) {
+        : fList{std::move(op)}
+        , fProcessorAnalysis(processorAnalysis)
+        , fAppliedClip(appliedClip) {
+    if (fProcessorAnalysis.requiresDstTexture()) {
+        SkASSERT(dstProxy && dstProxy->proxy());
         fDstProxy = *dstProxy;
     }
     fBounds = fList.head()->bounds();
@@ -225,19 +229,27 @@ GrRenderTargetOpList::OpChain::List GrRenderTargetOpList::OpChain::DoConcat(
 // chain heads and tails are returned. Upon success the new chain's head and tail are returned
 // (and null for the second head/tail).
 std::tuple<GrRenderTargetOpList::OpChain::List, GrRenderTargetOpList::OpChain::List>
-GrRenderTargetOpList::OpChain::TryConcat(List chainA, const DstProxy& dstProxyA,
-                                         const GrAppliedClip* appliedClipA, List chainB,
-                                         const DstProxy& dstProxyB,
-                                         const GrAppliedClip* appliedClipB, const GrCaps& caps,
-                                         GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
+GrRenderTargetOpList::OpChain::TryConcat(
+        List chainA, GrProcessorSet::Analysis analysisA, const DstProxy& dstProxyA,
+        const GrAppliedClip* appliedClipA, List chainB, GrProcessorSet::Analysis analysisB,
+        const DstProxy& dstProxyB, const GrAppliedClip* appliedClipB, const GrCaps& caps,
+        GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
     SkASSERT(!chainA.empty());
     SkASSERT(!chainB.empty());
+    SkASSERT(analysisA.requiresDstTexture() == SkToBool(dstProxyA.proxy()));
+    SkASSERT(analysisB.requiresDstTexture() == SkToBool(dstProxyB.proxy()));
     // All returns use explicit tuple constructor rather than {a, b} to work around old GCC bug.
     if (chainA.head()->classID() != chainB.head()->classID() ||
         SkToBool(appliedClipA) != SkToBool(appliedClipB) ||
         (appliedClipA && *appliedClipA != *appliedClipB) ||
-        SkToBool(dstProxyA.proxy()) != SkToBool(dstProxyB.proxy()) ||
-        (dstProxyA.proxy() && dstProxyA != dstProxyB)) {
+        (analysisA.requiresNonOverlappingDraws() != analysisB.requiresNonOverlappingDraws()) ||
+        (analysisA.requiresNonOverlappingDraws() &&
+                // Non-overlaping draws are only required when Ganesh will either insert a barrier,
+                // or read back a new dst texture between draws. In either case, we can neither
+                // chain nor combine overlapping Ops.
+                GrRectsTouchOrOverlap(chainA.tail()->bounds(), chainB.head()->bounds())) ||
+        (analysisA.requiresDstTexture() != analysisB.requiresDstTexture()) ||
+        (analysisA.requiresDstTexture() && dstProxyA != dstProxyB)) {
         return std::tuple<List, List>(std::move(chainA), std::move(chainB));
     }
     SkDEBUGCODE(bool first = true;)
@@ -271,8 +283,9 @@ GrRenderTargetOpList::OpChain::TryConcat(List chainA, const DstProxy& dstProxyA,
 bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& caps,
                                                  GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
     std::tie(that->fList, fList) = TryConcat(
-            std::move(that->fList), that->dstProxy(), that->appliedClip(), std::move(fList),
-            this->dstProxy(), this->appliedClip(), caps, pool, auditTrail);
+            std::move(that->fList), that->fProcessorAnalysis, that->dstProxy(), that->appliedClip(),
+            std::move(fList), fProcessorAnalysis, this->dstProxy(), this->appliedClip(), caps, pool,
+            auditTrail);
     if (!fList.empty()) {
         this->validate();
         // append failed
@@ -292,12 +305,10 @@ bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& ca
     return true;
 }
 
-std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(std::unique_ptr<GrOp> op,
-                                                              const DstProxy* dstProxy,
-                                                              const GrAppliedClip* appliedClip,
-                                                              const GrCaps& caps,
-                                                              GrOpMemoryPool* pool,
-                                                              GrAuditTrail* auditTrail) {
+std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(
+        std::unique_ptr<GrOp> op, GrProcessorSet::Analysis processorAnalysis,
+        const DstProxy* dstProxy, const GrAppliedClip* appliedClip, const GrCaps& caps,
+        GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
     const GrXferProcessor::DstProxy noDstProxy;
     if (!dstProxy) {
         dstProxy = &noDstProxy;
@@ -306,8 +317,9 @@ std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(std::unique_ptr<Gr
     SkRect opBounds = op->bounds();
     List chain(std::move(op));
     std::tie(fList, chain) =
-            TryConcat(std::move(fList), this->dstProxy(), fAppliedClip, std::move(chain), *dstProxy,
-                      appliedClip, caps, pool, auditTrail);
+            TryConcat(std::move(fList), fProcessorAnalysis, this->dstProxy(), fAppliedClip,
+                      std::move(chain), processorAnalysis, *dstProxy, appliedClip, caps, pool,
+                      auditTrail);
     if (!chain.empty()) {  // NOLINT(bugprone-use-after-move)
         // append failed, give the op back to the caller.
         this->validate();
@@ -628,11 +640,11 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
     }
 }
 
-void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
-                                    const GrCaps& caps,
-                                    GrAppliedClip* clip,
-                                    const DstProxy* dstProxy) {
+void GrRenderTargetOpList::recordOp(
+        std::unique_ptr<GrOp> op, const GrCaps& caps, GrAppliedClip* clip,
+        GrProcessorSet::Analysis processorAnalysis, const DstProxy* dstProxy) {
     SkDEBUGCODE(op->validate();)
+    SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxy && dstProxy->proxy()));
     SkASSERT(fTarget.get());
 
     // A closed GrOpList should never receive new/more ops
@@ -661,8 +673,8 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         int i = 0;
         while (true) {
             OpChain& candidate = fOpChains.fromBack(i);
-            op = candidate.appendOp(std::move(op), dstProxy, clip, caps, fOpMemoryPool.get(),
-                                    fAuditTrail);
+            op = candidate.appendOp(std::move(op), processorAnalysis, dstProxy, clip, caps,
+                                    fOpMemoryPool.get(), fAuditTrail);
             if (!op) {
                 return;
             }
@@ -684,7 +696,7 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
-    fOpChains.emplace_back(std::move(op), clip, dstProxy);
+    fOpChains.emplace_back(std::move(op), clip, processorAnalysis, dstProxy);
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
