@@ -70,6 +70,80 @@ bool SkStrikeCommon::GlyphTooBigForAtlas(const SkGlyph& glyph) {
     return glyph.fWidth > kSkSideTooBigForAtlas || glyph.fHeight > kSkSideTooBigForAtlas;
 }
 
+// -- SkStrikeChooser ------------------------------------------------------------------------------
+
+SkStrikeChooser::SkStrikeChooser(const SkStrikeContext* context,
+                                 const SkPaint& paint,
+                                 const SkFont& font,
+                                 const SkMatrix& matrix)
+     : fContext{context}
+     , fPaint{paint}
+     , fFont{font}
+     , fMatrix{matrix} {}
+
+bool SkStrikeChooser::renderAsDFT() const {
+    return false;
+}
+
+bool SkStrikeChooser::renderAsPath() const {
+    // hairline glyphs are fast enough so we don't need to cache them
+    if (SkPaint::kStroke_Style == fPaint.getStyle() && 0 == fPaint.getStrokeWidth()) {
+        return true;
+    }
+
+    // we don't cache perspective
+    if (fMatrix.hasPerspective()) {
+        return true;
+    }
+
+    return SkPaint::TooBigToUseCache(fMatrix, SkFontPriv::MakeTextMatrix(fFont), 1024);
+}
+
+SkScopedStrike SkStrikeChooser::chooseMask() const {
+
+    return fContext->makeStrike(fPaint, fFont, fMatrix);
+}
+
+SkScopedStrike SkStrikeChooser::chooseDFT() const {
+    return SkScopedStrike(nullptr);
+}
+
+SkScopedStrike SkStrikeChooser::choosePath() const {
+    return SkScopedStrike(nullptr);
+}
+
+SkScopedStrike SkStrikeChooser::chooseARGBFallback() const {
+    return SkScopedStrike(nullptr);
+}
+
+// -- SkStrikeContext ------------------------------------------------------------------------------
+
+SkStrikeContext::SkStrikeContext(const SkStrikeCreatorInterface& creator,
+                                 const SkSurfaceProps& props,
+                                 SkScalerContextFlags flags)
+    : fCreator{creator}
+    , fDeviceProps{props}
+    , fScalerContextFlags{flags} {}
+
+SkScopedStrike
+SkStrikeContext::makeStrike(
+        const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) const {
+    SkAutoDescriptor desc;
+    SkScalerContextEffects effects;
+    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+            font, paint, fDeviceProps, fScalerContextFlags, matrix, &desc, &effects);
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    return SkScopedStrike{fCreator.create(*desc.getDesc(), effects, *typeface)};
+}
+
+SkStrikeChooser SkStrikeContext::makeChooser(
+        const SkPaint& paint, const SkFont& font, const SkMatrix& matrix) const {
+    return SkStrikeChooser(this, paint, font, matrix);
+}
+
+
+
+
 // -- SkGlyphRunListPainter ------------------------------------------------------------------------
 SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
@@ -408,6 +482,72 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
                 }
             } else {
                 if (cache->hasImage(glyph)) {
+                    fMasks[glyphCount++] = {&glyph, mappedPt};
+                } else {
+                    // In practice, this never happens.
+                    emptyGlyphs.push_back(&glyph);
+                }
+            }
+        }
+    }
+
+    if (!emptyGlyphs.empty()) {
+        processEmpties(SkSpan<const SkGlyph*>{emptyGlyphs.data(), emptyGlyphs.size()});
+    }
+    if (glyphCount > 0) {
+        mapping.mapPoints(fPositions, glyphCount);
+        processMasks(SkSpan<const GlyphAndPos>{fMasks, SkTo<size_t>(glyphCount)});
+    }
+    if (!fPaths.empty()) {
+        processPaths(SkSpan<const GlyphAndPos>{fPaths});
+    }
+}
+
+
+template <typename EmptiesT, typename MasksT, typename PathsT>
+void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback2(
+        const SkPaint& paint, const SkFont& font, const SkStrikeContext& strikeContext,
+        const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
+        EmptiesT&& processEmpties, MasksT&& processMasks, PathsT&& processPaths) {
+
+    SkStrikeChooser strikeChooser = strikeContext.makeChooser(paint, font, deviceMatrix);
+    SkScopedStrike strike = strikeChooser.chooseMask();
+
+    ScopedBuffers _ = this->ensureBuffers(glyphRun);
+
+    int glyphCount = 0;
+    // Four empty glyphs are expected; one for each horizontal subpixel position.
+    SkSTArray<4, const SkGlyph*> emptyGlyphs;
+
+    SkMatrix mapping = deviceMatrix;
+    mapping.preTranslate(origin.x(), origin.y());
+    SkVector rounding = strike->rounding();
+    mapping.postTranslate(rounding.x(), rounding.y());
+    mapping.mapPoints(fPositions,  glyphRun.positions().data(), glyphRun.runSize());
+
+    const SkPoint* posCursor = fPositions;
+    for (auto glyphID : glyphRun.glyphsIDs()) {
+        SkPoint mappedPt = *posCursor++;
+
+        if (std::any_of(emptyGlyphs.begin(), emptyGlyphs.end(),
+                        [glyphID](const SkGlyph* g) { return g->getGlyphID() == glyphID; })) {
+            continue;
+        }
+
+        if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+            const SkGlyph& glyph = strike->getGlyphMetrics(glyphID, mappedPt);
+            if (glyph.isEmpty()) {
+                emptyGlyphs.push_back(&glyph);
+            } else if (SkStrikeCommon::GlyphTooBigForAtlas(glyph)) {
+                if (strike->hasPath(glyph)) {
+                    fPaths.push_back({&glyph, mappedPt});
+                } else {
+                    // This happens when a bitmap-only font is forced to scale very large. This
+                    // doesn't happen in practice.
+                    emptyGlyphs.push_back(&glyph);
+                }
+            } else {
+                if (strike->hasImage(glyph)) {
                     fMasks[glyphCount++] = {&glyph, mappedPt};
                 } else {
                     // In practice, this never happens.
@@ -831,6 +971,19 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
             // Ensure the blob is set for bitmaptext
             this->setHasBitmap();
 
+            class Creator : public SkStrikeCreatorInterface {
+            public:
+                SkStrikeInterface*
+                create(const SkDescriptor& desc, const SkScalerContextEffects& effects,
+                       const SkTypeface& typeface) const override {
+                    return SkStrikeCache::GlobalStrikeCache()->findOrCreateStrike2(
+                                    desc, effects,typeface);
+                }
+            } creator;
+
+
+            SkStrikeContext strikeContext{creator, props, scalerContextFlags};
+
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     runFont, runPaint, props, scalerContextFlags, viewMatrix);
             run->setupFont(runPaint, runFont, cache->getDescriptor());
@@ -861,8 +1014,9 @@ void GrTextBlob::generateFromGlyphRunList(GrStrikeCache* glyphCache,
                     }
                 };
 
-            glyphPainter->drawGlyphRunAsBMPWithPathFallback(
-                    cache.get(), glyphRun, origin, viewMatrix,
+            glyphPainter->drawGlyphRunAsBMPWithPathFallback2(
+                    runPaint, runFont, strikeContext,
+                    glyphRun, origin, viewMatrix,
                     std::move(processEmpties), std::move(processMasks), std::move(processPaths));
         }
     }
@@ -1121,3 +1275,4 @@ SkGlyphRunListPainter::ScopedBuffers::~ScopedBuffers() {
         fPainter->fARGBPositions.shrink_to_fit();
     }
 }
+
