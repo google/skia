@@ -153,6 +153,34 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                       kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
+sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
+                                           int width, int height, CompressionType type) {
+    // create the backing texture
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    switch (type) {
+        case kETC1_CompressionType:
+            desc.fConfig = kRGB_ETC1_GrPixelConfig;
+            break;
+        default:
+            desc.fConfig = kUnknown_GrPixelConfig;
+            break;
+    }
+    desc.fSampleCnt = 1;
+
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(std::move(data), desc);
+
+    if (!proxy) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+                                   std::move(proxy), nullptr);
+}
+
 sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorSpace yuvColorSpace,
                                                      const GrBackendTexture yuvaTextures[],
                                                      const SkYUVAIndex yuvaIndices[4], SkISize size,
