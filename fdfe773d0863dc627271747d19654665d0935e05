@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01215194_a3cc3465",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-17T21:47:07Z",
+      "side": 1,
+      "message": "Not sure this is the best way to handle it, but Chromium builds with -DUCHAR_TYPE\u003duint16_t and the compiler balks otherwise.",
+      "range": {
+        "startLine": 156,
+        "startChar": 22,
+        "endLine": 156,
+        "endChar": 52
+      },
+      "revId": "fdfe773d0863dc627271747d19654665d0935e05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
