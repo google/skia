@@ -15,20 +15,16 @@ config("public_config") {
 
 source_set("skshaper") {
   if (skia_enable_skshaper) {
+    import("skshaper.gni")
     public_configs = [ ":public_config" ]
-    public = [
-      "include/SkShaper.h",
-    ]
+    public = skia_shaper_public
     deps = [
       "../..:skia",
     ]
-    sources = [
-      "src/SkShaper.cpp",
-    ]
     if (target_cpu == "wasm") {
-      sources += [ "src/SkShaper_primitive.cpp" ]
+      sources = skia_shaper_primitive_sources
     } else {
-      sources += [ "src/SkShaper_harfbuzz.cpp" ]
+      sources = skia_shaper_harfbuzz_sources
       deps += [
         "//third_party/harfbuzz",
         "//third_party/icu",
