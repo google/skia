@@ -107,6 +107,11 @@ public:
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface);
 
+    SkStrikeInterface* findOrCreateStrike2(
+            const SkDescriptor& desc,
+            const SkScalerContextEffects& effects,
+            const SkTypeface& typeface);
+
     // Routines to find suitable data when working in a remote cache situation. These are
     // suitable as substitutes for similar calls in SkScalerContext.
     bool desperationSearchForImage(const SkDescriptor& desc,

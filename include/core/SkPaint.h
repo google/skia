@@ -1145,7 +1145,6 @@ private:
     friend class GrTextContext;
     friend class GrGLPathRendering;
     friend class GrPathRendering;
-    friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
@@ -1155,6 +1154,7 @@ private:
     friend class SkPicturePlayback;
     friend class SkPDFDevice;
     friend class SkScalerContext;
+    friend class SkStrikeChooser;
     friend class SkTextBaseIter;
     friend class SkTextBlobCacheDiffCanvas;
 };

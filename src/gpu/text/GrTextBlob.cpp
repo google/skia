@@ -70,6 +70,17 @@ void GrTextBlob::Run::setupFont(const SkPaint& skPaint,
     desc->reset(cacheDescriptor);
 }
 
+void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
+    fTypeface = sk_ref_sp(&strikeSpec.typeface());
+    fPathEffect = sk_ref_sp(strikeSpec.effects().fPathEffect);
+    fMaskFilter = sk_ref_sp(strikeSpec.effects().fMaskFilter);
+    // if we have an override descriptor for the run, then we should use that
+    SkAutoDescriptor* desc =
+            fARGBFallbackDescriptor.get() ? fARGBFallbackDescriptor.get() : &fDescriptor;
+    // Set up the descriptor for possible cache lookups during regen.
+    desc->reset(strikeSpec.desc());
+}
+
 void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,
                                       SkScalar scale, bool preTransformed) {
     fPathGlyphs.push_back(PathGlyph(path, position.x(), position.y(), scale, preTransformed));

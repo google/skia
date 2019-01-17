@@ -140,6 +140,16 @@ public:
 
     bool hasPath(const SkGlyph& glyph) override;
 
+    const SkDescriptor& descriptor() const override {return this->getDescriptor(); }
+
+    SkStrikeSpec strikeSpec() const override {
+        SkTypeface* tf = this->getScalerContext()->getTypeface();
+        return SkStrikeSpec{this->descriptor(), tf ? *tf : *SkTypeface::GetDefaultTypeface(),
+                            this->getScalerContext()->getEffects()};
+    }
+
+    void outOfScope() override {}
+
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
 
