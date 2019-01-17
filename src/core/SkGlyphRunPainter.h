@@ -26,6 +26,54 @@ public:
     virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
     virtual bool hasImage(const SkGlyph& glyph) = 0;
     virtual bool hasPath(const SkGlyph& glyph) = 0;
+    virtual void outOfScope() = 0;
+};
+
+class SkScopedStrike {
+public:
+    SkScopedStrike(SkStrikeInterface* strike) : fStrike{strike} {}
+    ~SkScopedStrike() { fStrike->outOfScope(); }
+
+    SkStrikeInterface* get() const { return fStrike; }
+    SkStrikeInterface* operator->() const { return this->get(); }
+    SkStrikeInterface& operator*() const { return *this->get(); }
+
+private:
+    SkStrikeInterface* fStrike;
+};
+
+class SkStrikeChooser {
+    SkStrikeChooser(const SkPaint&, const SkFont&, const SkMatrix&);
+
+    bool renderAsDFT() const;
+    bool renderAsPath() const;
+
+    SkScopedStrike chooseMask() const;
+    SkScopedStrike chooseDFT() const;
+    SkScopedStrike choosePath() const;
+    SkScopedStrike chooseARGBFallback() const;
+
+private:
+    const SkPaint& fPaint;
+    const SkFont& fFont;
+    const SkMatrix& fMatrix;
+};
+
+class SkStrikeContext {
+    SkStrikeContext(
+            const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
+
+    SkScopedStrike choose(const SkPaint&, const SkFont&, const SkMatrix&);
+
+    SkStrikeChooser makeChooser(const SkPaint&, const SkFont&, const SkMatrix&) const;
+
+private:
+    // The props as on the actual device.
+    const SkSurfaceProps fDeviceProps;
+    // The props for when the bitmap device can't draw LCD text.
+    const SkSurfaceProps fBitmapFallbackProps;
+    const SkColorType fColorType;
+    const SkScalerContextFlags fScalerContextFlags;
 };
 
 class SkStrikeCommon {
