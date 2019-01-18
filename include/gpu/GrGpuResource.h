@@ -141,7 +141,6 @@ private:
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
-
     /**
      * Tests whether a object has been abandoned or released. All objects will
      * be in this state after their creating GrContext is destroyed or has
@@ -265,7 +264,7 @@ protected:
     // This must be called by every GrGpuObject that references any wrapped backend objects. It
     // should be called once the object is fully initialized (i.e. only from the constructors of the
     // final class).
-    void registerWithCacheWrapped(bool purgeImmediately = false);
+    void registerWithCacheWrapped(GrWrapCacheable = GrWrapCacheable::kYes);
 
     GrGpuResource(GrGpu*);
     virtual ~GrGpuResource();
@@ -349,11 +348,10 @@ private:
     // This is not ref'ed but abandon() or release() will be called before the GrGpu object
     // is destroyed. Those calls set will this to NULL.
     GrGpu* fGpu;
-    mutable size_t fGpuMemorySize;
+    mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 
-    SkBudgeted fBudgeted;
-    bool fShouldPurgeImmediately;
-    bool fRefsWrappedObjects;
+    GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedCacheable;
+    bool fRefsWrappedObjects = false;
     const UniqueID fUniqueID;
 
     typedef GrIORef<GrGpuResource> INHERITED;

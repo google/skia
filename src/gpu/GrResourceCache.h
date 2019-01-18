@@ -225,7 +225,7 @@ public:
             if (resource->resourcePriv().refsWrappedObjects()) {
                 ++fWrapped;
             }
-            if (SkBudgeted::kNo  == resource->resourcePriv().isBudgeted()) {
+            if (BudgetedType::kBudgeted != resource->resourcePriv().budgetedType()) {
                 fUnbudgetedSize += resource->gpuMemorySize();
             }
         }
@@ -280,6 +280,8 @@ private:
 #else
     void validate() const {}
 #endif
+
+    using BudgetedType = GrBudgetedType;
 
     class AutoValidate;
 
