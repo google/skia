@@ -670,7 +670,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         // Since this resource is unbudgeted, it should not be reachable as scratch.
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
         REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
-        REPORTER_ASSERT(reporter, GrBudgetedType::kUnbudgetedCacheable ==
+        REPORTER_ASSERT(reporter, GrBudgetedType::kUnbudgetedUncacheable ==
                                           resource->resourcePriv().budgetedType());
         REPORTER_ASSERT(reporter, nullptr == cache->findAndRefScratchResource(key, TestResource::kDefaultSize, GrResourceCache::ScratchFlags::kNone));
         REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
