@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2019 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -14,20 +14,20 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class SK_API GrDDLContext : public GrRecordingContext {
+class SK_API GrImageCreationContext : public GrImageContext {
 public:
-    GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
+    GrImageCreationContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->priv().backend(),
                         proxy->priv().contextOptions(),
                         proxy->priv().contextUniqueID()) {
     }
 
-    ~GrDDLContext() override { }
+    ~GrImageCreationContext() override { }
 
-    static sk_sp<GrRecordingContext> Make(const sk_sp<GrContextThreadSafeProxy> proxy) {
-        sk_sp<GrDDLContext> context(new GrDDLContext(proxy));
+    static sk_sp<GrImageContext> Make(const sk_sp<GrContextThreadSafeProxy> proxy) {
+        sk_sp<GrImageCreationContext> context(new GrImageCreationContext(proxy));
 
-        if (!context->initDDL(proxy->priv().refCaps(),
+        if (!context->initImage(proxy->priv().refCaps(),
                               proxy,
                               proxy->priv().fpFactoryCache())) {
             return nullptr;
@@ -37,22 +37,22 @@ public:
     }
 
 protected:
-    bool initDDL(sk_sp<const GrCaps> caps,
-                 sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                 sk_sp<GrSkSLFPFactoryCache> cache) {
+    bool initImage(sk_sp<const GrCaps> caps,
+                   sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                   sk_sp<GrSkSLFPFactoryCache> cache) {
         if (!this->initWeakest(std::move(caps), std::move(threadSafeProxy), std::move(cache))) {
             return false;
         }
 
-        // Create drawingManager and proxyManager in here
+        // Create proxyProvider here
 
         return true;
     }
 
 private:
-    typedef GrRecordingContext INHERITED;
+    typedef GrImageContext INHERITED;
 };
 
-sk_sp<GrRecordingContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& proxy) {
-    return GrDDLContext::Make(std::move(proxy));
+sk_sp<GrImageContext> GrContextPriv::MakeImageContext(const sk_sp<GrContextThreadSafeProxy>& proxy) {
+    return GrImageCreationContext::Make(std::move(proxy));
 }

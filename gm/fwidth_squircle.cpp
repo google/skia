@@ -164,7 +164,7 @@ private:
 // Test.
 
 void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     canvas->clear(SK_ColorWHITE);
@@ -174,7 +174,7 @@ void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
         return;
     }
 
-    if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         SkTextUtils::DrawString(canvas, "Shader derivatives not supported.", 150,
                                 150 - 8, font, SkPaint(), SkTextUtils::kCenter_Align);

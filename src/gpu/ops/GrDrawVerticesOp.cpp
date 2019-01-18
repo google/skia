@@ -12,7 +12,7 @@
 #include "SkGr.h"
 #include "SkRectPriv.h"
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
                                                  const SkVertices::Bone bones[],

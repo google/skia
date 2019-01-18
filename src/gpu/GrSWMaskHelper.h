@@ -50,7 +50,7 @@ public:
     // Draw a single path into the accumuation bitmap using the specified op
     void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
-    sk_sp<GrTextureProxy> toTextureProxy(GrContext*, SkBackingFit fit);
+    sk_sp<GrTextureProxy> toTextureProxy(GrRecordingContext*, SkBackingFit fit);
 
     // Reset the internal bitmap
     void clear(uint8_t alpha) {

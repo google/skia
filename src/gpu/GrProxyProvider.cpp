@@ -30,6 +30,7 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
+#if 0
 GrProxyProvider::GrProxyProvider(GrResourceProvider* resourceProvider,
                                  GrResourceCache* resourceCache,
                                  sk_sp<const GrCaps> caps,
@@ -48,26 +49,27 @@ GrProxyProvider::GrProxyProvider(GrResourceProvider* resourceProvider,
     SkASSERT(fCaps);
     SkASSERT(fSingleOwner);
 }
+#endif
 
 GrProxyProvider::GrProxyProvider(uint32_t contextUniqueID,
                                  sk_sp<const GrCaps> caps,
                                  GrSingleOwner* owner)
-        : fResourceProvider(nullptr)
-        , fResourceCache(nullptr)
+        : fResourceProvider1(nullptr)
+        , fResourceCache1(nullptr)
         , fAbandoned(false)
-        , fCaps(caps)
+        , fCaps1(caps)
         , fContextUniqueID(contextUniqueID)
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
 #endif
 {
     SkASSERT(fContextUniqueID != SK_InvalidUniqueID);
-    SkASSERT(fCaps);
+    SkASSERT(fCaps1);
     SkASSERT(fSingleOwner);
 }
 
 GrProxyProvider::~GrProxyProvider() {
-    if (fResourceCache) {
+    if (fResourceCache1) {
         // In DDL-mode a proxy provider can still have extant uniquely keyed proxies (since
         // they need their unique keys to, potentially, find a cached resource when the
         // DDL is played) but, in non-DDL-mode they should all have been cleaned up by this point.
@@ -85,7 +87,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     // If there is already a GrResource with this key then the caller has violated the normal
     // usage pattern of uniquely keyed resources (e.g., they have created one w/o first seeing
     // if it already existed in the cache).
-    SkASSERT(!fResourceCache || !fResourceCache->findAndRefUniqueResource(key));
+    SkASSERT(!fResourceCache1 || !fResourceCache1->findAndRefUniqueResource(key));
 
     SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
 
@@ -158,11 +160,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
         return result;
     }
 
-    if (!fResourceCache) {
+    if (!fResourceCache1) {
         return nullptr;
     }
 
-    GrGpuResource* resource = fResourceCache->findAndRefUniqueResource(key);
+    GrGpuResource* resource = fResourceCache1->findAndRefUniqueResource(key);
     if (!resource) {
         return nullptr;
     }
@@ -197,12 +199,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    GrBackendFormat format = fCaps->getBackendFormatFromColorType(info.colorType());
+    GrBackendFormat format = fCaps1->getBackendFormatFromColorType(info.colorType());
     if (!format.isValid()) {
         return nullptr;
     }
 
-    if (!this->caps()->isConfigTexturable(config)) {
+    if (!this->caps1()->isConfigTexturable(config)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
             !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
@@ -214,14 +216,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
+        sampleCnt = this->caps1()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {
             return nullptr;
         }
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
-        if (fCaps->usesMixedSamples() && sampleCnt > 1) {
+        if (fCaps1->usesMixedSamples() && sampleCnt > 1) {
             surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
         }
     }
@@ -257,10 +259,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    if (fResourceProvider) {
+    if (fResourceProvider1) {
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
         // we're better off instantiating the proxy immediately here.
-        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider1)) {
             return nullptr;
         }
     }
@@ -294,7 +296,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
     // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode copyMode = this->recordingDDL() ? kIfMutable_SkCopyPixelsMode
+    SkCopyPixelsMode copyMode = this->recordingDDL1() ? kIfMutable_SkCopyPixelsMode
                                                      : kNever_SkCopyPixelsMode;
     sk_sp<SkImage> baseLevel = SkMakeImageFromRasterBitmap(bitmap, copyMode);
     if (!baseLevel) {
@@ -307,13 +309,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
                                         SkBackingFit::kExact);
     }
 
-    const GrBackendFormat format = fCaps->getBackendFormatFromColorType(bitmap.info().colorType());
+    const GrBackendFormat format = fCaps1->getBackendFormatFromColorType(bitmap.info().colorType());
     if (!format.isValid()) {
         return nullptr;
     }
 
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
-    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps1()->isConfigTexturable(desc.fConfig)) {
         SkBitmap copy8888;
         if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
             !bitmap.readPixels(copy8888.pixmap())) {
@@ -366,10 +368,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    if (fResourceProvider) {
+    if (fResourceProvider1) {
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
         // we're better off instantiating the proxy immediately here.
-        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider1)) {
             return nullptr;
         }
     }
@@ -391,19 +393,19 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         }
     }
 
-    if (!this->caps()->validateSurfaceDesc(desc, mipMapped)) {
+    if (!this->caps1()->validateSurfaceDesc(desc, mipMapped)) {
         return nullptr;
     }
     GrSurfaceDesc copyDesc = desc;
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         copyDesc.fSampleCnt =
-                this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+                this->caps1()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
     }
 
     if (copyDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps(), format, copyDesc,
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*this->caps1(), format, copyDesc,
                                                                     origin, mipMapped,
                                                                     fit, budgeted, surfaceFlags));
     }
@@ -424,11 +426,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     }
 
     // This is only supported on a direct GrContext.
-    if (!fResourceProvider) {
+    if (!fResourceProvider1) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType);
+    sk_sp<GrTexture> tex = fResourceProvider1->wrapBackendTexture(backendTex, ownership, ioType);
     if (!tex) {
         return nullptr;
     }
@@ -455,17 +457,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     }
 
     // This is only supported on a direct GrContext.
-    if (!fResourceProvider) {
+    if (!fResourceProvider1) {
         return nullptr;
     }
 
-    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
+    sampleCnt = this->caps1()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
     if (!sampleCnt) {
         return nullptr;
     }
 
     sk_sp<GrTexture> tex =
-            fResourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
+            fResourceProvider1->wrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
     if (!tex) {
         return nullptr;
     }
@@ -484,11 +486,11 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    if (!fResourceProvider) {
+    if (!fResourceProvider1) {
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> rt = fResourceProvider->wrapBackendRenderTarget(backendRT);
+    sk_sp<GrRenderTarget> rt = fResourceProvider1->wrapBackendRenderTarget(backendRT);
     if (!rt) {
         return nullptr;
     }
@@ -507,12 +509,12 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    if (!fResourceProvider) {
+    if (!fResourceProvider1) {
         return nullptr;
     }
 
     sk_sp<GrRenderTarget> rt =
-            fResourceProvider->wrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
+            fResourceProvider1->wrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
     if (!rt) {
         return nullptr;
     }
@@ -531,11 +533,11 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
     }
 
     // This is only supported on a direct GrContext.
-    if (!fResourceProvider) {
+    if (!fResourceProvider1) {
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> rt = fResourceProvider->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
+    sk_sp<GrRenderTarget> rt = fResourceProvider1->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
                                                                                       vkInfo);
 
     if (!rt) {
@@ -573,7 +575,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted) {
     // For non-ddl draws always make lazy proxy's single use.
-    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
+    LazyInstantiationType lazyType = fResourceProvider1 ? LazyInstantiationType::kSingleUse
                                                        : LazyInstantiationType::kMultipleUse;
     return this->createLazyProxy(std::move(callback), format, desc, origin, mipMapped, surfaceFlags,
                                  fit, budgeted, lazyType);
@@ -591,7 +593,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
 
-    if (desc.fWidth > fCaps->maxTextureSize() || desc.fHeight > fCaps->maxTextureSize()) {
+    if (desc.fWidth > fCaps1->maxTextureSize() || desc.fHeight > fCaps1->maxTextureSize()) {
         return nullptr;
     }
 
@@ -599,7 +601,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
 #ifdef SK_DEBUG
     if (SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags)) {
         if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
-            SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
+            SkASSERT(fCaps1->usesMixedSamples() && desc.fSampleCnt > 1);
         }
     }
 #endif
@@ -619,7 +621,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
 
-    if (desc.fWidth > fCaps->maxRenderTargetSize() || desc.fHeight > fCaps->maxRenderTargetSize()) {
+    if (desc.fWidth > fCaps1->maxRenderTargetSize() || desc.fHeight > fCaps1->maxRenderTargetSize()) {
         return nullptr;
     }
 
@@ -627,13 +629,13 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
 
 #ifdef SK_DEBUG
     if (SkToBool(surfaceFlags & GrInternalSurfaceFlags::kMixedSampled)) {
-        SkASSERT(fCaps->usesMixedSamples() && desc.fSampleCnt > 1);
+        SkASSERT(fCaps1->usesMixedSamples() && desc.fSampleCnt > 1);
     }
 #endif
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
     // For non-ddl draws always make lazy proxy's single use.
-    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
+    LazyInstantiationType lazyType = fResourceProvider1 ? LazyInstantiationType::kSingleUse
                                                        : LazyInstantiationType::kMultipleUse;
 
     if (textureInfo) {
@@ -701,8 +703,8 @@ void GrProxyProvider::processInvalidUniqueKey(const GrUniqueKey& key, GrTextureP
         if (proxy && proxy->isInstantiated()) {
             invalidGpuResource = sk_ref_sp(proxy->peekSurface());
         }
-        if (!invalidGpuResource && fResourceProvider) {
-            invalidGpuResource = fResourceProvider->findByUniqueKey<GrGpuResource>(key);
+        if (!invalidGpuResource && fResourceProvider1) {
+            invalidGpuResource = fResourceProvider1->findByUniqueKey<GrGpuResource>(key);
         }
         SkASSERT(!invalidGpuResource || invalidGpuResource->getUniqueKey() == key);
     }

@@ -10,11 +10,11 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrMemoryPool.h"
 
-std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrClearStencilClipOp::Make(GrRecordingContext* context,
                                                  const GrFixedClip& clip,
                                                  bool insideStencilMask,
                                                  GrRenderTargetProxy* proxy) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrClearStencilClipOp>(clip, insideStencilMask, proxy);
 }

@@ -68,7 +68,7 @@ public:
      * associated with it.
      */
     static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext* context,
+                   GrContextWeakest* context,
                    int index,
                    const char* name,
                    const char* sksl,

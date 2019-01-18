@@ -36,7 +36,7 @@ namespace SkGpuBlurUtils {
     * @return                The renderTargetContext containing the blurred result.
     */
     sk_sp<GrRenderTargetContext> GaussianBlur(
-            GrContext* context,
+            GrRecordingContext* context,
             sk_sp<GrTextureProxy> src,
             sk_sp<SkColorSpace> colorSpace,
             const SkIRect& dstBounds,
