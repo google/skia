@@ -176,6 +176,25 @@ public:
     */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
+    enum CompressionType {
+        kETC1_CompressionType, //!< compressed data uses ETC1 compression
+    };
+
+    /** Creates a GPU-backed SkImage from compressed data.
+
+        SkImage is returned if format of the compressed data is supported.
+        Supported formats vary by platform.
+
+        @param context  GPU context
+        @param data     compressed data to store in SkImage
+        @param width    width of full SkImage
+        @param height   height of full SkImage
+        @param type     type of compression used
+        @return         created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
+                                             int width, int height, CompressionType type);
+
     /** User function called when supplied texture may be deleted.
     */
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
