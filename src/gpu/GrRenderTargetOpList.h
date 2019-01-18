@@ -196,12 +196,9 @@ private:
 
         void validate() const;
 
-        std::tuple<List, List> TryConcat(List chainA, const DstProxy& dstProxyA,
-                                         const GrAppliedClip* appliedClipA, List chainB,
-                                         const DstProxy& dstProxyB,
-                                         const GrAppliedClip* appliedClipB, const GrCaps&,
-                                         GrOpMemoryPool*, GrAuditTrail*);
-        List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
+        bool tryConcat(List*, const DstProxy&, const GrAppliedClip*, const GrCaps&, GrOpMemoryPool*,
+                       GrAuditTrail*);
+        static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
         DstProxy fDstProxy;

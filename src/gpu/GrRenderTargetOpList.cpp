@@ -224,61 +224,58 @@ GrRenderTargetOpList::OpChain::List GrRenderTargetOpList::OpChain::DoConcat(
 // Attempts to concatenate two chains and merge ops across the chains. Upon failure the original
 // chain heads and tails are returned. Upon success the new chain's head and tail are returned
 // (and null for the second head/tail).
-std::tuple<GrRenderTargetOpList::OpChain::List, GrRenderTargetOpList::OpChain::List>
-GrRenderTargetOpList::OpChain::TryConcat(List chainA, const DstProxy& dstProxyA,
-                                         const GrAppliedClip* appliedClipA, List chainB,
-                                         const DstProxy& dstProxyB,
-                                         const GrAppliedClip* appliedClipB, const GrCaps& caps,
-                                         GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
-    SkASSERT(!chainA.empty());
-    SkASSERT(!chainB.empty());
+bool GrRenderTargetOpList::OpChain::tryConcat(
+        List* list, const DstProxy& dstProxy, const GrAppliedClip* appliedClip,
+        const GrCaps& caps, GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
+    SkASSERT(!fList.empty());
+    SkASSERT(!list->empty());
     // All returns use explicit tuple constructor rather than {a, b} to work around old GCC bug.
-    if (chainA.head()->classID() != chainB.head()->classID() ||
-        SkToBool(appliedClipA) != SkToBool(appliedClipB) ||
-        (appliedClipA && *appliedClipA != *appliedClipB) ||
-        SkToBool(dstProxyA.proxy()) != SkToBool(dstProxyB.proxy()) ||
-        (dstProxyA.proxy() && dstProxyA != dstProxyB)) {
-        return std::tuple<List, List>(std::move(chainA), std::move(chainB));
+    if (fList.head()->classID() != list->head()->classID() ||
+        SkToBool(fAppliedClip) != SkToBool(appliedClip) ||
+        (fAppliedClip && *fAppliedClip != *appliedClip) ||
+        SkToBool(fDstProxy.proxy()) != SkToBool(dstProxy.proxy()) ||
+        (fDstProxy.proxy() && fDstProxy != dstProxy)) {
+        return false;
     }
     SkDEBUGCODE(bool first = true;)
     do {
-        switch (chainA.tail()->combineIfPossible(chainB.head(), caps)) {
+        switch (fList.tail()->combineIfPossible(list->head(), caps)) {
             case GrOp::CombineResult::kCannotCombine:
                 // If an op supports chaining then it is required that chaining is transitive and
                 // that if any two ops in two different chains can merge then the two chains
                 // may also be chained together. Thus, we should only hit this on the first
                 // iteration.
                 SkASSERT(first);
-                return std::tuple<List, List>(std::move(chainA), std::move(chainB));
+                return false;
             case GrOp::CombineResult::kMayChain:
-                chainA = DoConcat(std::move(chainA), std::move(chainB), caps, pool, auditTrail);
-                return std::tuple<List, List>(std::move(chainA), List());
+                fList = DoConcat(std::move(fList), std::move(*list), caps, pool, auditTrail);
+                return true;
             case GrOp::CombineResult::kMerged: {
                 GrOP_INFO("\t\t: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
-                          chainB.tail()->name(), chainB.tail()->uniqueID(), chainB.head()->name(),
-                          chainB.head()->uniqueID());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, chainA.tail(), chainB.head());
-                pool->release(chainB.popHead());
+                          list->tail()->name(), list->tail()->uniqueID(), list->head()->name(),
+                          list->head()->uniqueID());
+                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, fList.tail(), list->head());
+                pool->release(list->popHead());
                 break;
             }
         }
         SkDEBUGCODE(first = false);
-    } while (!chainB.empty());
+    } while (!list->empty());
     // All the ops from chain b merged.
-    return std::tuple<List, List>(std::move(chainA), List());
+    return true;
 }
 
 bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& caps,
                                                  GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
-    std::tie(that->fList, fList) = TryConcat(
-            std::move(that->fList), that->dstProxy(), that->appliedClip(), std::move(fList),
-            this->dstProxy(), this->appliedClip(), caps, pool, auditTrail);
-    if (!fList.empty()) {
+    if (!that->tryConcat(
+            &fList, this->dstProxy(), this->appliedClip(), caps, pool, auditTrail)) {
         this->validate();
         // append failed
         return false;
     }
+
     // 'that' owns the combined chain. Move it into 'this'.
+    SkASSERT(fList.empty());
     fList = std::move(that->fList);
     fBounds.joinPossiblyEmptyRect(that->fBounds);
 
@@ -305,14 +302,13 @@ std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(std::unique_ptr<Gr
     SkASSERT(op->isChainHead() && op->isChainTail());
     SkRect opBounds = op->bounds();
     List chain(std::move(op));
-    std::tie(fList, chain) =
-            TryConcat(std::move(fList), this->dstProxy(), fAppliedClip, std::move(chain), *dstProxy,
-                      appliedClip, caps, pool, auditTrail);
-    if (!chain.empty()) {  // NOLINT(bugprone-use-after-move)
+    if (!this->tryConcat(&chain, *dstProxy, appliedClip, caps, pool, auditTrail)) {
         // append failed, give the op back to the caller.
         this->validate();
         return chain.popHead();
     }
+
+    SkASSERT(chain.empty());
     fBounds.joinPossiblyEmptyRect(opBounds);
     this->validate();
     return nullptr;
