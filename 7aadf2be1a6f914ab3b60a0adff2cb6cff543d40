@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33c8dbca_e01b5f13",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-18T19:58:42Z",
+      "side": 1,
+      "message": "So in icu 59 and later this takes a UChar* and UChar is defined to be char16_t (it is not supposed to be configurable anymore). At at least icu 62 and later getBuffer returns char16_t*, which is by definition the same as UChar. Except ICU waffled and still allows setting UCHAR_TYPE for transitioning applications (like Chromium) but didn\u0027t keep the discipline of using UChar everywhere.\n\nTechnically this cast invokes undefined behavior in Chromium since char16_t and uint16_t/wchar_t aren\u0027t related types. If it gets through the UBSAN bots I suppose I don\u0027t care that much since everything should work fine with \u0027real\u0027 icu (for which this is not necessary) as opposed to \u0027hacky\u0027 icu.",
+      "range": {
+        "startLine": 156,
+        "startChar": 22,
+        "endLine": 156,
+        "endChar": 71
+      },
+      "revId": "7aadf2be1a6f914ab3b60a0adff2cb6cff543d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
