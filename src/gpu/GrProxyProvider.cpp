@@ -451,6 +451,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrS
 sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
                                                           GrSurfaceOrigin origin,
                                                           GrWrapOwnership ownership,
+                                                          GrWrapCacheable cacheable,
                                                           GrIOType ioType,
                                                           ReleaseProc releaseProc,
                                                           ReleaseContext releaseCtx) {
@@ -464,8 +465,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType,
-                                                                 GrWrapCacheable::kYes);
+    sk_sp<GrTexture> tex =
+            fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType, cacheable);
     if (!tex) {
         return nullptr;
     }

@@ -323,7 +323,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                                  false, GrMipMapped::kNo);
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
-                            backendTex, origin, kBorrow_GrWrapOwnership, kRead_GrIOType);
+                            backendTex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                            kRead_GrIOType);
                     if (!sProxy) {
                         gpu->deleteTestingOnlyBackendTexture(backendTex);
                         continue;

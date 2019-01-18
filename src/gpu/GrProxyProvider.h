@@ -113,8 +113,8 @@ public:
      * kRead or kRW.
      */
     sk_sp<GrTextureProxy> wrapBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                             GrWrapOwnership, GrIOType, ReleaseProc = nullptr,
-                                             ReleaseContext = nullptr);
+                                             GrWrapOwnership, GrWrapCacheable, GrIOType,
+                                             ReleaseProc = nullptr, ReleaseContext = nullptr);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
