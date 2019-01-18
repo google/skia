@@ -38,6 +38,7 @@ public:
     static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                                       const GrGLTexture::IDDesc& texIDDesc,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc,
+                                                      GrWrapCacheable cacheble,
                                                       GrMipMapsStatus);
 
     GrBackendFormat backendFormat() const override {
@@ -62,6 +63,7 @@ private:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
+                            GrWrapCacheable,
                             GrMipMapsStatus);
 
     size_t onGpuMemorySize() const override;

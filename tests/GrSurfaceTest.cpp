@@ -279,7 +279,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                 pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
-                                                       kBorrow_GrWrapOwnership, ioType);
+                                                       kBorrow_GrWrapOwnership,
+                                                       GrWrapCacheable::kNo, ioType);
         auto surfContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
         // Read pixels should work with a read-only texture.
@@ -323,7 +324,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                     nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
-                                                      kBorrow_GrWrapOwnership, ioType);
+                                                      kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                                                      ioType);
             context->flush();
             proxy->peekTexture()->texturePriv().markMipMapsDirty();  // avoids assert in GrGpu.
             auto regenResult =

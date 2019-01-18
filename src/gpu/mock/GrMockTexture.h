@@ -168,11 +168,12 @@ public:
     // Renderable wrapped backend texture.
     GrMockTextureRenderTarget(GrMockGpu* gpu, const GrSurfaceDesc& desc,
                               GrMipMapsStatus mipMapsStatus, const GrMockTextureInfo& texInfo,
-                              const GrMockRenderTargetInfo& rtInfo)
+                              const GrMockRenderTargetInfo& rtInfo,
+                              GrWrapCacheable cacheble)
             : GrSurface(gpu, desc)
             , GrMockTexture(gpu, desc, mipMapsStatus, texInfo)
             , GrMockRenderTarget(gpu, desc, rtInfo) {
-        this->registerWithCacheWrapped();
+        this->registerWithCacheWrapped(cacheble);
     }
 
     GrTexture* asTexture() override { return this; }

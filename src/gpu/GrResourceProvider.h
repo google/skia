@@ -109,7 +109,7 @@ public:
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
                                         GrWrapOwnership /* = kBorrow_GrWrapOwnership*/,
                                         GrIOType,
-                                        GrWrapCacheable = GrWrapCacheable::kYes);
+                                        GrWrapCacheable = GrWrapCacheable::kNo);
 
     /**
      * This makes the backend texture be renderable. If sampleCnt is > 1 and the underlying API
@@ -118,7 +118,8 @@ public:
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                   int sampleCnt,
-                                                  GrWrapOwnership = kBorrow_GrWrapOwnership);
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable);
 
     /**
      * Wraps an existing render target with a GrRenderTarget object. It is

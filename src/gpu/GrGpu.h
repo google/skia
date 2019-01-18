@@ -111,7 +111,7 @@ public:
      * Implements GrResourceProvider::wrapRenderableBackendTexture
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&,
-                                                  int sampleCnt, GrWrapOwnership);
+                                                  int sampleCnt, GrWrapOwnership, GrWrapCacheable);
 
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
@@ -461,7 +461,7 @@ private:
                                                   GrWrapCacheable, GrIOType) = 0;
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
                                                             int sampleCnt,
-                                                            GrWrapOwnership) = 0;
+                                                            GrWrapOwnership, GrWrapCacheable) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                                      int sampleCnt) = 0;

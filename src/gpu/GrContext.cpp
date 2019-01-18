@@ -947,7 +947,7 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
     ASSERT_SINGLE_OWNER_PRIV
 
     sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendTexture(
-            tex, origin, kBorrow_GrWrapOwnership, kRW_GrIOType);
+            tex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
     if (!proxy) {
         return nullptr;
     }
@@ -965,7 +965,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     SkASSERT(sampleCnt > 0);
 
     sk_sp<GrTextureProxy> proxy(
-            this->proxyProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
+            this->proxyProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt,
+                    kBorrow_GrWrapOwnership, GrWrapCacheable::kNo));
     if (!proxy) {
         return nullptr;
     }

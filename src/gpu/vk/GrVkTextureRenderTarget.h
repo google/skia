@@ -34,6 +34,7 @@ public:
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
                                                                          const GrSurfaceDesc&,
                                                                          GrWrapOwnership,
+                                                                         GrWrapCacheable,
                                                                          const GrVkImageInfo&,
                                                                          sk_sp<GrVkImageLayout>);
 

@@ -228,6 +228,7 @@ sk_sp<GrVkTextureRenderTarget>
 GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(GrVkGpu* gpu,
                                                         const GrSurfaceDesc& desc,
                                                         GrWrapOwnership wrapOwnership,
+                                                        GrWrapCacheable cacheable,
                                                         const GrVkImageInfo& info,
                                                         sk_sp<GrVkImageLayout> layout) {
     // Wrapped textures require both image and allocation (because they can be mapped)
