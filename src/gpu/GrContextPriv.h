@@ -31,13 +31,31 @@ public:
     /**
      * Create a GrContext without a resource cache
      */
-    static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
+    static sk_sp<GrRecordingContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
-    const GrCaps* caps() const { return fContext->fCaps.get(); }
+    static sk_sp<GrImageContext> MakeImageContext(const sk_sp<GrContextThreadSafeProxy>&);
 
+    // from GrContextWeakest
+    GrBackendApi backend() const { return fContext->backend(); }
+
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() { fContext->getFPFactoryCache(); }
+
+    // from GrImageContext
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    GrSingleOwner* singleOwner() const { return fContext->singleOwner(); }
+
+    // from GrRecordingContext
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
-    GrOpMemoryPool* opMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
+    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+
+    //----
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
@@ -182,12 +200,8 @@ public:
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
 
-    GrBackendApi getBackend() const { return fContext->fBackend; }
-
+    // legacy
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
-
-    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
-    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
 
     GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
@@ -215,7 +229,7 @@ public:
      */
     void purgeAllUnlockedResources_ForTesting();
 
-
+#if 0
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
@@ -249,6 +263,7 @@ public:
                                                  GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                                  const SkSurfaceProps* surfaceProps = nullptr,
                                                  SkBudgeted budgeted = SkBudgeted::kYes);
+#endif
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -275,16 +290,7 @@ public:
         if it gets cached or used more generally. */
     sk_sp<SkImage> getFontAtlasImage_ForTesting(GrMaskFormat format, unsigned int index = 0);
 
-    GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
-
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
-
-    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() {
-        return fContext->fFPFactoryCache;
-    }
-
-    /** This is only useful for debug purposes */
-    SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

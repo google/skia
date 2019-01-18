@@ -28,6 +28,12 @@ class GrTextureContext;
 class GrTextureOpList;
 class SkDeferredDisplayList;
 
+class GrFoo {
+public:
+
+
+};
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -53,7 +59,7 @@ public:
     sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managedOpList);
     sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
 
-    GrContext* getContext() { return fContext; }
+    //GrContext* getContext() { return fContext; }
 
     GrTextContext* getTextContext();
 
@@ -149,13 +155,14 @@ private:
     SkDEBUGCODE(void validate() const);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
+    friend class GrDirectContext;
     friend class GrContextPriv; // access to: flush
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class
 
     static const int kNumPixelGeometries = 5; // The different pixel geometries
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
-    GrContext*                        fContext;
+    GrRecordingContext*               fContext;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
     GrTextContext::Options            fOptionsForTextContext;
 

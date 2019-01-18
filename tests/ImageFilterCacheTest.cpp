@@ -171,11 +171,11 @@ static void test_image_backed(skiatest::Reporter* reporter,
                               const sk_sp<SkImage>& srcImage) {
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
-    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage(context, full, srcImage));
+    sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeFromImage73(context, full, srcImage));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
-    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage(context, subset, srcImage));
+    sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeFromImage73(context, subset, srcImage));
 
     test_find_existing(reporter, fullImg, subsetImg);
     test_dont_find_if_diff_key(reporter, fullImg, subsetImg);

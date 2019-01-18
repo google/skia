@@ -148,7 +148,7 @@ protected:
                 if (!image) {
                     continue;
                 }
-                if (GrContext* context = canvas->getGrContext()) {
+                if (auto context = canvas->getGrContext()) {
                     image = image->makeTextureImage(context, canvas->imageInfo().colorSpace());
                 }
                 if (image) {

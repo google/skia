@@ -89,7 +89,7 @@ public:
     void discard();
 
     /** Clears the entire render target */
-    void fullClear(GrContext*, const SkPMColor4f& color);
+    void fullClear(GrRecordingContext*, const SkPMColor4f& color);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -101,7 +101,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrContext*,
+    bool copySurface(GrRecordingContext*,
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,

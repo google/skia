@@ -41,7 +41,9 @@ class SkSurface;
 class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
+class GrRecordingContext;
 class GrTexture;
+class GrContextWeakest;
 
 struct SkYUVAIndex;
 
@@ -691,7 +693,7 @@ public:
         @param context  GPU context
         @return         true if SkImage can be drawn
     */
-    bool isValid(GrContext* context) const;
+    bool isValid(GrRecordingContext* context) const;
 
     /** Retrieves the back-end texture. If SkImage has no back-end texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result
@@ -894,7 +896,7 @@ public:
         @param mipMapped      whether created SkImage texture must allocate mip map levels
         @return               created SkImage, or nullptr
     */
-    sk_sp<SkImage> makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace,
+    sk_sp<SkImage> makeTextureImage(GrContextWeakest* context, SkColorSpace* dstColorSpace,
                                     GrMipMapped mipMapped = GrMipMapped::kNo) const;
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into

@@ -57,7 +57,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 
 
 // Create a fixed size text label like "LL" or "LR".
-static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
+static sk_sp<SkImage> make_text_image(GrContextWeakest* context, const char* text, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -208,7 +208,7 @@ protected:
         canvas->restore();
     }
 
-    void makeLabels(GrContext* context) {
+    void makeLabels(GrRecordingContext* context) {
         static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
         static const SkColor kLabelColors[kNumLabels] = {
@@ -226,7 +226,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
