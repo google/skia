@@ -91,7 +91,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     return true;
 }
 
-sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
+sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrImageContext* context, SkBackingFit fit) {
     SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
     size_t rowBytes = fPixels->rowBytes();
 

@@ -164,7 +164,7 @@ private:
 // Test.
 
 void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     canvas->clear(SK_ColorWHITE);

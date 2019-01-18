@@ -208,7 +208,7 @@ protected:
         canvas->restore();
     }
 
-    void makeLabels(GrContext* context) {
+    void makeLabels(GrREcordingContext* context) {
         static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
 
         static const SkColor kLabelColors[kNumLabels] = {
@@ -226,7 +226,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;

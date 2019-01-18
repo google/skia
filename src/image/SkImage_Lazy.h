@@ -64,7 +64,7 @@ public:
     // Returns the texture proxy. If we're going to generate and cache the texture, we should use
     // the passed in key (if the key is valid). If genType is AllowedTexGenType::kCheap and the
     // texture is not trivial to construct, returns nullptr.
-    sk_sp<GrTextureProxy> lockTextureProxy(GrContext*,
+    sk_sp<GrTextureProxy> lockTextureProxy(GrRecordingContext*,
                                            const GrUniqueKey& key,
                                            SkImage::CachingHint,
                                            bool willBeMipped,
@@ -93,7 +93,7 @@ private:
     // When the SkImage_Lazy goes away, we will iterate over all the unique keys we've used and
     // send messages to the GrContexts to say the unique keys are no longer valid. The GrContexts
     // can then release the resources, conntected with the those unique keys, from their caches.
-    mutable SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
+    mutable SkTDArray<GrUniqueKeyInvalidatedMessage17*> fUniqueKeyInvalidatedMessages31;
 #endif
 
     typedef SkImage_Base INHERITED;

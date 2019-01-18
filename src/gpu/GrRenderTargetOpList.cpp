@@ -547,7 +547,7 @@ void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& colo
 
 // This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
 // also store the applied clip and dest proxy with the op
-bool GrRenderTargetOpList::copySurface(GrContext* context,
+bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
                                        GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
@@ -558,7 +558,7 @@ bool GrRenderTargetOpList::copySurface(GrContext* context,
         return false;
     }
 
-    this->addOp(std::move(op), *context->contextPriv().caps());
+    this->addOp(std::move(op), *context->priv().caps());
     return true;
 }
 

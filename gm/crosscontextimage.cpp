@@ -12,7 +12,7 @@
 #include "SkImage.h"
 
 DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;

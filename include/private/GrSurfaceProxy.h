@@ -16,6 +16,7 @@
 #include "SkRect.h"
 
 class GrCaps;
+class GrContextWeakest;
 class GrOpList;
 class GrProxyProvider;
 class GrRenderTargetOpList;
@@ -410,7 +411,7 @@ public:
 
     bool isWrapped_ForTesting() const;
 
-    SkDEBUGCODE(void validate(GrContext*) const;)
+    SkDEBUGCODE(void validate(GrContextWeakest*) const;)
 
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();

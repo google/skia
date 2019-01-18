@@ -249,7 +249,8 @@ sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize&
                                                                std::move(colorSpace)));
 }
 
-sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRect& subset,
+sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
+                                       const SkImageFilter* filter, const SkIRect& subset,
                                        const SkIRect& clipBounds, SkIRect* outSubset,
                                        SkIPoint* offset) const {
     GrContext* context = as_IB(this)->context();
@@ -264,7 +265,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(GrContext* grContext,
     if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
         return nullptr;
     }
-    sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
+    sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage73(
         grContext, subset, sk_ref_sp(const_cast<SkImage*>(this)));
     if (!srcSpecialImage) {
         return nullptr;
@@ -436,7 +437,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace,
+sk_sp<SkImage> SkImage::makeTextureImage(GrContextWeakest*, SkColorSpace* dstColorSpace,
                                          GrMipMapped mipMapped) const {
     return nullptr;
 }

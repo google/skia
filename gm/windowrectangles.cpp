@@ -122,8 +122,8 @@ private:
     constexpr static int kMaskCheckerSize = 5;
     SkString onShortName() final { return SkString("windowrectangles_mask"); }
     void onCoverClipStack(const SkClipStack&, SkCanvas*) final;
-    void visualizeAlphaMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
-    void visualizeStencilMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
+    void visualizeAlphaMask(GrRecordingContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
+    void visualizeStencilMask(GrRecordingContext*, GrRenderTargetContext*, const GrReducedClip&, GrPaint&&);
     void stencilCheckerboard(GrRenderTargetContext*, bool flip);
     void fail(SkCanvas*);
 };
@@ -172,7 +172,7 @@ static GrStencilClip make_stencil_only_clip() {
 };
 
 void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas) {
-    GrContext* ctx = canvas->getGrContext();
+    auto ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     if (!ctx || !rtc || rtc->priv().maxWindowRectangles() < kNumWindows) {
@@ -192,14 +192,14 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     }
 }
 
-void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
     const GrBackendFormat format =
             ctx->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> maskRTC(
-        ctx->contextPriv().makeDeferredRenderTargetContextWithFallback(
+        ctx->priv().makeDeferredRenderTargetContextWithFallback(
                                                          format, SkBackingFit::kExact,
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,
