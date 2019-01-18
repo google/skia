@@ -153,7 +153,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;

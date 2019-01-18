@@ -26,7 +26,6 @@ class SkImage;
  */
 class GrProxyProvider {
 public:
-    GrProxyProvider(GrResourceProvider*, GrResourceCache*, sk_sp<const GrCaps>, GrSingleOwner*);
     GrProxyProvider(uint32_t contextUniqueID, sk_sp<const GrCaps>, GrSingleOwner*);
 
     ~GrProxyProvider();
@@ -210,23 +209,25 @@ public:
     void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
 
     uint32_t contextUniqueID() const { return fContextUniqueID; }
-    const GrCaps* caps() const { return fCaps.get(); }
-    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+    const GrCaps* caps1() const { return fCaps1.get(); }
+    sk_sp<const GrCaps> refCaps1() const { return fCaps1; }
 
-    void abandon() {
-        fResourceCache = nullptr;
-        fResourceProvider = nullptr;
+#if 1
+    void abandon1() {
+        fResourceCache1 = nullptr;
+        fResourceProvider1 = nullptr;
         fAbandoned = true;
     }
 
     bool isAbandoned() const {
 #ifdef SK_DEBUG
         if (fAbandoned) {
-            SkASSERT(!fResourceCache && !fResourceProvider);
+            SkASSERT(!fResourceCache1 && !fResourceProvider1);
         }
 #endif
         return fAbandoned;
     }
+#endif
 
     int numUniqueKeyProxies_TestOnly() const;
 
@@ -240,7 +241,7 @@ public:
     /**
      * Are we currently recording a DDL?
      */
-    bool recordingDDL() const { return !SkToBool(fResourceProvider); }
+    bool recordingDDL1() const { return !SkToBool(fResourceProvider1); }
 
     /*
      * Create a texture proxy that is backed by an instantiated GrSurface.
@@ -251,6 +252,12 @@ public:
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
+    friend class GrDirectContext; // for bam
+
+    void bam(GrResourceProvider* resourceProvider, GrResourceCache* resourceCache) {
+        fResourceProvider1 = resourceProvider;
+        fResourceCache1 = resourceCache;
+    }
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 
@@ -265,10 +272,10 @@ private:
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
 
-    GrResourceProvider*    fResourceProvider;
-    GrResourceCache*       fResourceCache;
+    GrResourceProvider*    fResourceProvider1;
+    GrResourceCache*       fResourceCache1;
     bool                   fAbandoned;
-    sk_sp<const GrCaps>    fCaps;
+    sk_sp<const GrCaps>    fCaps1;
     // If this provider is owned by a DDLContext then this is the DirectContext's ID.
     uint32_t               fContextUniqueID;
 

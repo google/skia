@@ -513,7 +513,7 @@ void GrRenderTargetOpList::discard() {
     }
 }
 
-void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& color) {
+void GrRenderTargetOpList::fullClear(GrRecordingContext* context, const SkPMColor4f& color) {
 
     // This is conservative. If the opList is marked as needing a stencil buffer then there
     // may be a prior op that writes to the stencil buffer. Although the clear will ignore the
@@ -540,14 +540,14 @@ void GrRenderTargetOpList::fullClear(GrContext* context, const SkPMColor4f& colo
         return;
     }
 
-    this->recordOp(std::move(op), *context->contextPriv().caps());
+    this->recordOp(std::move(op), *context->priv().caps());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
 // also store the applied clip and dest proxy with the op
-bool GrRenderTargetOpList::copySurface(GrContext* context,
+bool GrRenderTargetOpList::copySurface(GrRecordingContext* context,
                                        GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,
                                        const SkIRect& srcRect,
@@ -558,7 +558,7 @@ bool GrRenderTargetOpList::copySurface(GrContext* context,
         return false;
     }
 
-    this->addOp(std::move(op), *context->contextPriv().caps());
+    this->addOp(std::move(op), *context->priv().caps());
     return true;
 }
 

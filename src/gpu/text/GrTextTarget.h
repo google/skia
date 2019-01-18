@@ -37,7 +37,7 @@ public:
     virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                              GrPaint*) = 0;
 
-    virtual GrContext* getContext() = 0;
+//    virtual GrContext* getContext() = 0;
 
     virtual SkGlyphRunListPainter* glyphPainter() = 0;
 

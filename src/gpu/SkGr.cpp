@@ -131,28 +131,31 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvide
 
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID,
                                          SkPixelRef* pixelRef) {
-    class Invalidator : public SkPixelRef::GenIDChangeListener {
+    class Invalidator : public SkPixelRef::GenIDChangeListener1 {
     public:
         explicit Invalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
                 : fMsg(key, contextUniqueID) {}
 
-    private:
-        GrUniqueKeyInvalidatedMessage fMsg;
+        //~Invalidator() override {}
 
-        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
+    private:
+        GrUniqueKeyInvalidatedMessage17 fMsg;
+
+        void onChange() override { SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg); }
     };
 
-    pixelRef->addGenIDChangeListener(new Invalidator(key, contextUniqueID));
+    pixelRef->addGenIDChangeListener1(new Invalidator(key, contextUniqueID));
 }
 
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTextureProxy* baseProxy) {
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
+                                                     GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
-    if (!ctx->contextPriv().caps()->isConfigCopyable(baseProxy->config())) {
+    if (!ctx->priv().caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = baseProxy->width();
@@ -172,15 +175,14 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     }
 
     // Copy the base layer to our proxy
-    sk_sp<GrSurfaceContext> sContext =
-            ctx->contextPriv().makeWrappedSurfaceContext(proxy);
+    sk_sp<GrSurfaceContext> sContext = ctx->priv().makeWrappedSurfaceContext(proxy);
     SkASSERT(sContext);
     SkAssertResult(sContext->copy(baseProxy));
 
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
+sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     const SkBitmap& bitmap,
                                                     const GrSamplerState& params,
                                                     SkScalar scaleAdjust[2]) {
@@ -368,7 +370,7 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
 }
 #endif
 
-static inline bool skpaint_to_grpaint_impl(GrContext* context,
+static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
                                            const GrColorSpaceInfo& colorSpaceInfo,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
@@ -377,7 +379,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), colorSpaceInfo,
-                                              *context->contextPriv().caps());
+                                              *context->priv().caps());
 
     const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
@@ -512,14 +514,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     return true;
 }
 
-bool SkPaintToGrPaint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
+bool SkPaintToGrPaint(GrRecordingContext* context, const GrColorSpaceInfo& colorSpaceInfo,
                       const SkPaint& skPaint, const SkMatrix& viewM, GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, viewM, nullptr, nullptr,
                                    grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
-bool SkPaintToGrPaintReplaceShader(GrContext* context,
+bool SkPaintToGrPaintReplaceShader(GrRecordingContext* context,
                                    const GrColorSpaceInfo& colorSpaceInfo,
                                    const SkPaint& skPaint,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
@@ -532,7 +534,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext* context,
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
-bool SkPaintToGrPaintNoShader(GrContext* context,
+bool SkPaintToGrPaintNoShader(GrRecordingContext* context,
                               const GrColorSpaceInfo& colorSpaceInfo,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
@@ -544,7 +546,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
 be setup as a vertex attribute using the specified SkBlendMode. */
-bool SkPaintToGrPaintWithXfermode(GrContext* context,
+bool SkPaintToGrPaintWithXfermode(GrRecordingContext* context,
                                   const GrColorSpaceInfo& colorSpaceInfo,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
@@ -554,7 +556,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                    grPaint);
 }
 
-bool SkPaintToGrPaintWithTexture(GrContext* context,
+bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
                                  const GrColorSpaceInfo& colorSpaceInfo,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
