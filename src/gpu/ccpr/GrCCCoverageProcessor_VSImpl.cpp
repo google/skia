@@ -360,7 +360,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
                            // fallthru.
     v->codeAppend ("}");
 
-    v->codeAppend ("float2 vertex = corner + bloatdir * bloat;");
+    v->codeAppend ("float2 vertex = fma(bloatdir, float2(bloat), corner);");
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
     // Hulls have a coverage of +1 all around.

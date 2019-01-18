@@ -67,7 +67,8 @@ protected:
 
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
-        const char* position = emitArgs.emplace_back("position", kFloat2_GrSLType).c_str();
+        const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
+        const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
         const char* coverage = nullptr;
         if (this->hasCoverage()) {
             coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
@@ -84,9 +85,10 @@ protected:
             if (cornerCoverage) {
                 fnBody.appendf("%s.x *= %s;", cornerCoverage, wind.c_str());
             }
+            fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
-                                  position, coverage ? coverage : wind.c_str(), cornerCoverage);
-            g->emitVertex(&fnBody, position, rtAdjust);
+                                  "vertexpos", coverage ? coverage : wind.c_str(), cornerCoverage);
+            g->emitVertex(&fnBody, "vertexpos", rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
 
@@ -169,11 +171,6 @@ public:
         g->codeAppend (    "leftbloat = downbloat = -rightbloat;");
         g->codeAppend ("}");
 
-        // These can't be scaled until after we calculate coverage.
-        g->codeAppend ("leftbloat *= bloat;");
-        g->codeAppend ("rightbloat *= bloat;");
-        g->codeAppend ("downbloat *= bloat;");
-
         // Here we generate the conservative raster geometry. The triangle's conservative raster is
         // the convex hull of 3 pixel-size boxes centered on the input points. This translates to a
         // convex polygon with either one, two, or three vertices at each input point (depending on
@@ -185,17 +182,17 @@ public:
         g->codeAppend ("if (all(left_right_notequal)) {");
                            // The top corner will have three conservative raster vertices. Emit the
                            // middle one first to the triangle strip.
-        g->codeAppendf(    "%s(top + float2(-leftbloat.y, +leftbloat.x), coverages[0]);",
+        g->codeAppendf(    "%s(top, float2(-leftbloat.y, +leftbloat.x), coverages[0]);",
                            emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_right_notequal)) {");
                            // Second conservative raster vertex for the top corner.
-        g->codeAppendf(    "%s(top + rightbloat, coverages[1]);", emitVertexFn);
+        g->codeAppendf(    "%s(top, rightbloat, coverages[1]);", emitVertexFn);
         g->codeAppend ("}");
 
         // Main interior body.
-        g->codeAppendf("%s(top + leftbloat, coverages[2]);", emitVertexFn);
-        g->codeAppendf("%s(right + rightbloat, coverages[1]);", emitVertexFn);
+        g->codeAppendf("%s(top, leftbloat, coverages[2]);", emitVertexFn);
+        g->codeAppendf("%s(right, rightbloat, coverages[1]);", emitVertexFn);
 
         // Here the invocations diverge slightly. We can't symmetrically divide three triangle
         // points between two invocations, so each does the following:
@@ -205,11 +202,12 @@ public:
         // sk_InvocationID=2..4: Finish the opposite endpoint of their corresponding edge.
         g->codeAppendf("bool2 right_down_notequal = notEqual(rightbloat, downbloat);");
         g->codeAppend ("if (any(right_down_notequal) || 0 == sk_InvocationID) {");
-        g->codeAppendf(    "%s(0 == sk_InvocationID ? left + leftbloat : right + downbloat, "
+        g->codeAppendf(    "%s((0 == sk_InvocationID) ? left : right, "
+                              "(0 == sk_InvocationID) ? leftbloat : downbloat, "
                               "coverages[2]);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(right_down_notequal) && 0 != sk_InvocationID) {");
-        g->codeAppendf(    "%s(right + float2(-rightbloat.y, +rightbloat.x), coverages[3]);",
+        g->codeAppendf(    "%s(right, float2(-rightbloat.y, +rightbloat.x), coverages[3]);",
                            emitVertexFn);
         g->codeAppend ("}");
 
@@ -243,12 +241,12 @@ public:
         g->codeAppendf("float2 bottomright = %s[2 - i];", hullPts);
 
         // Determine how much to outset the conservative raster hull from the relevant edges.
-        g->codeAppend ("float2 leftbloat = float2(topleft.y > bottomleft.y ? +bloat : -bloat, "
-                                                 "topleft.x > bottomleft.x ? -bloat : bloat);");
-        g->codeAppend ("float2 upbloat = float2(topright.y > topleft.y ? +bloat : -bloat, "
-                                               "topright.x > topleft.x ? -bloat : +bloat);");
-        g->codeAppend ("float2 rightbloat = float2(bottomright.y > topright.y ? +bloat : -bloat, "
-                                                  "bottomright.x > topright.x ? -bloat : +bloat);");
+        g->codeAppend ("float2 leftbloat = float2(topleft.y > bottomleft.y ? +1 : -1, "
+                                                 "topleft.x > bottomleft.x ? -1 : +1);");
+        g->codeAppend ("float2 upbloat = float2(topright.y > topleft.y ? +1 : -1, "
+                                               "topright.x > topleft.x ? -1 : +1);");
+        g->codeAppend ("float2 rightbloat = float2(bottomright.y > topright.y ? +1 : -1, "
+                                                  "bottomright.x > topright.x ? -1 : +1);");
 
         // Here we generate the conservative raster geometry. It is the convex hull of 4 pixel-size
         // boxes centered on the input points, split evenly between two invocations. This translates
@@ -259,25 +257,25 @@ public:
         g->codeAppend ("if (all(left_up_notequal)) {");
                            // The top-left corner will have three conservative raster vertices.
                            // Emit the middle one first to the triangle strip.
-        g->codeAppendf(    "%s(topleft + float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(topleft, float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_up_notequal)) {");
                            // Second conservative raster vertex for the top-left corner.
-        g->codeAppendf(    "%s(topleft + leftbloat);", emitVertexFn);
+        g->codeAppendf(    "%s(topleft, leftbloat);", emitVertexFn);
         g->codeAppend ("}");
 
         // Main interior body of this invocation's half of the hull.
-        g->codeAppendf("%s(topleft + upbloat);", emitVertexFn);
-        g->codeAppendf("%s(bottomleft + leftbloat);", emitVertexFn);
-        g->codeAppendf("%s(topright + upbloat);", emitVertexFn);
+        g->codeAppendf("%s(topleft, upbloat);", emitVertexFn);
+        g->codeAppendf("%s(bottomleft, leftbloat);", emitVertexFn);
+        g->codeAppendf("%s(topright, upbloat);", emitVertexFn);
 
         // Remaining two conservative raster vertices for the top-right corner.
         g->codeAppendf("bool2 up_right_notequal = notEqual(upbloat, rightbloat);");
         g->codeAppend ("if (any(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + rightbloat);", emitVertexFn);
+        g->codeAppendf(    "%s(topright, rightbloat);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + float2(-upbloat.y, upbloat.x));", emitVertexFn);
+        g->codeAppendf(    "%s(topright, float2(-upbloat.y, upbloat.x));", emitVertexFn);
         g->codeAppend ("}");
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 7, 2);
@@ -345,20 +343,19 @@ public:
             //
             // NOTE: Since this is not a linear mapping, it is important that the box's diagonal
             // shared edge points in the direction of outbloat.
-            g->codeAppendf("%s(corner - crossbloat * bloat, right_coverages[1] - left_coverages[1],"
+            g->codeAppendf("%s(corner, -crossbloat, right_coverages[1] - left_coverages[1],"
                               "half2(1 + left_coverages[1], 1));",
                            emitVertexFn);
 
-            g->codeAppendf("%s(corner + outbloat * bloat, "
-                              "1 + left_coverages[0] + right_coverages[0], half2(0, attenuation));",
+            g->codeAppendf("%s(corner, outbloat, 1 + left_coverages[0] + right_coverages[0], "
+                              "half2(0, attenuation));",
                            emitVertexFn);
 
-            g->codeAppendf("%s(corner - outbloat * bloat, "
-                              "-1 - left_coverages[0] - right_coverages[0], "
+            g->codeAppendf("%s(corner, -outbloat, -1 - left_coverages[0] - right_coverages[0], "
                               "half2(1 + left_coverages[0] + right_coverages[0], 1));",
                            emitVertexFn);
 
-            g->codeAppendf("%s(corner + crossbloat * bloat, left_coverages[1] - right_coverages[1],"
+            g->codeAppendf("%s(corner, crossbloat, left_coverages[1] - right_coverages[1],"
                               "half2(1 + right_coverages[1], 1));",
                            emitVertexFn);
         } else {
@@ -367,11 +364,11 @@ public:
             // of the corner box, the Shader will calculate the curve's local coverage value,
             // interpolate it alongside our attenuation parameter, and multiply the two together for
             // a final coverage value.
-            g->codeAppendf("%s(corner - crossbloat * bloat, -1, half2(1));", emitVertexFn);
-            g->codeAppendf("%s(corner + outbloat * bloat, -1, half2(0, attenuation));",
+            g->codeAppendf("%s(corner, -crossbloat, -1, half2(1));", emitVertexFn);
+            g->codeAppendf("%s(corner, outbloat, -1, half2(0, attenuation));",
                            emitVertexFn);
-            g->codeAppendf("%s(corner - outbloat * bloat, -1, half2(1));", emitVertexFn);
-            g->codeAppendf("%s(corner + crossbloat * bloat, -1, half2(1));", emitVertexFn);
+            g->codeAppendf("%s(corner, -outbloat, -1, half2(1));", emitVertexFn);
+            g->codeAppendf("%s(corner, crossbloat, -1, half2(1));", emitVertexFn);
         }
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, proc.isTriangles() ? 3 : 2);
