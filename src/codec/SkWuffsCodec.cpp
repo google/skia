@@ -19,7 +19,7 @@
 // As we have not #define'd WUFFS_IMPLEMENTATION, the #include here is
 // including a header file, even though that file name ends in ".c".
 #include "wuffs-v0.2.c"
-#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1535
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 1556
 #error "Wuffs version is too old. Upgrade to the latest version."
 #endif
 
@@ -503,7 +503,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     }
 
     // If the frame's dirty rect is empty, no need to swizzle.
-    wuffs_base__rect_ie_u32 dirty_rect = wuffs_gif__decoder__frame_dirty_rect(fDecoder.get());
+    wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!dirty_rect.is_empty()) {
         if (!fColorTableFilled) {
             fColorTableFilled = true;
@@ -598,7 +598,7 @@ int SkWuffsCodec::onGetRepetitionCount() {
     // number is how many times to play the loop. Skia's int number is how many
     // times to play the loop *after the first play*. Wuffs and Skia use 0 and
     // kRepetitionCountInfinite respectively to mean loop forever.
-    uint32_t n = wuffs_gif__decoder__num_animation_loops(fDecoder.get());
+    uint32_t n = fDecoder->num_animation_loops();
     if (n == 0) {
         return SkCodec::kRepetitionCountInfinite;
     }
@@ -684,8 +684,7 @@ SkCodec::Result SkWuffsCodec::seekFrame(int frameIndex) {
     if (!seek_buffer(&fIOBuffer, fStream.get(), pos)) {
         return SkCodec::kInternalError;
     }
-    const char* status = wuffs_gif__decoder__restart_frame(fDecoder.get(), frameIndex,
-                                                           fIOBuffer.reader_io_position());
+    const char* status = fDecoder->restart_frame(frameIndex, fIOBuffer.reader_io_position());
     if (status != nullptr) {
         return SkCodec::kInternalError;
     }
@@ -756,14 +755,13 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
                                                      wuffs_base__io_buffer*    b,
                                                      SkStream*                 s) {
     memset(decoder, 0, sizeof__wuffs_gif__decoder());
-    const char* status = wuffs_gif__decoder__check_wuffs_version(
-        decoder, sizeof__wuffs_gif__decoder(), WUFFS_VERSION);
+    const char* status = decoder->check_wuffs_version(sizeof__wuffs_gif__decoder(), WUFFS_VERSION);
     if (status != nullptr) {
         SkCodecPrintf("check_wuffs_version: %s", status);
         return SkCodec::kInternalError;
     }
     while (true) {
-        status = wuffs_gif__decoder__decode_image_config(decoder, imgcfg, b->reader());
+        status = decoder->decode_image_config(imgcfg, b->reader());
         if (status == nullptr) {
             return SkCodec::kSuccess;
         } else if (status != wuffs_base__suspension__short_read) {
@@ -795,8 +793,7 @@ SkCodec::Result SkWuffsCodec::resetDecoder() {
 
 const char* SkWuffsCodec::decodeFrameConfig() {
     while (true) {
-        const char* status = wuffs_gif__decoder__decode_frame_config(fDecoder.get(), &fFrameConfig,
-                                                                     fIOBuffer.reader());
+        const char* status = fDecoder->decode_frame_config(&fFrameConfig, fIOBuffer.reader());
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
@@ -809,13 +806,12 @@ const char* SkWuffsCodec::decodeFrameConfig() {
 
 const char* SkWuffsCodec::decodeFrame() {
     while (true) {
-        const char* status =
-            wuffs_gif__decoder__decode_frame(fDecoder.get(), &fPixelBuffer, fIOBuffer.reader(),
-                                             ((wuffs_base__slice_u8){
-                                                 .ptr = fWorkbufPtr.get(),
-                                                 .len = fWorkbufLen,
-                                             }),
-                                             NULL);
+        const char* status = fDecoder->decode_frame(&fPixelBuffer, fIOBuffer.reader(),
+                                                    ((wuffs_base__slice_u8){
+                                                        .ptr = fWorkbufPtr.get(),
+                                                        .len = fWorkbufLen,
+                                                    }),
+                                                    NULL);
         if ((status == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
@@ -827,10 +823,10 @@ const char* SkWuffsCodec::decodeFrame() {
 }
 
 void SkWuffsCodec::updateNumFullyReceivedFrames() {
-    // wuffs_gif__decoder__num_decoded_frames's return value, n, can change
-    // over time, both up and down, as we seek back and forth in the underlying
-    // stream. fNumFullyReceivedFrames is the highest n we've seen.
-    uint64_t n = wuffs_gif__decoder__num_decoded_frames(fDecoder.get());
+    // num_decoded_frames's return value, n, can change over time, both up and
+    // down, as we seek back and forth in the underlying stream.
+    // fNumFullyReceivedFrames is the highest n we've seen.
+    uint64_t n = fDecoder->num_decoded_frames();
     if (fNumFullyReceivedFrames < n) {
         fNumFullyReceivedFrames = n;
     }
@@ -897,7 +893,7 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
 
-    uint64_t workbuf_len = wuffs_gif__decoder__workbuf_len(decoder.get()).max_incl;
+    uint64_t workbuf_len = decoder->workbuf_len().max_incl;
     void*    workbuf_ptr_raw = workbuf_len <= SIZE_MAX ? sk_malloc_canfail(workbuf_len) : nullptr;
     if (!workbuf_ptr_raw) {
         *result = SkCodec::kInternalError;
