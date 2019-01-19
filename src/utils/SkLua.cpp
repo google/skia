@@ -556,7 +556,7 @@ static int lcanvas_drawText(lua_State* L) {
         return 0;
     }
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#if 0
     if (lua_isstring(L, 2) && lua_isnumber(L, 3) && lua_isnumber(L, 4)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
@@ -1873,7 +1873,7 @@ static int lsk_newTextBlob(lua_State* L) {
 
     SkShaper shaper(nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+#if 0
     const SkPaint& paint = *get_obj<SkPaint>(L, 3);
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 #else

@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkFontDescriptor.h"
+#include "SkFontPriv.h"
 #include "SkGlyph.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
@@ -223,7 +224,7 @@ protected:
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
         this->getTestTypeface()->getFontMetrics(metrics);
-        SkPaintPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
+        SkFontPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
     }
 
 private:

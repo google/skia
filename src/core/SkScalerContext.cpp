@@ -635,7 +635,7 @@ void SkScalerContextRec::getMatrixFrom2x2(SkMatrix* dst) const {
 }
 
 void SkScalerContextRec::getLocalMatrix(SkMatrix* m) const {
-    SkPaintPriv::MakeTextMatrix(m, fTextSize, fPreScaleX, fPreSkewX);
+    *m = SkFontPriv::MakeTextMatrix(fTextSize, fPreScaleX, fPreSkewX);
 }
 
 void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {

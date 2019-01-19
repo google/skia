@@ -8,6 +8,7 @@
 #include "SkDraw.h"
 #include "SkFontPriv.h"
 #include "SkPaint.h"
+#include "SkPaintDefaults.h"
 #include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkStrike.h"
@@ -18,10 +19,10 @@
 #include "SkUTF.h"
 #include "SkUtils.h"
 
-#define kDefault_Size       12
+#define kDefault_Size       SkPaintDefaults_TextSize
 #define kDefault_Flags      0
 #define kDefault_Edging     SkFont::Edging::kAntiAlias
-#define kDefault_Hinting    kNormal_SkFontHinting
+#define kDefault_Hinting    SkPaintDefaults_Hinting
 
 static inline SkScalar valid_size(SkScalar size) {
     return SkTMax<SkScalar>(0, size);
@@ -481,80 +482,44 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     *metrics = cache->getFontMetrics();
 
     if (scale) {
-        SkPaintPriv::ScaleFontMetrics(metrics, scale);
+        SkFontPriv::ScaleFontMetrics(metrics, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkPaint.h"
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
-    paint->setTypeface(fTypeface);
-    paint->setTextSize(fSize);
-    paint->setTextScaleX(fScaleX);
-    paint->setTextSkewX(fSkewX);
-
-    paint->setEmbeddedBitmapText(SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag));
-    paint->setFakeBoldText(SkToBool(fFlags & kEmbolden_PrivFlag));
-    paint->setAutohinted(SkToBool(fFlags & kForceAutoHinting_PrivFlag));
-    paint->setSubpixelText(SkToBool(fFlags & kSubpixel_PrivFlag));
-    paint->setLinearText(SkToBool(fFlags & kLinearMetrics_PrivFlag));
-
-    bool doAA = false,
-         doLCD = false;
-    switch (this->getEdging()) {
-        case Edging::kAlias:                                        break;
-        case Edging::kAntiAlias:         doAA = true;               break;
-        case Edging::kSubpixelAntiAlias: doAA = true; doLCD = true; break;
-    }
-    paint->setAntiAlias(doAA);
-    paint->setLCDRenderText(doLCD);
-
-    paint->setHinting((SkFontHinting)this->getHinting());
-}
-
-SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
-    SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
-                paint.getTextSkewX());
-    font.LEGACY_applyPaintFlags(paint.getFlags());
-    font.setHinting((SkFontHinting)paint.getHinting());
-    return font;
-}
-
-void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
-    uint32_t flags = 0;
-    if (paintFlags & SkPaint::kEmbeddedBitmapText_Flag) {
-        flags |= kEmbeddedBitmaps_PrivFlag;
-    }
-    if (paintFlags & SkPaint::kFakeBoldText_Flag) {
-        flags |= kEmbolden_PrivFlag;
-    }
-    if (paintFlags & SkPaint::kAutoHinting_Flag) {
-        flags |= kForceAutoHinting_PrivFlag;
-    }
-    if (paintFlags & SkPaint::kSubpixelText_Flag) {
-        flags |= kSubpixel_PrivFlag;
-    }
-    if (paintFlags & SkPaint::kLinearText_Flag) {
-        flags |= kLinearMetrics_PrivFlag;
-    }
-    fFlags = flags;
-
-    Edging edging = Edging::kAlias;
-    if (paintFlags & SkPaint::kAntiAlias_Flag) {
-        edging = Edging::kAntiAlias;
-        if (paintFlags & SkPaint::kLCDRenderText_Flag) {
-            edging = Edging::kSubpixelAntiAlias;
-        }
-    }
-    this->setEdging(edging);
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+int SkFontPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
+    switch (encoding) {
+        case kUTF8_SkTextEncoding: return SkUTF::CountUTF8((const char*)text, length);
+        case kUTF16_SkTextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
+        case kUTF32_SkTextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
+        case kGlyphID_SkTextEncoding:
+            if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
+                return -1;
+            }
+            return length >> 1;
+    }
+    return -1;
+}
+
+void SkFontPriv::ScaleFontMetrics(SkFontMetrics* metrics, SkScalar scale) {
+    metrics->fTop *= scale;
+    metrics->fAscent *= scale;
+    metrics->fDescent *= scale;
+    metrics->fBottom *= scale;
+    metrics->fLeading *= scale;
+    metrics->fAvgCharWidth *= scale;
+    metrics->fMaxCharWidth *= scale;
+    metrics->fXMin *= scale;
+    metrics->fXMax *= scale;
+    metrics->fXHeight *= scale;
+    metrics->fCapHeight *= scale;
+    metrics->fUnderlineThickness *= scale;
+    metrics->fUnderlinePosition *= scale;
+    metrics->fStrikeoutThickness *= scale;
+    metrics->fStrikeoutPosition *= scale;
+}
 
 SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
     SkMatrix m;

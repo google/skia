@@ -56,24 +56,6 @@ bool SkPaintPriv::Overwrites(const SkImage* image, const SkPaint* paint) {
                                                : kNotOpaque_ShaderOverrideOpacity);
 }
 
-void SkPaintPriv::ScaleFontMetrics(SkFontMetrics* metrics, SkScalar scale) {
-    metrics->fTop *= scale;
-    metrics->fAscent *= scale;
-    metrics->fDescent *= scale;
-    metrics->fBottom *= scale;
-    metrics->fLeading *= scale;
-    metrics->fAvgCharWidth *= scale;
-    metrics->fMaxCharWidth *= scale;
-    metrics->fXMin *= scale;
-    metrics->fXMax *= scale;
-    metrics->fXHeight *= scale;
-    metrics->fCapHeight *= scale;
-    metrics->fUnderlineThickness *= scale;
-    metrics->fUnderlinePosition *= scale;
-    metrics->fStrikeoutThickness *= scale;
-    metrics->fStrikeoutPosition *= scale;
-}
-
 bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     // The paint dither flag can veto.
     if (!p.isDither()) {
@@ -89,18 +71,3 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     return p.getImageFilter() || p.getMaskFilter()
         || !p.getShader() || !as_SB(p.getShader())->isConstant();
 }
-
-int SkPaintPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
-    switch (encoding) {
-        case kUTF8_SkTextEncoding: return SkUTF::CountUTF8((const char*)text, length);
-        case kUTF16_SkTextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
-        case kUTF32_SkTextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
-        case kGlyphID_SkTextEncoding:
-            if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
-                return -1;
-            }
-            return length >> 1;
-    }
-    return -1;
-}
-
