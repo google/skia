@@ -210,8 +210,6 @@ private:
     size_t   fIncrDecRowBytes;
 
     std::unique_ptr<SkSwizzler> fSwizzler;
-    SkPMColor                   fColorTable[256];
-    bool                        fColorTableFilled;
 
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
@@ -330,12 +328,10 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fIncrDecDst(nullptr),
       fIncrDecRowBytes(0),
       fSwizzler(nullptr),
-      fColorTableFilled(false),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
       fDecoderIsSuspended(false) {
     fFrameHolder.init(this, imgcfg.pixcfg.width(), imgcfg.pixcfg.height());
-    sk_memset32(fColorTable, 0, SK_ARRAY_COUNT(fColorTable));
 
     // Initialize fIOBuffer's fields, copying any outstanding data from iobuf to
     // fIOBuffer, as iobuf's backing array may not be valid for the lifetime of
@@ -392,7 +388,6 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
 
     fSpySampler.reset();
     fSwizzler = nullptr;
-    fColorTableFilled = false;
 
     const char* status = this->decodeFrameConfig();
     if (status == nullptr) {
@@ -432,8 +427,8 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
-    // In Wuffs, a paletted image is always 1 byte per pixel.
-    static constexpr size_t src_bpp = 1;
+    // We have configured Wuffs to decode to 4 bytes per pixel, BGRA or RGBA.
+    static constexpr size_t src_bpp = 4;
     wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
     int scaledHeight = dstInfo().height();
     const bool independent = independent_frame(this, options().fFrameIndex);
@@ -441,11 +436,15 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     if (!fSwizzler) {
         auto bounds = SkIRect::MakeLTRB(frame_rect.min_incl_x, frame_rect.min_incl_y,
                                         frame_rect.max_excl_x, frame_rect.max_excl_y);
-        fSwizzler = SkSwizzler::Make(this->getEncodedInfo(), fColorTable, dstInfo(),
-                                     this->options(), &bounds);
+        fSwizzler =
+            SkSwizzler::Make(this->getEncodedInfo(), nullptr, dstInfo(), this->options(), &bounds);
         fSwizzler->setSampleX(fSpySampler.sampleX());
         fSwizzler->setSampleY(fSpySampler.sampleY());
         scaledHeight = get_scaled_dimension(dstInfo().height(), fSpySampler.sampleY());
+
+        if (frame_rect.width() > (SIZE_MAX / src_bpp)) {
+            return SkCodec::kInternalError;
+        }
 
         // Zero-initialize wuffs' buffer covering the frame rect. This will later be used to
         // determine how we write to the output, even if the image was incomplete. This ensures
@@ -505,17 +504,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
     // If the frame's dirty rect is empty, no need to swizzle.
     wuffs_base__rect_ie_u32 dirty_rect = wuffs_gif__decoder__frame_dirty_rect(fDecoder.get());
     if (!dirty_rect.is_empty()) {
-        if (!fColorTableFilled) {
-            fColorTableFilled = true;
-            wuffs_base__slice_u8 palette = fPixelBuffer.palette();
-            SkASSERT(palette.len == 4 * 256);
-            auto proc = choose_pack_color_proc(false, dstInfo().colorType());
-            for (int i = 0; i < 256; i++) {
-                uint8_t* p = palette.ptr + 4 * i;
-                fColorTable[i] = proc(p[3], p[2], p[1], p[0]);
-            }
-        }
-
         std::unique_ptr<uint8_t[]> tmpBuffer;
         if (!independent) {
             tmpBuffer.reset(new uint8_t[dstInfo().minRowBytes()]);
@@ -566,7 +554,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fIncrDecDst = nullptr;
         fIncrDecRowBytes = 0;
         fSwizzler = nullptr;
-        fColorTableFilled = false;
     } else {
         // Make fSpySampler return whatever fSwizzler would have for fillWidth.
         fSpySampler.fFillWidth = fSwizzler->fillWidth();
@@ -765,7 +752,7 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
     while (true) {
         status = wuffs_gif__decoder__decode_image_config(decoder, imgcfg, b->reader());
         if (status == nullptr) {
-            return SkCodec::kSuccess;
+            break;
         } else if (status != wuffs_base__suspension__short_read) {
             SkCodecPrintf("decode_image_config: %s", status);
             return SkCodec::kErrorInInput;
@@ -773,6 +760,26 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
             return SkCodec::kIncompleteInput;
         }
     }
+
+    // A GIF image's natural color model is indexed color: 1 byte per pixel,
+    // indexing a 256-element palette.
+    //
+    // For Skia, we override that to decode to 4 bytes per pixel, BGRA or RGBA.
+    wuffs_base__pixel_format pixfmt = 0;
+    switch (kN32_SkColorType) {
+        case kBGRA_8888_SkColorType:
+            pixfmt = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
+            break;
+        case kRGBA_8888_SkColorType:
+            pixfmt = WUFFS_BASE__PIXEL_FORMAT__RGBA_NONPREMUL;
+            break;
+        default:
+            return SkCodec::kInternalError;
+    }
+    imgcfg->pixcfg.initialize(pixfmt, WUFFS_BASE__PIXEL_SUBSAMPLING__NONE, imgcfg->pixcfg.width(),
+                              imgcfg->pixcfg.height());
+
+    return SkCodec::kSuccess;
 }
 
 SkCodec::Result SkWuffsCodec::resetDecoder() {
@@ -926,13 +933,17 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
 
+    SkEncodedInfo::Color color =
+        (imgcfg.pixcfg.pixel_format() == WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL)
+            ? SkEncodedInfo::kBGRA_Color
+            : SkEncodedInfo::kRGBA_Color;
+
     // In Skia's API, the alpha we calculate here and return is only for the
     // first frame.
     SkEncodedInfo::Alpha alpha = imgcfg.first_frame_is_opaque() ? SkEncodedInfo::kOpaque_Alpha
                                                                 : SkEncodedInfo::kBinary_Alpha;
 
-    SkEncodedInfo encodedInfo =
-        SkEncodedInfo::Make(width, height, SkEncodedInfo::kPalette_Color, alpha, 8);
+    SkEncodedInfo encodedInfo = SkEncodedInfo::Make(width, height, color, alpha, 8);
 
     *result = SkCodec::kSuccess;
     return std::unique_ptr<SkCodec>(new SkWuffsCodec(
