@@ -109,7 +109,7 @@ public:
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
                                         GrWrapOwnership /* = kBorrow_GrWrapOwnership*/,
                                         GrIOType,
-                                        GrWrapCacheable = GrWrapCacheable::kYes);
+                                        GrWrapCacheable);
 
     /**
      * This makes the backend texture be renderable. If sampleCnt is > 1 and the underlying API
@@ -118,14 +118,15 @@ public:
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                   int sampleCnt,
-                                                  GrWrapOwnership = kBorrow_GrWrapOwnership);
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable);
 
     /**
      * Wraps an existing render target with a GrRenderTarget object. It is
      * similar to wrapBackendTexture but can be used to draw into surfaces
      * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
      * the client will resolve to a texture). Currently wrapped render targets
-     * always use the kBorrow_GrWrapOwnership semantics.
+     * always use the kBorrow_GrWrapOwnership and GrWrapCacheable::kNo semantics.
      *
      * @return GrRenderTarget object or NULL on failure.
      */
