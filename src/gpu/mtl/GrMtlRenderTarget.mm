@@ -30,6 +30,7 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
         , fRenderTexture(renderTexture)
         , fResolveTexture(nil) {
     SkASSERT(1 == desc.fSampleCnt);
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 sk_sp<GrMtlRenderTarget>
@@ -38,15 +39,13 @@ GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& d
     SkASSERT(nil != renderTexture);
     SkASSERT(1 == renderTexture.mipmapLevelCount);
     SkASSERT(MTLTextureUsageRenderTarget & renderTexture.usage);
-    return sk_sp<GrMtlRenderTarget>(new GrMtlRenderTarget(gpu, SkBudgeted::kNo,
-                                                          desc, renderTexture));
+    return sk_sp<GrMtlRenderTarget>(new GrMtlRenderTarget(gpu, desc, renderTexture));
 }
 
 GrMtlRenderTarget::~GrMtlRenderTarget() {
     SkASSERT(nil == fRenderTexture);
     SkASSERT(nil == fResolveTexture);
 }
-
 
 GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     GrMtlTextureInfo info;
