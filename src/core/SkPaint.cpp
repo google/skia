@@ -424,6 +424,8 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed, SkFont* fon
         font->setEmbeddedBitmaps((f & kEmbeddedBitmap_PaintFlagForFont) != 0);
         font->setForceAutoHinting((f & kAutoHinting_PaintFlagForFont) != 0);
 
+        font->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+
         if (f & kAA_PaintFlagForPaint) {
             if (f & kLCD_PaintFlagForFont) {
                 font->setEdging(SkFont::Edging::kSubpixelAntiAlias);
