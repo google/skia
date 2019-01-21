@@ -183,6 +183,7 @@ public:
     */
     void reset();
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
@@ -227,7 +228,6 @@ public:
     };
     #endif
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
     /** Returns paint settings described by SkPaint::Flags. Each setting uses one
         bit, and can be tested with SkPaint::Flags members.
 
@@ -250,7 +250,7 @@ public:
         @return  kAntiAlias_Flag state
     */
     bool isAntiAlias() const {
-        return SkToBool(this->internal_getFlags() & kAntiAlias_Flag);
+        return SkToBool(this->internal_getFlags() & 1);
     }
 
     /** Requests, but does not require, that edge pixels draw opaque or with
@@ -270,7 +270,7 @@ public:
         @return  kDither_Flag state
     */
     bool isDither() const {
-        return SkToBool(this->internal_getFlags() & kDither_Flag);
+        return SkToBool(this->internal_getFlags() & 4);
     }
 
     /** Requests, but does not require, to distribute color error.
