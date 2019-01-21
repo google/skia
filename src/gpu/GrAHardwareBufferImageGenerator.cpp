@@ -601,7 +601,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
                 backendTex.fConfig = pixelConfig;
                 sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
-                        backendTex, kBorrow_GrWrapOwnership, kRead_GrIOType);
+                        backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes, kRead_GrIOType);
                 if (!tex) {
                     deleteImageProc(deleteImageCtx);
                     return sk_sp<GrTexture>();
