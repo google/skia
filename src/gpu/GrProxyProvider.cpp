@@ -451,6 +451,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(sk_sp<SkData> data, const GrS
 sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture& backendTex,
                                                           GrSurfaceOrigin origin,
                                                           GrWrapOwnership ownership,
+                                                          GrWrapCacheable cacheable,
                                                           GrIOType ioType,
                                                           ReleaseProc releaseProc,
                                                           ReleaseContext releaseCtx) {
@@ -464,8 +465,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = fResourceProvider->wrapBackendTexture(backendTex, ownership, ioType,
-                                                                 GrWrapCacheable::kYes);
+    sk_sp<GrTexture> tex =
+            fResourceProvider->wrapBackendTexture(backendTex, ownership, cacheable, ioType);
     if (!tex) {
         return nullptr;
     }
@@ -486,7 +487,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
-        GrWrapOwnership ownership) {
+        GrWrapOwnership ownership, GrWrapCacheable cacheable) {
     if (this->isAbandoned()) {
         return nullptr;
     }
@@ -501,8 +502,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex =
-            fResourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
+    sk_sp<GrTexture> tex = fResourceProvider->wrapRenderableBackendTexture(backendTex, sampleCnt,
+                                                                           ownership, cacheable);
     if (!tex) {
         return nullptr;
     }
