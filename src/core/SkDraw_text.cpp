@@ -14,22 +14,6 @@
 #include "SkTextToPathIter.h"
 #include "SkUtils.h"
 
-bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm, SkScalar sizeLimit) {
-    // hairline glyphs are fast enough so we don't need to cache them
-    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
-        return true;
-    }
-
-    // we don't cache perspective
-    if (ctm.hasPerspective()) {
-        return true;
-    }
-
-    SkMatrix textM;
-    SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(ctm, textM, sizeLimit);
-}
-
 bool SkDraw::ShouldDrawTextAsPaths(const SkFont& font, const SkPaint& paint,
                                    const SkMatrix& ctm, SkScalar sizeLimit) {
     // hairline glyphs are fast enough so we don't need to cache them
@@ -42,7 +26,7 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkFont& font, const SkPaint& paint,
         return true;
     }
 
-    return SkPaint::TooBigToUseCache(ctm, SkFontPriv::MakeTextMatrix(font), sizeLimit);
+    return SkFontPriv::TooBigToUseCache(ctm, SkFontPriv::MakeTextMatrix(font), sizeLimit);
 }
 
 // disable warning : local variable used without having been initialized

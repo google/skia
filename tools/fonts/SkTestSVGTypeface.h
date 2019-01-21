@@ -9,6 +9,7 @@
 #define SkTestSVGTypeface_DEFINED
 
 #include "SkFontArguments.h"
+#include "SkFontMetrics.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
