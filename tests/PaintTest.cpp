@@ -310,13 +310,13 @@ DEF_TEST(Paint_getHash, r) {
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
+#endif
 
     // This is part of fBitfields, the last field we hash.
     paint.setHinting(kSlight_SkFontHinting);
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setHinting(kNormal_SkFontHinting);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
-#endif
 }
 
 #include "SkColorMatrixFilter.h"
