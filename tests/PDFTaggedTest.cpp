@@ -99,7 +99,6 @@ DEF_TEST(SkPDF_tagged, r) {
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
-    paint.setHinting(kNo_SkFontHinting);
 
     // First page.
     SkCanvas* canvas =
@@ -107,6 +106,7 @@ DEF_TEST(SkPDF_tagged, r) {
                                 pageSize.height());
     SkPDF::SetNodeId(canvas, 2);
     SkFont font(nullptr, 36);
+    font.setHinting(kNo_SkFontHinting);
     const char* message = "This is the title";
     canvas->translate(72, 72);
     canvas->drawString(message, 0, 0, font, paint);

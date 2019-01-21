@@ -52,6 +52,11 @@
     #include "NIMASlide.h"
 #endif
 
+enum PaintFlags {
+    kAntiAlias_PaintFlag = 1 << 0,
+    kDither_PaintFlag    = 1 << 1,
+};
+
 using namespace sk_app;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
@@ -380,9 +385,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('A', "Paint", "Antialias Mode", [this]() {
-        if (!(fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag)) {
+        if (!(fPaintOverrides.fFlags & kAntiAlias_PaintFlag)) {
             fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
-            fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+            fPaintOverrides.fFlags |= kAntiAlias_PaintFlag;
             fPaint.setAntiAlias(false);
             gSkUseAnalyticAA = gSkForceAnalyticAA = false;
             gSkUseDeltaAA = gSkForceDeltaAA = false;
@@ -418,7 +423,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                     break;
                 case SkPaintFields::AntiAliasState::DeltaAAForced:
                     fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
-                    fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                    fPaintOverrides.fFlags &= ~kAntiAlias_PaintFlag;
                     gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
                     gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
                     gSkUseDeltaAA = fPaintOverrides.fOriginalSkUseDeltaAA;
@@ -699,7 +704,7 @@ void Viewer::updateTitle() {
     }
 
     SkPaintTitleUpdater paintTitle(&title);
-    auto paintFlag = [this, &paintTitle](SkPaint::Flags flag, bool (SkPaint::* isFlag)() const,
+    auto paintFlag = [this, &paintTitle](PaintFlags flag, bool (SkPaint::* isFlag)() const,
                                          const char* on, const char* off)
     {
         if (fPaintOverrides.fFlags & flag) {
@@ -707,18 +712,8 @@ void Viewer::updateTitle() {
         }
     };
 
-    paintFlag(SkPaint::kAntiAlias_Flag, &SkPaint::isAntiAlias, "Antialias", "Alias");
-    paintFlag(SkPaint::kDither_Flag, &SkPaint::isDither, "DITHER", "No Dither");
-#if 0
-    paintFlag(SkPaint::kFakeBoldText_Flag, &SkPaint::isFakeBoldText, "Fake Bold", "No Fake Bold");
-    paintFlag(SkPaint::kLinearText_Flag, &SkPaint::isLinearText, "Linear Text", "Non-Linear Text");
-    paintFlag(SkPaint::kSubpixelText_Flag, &SkPaint::isSubpixelText, "Subpixel Text", "Pixel Text");
-    paintFlag(SkPaint::kLCDRenderText_Flag, &SkPaint::isLCDRenderText, "LCD", "lcd");
-    paintFlag(SkPaint::kEmbeddedBitmapText_Flag, &SkPaint::isEmbeddedBitmapText,
-              "Bitmap Text", "No Bitmap Text");
-    paintFlag(SkPaint::kAutoHinting_Flag, &SkPaint::isAutohinted,
-              "Force Autohint", "No Force Autohint");
-#endif
+    paintFlag(kAntiAlias_PaintFlag, &SkPaint::isAntiAlias, "Antialias", "Alias");
+    paintFlag(kAntiAlias_PaintFlag, &SkPaint::isDither, "DITHER", "No Dither");
 
     if (fFontOverrides.fHinting) {
         switch (fFont.getHinting()) {
@@ -1050,39 +1045,16 @@ public:
         if (fFontOverrides->fHinting) {
             font->writable()->setHinting(fFont->getHinting());
         }
-#if 0
-        if (fFontOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
-            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
-            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kLinearText_Flag) {
-            paint->writable()->setLinearText(fPaint->isLinearText());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
-            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
-            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
-            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
-        }
-        if (fFontOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
-            paint->writable()->setAutohinted(fPaint->isAutohinted());
-        }
-#endif
         return true;
     }
     bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
         if (*paint == nullptr) {
             return true;
         }
-        if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
+        if (fPaintOverrides->fFlags & kAntiAlias_PaintFlag) {
             paint->writable()->setAntiAlias(fPaint->isAntiAlias());
         }
-        if (fPaintOverrides->fFlags & SkPaint::kDither_Flag) {
+        if (fPaintOverrides->fFlags & kDither_PaintFlag) {
             paint->writable()->setDither(fPaint->isDither());
         }
         return true;
@@ -1646,7 +1618,7 @@ void Viewer::drawImGui() {
                 }
 
                 int aliasIdx = 0;
-                if (fPaintOverrides.fFlags & SkPaint::kAntiAlias_Flag) {
+                if (fPaintOverrides.fFlags & kAntiAlias_PaintFlag) {
                     aliasIdx = SkTo<int>(fPaintOverrides.fAntiAlias) + 1;
                 }
                 if (ImGui::Combo("Anti-Alias", &aliasIdx,
@@ -1659,9 +1631,9 @@ void Viewer::drawImGui() {
                     gSkForceDeltaAA = fPaintOverrides.fOriginalSkForceDeltaAA;
                     if (aliasIdx == 0) {
                         fPaintOverrides.fAntiAlias = SkPaintFields::AntiAliasState::Alias;
-                        fPaintOverrides.fFlags &= ~SkPaint::kAntiAlias_Flag;
+                        fPaintOverrides.fFlags &= ~kAntiAlias_PaintFlag;
                     } else {
-                        fPaintOverrides.fFlags |= SkPaint::kAntiAlias_Flag;
+                        fPaintOverrides.fFlags |= kAntiAlias_PaintFlag;
                         fPaintOverrides.fAntiAlias =SkTo<SkPaintFields::AntiAliasState>(aliasIdx-1);
                         fPaint.setAntiAlias(aliasIdx > 1);
                         switch (fPaintOverrides.fAntiAlias) {
@@ -1693,7 +1665,7 @@ void Viewer::drawImGui() {
                 }
 
                 auto paintFlag = [this, &paramsChanged](const char* label, const char* items,
-                                                        SkPaint::Flags flag,
+                                                        PaintFlags flag,
                                                         bool (SkPaint::* isFlag)() const,
                                                         void (SkPaint::* setFlag)(bool) )
                 {
@@ -1714,39 +1686,8 @@ void Viewer::drawImGui() {
 
                 paintFlag("Dither",
                           "Default\0No Dither\0Dither\0\0",
-                          SkPaint::kDither_Flag,
+                          kDither_PaintFlag,
                           &SkPaint::isDither, &SkPaint::setDither);
-#if 0
-                paintFlag("Fake Bold Glyphs",
-                          "Default\0No Fake Bold\0Fake Bold\0\0",
-                          SkPaint::kFakeBoldText_Flag,
-                          &SkPaint::isFakeBoldText, &SkPaint::setFakeBoldText);
-
-                paintFlag("Linear Text",
-                          "Default\0No Linear Text\0Linear Text\0\0",
-                          SkPaint::kLinearText_Flag,
-                          &SkPaint::isLinearText, &SkPaint::setLinearText);
-
-                paintFlag("Subpixel Position Glyphs",
-                          "Default\0Pixel Text\0Subpixel Text\0\0",
-                          SkPaint::kSubpixelText_Flag,
-                          &SkPaint::isSubpixelText, &SkPaint::setSubpixelText);
-
-                paintFlag("Subpixel Anti-Alias",
-                          "Default\0lcd\0LCD\0\0",
-                          SkPaint::kLCDRenderText_Flag,
-                          &SkPaint::isLCDRenderText, &SkPaint::setLCDRenderText);
-
-                paintFlag("Embedded Bitmap Text",
-                          "Default\0No Embedded Bitmaps\0Embedded Bitmaps\0\0",
-                          SkPaint::kEmbeddedBitmapText_Flag,
-                          &SkPaint::isEmbeddedBitmapText, &SkPaint::setEmbeddedBitmapText);
-
-                paintFlag("Force Auto-Hinting",
-                          "Default\0No Force Auto-Hinting\0Force Auto-Hinting\0\0",
-                          SkPaint::kAutoHinting_Flag,
-                          &SkPaint::isAutohinted, &SkPaint::setAutohinted);
-#endif
                 ImGui::Checkbox("Override TextSize", &fFontOverrides.fTextSize);
                 if (fFontOverrides.fTextSize) {
                     ImGui::DragFloat2("TextRange", fFontOverrides.fTextSizeRange,
