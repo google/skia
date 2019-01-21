@@ -264,7 +264,7 @@ protected:
     // This must be called by every GrGpuObject that references any wrapped backend objects. It
     // should be called once the object is fully initialized (i.e. only from the constructors of the
     // final class).
-    void registerWithCacheWrapped(GrWrapCacheable = GrWrapCacheable::kYes);
+    void registerWithCacheWrapped(GrWrapCacheable);
 
     GrGpuResource(GrGpu*);
     virtual ~GrGpuResource();
@@ -350,7 +350,7 @@ private:
     GrGpu* fGpu;
     mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 
-    GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedCacheable;
+    GrBudgetedType fBudgetedType = GrBudgetedType::kUnbudgetedUncacheable;
     bool fRefsWrappedObjects = false;
     const UniqueID fUniqueID;
 
