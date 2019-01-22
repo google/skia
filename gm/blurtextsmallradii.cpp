@@ -6,9 +6,11 @@
  */
 
 #include "gm.h"
+
 #include "SkColor.h"
 #include "SkFont.h"
 #include "SkMaskFilter.h"
+#include "sk_shaper_utils.h"
 
 // GM to check the behavior from chrome bug:745290
 DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {
@@ -19,11 +21,11 @@ DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
-        canvas->drawString("Guest", 20, 10, SkFont(), paint);
+        SkDrawShapedString(canvas, "Guest", 20, 10, SkFont(), paint);
 
         paint.setMaskFilter(nullptr);
         paint.setColor(SK_ColorWHITE);
-        canvas->drawString("Guest", 20, 10, SkFont(), paint);
+        SkDrawShapedString(canvas, "Guest", 20, 10, SkFont(), paint);
         canvas->translate(0, 20);
     }
 }

@@ -11,6 +11,7 @@
 #include "SkPath.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
+#include "sk_shaper_utils.h"
 
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
@@ -73,7 +74,7 @@ protected:
             SkScalar y = SkIntToScalar(40);
             SkScalar stopy = SkIntToScalar(HEIGHT);
             while (y < stopy) {
-                canvas->drawString(text, x, y, font, paint);
+                SkDrawShapedString(canvas, text, x, y, font, paint);
                 y += font.getSize() * 2;
             }
             x += SkIntToScalar(1024) / SK_ARRAY_COUNT(fg);
@@ -101,11 +102,11 @@ static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
     static const char text[] = "Now is the time for all good";
     SkPaint paint;
     paint.setColor(color);
-    canvas->drawString(text, 10, 20, font, paint);
+    SkDrawShapedString(canvas, text, 10, 20, font, paint);
     paint.setShader(SkShader::MakeColorShader(paint.getColor()));
-    canvas->drawString(text, 10, 40, font, paint);
+    SkDrawShapedString(canvas, text, 10, 40, font, paint);
     paint.setShader(shader);
-    canvas->drawString(text, 10, 60, font, paint);
+    SkDrawShapedString(canvas, text, 10, 60, font, paint);
 }
 
 class GammaShaderTextGM : public skiagm::GM {

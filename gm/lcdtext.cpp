@@ -16,6 +16,7 @@
 #include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkSurface.h"
+#include "sk_shaper_utils.h"
 
 
 class LcdTextGM : public skiagm::GM {
@@ -60,7 +61,7 @@ protected:
         if (lcdRenderTextEnabled) {
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         }
-        canvas->drawString(string, 0, y, font, paint);
+        SkDrawShapedString(canvas, string, 0, y, font, paint);
         y += textHeight;
     }
 
@@ -120,7 +121,7 @@ protected:
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawString(rec[i].fText, loc.x(), loc.y(), font, SkPaint());
+            SkDrawShapedString(canvas, rec[i].fText, loc.x(), loc.y(), font, SkPaint());
         }
     }
 

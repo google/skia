@@ -12,6 +12,7 @@
 #include "SkColorFilter.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkFont.h"
+#include "sk_shaper_utils.h"
 
 static SkBitmap make_bm() {
     SkBitmap bm;
@@ -71,7 +72,7 @@ protected:
         canvas->translate(SkIntToScalar(100), 0);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
+        SkDrawShapedString(canvas, "Hello", 0, 50, SkFont(nullptr, 50), paint);
     }
 
 private:

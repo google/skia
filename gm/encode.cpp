@@ -12,6 +12,7 @@
 #include "SkFont.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
+#include "sk_shaper_utils.h"
 
 namespace skiagm {
 
@@ -41,7 +42,8 @@ protected:
 
         SkFont font;
         font.setEdging(SkFont::Edging::kAlias);
-        canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
+        SkDrawShapedString(canvas, "Images should look identical.", 450.0f, 550.0f, font,
+                           SkPaint());
     }
 
 private:

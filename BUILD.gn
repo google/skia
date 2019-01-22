@@ -1561,6 +1561,7 @@ if (skia_enable_tools) {
       "modules/skottie",
       "modules/skottie:gm",
       "modules/sksg",
+      "modules/skshaper",
     ]
     public_deps = [
       ":gpu_tool_utils",

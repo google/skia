@@ -13,6 +13,7 @@
 #include "SkFont.h"
 #include "SkGradientShader.h"
 #include "SkString.h"
+#include "sk_shaper_utils.h"
 
 static bool nearly_equal(SkColor4f x, SkColor4f y) {
     const float K = 0.01f;
@@ -52,7 +53,7 @@ static void compare_pixel(const char* label,
     bm.allocPixels(SkImageInfo::Make(1,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType, canvas_cs));
     if (!canvas->readPixels(bm, x,y)) {
         MarkGMGood(canvas, 140,40);
-        canvas->drawString("can't readPixels() on this canvas :(", 100,20, font, paint);
+        SkDrawShapedString(canvas, "can't readPixels() on this canvas :(", 100, 20, font, paint);
         return;
     }
 
@@ -87,11 +88,11 @@ static void compare_pixel(const char* label,
     };
 
     SkAutoCanvasRestore saveRestore(canvas, true);
-    canvas->drawString(label, 80,20, font, paint);
+    SkDrawShapedString(canvas, label, 80, 20, font, paint);
     for (auto l : lines) {
         canvas->translate(0,20);
-        canvas->drawString(l.label,               80,20, font, paint);
-        canvas->drawString(fmt(l.color).c_str(), 140,20, font, paint);
+        SkDrawShapedString(canvas, l.label, 80, 20, font, paint);
+        SkDrawShapedString(canvas, fmt(l.color).c_str(), 140, 20, font, paint);
     }
 }
 
