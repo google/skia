@@ -19,8 +19,8 @@ DEF_SIMPLE_GM(daa, canvas, K+350, K) {
     paint.setAntiAlias(true);
 
     paint.setColor(SK_ColorBLACK);
-    canvas->drawString("Should be a green square with no red showing through.",
-                       K*1.5f, K/2, SkFont(), paint);
+    skiagm::DrawShapedString(canvas, "Should be a green square with no red showing through.",
+                             K * 1.5f, K / 2, SkFont(), paint);
 
     paint.setColor(SK_ColorRED);
     canvas->drawRect({0,0,K,K}, paint);
