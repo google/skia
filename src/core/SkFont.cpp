@@ -8,6 +8,7 @@
 #include "SkDraw.h"
 #include "SkFontPriv.h"
 #include "SkPaint.h"
+#include "SkPaintDefaults.h"
 #include "SkPath.h"
 #include "SkScalerContext.h"
 #include "SkStrike.h"
@@ -18,10 +19,10 @@
 #include "SkUTF.h"
 #include "SkUtils.h"
 
-#define kDefault_Size       12
+#define kDefault_Size       SkPaintDefaults_TextSize
 #define kDefault_Flags      0
 #define kDefault_Edging     SkFont::Edging::kAntiAlias
-#define kDefault_Hinting    kNormal_SkFontHinting
+#define kDefault_Hinting    SkPaintDefaults_Hinting
 
 static inline SkScalar valid_size(SkScalar size) {
     return SkTMax<SkScalar>(0, size);
@@ -128,8 +129,8 @@ SkScalar SkFont::setupForAsPaths(SkPaint* paint) {
         paint->setPathEffect(nullptr);
     }
     SkScalar textSize = fSize;
-    this->setSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
-    return textSize / SkPaint::kCanonicalTextSizeForPaths;
+    this->setSize(SkIntToScalar(SkFontPriv::kCanonicalTextSizeForPaths));
+    return textSize / SkFontPriv::kCanonicalTextSizeForPaths;
 }
 
 bool SkFont::hasSomeAntiAliasing() const {
@@ -481,7 +482,7 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     *metrics = cache->getFontMetrics();
 
     if (scale) {
-        SkPaintPriv::ScaleFontMetrics(metrics, scale);
+        SkFontPriv::ScaleFontMetrics(metrics, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
@@ -555,6 +556,38 @@ void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+int SkFontPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
+    switch (encoding) {
+        case kUTF8_SkTextEncoding: return SkUTF::CountUTF8((const char*)text, length);
+        case kUTF16_SkTextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
+        case kUTF32_SkTextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
+        case kGlyphID_SkTextEncoding:
+            if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
+                return -1;
+            }
+            return length >> 1;
+    }
+    return -1;
+}
+
+void SkFontPriv::ScaleFontMetrics(SkFontMetrics* metrics, SkScalar scale) {
+    metrics->fTop *= scale;
+    metrics->fAscent *= scale;
+    metrics->fDescent *= scale;
+    metrics->fBottom *= scale;
+    metrics->fLeading *= scale;
+    metrics->fAvgCharWidth *= scale;
+    metrics->fMaxCharWidth *= scale;
+    metrics->fXMin *= scale;
+    metrics->fXMax *= scale;
+    metrics->fXHeight *= scale;
+    metrics->fCapHeight *= scale;
+    metrics->fUnderlineThickness *= scale;
+    metrics->fUnderlinePosition *= scale;
+    metrics->fStrikeoutThickness *= scale;
+    metrics->fStrikeoutPosition *= scale;
+}
 
 SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
     SkMatrix m;

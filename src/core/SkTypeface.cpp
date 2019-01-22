@@ -8,6 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkEndian.h"
 #include "SkFontDescriptor.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
 #include "SkMutex.h"

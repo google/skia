@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkCanvasPriv.h"
 #include "SkDrawShadowInfo.h"
+#include "SkFontPriv.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPictureData.h"
@@ -77,8 +78,8 @@ public:
                 if (fByteLength == 0) {
                     fCount = 0;
                 } else {
-                    fCount = SkPaintPriv::ValidCountText(fText, fByteLength,
-                                                         SkPaintPriv::GetEncoding(*paint));
+                    fCount = SkFontPriv::ValidCountText(fText, fByteLength,
+                                                        SkPaintPriv::GetEncoding(*paint));
                     reader->validate(fCount > 0);
                 }
             }

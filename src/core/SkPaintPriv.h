@@ -14,6 +14,7 @@
 #include "SkTypeface.h"
 
 class SkBitmap;
+class SkFont;
 class SkImage;
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -56,34 +57,7 @@ public:
      */
     static bool Overwrites(const SkImage*, const SkPaint* paint);
 
-    static void ScaleFontMetrics(SkFontMetrics*, SkScalar);
-
-    /**
-     *  Return a matrix that applies the paint's text values: size, scale, skew
-     */
-    static void MakeTextMatrix(SkMatrix* matrix, SkScalar size, SkScalar scaleX, SkScalar skewX) {
-        matrix->setScale(size * scaleX, size);
-        if (skewX) {
-            matrix->postSkew(skewX, 0);
-        }
-    }
-
-    static void MakeTextMatrix(SkMatrix* matrix, const SkPaint& paint) {
-        MakeTextMatrix(matrix, paint.getTextSize(), paint.getTextScaleX(), paint.getTextSkewX());
-    }
-
     static bool ShouldDither(const SkPaint&, SkColorType);
-
-    // returns -1 if buffer is invalid for specified encoding
-    static int ValidCountText(const void* text, size_t length, SkTextEncoding);
-
-    static SkTypeface* GetTypefaceOrDefault(const SkPaint& paint) {
-        return paint.getTypeface() ? paint.getTypeface() : SkTypeface::GetDefaultTypeface();
-    }
-
-    static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkPaint& paint) {
-        return paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault();
-    }
 
     static SkTextEncoding GetEncoding(const SkPaint& paint) {
         return paint.private_internal_getTextEncoding();
