@@ -18,7 +18,7 @@ class GrDrawableOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawableOp> Make(GrContext*,
+    static std::unique_ptr<GrDrawableOp> Make(GrRecordingContext*,
                                               std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
                                               const SkRect& bounds);
 

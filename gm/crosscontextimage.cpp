@@ -12,9 +12,15 @@
 #include "SkImage.h"
 
 DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
+        return;
+    }
+
+    // The MakeCrossContextFromEncoded* calls require the full context
+    GrContext* direct = context->asDirectContext();
+    if (!direct) {
         return;
     }
 
@@ -27,7 +33,7 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
     canvas->drawImage(encodedImage, 10, 10);
 
     sk_sp<SkImage> crossContextImage = SkImage::MakeCrossContextFromEncoded(
-            context, encodedData, false, canvas->imageInfo().colorSpace());
+            direct, encodedData, false, canvas->imageInfo().colorSpace());
     canvas->drawImage(crossContextImage, 512 + 30, 10);
 
     SkBitmap bmp;
@@ -36,7 +42,7 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
                    bmp.peekPixels(&pixmap));
 
     sk_sp<SkImage> crossContextRaster = SkImage::MakeCrossContextFromPixmap(
-            context, pixmap, false, canvas->imageInfo().colorSpace());
+            direct, pixmap, false, canvas->imageInfo().colorSpace());
     canvas->drawImage(crossContextRaster, 512 + 512 + 60, 10);
 
     SkIRect subset = SkIRect::MakeXYWH(256 - 64, 256 - 64, 128, 128);

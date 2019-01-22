@@ -100,7 +100,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
 
         sk_sp<SkImage> bottomLImg = make_image(context, kImgSize, kBottomLeft_GrSurfaceOrigin);
         sk_sp<SkImage> topLImg = make_image(context, kImgSize, kTopLeft_GrSurfaceOrigin);

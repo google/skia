@@ -28,6 +28,7 @@
 #include "SkVertices.h"
 
 class GrContext;
+class GrRecordingContext;
 class GrRenderTargetContext;
 class SkAndroidFrameworkUtils;
 class SkBaseDevice;
@@ -269,7 +270,7 @@ public:
 
         @return  GPU context, if available; nullptr otherwise
     */
-    virtual GrContext* getGrContext();
+    virtual GrRecordingContext* getGrContext();
 
     /** Returns the pixel base address, SkImageInfo, rowBytes, and origin if the pixels
         can be read directly. The returned address is only valid

@@ -63,7 +63,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
+        auto ctx = canvas->getGrContext();
 
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType);
