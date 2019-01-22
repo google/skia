@@ -40,7 +40,7 @@ static bool tooBig(const SkMatrix& m, SkScalar ma2max) {
             mag2(m[SkMatrix::kMSkewX], m[SkMatrix::kMScaleY]) > ma2max;
 }
 
-bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit) {
+bool SkFontPriv::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit) {
     SkASSERT(!ctm.hasPerspective());
     SkASSERT(!textM.hasPerspective());
 
@@ -49,7 +49,7 @@ bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkSca
     return tooBig(matrix, MaxCacheSize2(maxLimit));
 }
 
-SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
+SkScalar SkFontPriv::MaxCacheSize2(SkScalar maxLimit) {
     // we have a self-imposed maximum, just for memory-usage sanity
     const int limit = SkMin32(SkGraphics::GetFontCachePointSizeLimit(), maxLimit);
     const SkScalar maxSize = SkIntToScalar(limit);
@@ -216,7 +216,8 @@ SkScalar SkPaint::setupForAsPaths() {
 class SkCanonicalizePaint {
 public:
     SkCanonicalizePaint(const SkPaint& paint) : fPaint(&paint), fScale(0) {
-        if (paint.isLinearText() || SkDraw::ShouldDrawTextAsPaths(paint, SkMatrix::I())) {
+        const SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
+        if (paint.isLinearText() || SkDraw::ShouldDrawTextAsPaths(font, paint, SkMatrix::I())) {
             SkPaint* p = fLazy.set(paint);
             fScale = p->setupForAsPaths();
             fPaint = p;
@@ -438,8 +439,8 @@ SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont
 
     // can't use our canonical size if we need to apply patheffects
     if (fPaint.getPathEffect() == nullptr) {
-        fScale = fFont.getSize() / SkPaint::kCanonicalTextSizeForPaths;
-        fFont.setSize(SkIntToScalar(SkPaint::kCanonicalTextSizeForPaths));
+        fScale = fFont.getSize() / SkFontPriv::kCanonicalTextSizeForPaths;
+        fFont.setSize(SkIntToScalar(SkFontPriv::kCanonicalTextSizeForPaths));
         // Note: fScale can be zero here (even if it wasn't before the divide). It can also
         // be very very small. We call sk_ieee_float_divide below to ensure IEEE divide behavior,
         // since downstream we will check for the resulting coordinates being non-finite anyway.
