@@ -47,7 +47,7 @@ DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
             SkPaint textPaint;
             textPaint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             for (int i = 0; i < testStringCount; i++) {
-                canvas->drawString(kTestStrings[i],
+                DrawShapedString(canvas, kTestStrings[i],
                                    SkIntToScalar(x * dx),
                                    SkIntToScalar(y * dy + textSize * i + textSize),
                                    font,

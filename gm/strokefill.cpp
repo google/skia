@@ -229,10 +229,10 @@ static SkPath hiragino_maru_gothic_pro_dash() {
 
 static void show_bold(SkCanvas* canvas, const char* text,
                       SkScalar x, SkScalar y, const SkPaint& paint, const SkFont& font) {
-        canvas->drawString(text, x, y, font, paint);
+        DrawShapedString(canvas, text, x, y, font, paint);
         SkFont f(font);
         f.setEmbolden(true);
-        canvas->drawString(text, x, y + 120, f, paint);
+        DrawShapedString(canvas, text, x, y + 120, f, paint);
 }
 
 static void path_bold(SkCanvas* canvas, const SkPath& path,

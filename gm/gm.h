@@ -147,4 +147,21 @@ namespace skiagm {
 void MarkGMGood(SkCanvas*, SkScalar x, SkScalar y);
 void MarkGMBad (SkCanvas*, SkScalar x, SkScalar y);
 
+void DrawShapedUTF8(SkCanvas* canvas, const char* text, size_t byteLength,
+                    SkScalar x, SkScalar y, const SkFont& font,
+                    const SkPaint& paint);
+
+static inline void DrawShapedString(SkCanvas* canvas, const char* text,
+                                    SkScalar x, SkScalar y, const SkFont& font,
+                                    const SkPaint& paint) {
+    DrawShapedUTF8(canvas, text, strlen(text), x, y, font, paint);
+}
+
+static inline void DrawShapedString(SkCanvas* canvas, const SkString& text,
+                                    SkScalar x, SkScalar y, const SkFont& font,
+                                    const SkPaint& paint) {
+    DrawShapedUTF8(canvas, text.c_str(), text.size(), x, y, font, paint);
+}
+
+
 #endif
