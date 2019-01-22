@@ -358,7 +358,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         fRemoteGlyphStateMap.erase(it);
     }
 
-    auto* tf = font.getTypeface();
+    auto* tf = font.getTypefaceOrDefault();
     const SkFontID typefaceId = tf->uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
         fCachedTypefaces.add(typefaceId);
@@ -512,7 +512,7 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
 
 void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
     if (fContext == nullptr) {
-        auto tf = fFont->getTypeface();
+        auto tf = fFont->getTypefaceOrDefault();
         fContext = tf->createScalerContext(fEffects, fDeviceDescriptor.getDesc());
     }
 }

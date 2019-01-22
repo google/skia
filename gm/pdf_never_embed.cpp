@@ -28,7 +28,7 @@ DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
     SkPaint p;
 
     SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
-    if (!font.getTypeface()) {
+    if (!font.getTypefaceOrDefault()) {
         return;
     }
 

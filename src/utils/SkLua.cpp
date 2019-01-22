@@ -951,7 +951,7 @@ static int lfont_setSize(lua_State* L) {
 }
 
 static int lfont_getTypeface(lua_State* L) {
-    push_ref(L, get_obj<SkFont>(L, 1)->getTypeface());
+    push_ref(L, get_obj<SkFont>(L, 1)->getTypefaceOrDefault());
     return 1;
 }
 
@@ -966,7 +966,7 @@ static int lfont_getHinting(lua_State* L) {
 }
 
 static int lfont_getFontID(lua_State* L) {
-    SkTypeface* face = get_obj<SkFont>(L, 1)->getTypeface();
+    SkTypeface* face = get_obj<SkFont>(L, 1)->getTypefaceOrDefault();
     SkLua(L).pushU32(SkTypeface::UniqueID(face));
     return 1;
 }

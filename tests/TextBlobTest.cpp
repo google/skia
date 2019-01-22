@@ -190,7 +190,7 @@ public:
         SkFont defaultFont;
         REPORTER_ASSERT(reporter, defaultFont.getSize() != font.getSize());
         REPORTER_ASSERT(reporter, defaultFont.getScaleX() != font.getScaleX());
-        REPORTER_ASSERT(reporter, defaultFont.getTypeface() != font.getTypeface());
+        REPORTER_ASSERT(reporter, defaultFont.getTypefaceOrDefault() != font.getTypefaceOrDefault());
         REPORTER_ASSERT(reporter, defaultFont.getSkewX() != font.getSkewX());
         REPORTER_ASSERT(reporter, defaultFont.getHinting() != font.getHinting());
         REPORTER_ASSERT(reporter, defaultFont.getEdging() != font.getEdging());
