@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cffd20e5_f4368241",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-22T20:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b047b7d4_467c5d4e",
+      "revId": "525de1707790a5d247c1ddde8cdc47f17e660966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99a908a6_f3a38110",
         "filename": "src/core/SkPaintPriv.h",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "525de1707790a5d247c1ddde8cdc47f17e660966",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fdafc69_929ca979",
+        "filename": "src/core/SkPaintPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-22T20:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99a908a6_f3a38110",
+      "range": {
+        "startLine": 84,
+        "startChar": 28,
+        "endLine": 84,
+        "endChar": 49
+      },
+      "revId": "525de1707790a5d247c1ddde8cdc47f17e660966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
