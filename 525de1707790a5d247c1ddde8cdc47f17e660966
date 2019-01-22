@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b047b7d4_467c5d4e",
+        "filename": "src/core/SkFont.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-22T20:15:47Z",
+      "side": 1,
+      "message": "nit: why the whitespace?",
+      "revId": "525de1707790a5d247c1ddde8cdc47f17e660966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99a908a6_f3a38110",
+        "filename": "src/core/SkPaintPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-22T20:15:47Z",
+      "side": 1,
+      "message": "Is this used anymore? Can we just delete it? It seems everyone uses the one on SkFontPriv now?",
+      "range": {
+        "startLine": 84,
+        "startChar": 28,
+        "endLine": 84,
+        "endChar": 49
+      },
+      "revId": "525de1707790a5d247c1ddde8cdc47f17e660966",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
