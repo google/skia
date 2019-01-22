@@ -275,10 +275,10 @@ public:
          */
         kRequiresDstTexture = 0x10,
         /**
-         * If set overlapping draws may not be combined because a barrier must be inserted between
-         * them.
+         * If set, each pixel can only be touched once during a draw (e.g., because we have a dst
+         * texture or because we need an xfer barrier).
          */
-        kRequiresBarrierBetweenOverlappingDraws = 0x20,
+        kRequiresNonOverlappingDraws = 0x20,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 

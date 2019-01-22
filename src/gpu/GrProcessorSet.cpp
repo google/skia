@@ -217,8 +217,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
             SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);
     analysis.fCompatibleWithCoverageAsAlpha &=
             SkToBool(props & GrXPFactory::AnalysisProperties::kCompatibleWithAlphaAsCoverage);
-    analysis.fRequiresBarrierBetweenOverlappingDraws = SkToBool(
-            props & GrXPFactory::AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws);
+    analysis.fRequiresNonOverlappingDraws = SkToBool(
+            props & GrXPFactory::AnalysisProperties::kRequiresNonOverlappingDraws);
     if (props & GrXPFactory::AnalysisProperties::kIgnoresInputColor) {
         colorFPsToEliminate = this->numColorFragmentProcessors();
         analysis.fInputColorType =
@@ -242,5 +242,12 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
 
     fFlags |= kFinalized_Flag;
     analysis.fIsInitialized = true;
+#ifdef SK_DEBUG
+    bool hasXferBarrier =
+            fXP.fProcessor &&
+            GrXferBarrierType::kNone_GrXferBarrierType != fXP.fProcessor->xferBarrierType(caps);
+    bool needsNonOverlappingDraws = analysis.fRequiresDstTexture || hasXferBarrier;
+    SkASSERT(analysis.fRequiresNonOverlappingDraws == needsNonOverlappingDraws);
+#endif
     return analysis;
 }
