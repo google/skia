@@ -10831,6 +10831,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "id:skia-gce-200",
         "machine_type:n1-standard-16",
         "os:Debian-9.4",
         "pool:Skia",
