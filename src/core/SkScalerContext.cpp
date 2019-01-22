@@ -13,7 +13,6 @@
 #include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
-#include "SkFontPriv.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
@@ -903,7 +902,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    SkTypeface* typeface = font.getTypeface();
 
     rec->fFontID = typeface->uniqueID();
     rec->fTextSize = font.getSize();
