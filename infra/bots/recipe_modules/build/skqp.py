@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:8.1_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:8.1_v2'
 INNER_BUILD_DIR = '/SRC/skia/infra/skqp'
 INNER_BUILD_SCRIPT = './build_apk.sh'
 
@@ -80,4 +80,3 @@ for pattern in build_products_whitelist:
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST_SKQP),
       args=[out_dir, dst],
       infra_step=True)
-
