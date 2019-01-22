@@ -40,10 +40,13 @@ def compile_fn(api, checkout_root, _ignore):
 
   if configuration == 'Debug':
     cmd.append('debug') # It defaults to Release
-  api.run(
-    api.step,
-    'Build CanvasKit with Docker',
-    cmd=cmd)
+  # Override DOCKER_CONFIG set by Kitchen.
+  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
+  with api.env(env):
+    api.run(
+        api.step,
+        'Build CanvasKit with Docker',
+        cmd=cmd)
 
 
 def copy_extra_build_products(api, _ignore, dst):
@@ -87,4 +90,3 @@ for pattern in build_products_whitelist:
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM),
       args=[out_dir, dst],
       infra_step=True)
-

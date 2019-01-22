@@ -29,6 +29,7 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Build CanvasKit with Docker"
