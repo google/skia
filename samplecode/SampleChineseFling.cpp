@@ -10,6 +10,7 @@
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkRandom.h"
 #include "SkTypeface.h"

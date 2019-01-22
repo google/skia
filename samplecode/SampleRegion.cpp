@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkFont.h"
+#include "SkFontMetrics.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"

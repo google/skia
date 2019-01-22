@@ -10,6 +10,7 @@
 
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkFontMetrics.h"
 #include "SkStream.h"
 #include "SkTextBlob.h"
 #include "SkTo.h"

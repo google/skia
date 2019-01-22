@@ -14,6 +14,7 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkFont.h"
+#include "SkFontMetrics.h"
 #include "SkGradientShader.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
