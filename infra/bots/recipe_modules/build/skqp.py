@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:8.1_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/android-skqp:8.1_v3'
 INNER_BUILD_DIR = '/SRC/skia/infra/skqp'
 INNER_BUILD_SCRIPT = './build_apk.sh'
 
@@ -33,10 +33,13 @@ def compile_fn(api, checkout_root, _ignore):
          '--volume', '%s:/SRC' % checkout_root,
          '--volume', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
-  api.run(
-    api.step,
-    'Build SKQP apk with Docker',
-    cmd=cmd)
+  # Override DOCKER_CONFIG set by Kitchen.
+  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
+  with api.env(env):
+    api.run(
+        api.step,
+        'Build SKQP apk with Docker',
+        cmd=cmd)
 
 
 def copy_extra_build_products(api, _ignore, dst):
@@ -80,4 +83,3 @@ for pattern in build_products_whitelist:
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST_SKQP),
       args=[out_dir, dst],
       infra_step=True)
-

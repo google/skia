@@ -12,8 +12,11 @@ Additionally, it has the dependencies needed to build SKQP - Clang, python, ninj
 It gets manually pushed anytime there's an update to the Dockerfile or relevant
 installed libraries.
 
+    # This appears to hang at the "Accept? (y/N)" prompt; just be patient.
     docker build -t android-skqp ./android-skqp/
-    ANDROID_SDK_VERSION="8.1_v1" # use v2, v3 for respins
+    # use v2, v3 for respins; see http://gcr.io/skia-public/android-skqp for
+    # latest version
+    ANDROID_SDK_VERSION="8.1_v1"
     docker tag android-skqp gcr.io/skia-public/android-skqp:$ANDROID_SDK_VERSION
     docker push gcr.io/skia-public/android-skqp:$ANDROID_SDK_VERSION
 
