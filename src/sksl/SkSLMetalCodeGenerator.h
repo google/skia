@@ -184,9 +184,13 @@ protected:
 
     void writeInverseHack(const Expression& mat);
 
+    String getMatrixConstructHelper(const Type& matrix, const Type& arg);
+
     void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
 
-    void writeConstructor(const Constructor& c);
+    bool canCoerce(const Type& t1, const Type& t2);
+
+    void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
     void writeFieldAccess(const FieldAccess& f);
 
@@ -268,6 +272,7 @@ protected:
     std::unordered_map<const FunctionDeclaration*, Requirements> fRequirements;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
+    std::unordered_map<String, String> fMatrixConstructHelpers;
     int fUniformBuffer = -1;
 
     typedef CodeGenerator INHERITED;

@@ -120,7 +120,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeBoolLiteral((BoolLiteral&) expr);
             break;
         case Expression::kConstructor_Kind:
-            this->writeConstructor((Constructor&) expr);
+            this->writeConstructor((Constructor&) expr, parentPrecedence);
             break;
         case Expression::kIntLiteral_Kind:
             this->writeIntLiteral((IntLiteral&) expr);
@@ -296,31 +296,109 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
     }
 }
 
-void MetalCodeGenerator::writeConstructor(const Constructor& c) {
-    this->writeType(c.fType);
-    this->write("(");
-    const char* separator = "";
-    int scalarCount = 0;
-    for (const auto& arg : c.fArguments) {
-        this->write(separator);
-        separator = ", ";
-        if (Type::kMatrix_Kind == c.fType.kind() && Type::kScalar_Kind == arg->fType.kind()) {
-            // float2x2(float, float, float, float) doesn't work in Metal 1, so we need to merge to
-            // float2x2(float2, float2).
-            if (!scalarCount) {
-                this->writeType(c.fType.componentType());
-                this->write(to_string(c.fType.rows()));
-                this->write("(");
-            }
-            ++scalarCount;
-        }
-        this->writeExpression(*arg, kSequence_Precedence);
-        if (scalarCount && scalarCount == c.fType.rows()) {
-            this->write(")");
-            scalarCount = 0;
-        }
+// If it hasn't already been written, writes a constructor for 'matrix' which takes a single value
+// of type 'arg'.
+String MetalCodeGenerator::getMatrixConstructHelper(const Type& matrix, const Type& arg) {
+    String key = matrix.name() + arg.name();
+    auto found = fMatrixConstructHelpers.find(key);
+    if (found != fMatrixConstructHelpers.end()) {
+        return found->second;
     }
-    this->write(")");
+    String name;
+    int columns = matrix.columns();
+    int rows = matrix.rows();
+    if (arg.isNumber()) {
+        // creating a matrix from a single scalar value
+        name = "float" + to_string(columns) + "x" + to_string(rows) + "_from_float";
+        fExtraFunctions.printf("float%dx%d %s(float x) {\n",
+                               columns, rows, name.c_str());
+        fExtraFunctions.printf("    return float%dx%d(", columns, rows);
+        for (int i = 0; i < columns; ++i) {
+            if (i > 0) {
+                fExtraFunctions.writeText(", ");
+            }
+            fExtraFunctions.printf("float%d(", rows);
+            for (int j = 0; j < rows; ++j) {
+                if (j > 0) {
+                    fExtraFunctions.writeText(", ");
+                }
+                if (i == j) {
+                    fExtraFunctions.writeText("x");
+                } else {
+                    fExtraFunctions.writeText("0");
+                }
+            }
+            fExtraFunctions.writeText(")");
+        }
+        fExtraFunctions.writeText(");\n}\n");
+    }
+    else if (matrix.rows() == 2 && matrix.columns() == 2) {
+        // float2x2(float4) doesn't work, need to split it into float2x2(float2, float2)
+        name = "float2x2_from_float4";
+        fExtraFunctions.printf(
+            "float2x2 %s(float4 v) {\n"
+            "    return float2x2(float2(v[0], v[1]), float2(v[2], v[3]));\n"
+            "}\n",
+            name.c_str()
+        );
+    }
+    else {
+        SkASSERT(false);
+        name = "<error>";
+    }
+    fMatrixConstructHelpers[key] = name;
+    return name;
+}
+
+bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
+    if (t1.columns() != t2.columns() || t1.rows() != t2.rows()) {
+        return false;
+    }
+    if (t1.columns() > 1) {
+        return this->canCoerce(t1.componentType(), t2.componentType());
+    }
+    return ((t1 == *fContext.fFloat_Type || t1 == *fContext.fHalf_Type) &&
+            (t2 == *fContext.fFloat_Type || t2 == *fContext.fHalf_Type));
+}
+
+void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
+    if (c.fArguments.size() == 1 && this->canCoerce(c.fType, c.fArguments[0]->fType)) {
+        this->writeExpression(*c.fArguments[0], parentPrecedence);
+        return;
+    }
+    if (c.fType.kind() == Type::kMatrix_Kind && c.fArguments.size() == 1) {
+        const Expression& arg = *c.fArguments[0];
+        String name = this->getMatrixConstructHelper(c.fType, arg.fType);
+        this->write(name);
+        this->write("(");
+        this->writeExpression(arg, kSequence_Precedence);
+        this->write(")");
+    } else {
+        this->writeType(c.fType);
+        this->write("(");
+        const char* separator = "";
+        int scalarCount = 0;
+        for (const auto& arg : c.fArguments) {
+            this->write(separator);
+            separator = ", ";
+            if (Type::kMatrix_Kind == c.fType.kind() && Type::kScalar_Kind == arg->fType.kind()) {
+                // float2x2(float, float, float, float) doesn't work in Metal 1, so we need to merge
+                // to float2x2(float2, float2).
+                if (!scalarCount) {
+                    this->writeType(c.fType.componentType());
+                    this->write(to_string(c.fType.rows()));
+                    this->write("(");
+                }
+                ++scalarCount;
+            }
+            this->writeExpression(*arg, kSequence_Precedence);
+            if (scalarCount && scalarCount == c.fType.rows()) {
+                this->write(")");
+                scalarCount = 0;
+            }
+        }
+        this->write(")");
+    }
 }
 
 void MetalCodeGenerator::writeFragCoord() {

@@ -241,6 +241,7 @@ tests_sources = [
   "$_tests/SkSLGLSLTest.cpp",
   "$_tests/SkSLJITTest.cpp",
   "$_tests/SkSLMemoryLayoutTest.cpp",
+  "$_tests/SkSLMetalTest.cpp",
   "$_tests/SkSLSPIRVTest.cpp",
   "$_tests/SkUTFTest.cpp",
   "$_tests/SortTest.cpp",

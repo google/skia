@@ -18,6 +18,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLJIT.cpp",
   "$_src/sksl/SkSLLexer.cpp",
   "$_src/sksl/SkSLMetalCodeGenerator.cpp",
+  "$_src/sksl/SkSLOutputStream.cpp",
   "$_src/sksl/SkSLParser.cpp",
   "$_src/sksl/SkSLPipelineStageCodeGenerator.cpp",
   "$_src/sksl/SkSLSPIRVCodeGenerator.cpp",
