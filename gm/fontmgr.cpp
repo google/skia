@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkFontPriv.h"
 #include "SkPath.h"
