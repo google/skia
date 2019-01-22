@@ -114,7 +114,6 @@ protected:
         font.setSize(30);
 
         const char* text = fApplyKerning ? "Type AWAY" : "Hamburgefons";
-        const size_t textLen = strlen(text);
 
         SkScalar x = SkIntToScalar(10);
         SkScalar dy = font.getMetrics(nullptr);
@@ -129,9 +128,9 @@ protected:
         SkPaint paint;
         for (int i = 0; i < gStylesCount; i++) {
             font.setTypeface(fFaces[i]);
-            canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+            canvas->drawString(text, x, y, font, paint);
             if (fApplyKerning) {
-                drawKernText(canvas, text, textLen, x + 240, y, font, paint);
+                drawKernText(canvas, text, strlen(text), x + 240, y, font, paint);
             }
             y += dy;
         }

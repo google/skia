@@ -18,15 +18,14 @@ DEF_SIMPLE_GM(skbug_5321, canvas, 128, 128) {
     const char text[] = "x\314\200y";  // utf8(u"x\u0300y")
     SkScalar x = 20, y = 45;
 
-    size_t byteLength = strlen(text);
-    canvas->drawSimpleText(text, byteLength, kUTF8_SkTextEncoding, x, y, font, SkPaint());
+    canvas->drawString(text, x, y, font, SkPaint());
 
     y += font.getMetrics(nullptr);
-    int glyph_count = font.countText(text, byteLength, kUTF8_SkTextEncoding);
+    int glyph_count = font.countText(text, strlen(text), kUTF8_SkTextEncoding);
     SkTextBlobBuilder builder;
 
     auto rec = builder.allocRunPosH(font, glyph_count, y);
-    font.textToGlyphs(text, byteLength, kUTF8_SkTextEncoding, rec.glyphs, glyph_count);
+    font.textToGlyphs(text, strlen(text), kUTF8_SkTextEncoding, rec.glyphs, glyph_count);
 
     font.getWidths(rec.glyphs, glyph_count, rec.pos);
     for (int i = 0; i < glyph_count; ++i) {

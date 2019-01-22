@@ -116,7 +116,7 @@ static void drawTestCase(SkCanvas* canvas,
     paint.setColor(SK_ColorBLACK);
     paint.setStrokeWidth(strokeWidth);
     paint.setStyle(strokeStyle);
-    canvas->drawSimpleText(kText, sizeof(kText) - 1, kUTF8_SkTextEncoding, 0.0f, 0.0f, font, paint);
+    canvas->drawString(kText, 0.0f, 0.0f, font, paint);
 
     if (drawRef) {
         const size_t len = sizeof(kText) - 1;

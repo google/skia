@@ -37,7 +37,6 @@ protected:
         font.setHinting(kSlight_SkFontHinting);
 
         const char* text = "Hamburgefons ooo mmm";
-        const size_t textLen = strlen(text);
 
         for (int j = 0; j < 2; ++j) {
             // This used to do 6 iterations but it causes the N4 to crash in the MSAA4 config.
@@ -61,7 +60,7 @@ protected:
 
                 for (int ps = 6; ps <= 22; ps++) {
                     font.setSize(SkIntToScalar(ps));
-                    canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, SkPaint());
+                    canvas->drawString(text, x, y, font, SkPaint());
                     y += font.getMetrics(nullptr);
                 }
             }

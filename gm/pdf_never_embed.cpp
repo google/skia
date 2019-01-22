@@ -51,7 +51,7 @@ DEF_SIMPLE_GM(pdf_never_embed, canvas, 512, 512) {
 
     canvas->scale(1.0, 0.5);
     p.setColor(0xF0000080);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 30, 700, font, p);
+    canvas->drawString(text, 30, 700, font, p);
 }
 
 
