@@ -28,10 +28,10 @@ static bool almost_equal(float a, float b) {
 
 static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const float red[], const float green[], const float blue[],
-                       const SkGammaNamed expectedGamma) {
+                       bool expectSRGB = false) {
 
     REPORTER_ASSERT(r, nullptr != space);
-    REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
+    REPORTER_ASSERT(r, expectSRGB == space->gammaCloseToSRGB());
 
     skcms_Matrix3x3 mat;
     space->toXYZD50(&mat);
@@ -45,7 +45,7 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
 
 static void test_path(skiatest::Reporter* r, const char* path,
                       const float red[], const float green[], const float blue[],
-                      const SkGammaNamed expectedGamma) {
+                      bool expectSRGB = false) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
@@ -59,7 +59,7 @@ static void test_path(skiatest::Reporter* r, const char* path,
     }
 
     auto colorSpace = codec->getInfo().refColorSpace();
-    test_space(r, colorSpace.get(), red, green, blue, expectedGamma);
+    test_space(r, colorSpace.get(), red, green, blue, expectSRGB);
 }
 
 static constexpr float g_sRGB_R[]{ 0.4358f, 0.2224f, 0.0139f };
@@ -67,31 +67,29 @@ static constexpr float g_sRGB_G[]{ 0.3853f, 0.7170f, 0.0971f };
 static constexpr float g_sRGB_B[]{ 0.1430f, 0.0606f, 0.7139f };
 
 DEF_TEST(ColorSpace_sRGB, r) {
-    test_space(r, sk_srgb_singleton(),
-               g_sRGB_R, g_sRGB_G, g_sRGB_B, kSRGB_SkGammaNamed);
+    test_space(r, sk_srgb_singleton(), g_sRGB_R, g_sRGB_G, g_sRGB_B, true);
 
 }
 
 DEF_TEST(ColorSpaceParseICCProfiles, r) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
-    test_path(r, "images/color_wheel_with_profile.png", g_sRGB_R, g_sRGB_G, g_sRGB_B,
-              kSRGB_SkGammaNamed);
+    test_path(r, "images/color_wheel_with_profile.png", g_sRGB_R, g_sRGB_G, g_sRGB_B, true);
 #endif
 
     const float red[]   = { 0.385117f, 0.716904f, 0.0970612f };
     const float green[] = { 0.143051f, 0.0606079f, 0.713913f };
     const float blue[]  = { 0.436035f, 0.222488f, 0.013916f };
-    test_path(r, "images/icc-v2-gbr.jpg", red, green, blue, k2Dot2Curve_SkGammaNamed);
+    test_path(r, "images/icc-v2-gbr.jpg", red, green, blue);
 
     test_path(r, "images/webp-color-profile-crash.webp",
-            red, green, blue, kNonStandard_SkGammaNamed);
+            red, green, blue);
     test_path(r, "images/webp-color-profile-lossless.webp",
-            red, green, blue, kNonStandard_SkGammaNamed);
+            red, green, blue);
     test_path(r, "images/webp-color-profile-lossy.webp",
-            red, green, blue, kNonStandard_SkGammaNamed);
+            red, green, blue);
     test_path(r, "images/webp-color-profile-lossy-alpha.webp",
-            red, green, blue, kNonStandard_SkGammaNamed);
+            red, green, blue);
 }
 
 static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, bool isNamed) {
