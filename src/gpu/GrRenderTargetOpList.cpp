@@ -14,6 +14,7 @@
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceAllocator.h"
+#include "SkExchange.h"
 #include "SkRectPriv.h"
 #include "SkTraceEvent.h"
 #include "ops/GrClearOp.h"
@@ -226,7 +227,7 @@ GrRenderTargetOpList::OpChain::List GrRenderTargetOpList::OpChain::DoConcat(
 // (and null for the second head/tail).
 bool GrRenderTargetOpList::OpChain::tryConcat(
         List* list, const DstProxy& dstProxy, const GrAppliedClip* appliedClip,
-        const GrCaps& caps, GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
+        const SkRect& bounds, const GrCaps& caps, GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
     SkASSERT(!fList.empty());
     SkASSERT(!list->empty());
     // All returns use explicit tuple constructor rather than {a, b} to work around old GCC bug.
@@ -237,6 +238,7 @@ bool GrRenderTargetOpList::OpChain::tryConcat(
         (fDstProxy.proxy() && fDstProxy != dstProxy)) {
         return false;
     }
+
     SkDEBUGCODE(bool first = true;)
     do {
         switch (fList.tail()->combineIfPossible(list->head(), caps)) {
@@ -248,8 +250,12 @@ bool GrRenderTargetOpList::OpChain::tryConcat(
                 SkASSERT(first);
                 return false;
             case GrOp::CombineResult::kMayChain:
-                fList = DoConcat(std::move(fList), std::move(*list), caps, pool, auditTrail);
-                return true;
+                fList = DoConcat(std::move(fList), skstd::exchange(*list, List()), caps, pool,
+                                 auditTrail);
+                // The above exchange cleared out 'list'. The list needs to be empty now for the
+                // loop to terminate.
+                SkASSERT(list->empty());
+                break;
             case GrOp::CombineResult::kMerged: {
                 GrOP_INFO("\t\t: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
                           list->tail()->name(), list->tail()->uniqueID(), list->head()->name(),
@@ -261,14 +267,15 @@ bool GrRenderTargetOpList::OpChain::tryConcat(
         }
         SkDEBUGCODE(first = false);
     } while (!list->empty());
-    // All the ops from chain b merged.
+
+    // The new ops were successfully merged and/or chained onto our own.
+    fBounds.joinPossiblyEmptyRect(bounds);
     return true;
 }
 
 bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& caps,
                                                  GrOpMemoryPool* pool, GrAuditTrail* auditTrail) {
-    if (!that->tryConcat(
-            &fList, this->dstProxy(), this->appliedClip(), caps, pool, auditTrail)) {
+    if (!that->tryConcat(&fList, fDstProxy, fAppliedClip, fBounds, caps, pool, auditTrail)) {
         this->validate();
         // append failed
         return false;
@@ -277,7 +284,7 @@ bool GrRenderTargetOpList::OpChain::prependChain(OpChain* that, const GrCaps& ca
     // 'that' owns the combined chain. Move it into 'this'.
     SkASSERT(fList.empty());
     fList = std::move(that->fList);
-    fBounds.joinPossiblyEmptyRect(that->fBounds);
+    fBounds = that->fBounds;
 
     that->fDstProxy.setProxy(nullptr);
     if (that->fAppliedClip) {
@@ -302,14 +309,13 @@ std::unique_ptr<GrOp> GrRenderTargetOpList::OpChain::appendOp(std::unique_ptr<Gr
     SkASSERT(op->isChainHead() && op->isChainTail());
     SkRect opBounds = op->bounds();
     List chain(std::move(op));
-    if (!this->tryConcat(&chain, *dstProxy, appliedClip, caps, pool, auditTrail)) {
+    if (!this->tryConcat(&chain, *dstProxy, appliedClip, opBounds, caps, pool, auditTrail)) {
         // append failed, give the op back to the caller.
         this->validate();
         return chain.popHead();
     }
 
     SkASSERT(chain.empty());
-    fBounds.joinPossiblyEmptyRect(opBounds);
     this->validate();
     return nullptr;
 }
