@@ -30,7 +30,7 @@ static bool dot_nearly_zero(const SkVector& e1, const SkVector& e2) {
         dotValue = dot({sign(e1.fX), sign(e1.fY)}, {sign(e2.fX), sign(e2.fY)});
     }
 
-    return SkScalarNearlyZero(dotValue, 5e-4f);
+    return SkScalarNearlyZero(dotValue, 1e-3f);
 }
 
 // This is not the most performance critical function; code using GrQuad should rely on the faster
