@@ -17,7 +17,7 @@
  *  it will be the default typeface.
  */
 static inline sk_sp<SkTypeface> ref_or_default(SkTypeface* face) {
-    return face ? sk_ref_sp(face) : SkTypeface::MakeDefault();
+    return face ? sk_ref_sp(face) : SkTypeface::RefDefault();
 }
 
 /**
@@ -26,7 +26,7 @@ static inline sk_sp<SkTypeface> ref_or_default(SkTypeface* face) {
  */
 class SkAutoResolveDefaultTypeface : public sk_sp<SkTypeface> {
 public:
-    SkAutoResolveDefaultTypeface() : INHERITED(SkTypeface::MakeDefault()) {}
+    SkAutoResolveDefaultTypeface() : INHERITED(SkTypeface::RefDefault()) {}
 
     SkAutoResolveDefaultTypeface(SkTypeface* face)
         : INHERITED(ref_or_default(face)) {}
