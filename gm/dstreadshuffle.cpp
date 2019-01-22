@@ -84,7 +84,7 @@ protected:
                 const char* text = "N";
                 SkFont font(sk_tool_utils::create_portable_typeface(), 100);
                 font.setEmbolden(true);
-                canvas->drawString(text, 0.f, 100.f, font, *paint);
+                DrawShapedString(canvas, text, 0.f, 100.f, font, *paint);
             }
             default:
                 break;

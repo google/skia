@@ -246,7 +246,7 @@ protected:
         SkAutoCanvasRestore acr(canvas, true);
         for (SkFont::Edging edging : kEdgings) {
             font.setEdging(edging);
-            canvas->drawString("Hamburgefon", 0, 0, font, paint);
+            DrawShapedString(canvas, "Hamburgefon", 0, 0, font, paint);
             canvas->translate(0, 40);
         }
     }

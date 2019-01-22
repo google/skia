@@ -41,7 +41,7 @@ protected:
 
         SkFont font;
         font.setEdging(SkFont::Edging::kAlias);
-        canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
+        DrawShapedString(canvas, "Images should look identical.", 450.0f, 550.0f, font, SkPaint());
     }
 
 private:

@@ -115,17 +115,17 @@ protected:
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 8);
 
-        canvas->drawString("Original Img",  10,  60, font, SkPaint());
-        canvas->drawString("Modified Img",  10, 140, font, SkPaint());
-        canvas->drawString("Cur Surface",   10, 220, font, SkPaint());
-        canvas->drawString("Full Crop",     10, 300, font, SkPaint());
-        canvas->drawString("Over-crop",     10, 380, font, SkPaint());
-        canvas->drawString("Upper-left",    10, 460, font, SkPaint());
-        canvas->drawString("No Crop",       10, 540, font, SkPaint());
+        DrawShapedString(canvas, "Original Img",  10,  60, font, SkPaint());
+        DrawShapedString(canvas, "Modified Img",  10, 140, font, SkPaint());
+        DrawShapedString(canvas, "Cur Surface",   10, 220, font, SkPaint());
+        DrawShapedString(canvas, "Full Crop",     10, 300, font, SkPaint());
+        DrawShapedString(canvas, "Over-crop",     10, 380, font, SkPaint());
+        DrawShapedString(canvas, "Upper-left",    10, 460, font, SkPaint());
+        DrawShapedString(canvas, "No Crop",       10, 540, font, SkPaint());
 
-        canvas->drawString("Pre-Alloc Img", 80,  10, font, SkPaint());
-        canvas->drawString("New Alloc Img", 160, 10, font, SkPaint());
-        canvas->drawString( "GPU",          265, 10, font, SkPaint());
+        DrawShapedString(canvas, "Pre-Alloc Img", 80,  10, font, SkPaint());
+        DrawShapedString(canvas, "New Alloc Img", 160, 10, font, SkPaint());
+        DrawShapedString(canvas,  "GPU",          265, 10, font, SkPaint());
 
         canvas->translate(80, 20);
 

@@ -58,7 +58,7 @@ protected:
         SkFont font(sk_tool_utils::create_portable_typeface(), 500);
         font.setEdging(SkFont::Edging::kAlias);
 
-        canvas->drawString("I", 0, 100, font, paint);
+        DrawShapedString(canvas, "I", 0, 100, font, paint);
     }
 private:
     typedef GM INHERITED;
@@ -79,17 +79,17 @@ protected:
         font.setEdging(SkFont::Edging::kAlias);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Normal Fill Text", 0, 50, font, paint);
+        DrawShapedString(canvas, "Normal Fill Text", 0, 50, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawString("Normal Stroke Text", 0, 100, font, paint);
+        DrawShapedString(canvas, "Normal Stroke Text", 0, 100, font, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Gradient Fill Text", 0, 150, font, paint);
+        DrawShapedString(canvas, "Gradient Fill Text", 0, 150, font, paint);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawString("Gradient Stroke Text", 0, 200, font, paint);
+        DrawShapedString(canvas, "Gradient Stroke Text", 0, 200, font, paint);
     }
 private:
     typedef GM INHERITED;
@@ -124,7 +124,7 @@ DEF_SIMPLE_GM(gradtext, canvas, 500, 480) {
         for (const SkPaint& paint : paints) {
             for (SkFont::Edging edging : edgings) {
                 font.setEdging(edging);
-                canvas->drawString("When in the course of human events", 0, 0, font, paint);
+                DrawShapedString(canvas, "When in the course of human events", 0, 0, font, paint);
                 canvas->translate(0, kTextSize * 4/3);
             }
             canvas->translate(0, kTextSize * 2/3);

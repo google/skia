@@ -61,7 +61,7 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
         SkString str;
         str.appendScalar(k[i]);
         SkScalar width = font.measureText(str.c_str(), str.size(), kUTF8_SkTextEncoding);
-        canvas->drawString(str, x, y + font.getSize(), font, paint);
+        DrawShapedString(canvas, str, x, y + font.getSize(), font, paint);
         x += width + SkIntToScalar(10);
     }
 }
@@ -151,7 +151,7 @@ protected:
                 // Label
                 SkFont font(sk_tool_utils::create_portable_typeface(), 24);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
-                canvas->drawString(str, 0, font.getSize(), font, SkPaint());
+                DrawShapedString(canvas, str, 0, font.getSize(), font, SkPaint());
             }
             canvas->translate(0, HH + 12);
         }

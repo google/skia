@@ -293,7 +293,7 @@ protected:
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";
-        canvas->drawString(title, 20, 20, font, titlePaint);
+        DrawShapedString(canvas, title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(220*SK_Scalar1, 50*SK_Scalar1);
@@ -346,14 +346,14 @@ protected:
                 labelPaint.setColor(color);
                 labelPaint.setAntiAlias(true);
                 font.setSize(10);
-                canvas->drawString(style.fName, 0, rect.height() + 12, font, labelPaint);
-                canvas->drawString(fill.fName, 0, rect.height() + 24, font, labelPaint);
-                canvas->drawString(cap.fName, 0, rect.height() + 36, font, labelPaint);
-                canvas->drawString(gSegmentNames[s1], 0, rect.height() + 48, font, labelPaint);
-                canvas->drawString(gSegmentNames[s2], 0, rect.height() + 60, font, labelPaint);
-                canvas->drawString(gSegmentNames[s3], 0, rect.height() + 72, font, labelPaint);
-                canvas->drawString(gSegmentNames[s4], 0, rect.height() + 84, font, labelPaint);
-                canvas->drawString(gSegmentNames[s5], 0, rect.height() + 96, font, labelPaint);
+                DrawShapedString(canvas, style.fName, 0, rect.height() + 12, font, labelPaint);
+                DrawShapedString(canvas, fill.fName, 0, rect.height() + 24, font, labelPaint);
+                DrawShapedString(canvas, cap.fName, 0, rect.height() + 36, font, labelPaint);
+                DrawShapedString(canvas, gSegmentNames[s1], 0, rect.height() + 48, font, labelPaint);
+                DrawShapedString(canvas, gSegmentNames[s2], 0, rect.height() + 60, font, labelPaint);
+                DrawShapedString(canvas, gSegmentNames[s3], 0, rect.height() + 72, font, labelPaint);
+                DrawShapedString(canvas, gSegmentNames[s4], 0, rect.height() + 84, font, labelPaint);
+                DrawShapedString(canvas, gSegmentNames[s5], 0, rect.height() + 96, font, labelPaint);
             }
             canvas->restore();
         }

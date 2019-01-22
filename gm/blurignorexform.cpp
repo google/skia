@@ -98,12 +98,12 @@ protected:
         SkFont font(sk_tool_utils::create_portable_typeface());
         canvas->save();
         for (int i = 0; i < kNumBlurs; ++i) {
-            canvas->drawString(kBlurFlags[i].fName, 100, 0, font, SkPaint());
+            DrawShapedString(canvas, kBlurFlags[i].fName, 100, 0, font, SkPaint());
             canvas->translate(SkIntToScalar(130), 0);
         }
         canvas->restore();
         for (auto scale : kMatrixScales) {
-            canvas->drawString(scale.fName, 0, 50, font, SkPaint());
+            DrawShapedString(canvas, scale.fName, 0, 50, font, SkPaint());
             canvas->translate(0, SkIntToScalar(150));
         }
     }

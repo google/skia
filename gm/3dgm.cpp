@@ -168,7 +168,7 @@ protected:
             }
 
             for (int i = 0; i < 3; ++i) {
-                canvas->drawString(str[i], dst[i + 1].fX, dst[i + 1].fY, font, paint);
+                DrawShapedString(canvas, str[i], dst[i + 1].fX, dst[i + 1].fY, font, paint);
             }
         }
 

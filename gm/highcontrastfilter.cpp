@@ -58,14 +58,14 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
     font.setEdging(SkFont::Edging::kAlias);
 
     paint.setARGB(0xff, 0xbb, 0x77, 0x77);
-    canvas->drawString("A", 0.15f, 0.35f, font, paint);
+    DrawShapedString(canvas, "A", 0.15f, 0.35f, font, paint);
 
     bounds = SkRect::MakeLTRB(0.1f, 0.8f, 0.9f, 1.0f);
     paint.setARGB(0xff, 0xcc, 0xcc, 0xff);
     canvas->drawRect(bounds, paint);
 
     paint.setARGB(0xff, 0x88, 0x88, 0xbb);
-    canvas->drawString("Z", 0.75f, 0.95f, font, paint);
+    DrawShapedString(canvas, "Z", 0.75f, 0.95f, font, paint);
 
     bounds = SkRect::MakeLTRB(0.1f, 0.4f, 0.9f, 0.6f);
     SkPoint     pts[] = { { 0, 0 }, { 1, 0 } };
