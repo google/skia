@@ -51,8 +51,8 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
 
     SkFont font(sk_tool_utils::create_portable_typeface());
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
-    canvas->drawString(name, x, SkIntToScalar(bm.height())*scale*5/8,
-                       font, paint);
+    skiagm::DrawShapedString(canvas, name, x, SkIntToScalar(bm.height()) * scale * 5 / 8, font,
+                             paint);
     canvas->translate(SkIntToScalar(48), 0);
 
     canvas->scale(SkIntToScalar(scale), SkIntToScalar(scale));

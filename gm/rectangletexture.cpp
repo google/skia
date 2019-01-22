@@ -147,7 +147,8 @@ protected:
         if (!rectImgs[0]) {
             SkPaint paint;
             SkFont font;
-            canvas->drawString("Could not create rectangle texture image.", 10, 100, font, paint);
+            skiagm::DrawShapedString(canvas, "Could not create rectangle texture image.", 10, 100,
+                                     font, paint);
             return;
         }
 

@@ -77,7 +77,7 @@ private:
             bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
             bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);
-            canvas->drawString(kQualities[q].fName, 20, 40, font, textPaint);
+            skiagm::DrawShapedString(canvas, kQualities[q].fName, 20, 40, font, textPaint);
             canvas->translate(250, 0);
         }
 

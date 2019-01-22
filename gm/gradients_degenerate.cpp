@@ -35,7 +35,7 @@ static void draw_tile_header(SkCanvas* canvas) {
     canvas->save();
 
     for (int i = 0; i < TILE_MODE_CT; ++i) {
-        canvas->drawString(TILE_NAMES[i], 0, 0, SkFont(), SkPaint());
+        skiagm::DrawShapedString(canvas, TILE_NAMES[i], 0, 0, SkFont(), SkPaint());
         canvas->translate(TILE_SIZE + TILE_GAP, 0);
     }
 
@@ -52,7 +52,7 @@ static void draw_row(SkCanvas* canvas, const char* desc, GradientFactory factory
     text.setAntiAlias(true);
 
     canvas->translate(0, TILE_GAP);
-    canvas->drawString(desc, 0, 0, SkFont(), text);
+    skiagm::DrawShapedString(canvas, desc, 0, 0, SkFont(), text);
     canvas->translate(0, TILE_GAP);
 
     SkPaint paint;

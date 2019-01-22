@@ -658,7 +658,7 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
     font.measureText(rowLabel.c_str(), rowLabel.size(), kUTF8_SkTextEncoding, &textRect);
     y += kTileWidthHeight/2 + textRect.height()/2;
 
-    canvas->drawString(rowLabel, 0, y, font, paint);
+    skiagm::DrawShapedString(canvas, rowLabel, 0, y, font, paint);
 }
 
 static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkBitmap& bm,

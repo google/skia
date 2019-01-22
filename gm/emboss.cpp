@@ -71,7 +71,7 @@ protected:
         canvas->translate(SkIntToScalar(100), 0);
 
         paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
+        skiagm::DrawShapedString(canvas, "Hello", 0, 50, SkFont(nullptr, 50), paint);
     }
 
 private:

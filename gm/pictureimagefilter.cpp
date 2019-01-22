@@ -33,7 +33,7 @@ static sk_sp<SkPicture> make_picture() {
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
     SkFont font(sk_tool_utils::create_portable_typeface(), 96.0f);
-    canvas->drawString("e", 20.0f, 70.0f, font, paint);
+    skiagm::DrawShapedString(canvas, "e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
 
@@ -47,7 +47,7 @@ static sk_sp<SkPicture> make_LCD_picture() {
     // this has to be small enough that it doesn't become a path
     SkFont font(sk_tool_utils::create_portable_typeface(), 36.0f);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-    canvas->drawString("e", 20.0f, 70.0f, font, paint);
+    skiagm::DrawShapedString(canvas, "e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
 

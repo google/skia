@@ -106,7 +106,8 @@ protected:
                                                    doAAB ? "A" : "B",
                                                    doInvB ? "I" : "N");
 
-                        canvas->drawString(str.c_str(), txtX, SkIntToScalar(130), font, paint);
+                        skiagm::DrawShapedString(canvas, str.c_str(), txtX, SkIntToScalar(130),
+                                                 font, paint);
                         if (doInvB) {
                             canvas->translate(SkIntToScalar(150),0);
                         } else {

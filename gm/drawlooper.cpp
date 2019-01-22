@@ -43,7 +43,7 @@ protected:
 
         canvas->drawCircle(50, 50, 30, paint);
         canvas->drawRect({ 150, 50, 200, 100 }, paint);
-        canvas->drawString("Looper", 230, 100, font, paint);
+        skiagm::DrawShapedString(canvas, "Looper", 230, 100, font, paint);
     }
 
 private:

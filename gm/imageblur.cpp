@@ -27,7 +27,8 @@ void imageblurgm_draw(SkScalar fSigmaX, SkScalar fSigmaY, SkCanvas* canvas) {
             int y = rand.nextULessThan(HEIGHT);
             textPaint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             font.setSize(rand.nextRangeScalar(0, 300));
-            canvas->drawString(str, SkIntToScalar(x), SkIntToScalar(y), font, textPaint);
+            skiagm::DrawShapedString(canvas, str, SkIntToScalar(x), SkIntToScalar(y), font,
+                                     textPaint);
         }
         canvas->restore();
 }

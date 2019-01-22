@@ -140,8 +140,9 @@ protected:
                         x += r.width() * 4 / 3;
                     }
                 }
-                canvas->drawString(SkStringPrintf("%s, %s", gColorTypeNames[i], gFilterNames[j]),
-                                   scale * x, scale * (y + r.height() * 2 / 3), font, textPaint);
+                skiagm::DrawShapedString(
+                        canvas, SkStringPrintf("%s, %s", gColorTypeNames[i], gFilterNames[j]),
+                        scale * x, scale * (y + r.height() * 2 / 3), font, textPaint);
 
                 y += r.height() * 4 / 3;
             }

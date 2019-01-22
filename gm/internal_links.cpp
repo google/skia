@@ -62,7 +62,7 @@ private:
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 25);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawString(text, x, y, font, paint);
+        skiagm::DrawShapedString(canvas, text, x, y, font, paint);
     }
 
     typedef GM INHERITED;

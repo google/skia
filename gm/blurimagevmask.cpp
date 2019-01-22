@@ -20,9 +20,8 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
     const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
 
-    canvas->drawString("mask blur",  285, 50, font, paint);
-    canvas->drawString("image blur", 285 + 250, 50, font, paint);
-
+    skiagm::DrawShapedString(canvas, "mask blur", 285, 50, font, paint);
+    skiagm::DrawShapedString(canvas, "image blur", 285 + 250, 50, font, paint);
 
     SkRect r = {35, 100, 135, 200};
     for (auto sigma:sigmas) {
@@ -31,7 +30,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
 
         char out[100];
         sprintf(out, "Sigma: %g", sigma);
-        canvas->drawString(out, r.left(), r.bottom() + 35, font, paint);
+        skiagm::DrawShapedString(canvas, out, r.left(), r.bottom() + 35, font, paint);
 
         r.offset(250, 0);
 

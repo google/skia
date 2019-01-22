@@ -160,7 +160,7 @@ protected:
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawString(gOps[op].fName, 75.0f, 50.0f, font, textPaint);
+            skiagm::DrawShapedString(canvas, gOps[op].fName, 75.0f, 50.0f, font, textPaint);
 
             if (kAAClip_GeomType == fGeomType) {
                 this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);

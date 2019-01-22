@@ -77,7 +77,8 @@ void SkJSCanvas::stroke() {
 }
 
 void SkJSCanvas::fillText(const char text[], double x, double y) {
-    fTarget->drawString(text, SkDoubleToScalar(x), SkDoubleToScalar(y), fFont, fFillPaint);
+    skiagm::DrawShapedString(fTarget, text, SkDoubleToScalar(x), SkDoubleToScalar(y), fFont,
+                             fFillPaint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

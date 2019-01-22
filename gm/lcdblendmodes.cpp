@@ -128,7 +128,7 @@ protected:
                 paint.setShader(make_shader(r));
             }
             SkString string(SkBlendMode_Name(gModes[m]));
-            canvas->drawString(string, 0, y, font, paint);
+            skiagm::DrawShapedString(canvas, string, 0, y, font, paint);
             y+=fTextHeight;
         }
     }

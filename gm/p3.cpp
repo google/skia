@@ -52,7 +52,8 @@ static void compare_pixel(const char* label,
     bm.allocPixels(SkImageInfo::Make(1,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType, canvas_cs));
     if (!canvas->readPixels(bm, x,y)) {
         MarkGMGood(canvas, 140,40);
-        canvas->drawString("can't readPixels() on this canvas :(", 100,20, font, paint);
+        skiagm::DrawShapedString(canvas, "can't readPixels() on this canvas :(", 100, 20, font,
+                                 paint);
         return;
     }
 
@@ -87,11 +88,11 @@ static void compare_pixel(const char* label,
     };
 
     SkAutoCanvasRestore saveRestore(canvas, true);
-    canvas->drawString(label, 80,20, font, paint);
+    skiagm::DrawShapedString(canvas, label, 80, 20, font, paint);
     for (auto l : lines) {
         canvas->translate(0,20);
-        canvas->drawString(l.label,               80,20, font, paint);
-        canvas->drawString(fmt(l.color).c_str(), 140,20, font, paint);
+        skiagm::DrawShapedString(canvas, l.label, 80, 20, font, paint);
+        skiagm::DrawShapedString(canvas, fmt(l.color).c_str(), 140, 20, font, paint);
     }
 }
 

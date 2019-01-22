@@ -51,8 +51,9 @@ protected:
             canvas->translate(0, SkIntToScalar(kLabelOffsetY));
             for (int i = 0; i <= kSubPixelSteps; ++i) {
                 offset.printf("%d", i);
-                canvas->drawString(offset, 0, i * kTrans + SkIntToScalar(kLabelTextSize),
-                                   font, labelPaint);
+                skiagm::DrawShapedString(canvas, offset, 0,
+                                         i * kTrans + SkIntToScalar(kLabelTextSize), font,
+                                         labelPaint);
             }
         canvas->restore();
 
@@ -61,8 +62,8 @@ protected:
             canvas->translate(SkIntToScalar(kLabelOffsetX), 0);
             for (int i = 0; i <= kSubPixelSteps; ++i) {
                 offset.printf("%d", i);
-                canvas->drawString(offset, i * SkIntToScalar(kTrans), SkIntToScalar(kLabelTextSize),
-                                   font, labelPaint);
+                skiagm::DrawShapedString(canvas, offset, i * SkIntToScalar(kTrans),
+                                         SkIntToScalar(kLabelTextSize), font, labelPaint);
             }
         canvas->restore();
 

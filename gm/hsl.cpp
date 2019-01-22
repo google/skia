@@ -149,7 +149,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
     SkFont font(sk_tool_utils::create_portable_typeface());
 
     const char* comment = "HSL blend modes are correct when you see no circles in the squares.";
-    canvas->drawString(comment, 10,10, font, paint);
+    skiagm::DrawShapedString(canvas, comment, 10, 10, font, paint);
 
     // Just to keep things reaaaal simple, we'll only use opaque colors.
     SkPaint bg, fg;
@@ -179,7 +179,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
             canvas->drawCircle(50,50, 20, ref);
         }
 
-        canvas->drawString(SkBlendMode_Name(test.mode), 20, 90, font, paint);
+        skiagm::DrawShapedString(canvas, SkBlendMode_Name(test.mode), 20, 90, font, paint);
 
         canvas->translate(100,0);
     }

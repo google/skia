@@ -110,7 +110,7 @@ protected:
 
         canvas->clipPath(path, true); // AA is on
 
-        canvas->drawString("M", 100.0f, 100.0f, font, paint);
+        skiagm::DrawShapedString(canvas, "M", 100.0f, 100.0f, font, paint);
 
         canvas->restore();
 
@@ -121,7 +121,7 @@ protected:
         paint2.setAntiAlias(true);
         paint2.setStyle(SkPaint::kStroke_Style);
         paint2.setStrokeWidth(1);
-        canvas->drawString("M", 100.0f, 100.0f, font, paint2);
+        skiagm::DrawShapedString(canvas, "M", 100.0f, 100.0f, font, paint2);
 
         paint2.setColor(SK_ColorGRAY);
 
