@@ -6,6 +6,7 @@
 
 DEPS = [
   'checkout',
+  'env',
   'infra',
   'recipe_engine/file',
   'recipe_engine/path',
@@ -122,10 +123,13 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
       '--patchset',      api.vars.patchset,
     ])
 
-  api.run(
-    api.step,
-    'Test PathKit with Docker',
-    cmd=cmd)
+  # Override DOCKER_CONFIG set by Kitchen.
+  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
+  with api.env(env):
+    api.run(
+        api.step,
+        'Test PathKit with Docker',
+        cmd=cmd)
 
 
 def GenTests(api):

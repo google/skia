@@ -25,7 +25,8 @@ RUN wget -O /root/android-ndk-r18-linux-x86_64.zip https://storage.googleapis.co
     unzip /root/android-ndk-r18-linux-x86_64.zip && \
     rm -f /root/android-ndk-r18-linux-x86_64.zip
 
-RUN sdkmanager ndk-bundle "lldb;3.1" "cmake;3.6.4111459"
+# "yes" agrees to the license. (You might think it's waiting for input, but it's not.)
+RUN yes | sdkmanager ndk-bundle "lldb;3.1" "cmake;3.6.4111459"
 
 RUN update-alternatives --install /usr/bin/cc  cc  /usr/lib/llvm-6.0/bin/clang   20 && \
     update-alternatives --install /usr/bin/c++ c++ /usr/lib/llvm-6.0/bin/clang++ 20

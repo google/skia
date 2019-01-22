@@ -134,11 +134,12 @@
       "[START_DIR]/cache/work:/SRC",
       "--volume",
       "[START_DIR]/cache/docker/skqp:/OUT",
-      "gcr.io/skia-public/android-skqp:8.1_v1",
+      "gcr.io/skia-public/android-skqp:8.1_v3",
       "./build_apk.sh"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Build SKQP apk with Docker"
