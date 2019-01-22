@@ -139,15 +139,14 @@ protected:
                 SkScalar txtX = 45;
                 paint.setColor(gClipAColor);
                 const char* aTxt = doInvA ? "InvA " : "A ";
-                canvas->drawSimpleText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding, txtX, 220, font, paint);
+                canvas->drawString(aTxt, txtX, 220, font, paint);
                 txtX += font.measureText(aTxt, strlen(aTxt), kUTF8_SkTextEncoding);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawSimpleText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding, txtX, 220,
-                                       font, paint);
+                canvas->drawString(gOps[op].fName, txtX, 220, font, paint);
                 txtX += font.measureText(gOps[op].fName, strlen(gOps[op].fName), kUTF8_SkTextEncoding);
                 paint.setColor(gClipBColor);
                 const char* bTxt = doInvB ? "InvB " : "B ";
-                canvas->drawSimpleText(bTxt, strlen(bTxt), kUTF8_SkTextEncoding, txtX, 220, font, paint);
+                canvas->drawString(bTxt, txtX, 220, font, paint);
 
                 canvas->translate(250,0);
             }

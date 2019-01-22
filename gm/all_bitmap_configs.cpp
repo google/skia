@@ -57,15 +57,13 @@ static SkBitmap make_bitmap(SkColorType ct) {
     return bm;
 }
 
-static void draw_center_letter(char c, const SkFont& font, SkColor color,
-                               SkScalar x, SkScalar y, SkCanvas* canvas) {
+static void draw_centered(const char* str, const SkFont& font, SkColor color,
+                          SkScalar x, SkScalar y, SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(color);
     SkRect bounds;
-    font.measureText(&c, 1, kUTF8_SkTextEncoding, &bounds);
-    canvas->drawSimpleText(&c, 1, kUTF8_SkTextEncoding,
-                           x - bounds.centerX(), y - bounds.centerY(),
-                           font, paint);
+    font.measureText(str, strlen(str), kUTF8_SkTextEncoding, &bounds);
+    canvas->drawString(str, x - bounds.centerX(), y - bounds.centerY(), font, paint);
 }
 
 static void color_wheel_native(SkCanvas* canvas) {
@@ -85,13 +83,13 @@ static void color_wheel_native(SkCanvas* canvas) {
     font.setEdging(SkFont::Edging::kAlias);
     font.setTypeface(sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
     font.setSize(0.28125f * SCALE);
-    draw_center_letter('K', font, SK_ColorBLACK, Z, Z, canvas);
-    draw_center_letter('R', font, SK_ColorRED, Z, D, canvas);
-    draw_center_letter('G', font, SK_ColorGREEN, -X, -Y, canvas);
-    draw_center_letter('B', font, SK_ColorBLUE, X, -Y, canvas);
-    draw_center_letter('C', font, SK_ColorCYAN, Z, -D, canvas);
-    draw_center_letter('M', font, SK_ColorMAGENTA, X, Y, canvas);
-    draw_center_letter('Y', font, SK_ColorYELLOW, -X, Y, canvas);
+    draw_centered("K", font, SK_ColorBLACK, Z, Z, canvas);
+    draw_centered("R", font, SK_ColorRED, Z, D, canvas);
+    draw_centered("G", font, SK_ColorGREEN, -X, -Y, canvas);
+    draw_centered("B", font, SK_ColorBLUE, X, -Y, canvas);
+    draw_centered("C", font, SK_ColorCYAN, Z, -D, canvas);
+    draw_centered("M", font, SK_ColorMAGENTA, X, Y, canvas);
+    draw_centered("Y", font, SK_ColorYELLOW, -X, Y, canvas);
 }
 
 template <typename T>
@@ -112,7 +110,7 @@ static void draw(SkCanvas* canvas,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
     canvas->drawBitmap(src, 0.0f, 0.0f);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0.0f, 12.0f, font, p);
+    canvas->drawString(text, 0.0f, 12.0f, font, p);
 }
 
 DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {

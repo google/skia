@@ -30,7 +30,6 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
     canvas->drawTextBlob(blob, 10, 200, blurPaint);
     canvas->drawTextBlob(blob, 10, 200, SkPaint());
 
-    size_t len = strlen(text);
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 10, 500, font, blurPaint);
-    canvas->drawSimpleText(text, len, kUTF8_SkTextEncoding, 10, 500, font, SkPaint());
+    canvas->drawString(text, 10, 500, font, blurPaint);
+    canvas->drawString(text, 10, 500, font, SkPaint());
 }

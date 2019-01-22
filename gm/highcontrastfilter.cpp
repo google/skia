@@ -36,10 +36,8 @@ static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
     font.setSize(0.05f);
     font.setEdging(SkFont::Edging::kAlias);
 
-    size_t len = strlen(labelBuffer);
-
-    SkScalar width = font.measureText(labelBuffer, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(labelBuffer, len, kUTF8_SkTextEncoding, 0.5f - width / 2, 0.16f, font, SkPaint());
+    SkScalar width = font.measureText(labelBuffer, strlen(labelBuffer), kUTF8_SkTextEncoding);
+    canvas->drawString(labelBuffer, 0.5f - width / 2, 0.16f, font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {

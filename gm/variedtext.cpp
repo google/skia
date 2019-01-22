@@ -114,8 +114,7 @@ protected:
             canvas->save();
                 canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
-                canvas->drawSimpleText(fStrings[i].c_str(), fStrings[i].size(), kUTF8_SkTextEncoding,
-                                       0, 0, fFont, fPaint);
+                canvas->drawString(fStrings[i], 0, 0, fFont, fPaint);
             canvas->restore();
         }
 
