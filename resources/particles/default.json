@@ -1,0 +1,21 @@
+{
+   "MaxCount": 4096,
+   "Rate": 2000,
+   "Life": { "min": 1.000000, "max": 3.000000 },
+   "StartColor": [ 1.000000, 0.350000, 0.000000, 1.000000 ],
+   "EndColor": [ 0.200000, 0.250000, 0.500000, 1.000000 ],
+   "Velocity": {
+      "Angle": 1.570796,
+      "Spread": 0.174533,
+      "Strength": { "min": 10.000000, "max": 30.000000 },
+      "Bidirectional": false
+   },
+   "Image": "images/half-transparent-white-pixel.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkLineEmitter",
+      "P1": { "x": 200.000000, "y": 200.000000 },
+      "P2": { "x": 400.000000, "y": 200.000000 }
+   }
+}
