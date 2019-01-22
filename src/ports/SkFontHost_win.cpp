@@ -14,6 +14,7 @@
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
+#include "SkFontMetrics.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
 #include "SkMacros.h"

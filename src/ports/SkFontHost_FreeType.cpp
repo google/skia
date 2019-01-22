@@ -14,6 +14,7 @@
 #include "SkFDot6.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
+#include "SkFontMetrics.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMalloc.h"
