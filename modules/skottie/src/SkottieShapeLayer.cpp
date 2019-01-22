@@ -42,6 +42,10 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
                                               const AnimationBuilder* abuilder,
                                               AnimatorScope* ascope) {
     auto rect_node = sksg::RRect::Make();
+    rect_node->setDirection(ParseDefault(jrect["d"], -1) == 3 ? SkPath::kCCW_Direction
+                                                              : SkPath::kCW_Direction);
+    rect_node->setInitialPointIndex(2); // starting point: (Right, Top - radius.y)
+
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
 
     auto p_attached = abuilder->bindProperty<VectorValue>(jrect["p"], ascope,
@@ -68,6 +72,10 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jelli
                                                 const AnimationBuilder* abuilder,
                                                 AnimatorScope* ascope) {
     auto rect_node = sksg::RRect::Make();
+    rect_node->setDirection(ParseDefault(jellipse["d"], -1) == 3 ? SkPath::kCCW_Direction
+                                                                 : SkPath::kCW_Direction);
+    rect_node->setInitialPointIndex(1); // starting point: (Center, Top)
+
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
 
     auto p_attached = abuilder->bindProperty<VectorValue>(jellipse["p"], ascope,
