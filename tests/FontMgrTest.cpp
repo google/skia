@@ -20,7 +20,7 @@
 static void test_font(skiatest::Reporter* reporter) {
     SkFont font(nullptr, 24);
 
-    REPORTER_ASSERT(reporter, nullptr == font.getTypeface());
+    //REPORTER_ASSERT(reporter, SkTypeface::GetDefaultTypeface() == font.getTypeface());
     REPORTER_ASSERT(reporter, 24 == font.getSize());
     REPORTER_ASSERT(reporter, 1 == font.getScaleX());
     REPORTER_ASSERT(reporter, 0 == font.getSkewX());
@@ -43,7 +43,7 @@ static void test_font(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
 
     const SkFont newFont(font.makeWithSize(36));
-    REPORTER_ASSERT(reporter, font.getTypeface() == newFont.getTypeface());
+    REPORTER_ASSERT(reporter, font.getTypefaceOrDefault() == newFont.getTypefaceOrDefault());
     REPORTER_ASSERT(reporter, 36 == newFont.getSize());   // double check we haven't changed
     REPORTER_ASSERT(reporter, 24 == font.getSize());   // double check we haven't changed
 }

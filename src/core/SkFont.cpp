@@ -199,8 +199,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             return count;
     }
 
-    (void)SkFontPriv::GetTypefaceOrDefault(*this)->charsToGlyphs(text, typefaceEncoding, glyphs,
-                                                                 count);
+    (void) this->getTypefaceOrDefault()->charsToGlyphs(text, typefaceEncoding, glyphs,count);
     return count;
 }
 
@@ -209,7 +208,7 @@ void SkFont::glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar tex
         return;
     }
 
-    auto typeface = SkFontPriv::GetTypefaceOrDefault(*this);
+    auto typeface = this->getTypefaceOrDefault();
     const unsigned numGlyphsInTypeface = typeface->countGlyphs();
     SkAutoTArray<SkUnichar> unichars(numGlyphsInTypeface);
     typeface->getGlyphToUnicodeMap(unichars.get());
@@ -487,6 +486,14 @@ SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }
 
+SkTypeface* SkFont::getTypefaceOrDefault() const {
+    return fTypeface ? fTypeface.get() : SkTypeface::GetDefaultTypeface();
+}
+
+sk_sp<SkTypeface> SkFont::refTypefaceOrDefault() const {
+    return fTypeface ? fTypeface : SkTypeface::MakeDefault();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SkPaint.h"
@@ -594,7 +601,7 @@ SkRect SkFontPriv::GetFontBounds(const SkFont& font) {
     m.setScale(font.getSize() * font.getScaleX(), font.getSize());
     m.postSkew(font.getSkewX(), 0);
 
-    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    SkTypeface* typeface = font.getTypefaceOrDefault();
 
     SkRect bounds;
     m.mapRect(&bounds, typeface->getBounds());

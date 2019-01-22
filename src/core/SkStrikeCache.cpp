@@ -9,7 +9,6 @@
 
 #include <cctype>
 
-#include "SkFontPriv.h"
 #include "SkGlyphRunPainter.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
@@ -17,7 +16,6 @@
 #include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
-#include "SkPaintPriv.h"
 
 class SkStrikeCache::Node final : public SkStrikeInterface {
 public:
@@ -192,7 +190,7 @@ auto SkStrikeCache::findOrCreateStrike(
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
             font, paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
 
-    auto tf = SkFontPriv::GetTypefaceOrDefault(font);
+    auto tf = font.getTypefaceOrDefault();
 
     return this->findOrCreateStrike(*desc, effects, *tf);
 }
@@ -208,7 +206,7 @@ SkExclusiveStrikePtr SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(cons
     auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(font, paint,
                               SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
                               kFakeGammaAndBoostContrast, SkMatrix::I(), &ad, &effects);
-    auto typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    auto typeface = font.getTypefaceOrDefault();
     return SkStrikeCache::FindOrCreateStrikeExclusive(*desc, effects, *typeface);
 }
 

@@ -188,7 +188,15 @@ public:
 
         @return  SkTypeface if previously set, nullptr otherwise
     */
-    SkTypeface* getTypeface() const { return fTypeface.get(); }
+    SkTypeface* getTypeface() const {return fTypeface.get(); }
+
+    /** Returns SkTypeface if set, or the default typeface.
+        Does not alter SkTypeface SkRefCnt.
+
+        @return  SkTypeface if previously set or, a pointer to the default typeface if not
+        previously set.
+    */
+    SkTypeface* getTypefaceOrDefault() const;
 
     /** Returns text size in points.
 
@@ -215,6 +223,13 @@ public:
         @return  SkTypeface if previously set, nullptr otherwise
     */
     sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
+
+    /** Increases SkTypeface SkRefCnt by one.
+
+        @return  SkTypeface if previously set or, a pointer to the default typeface if not
+        previously set.
+    */
+    sk_sp<SkTypeface> refTypefaceOrDefault() const;
 
     /** Sets SkTypeface to typeface, decreasing SkRefCnt of the previous SkTypeface.
         Pass nullptr to clear SkTypeface and use the default typeface. Increments
