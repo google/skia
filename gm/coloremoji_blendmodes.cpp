@@ -53,7 +53,7 @@ protected:
         sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface("serif",
                                                                        SkFontStyle::Bold()));
         if (nullptr == orig) {
-            orig = SkTypeface::MakeDefault();
+            orig = SkTypeface::RefDefault();
         }
         fColorType = sk_tool_utils::emoji_typeface();
 

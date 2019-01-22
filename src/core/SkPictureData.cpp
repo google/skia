@@ -311,7 +311,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.
-                    tf = SkTypeface::MakeDefault();
+                    tf = SkTypeface::RefDefault();
                 }
                 fTFPlayback[i] = std::move(tf);
             }

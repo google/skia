@@ -747,7 +747,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
 
 DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
     SkFont font;
-    font.setTypeface(SkTypeface::MakeDefault());
+    font.setTypeface(SkTypeface::RefDefault());
 
     SkTextBlobBuilder builder;
     int glyph_count = 5;
