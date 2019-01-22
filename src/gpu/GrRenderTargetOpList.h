@@ -196,14 +196,14 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, const DstProxy&, const GrAppliedClip*, const GrCaps&, GrOpMemoryPool*,
-                       GrAuditTrail*);
+        bool tryConcat(List*, const SkRect& listBounds, const DstProxy&, const GrAppliedClip*,
+                       const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
+        SkRect fBounds;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
-        SkRect fBounds;
     };
 
     void purgeOpsWithUninstantiatedProxies() override;
