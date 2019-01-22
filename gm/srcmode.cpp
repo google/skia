@@ -51,7 +51,7 @@ static void draw_oval(SkCanvas* canvas, const SkPaint& paint, const SkFont&) {
 }
 
 static void draw_text(SkCanvas* canvas, const SkPaint& paint, const SkFont& font) {
-    canvas->drawString("Hamburge", 0, H*2/3, font, paint);
+    DrawShapedString(canvas, "Hamburge", 0, H*2/3, font, paint);
 }
 
 class SrcModeGM : public skiagm::GM {

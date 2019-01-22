@@ -64,7 +64,7 @@ protected:
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Empty Paths Drawn Into Rectangle Clips With "
                              "Indicated Style and Fill";
-        canvas->drawString(title, 20.0f, 20.0f, font, SkPaint());
+        DrawShapedString(canvas, title, 20.0f, 20.0f, font, SkPaint());
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -100,9 +100,9 @@ protected:
                 SkPaint labelPaint;
                 labelPaint.setColor(color);
                 SkFont labelFont(sk_tool_utils::create_portable_typeface(), 12);
-                canvas->drawString(gStyles[style].fName, 0, rect.height() + 15.0f,
+                DrawShapedString(canvas, gStyles[style].fName, 0, rect.height() + 15.0f,
                                    labelFont, labelPaint);
-                canvas->drawString(gFills[fill].fName, 0, rect.height() + 28.0f,
+                DrawShapedString(canvas, gFills[fill].fName, 0, rect.height() + 28.0f,
                                    labelFont, labelPaint);
             }
         }

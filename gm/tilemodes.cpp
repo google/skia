@@ -138,7 +138,7 @@ protected:
                         x += r.width() * 4 / 3;
                     }
                 }
-                canvas->drawString(SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
+                DrawShapedString(canvas, SkStringPrintf("%s, %s", gConfigNames[i], gFilterNames[j]),
                                    x, y + r.height() * 2 / 3, font, textPaint);
 
                 y += r.height() * 4 / 3;

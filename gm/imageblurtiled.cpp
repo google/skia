@@ -50,7 +50,7 @@ protected:
                 int posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100;
-                    canvas->drawString(str[i], 0, SkIntToScalar(posY), font, SkPaint());
+                    DrawShapedString(canvas, str[i], 0, SkIntToScalar(posY), font, SkPaint());
                 }
                 canvas->restore();
                 canvas->restore();

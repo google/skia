@@ -52,14 +52,14 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
         SkScalar x = SkIntToScalar(70);
         SkScalar y = SkIntToScalar(400);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawString("Hamburgefons Style", x, y, font, paint);
-        canvas->drawString("Hamburgefons Style",
+        DrawShapedString(canvas, "Hamburgefons Style", x, y, font, paint);
+        DrawShapedString(canvas, "Hamburgefons Style",
                          x, y + SkIntToScalar(50), font, paint);
         paint.setMaskFilter(nullptr);
         paint.setColor(SK_ColorWHITE);
         x -= SkIntToScalar(2);
         y -= SkIntToScalar(2);
-        canvas->drawString("Hamburgefons Style", x, y, font, paint);
+        DrawShapedString(canvas, "Hamburgefons Style", x, y, font, paint);
     }
 }
 

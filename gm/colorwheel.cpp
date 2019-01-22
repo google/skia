@@ -45,17 +45,17 @@ DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
 
     canvas->clear(SK_ColorLTGRAY);
     paint.setColor(SK_ColorRED);
-    canvas->drawString("R", 8.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "R", 8.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorGREEN);
-    canvas->drawString("G", 24.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "G", 24.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorBLUE);
-    canvas->drawString("B", 40.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "B", 40.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorCYAN);
-    canvas->drawString("C", 56.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "C", 56.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorMAGENTA);
-    canvas->drawString("M", 72.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "M", 72.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorYELLOW);
-    canvas->drawString("Y", 88.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "Y", 88.0f, 20.0f, font, paint);
     paint.setColor(SK_ColorBLACK);
-    canvas->drawString("K", 104.0f, 20.0f, font, paint);
+    DrawShapedString(canvas, "K", 104.0f, 20.0f, font, paint);
 }

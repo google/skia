@@ -60,7 +60,7 @@ protected:
         if (lcdRenderTextEnabled) {
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         }
-        canvas->drawString(string, 0, y, font, paint);
+        DrawShapedString(canvas, string, 0, y, font, paint);
         y += textHeight;
     }
 
@@ -120,7 +120,7 @@ protected:
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
-            canvas->drawString(rec[i].fText, loc.x(), loc.y(), font, SkPaint());
+            DrawShapedString(canvas, rec[i].fText, loc.x(), loc.y(), font, SkPaint());
         }
     }
 

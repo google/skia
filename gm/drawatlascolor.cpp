@@ -132,7 +132,7 @@ protected:
 
         for (int i = 0; i < numModes; ++i) {
             const char* label = SkBlendMode_Name(gModes[i]);
-            canvas->drawString(label, i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
+            DrawShapedString(canvas, label, i*(target.width()+kPad)+kPad, SkIntToScalar(kTextPad),
                                font, paint);
         }
 

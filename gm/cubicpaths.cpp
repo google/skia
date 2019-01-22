@@ -201,7 +201,7 @@ protected:
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Cubic Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
-        canvas->drawString(title, 20, 20, font, titlePaint);
+        DrawShapedString(canvas, title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -238,9 +238,9 @@ protected:
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     font.setSize(10);
-                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
-                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
-                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
+                    DrawShapedString(canvas, gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
+                    DrawShapedString(canvas, gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
+                    DrawShapedString(canvas, gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
                 }
                 canvas->restore();
             }
@@ -331,7 +331,7 @@ protected:
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         const char title[] = "Cubic Closed Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
-        canvas->drawString(title, 20, 20, font, titlePaint);
+        DrawShapedString(canvas, title, 20, 20, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -369,9 +369,9 @@ protected:
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
                     font.setSize(10);
-                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
-                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
-                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
+                    DrawShapedString(canvas, gStyles[style].fName, 0, rect.height() + 12, font, labelPaint);
+                    DrawShapedString(canvas, gFills[fill].fName, 0, rect.height() + 24, font, labelPaint);
+                    DrawShapedString(canvas, gCaps[cap].fName, 0, rect.height() + 36, font, labelPaint);
                 }
                 canvas->restore();
             }

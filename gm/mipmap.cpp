@@ -36,7 +36,7 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
 
     SkString str;
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
-//    canvas->drawString(str, 300, 100, SkFont(nullptr, 30), paint);
+//    DrawShapedString(canvas, str, 300, 100, SkFont(nullptr, 30), paint);
 
     canvas->translate(20, 20);
     for (int i = 0; i < 4; ++i) {

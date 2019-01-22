@@ -34,7 +34,7 @@ DEF_SIMPLE_GM_BG(imagemagnifier, canvas, WIDTH, HEIGHT, SK_ColorBLACK) {
             SkPaint paint;
             paint.setColor(sk_tool_utils::color_to_565(rand.nextBits(24) | 0xFF000000));
             font.setSize(rand.nextRangeScalar(0, 300));
-            canvas->drawString(str, SkIntToScalar(x), SkIntToScalar(y), font, paint);
+            DrawShapedString(canvas, str, SkIntToScalar(x), SkIntToScalar(y), font, paint);
         }
         canvas->restore();
 }
