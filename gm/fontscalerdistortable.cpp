@@ -44,7 +44,6 @@ protected:
             return;
         }
         const char* text = "abc";
-        const size_t textLen = strlen(text);
 
         for (int j = 0; j < 2; ++j) {
             for (int i = 0; i < 5; ++i) {
@@ -81,7 +80,7 @@ protected:
 
                 for (int ps = 6; ps <= 22; ps++) {
                     font.setSize(SkIntToScalar(ps));
-                    canvas->drawSimpleText(text, textLen, kUTF8_SkTextEncoding, x, y, font, paint);
+                    canvas->drawString(text, x, y, font, paint);
                     y += font.getMetrics(nullptr);
                 }
             }

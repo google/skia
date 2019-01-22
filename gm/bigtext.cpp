@@ -43,10 +43,10 @@ protected:
         };
 
         paint.setColor(SK_ColorRED);
-        canvas->drawSimpleText("/", 1, kUTF8_SkTextEncoding, pos.fX, pos.fY, font, paint);
+        canvas->drawString("/", pos.fX, pos.fY, font, paint);
 
         paint.setColor(SK_ColorBLUE);
-        canvas->drawSimpleText("\\", 1, kUTF8_SkTextEncoding, pos.fX, pos.fY, font, paint);
+        canvas->drawString("\\", pos.fX, pos.fY, font, paint);
     }
 
 private:

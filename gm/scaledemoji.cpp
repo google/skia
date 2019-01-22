@@ -70,7 +70,7 @@ protected:
             font.setSize(textSize);
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
-            canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 10, y, font, paint);
+            canvas->drawString(text, 10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
         }
 

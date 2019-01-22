@@ -40,8 +40,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     TightBounds(path, &iBox);
     iBox.offsetTo(skiBox.fRight - iBox.width(), iBox.fTop);
 
-    const size_t textLen = strlen(kSkiaStr);
-    SkTextUtils::GetPath(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, &path);
+    SkTextUtils::GetPath(kSkiaStr, strlen(kSkiaStr), kUTF8_SkTextEncoding, 0, 0, font, &path);
     TightBounds(path, &skiaBox);
     skiaBox.outset(0, 2 * iBox.width() * (kVerticalSpacing + 1));
 
@@ -93,7 +92,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkASSERT(SK_ARRAY_COUNT(pos2) == SK_ARRAY_COUNT(colors2));
     paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, SK_ARRAY_COUNT(pos2),
                                                  SkShader::kClamp_TileMode));
-    canvas->drawSimpleText(kSkiaStr, textLen, kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawString(kSkiaStr, 0, 0, font, paint);
 }
 
 // This GM exercises SkPictureImageGenerator features

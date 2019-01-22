@@ -22,11 +22,8 @@ static void draw_label(SkCanvas* canvas, const char* label,
     SkFont font(sk_tool_utils::create_portable_typeface());
     font.setEdging(SkFont::Edging::kAlias);
 
-    size_t len = strlen(label);
-
-    SkScalar width = font.measureText(label, len, kUTF8_SkTextEncoding);
-    canvas->drawSimpleText(label, len, kUTF8_SkTextEncoding, offset.x() - width / 2, offset.y(),
-                           font, SkPaint());
+    SkScalar width = font.measureText(label, strlen(label), kUTF8_SkTextEncoding);
+    canvas->drawString(label, offset.x() - width / 2, offset.y(), font, SkPaint());
 }
 
 static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkBlendMode mode,

@@ -79,7 +79,7 @@ static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkCo
 
     canvas->clear(SK_ColorWHITE);
     canvas->concat(mat);
-    canvas->drawSimpleText(text, strlen(text), kUTF8_SkTextEncoding, 0, 0, font, paint);
+    canvas->drawString(text, 0, 0, font, paint);
 
     sk_sp<SkImage> image = surf->makeImageSnapshot();
 
