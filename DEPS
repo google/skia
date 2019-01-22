@@ -14,7 +14,7 @@ deps = {
   "third_party/externals/freetype"        : "https://skia.googlesource.com/third_party/freetype2.git@7edc937fe679d14d66f55cf6f7fa607925d38f3c",
   "third_party/externals/harfbuzz"        : "https://skia.googlesource.com/third_party/harfbuzz.git@8be74d85534534dbdd39a0a6f496e26e9f3e661d",
   "third_party/externals/icu"             : "https://chromium.googlesource.com/chromium/deps/icu.git@407b39301e71006b68bd38e770f35d32398a7b14",
-  "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@bc6ac8b2aee0614debd940e45bc9cd0d9b355c86",
+  "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@d38d7c6628bebd02692cfdd6fa76b4d992a35b75",
   # TODO: remove jsoncpp after migrating clients to SkJSON
   "third_party/externals/jsoncpp"         : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libjpeg-turbo"   : "https://skia.googlesource.com/external/github.com/libjpeg-turbo/libjpeg-turbo.git@2.0.0",
