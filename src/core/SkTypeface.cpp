@@ -114,7 +114,7 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     return defaults[style].get();
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeDefault() {
+sk_sp<SkTypeface> SkTypeface::RefDefault() {
     return sk_ref_sp(GetDefaultTypeface());
 }
 

@@ -502,7 +502,7 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
     SkOnce once;
     once([] { SkLoadICU(); });
 
-    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
+    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::RefDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
     SkASSERT(fImpl->fHarfBuzzFont);
     fImpl->fBuffer.reset(hb_buffer_create());

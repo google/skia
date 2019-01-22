@@ -218,7 +218,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
 DEF_TEST(Typeface, reporter) {
 
     sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> t2(SkTypeface::RefDefault());
 
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
@@ -316,7 +316,7 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 }
 
 DEF_TEST(Typeface_serialize, reporter) {
-    check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
+    check_serialize_behaviors(SkTypeface::RefDefault(), false, reporter);
     check_serialize_behaviors(SkTypeface::MakeFromStream(
                                          GetResourceAsStream("fonts/Distortable.ttf")),
                               true, reporter);

@@ -145,7 +145,7 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto server_tf = SkTypeface::MakeDefault();
+    auto server_tf = SkTypeface::RefDefault();
     auto tf_data = server.serializeTypeface(server_tf.get());
 
     auto client_tf = client.deserializeTypeface(tf_data->data(), tf_data->size());

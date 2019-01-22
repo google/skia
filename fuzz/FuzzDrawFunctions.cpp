@@ -305,7 +305,7 @@ DEF_FUZZ(DrawFunctions, fuzz) {
 
     switch(i) {
         case 0: {
-            sk_sp<SkTypeface> f = SkTypeface::MakeDefault();
+            sk_sp<SkTypeface> f = SkTypeface::RefDefault();
             if (f == nullptr) {
               SkDebugf("Could not initialize font.\n");
               fuzz->signalBug();

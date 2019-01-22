@@ -77,7 +77,7 @@ DEF_TEST(Paint_cmap, reporter) {
 
     SkRandom rand;
     SkFont font;
-    font.setTypeface(SkTypeface::MakeDefault());
+    font.setTypeface(SkTypeface::RefDefault());
     SkTypeface* face = font.getTypeface();
 
     for (int i = 0; i < 1000; ++i) {
