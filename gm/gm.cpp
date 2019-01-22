@@ -9,6 +9,8 @@
 #include "sk_tool_utils.h"
 #include "SkShader.h"
 #include "SkTraceEvent.h"
+#include "SkShaper.h"
+
 using namespace skiagm;
 
 GM::GM() {
@@ -160,4 +162,22 @@ void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
         canvas->drawLine(+5,-5,
                          -5,+5, paint);
     });
+}
+
+void DrawShapedUTF8(SkCanvas* canvas, const char* text, size_t byteLength,
+                    SkScalar x, SkScalar y, const SkFont& font,
+                    const SkPaint& paint) {
+    if (!byteLength || !text) { return; }
+    sk_sp<SkTextBlob> blob;
+    SkShaper shaper(font.refTypeface());
+    if (shaper.good()) {
+        SkFontMetrics metrics;
+        font.getMetrics(&metrics);
+        SkTextBlobBuilderRunHandler handler;
+        shaper.shape(&handler, font, text, byteLength, true, {0, metrics.fAscent}, FLT_MAX);
+        blob = handler.makeBlob();
+    } else {
+        blob = SkTextBlob::MakeFromText(text, byteLength, font, kUTF8_SkTextEncoding);
+    }
+    canvas->drawTextBlob(blob.get(), x, y, paint);
 }
