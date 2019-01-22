@@ -196,8 +196,8 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, const DstProxy&, const GrAppliedClip*, const GrCaps&, GrOpMemoryPool*,
-                       GrAuditTrail*);
+        bool tryConcat(List*, const DstProxy&, const GrAppliedClip*, const SkRect& bounds,
+                       const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
