@@ -46,6 +46,7 @@ public:
     void drawPaint (const SkPaint&);
     void drawPath  (const SkPath&, const SkPaint&);
     void drawRect  (const SkRect&, const SkPaint&);
+    void drawEdgeAARect(const SkRect&, SkCanvas::QuadAAFlags, SkColor, SkBlendMode);
     void drawRegion(const SkRegion&, const SkPaint&);
     void drawOval  (const SkRect&, const SkPaint&);
     void drawArc   (const SkRect&, SkScalar, SkScalar, bool, const SkPaint&);

@@ -55,9 +55,13 @@ protected:
     // implementations in Android's SkCanvas subclasses until this stabilizes.
     void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                         SkBlendMode) override {};
+    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags edgeAA, SkColor color,
+                          SkBlendMode mode) override {};
 #else
     void onDrawImageSet(const SkCanvas::ImageSetEntry[], int count, SkFilterQuality,
                         SkBlendMode) override = 0;
+    void onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags edgeAA, SkColor color,
+                          SkBlendMode mode) override = 0;
 #endif
 
     void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,

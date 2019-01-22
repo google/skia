@@ -124,6 +124,7 @@ DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
+DRAW(DrawEdgeAARect, experimental_DrawEdgeAARectV1(r.rect, r.aa, r.color, r.mode));
 DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
@@ -356,6 +357,8 @@ private:
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
+    Bounds bounds(const DrawEdgeAARect& op) const { return this->adjustAndMap(op.rect, nullptr); }
+
     Bounds bounds(const DrawRegion& op) const {
         SkRect rect = SkRect::Make(op.region.getBounds());
         return this->adjustAndMap(rect, &op.paint);
