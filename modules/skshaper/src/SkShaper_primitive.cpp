@@ -6,7 +6,7 @@
  */
 
 #include "SkShaper.h"
-
+#include "SkFontMetrics.h"
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
