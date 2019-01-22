@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a1886eb_1462c1ee",
+        "filename": "infra/skqp/docker/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2019-01-22T23:03:24Z",
+      "side": 1,
+      "message": "Nit: Does that mean to wait until \"stops\" hanging ? Please clarify what to expect/do.",
+      "range": {
+        "startLine": 15,
+        "startChar": 57,
+        "endLine": 15,
+        "endChar": 74
+      },
+      "revId": "18b4954b29dc44873444a21cd74080f06c7071f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
