@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "ImageSlide.h"
+#include "ParticlesSlide.h"
 #include "Resources.h"
 #include "SKPSlide.h"
 #include "SampleSlide.h"
@@ -627,6 +628,12 @@ void Viewer::initSlides() {
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(slide);
         }
+    }
+
+    // Particle demo
+    {
+        sk_sp<Slide> slide(new ParticlesSlide());
+        fSlides.push_back(std::move(slide));
     }
 
     for (const auto& info : gExternalSlidesInfo) {
@@ -1820,6 +1827,7 @@ void Viewer::drawImGui() {
                 this->updateTitle();
             });
         }
+
         ImGui::End();
     }
 
