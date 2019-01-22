@@ -16,7 +16,7 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
+    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::RefDefault();
 }
 
 SkShaper::~SkShaper() {}

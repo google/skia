@@ -407,7 +407,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
  */
 DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = []() {
-        sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
+        sk_sp<SkTypeface> tf = SkTypeface::RefDefault();
 
         SkTextBlobBuilder builder;
         add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface

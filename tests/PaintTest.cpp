@@ -77,7 +77,7 @@ DEF_TEST(Paint_cmap, reporter) {
 
     SkRandom rand;
     SkFont font;
-    font.setTypeface(SkTypeface::MakeDefault());
+    font.setTypeface(SkTypeface::RefDefault());
     SkTypeface* face = font.getTypeface();
 
     for (int i = 0; i < 1000; ++i) {
@@ -306,7 +306,7 @@ DEF_TEST(Paint_getHash, r) {
 
 #ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     // SkTypeface is the first field we hash, so test it specially.
-    paint.setTypeface(SkTypeface::MakeDefault());
+    paint.setTypeface(SkTypeface::RefDefault());
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
     paint.setTypeface(nullptr);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);

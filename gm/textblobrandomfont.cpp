@@ -44,7 +44,7 @@ protected:
         // Setup our random scaler context
         auto typeface = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         if (!typeface) {
-            typeface = SkTypeface::MakeDefault();
+            typeface = SkTypeface::RefDefault();
         }
         font.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 
