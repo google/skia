@@ -28,6 +28,7 @@
 #include "SkEndian.h"
 #include "SkFloatingPoint.h"
 #include "SkFontDescriptor.h"
+#include "SkFontMetrics.h"
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"

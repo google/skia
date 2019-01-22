@@ -9,6 +9,8 @@
 
 #include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
+#include "SkFontMetrics.h"
+#include "SkFontTypes.h"
 #include "SkGlyph.h"
 #include "SkGlyphRunPainter.h"
 #include "SkPaint.h"

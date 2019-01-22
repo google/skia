@@ -10,6 +10,7 @@
 
 #include "SkFixed.h"
 #include "SkFontArguments.h"
+#include "SkFontMetrics.h"
 #include "SkFontStyle.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"

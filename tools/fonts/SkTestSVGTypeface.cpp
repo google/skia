@@ -17,6 +17,7 @@
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
 #include "SkFontDescriptor.h"
+#include "SkFontPriv.h"
 #include "SkFontStyle.h"
 #include "SkGeometry.h"
 #include "SkGlyph.h"
@@ -253,7 +254,7 @@ protected:
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
         this->geTestSVGTypeface()->getFontMetrics(metrics);
-        SkPaintPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
+        SkFontPriv::ScaleFontMetrics(metrics, fMatrix.getScaleY());
     }
 
 private:

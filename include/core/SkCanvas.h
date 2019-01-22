@@ -22,6 +22,7 @@
 #include "SkBlendMode.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
+#include "SkFontTypes.h"
 #include "SkPaint.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkSurfaceProps.h"

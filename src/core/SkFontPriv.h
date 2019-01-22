@@ -19,6 +19,26 @@ class SkWriteBuffer;
 
 class SkFontPriv {
 public:
+    /*  This is the size we use when we ask for a glyph's path. We then
+     *  post-transform it as we draw to match the request.
+     *  This is done to try to re-use cache entries for the path.
+     *
+     *  This value is somewhat arbitrary. In theory, it could be 1, since
+     *  we store paths as floats. However, we get the path from the font
+     *  scaler, and it may represent its paths as fixed-point (or 26.6),
+     *  so we shouldn't ask for something too big (might overflow 16.16)
+     *  or too small (underflow 26.6).
+     *
+     *  This value could track kMaxSizeForGlyphCache, assuming the above
+     *  constraints, but since we ask for unhinted paths, the two values
+     *  need not match per-se.
+     */
+    static constexpr int kCanonicalTextSizeForPaths  = 64;
+
+    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit);
+
+    static SkScalar MaxCacheSize2(SkScalar maxLimit);
+
     /**
      *  Return a matrix that applies the paint's text values: size, scale, skew
      */

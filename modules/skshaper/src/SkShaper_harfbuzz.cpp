@@ -11,6 +11,7 @@
 #include "SkMalloc.h"
 #include "SkOnce.h"
 #include "SkFont.h"
+#include "SkFontMetrics.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"

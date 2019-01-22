@@ -16,6 +16,7 @@
 #include "SkDWriteGeometrySink.h"
 #include "SkDraw.h"
 #include "SkEndian.h"
+#include "SkFontMetrics.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
 #include "SkMaskGamma.h"

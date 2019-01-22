@@ -114,7 +114,7 @@ bool SkGlyphRunListPainter::ShouldDrawAsPath(
         return true;
     }
 
-    return SkPaint::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
+    return SkFontPriv::TooBigToUseCache(matrix, SkFontPriv::MakeTextMatrix(font), 1024);
 }
 
 static bool check_glyph_position(SkPoint position) {
