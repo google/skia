@@ -278,6 +278,10 @@ static inline void swap(SkString& a, SkString& b) {
     a.swap(b);
 }
 
+SkString SkUtf16ToUtf8(const uint16_t* utf16_text, size_t count);
+
+SkString SkUtf32ToUtf8(const int32_t* utf32_text, size_t count);
+
 enum SkStrSplitMode {
     // Strictly return all results. If the input is ",," and the separator is ',' this will return
     // an array of three empty strings.

@@ -587,6 +587,32 @@ SkString SkStringPrintf(const char* format, ...) {
     return formattedOutput;
 }
 
+template <typename T, SkUnichar (*FN)(const T**, const T*)>
+static SkString convert_to_utf8(const T* src, size_t srcCount) {
+    SkString result;
+    const T* ptr = src;
+    const T* stop = src + srcCount;
+    size_t count = 0;
+    while (ptr < stop) {
+        count += SkUTF::ToUTF8(FN(&ptr, stop), nullptr);
+    }
+    result.resize(count);
+    ptr = src;
+    char* dst = result.writable_str();
+    while (ptr < stop) {
+        dst += SkUTF::ToUTF8(FN(&ptr, stop), dst);
+    }
+    return result;
+}
+
+SkString SkUtf16ToUtf8(const uint16_t* text, size_t count) {
+    return convert_to_utf8<uint16_t, SkUTF::NextUTF16>(text, count);
+}
+
+SkString SkUtf32ToUtf8(const int32_t* text, size_t count) {
+    return convert_to_utf8<int32_t, SkUTF::NextUTF32>(text, count);
+}
+
 void SkStrSplit(const char* str, const char* delimiters, SkStrSplitMode splitMode,
                 SkTArray<SkString>* out) {
     if (splitMode == kCoalesce_SkStrSplitMode) {
