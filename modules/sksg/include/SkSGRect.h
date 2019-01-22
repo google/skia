@@ -10,6 +10,7 @@
 
 #include "SkSGGeometryNode.h"
 
+#include "SkPath.h"
 #include "SkRect.h"
 #include "SkRRect.h"
 
@@ -31,6 +32,9 @@ public:
     SG_ATTRIBUTE(R, SkScalar, fRect.fRight )
     SG_ATTRIBUTE(B, SkScalar, fRect.fBottom)
 
+    SG_MAPPED_ATTRIBUTE(Direction        , SkPath::Direction, fAttrContaier)
+    SG_MAPPED_ATTRIBUTE(InitialPointIndex, uint8_t          , fAttrContaier)
+
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;
     void onDraw(SkCanvas*, const SkPaint&) const override;
@@ -41,7 +45,21 @@ protected:
 private:
     explicit Rect(const SkRect&);
 
-    SkRect fRect;
+    SkRect   fRect;
+
+    struct AttrContainer {
+        uint8_t fDirection         : 1;
+        uint8_t fInitialPointIndex : 2;
+
+        SkPath::Direction getDirection() const {
+            return static_cast<SkPath::Direction>(fDirection);
+        }
+        void setDirection(SkPath::Direction dir) { fDirection = SkTo<uint8_t>(dir); }
+
+        uint8_t getInitialPointIndex() const { return fInitialPointIndex; }
+        void setInitialPointIndex(uint8_t idx) { fInitialPointIndex = idx; }
+    };
+    AttrContainer fAttrContaier = { SkPath::kCW_Direction, 0 };
 
     using INHERITED = GeometryNode;
 };
@@ -56,6 +74,9 @@ public:
 
     SG_ATTRIBUTE(RRect, SkRRect, fRRect)
 
+    SG_MAPPED_ATTRIBUTE(Direction        , SkPath::Direction, fAttrContaier)
+    SG_MAPPED_ATTRIBUTE(InitialPointIndex, uint8_t          , fAttrContaier)
+
 protected:
     void onClip(SkCanvas*, bool antiAlias) const override;
     void onDraw(SkCanvas*, const SkPaint&) const override;
@@ -67,6 +88,20 @@ private:
     explicit RRect(const SkRRect&);
 
     SkRRect fRRect;
+
+    struct AttrContainer {
+        uint8_t fDirection         : 1;
+        uint8_t fInitialPointIndex : 2;
+
+        SkPath::Direction getDirection() const {
+            return static_cast<SkPath::Direction>(fDirection);
+        }
+        void setDirection(SkPath::Direction dir) { fDirection = SkTo<uint8_t>(dir); }
+
+        uint8_t getInitialPointIndex() const { return fInitialPointIndex; }
+        void setInitialPointIndex(uint8_t idx) { fInitialPointIndex = idx; }
+    };
+    AttrContainer fAttrContaier = { SkPath::kCW_Direction, 0 };
 
     using INHERITED = GeometryNode;
 };
