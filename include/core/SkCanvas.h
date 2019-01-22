@@ -1817,6 +1817,16 @@ public:
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
 
+    /**
+     * This is an experimental API for the SkiaRenderer Chromium project. The signature will
+     * surely evolve if this is not removed. The antialiasing flags are intended to allow control
+     * over each edge's AA status, to allow perfect seaming for tile sets.
+     *
+     * When not fully supported, the implementation only antialiases if all edges are flagged.
+     */
+    void experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
+                                       SkBlendMode mode);
+
 #ifdef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
     /** DEPRECATED. Use drawSimpleText or drawTextBlob.
         Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
@@ -2375,6 +2385,8 @@ protected:
     // that mechanism  will be required to implement the new function.
     virtual void onDrawPaint(const SkPaint& paint);
     virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
+    virtual void onDrawEdgeAARect(const SkRect& rect, QuadAAFlags edgeAA, SkColor color,
+                                  SkBlendMode mode);
     virtual void onDrawRRect(const SkRRect& rrect, const SkPaint& paint);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
     virtual void onDrawOval(const SkRect& rect, const SkPaint& paint);
