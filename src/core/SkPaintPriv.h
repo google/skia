@@ -82,7 +82,7 @@ public:
     }
 
     static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkPaint& paint) {
-        return paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault();
+        return paint.getTypeface() ? paint.refTypeface() : SkTypeface::RefDefault();
     }
 
     static SkTextEncoding GetEncoding(const SkPaint& paint) {

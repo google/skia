@@ -105,7 +105,7 @@ public:
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
     /** Returns the default normal typeface, which is never nullptr. */
-    static sk_sp<SkTypeface> MakeDefault();
+    static sk_sp<SkTypeface> RefDefault();
 
     /** Creates a new reference to the typeface that most closely matches the
         requested familyName and fontStyle. This method allows extended font

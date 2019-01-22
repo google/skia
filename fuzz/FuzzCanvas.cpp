@@ -904,7 +904,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkFont& font, SkTextE
     SkTDArray<uint8_t> array;
     if (kGlyphID_SkTextEncoding == encoding) {
         int glyphRange = font.getTypeface() ? font.getTypeface()->countGlyphs()
-                                             : SkTypeface::MakeDefault()->countGlyphs();
+                                             : SkTypeface::RefDefault()->countGlyphs();
         if (glyphRange == 0) {
             // Some fuzzing environments have no fonts, so empty array is the best
             // we can do.

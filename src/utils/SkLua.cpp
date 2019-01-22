@@ -1906,7 +1906,7 @@ static int lsk_newTypeface(lua_State* L) {
     sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, style));
 //    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
     if (nullptr == face) {
-        face = SkTypeface::MakeDefault();
+        face = SkTypeface::RefDefault();
     }
     push_ref(L, std::move(face));
     return 1;

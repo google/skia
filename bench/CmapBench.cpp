@@ -68,7 +68,7 @@ public:
             // we're jamming values into utf8, so we must keep it legal utf8
             fText[i] = 'A' + (i & 31);
         }
-        fFont.setTypeface(SkTypeface::MakeDefault());
+        fFont.setTypeface(SkTypeface::RefDefault());
     }
 
 protected:
