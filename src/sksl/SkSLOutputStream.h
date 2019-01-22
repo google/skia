@@ -8,6 +8,7 @@
 #ifndef SKSL_OUTPUTSTREAM
 #define SKSL_OUTPUTSTREAM
 
+#include "SkSLDefines.h"
 #include "SkSLString.h"
 
 namespace SkSL {
@@ -24,11 +25,16 @@ public:
 
     virtual void write(const void* s, size_t size) = 0;
 
-    void writeString(String s) {
-        this->write(s.c_str(), s.size());
-    }
+    void writeString(String s);
+
+    void printf(const char format[], ...) SKSL_PRINTF_LIKE(2, 3);
+
+    void appendVAList(const char format[], va_list args);
 
     virtual ~OutputStream() {}
+
+private:
+    static const int kBufferSize = 1024;
 };
 
 } // namespace
