@@ -8,7 +8,7 @@
 #ifndef SkPaintDefaults_DEFINED
 #define SkPaintDefaults_DEFINED
 
-#include "SkPaint.h"
+#include "SkFontTypes.h"
 
 /**
  *  Any of these can be specified by the build system (or SkUserConfig.h)
