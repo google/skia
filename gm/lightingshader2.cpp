@@ -169,25 +169,25 @@ protected:
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useNormalSource: %d", useNormalSource);
-                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
+                            DrawShapedString(canvas, label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useDiffuseShader: %d", useDiffuseShader);
-                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
+                            DrawShapedString(canvas, label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useTranslucentPaint: %d", useTranslucentPaint);
-                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
+                            DrawShapedString(canvas, label, 0.0f, 0.0f, font, labelPaint);
                         }
                         {
                             canvas->translate(0.0f, kLabelSize);
                             SkString label;
                             label.appendf("useTranslucentShader: %d", useTranslucentShader);
-                            canvas->drawString(label, 0.0f, 0.0f, font, labelPaint);
+                            DrawShapedString(canvas, label, 0.0f, 0.0f, font, labelPaint);
                         }
 
                         canvas->restore();

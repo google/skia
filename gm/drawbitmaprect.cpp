@@ -176,7 +176,7 @@ protected:
 
         SkString title;
         title.printf("Bitmap size: %d x %d", gBmpSize, gBmpSize);
-        canvas->drawString(title, 0, titleHeight, font, blackPaint);
+        DrawShapedString(canvas, title, 0, titleHeight, font, blackPaint);
 
         canvas->translate(0, SK_Scalar1 * kPadY / 2  + titleHeight);
         int rowCount = 0;
@@ -193,7 +193,7 @@ protected:
                 blackPaint.setStyle(SkPaint::kFill_Style);
                 font.setSize(SK_Scalar1 * 10);
                 SkScalar baseline = dstRect.height() + font.getSize() + SK_Scalar1 * 3;
-                canvas->drawString(label, 0, baseline, font, blackPaint);
+                DrawShapedString(canvas, label, 0, baseline, font, blackPaint);
                 blackPaint.setStyle(SkPaint::kStroke_Style);
                 blackPaint.setStrokeWidth(SK_Scalar1);
                 blackPaint.setAntiAlias(false);

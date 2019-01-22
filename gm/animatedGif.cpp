@@ -29,7 +29,7 @@ namespace {
         SkFont font;
         SkRect bounds;
         font.measureText(errorText.c_str(), errorText.size(), kUTF8_SkTextEncoding, &bounds);
-        canvas->drawString(errorText, kOffset, bounds.height() + kOffset, font, paint);
+        DrawShapedString(canvas, errorText, kOffset, bounds.height() + kOffset, font, paint);
     }
 }
 

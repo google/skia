@@ -104,8 +104,8 @@ protected:
                                                                kTileModes[tm1], &localM));
 
                 constexpr char kText[] = "B";
-                canvas->drawString(kText, 0, 0, font, fillPaint);
-                canvas->drawString(kText, 0, 0, font, outlinePaint);
+                DrawShapedString(canvas, kText, 0, 0, font, fillPaint);
+                DrawShapedString(canvas, kText, 0, 0, font, outlinePaint);
                 SkScalar w = font.measureText(kText, strlen(kText), kUTF8_SkTextEncoding);
                 canvas->translate(w + 10.f, 0.f);
                 ++i;

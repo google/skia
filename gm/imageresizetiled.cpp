@@ -41,7 +41,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                 float posY = 0;
                 for (unsigned i = 0; i < SK_ARRAY_COUNT(str); i++) {
                     posY += 100.0f;
-                    canvas->drawString(str[i], 0.0f, posY, font, SkPaint());
+                    DrawShapedString(canvas, str[i], 0.0f, posY, font, SkPaint());
                 }
                 canvas->restore();
                 canvas->restore();

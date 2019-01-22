@@ -84,7 +84,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
         const char titleClose[] = "Line Closed Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";
         const char* title = doClose ? titleClose : titleNoClose;
-        canvas->drawString(title, 20.0f, 20.0f, font, titlePaint);
+        DrawShapedString(canvas, title, 20.0f, 20.0f, font, titlePaint);
 
         SkRandom rand;
         SkRect rect = SkRect::MakeWH(100*SK_Scalar1, 30*SK_Scalar1);
@@ -121,11 +121,11 @@ static void draw(SkCanvas* canvas, bool doClose) {
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     font.setSize(10);
-                    canvas->drawString(gStyles[style].fName, 0, rect.height() + 12.0f,
+                    DrawShapedString(canvas, gStyles[style].fName, 0, rect.height() + 12.0f,
                                        font, labelPaint);
-                    canvas->drawString(gFills[fill].fName, 0, rect.height() + 24.0f,
+                    DrawShapedString(canvas, gFills[fill].fName, 0, rect.height() + 24.0f,
                                        font, labelPaint);
-                    canvas->drawString(gCaps[cap].fName, 0, rect.height() + 36.0f,
+                    DrawShapedString(canvas, gCaps[cap].fName, 0, rect.height() + 36.0f,
                                        font, labelPaint);
                 }
                 canvas->restore();
