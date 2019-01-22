@@ -14,7 +14,6 @@
 #include "SkTypeface.h"
 
 class SkBitmap;
-class SkFont;
 class SkImage;
 class SkReadBuffer;
 class SkWriteBuffer;

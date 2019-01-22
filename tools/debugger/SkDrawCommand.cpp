@@ -980,7 +980,7 @@ static void apply_paint_patheffect(const SkPaint& paint, Json::Value* target,
 
 static void apply_font_typeface(const SkFont& font, Json::Value* target,
                                  UrlDataManager& urlDataManager) {
-    SkTypeface* typeface = font.getTypeface();
+    SkTypeface* typeface = font.getTypefaceOrDefault();
     if (typeface != nullptr) {
         Json::Value jsonTypeface;
         SkDynamicMemoryWStream buffer;

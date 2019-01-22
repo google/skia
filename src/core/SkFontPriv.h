@@ -59,14 +59,6 @@ public:
     // returns -1 if buffer is invalid for specified encoding
     static int ValidCountText(const void* text, size_t length, SkTextEncoding);
 
-    static SkTypeface* GetTypefaceOrDefault(const SkFont& font) {
-        return font.getTypeface() ? font.getTypeface() : SkTypeface::GetDefaultTypeface();
-    }
-
-    static sk_sp<SkTypeface> RefTypefaceOrDefault(const SkFont& font) {
-        return font.getTypeface() ? font.refTypeface() : SkTypeface::MakeDefault();
-    }
-
     typedef const SkGlyph& (*GlyphCacheProc)(SkStrike*, const char**, const char*);
 
     static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);

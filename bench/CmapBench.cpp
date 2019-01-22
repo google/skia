@@ -39,7 +39,7 @@ static void charsToGlyphs_proc(int loops, const SkFont& font, const void* text,
     uint16_t glyphs[NGLYPHS];
     SkASSERT(glyphCount <= NGLYPHS);
 
-    SkTypeface* face = font.getTypeface();
+    SkTypeface* face = font.getTypefaceOrDefault();
     for (int i = 0; i < loops; ++i) {
         face->charsToGlyphs(text, SkTypeface::kUTF8_Encoding, glyphs, glyphCount);
     }
@@ -47,7 +47,7 @@ static void charsToGlyphs_proc(int loops, const SkFont& font, const void* text,
 
 static void charsToGlyphsNull_proc(int loops, const SkFont& font, const void* text,
                                    size_t len, int glyphCount) {
-    SkTypeface* face = font.getTypeface();
+    SkTypeface* face = font.getTypefaceOrDefault();
     for (int i = 0; i < loops; ++i) {
         face->charsToGlyphs(text, SkTypeface::kUTF8_Encoding, nullptr, glyphCount);
     }

@@ -17,7 +17,6 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkDraw.h"
-#include "SkFontPriv.h"
 #include "SkGlyphRun.h"
 #include "SkImageFilterCache.h"
 #include "SkJpegEncoder.h"
@@ -1085,7 +1084,7 @@ void SkPDFDevice::internalDrawGlyphRun(
         this->drawGlyphRunAsPath(glyphRun, offset, runPaint);
         return;
     }
-    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(glyphRunFont);
+    SkTypeface* typeface = glyphRunFont.getTypefaceOrDefault();
     if (!typeface) {
         SkDebugf("SkPDF: SkTypeface::MakeDefault() returned nullptr.\n");
         return;

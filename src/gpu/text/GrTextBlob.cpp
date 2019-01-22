@@ -14,7 +14,6 @@
 #include "GrTextTarget.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilterBase.h"
-#include "SkPaintPriv.h"
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
 
@@ -60,7 +59,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount, int runCount, GrColor color) 
 void GrTextBlob::Run::setupFont(const SkPaint& skPaint,
                                 const SkFont& skFont,
                                 const SkDescriptor& cacheDescriptor) {
-    fTypeface = SkFontPriv::RefTypefaceOrDefault(skFont);
+    fTypeface = skFont.refTypefaceOrDefault();
     SkScalerContextEffects effects{skPaint};
     fPathEffect = sk_ref_sp(effects.fPathEffect);
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);

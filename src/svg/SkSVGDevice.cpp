@@ -17,12 +17,10 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
-#include "SkFontPriv.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkJpegCodec.h"
 #include "SkPaint.h"
-#include "SkPaintPriv.h"
 #include "SkParsePath.h"
 #include "SkPngCodec.h"
 #include "SkShader.h"
@@ -594,7 +592,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
 
     SkString familyName;
     SkTHashSet<SkString> familySet;
-    sk_sp<SkTypeface> tface = SkFontPriv::RefTypefaceOrDefault(font);
+    sk_sp<SkTypeface> tface = font.refTypefaceOrDefault();
 
     SkASSERT(tface);
     SkFontStyle style = tface->fontStyle();
