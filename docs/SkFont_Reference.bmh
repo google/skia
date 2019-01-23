@@ -521,6 +521,22 @@ Whether edge pixels draw opaque or with partial transparency.
 
 # ------------------------------------------------------------------------------
 
+#Method SkTypeface* getTypefaceOrDefault() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
 #Method SkScalar    getSize() const
 #In incomplete
 #Line # incomplete ##
@@ -570,6 +586,22 @@ Whether edge pixels draw opaque or with partial transparency.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkTypeface> refTypeface() const
+#In incomplete
+#Line # incomplete ##
+
+#Populate
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkTypeface> refTypefaceOrDefault() const
 #In incomplete
 #Line # incomplete ##
 
