@@ -28,8 +28,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus,
-                           GrIOType ioType,
-                           bool purgeImmediately)
+                           GrWrapCacheable cacheable,
+                           GrIOType ioType)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
@@ -37,7 +37,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
     if (ioType == kRead_GrIOType) {
         this->setReadOnly();
     }
-    this->registerWithCacheWrapped(purgeImmediately);
+    this->registerWithCacheWrapped(cacheable);
 }
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
@@ -67,8 +67,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
                                                      const GrSurfaceDesc& desc,
                                                      id<MTLTexture> texture,
-                                                     GrIOType ioType,
-                                                     bool purgeImmediately) {
+                                                     GrWrapCacheable cacheable,
+                                                     GrIOType ioType) {
     if (desc.fSampleCnt > 1) {
         SkASSERT(false); // Currently we don't support msaa
         return nullptr;
@@ -77,8 +77,8 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
     SkASSERT(MTLTextureUsageShaderRead & texture.usage);
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
                                                                  : GrMipMapsStatus::kNotAllocated;
-    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus, ioType,
-                                                purgeImmediately));
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus,
+                                                cacheable, ioType));
 }
 
 GrMtlTexture::~GrMtlTexture() {
