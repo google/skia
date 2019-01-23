@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b43664f_182b7730",
+        "filename": "tests/AdvancedBlendTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-23T14:17:10Z",
+      "side": 1,
+      "message": "2019",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "c8d39ab60cf9ba53c60018c9fd8e0c4ff0c721a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
