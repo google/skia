@@ -54,6 +54,7 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     , fPreBlendForFilter(fMaskFilter ? SkScalerContext::GetMaskPreBlend(fRec)
                                      : SkMaskGamma::PreBlend())
 {
+    fTypeface->filterRec(&fRec);
 #ifdef DUMP_REC
     SkDebugf("SkScalerContext checksum %x count %d length %d\n",
              desc->getChecksum(), desc->getCount(), desc->getLength());
@@ -1038,7 +1039,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     // cache. This way if we're asking for something that they will ignore,
     // they can modify our rec up front, so we don't create duplicate cache
     // entries.
-    if (enableTypefaceFiltering) {
+    if (false && enableTypefaceFiltering) {
         typeface->onFilterRec(rec);
     }
 
