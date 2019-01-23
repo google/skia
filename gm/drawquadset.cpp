@@ -24,89 +24,97 @@ static void draw_text(SkCanvas* canvas, const char* text) {
     canvas->drawString(text, 0, 0, SkFont(nullptr, 12), SkPaint());
 }
 
-static void draw_gradient_tiles(GrRenderTargetContext* rtc, const SkMatrix& view,
-                                bool adjustLocal) {
-    GrRenderTargetContext::QuadSetEntry quads[kRowCount * kColCount];
-
-    for (int i = 0; i < kRowCount; ++i) {
-        for (int j = 0; j < kColCount; ++j) {
-            SkRect tile = SkRect::MakeXYWH(j * kTileWidth, i * kTileHeight, kTileWidth, kTileHeight);
-
-            int q = i * kColCount + j;
-            quads[q].fRect = tile;
-            quads[q].fColor = {1.f, 1.f, 1.f, 1.f};
-
-            if (adjustLocal) {
-                quads[q].fLocalMatrix.setTranslate(-tile.fLeft, -tile.fTop);
-            } else {
-                quads[q].fLocalMatrix.setIdentity();
-            }
-
-            quads[q].fAAFlags = GrQuadAAFlags::kNone;
-            if (i == 0) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kTop;
-            }
-            if (i == kRowCount - 1) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kBottom;
-            }
-            if (j == 0) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kLeft;
-            }
-            if (j == kColCount - 1) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kRight;
-            }
-        }
-    }
-
-    // Make a shared gradient paint
+static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
+    // Always draw the same gradient
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
+
+    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kMirror_TileMode);
     SkPaint paint;
     paint.setShader(gradient);
-    GrPaint grPaint;
-    SkPaintToGrPaint(rtc->surfPriv().getContext(), rtc->colorSpaceInfo(), paint, view, &grPaint);
-    // And use private API to use GrFillRectOp
-    rtc->drawQuadSet(GrNoClip(), std::move(grPaint), GrAA::kYes, view, quads, SK_ARRAY_COUNT(quads));
+
+    for (int i = 0; i < kRowCount; ++i) {
+        for (int j = 0; j < kColCount; ++j) {
+            SkRect tile = SkRect::MakeWH(kTileWidth, kTileHeight);
+            if (alignGradients) {
+                tile.offset(j * kTileWidth, i * kTileHeight);
+            } else {
+                canvas->save();
+                canvas->translate(j * kTileWidth, i * kTileHeight);
+            }
+
+            unsigned aa = SkCanvas::kNone_QuadAAFlags;
+            if (i == 0) {
+                aa |= SkCanvas::kTop_QuadAAFlag;
+            }
+            if (i == kRowCount - 1) {
+                aa |= SkCanvas::kBottom_QuadAAFlag;
+            }
+            if (j == 0) {
+                aa |= SkCanvas::kLeft_QuadAAFlag;
+            }
+            if (j == kColCount - 1) {
+                aa |= SkCanvas::kRight_QuadAAFlag;
+            }
+
+            if (rtc) {
+                // Use non-public API to leverage general GrPaint capabilities
+                SkMatrix view = canvas->getTotalMatrix();
+                GrPaint grPaint;
+                SkPaintToGrPaint(rtc->surfPriv().getContext(), rtc->colorSpaceInfo(), paint, view,
+                                 &grPaint);
+                rtc->fillRectWithEdgeAA(GrNoClip(), std::move(grPaint),
+                                        static_cast<GrQuadAAFlags>(aa), view, tile);
+            } else {
+                // Fallback to solid color on raster backend since the public API only has color
+                SkColor color = alignGradients ? SK_ColorBLUE
+                                               : (i * kColCount + j) % 2 == 0 ? SK_ColorBLUE
+                                                                              : SK_ColorWHITE;
+                canvas->experimental_DrawEdgeAARectV1(
+                        tile, static_cast<SkCanvas::QuadAAFlags>(aa), color, SkBlendMode::kSrcOver);
+            }
+
+            if (!alignGradients) {
+                // Pop off the matrix translation when drawing unaligned
+                canvas->restore();
+            }
+        }
+    }
 }
 
-static void draw_color_tiles(GrRenderTargetContext* rtc, const SkMatrix& view, bool multicolor) {
-    GrRenderTargetContext::QuadSetEntry quads[kRowCount * kColCount];
-
+static void draw_color_tiles(SkCanvas* canvas, bool multicolor) {
     for (int i = 0; i < kRowCount; ++i) {
         for (int j = 0; j < kColCount; ++j) {
             SkRect tile = SkRect::MakeXYWH(j * kTileWidth, i * kTileHeight, kTileWidth, kTileHeight);
 
-            int q = i * kColCount + j;
-            quads[q].fRect = tile;
-            quads[q].fLocalMatrix.setIdentity();
-
+            SkColor4f color;
             if (multicolor) {
-                quads[q].fColor = {(i + 1.f) / kRowCount, (j + 1.f) / kColCount, .4f, 1.f};
+                color = {(i + 1.f) / kRowCount, (j + 1.f) / kColCount, .4f, 1.f};
             } else {
-                quads[q].fColor = {.2f, .8f, .3f, 1.f};
+                color = {.2f, .8f, .3f, 1.f};
             }
 
-            quads[q].fAAFlags = GrQuadAAFlags::kNone;
+            unsigned aa = SkCanvas::kNone_QuadAAFlags;
             if (i == 0) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kTop;
+                aa |= SkCanvas::kTop_QuadAAFlag;
             }
             if (i == kRowCount - 1) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kBottom;
+                aa |= SkCanvas::kBottom_QuadAAFlag;
             }
             if (j == 0) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kLeft;
+                aa |= SkCanvas::kLeft_QuadAAFlag;
             }
             if (j == kColCount - 1) {
-                quads[q].fAAFlags |= GrQuadAAFlags::kRight;
+                aa |= SkCanvas::kRight_QuadAAFlag;
             }
+
+            canvas->experimental_DrawEdgeAARectV1(
+                    tile, static_cast<SkCanvas::QuadAAFlags>(aa), color.toSkColor(),
+                    SkBlendMode::kSrcOver);
         }
     }
-
-    GrPaint grPaint;
-    // And use private API to use GrFillRectOp
-    rtc->drawQuadSet(GrNoClip(), std::move(grPaint), GrAA::kYes, view, quads, SK_ARRAY_COUNT(quads));
 }
 
 static void draw_tile_boundaries(SkCanvas* canvas, const SkMatrix& local) {
@@ -134,12 +142,12 @@ static void draw_tile_boundaries(SkCanvas* canvas, const SkMatrix& local) {
 }
 
 // Tile renderers (column variation)
-typedef void (*TileRenderer)(GrRenderTargetContext*, const SkMatrix&);
+typedef void (*TileRenderer)(SkCanvas*);
 static TileRenderer kTileSets[] = {
-    [](GrRenderTargetContext* rtc, const SkMatrix& view) { draw_gradient_tiles(rtc, view, true); },
-    [](GrRenderTargetContext* rtc, const SkMatrix& view) { draw_gradient_tiles(rtc, view, false); },
-    [](GrRenderTargetContext* rtc, const SkMatrix& view) { draw_color_tiles(rtc, view, false); },
-    [](GrRenderTargetContext* rtc, const SkMatrix& view) { draw_color_tiles(rtc, view, true); },
+    [](SkCanvas* canvas) { draw_gradient_tiles(canvas, /* aligned */ false); },
+    [](SkCanvas* canvas) { draw_gradient_tiles(canvas, /* aligned */ true); },
+    [](SkCanvas* canvas) { draw_color_tiles(canvas, /* multicolor */ false); },
+    [](SkCanvas* canvas) { draw_color_tiles(canvas, /* multicolor */true); },
 };
 static const char* kTileSetNames[] = { "Local", "Aligned", "Green", "Multicolor" };
 static_assert(SK_ARRAY_COUNT(kTileSets) == SK_ARRAY_COUNT(kTileSetNames), "Count mismatch");
@@ -152,14 +160,6 @@ private:
     SkISize onISize() override { return SkISize::Make(800, 800); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
-        if (!ctx) {
-            DrawGpuOnlyMessage(canvas);
-            return;
-        }
-        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-        SkASSERT(rtc);
-
         SkMatrix rowMatrices[5];
         // Identity
         rowMatrices[0].setIdentity();
@@ -206,7 +206,7 @@ private:
                 draw_tile_boundaries(canvas, rowMatrices[i]);
 
                 canvas->concat(rowMatrices[i]);
-                kTileSets[j](rtc, canvas->getTotalMatrix());
+                kTileSets[j](canvas);
                 // Undo the local transformation
                 canvas->restore();
                 // And advance to the next column
