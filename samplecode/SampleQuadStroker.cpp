@@ -634,7 +634,7 @@ protected:
             pathPts.lineTo(fPts[12]);
             draw_points(canvas, pathPts, SK_ColorDKGRAY, true);
         }
-
+#if 0
         if (fRRectButton.fEnabled) {
             SkScalar rad = 32;
             SkRect r;
@@ -657,7 +657,7 @@ protected:
             paint.setColor(0x40FF8844);
             canvas->drawPath(path, paint);
         }
-
+#endif
         if (fCircleButton.fEnabled) {
             path.reset();
             SkRect r;

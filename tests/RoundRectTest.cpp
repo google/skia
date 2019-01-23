@@ -122,6 +122,7 @@ static const SkScalar kWidth = 100.0f;
 static const SkScalar kHeight = 100.0f;
 
 static void test_inset(skiatest::Reporter* reporter) {
+    #if 0
     SkRRect rr, rr2;
     SkRect r = { 0, 0, 100, 100 };
 
@@ -140,6 +141,7 @@ static void test_inset(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, rr2.isSimple());
     rr.inset(20, 20, &rr2);
     REPORTER_ASSERT(reporter, rr2.isRect());
+    #endif
 }
 
 

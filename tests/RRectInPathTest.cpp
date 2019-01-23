@@ -215,6 +215,7 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
 }
 
 static void test_inset(skiatest::Reporter* reporter) {
+#if 0
     for (auto dir : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
         for (int start = 0; start < 8; ++start) {
             SkRRect rr, rr2;
@@ -237,6 +238,7 @@ static void test_inset(skiatest::Reporter* reporter) {
             path_contains_rrect_check(reporter, rr, dir, start);
         }
     }
+#endif
 }
 
 

@@ -139,7 +139,7 @@ private:
         fRRect.setNinePatch(fRect.rect(), w / 8, h / 13, w / 11, h / 7);
 
         if (kNone_ShapesType != fInnerShapesType) {
-            fRect.inset(w / 7, h / 11, &fInnerRect);
+//            fRect.inset(w / 7, h / 11, &fInnerRect);
             fInnerRect.offset(w / 28, h / 44);
             fInnerOval.setOval(fInnerRect.rect());
             fInnerRRect.setRectXY(fInnerRect.rect(), w / 13, w / 7);

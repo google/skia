@@ -46,7 +46,7 @@ static void draw_drrect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     SkRRect outer;
     outer.setRectXY(r, xRad, yRad);
     SkRRect inner = outer;
-    inner.inset(xRad, yRad);
+//    inner.inset(xRad, yRad);
     canvas->drawDRRect(outer, inner, p);
 }
 

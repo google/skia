@@ -333,6 +333,7 @@ public:
         return a.fRect != b.fRect || !SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
     }
 
+private:
     /** Copies SkRRect to dst, then insets dst bounds by dx and dy, and adjusts dst
         radii by dx and dy. dx and dy may be positive, negative, or zero. dst may be
         SkRRect.
@@ -405,6 +406,7 @@ public:
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
+public:
 
     /** Translates SkRRect by (dx, dy).
 
