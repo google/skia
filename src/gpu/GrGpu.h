@@ -104,8 +104,8 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendTexture
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrWrapOwnership, GrIOType,
-                                        bool purgeImmediately);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrWrapOwnership, GrWrapCacheable,
+                                        GrIOType);
 
     /**
      * Implements GrResourceProvider::wrapRenderableBackendTexture
@@ -458,7 +458,7 @@ private:
                                              const GrMipLevel texels[], int mipLevelCount) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership,
-                                                  GrIOType, bool purgeImmediately) = 0;
+                                                  GrWrapCacheable, GrIOType) = 0;
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
                                                             int sampleCnt,
                                                             GrWrapOwnership) = 0;
