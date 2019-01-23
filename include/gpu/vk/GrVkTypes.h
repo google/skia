@@ -217,6 +217,7 @@ struct GrVkDrawableInfo {
     VkRenderPass    fCompatibleRenderPass;
     VkFormat        fFormat;
     VkRect2D*       fDrawBounds;
+    VkImage         fImage;
 };
 
 #endif
