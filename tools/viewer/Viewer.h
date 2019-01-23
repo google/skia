@@ -47,6 +47,10 @@ public:
         bool fHinting = false;
         bool fEdging = false;
         bool fSubpixel = false;
+        bool fForceAutoHinting = false;
+        bool fEmbeddedBitmaps = false;
+        bool fLinearMetrics = false;
+        bool fEmbolden = false;
     };
     struct SkPaintFields {
         bool fPathEffect = false;
@@ -61,7 +65,8 @@ public:
         bool fMiterLimit = false;
         bool fBlendMode = false;
 
-        uint32_t fFlags = 0;
+        bool fAntiAlias = false;
+        bool fDither = false;
         enum class AntiAliasState {
             Alias,
             Normal,
@@ -69,7 +74,7 @@ public:
             AnalyticAAForced,
             DeltaAAEnabled,
             DeltaAAForced,
-        } fAntiAlias = AntiAliasState::Alias;
+        } fAntiAliasState = AntiAliasState::Alias;
         const bool fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
         const bool fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
         const bool fOriginalSkUseDeltaAA = gSkUseDeltaAA;
