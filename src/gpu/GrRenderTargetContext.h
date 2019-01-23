@@ -127,6 +127,12 @@ public:
                                  const SkRect& rect,
                                  const SkMatrix& localMatrix);
 
+    /**
+     * Creates an op that draws a fill rect with per-edge control over anti-aliasing.
+     */
+    void fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrQuadAAFlags edgeAA,
+                            const SkMatrix& viewMatrix, const SkRect& rect);
+
     /** Used with drawQuadSet */
     struct QuadSetEntry {
         SkRect fRect;
@@ -135,6 +141,7 @@ public:
         GrQuadAAFlags fAAFlags;
     };
 
+    // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     void drawQuadSet(const GrClip& clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
                      const QuadSetEntry[], int cnt);
 

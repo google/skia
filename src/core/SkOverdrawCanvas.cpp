@@ -117,6 +117,11 @@ void SkOverdrawCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fList[0]->onDrawRect(rect, this->overdrawPaint(paint));
 }
 
+void SkOverdrawCanvas::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                                        SkBlendMode mode) {
+    fList[0]->onDrawRect(rect, fPaint);
+}
+
 void SkOverdrawCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     fList[0]->onDrawRegion(region, this->overdrawPaint(paint));
 }

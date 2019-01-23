@@ -52,7 +52,8 @@ namespace {
     M(Flush) M(Save) M(Restore) M(SaveLayer) M(SaveBehind)                             \
     M(Concat) M(SetMatrix) M(Translate)                                                \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                                 \
-    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)          \
+    M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawEdgeAARect)                             \
+    M(DrawRegion) M(DrawOval) M(DrawArc)                                               \
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture)        \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice) M(DrawImageSet) \
     M(DrawTextBlob)                                                                    \
@@ -188,6 +189,19 @@ namespace {
         SkRect  rect;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const { c->drawRect(rect, paint); }
+    };
+    struct DrawEdgeAARect final : Op {
+        static const auto kType = Type::DrawEdgeAARect;
+        DrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                       SkBlendMode mode)
+            : rect(rect), aa(aa), color(color), mode(mode) {}
+        SkRect rect;
+        SkCanvas::QuadAAFlags aa;
+        SkColor color;
+        SkBlendMode mode;
+        void draw(SkCanvas* c, const SkMatrix&) const {
+            c->experimental_DrawEdgeAARectV1(rect, aa, color, mode);
+        }
     };
     struct DrawRegion final : Op {
         static const auto kType = Type::DrawRegion;
@@ -518,6 +532,10 @@ void SkLiteDL::drawPath(const SkPath& path, const SkPaint& paint) {
 }
 void SkLiteDL::drawRect(const SkRect& rect, const SkPaint& paint) {
     this->push<DrawRect>(0, rect, paint);
+}
+void SkLiteDL::drawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa, SkColor color,
+                              SkBlendMode mode) {
+    this->push<DrawEdgeAARect>(0, rect, aa, color, mode);
 }
 void SkLiteDL::drawRegion(const SkRegion& region, const SkPaint& paint) {
     this->push<DrawRegion>(0, region, paint);

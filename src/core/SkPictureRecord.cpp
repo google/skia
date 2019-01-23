@@ -467,6 +467,18 @@ void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
+void SkPictureRecord::onDrawEdgeAARect(const SkRect& rect, SkCanvas::QuadAAFlags aa,
+                                       SkColor color, SkBlendMode mode) {
+    // op + rect + aa flags + color + mode
+    size_t size = 4 * kUInt32Size + sizeof(rect);
+    size_t initialOffset = this->addDraw(DRAW_EDGEAA_RECT, &size);
+    this->addRect(rect);
+    this->addInt((int) aa);
+    this->addInt((int) color);
+    this->addInt((int) mode);
+    this->validate(initialOffset, size);
+}
+
 void SkPictureRecord::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     // op + paint index + region
     size_t regionBytes = region.writeToMemory(nullptr);

@@ -53,6 +53,7 @@ std::unique_ptr<GrDrawOp> MakePerEdgeWithLocalRect(GrContext* context,
                                                    const GrUserStencilSettings* stencil = nullptr);
 
 // Bulk API for drawing quads with a single op
+// TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
 std::unique_ptr<GrDrawOp> MakeSet(GrContext* context,
                                   GrPaint&& paint,
                                   GrAAType aaType,
