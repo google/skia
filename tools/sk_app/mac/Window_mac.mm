@@ -12,8 +12,6 @@
 
 namespace sk_app {
 
-SkTDynamicHash<Window_mac, Uint32> Window_mac::gWindowMap;
-
 Window* Window::CreateNativeWindow(void*) {
     Window_mac* window = new Window_mac();
     if (!window->initWindow()) {
@@ -23,6 +21,111 @@ Window* Window::CreateNativeWindow(void*) {
 
     return window;
 }
+
+bool Window_mac::initWindow() {
+    if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
+        this->closeWindow();
+    }
+
+    // we already have a window
+    if (fWindow) {
+        return true;
+    }
+
+    constexpr int initialWidth = 1280;
+    constexpr int initialHeight = 960;
+
+    NSUInteger windowStyle = (NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask |
+                              NSMiniaturizableWindowMask);
+
+    NSRect windowRect = NSMakeRect(100, 100, initialWidth, initialHeight);
+    fWindow = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle
+                                backing:NSBackingStoreBuffered defer:NO];
+    if (nil == fWindow) {
+        return false;
+    }
+
+    // create view
+    NSView* windowView = fWindow.contentView;
+    NSRect rect = [NSWindow contentRectForFrameRect:windowRect styleMask:windowStyle];
+    fEventView = [[NSView alloc] initWithFrame:rect]; //*** make this our own view to catch events
+    if (nil == fEventView) {
+        [fWindow release];
+        fWindow = nil;
+        return false;
+    }
+    [fEventView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
+    // attach view to window
+    [windowView addSubview:fEventView];
+    NSDictionary *views = NSDictionaryOfVariableBindings(fEventView);
+
+    [windowView addConstraints:
+     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[fEventView]|"
+                                             options:0
+                                             metrics:nil
+                                               views:views]];
+
+    [windowView addConstraints:
+     [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[fEventView]|"
+                                             options:0
+                                             metrics:nil
+                                               views:views]];
+
+    //*** ?   [fEventView begin];
+
+    [fWindow makeKeyAndOrderFront:NSApp];
+
+    return true;
+}
+
+void Window_mac::closeWindow() {
+    [fEventView release];
+    fEventView = nil;
+    [fWindow release];
+    fWindow = nil;
+}
+
+void Window_mac::setTitle(const char* title) {
+    NSString *titleString = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
+    [fWindow setTitle:titleString];
+}
+
+void Window_mac::show() {
+    [fWindow makeKeyAndOrderFront:NSApp];
+}
+
+bool Window_mac::attach(BackendType attachType) {
+    this->initWindow();
+
+    window_context_factory::MacWindowInfo info;
+    info.fWindow = fWindow;
+    info.fEventView = fEventView;
+    switch (attachType) {
+        case kRaster_BackendType:
+            fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
+            break;
+
+        case kNativeGL_BackendType:
+        default:
+            fWindowContext = NewGLForMac(info, fRequestedDisplayParams);
+            break;
+    }
+    this->onBackendCreated();
+
+    return (SkToBool(fWindowContext));
+}
+
+void Window_mac::onInval() {
+    [[fWindow contentView] setNeedsDisplay:YES];
+}
+
+}   // namespace sk_app
+
+#if 0
+namespace sk_app {
+
+SkTDynamicHash<Window_mac, Uint32> Window_mac::gWindowMap;
 
 bool Window_mac::initWindow() {
     if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
@@ -294,3 +397,5 @@ void Window_mac::onInval() {
 }
 
 }   // namespace sk_app
+
+#endif

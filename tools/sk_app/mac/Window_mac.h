@@ -9,13 +9,42 @@
 #define Window_mac_DEFINED
 
 #include "../Window.h"
-#include "SkChecksum.h"
-#include "SkTDynamicHash.h"
+//#include "SkChecksum.h"
+//#include "SkTDynamicHash.h"
 
-#include "SDL.h"
+#import <Cocoa/Cocoa.h>
 
 namespace sk_app {
 
+class Window_mac : public Window {
+public:
+    Window_mac()
+            : INHERITED()
+            , fWindow(nil)
+            , fMSAASampleCount(1) {}
+    ~Window_mac() override { [fWindow release]; }
+
+    bool initWindow();
+
+    void setTitle(const char*) override;
+    void show() override;
+
+    bool attach(BackendType) override;
+
+    void onInval() override;
+
+private:
+    void closeWindow();
+
+    NSWindow*    fWindow;
+    NSView*      fEventView;
+
+    int          fMSAASampleCount;
+
+    typedef Window INHERITED;
+};
+
+#if 0
 class Window_mac : public Window {
 public:
     Window_mac()
@@ -60,6 +89,7 @@ private:
 
     typedef Window INHERITED;
 };
+#endif
 
 }   // namespace sk_app
 

@@ -15,7 +15,7 @@
 
 #include <OpenGL/gl.h>
 
-#include "SDL.h"
+#include <Cocoa/Cocoa.h>
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
@@ -42,9 +42,11 @@ public:
     void onDestroyContext() override;
 
 private:
-    SDL_Window*   fWindow;
-    SDL_GLContext fGLContext;
-    sk_sp<SkSurface> fBackbufferSurface;
+    NSWindow*            fWindow;
+    NSView*              fGLView;
+    NSOpenGLContext*     fGLContext;
+    NSOpenGLPixelFormat* fPixelFormat;
+    sk_sp<SkSurface>     fBackbufferSurface;
 
     typedef GLWindowContext INHERITED;
 };
@@ -53,7 +55,7 @@ RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,
                                                  const DisplayParams& params)
     : INHERITED(params)
     , fWindow(info.fWindow)
-    , fGLContext(info.fGLContext) {
+    , fGLView(info.fEventView) {
 
     // any config code here (particularly for msaa)?
 
@@ -65,24 +67,71 @@ RasterWindowContext_mac::~RasterWindowContext_mac() {
 }
 
 sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
-    SkASSERT(fWindow);
-    SkASSERT(fGLContext);
+    SkASSERT(nil != fWindow);
 
-    if (0 == SDL_GL_MakeCurrent(fWindow, fGLContext)) {
-        glClearStencil(0);
-        glClearColor(0, 0, 0, 0);
-        glStencilMask(0xffffffff);
-        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1070
+    // doesn't support OpenGL 3.0
+    return nullptr;
+#endif
 
-        SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &fStencilBits);
-        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &fSampleCount);
-        fSampleCount = SkTMax(fSampleCount, 1);
-
-        SDL_GetWindowSize(fWindow, &fWidth, &fHeight);
-        glViewport(0, 0, fWidth, fHeight);
+    // set up pixel format
+    constexpr int kMaxAttributes = 16;
+    NSOpenGLPixelFormatAttribute attributes[kMaxAttributes];
+    int numAttributes = 0;
+    attributes[numAttributes++] = NSOpenGLPFAAccelerated;
+    attributes[numAttributes++] = NSOpenGLPFAClosestPolicy;
+    attributes[numAttributes++] = NSOpenGLPFAOpenGLProfile;
+    attributes[numAttributes++] = NSOpenGLProfileVersion3_2Core;
+    attributes[numAttributes++] = NSOpenGLPFAColorSize;
+    attributes[numAttributes++] = 24;
+    attributes[numAttributes++] = NSOpenGLPFADepthSize;
+    attributes[numAttributes++] = 0;
+    attributes[numAttributes++] = NSOpenGLPFAStencilSize;
+    attributes[numAttributes++] = 8;
+    attributes[numAttributes++] = NSOpenGLPFADoubleBuffer;
+    if (fDisplayParams.fMSAASampleCount > 1) {
+        attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
+        attributes[numAttributes++] = 1;
+        attributes[numAttributes++] = NSOpenGLPFASamples;
+        attributes[numAttributes++] = fDisplayParams.fMSAASampleCount;
     } else {
-        SkDebugf("MakeCurrent failed: %s\n", SDL_GetError());
+        attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
+        attributes[numAttributes++] = 0;
     }
+    attributes[numAttributes++] = 0;
+    SkASSERT(numAttributes <= kMaxAttributes);
+
+    fPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
+    if (nil == fPixelFormat) {
+        return nullptr;
+    }
+
+    // create context
+    fGLContext = [[NSOpenGLContext alloc] initWithFormat:fPixelFormat shareContext:nil];
+    if (nil == fGLContext) {
+        [fPixelFormat release];
+        fPixelFormat = nil;
+        return nullptr;
+    }
+
+    // make context current
+    [fGLContext setView:fGLView];
+    [fGLContext makeCurrentContext];
+
+    glClearStencil(0);
+    glClearColor(0, 0, 0, 0);
+    glStencilMask(0xffffffff);
+    glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+    GLint stencilBits;
+    [fPixelFormat getValues:&stencilBits forAttribute:NSOpenGLPFAStencilSize forVirtualScreen:0];
+    fStencilBits = stencilBits;
+    GLint sampleCount;
+    [fPixelFormat getValues:&sampleCount forAttribute:NSOpenGLPFASamples forVirtualScreen:0];
+    fSampleCount = sampleCount;
+    fSampleCount = SkTMax(fSampleCount, 1);
+
+    glViewport(0, 0, fGLView.bounds.size.width, fGLView.bounds.size.height);
 
     // make the offscreen image
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
@@ -93,12 +142,18 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
 
 void RasterWindowContext_mac::onDestroyContext() {
     fBackbufferSurface.reset(nullptr);
+
+    //*** release view and window as well?
+    [fGLContext release];
+    fGLContext = nil;
+    [fPixelFormat release];
+    fPixelFormat = nil;
 }
 
 sk_sp<SkSurface> RasterWindowContext_mac::getBackbufferSurface() { return fBackbufferSurface; }
 
 void RasterWindowContext_mac::onSwapBuffers() {
-    if (fWindow && fGLContext) {
+    if (nil != fWindow && nil != fGLContext) {
         // We made/have an off-screen surface. Get the contents as an SkImage:
         sk_sp<SkImage> snapshot = fBackbufferSurface->makeImageSnapshot();
 
@@ -107,7 +162,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
         gpuCanvas->drawImage(snapshot, 0, 0);
         gpuCanvas->flush();
 
-        SDL_GL_SwapWindow(fWindow);
+        [fGLContext flushBuffer];
     }
 }
 
