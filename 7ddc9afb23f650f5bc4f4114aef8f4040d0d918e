@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1bccce8_26caa615",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-23T16:41:14Z",
+      "side": 1,
+      "message": "I\u0027ve fixed up this file to work in the new system, so these changes shouldn\u0027t be needed anymore.",
+      "revId": "7ddc9afb23f650f5bc4f4114aef8f4040d0d918e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
