@@ -103,8 +103,9 @@ public:
         return kAdvancedCoherent_BlendEquationSupport == fBlendEquationSupport;
     }
 
-    bool canUseAdvancedBlendEquation(GrBlendEquation equation) const {
+    bool isAdvancedBlendEquationBlacklisted(GrBlendEquation equation) const {
         SkASSERT(GrBlendEquationIsAdvanced(equation));
+        SkASSERT(this->advancedBlendEquationSupport());
         return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
     }
 

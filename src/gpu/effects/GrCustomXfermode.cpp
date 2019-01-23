@@ -62,7 +62,7 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
     if (GrProcessorAnalysisCoverage::kLCD == coverage) {
         return false; // LCD coverage must be applied after the blend equation.
     }
-    if (caps.canUseAdvancedBlendEquation(equation)) {
+    if (caps.isAdvancedBlendEquationBlacklisted(equation)) {
         return false;
     }
     return true;
