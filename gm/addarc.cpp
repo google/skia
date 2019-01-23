@@ -67,16 +67,7 @@ DEF_GM( return new AddArcGM; )
 
 #define R   400
 
-class AddArcMeasGM : public skiagm::GM {
-public:
-    AddArcMeasGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("addarc_meas"); }
-
-    SkISize onISize() override { return SkISize::Make(2*R + 40, 2*R + 40); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
         canvas->translate(R + 20, R + 20);
 
         SkPaint paint;
@@ -106,12 +97,7 @@ protected:
                 canvas->drawLine({0, 0}, pos, measPaint);
             }
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new AddArcMeasGM; )
+}
 
 ///////////////////////////////////////////////////
 
@@ -230,16 +216,7 @@ static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, Sk
 }
 
 // Lifted from canvas-arc-circumference-fill-diffs.html
-class ManyArcsGM : public skiagm::GM {
-public:
-    ManyArcsGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("manyarcs"); }
-
-    SkISize onISize() override { return SkISize::Make(620, 330); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -281,24 +258,10 @@ protected:
             canvas->restore();
             canvas->translate(0, 40);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new ManyArcsGM; )
+}
 
 // Lifted from https://bugs.chromium.org/p/chromium/issues/detail?id=640031
-class TinyAngleBigRadiusArcsGM : public skiagm::GM {
-public:
-    TinyAngleBigRadiusArcsGM() {}
-
-protected:
-    SkString onShortName() override { return SkString("tinyanglearcs"); }
-
-    SkISize onISize() override { return SkISize::Make(620, 330); }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -331,9 +294,4 @@ protected:
             canvas->drawPath(path, paint);
             canvas->translate(20, 0);
         }
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-DEF_GM( return new TinyAngleBigRadiusArcsGM; )
+}
