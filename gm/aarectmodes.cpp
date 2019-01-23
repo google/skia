@@ -115,24 +115,9 @@ static sk_sp<SkShader> make_bg_shader() {
                                       &m);
 }
 
-namespace skiagm {
-
-    class AARectModesGM : public GM {
-        SkPaint fBGPaint;
-    public:
-        AARectModesGM () {
-            fBGPaint.setShader(make_bg_shader());
-        }
-
-    protected:
-
-        SkString onShortName() override {
-            return SkString("aarectmodes");
-        }
-
-        SkISize onISize() override { return SkISize::Make(640, 480); }
-
-        void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(aarectmodes, canvas, 640, 480) {
+            SkPaint bgPaint;
+            bgPaint.setShader(make_bg_shader());
             if (false) { // avoid bit rot, suppress warning
                 test4(canvas);
             }
@@ -150,7 +135,7 @@ namespace skiagm {
                         canvas->translate(W * 5, 0);
                         canvas->save();
                     }
-                    canvas->drawRect(bounds, fBGPaint);
+                    canvas->drawRect(bounds, bgPaint);
                     canvas->saveLayer(&bounds, nullptr);
                     SkScalar dy = drawCell(canvas, gModes[i],
                                            gAlphaValue[alpha & 1],
@@ -163,15 +148,4 @@ namespace skiagm {
                 canvas->restore();
                 canvas->translate(W * 5 / 4, 0);
             }
-        }
-
-    private:
-        typedef GM INHERITED;
-    };
-
-//////////////////////////////////////////////////////////////////////////////
-
-    static GM* MyFactory(void*) { return new AARectModesGM; }
-    static GMRegistry reg(MyFactory);
-
 }
