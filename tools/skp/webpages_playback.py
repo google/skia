@@ -222,7 +222,6 @@ class SkPicturePlayback(object):
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
-          '--use-wpr-go',
           '%s_page_set' % page_set_basename,
           '--page-set-base-dir=%s' % page_set_dir
         )

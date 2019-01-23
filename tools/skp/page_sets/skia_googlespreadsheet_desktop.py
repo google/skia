@@ -19,6 +19,10 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
     self.archive_data_file = 'data/skia_googlespreadsheet_desktop.json'
 
+  def RunNavigateSteps(self, action_runner):
+    action_runner.Navigate(self.url)
+    action_runner.Wait(15)
+
 
 class SkiaGooglespreadsheetDesktopPageSet(story.StorySet):
 
@@ -31,7 +35,7 @@ class SkiaGooglespreadsheetDesktopPageSet(story.StorySet):
     urls_list = [
       # Why: from Tom W's list.
       ('https://docs.google.com/spreadsheets/d/'
-       '1YnmSPu-p-1nj-lkWd8q_GRgzjiWzg_6A-HvFYqVoVxI/edit?usp=sharing'),
+       '1YnmSPu-p-1nj-lkWd8q_GRgzjiWzg_6A-HvFYqVoVxI/edit#gid=0'),
     ]
 
     for url in urls_list:
