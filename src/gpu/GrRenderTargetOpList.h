@@ -13,6 +13,7 @@
 #include "GrPathRendering.h"
 #include "GrPrimitiveProcessor.h"
 #include "ops/GrOp.h"
+#include "ops/GrDrawOp.h"
 #include "SkArenaAlloc.h"
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -68,11 +69,11 @@ public:
 
         op->visitProxies(addDependency);
 
-        this->recordOp(std::move(op), caps);
+        this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
-    void addOp(std::unique_ptr<GrOp> op, const GrCaps& caps, GrAppliedClip&& clip,
-               const DstProxy& dstProxy) {
+    void addDrawOp(std::unique_ptr<GrDrawOp> op, const GrProcessorSet::Analysis& processorAnalysis,
+                   GrAppliedClip&& clip, const DstProxy& dstProxy, const GrCaps& caps) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
             this->addDependency(p, caps);
         };
@@ -83,7 +84,8 @@ public:
             addDependency(dstProxy.proxy());
         }
 
-        this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
+        this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
+                       &dstProxy, caps);
     }
 
     void discard();
@@ -140,7 +142,7 @@ private:
     public:
         OpChain(const OpChain&) = delete;
         OpChain& operator=(const OpChain&) = delete;
-        OpChain(std::unique_ptr<GrOp>, GrAppliedClip*, const DstProxy*);
+        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*);
 
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
@@ -166,9 +168,9 @@ private:
         // Attempts to add 'op' to this chain either by merging or adding to the tail. Returns
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
-        std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, const DstProxy*,
-                                       const GrAppliedClip*, const GrCaps&, GrOpMemoryPool*,
-                                       GrAuditTrail*);
+        std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, GrProcessorSet::Analysis,
+                                       const DstProxy*, const GrAppliedClip*, const GrCaps&,
+                                       GrOpMemoryPool*, GrAuditTrail*);
 
     private:
         class List {
@@ -196,11 +198,12 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, const DstProxy&, const GrAppliedClip*, const SkRect& bounds,
-                       const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
+        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxy&, const GrAppliedClip*,
+                       const SkRect& bounds, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, GrAuditTrail*);
 
         List fList;
+        GrProcessorSet::Analysis fProcessorAnalysis;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
@@ -210,8 +213,8 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps, GrAppliedClip* = nullptr,
-                  const DstProxy* = nullptr);
+    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxy*,
+                  const GrCaps& caps);
 
     void forwardCombine(const GrCaps&);
 

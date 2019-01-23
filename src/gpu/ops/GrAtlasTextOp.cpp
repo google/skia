@@ -165,9 +165,6 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(const GrCaps& caps, const GrApp
     }
     auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, &fGeoData[0].fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
-    fCanCombineOnTouchOrOverlap =
-            !analysis.requiresDstTexture() &&
-            !(fProcessors.xferProcessor() && fProcessors.xferProcessor()->xferBarrierType(caps));
     return analysis;
 }
 
@@ -443,10 +440,6 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
 GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
-        return CombineResult::kCannotCombine;
-    }
-
-    if (!fCanCombineOnTouchOrOverlap && GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
         return CombineResult::kCannotCombine;
     }
 

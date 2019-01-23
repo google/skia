@@ -137,7 +137,6 @@ private:
     GrProcessorSet* fProcessors;
     unsigned fPipelineFlags : 8;
     unsigned fAAType : 2;
-    unsigned fRequiresDstTexture : 1;
     unsigned fUsesLocalCoords : 1;
     unsigned fCompatibleWithAlphaAsCoveage : 1;
     SkDEBUGCODE(unsigned fMadePipeline : 1;)

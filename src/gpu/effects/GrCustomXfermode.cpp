@@ -355,7 +355,7 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
             return AnalysisProperties::kCompatibleWithAlphaAsCoverage;
         } else {
             return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
-                   AnalysisProperties::kRequiresBarrierBetweenOverlappingDraws;
+                   AnalysisProperties::kRequiresNonOverlappingDraws;
         }
     }
     return AnalysisProperties::kCompatibleWithAlphaAsCoverage |

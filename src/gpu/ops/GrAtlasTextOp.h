@@ -161,7 +161,6 @@ private:
     GrProcessorSet fProcessors;
     struct {
         uint32_t fUsesLocalCoords : 1;
-        uint32_t fCanCombineOnTouchOrOverlap : 1;
         uint32_t fUseGammaCorrectDistanceTable : 1;
         uint32_t fNeedsGlyphTransform : 1;
     };
