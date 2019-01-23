@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8f7358d_d4c05843",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T18:59:47Z",
+      "side": 1,
+      "message": "the comment seems incorrect as this happens before we call into the GpuDrawHandler not after.  I\u0027ll defer to Jim and others though as I\u0027m no Vulkan expert.",
+      "revId": "e1a189f3155f5fed07957a2bec6a97f7fbc511b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
