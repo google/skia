@@ -125,7 +125,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     fHighWaterCount = SkTMax(this->getResourceCount(), fHighWaterCount);
     fHighWaterBytes = SkTMax(fBytes, fHighWaterBytes);
 #endif
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
         TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
@@ -159,7 +159,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 
     SkDEBUGCODE(--fCount;)
     fBytes -= size;
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
         TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
@@ -423,10 +423,18 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     {
         SkScopeExit notifyPurgeable([resource] { resource->cacheAccess().becamePurgeable(); });
 
-        if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
+        auto budgetedType = resource->resourcePriv().budgetedType();
+        if (budgetedType == GrBudgetedType::kBudgeted) {
+            // Purge the resource immediately if we're over budget
+            // Also purge if the resource has neither a valid scratch key nor a unique key.
+            bool hasKey = resource->resourcePriv().getScratchKey().isValid() || hasUniqueKey;
+            if (!this->overBudget() && hasKey) {
+                return;
+            }
+        } else {
             // We keep unbudgeted resources with a unique key in the purgable queue of the cache so
             // they can be reused again by the image connected to the unique key.
-            if (hasUniqueKey && !resource->cacheAccess().shouldPurgeImmediately()) {
+            if (hasUniqueKey && budgetedType == GrBudgetedType::kUnbudgetedCacheable) {
                 return;
             }
             // Check whether this resource could still be used as a scratch resource.
@@ -438,13 +446,6 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
                     resource->resourcePriv().makeBudgeted();
                     return;
                 }
-            }
-        } else {
-            // Purge the resource immediately if we're over budget
-            // Also purge if the resource has neither a valid scratch key nor a unique key.
-            bool hasKey = resource->resourcePriv().getScratchKey().isValid() || hasUniqueKey;
-            if (!this->overBudget() && hasKey) {
-                return;
             }
         }
     }
@@ -462,7 +463,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 
     size_t size = resource->gpuMemorySize();
 
-    if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+    if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -752,7 +753,7 @@ void GrResourceCache::validate() const {
                 SkASSERT(fScratchMap->countForKey(scratchKey));
                 SkASSERT(!resource->resourcePriv().refsWrappedObjects());
             } else if (scratchKey.isValid()) {
-                SkASSERT(SkBudgeted::kNo == resource->resourcePriv().isBudgeted() ||
+                SkASSERT(GrBudgetedType::kBudgeted != resource->resourcePriv().budgetedType() ||
                          uniqueKey.isValid());
                 if (!uniqueKey.isValid()) {
                     ++fCouldBeScratch;
@@ -763,7 +764,7 @@ void GrResourceCache::validate() const {
             if (uniqueKey.isValid()) {
                 ++fContent;
                 SkASSERT(fUniqueHash->find(uniqueKey) == resource);
-                SkASSERT(SkBudgeted::kYes == resource->resourcePriv().isBudgeted() ||
+                SkASSERT(GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType() ||
                          resource->resourcePriv().refsWrappedObjects());
 
                 if (scratchKey.isValid()) {
@@ -771,7 +772,7 @@ void GrResourceCache::validate() const {
                 }
             }
 
-            if (SkBudgeted::kYes == resource->resourcePriv().isBudgeted()) {
+            if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
                 ++fBudgetedCount;
                 fBudgetedBytes += resource->gpuMemorySize();
             }

@@ -197,6 +197,36 @@ enum GrWrapOwnership {
     kAdopt_GrWrapOwnership,
 };
 
+enum class GrWrapCacheable : bool {
+    /**
+     * The wrapped resource will be removed from the cache as soon as it becomes purgeable. It may
+     * still be assigned and found by a unique key, but the presence of the key will not be used to
+     * keep the resource alive when it has no references.
+     */
+    kNo = false,
+    /**
+     * The wrapped resource is allowed to remain in the GrResourceCache when it has no references
+     * but has a unique key. Such resources should only be given unique keys when it is known that
+     * the key will eventually be removed from the resource or invalidated via the message bus.
+     */
+    kYes = true
+};
+
+enum class GrBudgetedType : uint8_t {
+    /** The resource is budgeted and is subject to purging under budget pressure. */
+    kBudgeted,
+    /**
+     * The resource is unbudgeted and is purged as soon as it has no refs regardless of whether
+     * it has a unique or scratch key.
+     */
+    kUnbudgetedUncacheable,
+    /**
+     * The resource is unbudgeted and is allowed to remain in the cache with no refs if it
+     * has a unique key. Scratch keys are ignored.
+     */
+    kUnbudgetedCacheable,
+};
+
 /**
  * Clips are composed from these objects.
  */
