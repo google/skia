@@ -124,23 +124,7 @@ static void draw_rect_tests(SkCanvas* canvas) {
    Each region should show as a blue center surrounded by a 2px green
    border, with no red.
 */
-
-class AAClipGM : public skiagm::GM {
-public:
-    AAClipGM() {
-
-    }
-
-protected:
-    SkString onShortName() override {
-        return SkString("aaclip");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(240, 120);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(aaclip, canvas, 240, 120) {
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
@@ -160,13 +144,7 @@ protected:
         canvas->translate(SK_Scalar1 / 5, SK_Scalar1 / 5);
         canvas->translate(SkIntToScalar(50), 0);
         draw_rect_tests(canvas);
-    }
-
-private:
-    typedef skiagm::GM INHERITED;
-};
-
-DEF_GM(return new AAClipGM;)
+}
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -210,20 +188,7 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     CGImageRelease(image);
 }
 
-class CGImageGM : public skiagm::GM {
-public:
-    CGImageGM() {}
-
-protected:
-    SkString onShortName() override {
-        return SkString("cgimage");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(800, 250);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+DEF_SIMPLE_GM(cgimage, canvas, 800, 250) {
         const struct {
             SkColorType fCT;
             SkAlphaType fAT;
@@ -244,12 +209,8 @@ protected:
             test_image(canvas, info);
             canvas->translate(info.width() + 10, 0);
         }
-    }
+}
 
-private:
-    typedef skiagm::GM INHERITED;
-};
-//DEF_GM( return new CGImageGM; )
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
