@@ -92,7 +92,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new StLouisArchGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new StLouisArchGM; )
 
 }

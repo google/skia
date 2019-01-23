@@ -77,7 +77,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new StrokeRectsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new StrokeRectsGM; )
 
 }

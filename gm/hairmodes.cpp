@@ -120,7 +120,5 @@ namespace skiagm {
 
     //////////////////////////////////////////////////////////////////////////////
 
-    static GM* MyFactory(void*) { return new HairModesGM; }
-    static GMRegistry reg(MyFactory);
-
+    DEF_GM( return new HairModesGM; )
 }

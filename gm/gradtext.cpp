@@ -97,11 +97,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* CMyFactory(void*) { return new ChromeGradTextGM1; }
-static GM* CMyFactory2(void*) { return new ChromeGradTextGM2; }
-
-static GMRegistry Creg(CMyFactory);
-static GMRegistry Creg2(CMyFactory2);
+DEF_GM( return new ChromeGradTextGM1; )
+DEF_GM( return new ChromeGradTextGM2; )
 }
 
 DEF_SIMPLE_GM(gradtext, canvas, 500, 480) {

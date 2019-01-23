@@ -153,7 +153,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ModeColorFilterGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ModeColorFilterGM; )
 
 }

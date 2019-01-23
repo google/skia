@@ -292,7 +292,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ConvexPathsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ConvexPathsGM; )
 
 }

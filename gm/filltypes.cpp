@@ -90,7 +90,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FillTypeGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new FillTypeGM; )
 
 }

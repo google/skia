@@ -48,7 +48,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new TinyBitmapGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new TinyBitmapGM; )
 
 }

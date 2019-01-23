@@ -109,7 +109,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new PathOpsInverseGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new PathOpsInverseGM; )
 
 }

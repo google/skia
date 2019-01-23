@@ -126,6 +126,5 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ShaderText3GM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ShaderText3GM; )
 }

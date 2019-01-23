@@ -182,7 +182,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new DstReadShuffle; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new DstReadShuffle; )
 
 }

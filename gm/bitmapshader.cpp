@@ -138,7 +138,6 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new BitmapShaderGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new BitmapShaderGM; )
 
 }
