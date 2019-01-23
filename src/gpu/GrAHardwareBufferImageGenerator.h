@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    bool onIsValid(GrContext*) const override;
+    bool onIsValid(GrContextWeakest*) const override;
 
     TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,

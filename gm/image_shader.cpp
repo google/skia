@@ -24,16 +24,16 @@ static void draw_something(SkCanvas* canvas, const SkRect& bounds) {
     canvas->drawOval(bounds, paint);
 }
 
-typedef sk_sp<SkImage> (*ImageMakerProc)(GrContext*, SkPicture*, const SkImageInfo&);
+typedef sk_sp<SkImage> (*ImageMakerProc)(GrRecordingContext*, SkPicture*, const SkImageInfo&);
 
-static sk_sp<SkImage> make_raster(GrContext*, SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_raster(GrRecordingContext*, SkPicture* pic, const SkImageInfo& info) {
     auto surface(SkSurface::MakeRaster(info));
     surface->getCanvas()->clear(0);
     surface->getCanvas()->drawPicture(pic);
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_texture(GrRecordingContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     if (!ctx) {
         return nullptr;
     }
@@ -46,13 +46,13 @@ static sk_sp<SkImage> make_texture(GrContext* ctx, SkPicture* pic, const SkImage
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_pict_gen(GrContext*, SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_pict_gen(GrRecordingContext*, SkPicture* pic, const SkImageInfo& info) {
     return SkImage::MakeFromPicture(sk_ref_sp(pic), info.dimensions(), nullptr, nullptr,
                                     SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
 }
 
-static sk_sp<SkImage> make_encode_gen(GrContext* ctx, SkPicture* pic, const SkImageInfo& info) {
+static sk_sp<SkImage> make_encode_gen(GrRecordingContext* ctx, SkPicture* pic, const SkImageInfo& info) {
     sk_sp<SkImage> src(make_raster(ctx, pic, info));
     if (!src) {
         return nullptr;

@@ -145,7 +145,7 @@ public:
 
 class TextureGenerator : public SkImageGenerator {
 public:
-    TextureGenerator(GrContext* ctx, const SkImageInfo& info, sk_sp<SkPicture> pic)
+    TextureGenerator(GrRecordingContext* ctx, const SkImageInfo& info, sk_sp<SkPicture> pic)
         : SkImageGenerator(info)
         , fCtx(SkRef(ctx)) {
 
@@ -160,7 +160,7 @@ public:
         }
     }
 protected:
-    sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
+    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
                                             const SkIPoint& origin,
                                             bool willBeMipped) override {
         SkASSERT(ctx);
@@ -183,7 +183,7 @@ protected:
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-        sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
+        sk_sp<GrSurfaceContext> dstContext(fCtx->priv().makeDeferredSurfaceContext(
                 fProxy->backendFormat(), desc, fProxy->origin(), mipMapped, SkBackingFit::kExact,
                 SkBudgeted::kYes));
         if (!dstContext) {
@@ -201,8 +201,8 @@ protected:
     }
 
 private:
-    sk_sp<GrContext>      fCtx;
-    sk_sp<GrTextureProxy> fProxy;
+    sk_sp<GrRecordingContext> fCtx;
+    sk_sp<GrTextureProxy>     fProxy;
 };
 
 static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_sp<SkPicture> pic) {
@@ -216,14 +216,14 @@ static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_s
 
 class ImageCacheratorGM : public skiagm::GM {
     SkString                         fName;
-    std::unique_ptr<SkImageGenerator> (*fFactory)(GrContext*, sk_sp<SkPicture>);
+    std::unique_ptr<SkImageGenerator> (*fFactory)(GrRecordingContext*, sk_sp<SkPicture>);
     sk_sp<SkPicture>                 fPicture;
     sk_sp<SkImage>                   fImage;
     sk_sp<SkImage>                   fImageSubset;
 
 public:
     ImageCacheratorGM(const char suffix[],
-                      std::unique_ptr<SkImageGenerator> (*factory)(GrContext*, sk_sp<SkPicture>))
+                      std::unique_ptr<SkImageGenerator> (*factory)(GrRecordingContext*, sk_sp<SkPicture>))
         : fFactory(factory)
     {
         fName.printf("image-cacherator-from-%s", suffix);
@@ -245,7 +245,7 @@ protected:
         fPicture = recorder.finishRecordingAsPicture();
     }
 
-    void makeCaches(GrContext* ctx) {
+    void makeCaches(GrRecordingContext* ctx) {
         auto gen = fFactory(ctx, fPicture);
         fImage = SkImage::MakeFromGenerator(std::move(gen));
 

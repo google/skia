@@ -124,9 +124,14 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext *context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        auto direct = context->asDirectContext();
+        if (!direct) {
             return;
         }
 
@@ -138,9 +143,9 @@ protected:
         this->fillPixels(kWidth, kHeight, pixels);
 
         sk_sp<SkImage> rectImgs[] = {
-                this->createRectangleTextureImg(context, kTopLeft_GrSurfaceOrigin, kWidth, kHeight,
+                this->createRectangleTextureImg(direct, kTopLeft_GrSurfaceOrigin, kWidth, kHeight,
                                                 pixels),
-                this->createRectangleTextureImg(context, kBottomLeft_GrSurfaceOrigin, kWidth,
+                this->createRectangleTextureImg(direct, kBottomLeft_GrSurfaceOrigin, kWidth,
                                                 kHeight, pixels),
         };
         SkASSERT(SkToBool(rectImgs[0]) == SkToBool(rectImgs[1]));

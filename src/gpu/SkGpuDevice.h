@@ -42,7 +42,7 @@ public:
      * Creates an SkGpuDevice from a GrRenderTargetContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(GrContext*, sk_sp<GrRenderTargetContext> renderTargetContext,
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, sk_sp<GrRenderTargetContext> renderTargetContext,
                                    int width, int height, InitContents);
 
     /**
@@ -53,13 +53,13 @@ public:
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
-    static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
                                    GrMipMapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override { return fContext.get(); }
+    GrRecordingContext* context12() const override { return fContext.get(); }
 
     // set all pixels to 0
     void clearAll();
@@ -130,7 +130,7 @@ protected:
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
-    sk_sp<GrContext>             fContext;
+    sk_sp<GrRecordingContext>    fContext;
     sk_sp<GrRenderTargetContext> fRenderTargetContext;
 
     SkISize                      fSize;
@@ -155,7 +155,7 @@ private:
 
     GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
 
-    const GrCaps* caps() const { return fContext->contextPriv().caps(); }
+    const GrCaps* caps() const { return fContext->priv().caps(); }
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
