@@ -42,13 +42,15 @@ public:
 
 protected:
     void onAbandon() override {
-        GrVkRenderTarget::onAbandon();
+        // In order to correctly handle calling texture idle procs, GrVkTexture must go first.
         GrVkTexture::onAbandon();
+        GrVkRenderTarget::onAbandon();
     }
 
     void onRelease() override {
-        GrVkRenderTarget::onRelease();
+        // In order to correctly handle calling texture idle procs, GrVkTexture must go first.
         GrVkTexture::onRelease();
+        GrVkRenderTarget::onRelease();
     }
 
 private:

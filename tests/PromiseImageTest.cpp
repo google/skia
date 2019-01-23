@@ -608,3 +608,80 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
     gpu->deleteTestingOnlyBackendTexture(backendTex2);
 }
+
+DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    using DeathFn = std::function<void(sk_gpu_test::GrContextFactory*, GrContext*)>;
+    DeathFn abandon = [](sk_gpu_test::GrContextFactory* factory, GrContext* context) {
+        context->abandonContext();
+    };
+    DeathFn destroy = [](sk_gpu_test::GrContextFactory* factory, GrContext* context) {
+        factory->destroyContexts();
+    };
+    DeathFn releaseResourcesAndAbandon = [](sk_gpu_test::GrContextFactory* factory,
+                                            GrContext* context) {
+        context->releaseResourcesAndAbandonContext();
+    };
+
+    for (auto contextDeath : {abandon, destroy, releaseResourcesAndAbandon}) {
+        for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
+            enum class Order { kDeathFlush, kFlushDeath, kFlushSynDeath };
+            for (auto order : {Order::kDeathFlush, Order::kFlushDeath, Order::kFlushSynDeath}) {
+                sk_gpu_test::GrContextFactory factory;
+                auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
+                auto ctx = factory.get(contextType);
+                if (!ctx) {
+                    continue;
+                }
+                GrGpu* gpu = ctx->contextPriv().getGpu();
+
+                GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                        nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
+                REPORTER_ASSERT(reporter, backendTex.isValid());
+
+                SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
+                                                     kPremul_SkAlphaType);
+                sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+                SkCanvas* canvas = surface->getCanvas();
+
+                PromiseTextureChecker promiseChecker(backendTex);
+                sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
+                        ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+                        kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType,
+                        nullptr, PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+                        PromiseTextureChecker::Done, &promiseChecker));
+                REPORTER_ASSERT(reporter, image);
+
+                canvas->drawImage(image, 0, 0);
+                image.reset();
+                switch (order) {
+                    case Order::kDeathFlush:
+                        contextDeath(&factory, ctx);
+                        canvas->flush();
+                        break;
+                    case Order::kFlushDeath:
+                        canvas->flush();
+                        contextDeath(&factory, ctx);
+                        break;
+                    case Order::kFlushSynDeath:
+                        canvas->flush();
+                        gpu->testingOnly_flushGpuAndSync();
+                        contextDeath(&factory, ctx);
+                        break;
+                }
+                int expectedFulfillCnt = Order::kDeathFlush == order ? 0 : 1;
+                int expectedReleaseCnt = expectedFulfillCnt;
+                int expectedDoneCnt = 1;
+                REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                         true,
+                                                                         expectedFulfillCnt,
+                                                                         expectedReleaseCnt,
+                                                                         true,
+                                                                         expectedDoneCnt,
+                                                                         reporter));
+            }
+        }
+    }
+}
