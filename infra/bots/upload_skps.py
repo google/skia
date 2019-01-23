@@ -25,6 +25,12 @@ SKIA_REPO = 'https://skia.googlesource.com/skia.git'
 
 
 def main(target_dir):
+  # We're going to sync a new, clean Skia checkout to upload the CL to update
+  # the SKPs. However, we want to use the scripts from the current checkout,
+  # in order to facilitate running this as a try job.
+  infrabots_dir = os.path.dirname(os.path.realpath(__file__))
+  upload_py = os.path.join(infrabots_dir, 'assets', 'skp', 'upload.py')
+
   with git_utils.NewGitCheckout(repository=SKIA_REPO):
     # First verify that there are no gen_tasks diffs.
     gen_tasks = os.path.join(os.getcwd(), 'infra', 'bots', 'gen_tasks.go')
@@ -39,9 +45,13 @@ def main(target_dir):
     with git_utils.GitBranch(branch_name='update_skp_version',
                              commit_msg=COMMIT_MSG,
                              commit_queue=True):
-      upload_script = os.path.join(
-          os.getcwd(), 'infra', 'bots', 'assets', 'skp', 'upload.py')
-      subprocess.check_call(['python', upload_script, '-t', target_dir])
+      upload_cmd = ['python', upload_py, '-t', target_dir]
+      if args.chromium_path:
+        chromium_revision = (
+            subprocess.check_output(['git', 'rev-parse', 'HEAD']).rstrip())
+        upload_cmd.extend([
+            '--extra_tags', 'chromium_revision:%s' % chromium_revision])
+      subprocess.check_call(upload_cmd)
       subprocess.check_call(['go', 'run', gen_tasks])
       subprocess.check_call([
           'git', 'add', os.path.join('infra', 'bots', 'tasks.json')])
@@ -50,5 +60,6 @@ def main(target_dir):
 if '__main__' == __name__:
   parser = argparse.ArgumentParser()
   parser.add_argument("--target_dir")
+  parser.add_argument("--chromium_path")
   args = parser.parse_args()
   main(args.target_dir)
