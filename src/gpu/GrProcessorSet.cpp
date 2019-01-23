@@ -124,7 +124,7 @@ SkString GrProcessorSet::dumpProcessors() const {
             result.append("SrcOver\n");
         }
     } else {
-        result.append("XP Factory dumping not implemented.\n");
+        result.appendf("XP Factory: %s\n", GrXPFactory::GetDescription(this->xpFactory()).c_str());
     }
     return result;
 }

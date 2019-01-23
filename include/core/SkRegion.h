@@ -368,6 +368,19 @@ public:
 
     static const int kOpCnt = kLastOp + 1;
 
+    static const char* OpName(Op op) {
+        switch (op) {
+            case kDifference_Op: return "kDifference_Op";
+            case kIntersect_Op: return "kIntersect_Op";
+            case kUnion_Op: return "kUnion_Op";
+            case kXOR_Op: return "kXOR_Op";
+            case kReverseDifference_Op: return "kReverseDifference_Op";
+            case kReplace_Op: return "kReplace_Op";
+        }
+        SK_ABORT("Invalid Op");
+        return "unknown";
+    }
+
     /** Replaces SkRegion with the result of SkRegion op rect.
         Returns true if replaced SkRegion is not empty.
 

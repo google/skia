@@ -28,6 +28,8 @@ public:
 private:
     constexpr GrDisableColorXPFactory() {}
 
+    SkString description() const override { return SkString("GrDisableColorXPFactory"); }
+
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
                                           const GrCaps&) const override {
