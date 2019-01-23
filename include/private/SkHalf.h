@@ -22,8 +22,8 @@ static constexpr uint16_t SK_HalfEpsilon = 0x1400; // 2^-10
 static constexpr uint16_t SK_Half1       = 0x3C00; // 1
 
 // convert between half and single precision floating point
-float SK_API SkHalfToFloat(SkHalf h);
-SkHalf SK_API SkFloatToHalf(float f);
+float SkHalfToFloat(SkHalf h);
+SkHalf SkFloatToHalf(float f);
 
 // Convert between half and single precision floating point,
 // assuming inputs and outputs are both finite, and may
