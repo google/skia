@@ -40,10 +40,16 @@
     #define DUMP_RECx
 #endif
 
+static SkScalerContextRec apply_on_filter_rec(const SkDescriptor& desc, const SkTypeface& tf) {
+    SkScalerContextRec filteredRec =
+            *static_cast<const SkScalerContextRec*>(desc.findEntry(kRec_SkDescriptorTag, nullptr));
+    tf.filterRec(&filteredRec);
+    return filteredRec;
+}
+
 SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
                                  const SkDescriptor* desc)
-    : fRec(*static_cast<const SkScalerContextRec*>(desc->findEntry(kRec_SkDescriptorTag, nullptr)))
-
+    : fRec(apply_on_filter_rec(*desc, *typeface))
     , fTypeface(std::move(typeface))
     , fPathEffect(sk_ref_sp(effects.fPathEffect))
     , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
@@ -898,8 +904,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
                                         SkScalerContextFlags scalerContextFlags,
                                         const SkMatrix& deviceMatrix,
                                         SkScalerContextRec* rec,
-                                        SkScalerContextEffects* effects,
-                                        bool enableTypefaceFiltering) {
+                                        SkScalerContextEffects* effects) {
     SkASSERT(!deviceMatrix.hasPerspective());
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
@@ -1033,14 +1038,6 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     // partial coverage is diminished.
     rec->setContrast(0.5f);
 #endif
-
-    // Allow the fonthost to modify our rec before we use it as a key into the
-    // cache. This way if we're asking for something that they will ignore,
-    // they can modify our rec up front, so we don't create duplicate cache
-    // entries.
-    if (enableTypefaceFiltering) {
-        typeface->onFilterRec(rec);
-    }
 
     if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kFakeGamma)) {
         rec->ignoreGamma();
