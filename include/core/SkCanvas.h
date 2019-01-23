@@ -1818,31 +1818,6 @@ public:
     void experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int cnt,
                                      SkFilterQuality quality, SkBlendMode mode);
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
-    /** DEPRECATED. Use drawSimpleText or drawTextBlob.
-        Draws text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
-
-        text meaning depends on SkTextEncoding; by default, text is encoded as
-        UTF-8.
-
-        x and y meaning depends on SkPaint::Align and SkPaint vertical text; by default
-        text draws left to right, positioning the first glyph left side bearing at x
-        and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
-
-        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
-        SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
-        filled 12 point black glyphs.
-
-        @param text        character code points or glyphs drawn
-        @param byteLength  byte length of text array
-        @param x           start of text on x-axis
-        @param y           start of text on y-axis
-        @param paint       text size, blend, color, and so on, used to draw
-    */
-    void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                  const SkPaint& paint);
-#endif  // SK_SUPPORT_LEGACY_CANVAS_DRAW_TEXT
-
     /** Draws text, with origin at (x, y), using clip, SkMatrix, SkFont font,
         and SkPaint paint.
 
