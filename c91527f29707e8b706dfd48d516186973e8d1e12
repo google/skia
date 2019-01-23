@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d020ba7_f318183a",
+        "filename": "tools/skp/webpages_playback.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-23T22:39:39Z",
+      "side": 0,
+      "message": "no longer needed",
+      "revId": "c91527f29707e8b706dfd48d516186973e8d1e12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
