@@ -100,7 +100,10 @@ enum DrawType {
     DRAW_IMAGE_SET,
 
     SAVE_BEHIND,
-    LAST_DRAWTYPE_ENUM = SAVE_BEHIND,
+
+    DRAW_EDGEAA_RECT,
+
+    LAST_DRAWTYPE_ENUM = DRAW_EDGEAA_RECT,
 };
 
 enum DrawVertexFlags {

@@ -304,6 +304,16 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawDRRect(outer, inner, *paint);
             }
         } break;
+        case DRAW_EDGEAA_RECT: {
+            SkRect rect;
+            reader->readRect(&rect);
+            SkCanvas::QuadAAFlags aaFlags = static_cast<SkCanvas::QuadAAFlags>(reader->read32());
+            SkColor color = reader->read32();
+            SkBlendMode blend = static_cast<SkBlendMode>(reader->read32());
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->experimental_DrawEdgeAARectV1(rect, aaFlags, color, blend);
+        } break;
         case DRAW_IMAGE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);

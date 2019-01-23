@@ -1876,6 +1876,14 @@ void SkCanvas::experimental_DrawImageSetV1(const ImageSetEntry imageSet[], int c
     this->onDrawImageSet(imageSet, cnt, filterQuality, mode);
 }
 
+void SkCanvas::experimental_DrawEdgeAARectV1(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
+                                             SkBlendMode mode) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    // To avoid redundant logic in our culling code and various backends, we always sort rects
+    // before passing them along.
+    this->onDrawEdgeAARect(r.makeSorted(), edgeAA, color, mode);
+}
+
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (bitmap.drawsNothing()) {
@@ -2084,6 +2092,20 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
             iter.fDevice->drawRect(r, paint);
         }
     }
+}
+
+void SkCanvas::onDrawEdgeAARect(const SkRect& r, QuadAAFlags edgeAA, SkColor color,
+                                SkBlendMode mode) {
+    SkASSERT(r.isSorted());
+
+    SkPaint paint;
+    LOOPER_BEGIN(paint, nullptr)
+
+    while (iter.next()) {
+        iter.fDevice->drawEdgeAARect(r, edgeAA, color, mode);
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {

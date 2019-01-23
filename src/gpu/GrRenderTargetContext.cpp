@@ -909,6 +909,37 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
             viewMatrix, croppedRect, croppedLocalRect));
 }
 
+void GrRenderTargetContext::fillRectWithEdgeAA(const GrClip& clip, GrPaint&& paint,
+                                               GrQuadAAFlags edgeAA, const SkMatrix& viewMatrix,
+                                               const SkRect& rect) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "fillRectWithEdgeAA", fContext);
+
+    // If aaType turns into MSAA, make sure to keep quads with no AA edges as MSAA. Sending those
+    // to drawFilledRect() would have it turn off MSAA in that case, which breaks seaming with
+    // any partial AA edges that kept MSAA.
+    GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
+    if (aaType != GrAAType::kMSAA &&
+        (edgeAA == GrQuadAAFlags::kNone || edgeAA == GrQuadAAFlags::kAll)) {
+        // This is equivalent to a regular filled rect draw, so route through there to take
+        // advantage of draw->clear optimizations
+        this->drawFilledRect(clip, std::move(paint), GrAA(edgeAA == GrQuadAAFlags::kAll),
+                             viewMatrix, rect);
+        return;
+    }
+
+    SkRect croppedRect = rect;
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
+        return;
+    }
+
+    AutoCheckFlush acf(this->drawingManager());
+    this->addDrawOp(clip, GrFillRectOp::MakePerEdge(fContext, std::move(paint), aaType, edgeAA,
+                                                    viewMatrix, croppedRect));
+}
+
 void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                         GrSamplerState::Filter filter, const SkPMColor4f& color,
                                         const SkRect& srcRect, const SkRect& dstRect,

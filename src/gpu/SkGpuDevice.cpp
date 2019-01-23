@@ -402,6 +402,26 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
                                    this->ctm(), rect, &style);
 }
 
+void SkGpuDevice::drawEdgeAARect(const SkRect& r, SkCanvas::QuadAAFlags aa, SkColor color,
+                                 SkBlendMode mode) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAARect", fContext.get());
+
+    SkPMColor4f dstColor = SkColor4fPrepForDst(SkColor4f::FromColor(color),
+                                              fRenderTargetContext->colorSpaceInfo(),
+                                              *fContext->contextPriv().caps())
+                           .premul();
+
+    GrPaint grPaint;
+    grPaint.setColor4f(dstColor);
+    if (mode != SkBlendMode::kSrcOver) {
+        grPaint.setXPFactory(SkBlendMode_AsXPFactory(mode));
+    }
+
+    fRenderTargetContext->fillRectWithEdgeAA(this->clip(), std::move(grPaint),
+                                             SkToGrQuadAAFlags(aa), this->ctm(), r);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
