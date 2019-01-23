@@ -34,6 +34,24 @@
       "revId": "e1a189f3155f5fed07957a2bec6a97f7fbc511b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e56396a6_d2644c4d",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-01-23T19:58:23Z",
+      "side": 1,
+      "message": "I think it\u0027s okay. Otherwise we\u0027ll assume the state is still valid the next time we use it internally.",
+      "parentUuid": "7bf52dea_82cbdf14",
+      "revId": "e1a189f3155f5fed07957a2bec6a97f7fbc511b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
