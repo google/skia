@@ -65,6 +65,8 @@ WASM_SKOTTIE=" \
   modules/skottie/src/SkottieTextLayer.cpp \
   modules/skottie/src/SkottieValue.cpp \
   modules/sksg/src/*.cpp \
+  modules/skshaper/src/SkShaper.cpp \
+  modules/skshaper/src/SkShaper_primitive.cpp \
   src/core/SkCubicMap.cpp \
   src/core/SkTime.cpp \
   src/pathops/SkOpBuilder.cpp \
@@ -192,6 +194,7 @@ ${EMCXX} \
     -Imodules/skottie/include \
     -Imodules/skottie/utils \
     -Imodules/sksg/include \
+    -Imodules/skshaper/include \
     -Isrc/core/ \
     -Isrc/gpu/ \
     -Isrc/sfnt/ \
