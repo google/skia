@@ -13,7 +13,7 @@
 import argparse
 import subprocess
 
-DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v1'
+DOCKER_IMAGE='mesa-driver-builder-dogben:latest'
 BUILD_SCRIPT='/opt/build_mesa.sh'
 MESA_VERSION='18.1.7'
 
@@ -23,10 +23,6 @@ def create_asset(target_dir):
   cmd = [
     'docker', 'run', '--volume', '%s:/OUT' % target_dir,
     '--env', 'MESA_VERSION=%s' % MESA_VERSION,
-    # It's importart to have frame pointers and debugging symbols for xSAN
-    # suppressions.
-    '--env', 'CFLAGS=-fno-omit-frame-pointer -g',
-    '--env', 'CXXFLAGS=-fno-omit-frame-pointer -g',
     DOCKER_IMAGE, BUILD_SCRIPT
   ]
   print('Running docker cmd', cmd)
