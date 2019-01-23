@@ -1,0 +1,39 @@
+{
+   "MaxCount": 4096,
+   "Rate": 2000,
+   "Life": {
+      "min": 1.000000,
+      "max": 3.000000
+   },
+   "StartColor": [ 1.000000, 0.350000, 0.000000, 1.000000 ],
+   "EndColor": [ 0.627451, 0.689558, 1.000000, 1.000000 ],
+   "Velocity": {
+      "Angle": 1.570796,
+      "Spread": 0.174533,
+      "Strength": {
+         "min": 10.000000,
+         "max": 30.000000
+      },
+      "Bidirectional": false
+   },
+   "Image": "images/half-transparent-white-pixel.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkLineEmitter",
+      "P1": { "x": 200.000000, "y": 200.000000 },
+      "P2": { "x": 400.000000, "y": 200.000000 }
+   },
+   "Affectors": [
+      {
+         "Type": "SkDirectionalForceAffector",
+         "Force": { "x": 50.000000, "y": 0.000000 }
+      },
+      {
+         "Type": "SkPointForceAffector",
+         "Point": { "x": 451.000000, "y": 243.000000 },
+         "Constant": 0.000000,
+         "InvSquare": -2000.000000
+      }
+   ]
+}
