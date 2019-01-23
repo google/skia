@@ -265,9 +265,6 @@ public:
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
         }
         auto analysis = fProcessorSet.finalize(fColor, coverage, clip, false, caps, &fColor);
-        fDisallowCombineOnTouchOrOverlap = analysis.requiresDstTexture() ||
-                                           (fProcessorSet.xferProcessor() &&
-                                            fProcessorSet.xferProcessor()->xferBarrierType(caps));
         fUsesLocalCoords = analysis.usesLocalCoords();
         return analysis;
     }
@@ -634,10 +631,6 @@ private:
         if (fProcessorSet != that->fProcessorSet) {
             return CombineResult::kCannotCombine;
         }
-        if (fDisallowCombineOnTouchOrOverlap &&
-            GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
-        }
 
         if (this->aaMode() != that->aaMode()) {
             return CombineResult::kCannotCombine;
@@ -675,7 +668,6 @@ private:
 
     SkSTArray<1, LineData, true> fLines;
     SkPMColor4f fColor;
-    bool fDisallowCombineOnTouchOrOverlap : 1;
     bool fUsesLocalCoords : 1;
     bool fFullDash : 1;
     // We use 3 bits for this 3-value enum because MSVS makes the underlying types signed.
