@@ -267,6 +267,7 @@ class SkPicturePlayback(object):
           '--page-set-base-dir=%s' % page_set_dir,
           '--skp-outdir=%s' % TMP_SKP_DIR,
           '--also-run-disabled-tests',
+          '--use-live-sites',
       ]
 
       exclusions = PAGE_SETS_TO_EXCLUSIONS.get(os.path.basename(page_set))
