@@ -140,7 +140,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new Xfermodes2GM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new Xfermodes2GM; )
 
 }

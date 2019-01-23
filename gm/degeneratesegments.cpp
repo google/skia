@@ -367,7 +367,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new DegenerateSegmentsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new DegenerateSegmentsGM; )
 
 }

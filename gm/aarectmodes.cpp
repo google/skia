@@ -171,7 +171,5 @@ namespace skiagm {
 
 //////////////////////////////////////////////////////////////////////////////
 
-    static GM* MyFactory(void*) { return new AARectModesGM; }
-    static GMRegistry reg(MyFactory);
-
+    DEF_GM( return new AARectModesGM; );
 }

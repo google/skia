@@ -125,7 +125,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FillTypePerspGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new FillTypePerspGM; )
 
 }

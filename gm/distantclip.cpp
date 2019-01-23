@@ -67,7 +67,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new DistantClipGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new DistantClipGM; )
 
 }

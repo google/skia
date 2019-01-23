@@ -276,10 +276,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* QuadPathFactory(void*) { return new QuadPathGM; }
-static GMRegistry regQuadPath(QuadPathFactory);
+DEF_GM( return new QuadPathGM; )
 
-static GM* QuadClosePathFactory(void*) { return new QuadClosePathGM; }
-static GMRegistry regQuadClosePath(QuadClosePathFactory);
+DEF_GM( return new QuadClosePathGM; )
 
 }

@@ -78,7 +78,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ExtractBitmapGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ExtractBitmapGM; )
 
 }

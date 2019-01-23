@@ -258,7 +258,6 @@ DEF_SIMPLE_GM(squarehair, canvas, 240, 360) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new HairlinesGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new HairlinesGM; )
 
 }

@@ -50,8 +50,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new CopyTo4444GM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new CopyTo4444GM; )
 
 }
 

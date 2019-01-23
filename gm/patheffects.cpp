@@ -160,8 +160,7 @@ private:
     typedef GM INHERITED;
 };
 
-static GM* PathEffectFactory(void*) { return new PathEffectGM; }
-static GMRegistry regPathEffect(PathEffectFactory);
+DEF_GM( return new PathEffectGM; )
 
 }
 

@@ -200,7 +200,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new CircleGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new CircleGM; )
 
 }

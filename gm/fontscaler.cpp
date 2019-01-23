@@ -76,7 +76,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FontScalerGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new FontScalerGM; )
 
 }

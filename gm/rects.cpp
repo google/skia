@@ -279,7 +279,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new RectsGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new RectsGM; )
 
 }
