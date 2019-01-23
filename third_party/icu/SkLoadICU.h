@@ -20,7 +20,7 @@
 #define ICU_UTIL_DATA_SHARED_MODULE_NAME "icudt.dll"
 
 inline void SkLoadICU() {
-    HMODULE module = LoadLibrary(ICU_UTIL_DATA_SHARED_MODULE_NAME);
+    HMODULE module = LoadLibraryA(ICU_UTIL_DATA_SHARED_MODULE_NAME);
     if (!module) {
         SK_ABORT("Failed to load " ICU_UTIL_DATA_SHARED_MODULE_NAME "\n");
     }
