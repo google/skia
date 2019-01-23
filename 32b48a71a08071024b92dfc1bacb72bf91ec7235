@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d1651dc_093ded68",
+        "filename": "gm/gm.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-01-23T00:40:35Z",
+      "side": 1,
+      "message": "why not include this in the class like DrawGpuOnlyMessage?",
+      "revId": "32b48a71a08071024b92dfc1bacb72bf91ec7235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
