@@ -16,6 +16,24 @@
       "revId": "e1a189f3155f5fed07957a2bec6a97f7fbc511b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bf52dea_82cbdf14",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-23T19:38:11Z",
+      "side": 1,
+      "message": "I think we\u0027re invalidating state in anticipation of calling the drawable. The drawable can\u0027t alter this state info, so seems ok. But I defer to Jim.",
+      "parentUuid": "b8f7358d_d4c05843",
+      "revId": "e1a189f3155f5fed07957a2bec6a97f7fbc511b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
