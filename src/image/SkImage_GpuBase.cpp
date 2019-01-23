@@ -292,9 +292,9 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrContext* ctx, const GrBackendText
         }
         SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
 
-        tempTextureProxies[textureIndex] =
-                proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], imageOrigin,
-                                                  kBorrow_GrWrapOwnership, kRead_GrIOType);
+        tempTextureProxies[textureIndex] = proxyProvider->wrapBackendTexture(
+                yuvaTexturesCopy[textureIndex], imageOrigin, kBorrow_GrWrapOwnership,
+                GrWrapCacheable::kNo, kRead_GrIOType);
         if (!tempTextureProxies[textureIndex]) {
             return false;
         }
@@ -460,7 +460,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
 
             auto tex = resourceProvider->wrapBackendTexture(backendTexture, kBorrow_GrWrapOwnership,
-                                                            kRead_GrIOType);
+                                                            GrWrapCacheable::kYes, kRead_GrIOType);
             if (!tex) {
                 // Even though we failed to wrap the backend texture, we must call the release
                 // proc to keep our contract of always calling Fulfill and Release in pairs.
