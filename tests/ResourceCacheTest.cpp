@@ -556,15 +556,28 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                                               wrappedCacheable->gpuMemorySize() +
                                               unbudgeted->gpuMemorySize() ==
                                       cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
-    wrappedCacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
     wrappedUncacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
     unique->unref();
-    REPORTER_ASSERT(reporter, 23 == cache->getPurgeableBytes());
+    REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
+    // This will free 'unique' but not wrappedCacheable which has a key. That requires the key to be
+    // removed to be freed.
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+
+    wrappedCacheableViaKey = cache->findAndRefUniqueResource(uniqueKey2);
+    REPORTER_ASSERT(reporter, wrappedCacheableViaKey);
+    if (wrappedCacheableViaKey) {
+        wrappedCacheableViaKey->resourcePriv().removeUniqueKey();
+        wrappedCacheable->unref();
+    }
+    // We shouldn't have to call purgeAllUnlocked as removing the key on a wrapped cacheable
+    // resource should immediately delete it.
+    REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
+
+    wrappedCacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrappedCacheable->gpuMemorySize() +
                                               wrappedUncacheable->gpuMemorySize() +
                                               unbudgeted->gpuMemorySize() ==
