@@ -46,10 +46,6 @@ public:
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
 
-    SkString description() const override {
-        return SkStringPrintf("GrPorterDuffXPFactory (%s)", SkBlendMode_Name(fBlendMode));
-    }
-
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,

@@ -282,10 +282,6 @@ public:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
-    static SkString GetDescription(const GrXPFactory* xpf) {
-        return (!xpf) ? SkString("none (src-over)") : xpf->description();
-    }
-
     static sk_sp<const GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
                                                           const GrProcessorAnalysisColor&,
                                                           GrProcessorAnalysisCoverage,
@@ -301,11 +297,6 @@ protected:
     constexpr GrXPFactory() {}
 
 private:
-    /**
-     * Human-meaningful string to identify this factory.
-     */
-    virtual SkString description() const = 0;
-
     virtual sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                            GrProcessorAnalysisCoverage,
                                                            bool hasMixedSamples,

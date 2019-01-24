@@ -217,10 +217,6 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    SkString description() const override {
-        return SkStringPrintf("CustomXPFactory (%s)", SkBlendMode_Name(fMode));
-    }
-
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
