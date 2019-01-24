@@ -142,7 +142,7 @@ struct SkRasterPipeline_CallbackCtx {
     float* read_from = rgba;
 };
 
-// This should line up with the memory layout of SkColorSpaceTransferFn.
+// This should line up with the memory layout of skcms_TransferFunction.
 struct SkRasterPipeline_ParametricTransferFunction {
     float G, A,B,C,D,E,F;
 };
