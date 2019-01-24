@@ -30,12 +30,6 @@ private:
     }
 
     /**
-     * Called by GrResourceCache when a resource becomes purgeable regardless of whether the cache
-     * has decided to keep the resource ot purge it immediately.
-     */
-    void becamePurgeable() { fResource->becamePurgeable(); }
-
-    /**
      * Called by the cache to delete the resource under normal circumstances.
      */
     void release() {
