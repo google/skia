@@ -225,7 +225,7 @@ public:
             if (resource->resourcePriv().refsWrappedObjects()) {
                 ++fWrapped;
             }
-            if (SkBudgeted::kNo  == resource->resourcePriv().isBudgeted()) {
+            if (GrBudgetedType::kBudgeted != resource->resourcePriv().budgetedType()) {
                 fUnbudgetedSize += resource->gpuMemorySize();
             }
         }

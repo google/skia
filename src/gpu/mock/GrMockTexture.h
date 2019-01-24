@@ -22,14 +22,13 @@ public:
         this->registerWithCache(budgeted);
     }
 
-    enum Wrapped { kWrapped };
-    GrMockTexture(GrMockGpu* gpu, Wrapped, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
-                  const GrMockTextureInfo& info, GrIOType ioType, bool purgeImmediately)
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
+                  const GrMockTextureInfo& info, GrWrapCacheable cacheable, GrIOType ioType)
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
         if (ioType == kRead_GrIOType) {
             this->setReadOnly();
         }
-        this->registerWithCacheWrapped(purgeImmediately);
+        this->registerWithCacheWrapped(cacheable);
     }
 
     ~GrMockTexture() override {}

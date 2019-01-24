@@ -459,7 +459,12 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 if (isRT) {
                     desc.fFlags = kRenderTarget_GrSurfaceFlag;
                 }
-                SkBudgeted budgeted(texture->resourcePriv().isBudgeted());
+                SkBudgeted budgeted;
+                if (texture->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
+                    budgeted = SkBudgeted::kYes;
+                } else {
+                    budgeted = SkBudgeted::kNo;
+                }
                 auto proxy = context->contextPriv().proxyProvider()->createLazyProxy(
                         singleUseLazyCB, backendFormat, desc,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,

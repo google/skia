@@ -21,28 +21,23 @@ static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     return gpu->getContext()->contextPriv().getResourceCache();
 }
 
-GrGpuResource::GrGpuResource(GrGpu* gpu)
-    : fGpu(gpu)
-    , fGpuMemorySize(kInvalidGpuMemorySize)
-    , fBudgeted(SkBudgeted::kNo)
-    , fShouldPurgeImmediately(false)
-    , fRefsWrappedObjects(false)
-    , fUniqueID(CreateUniqueID()) {
+GrGpuResource::GrGpuResource(GrGpu* gpu) : fGpu(gpu), fUniqueID(CreateUniqueID()) {
     SkDEBUGCODE(fCacheArrayIndex = -1);
 }
 
 void GrGpuResource::registerWithCache(SkBudgeted budgeted) {
-    SkASSERT(fBudgeted == SkBudgeted::kNo);
-    SkASSERT(!fShouldPurgeImmediately);
-    fBudgeted = budgeted;
+    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable);
+    fBudgetedType = budgeted == SkBudgeted::kYes ? GrBudgetedType::kBudgeted
+                                                 : GrBudgetedType::kUnbudgetedCacheable;
     this->computeScratchKey(&fScratchKey);
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }
 
-void GrGpuResource::registerWithCacheWrapped(bool purgeImmediately) {
-    SkASSERT(fBudgeted == SkBudgeted::kNo);
-    // Currently resources referencing wrapped objects are not budgeted.
-    fShouldPurgeImmediately = purgeImmediately;
+void GrGpuResource::registerWithCacheWrapped(GrWrapCacheable wrapType) {
+    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable);
+    // Resources referencing wrapped objects are never budgeted. They may be cached or uncached.
+    fBudgetedType = wrapType == GrWrapCacheable::kNo ? GrBudgetedType::kUnbudgetedUncacheable
+                                                     : GrBudgetedType::kUnbudgetedCacheable;
     fRefsWrappedObjects = true;
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }
@@ -137,7 +132,8 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     // resources are a special case: the unique keys give us a weak ref so that we can reuse the
     // same resource (rather than re-wrapping). When a wrapped resource is no longer referenced,
     // it will always be released - it is never converted to a scratch resource.
-    if (SkBudgeted::kNo == this->resourcePriv().isBudgeted() && !this->fRefsWrappedObjects) {
+    if (this->resourcePriv().budgetedType() != GrBudgetedType::kBudgeted &&
+        !this->fRefsWrappedObjects) {
         return;
     }
 
@@ -190,18 +186,21 @@ void GrGpuResource::removeScratchKey() {
 }
 
 void GrGpuResource::makeBudgeted() {
-    if (!this->wasDestroyed() && SkBudgeted::kNo == fBudgeted) {
+    // We should never make a wrapped resource budgeted.
+    SkASSERT(!fRefsWrappedObjects);
+    // Only wrapped resources can be in the kUnbudgetedUncacheable state.
+    SkASSERT(fBudgetedType != GrBudgetedType::kUnbudgetedUncacheable);
+    if (!this->wasDestroyed() && fBudgetedType == GrBudgetedType::kUnbudgetedCacheable) {
         // Currently resources referencing wrapped objects are not budgeted.
-        SkASSERT(!fRefsWrappedObjects);
-        fBudgeted = SkBudgeted::kYes;
+        fBudgetedType = GrBudgetedType::kBudgeted;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }
 
 void GrGpuResource::makeUnbudgeted() {
-    if (!this->wasDestroyed() && SkBudgeted::kYes == fBudgeted &&
+    if (!this->wasDestroyed() && fBudgetedType == GrBudgetedType::kBudgeted &&
         !fUniqueKey.isValid()) {
-        fBudgeted = SkBudgeted::kNo;
+        fBudgetedType = GrBudgetedType::kUnbudgetedCacheable;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }

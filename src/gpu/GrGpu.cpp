@@ -148,9 +148,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budg
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
-                                           GrWrapOwnership ownership,
-                                           GrIOType ioType,
-                                           bool purgeImmediately) {
+                                           GrWrapOwnership ownership, GrWrapCacheable cacheable,
+                                           GrIOType ioType) {
     SkASSERT(ioType != kWrite_GrIOType);
     this->handleDirtyContext();
     SkASSERT(this->caps());
@@ -161,7 +160,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
         backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-    return this->onWrapBackendTexture(backendTex, ownership, ioType, purgeImmediately);
+    return this->onWrapBackendTexture(backendTex, ownership, cacheable, ioType);
 }
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,

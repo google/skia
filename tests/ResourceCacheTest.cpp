@@ -670,7 +670,8 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         // Since this resource is unbudgeted, it should not be reachable as scratch.
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
         REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
-        REPORTER_ASSERT(reporter, SkBudgeted::kNo == resource->resourcePriv().isBudgeted());
+        REPORTER_ASSERT(reporter, GrBudgetedType::kUnbudgetedCacheable ==
+                                          resource->resourcePriv().budgetedType());
         REPORTER_ASSERT(reporter, nullptr == cache->findAndRefScratchResource(key, TestResource::kDefaultSize, GrResourceCache::ScratchFlags::kNone));
         REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
         REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
@@ -689,7 +690,8 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, resource);
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
         REPORTER_ASSERT(reporter, resource->cacheAccess().isScratch());
-        REPORTER_ASSERT(reporter, SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
+        REPORTER_ASSERT(reporter,
+                        GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType());
 
         if (0 == i) {
             // If made unbudgeted, it should return to original state: ref'ed and unbudgeted. Try
@@ -705,7 +707,8 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
             REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
             REPORTER_ASSERT(reporter, !resource->resourcePriv().getScratchKey().isValid());
             REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
-            REPORTER_ASSERT(reporter, SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
+            REPORTER_ASSERT(reporter,
+                            GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType());
 
             // now when it is unrefed it should die since it has no key.
             resource->unref();
@@ -1451,7 +1454,7 @@ static void test_abandoned(skiatest::Reporter* reporter) {
 
     resource->abandon();
     resource->resourcePriv().getScratchKey();
-    resource->resourcePriv().isBudgeted();
+    resource->resourcePriv().budgetedType();
     resource->resourcePriv().makeBudgeted();
     resource->resourcePriv().makeUnbudgeted();
     resource->resourcePriv().removeScratchKey();

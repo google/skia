@@ -25,8 +25,8 @@ public:
                                              GrMipMapsStatus);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&, GrWrapOwnership,
-                                                 GrIOType, bool purgeImmediately,
-                                                 const GrVkImageInfo&, sk_sp<GrVkImageLayout>);
+                                                 GrWrapCacheable, GrIOType, const GrVkImageInfo&,
+                                                 sk_sp<GrVkImageLayout>);
 
     ~GrVkTexture() override;
 
@@ -62,13 +62,12 @@ protected:
     }
 
 private:
-    enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,
                 sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView,
                 GrMipMapsStatus);
-    GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&, const GrVkImageInfo&,
-                sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView, GrMipMapsStatus,
-                GrBackendObjectOwnership, GrIOType ioType, bool purgeImmediately);
+    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
+                const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable,
+                GrIOType);
 
     void becamePurgeable() override;
 

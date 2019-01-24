@@ -89,7 +89,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fHeight(fTarget->height())
         , fOrigin(origin)
         , fFit(fit)
-        , fBudgeted(fTarget->resourcePriv().isBudgeted())
+        , fBudgeted(fTarget->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted
+                            ? SkBudgeted::kYes
+                            : SkBudgeted::kNo)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)

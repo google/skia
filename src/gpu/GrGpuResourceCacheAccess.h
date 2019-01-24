@@ -26,13 +26,8 @@ private:
      */
     bool isScratch() const {
         return !fResource->getUniqueKey().isValid() && fResource->fScratchKey.isValid() &&
-                SkBudgeted::kYes == fResource->resourcePriv().isBudgeted();
+               GrBudgetedType::kBudgeted == fResource->resourcePriv().budgetedType();
     }
-
-    /**
-     * Even if the resource has a unique key should we still try to purge it as soon as possible.
-     */
-    bool shouldPurgeImmediately() const { return fResource->fShouldPurgeImmediately; }
 
     /**
      * Called by GrResourceCache when a resource becomes purgeable regardless of whether the cache
