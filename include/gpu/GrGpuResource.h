@@ -37,7 +37,7 @@ class SkTraceMemoryDump;
  * morphism using CRTP). Similarly when the ref (but not necessarily pending read/write) count
  * reaches 0 DERIVED::notifyRefCountIsZero() will be called. In the case when an unref() causes both
  * the ref cnt to reach zero and the other counts are zero, notifyRefCountIsZero() will be called
- * before notifyIsPurgeable(). Moreover, if notifyRefCountIsZero() returns false then
+ * before notifyAllCntsAreZero(). Moreover, if notifyRefCountIsZero() returns false then
  * notifyAllRefCntsAreZero() won't be called at all. notifyRefCountIsZero() must return false if the
  * object may be deleted after notifyRefCntIsZero() returns.
  *
@@ -298,7 +298,8 @@ protected:
 
 
 private:
-    bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
+    bool isPurgeable() const;
+    bool hasRefOrPendingIO() const;
 
     /**
      * Called by the registerWithCache if the resource is available to be used as scratch.
@@ -306,7 +307,7 @@ private:
      * resources and populate the scratchKey with the key.
      * By default resources are not recycled as scratch.
      **/
-    virtual void computeScratchKey(GrScratchKey*) const { }
+    virtual void computeScratchKey(GrScratchKey*) const {}
 
     /**
      * Frees the object in the underlying 3D API. Called by CacheAccess.
@@ -316,9 +317,9 @@ private:
     virtual size_t onGpuMemorySize() const = 0;
 
     /**
-     * Called by GrResourceCache when a resource transitions from being unpurgeable to purgeable.
+     * Called by GrResourceCache when a resource loses its last ref or pending IO.
      */
-    virtual void becamePurgeable() {}
+    virtual void removedLastRefOrPendingIO() {}
 
     // See comments in CacheAccess and ResourcePriv.
     void setUniqueKey(const GrUniqueKey&);
