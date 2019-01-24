@@ -30,11 +30,9 @@
 
 #include <hb.h>
 #include <hb-ot.h>
-#include <unicode/brkiter.h>
-#include <unicode/locid.h>
-#include <unicode/stringpiece.h>
+#include <unicode/ubrk.h>
 #include <unicode/ubidi.h>
-#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 #include <unicode/urename.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
@@ -45,11 +43,12 @@
 
 namespace {
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
-using HBBlob   = resource<hb_blob_t  , hb_blob_destroy  >;
-using HBFace   = resource<hb_face_t  , hb_face_destroy  >;
-using HBFont   = resource<hb_font_t  , hb_font_destroy  >;
-using HBBuffer = resource<hb_buffer_t, hb_buffer_destroy>;
-using ICUBiDi  = resource<UBiDi      , ubidi_close      >;
+using HBBlob   = resource<hb_blob_t     , hb_blob_destroy  >;
+using HBFace   = resource<hb_face_t     , hb_face_destroy  >;
+using HBFont   = resource<hb_font_t     , hb_font_destroy  >;
+using HBBuffer = resource<hb_buffer_t   , hb_buffer_destroy>;
+using ICUBiDi  = resource<UBiDi         , ubidi_close      >;
+using ICUBrk   = resource<UBreakIterator, ubrk_close      >;
 
 HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
     size_t size = asset->getLength();
@@ -141,10 +140,21 @@ public:
             SkDebugf("Bidi error: text too long");
             return ret;
         }
-        icu::UnicodeString utf16 = icu::UnicodeString::fromUTF8(icu::StringPiece(utf8, utf8Bytes));
 
         UErrorCode status = U_ZERO_ERROR;
-        ICUBiDi bidi(ubidi_openSized(utf16.length(), 0, &status));
+
+        // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+        int32_t utf16Units;
+        u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
+        status = U_ZERO_ERROR;
+        std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
+        u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
+        if (U_FAILURE(status)) {
+            SkDebugf("Invalid utf8 input: %s", u_errorName(status));
+            return ret;
+        }
+
+        ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
         if (U_FAILURE(status)) {
             SkDebugf("Bidi error: %s", u_errorName(status));
             return ret;
@@ -153,9 +163,7 @@ public:
 
         // The required lifetime of utf16 isn't well documented.
         // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-        ubidi_setPara(bidi.get(),
-                      reinterpret_cast<const UChar*>(utf16.getBuffer()),
-                      utf16.length(), level, nullptr, &status);
+        ubidi_setPara(bidi.get(), utf16.get(), utf16Units, level, nullptr, &status);
         if (U_FAILURE(status)) {
             SkDebugf("Bidi error: %s", u_errorName(status));
             return ret;
@@ -496,7 +504,7 @@ struct SkShaper::Impl {
     HBFont fHarfBuzzFont;
     HBBuffer fBuffer;
     sk_sp<SkTypeface> fTypeface;
-    std::unique_ptr<icu::BreakIterator> fBreakIterator;
+    ICUBrk fBreakIterator;
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
@@ -511,9 +519,8 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
     fImpl->fBuffer.reset(hb_buffer_create());
     SkASSERT(fImpl->fBuffer);
 
-    icu::Locale thai("th");
     UErrorCode status = U_ZERO_ERROR;
-    fImpl->fBreakIterator.reset(icu::BreakIterator::createLineInstance(thai, status));
+    fImpl->fBreakIterator.reset(ubrk_open(UBRK_LINE, "th", nullptr, 0, &status));
     if (U_FAILURE(status)) {
         SkDebugf("Could not create break iterator: %s", u_errorName(status));
         SK_ABORT("");
@@ -570,7 +577,7 @@ SkPoint SkShaper::shape(RunHandler* handler,
     }
     runSegmenter.insert(font);
 
-    icu::BreakIterator& breakIterator = *fImpl->fBreakIterator;
+    UBreakIterator& breakIterator = *fImpl->fBreakIterator;
     {
         UErrorCode status = U_ZERO_ERROR;
         UText utf8UText = UTEXT_INITIALIZER;
@@ -580,7 +587,7 @@ SkPoint SkShaper::shape(RunHandler* handler,
             SkDebugf("Could not create utf8UText: %s", u_errorName(status));
             return point;
         }
-        breakIterator.setText(&utf8UText, status);
+        ubrk_setUText(&breakIterator, &utf8UText, &status);
         //utext_close(&utf8UText);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
@@ -676,11 +683,11 @@ SkPoint SkShaper::shape(RunHandler* handler,
         for (unsigned i = 0; i < len; ++i) {
             ShapedGlyph& glyph = run.fGlyphs[i];
             int32_t glyphCluster = glyph.fCluster + clusterOffset;
-            int32_t breakIteratorCurrent = breakIterator.current();
-            while (breakIteratorCurrent != icu::BreakIterator::DONE &&
+            int32_t breakIteratorCurrent = ubrk_current(&breakIterator);
+            while (breakIteratorCurrent != UBRK_DONE &&
                    breakIteratorCurrent < glyphCluster)
             {
-                breakIteratorCurrent = breakIterator.next();
+                breakIteratorCurrent = ubrk_next(&breakIterator);
             }
             glyph.fMayLineBreakBefore = glyph.fCluster != previousCluster &&
                                         breakIteratorCurrent == glyphCluster;
