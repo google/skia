@@ -139,6 +139,7 @@ public:
 protected:
     void releaseImage(GrVkGpu* gpu);
     void abandonImage();
+    bool hasResource() const { return fResource; }
 
     GrVkImageInfo          fInfo;
     uint32_t               fInitialQueueFamily;

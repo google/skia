@@ -251,6 +251,7 @@ public:
      */
     sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const GrSurfaceDesc&, GrSurfaceOrigin,
                                                               SkBackingFit, SkBudgeted);
+    sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
