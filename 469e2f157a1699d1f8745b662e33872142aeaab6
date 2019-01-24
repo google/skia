@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ea0a20f_a092e8ff",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T21:30:35Z",
+      "side": 1,
+      "message": "resource",
+      "range": {
+        "startLine": 320,
+        "startChar": 81,
+        "endLine": 320,
+        "endChar": 90
+      },
+      "revId": "469e2f157a1699d1f8745b662e33872142aeaab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dbe7241_99c91b3d",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T21:30:35Z",
+      "side": 1,
+      "message": "purgeable",
+      "range": {
+        "startLine": 435,
+        "startChar": 65,
+        "endLine": 435,
+        "endChar": 74
+      },
+      "revId": "469e2f157a1699d1f8745b662e33872142aeaab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d0dbfe7_47c4e92f",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T21:30:35Z",
+      "side": 1,
+      "message": "Assert that budgetedType !\u003d BudgetedType::kUnbudgetedCacheable here ?",
+      "revId": "469e2f157a1699d1f8745b662e33872142aeaab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abeb5a37_ca33ad8d",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T21:30:35Z",
+      "side": 1,
+      "message": "scenario",
+      "range": {
+        "startLine": 524,
+        "startChar": 27,
+        "endLine": 524,
+        "endChar": 37
+      },
+      "revId": "469e2f157a1699d1f8745b662e33872142aeaab6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
