@@ -11,7 +11,8 @@
 
 GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu, bool isOwned)
         : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {
-    isOwned ? this->registerWithCache(SkBudgeted::kNo) : this->registerWithCacheWrapped();
+    isOwned ? this->registerWithCache(SkBudgeted::kNo)
+            : this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 void GrGLSemaphore::onRelease() {

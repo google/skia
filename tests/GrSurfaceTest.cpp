@@ -53,8 +53,8 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
         nullptr, 256, 256, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
 
-    sk_sp<GrSurface> texRT2 =
-            resourceProvider->wrapRenderableBackendTexture(backendTex, 1, kBorrow_GrWrapOwnership);
+    sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
+            backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
@@ -279,7 +279,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                 pixels.addr(), kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kNo);
         auto proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
-                                                       kBorrow_GrWrapOwnership, ioType);
+                                                       kBorrow_GrWrapOwnership,
+                                                       GrWrapCacheable::kNo, ioType);
         auto surfContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
         // Read pixels should work with a read-only texture.
@@ -323,7 +324,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
             backendTex = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                     nullptr, kSize, kSize, kRGBA_8888_SkColorType, true, GrMipMapped::kYes);
             proxy = proxyProvider->wrapBackendTexture(backendTex, kTopLeft_GrSurfaceOrigin,
-                                                      kBorrow_GrWrapOwnership, ioType);
+                                                      kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                                                      ioType);
             context->flush();
             proxy->peekTexture()->texturePriv().markMipMapsDirty();  // avoids assert in GrGpu.
             auto regenResult =
@@ -363,7 +365,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
         auto backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                 nullptr, kS, kS, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
         auto texture = context->contextPriv().resourceProvider()->wrapBackendTexture(
-                backendTexture, kBorrow_GrWrapOwnership, kRW_GrIOType);
+                backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
         installBackendTextureReleaseProc(texture.get());
         return texture;
     };
@@ -372,7 +374,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
         auto backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
                 nullptr, kS, kS, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
         auto texture = context->contextPriv().resourceProvider()->wrapRenderableBackendTexture(
-                backendTexture, 1, kBorrow_GrWrapOwnership);
+                backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
         installBackendTextureReleaseProc(texture.get());
         return texture;
     };

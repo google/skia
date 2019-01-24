@@ -600,8 +600,11 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
                 SkASSERT(deleteImageProc && deleteImageCtx);
 
                 backendTex.fConfig = pixelConfig;
+                // We make this texture cacheable to avoid recreating a GrTexture every time this
+                // is invoked. We know the owning SkIamge will send an invalidation message when the
+                // image is destroyed, so the texture will be removed at that time.
                 sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
-                        backendTex, kBorrow_GrWrapOwnership, kRead_GrIOType);
+                        backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes, kRead_GrIOType);
                 if (!tex) {
                     deleteImageProc(deleteImageCtx);
                     return sk_sp<GrTexture>();

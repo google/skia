@@ -70,7 +70,7 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
     }
 
     auto tmp = proxyProvider->wrapBackendTexture(*backendTex, p.fOrigin, kBorrow_GrWrapOwnership,
-                                                 kRead_GrIOType);
+                                                 GrWrapCacheable::kNo, kRead_GrIOType);
     if (!tmp) {
         return nullptr;
     }

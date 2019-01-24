@@ -42,7 +42,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt > 1);
     this->createFramebuffer(gpu);
-    this->registerWithCacheWrapped();
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -87,7 +87,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(1 == desc.fSampleCnt);
     this->createFramebuffer(gpu);
-    this->registerWithCacheWrapped();
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -125,7 +125,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fFramebuffer(nullptr)
         , fCachedSimpleRenderPass(renderPass)
         , fSecondaryCommandBuffer(secondaryCommandBuffer) {
-    this->registerWithCacheWrapped();
+    this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(

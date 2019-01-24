@@ -113,7 +113,8 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
     backendTex.setPixelConfig(desc.fConfig);
 
     return proxyProvider->wrapBackendTexture(backendTex, kBottomLeft_GrSurfaceOrigin,
-                                             kBorrow_GrWrapOwnership, kRead_GrIOType);
+                                             kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
+                                             kRead_GrIOType);
 }
 
 

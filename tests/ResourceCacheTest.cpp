@@ -223,10 +223,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     context->resetContext();
 
     sk_sp<GrTexture> borrowed(resourceProvider->wrapBackendTexture(
-            backendTextures[0], kBorrow_GrWrapOwnership, kRead_GrIOType));
+            backendTextures[0], kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
 
     sk_sp<GrTexture> adopted(resourceProvider->wrapBackendTexture(
-            backendTextures[1], kAdopt_GrWrapOwnership, kRead_GrIOType));
+            backendTextures[1], kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
@@ -277,8 +277,9 @@ public:
                                        SimulatedProperty property, size_t size = kDefaultSize) {
         return new TestResource(gpu, budgeted, property, kScratchConstructor, size);
     }
-    static TestResource* CreateWrapped(GrGpu* gpu, size_t size = kDefaultSize) {
-        return new TestResource(gpu, size);
+    static TestResource* CreateWrapped(GrGpu* gpu, GrWrapCacheable cacheable,
+                                       size_t size = kDefaultSize) {
+        return new TestResource(gpu, cacheable, size);
     }
 
     ~TestResource() override {
@@ -317,14 +318,14 @@ private:
     }
 
     // Constructor for simulating resources that wrap backend objects.
-    TestResource(GrGpu* gpu, size_t size)
-        : INHERITED(gpu)
-        , fToDelete(nullptr)
-        , fSize(size)
-        , fProperty(kA_SimulatedProperty)
-        , fIsScratch(false) {
+    TestResource(GrGpu* gpu, GrWrapCacheable cacheable, size_t size)
+            : INHERITED(gpu)
+            , fToDelete(nullptr)
+            , fSize(size)
+            , fProperty(kA_SimulatedProperty)
+            , fIsScratch(false) {
         ++fNumAlive;
-        this->registerWithCacheWrapped();
+        this->registerWithCacheWrapped(cacheable);
     }
 
     void computeScratchKey(GrScratchKey* key) const override {
@@ -501,24 +502,33 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                                         10);
     TestResource* unique = new TestResource(gpu, SkBudgeted::kYes, 11);
     unique->resourcePriv().setUniqueKey(uniqueKey);
-    TestResource* wrapped = TestResource::CreateWrapped(gpu, 12);
-    TestResource* unbudgeted = new TestResource(gpu, SkBudgeted::kNo, 13);
+    TestResource* wrappedCacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes, 12);
+    TestResource* wrappedUncacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo, 13);
+    TestResource* unbudgeted = new TestResource(gpu, SkBudgeted::kNo, 14);
 
-    // Make sure we can add a unique key to the wrapped resource
+    // Make sure we can add a unique key to the wrapped resources
     GrUniqueKey uniqueKey2;
     make_unique_key<0>(&uniqueKey2, 1);
-    wrapped->resourcePriv().setUniqueKey(uniqueKey2);
-    GrGpuResource* wrappedViaKey = cache->findAndRefUniqueResource(uniqueKey2);
-    REPORTER_ASSERT(reporter, wrappedViaKey != nullptr);
+    GrUniqueKey uniqueKey3;
+    make_unique_key<0>(&uniqueKey3, 2);
+    wrappedCacheable->resourcePriv().setUniqueKey(uniqueKey2);
+    wrappedUncacheable->resourcePriv().setUniqueKey(uniqueKey3);
+    GrGpuResource* wrappedCacheableViaKey = cache->findAndRefUniqueResource(uniqueKey2);
+    REPORTER_ASSERT(reporter, wrappedCacheableViaKey);
+    GrGpuResource* wrappedUncacheableViaKey = cache->findAndRefUniqueResource(uniqueKey3);
+    REPORTER_ASSERT(reporter, wrappedUncacheableViaKey);
 
-    // Remove the extra ref we just added.
-    wrappedViaKey->unref();
+    // Remove the extra refs we just added.
+    SkSafeUnref(wrappedCacheableViaKey);
+    SkSafeUnref(wrappedUncacheableViaKey);
 
     // Make sure sizes are as we expect
-    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 5 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
-                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
-                              cache->getResourceBytes());
+                                              wrappedCacheable->gpuMemorySize() +
+                                              wrappedUncacheable->gpuMemorySize() +
+                                              unbudgeted->gpuMemorySize() ==
+                                      cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
@@ -526,31 +536,39 @@ static void test_budgeting(skiatest::Reporter* reporter) {
 
     // Our refs mean that the resources are non purgeable.
     cache->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 5 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
-                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
-                              cache->getResourceBytes());
+                                              wrappedCacheable->gpuMemorySize() +
+                                              wrappedUncacheable->gpuMemorySize() +
+                                              unbudgeted->gpuMemorySize() ==
+                                      cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
-    // Unreffing the wrapped resource with a unique key shouldn't free it right away.
-    wrapped->unref();
+    // Unreffing the cacheable wrapped resource with a unique key shouldn't free it right away.
+    // However, unreffing the uncacheable wrapped resource should free it.
+    wrappedCacheable->unref();
+    wrappedUncacheable->unref();
     REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
-                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
-                              cache->getResourceBytes());
+                                              wrappedCacheable->gpuMemorySize() +
+                                              unbudgeted->gpuMemorySize() ==
+                                      cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
-    wrapped = TestResource::CreateWrapped(gpu);
+    wrappedCacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
+    wrappedUncacheable = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
     unique->unref();
     REPORTER_ASSERT(reporter, 23 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
-    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
-                              unbudgeted->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrappedCacheable->gpuMemorySize() +
+                                              wrappedUncacheable->gpuMemorySize() +
+                                              unbudgeted->gpuMemorySize() ==
+                                      cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
@@ -558,15 +576,17 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     scratch->unref();
     REPORTER_ASSERT(reporter, 10 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
-    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
-    REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrapped->gpuMemorySize() ==
-                              cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrappedCacheable->gpuMemorySize() +
+                                              wrappedUncacheable->gpuMemorySize() ==
+                                      cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
-    // Unreffing the wrapped resource (with no unique key) should free it right away.
-    wrapped->unref();
+    // Unreffing the wrapped resources (with no unique key) should free them right away.
+    wrappedUncacheable->unref();
+    wrappedCacheable->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
@@ -630,7 +650,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
-    wrapped = TestResource::CreateWrapped(gpu, large);
+    wrapped = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes, large);
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
@@ -670,7 +690,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         // Since this resource is unbudgeted, it should not be reachable as scratch.
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
         REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
-        REPORTER_ASSERT(reporter, GrBudgetedType::kUnbudgetedCacheable ==
+        REPORTER_ASSERT(reporter, GrBudgetedType::kUnbudgetedUncacheable ==
                                           resource->resourcePriv().budgetedType());
         REPORTER_ASSERT(reporter, nullptr == cache->findAndRefScratchResource(key, TestResource::kDefaultSize, GrResourceCache::ScratchFlags::kNone));
         REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
@@ -1512,28 +1532,41 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     GrResourceCache* cache = mock.cache();
     GrGpu* gpu = context->contextPriv().getGpu();
 
-    TestResource* wrapped1 = TestResource::CreateWrapped(gpu, 12);
+    TestResource* wrapped1 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
     cache->insertCrossContextGpuResource(wrapped1);
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
-    TestResource* wrapped2 = TestResource::CreateWrapped(gpu, 12);
+    TestResource* wrapped2 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kYes);
     cache->insertCrossContextGpuResource(wrapped2);
 
-    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    // An uncacheable cross-context should not be purged as soon as we drop our ref. This
+    // is because inserting it as a cross-context resource actually holds a ref until the
+    // message is received.
+    TestResource* wrapped3 = TestResource::CreateWrapped(gpu, GrWrapCacheable::kNo);
+    cache->insertCrossContextGpuResource(wrapped3);
+
+    REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
     // Have only ref waiting on message.
     wrapped1->unref();
     wrapped2->unref();
+    wrapped3->unref();
 
-    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 3 == TestResource::NumAlive());
 
     // This should free nothing since no messages were sent.
     cache->purgeAsNeeded();
 
     // Send message to free the first resource
-    GrGpuResourceFreedMessage msg { wrapped1, context->uniqueID() };
-    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
+    GrGpuResourceFreedMessage msg1{wrapped1, context->uniqueID()};
+    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg1);
+    cache->purgeAsNeeded();
+
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    GrGpuResourceFreedMessage msg2{wrapped3, context->uniqueID()};
+    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg2);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
