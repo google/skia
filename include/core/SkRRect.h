@@ -126,7 +126,7 @@ public:
         @return  corner radii for simple types
     */
     SkVector getSimpleRadii() const {
-        return fRadii[0];
+        return this->radii(kUpperLeft_Corner);
     }
 
     /** Sets bounds to zero width and height at (0, 0), the origin. Sets
@@ -140,16 +140,7 @@ public:
 
         @param rect  bounds to set
     */
-    void setRect(const SkRect& rect) {
-        if (!this->initializeRect(rect)) {
-            return;
-        }
-
-        memset(fRadii, 0, sizeof(fRadii));
-        fType = kRect_Type;
-
-        SkASSERT(this->isValid());
-    }
+    void setRect(const SkRect& rect);
 
     /** Initializes bounds at (0, 0), the origin, with zero width and height.
         Initializes corner radii to (0, 0), and sets type of kEmpty_Type.
@@ -206,21 +197,7 @@ public:
 
         @param oval  bounds of oval
     */
-    void setOval(const SkRect& oval) {
-        if (!this->initializeRect(oval)) {
-            return;
-        }
-
-        SkScalar xRad = SkScalarHalf(fRect.width());
-        SkScalar yRad = SkScalarHalf(fRect.height());
-
-        for (int i = 0; i < 4; ++i) {
-            fRadii[i].set(xRad, yRad);
-        }
-        fType = kOval_Type;
-
-        SkASSERT(this->isValid());
-    }
+    void setOval(const SkRect& oval);
 
     /** Sets to rounded rectangle with the same radii for all four corners.
         If rect is empty, sets to kEmpty_Type.
@@ -282,6 +259,9 @@ public:
         kLowerLeft_Corner,  //!< index of bottom-left corner radii
     };
 
+    // Experimental
+    void setRectPoints(const SkRect& rect, const SkPoint pts[4]);
+
     /** Returns bounds. Bounds may have zero width or zero height. Bounds right is
         greater than or equal to left; bounds bottom is greater than or equal to top.
         Result is identical to getBounds().
@@ -297,7 +277,7 @@ public:
                        kLowerRight_Corner, kLowerLeft_Corner
         @return        x-axis and y-axis radii for one corner
     */
-    SkVector radii(Corner corner) const { return fRadii[corner]; }
+    SkVector radii(Corner corner) const;
 
     /** Returns bounds. Bounds may have zero width or zero height. Bounds right is
         greater than or equal to left; bounds bottom is greater than or equal to top.
@@ -317,7 +297,7 @@ public:
         @return   true if members are equal
     */
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
-        return a.fRect == b.fRect && SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
+        return a.fRect == b.fRect && SkScalarsEqual(&a.fPts[0].fX, &b.fPts[0].fX, 8);
     }
 
     /** Returns true if bounds and radii in a are not equal to bounds and radii in b.
@@ -330,7 +310,7 @@ public:
         @return   true if members are not equal
     */
     friend bool operator!=(const SkRRect& a, const SkRRect& b) {
-        return a.fRect != b.fRect || !SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
+        return a.fRect != b.fRect || !SkScalarsEqual(&a.fPts[0].fX, &b.fPts[0].fX, 8);
     }
 
     /** Copies SkRRect to dst, then insets dst bounds by dx and dy, and adjusts dst
@@ -421,9 +401,7 @@ public:
         @param dy  offset added to rect().fTop and rect().fBottom
         @return    SkRRect bounds offset by (dx, dy), with unchanged corner radii
     */
-    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const {
-        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
-    }
+    SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const;
 
     /** Returns true if rect is inside the bounds and corner radii, and if
         SkRRect and rect are not empty.
@@ -497,12 +475,14 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
-    static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
-
-    SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
+#if 0
+    SkRRect(const SkRect& rect, const SkPoint pts[4], int32_t type)
         : fRect(rect)
-        , fRadii{radii[0], radii[1], radii[2], radii[3]}
+        , fRadii{pts[0], pts[1], pts[2], pts[3]}
         , fType(type) {}
+#endif
+
+    static bool ComputeType(const SkRect&, const SkPoint[4], Type* outType);
 
     /**
      * Initializes fRect. If the passed in rect is not finite or empty the rrect will be fully
@@ -510,13 +490,16 @@ private:
      */
     bool initializeRect(const SkRect&);
 
+    // Assumes fRect and fPts have been set.
+    // Ensures that the resulting SkRRect is legal and has its type computed
+    void legalize();
+
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
-    void scaleRadii(const SkRect& rect);
 
     SkRect fRect = SkRect::MakeEmpty();
-    // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
-    SkVector fRadii[4] = {{0, 0}, {0, 0}, {0,0}, {0,0}};
+    // Pts order is UL, UR, LR, LL. Use Corner enum to index into fPts[]
+    SkPoint fPts[4] = {{0, 0}, {0, 0}, {0,0}, {0,0}};
     // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
     int32_t fType = kEmpty_Type;
     // TODO: add padding so we can use memcpy for flattening and not copy uninitialized data
