@@ -261,7 +261,8 @@ void GrContext::abandonContext() {
 
 bool GrContext::abandoned() const {
     ASSERT_SINGLE_OWNER
-    return fDrawingManager->wasAbandoned();
+    // If called from ~GrContext(), the drawing manager may already be gone.
+    return !fDrawingManager || fDrawingManager->wasAbandoned();
 }
 
 void GrContext::releaseResourcesAndAbandonContext() {

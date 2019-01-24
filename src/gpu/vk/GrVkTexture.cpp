@@ -120,10 +120,13 @@ GrVkTexture::~GrVkTexture() {
 }
 
 void GrVkTexture::onRelease() {
-    // When there is an idle proc, the Resource will call the proc in releaseImage() so
-    // we clear it here.
-    fIdleProc = nullptr;
-    fIdleProcContext = nullptr;
+    // We're about to be severed from our GrVkResource. If there is an idle proc we have to decide
+    // who will handle it. If the resource is still tied to a command buffer we let it handle it.
+    // Otherwise, we handle it.
+    if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
+        fIdleProc = nullptr;
+        fIdleProcContext = nullptr;
+    }
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
@@ -137,10 +140,14 @@ void GrVkTexture::onRelease() {
 }
 
 void GrVkTexture::onAbandon() {
-    // When there is an idle proc, the Resource will call the proc in abandonImage() so
-    // we clear it here.
-    fIdleProc = nullptr;
-    fIdleProcContext = nullptr;
+    // We're about to be severed from our GrVkResource. If there is an idle proc we have to decide
+    // who will handle it. If the resource is still tied to a command buffer we let it handle it.
+    // Otherwise, we handle it.
+    if (this->hasResource() && this->resource()->isOwnedByCommandBuffer()) {
+        fIdleProc = nullptr;
+        fIdleProcContext = nullptr;
+    }
+
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
         fTextureView->unrefAndAbandon();
@@ -172,19 +179,20 @@ void GrVkTexture::setIdleProc(IdleProc proc, void* context) {
     }
 }
 
-void GrVkTexture::becamePurgeable() {
+void GrVkTexture::removedLastRefOrPendingIO() {
     if (!fIdleProc) {
         return;
     }
     // This is called when the GrTexture is purgeable. However, we need to check whether the
     // Resource is still owned by any command buffers. If it is then it will call the proc.
-    auto* resource = this->resource();
-    SkASSERT(resource);
-    if (resource->isOwnedByCommandBuffer()) {
+    auto* resource = this->hasResource() ? this->resource() : nullptr;
+    if (resource && resource->isOwnedByCommandBuffer()) {
         return;
     }
     fIdleProc(fIdleProcContext);
     fIdleProc = nullptr;
     fIdleProcContext = nullptr;
-    resource->setIdleProc(nullptr, nullptr, nullptr);
+    if (resource) {
+        resource->setIdleProc(nullptr, nullptr, nullptr);
+    }
 }

@@ -219,6 +219,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
     return this->createWrapped(std::move(tex), origin);
 }
 
+sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createWrapped(sk_sp<GrTexture> tex,
+                                                                 GrSurfaceOrigin origin) {
+    return this->createWrapped(std::move(tex), origin);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \

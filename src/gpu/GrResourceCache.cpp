@@ -187,9 +187,6 @@ void GrResourceCache::abandonAll() {
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
-        // If these resources we're relying on a purgeable notification to release something, notify
-        // them now. They aren't in the purgeable queue but they're getting purged anyway.
-        back->cacheAccess().becamePurgeable();
         back->cacheAccess().abandon();
     }
 
@@ -230,9 +227,6 @@ void GrResourceCache::releaseAll() {
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
-        // If these resources we're relying on a purgeable notification to release something, notify
-        // them now. They aren't in the purgeable queue but they're getting purged anyway.
-        back->cacheAccess().becamePurgeable();
         back->cacheAccess().release();
     }
 
@@ -319,11 +313,14 @@ void GrResourceCache::removeUniqueKey(GrGpuResource* resource) {
         fUniqueHash.remove(resource->getUniqueKey());
     }
     resource->cacheAccess().removeUniqueKey();
-
     if (resource->resourcePriv().getScratchKey().isValid()) {
         fScratchMap.insert(resource->resourcePriv().getScratchKey(), resource);
     }
 
+    // Removing a unique key from a kUnbudgetedCacheable resource would make the resource
+    // require purging. However, the resource must be ref'ed to get here and therefore can't
+    // be purgeable. We'll purge it when the refs reach zero.
+    SkASSERT(!resource->resourcePriv().isPurgeable());
     this->validate();
 }
 
@@ -340,7 +337,8 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
                 old->resourcePriv().isPurgeable()) {
                 old->cacheAccess().release();
             } else {
-                this->removeUniqueKey(old);
+                // removeUniqueKey expects an external owner of the resource.
+                this->removeUniqueKey(sk_ref_sp(old).get());
             }
         }
         SkASSERT(nullptr == fUniqueHash.find(newKey));
@@ -412,7 +410,11 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         return;
     }
 
-    SkASSERT(resource->resourcePriv().isPurgeable());
+    if (!resource->resourcePriv().isPurgeable()) {
+        this->validate();
+        return;
+    }
+
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
     resource->cacheAccess().setTimeWhenResourceBecomePurgeable();
@@ -420,35 +422,33 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
 
     bool hasUniqueKey = resource->getUniqueKey().isValid();
 
-    {
-        SkScopeExit notifyPurgeable([resource] { resource->cacheAccess().becamePurgeable(); });
+    GrBudgetedType budgetedType = resource->resourcePriv().budgetedType();
 
-        auto budgetedType = resource->resourcePriv().budgetedType();
-        if (budgetedType == GrBudgetedType::kBudgeted) {
-            // Purge the resource immediately if we're over budget
-            // Also purge if the resource has neither a valid scratch key nor a unique key.
-            bool hasKey = resource->resourcePriv().getScratchKey().isValid() || hasUniqueKey;
-            if (!this->overBudget() && hasKey) {
+    if (budgetedType == GrBudgetedType::kBudgeted) {
+        // Purge the resource immediately if we're over budget
+        // Also purge if the resource has neither a valid scratch key nor a unique key.
+        bool hasKey = resource->resourcePriv().getScratchKey().isValid() || hasUniqueKey;
+        if (!this->overBudget() && hasKey) {
+            return;
+        }
+    } else {
+        // We keep unbudgeted resources with a unique key in the purgeable queue of the cache so
+        // they can be reused again by the image connected to the unique key.
+        if (hasUniqueKey && budgetedType == GrBudgetedType::kUnbudgetedCacheable) {
+            return;
+        }
+        // Check whether this resource could still be used as a scratch resource.
+        if (!resource->resourcePriv().refsWrappedObjects() &&
+            resource->resourcePriv().getScratchKey().isValid()) {
+            // We won't purge an existing resource to make room for this one.
+            if (fBudgetedCount < fMaxCount &&
+                fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes) {
+                resource->resourcePriv().makeBudgeted();
                 return;
-            }
-        } else {
-            // We keep unbudgeted resources with a unique key in the purgable queue of the cache so
-            // they can be reused again by the image connected to the unique key.
-            if (hasUniqueKey && budgetedType == GrBudgetedType::kUnbudgetedCacheable) {
-                return;
-            }
-            // Check whether this resource could still be used as a scratch resource.
-            if (!resource->resourcePriv().refsWrappedObjects() &&
-                resource->resourcePriv().getScratchKey().isValid()) {
-                // We won't purge an existing resource to make room for this one.
-                if (fBudgetedCount < fMaxCount &&
-                    fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes) {
-                    resource->resourcePriv().makeBudgeted();
-                    return;
-                }
             }
         }
     }
+
     SkDEBUGCODE(int beforeCount = this->getResourceCount();)
     resource->cacheAccess().release();
     // We should at least free this resource, perhaps dependent resources as well.
@@ -462,8 +462,12 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
     SkASSERT(this->isInCache(resource));
 
     size_t size = resource->gpuMemorySize();
-
-    if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
+    // Changing from BudgetedType::kUnbudgetedCacheable to another budgeted type could make
+    // resource become purgeable. However, we should never allow that transition. Wrapped
+    // resources are the only resources that can be in that state and they aren't allowed to
+    // transition from one budgeted state to another.
+    SkDEBUGCODE(bool wasPurgeable = resource->resourcePriv().isPurgeable());
+    if (resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
 #if GR_CACHE_STATS
@@ -472,9 +476,11 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 #endif
         this->purgeAsNeeded();
     } else {
+        SkASSERT(resource->resourcePriv().budgetedType() != GrBudgetedType::kUnbudgetedCacheable);
         --fBudgetedCount;
         fBudgetedBytes -= size;
     }
+    SkASSERT(wasPurgeable == resource->resourcePriv().isPurgeable());
     TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
                    fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 

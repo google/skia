@@ -336,7 +336,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
-    GrContext* context;
     static const int kS = 10;
 
     // Helper to delete a backend texture in a GrTexture's release proc.
@@ -415,7 +414,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
             for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
                 sk_gpu_test::GrContextFactory factory;
                 auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
-                context = factory.get(contextType);
+                GrContext* context = factory.get(contextType);
                 if (!context) {
                     continue;
                 }
@@ -517,21 +516,92 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 // the texture it made should be idle.
                 REPORTER_ASSERT(reporter, idleIDs.find(3) != idleIDs.end());
 
-                // Make sure we make the call during various shutdown scenarios.
-                texture = make(context, 4);
-                context->abandonContext();
-                REPORTER_ASSERT(reporter, idleIDs.find(4) != idleIDs.end());
-                factory.destroyContexts();
-                context = factory.get(contextType);
+                // Make sure we make the call during various shutdown scenarios where the texture
+                // might persist after context is destroyed, abandoned, etc. We test three
+                // variations of each scenario. One where the texture is just created. Another,
+                // where the texture has been used in a draw and then the context is flushed. And
+                // one where the the texture was drawn but the context is not flushed.
+                // In each scenario we test holding a ref beyond the context shutdown and not.
 
-                texture = make(context, 5);
-                factory.destroyContexts();
-                REPORTER_ASSERT(reporter, idleIDs.find(5) != idleIDs.end());
-                context = factory.get(contextType);
+                // These tests are difficult to get working with Vulkan. See http://skbug.com/8705
+                // and http://skbug.com/8275
+                GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
+                if (api == GrBackendApi::kVulkan) {
+                    continue;
+                }
+                int id = 4;
+                enum class DrawType {
+                    kNoDraw,
+                    kDraw,
+                    kDrawAndFlush,
+                };
+                for (auto drawType :
+                     {DrawType::kNoDraw, DrawType::kDraw, DrawType::kDrawAndFlush}) {
+                    for (bool unrefFirst : {false, true}) {
+                        auto possiblyDrawAndFlush = [&context, &texture, drawType, unrefFirst] {
+                            if (drawType == DrawType::kNoDraw) {
+                                return;
+                            }
+                            SkImageInfo info = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
+                                                                 kPremul_SkAlphaType);
+                            auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
+                                                                  nullptr);
+                            auto rtc =
+                                    rt->getCanvas()
+                                            ->internal_private_accessTopLayerRenderTargetContext();
+                            auto proxy = context->contextPriv()
+                                                 .proxyProvider()
+                                                 ->testingOnly_createWrapped(
+                                                         texture, kTopLeft_GrSurfaceOrigin);
+                            rtc->drawTexture(GrNoClip(), proxy, GrSamplerState::Filter::kNearest,
+                                             SkPMColor4f(), SkRect::MakeWH(kS, kS),
+                                             SkRect::MakeWH(kS, kS), GrQuadAAFlags::kNone,
+                                             SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+                                             nullptr);
+                            if (drawType == DrawType::kDrawAndFlush) {
+                                context->flush();
+                            }
+                            if (unrefFirst) {
+                                texture.reset();
+                            }
+                        };
+                        texture = make(context, id);
+                        possiblyDrawAndFlush();
+                        context->abandonContext();
+                        texture.reset();
+                        REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
+                        factory.destroyContexts();
+                        context = factory.get(contextType);
+                        ++id;
 
-                texture = make(context, 6);
-                factory.releaseResourcesAndAbandonContexts();
-                REPORTER_ASSERT(reporter, idleIDs.find(6) != idleIDs.end());
+                        // Similar to previous, but reset the texture after the context was
+                        // abandoned and then destroyed.
+                        texture = make(context, id);
+                        possiblyDrawAndFlush();
+                        context->abandonContext();
+                        factory.destroyContexts();
+                        texture.reset();
+                        REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
+                        context = factory.get(contextType);
+                        id++;
+
+                        texture = make(context, id);
+                        possiblyDrawAndFlush();
+                        factory.destroyContexts();
+                        texture.reset();
+                        REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
+                        context = factory.get(contextType);
+                        id++;
+
+                        texture = make(context, id);
+                        possiblyDrawAndFlush();
+                        factory.releaseResourcesAndAbandonContexts();
+                        texture.reset();
+                        REPORTER_ASSERT(reporter, idleIDs.find(id) != idleIDs.end());
+                        context = factory.get(contextType);
+                        id++;
+                    }
+                }
             }
         }
     }

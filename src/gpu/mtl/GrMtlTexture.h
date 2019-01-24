@@ -76,7 +76,7 @@ private:
         fReleaseHelper.reset();
     }
 
-    void becamePurgeable() override {
+    void removedLastRefOrPendingIO() override {
         if (fIdleProc) {
             fIdleProc(fIdleProcContext);
             fIdleProc = nullptr;

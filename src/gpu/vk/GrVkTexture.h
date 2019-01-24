@@ -69,7 +69,7 @@ private:
                 const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable,
                 GrIOType);
 
-    void becamePurgeable() override;
+    void removedLastRefOrPendingIO() override;
 
     const GrVkImageView* fTextureView;
     GrTexture::IdleProc* fIdleProc = nullptr;
