@@ -262,7 +262,7 @@ void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
     if (--fNumCommandBufferOwners || !fIdleProc) {
         return;
     }
-    if (fOwningTexture && !fOwningTexture->resourcePriv().isPurgeable()) {
+    if (fOwningTexture && fOwningTexture->resourcePriv().hasRefOrPendingIO()) {
         return;
     }
     fIdleProc(fIdleProcContext);
