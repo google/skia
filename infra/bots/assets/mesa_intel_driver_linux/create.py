@@ -13,7 +13,7 @@
 import argparse
 import subprocess
 
-DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v1'
+DOCKER_IMAGE='mesa-driver-builder-dogben:latest'
 BUILD_SCRIPT='/opt/build_mesa.sh'
 MESA_VERSION='18.1.7'
 

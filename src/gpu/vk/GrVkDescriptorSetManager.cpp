@@ -114,6 +114,7 @@ void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
 }
 
 void GrVkDescriptorSetManager::abandon() {
+    SK_ABORT("GrVkDescriptorSetManager::abandon");
     fPoolManager.abandonGPUResources();
 
     for (int i = 0; i < fFreeSets.count(); ++i) {
@@ -186,18 +187,14 @@ VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     return flags;
 }
 
-GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
+namespace {
+
+void type1(
         VkDescriptorType type,
         GrVkGpu* gpu,
         const SkTArray<uint32_t>& visibilities,
-        const SkTArray<const GrVkSampler*>& immutableSamplers)
-    : fDescType(type)
-    , fCurrentDescriptorCount(0)
-    , fPool(nullptr) {
-
-
-    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
-        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        const SkTArray<const GrVkSampler*>& immutableSamplers,
+           VkDescriptorSetLayout* descLayout) {
         uint32_t numBindings = visibilities.count();
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
                 new VkDescriptorSetLayoutBinding[numBindings]);
@@ -231,13 +228,16 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
                             CreateDescriptorSetLayout(gpu->device(),
                                                       &dsSamplerLayoutCreateInfo,
                                                       nullptr,
-                                                      &fDescLayout));
-        fDescCountPerSet = visibilities.count();
-    } else {
-        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
-        GR_STATIC_ASSERT(2 == kUniformDescPerSet);
-        SkASSERT(kUniformDescPerSet == visibilities.count());
-        // Create Uniform Buffer Descriptor
+                                                      descLayout));
+}
+
+void type2(
+        VkDescriptorType type,
+        GrVkGpu* gpu,
+        const SkTArray<uint32_t>& visibilities,
+           VkDescriptorSetLayout* descLayout) {
+    static constexpr int kUniformDescPerSet = 2;
+            // Create Uniform Buffer Descriptor
         static const uint32_t bindings[kUniformDescPerSet] =
                 { GrVkUniformHandler::kGeometryBinding, GrVkUniformHandler::kFragBinding };
         VkDescriptorSetLayoutBinding dsUniBindings[kUniformDescPerSet];
@@ -261,7 +261,32 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
         GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateDescriptorSetLayout(gpu->device(),
                                                                           &uniformLayoutCreateInfo,
                                                                           nullptr,
-                                                                          &fDescLayout));
+                                                                          descLayout));
+}
+
+
+
+}  // namespace
+
+GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
+        VkDescriptorType type,
+        GrVkGpu* gpu,
+        const SkTArray<uint32_t>& visibilities,
+        const SkTArray<const GrVkSampler*>& immutableSamplers)
+    : fDescType(type)
+    , fCurrentDescriptorCount(0)
+    , fPool(nullptr) {
+
+
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        type1(type, gpu, visibilities, immutableSamplers, &fDescLayout);
+        fDescCountPerSet = visibilities.count();
+    } else {
+        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
+        GR_STATIC_ASSERT(2 == kUniformDescPerSet);
+        SkASSERT(kUniformDescPerSet == visibilities.count());
+        type2(type, gpu, visibilities, &fDescLayout);
         fDescCountPerSet = kUniformDescPerSet;
     }
 
@@ -324,6 +349,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* 
 }
 
 void GrVkDescriptorSetManager::DescriptorPoolManager::abandonGPUResources() {
+    SK_ABORT("GrVkDescriptorSetManager::DescriptorPoolManager::abandonGPUResources");
     fDescLayout = VK_NULL_HANDLE;
     if (fPool) {
         fPool->unrefAndAbandon();
