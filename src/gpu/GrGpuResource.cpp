@@ -26,15 +26,15 @@ GrGpuResource::GrGpuResource(GrGpu* gpu) : fGpu(gpu), fUniqueID(CreateUniqueID()
 }
 
 void GrGpuResource::registerWithCache(SkBudgeted budgeted) {
-    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable);
+    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedUncacheable);
     fBudgetedType = budgeted == SkBudgeted::kYes ? GrBudgetedType::kBudgeted
-                                                 : GrBudgetedType::kUnbudgetedCacheable;
+                                                 : GrBudgetedType::kUnbudgetedUncacheable;
     this->computeScratchKey(&fScratchKey);
     get_resource_cache(fGpu)->resourceAccess().insertResource(this);
 }
 
 void GrGpuResource::registerWithCacheWrapped(GrWrapCacheable wrapType) {
-    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable);
+    SkASSERT(fBudgetedType == GrBudgetedType::kUnbudgetedUncacheable);
     // Resources referencing wrapped objects are never budgeted. They may be cached or uncached.
     fBudgetedType = wrapType == GrWrapCacheable::kNo ? GrBudgetedType::kUnbudgetedUncacheable
                                                      : GrBudgetedType::kUnbudgetedCacheable;
@@ -188,9 +188,9 @@ void GrGpuResource::removeScratchKey() {
 void GrGpuResource::makeBudgeted() {
     // We should never make a wrapped resource budgeted.
     SkASSERT(!fRefsWrappedObjects);
-    // Only wrapped resources can be in the kUnbudgetedUncacheable state.
-    SkASSERT(fBudgetedType != GrBudgetedType::kUnbudgetedUncacheable);
-    if (!this->wasDestroyed() && fBudgetedType == GrBudgetedType::kUnbudgetedCacheable) {
+    // Only wrapped resources can be in the kUnbudgetedCacheable state.
+    SkASSERT(fBudgetedType != GrBudgetedType::kUnbudgetedCacheable);
+    if (!this->wasDestroyed() && fBudgetedType == GrBudgetedType::kUnbudgetedUncacheable) {
         // Currently resources referencing wrapped objects are not budgeted.
         fBudgetedType = GrBudgetedType::kBudgeted;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
@@ -200,7 +200,7 @@ void GrGpuResource::makeBudgeted() {
 void GrGpuResource::makeUnbudgeted() {
     if (!this->wasDestroyed() && fBudgetedType == GrBudgetedType::kBudgeted &&
         !fUniqueKey.isValid()) {
-        fBudgetedType = GrBudgetedType::kUnbudgetedCacheable;
+        fBudgetedType = GrBudgetedType::kUnbudgetedUncacheable;
         get_resource_cache(fGpu)->resourceAccess().didChangeBudgetStatus(this);
     }
 }

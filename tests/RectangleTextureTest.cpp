@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         }
 
         sk_sp<GrTextureProxy> rectProxy = proxyProvider->wrapBackendTexture(
-                rectangleTex, origin, kBorrow_GrWrapOwnership, kRW_GrIOType);
+                rectangleTex, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
 
         if (!rectProxy) {
             ERRORF(reporter, "Error creating proxy for rectangle texture.");

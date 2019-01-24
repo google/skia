@@ -997,7 +997,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     GrXferProcessor::DstProxy fakeDstProxy;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
-                backendTex, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership, kRead_GrIOType);
+                backendTex, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                kRead_GrIOType);
         fakeDstProxy.setProxy(std::move(proxy));
     }
 
