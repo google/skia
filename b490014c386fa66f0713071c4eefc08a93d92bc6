@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fbf5dcfa_2ae7bfbf",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-24T21:00:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d6040f8_90b02c41",
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9597ed1_0bbe909f",
         "filename": "src/gpu/GrGpuResource.cpp",
         "patchSetId": 6
@@ -77,6 +95,30 @@
       "writtenOn": "2019-01-24T20:46:41Z",
       "side": 1,
       "message": "// Why is this here ?",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 29
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c49b587_4b7ce6a2",
+        "filename": "src/gpu/GrGpuResource.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-24T21:00:12Z",
+      "side": 1,
+      "message": "TBH, I\u0027m not sure. The only caller is when we\u0027re fulfilling a scratch request. By definition that can\u0027t have a unique key, since the scratch key is ignored in that case. I think I\u0027ll leave that for another change.",
+      "parentUuid": "b9597ed1_0bbe909f",
       "range": {
         "startLine": 202,
         "startChar": 8,
@@ -112,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "ac372fef_f93a26fc",
+        "filename": "src/gpu/GrGpuResourcePriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-24T21:00:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbd64b1e_79b53123",
+      "range": {
+        "startLine": 46,
+        "startChar": 15,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae01b28a_d5b609d7",
         "filename": "src/gpu/GrResourceAllocator.cpp",
         "patchSetId": 6
@@ -135,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "b9037778_843d44b3",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-24T21:00:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae01b28a_d5b609d7",
+      "range": {
+        "startLine": 271,
+        "startChar": 50,
+        "endLine": 271,
+        "endChar": 58
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e849d89_e7b37746",
         "filename": "src/gpu/vk/GrVkTexture.h",
         "patchSetId": 6
@@ -155,6 +245,30 @@
       "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3219186e_0f3abf46",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-24T21:00:12Z",
+      "side": 1,
+      "message": "accident, removed",
+      "parentUuid": "0e849d89_e7b37746",
+      "range": {
+        "startLine": 69,
+        "startChar": 80,
+        "endLine": 69,
+        "endChar": 89
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
