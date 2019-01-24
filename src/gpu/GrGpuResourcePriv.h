@@ -43,12 +43,13 @@ public:
     void makeUnbudgeted() { fResource->makeUnbudgeted(); }
 
     /**
-     * Does the resource count against the resource budget?
+     * Get the resource's budgeted-type which indicates whether it counts against the resource cache
+     * budget and if not whether it is allowed to be cached.
      */
-    SkBudgeted isBudgeted() const {
-        bool ret = SkBudgeted::kYes == fResource->fBudgeted;
-        SkASSERT(ret || !fResource->getUniqueKey().isValid() || fResource->fRefsWrappedObjects);
-        return SkBudgeted(ret);
+    GrBudgetedType budgetedType() const {
+        SkASSERT(GrBudgetedType::kBudgeted == fResource->fBudgetedType ||
+                 !fResource->getUniqueKey().isValid() || fResource->fRefsWrappedObjects);
+        return fResource->fBudgetedType;
     }
 
     /**

@@ -266,9 +266,9 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     sk_sp<GrSurface> surface(fFreePool.findAndRemove(key, filter));
     if (surface) {
         if (SkBudgeted::kYes == proxy->isBudgeted() &&
-            SkBudgeted::kNo == surface->resourcePriv().isBudgeted()) {
+            GrBudgetedType::kBudgeted != surface->resourcePriv().budgetedType()) {
             // This gets the job done but isn't quite correct. It would be better to try to
-            // match budgeted proxies w/ budgeted surface and unbudgeted w/ unbudgeted.
+            // match budgeted proxies w/ budgeted surfaces and unbudgeted w/ unbudgeted.
             surface->resourcePriv().makeBudgeted();
         }
 

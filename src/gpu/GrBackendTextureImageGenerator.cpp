@@ -167,8 +167,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     // informs us that the context is done with it. This is unfortunate - we'll have
                     // two texture objects referencing the same GPU object. However, no client can
                     // ever see the original texture, so this should be safe.
+                    // We make the texture uncacheable so that the release proc is called ASAP.
                     tex = resourceProvider->wrapBackendTexture(
-                            backendTexture, kBorrow_GrWrapOwnership, kRead_GrIOType, true);
+                            backendTexture, kBorrow_GrWrapOwnership, kRead_GrIOType,
+                            GrWrapCacheable::kNo);
                     if (!tex) {
                         return sk_sp<GrTexture>();
                     }
