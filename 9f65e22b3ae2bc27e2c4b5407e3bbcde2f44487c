@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f7f2eec_499af911",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-24T16:37:12Z",
+      "side": 1,
+      "message": "side note... i thought we had to do this with memcmp to avoid things like NaN !\u003d NaN?  I guess if we\u0027re here we\u0027d better not have a NaN?",
+      "range": {
+        "startLine": 79,
+        "startChar": 7,
+        "endLine": 81,
+        "endChar": 9
+      },
+      "revId": "9f65e22b3ae2bc27e2c4b5407e3bbcde2f44487c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2416135_e9c887a3",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-24T16:37:12Z",
+      "side": 1,
+      "message": "(There\u0027s no reason anymore we can\u0027t fold this one through too.)",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 2
+      },
+      "revId": "9f65e22b3ae2bc27e2c4b5407e3bbcde2f44487c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2648b11_afdabe38",
+        "filename": "tests/ParametricStageTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-24T16:37:12Z",
+      "side": 1,
+      "message": "sad alignment :(",
+      "range": {
+        "startLine": 31,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 39
+      },
+      "revId": "9f65e22b3ae2bc27e2c4b5407e3bbcde2f44487c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
