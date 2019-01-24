@@ -152,7 +152,7 @@ private:
     SkISize onISize() override { return SkISize::Make(800, 800); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* ctx = canvas->getGrContext();
+        auto ctx = canvas->getGrContext();
         if (!ctx) {
             DrawGpuOnlyMessage(canvas);
             return;

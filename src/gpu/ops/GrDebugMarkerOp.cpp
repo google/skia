@@ -14,10 +14,10 @@
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 
-std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrRecordingContext* context,
                                             GrRenderTargetProxy* proxy,
                                             const SkString& str) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrDebugMarkerOp>(proxy, str);
 }

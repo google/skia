@@ -1661,9 +1661,9 @@ GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetCont
     return dev ? dev->accessRenderTargetContext() : nullptr;
 }
 
-GrContext* SkCanvas::getGrContext() {
+GrRecordingContext* SkCanvas::getGrContext() {
     SkBaseDevice* device = this->getTopDevice();
-    return device ? device->context() : nullptr;
+    return device ? device->context12() : nullptr;
 }
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,

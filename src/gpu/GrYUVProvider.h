@@ -13,7 +13,7 @@
 #include "SkYUVAIndex.h"
 #include "SkYUVASizeInfo.h"
 
-class GrContext;
+class GrRecordingContext;
 class GrBackendFormat;
 struct GrSurfaceDesc;
 class GrTexture;
@@ -41,7 +41,7 @@ public:
      *
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
-    sk_sp<GrTextureProxy> refAsTextureProxy(GrContext*,
+    sk_sp<GrTextureProxy> refAsTextureProxy(GrRecordingContext*,
                                             const GrBackendFormat&,
                                             const GrSurfaceDesc&,
                                             SkColorSpace* srcColorSpace,
