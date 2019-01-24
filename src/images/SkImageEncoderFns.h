@@ -167,12 +167,10 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
         return nullptr;
     }
 
-    SkColorSpaceTransferFn fn;
+    skcms_TransferFunction fn;
     skcms_Matrix3x3 toXYZD50;
     if (cs->isNumericalTransferFn(&fn) && cs->toXYZD50(&toXYZD50)) {
-        SkMatrix44 m44;
-        m44.set3x3RowMajorf(&toXYZD50.vals[0][0]);
-        return SkICC::WriteToICC(fn, m44);
+        return SkWriteICCProfile(fn, toXYZD50);
     }
     return nullptr;
 }

@@ -31,49 +31,49 @@ static inline bool transfer_fn_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
 }
 
-static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
-    if (SkScalarIsNaN(coeffs.fA) || SkScalarIsNaN(coeffs.fB) ||
-        SkScalarIsNaN(coeffs.fC) || SkScalarIsNaN(coeffs.fD) ||
-        SkScalarIsNaN(coeffs.fE) || SkScalarIsNaN(coeffs.fF) ||
-        SkScalarIsNaN(coeffs.fG))
+static inline bool is_valid_transfer_fn(const skcms_TransferFunction& coeffs) {
+    if (SkScalarIsNaN(coeffs.a) || SkScalarIsNaN(coeffs.b) ||
+        SkScalarIsNaN(coeffs.c) || SkScalarIsNaN(coeffs.d) ||
+        SkScalarIsNaN(coeffs.e) || SkScalarIsNaN(coeffs.f) ||
+        SkScalarIsNaN(coeffs.g))
     {
         return false;
     }
 
-    if (coeffs.fD < 0.0f) {
+    if (coeffs.d < 0.0f) {
         return false;
     }
 
-    if (coeffs.fD == 0.0f) {
+    if (coeffs.d == 0.0f) {
         // Y = (aX + b)^g + e  for always
-        if (0.0f == coeffs.fA || 0.0f == coeffs.fG) {
+        if (0.0f == coeffs.a || 0.0f == coeffs.g) {
             SkColorSpacePrintf("A or G is zero, constant transfer function "
                                "is nonsense");
             return false;
         }
     }
 
-    if (coeffs.fD >= 1.0f) {
+    if (coeffs.d >= 1.0f) {
         // Y = cX + f          for always
-        if (0.0f == coeffs.fC) {
+        if (0.0f == coeffs.c) {
             SkColorSpacePrintf("C is zero, constant transfer function is "
                                "nonsense");
             return false;
         }
     }
 
-    if ((0.0f == coeffs.fA || 0.0f == coeffs.fG) && 0.0f == coeffs.fC) {
+    if ((0.0f == coeffs.a || 0.0f == coeffs.g) && 0.0f == coeffs.c) {
         SkColorSpacePrintf("A or G, and C are zero, constant transfer function "
                            "is nonsense");
         return false;
     }
 
-    if (coeffs.fC < 0.0f) {
+    if (coeffs.c < 0.0f) {
         SkColorSpacePrintf("Transfer function must be increasing");
         return false;
     }
 
-    if (coeffs.fA < 0.0f || coeffs.fG < 0.0f) {
+    if (coeffs.a < 0.0f || coeffs.g < 0.0f) {
         SkColorSpacePrintf("Transfer function must be positive or increasing");
         return false;
     }

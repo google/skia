@@ -68,9 +68,9 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
     if (!dstCS) {
         // In legacy draws this effect approximately linearizes by squaring.
         // When non-legacy, we're already (better) linearized.
-        auto square = alloc->make<SkRasterPipeline_ParametricTransferFunction>();
-        square->G = 2.0f; square->A = 1.0f;
-        square->B = square->C = square->D = square->E = square->F = 0;
+        auto square = alloc->make<skcms_TransferFunction>();
+        square->g = 2.0f; square->a = 1.0f;
+        square->b = square->c = square->d = square->e = square->f = 0;
 
         p->append(SkRasterPipeline::parametric, square);
     }
@@ -115,9 +115,9 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
 
     if (!dstCS) {
         // See the previous if(!dstCS) { ... }
-        auto sqrt = alloc->make<SkRasterPipeline_ParametricTransferFunction>();
-        sqrt->G = 0.5f; sqrt->A = 1.0f;
-        sqrt->B = sqrt->C = sqrt->D = sqrt->E = sqrt->F = 0;
+        auto sqrt = alloc->make<skcms_TransferFunction>();
+        sqrt->g = 0.5f; sqrt->a = 1.0f;
+        sqrt->b = sqrt->c = sqrt->d = sqrt->e = sqrt->f = 0;
 
         p->append(SkRasterPipeline::parametric, sqrt);
     }
