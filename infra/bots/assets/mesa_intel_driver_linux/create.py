@@ -13,9 +13,9 @@
 import argparse
 import subprocess
 
-DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v1'
+DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v2'
 BUILD_SCRIPT='/opt/build_mesa.sh'
-MESA_VERSION='18.1.7'
+MESA_VERSION='18.3.2'
 
 
 def create_asset(target_dir):
