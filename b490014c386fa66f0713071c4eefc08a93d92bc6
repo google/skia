@@ -22,6 +22,139 @@
       "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff6a6fe6_115d1d52",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "Yeah. Maybe: GrIsWrappedResourceCacheable, GrIsWrappedCacheable - dunno.",
+      "parentUuid": "ded8cf30_8c24c660",
+      "range": {
+        "startLine": 200,
+        "startChar": 11,
+        "endLine": 200,
+        "endChar": 26
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d6040f8_90b02c41",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "// It is marked uncacheable bc ...\n\n?",
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9597ed1_0bbe909f",
+        "filename": "src/gpu/GrGpuResource.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "// Why is this here ?",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 202,
+        "endChar": 29
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbd64b1e_79b53123",
+        "filename": "src/gpu/GrGpuResourcePriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "resource\u0027s ?",
+      "range": {
+        "startLine": 46,
+        "startChar": 15,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae01b28a_d5b609d7",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "surfaces ?",
+      "range": {
+        "startLine": 271,
+        "startChar": 50,
+        "endLine": 271,
+        "endChar": 58
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e849d89_e7b37746",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T20:46:41Z",
+      "side": 1,
+      "message": "why add this ?",
+      "range": {
+        "startLine": 69,
+        "startChar": 80,
+        "endLine": 69,
+        "endChar": 89
+      },
+      "revId": "b490014c386fa66f0713071c4eefc08a93d92bc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
