@@ -45,13 +45,13 @@ public:
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrColorSpaceXform* colorSpaceXform) {
         if (this->applySrcTF()) {
-            pdman.set1fv(fSrcTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.srcTF.fG);
+            pdman.set1fv(fSrcTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.srcTF.g);
         }
         if (this->applyGamutXform()) {
             pdman.setMatrix3f(fGamutXformVar, colorSpaceXform->fSteps.src_to_dst_matrix);
         }
         if (this->applyDstTF()) {
-            pdman.set1fv(fDstTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.dstTFInv.fG);
+            pdman.set1fv(fDstTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.dstTFInv.g);
         }
     }
 

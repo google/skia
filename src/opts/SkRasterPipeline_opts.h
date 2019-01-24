@@ -1532,13 +1532,13 @@ SI F apply_sign(F x, U32 sign) {
     return bit_cast<F>(sign | bit_cast<U32>(x));
 }
 
-STAGE(parametric, const SkRasterPipeline_ParametricTransferFunction* ctx) {
+STAGE(parametric, const skcms_TransferFunction* ctx) {
     auto fn = [&](F v) {
         U32 sign;
         v = strip_sign(v, &sign);
 
-        F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
-                                      , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
+        F r = if_then_else(v <= ctx->d, mad(ctx->c, v, ctx->f)
+                                      , approx_powf(mad(ctx->a, v, ctx->b), ctx->g) + ctx->e);
         return apply_sign(r, sign);
     };
     r = fn(r);
