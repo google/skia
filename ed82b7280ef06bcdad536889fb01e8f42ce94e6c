@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3338cedb_4b7ea6d8",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-24T17:00:00Z",
+      "side": 1,
+      "message": "Do you know if single-scalar-value construction is supported for non-square matrices? I checked the specs and they\u0027re pretty silent on the issue.",
+      "revId": "ed82b7280ef06bcdad536889fb01e8f42ce94e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d56410a2_eb3928c1",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-24T17:00:00Z",
+      "side": 1,
+      "message": "nit: Do you have to construct matrices from vectors in metal? Or can you just do float2x2(0,1,2,3)?",
+      "revId": "ed82b7280ef06bcdad536889fb01e8f42ce94e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
