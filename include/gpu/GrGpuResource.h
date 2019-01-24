@@ -229,16 +229,6 @@ public:
     inline const ResourcePriv resourcePriv() const;
 
     /**
-     * Removes references to objects in the underlying 3D API without freeing them.
-     * Called by CacheAccess.
-     * In general this method should not be called outside of skia. It was
-     * made by public for a special case where it needs to be called in Blink
-     * when a texture becomes unsafe to use after having been shared through
-     * a texture mailbox.
-     */
-    void abandon();
-
-    /**
      * Dumps memory usage information for this GrGpuResource to traceMemoryDump.
      * Typically, subclasses should not need to override this, and should only
      * need to override setMemoryBacking.
@@ -308,6 +298,12 @@ private:
      * By default resources are not recycled as scratch.
      **/
     virtual void computeScratchKey(GrScratchKey*) const {}
+
+    /**
+     * Removes references to objects in the underlying 3D API without freeing them.
+     * Called by CacheAccess.
+     */
+    void abandon();
 
     /**
      * Frees the object in the underlying 3D API. Called by CacheAccess.

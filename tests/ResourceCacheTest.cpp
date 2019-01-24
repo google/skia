@@ -1485,7 +1485,6 @@ static void test_abandoned(skiatest::Reporter* reporter) {
     resource->gpuMemorySize();
     resource->getContext();
 
-    resource->abandon();
     resource->resourcePriv().getScratchKey();
     resource->resourcePriv().budgetedType();
     resource->resourcePriv().makeBudgeted();

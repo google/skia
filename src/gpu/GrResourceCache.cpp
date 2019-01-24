@@ -180,7 +180,7 @@ void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
     for (int i = 0; i < fResourcesWaitingForFreeMsg.count(); ++i) {
-        fResourcesWaitingForFreeMsg[i]->abandon();
+        fResourcesWaitingForFreeMsg[i]->cacheAccess().abandon();
     }
     fResourcesWaitingForFreeMsg.reset();
 

@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
-#include "GrCaps.h"
-#include "GrGpu.h"
-#include "GrResourceKey.h"
-#include "GrRenderTarget.h"
-#include "GrSurfacePriv.h"
 #include "GrTexture.h"
+#include "GrCaps.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrGpu.h"
+#include "GrRenderTarget.h"
+#include "GrResourceKey.h"
+#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkMath.h"
@@ -45,7 +46,7 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrTextureType textur
     }
 }
 
-bool GrTexture::StealBackendTexture(sk_sp<GrTexture>&& texture,
+bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
                                     GrBackendTexture* backendTexture,
                                     SkImage::BackendTextureReleaseProc* releaseProc) {
     if (!texture->surfacePriv().hasUniqueRef() || texture->surfacePriv().hasPendingIO()) {
@@ -55,12 +56,23 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture>&& texture,
     if (!texture->onStealBackendTexture(backendTexture, releaseProc)) {
         return false;
     }
-
-    // Release any not-stolen data being held by this class.
-    texture->onRelease();
-    // Abandon the GrTexture so it can't be re-used.
-    texture->abandon();
-
+#ifdef SK_DEBUG
+    GrResourceCache* cache = texture->getContext()->contextPriv().getResourceCache();
+    int preCount = cache->getResourceCount();
+#endif
+    // Ensure that the texture will be released by the cache when we drop the last ref.
+    // A texture that has no refs and no keys should be immediately removed.
+    if (texture->getUniqueKey().isValid()) {
+        texture->resourcePriv().removeUniqueKey();
+    }
+    if (texture->resourcePriv().getScratchKey().isValid()) {
+        texture->resourcePriv().removeScratchKey();
+    }
+#ifdef SK_DEBUG
+    texture.reset();
+    int postCount = cache->getResourceCount();
+    SkASSERT(postCount < preCount);
+#endif
     return true;
 }
 

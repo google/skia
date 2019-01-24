@@ -39,7 +39,7 @@ public:
      * Note that if the GrTexture is not uniquely owned (no other refs), or has pending IO, this
      * function will fail.
      */
-    static bool StealBackendTexture(sk_sp<GrTexture>&&,
+    static bool StealBackendTexture(sk_sp<GrTexture>,
                                     GrBackendTexture*,
                                     SkImage::BackendTextureReleaseProc*);
 
