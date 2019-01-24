@@ -169,8 +169,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     // ever see the original texture, so this should be safe.
                     // We make the texture uncacheable so that the release proc is called ASAP.
                     tex = resourceProvider->wrapBackendTexture(
-                            backendTexture, kBorrow_GrWrapOwnership, kRead_GrIOType,
-                            GrWrapCacheable::kNo);
+                            backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                            kRead_GrIOType);
                     if (!tex) {
                         return sk_sp<GrTexture>();
                     }
