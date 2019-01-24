@@ -93,6 +93,17 @@ void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
     this->setMemoryBacking(traceMemoryDump, resourceName);
 }
 
+bool GrGpuResource::isPurgeable() const {
+    // Resources in the kUnbudgetedCacheable state are never purgeable when they have a unique
+    // key. The key must be removed/invalidated to make them purgeable.
+    return !this->hasRefOrPendingIO() &&
+           !(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable && fUniqueKey.isValid());
+}
+
+bool GrGpuResource::hasRefOrPendingIO() const {
+    return this->internalHasRef() || this->internalHasPendingIO();
+}
+
 SkString GrGpuResource::getResourceName() const {
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString resourceName("skia/gpu_resources/resource_");
@@ -145,6 +156,8 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
 }
 
 void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
+    GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
+    mutableThis->removedLastRefOrPendingIO();
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
         delete this;
@@ -154,7 +167,6 @@ void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     // We should have already handled this fully in notifyRefCntIsZero().
     SkASSERT(kRef_CntType != lastCntTypeToReachZero);
 
-    GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     static const uint32_t kFlag =
         GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, kFlag);
@@ -170,6 +182,7 @@ bool GrGpuResource::notifyRefCountIsZero() const {
     uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
     if (!this->internalHasPendingIO()) {
         flags |= GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
+        mutableThis->removedLastRefOrPendingIO();
     }
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, flags);
 

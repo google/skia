@@ -72,6 +72,8 @@ public:
 
     bool isPurgeable() const { return fResource->isPurgeable(); }
 
+    bool hasRefOrPendingIO() const { return fResource->hasRefOrPendingIO(); }
+
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}
