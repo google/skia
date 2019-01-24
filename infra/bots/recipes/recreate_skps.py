@@ -86,7 +86,8 @@ def RunSteps(api):
   if 'Canary' not in api.properties['buildername']:
     cmd = ['python',
            skia_dir.join('infra', 'bots', 'upload_skps.py'),
-           '--target_dir', output_dir]
+           '--target_dir', output_dir,
+           '--chromium_path', src_dir]
     with api.context(cwd=skia_dir, env=api.infra.go_env):
       api.run(api.step, 'Upload SKPs', cmd=cmd)
 
