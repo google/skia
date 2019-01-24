@@ -1,0 +1,41 @@
+{
+   "MaxCount": 32,
+   "Rate": 1,
+   "Life": {
+      "min": 20.000000,
+      "max": 20.000000
+   },
+   "StartColor": [ 1.000000, 1.000000, 1.000000, 1.000000 ],
+   "EndColor": [ 1.000000, 1.000000, 1.000000, 0.250980 ],
+   "Velocity": {
+      "Angle": 5.410521,
+      "Spread": 0.523599,
+      "Strength": {
+         "min": 140.000000,
+         "max": 200.000000
+      },
+      "Bidirectional": false,
+      "Spin": {
+         "min": 0.200000,
+         "max": 0.000000
+      },
+      "BidirectionalSpin": false
+   },
+   "Image": "images/baby_tux.png",
+   "ImageCols": 1,
+   "ImageRows": 1,
+   "Emitter": {
+      "Type": "SkLineEmitter",
+      "P1": { "x": 0.000000, "y": 0.000000 },
+      "P2": { "x": 0.000000, "y": 0.000000 }
+   },
+   "Affectors": [
+      {
+         "Type": "SkDirectionalForceAffector",
+         "Force": { "x": 0.000000, "y": 50.000000 }
+      },
+      {
+         "Type": "SkOrientAlongVelocityAffector"
+      }
+   ]
+}
