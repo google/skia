@@ -9,10 +9,10 @@
 #define Window_mac_DEFINED
 
 #include "../Window.h"
-#include "SkChecksum.h"
-#include "SkTDynamicHash.h"
+//#include "SkChecksum.h"
+//#include "SkTDynamicHash.h"
 
-#include "SDL.h"
+#import <Cocoa/Cocoa.h>
 
 namespace sk_app {
 
@@ -20,11 +20,13 @@ class Window_mac : public Window {
 public:
     Window_mac()
             : INHERITED()
-            , fWindow(nullptr)
-            , fWindowID(0)
-            , fGLContext(nullptr)
+            , fWindow(nil)
+            , fMainView(nil)
             , fMSAASampleCount(1) {}
-    ~Window_mac() override { this->closeWindow(); }
+    ~Window_mac() override {
+        [fWindow release];
+        [fMainView release];
+    }
 
     bool initWindow();
 
@@ -35,26 +37,11 @@ public:
 
     void onInval() override;
 
-    static bool HandleWindowEvent(const SDL_Event& event);
-
-    static const Uint32& GetKey(const Window_mac& w) {
-        return w.fWindowID;
-    }
-
-    static uint32_t Hash(const Uint32& winID) {
-        return winID;
-    }
-
 private:
-    bool handleEvent(const SDL_Event& event);
-
     void closeWindow();
 
-    static SkTDynamicHash<Window_mac, Uint32> gWindowMap;
-
-    SDL_Window*   fWindow;
-    Uint32        fWindowID;
-    SDL_GLContext fGLContext;
+    NSWindow*    fWindow;
+    NSView*      fMainView;  // can be stored as Window's content view later
 
     int          fMSAASampleCount;
 
