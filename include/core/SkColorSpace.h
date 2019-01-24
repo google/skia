@@ -124,13 +124,6 @@ public:
      */
     static sk_sp<SkColorSpace> MakeSRGBLinear();
 
-    // DEPRECATED
-    // Keeping this around until Android stops using it.
-    enum Gamut {
-        kSRGB_Gamut,
-        kDCIP3_D65_Gamut,
-    };
-
     /**
      *  Create an SkColorSpace from a transfer function and a row-major 3x3 transformation to XYZ.
      */
