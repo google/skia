@@ -46,7 +46,8 @@ GrVkSemaphore::GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitS
                              bool prohibitWait, bool isOwned)
         : INHERITED(gpu) {
     fResource = new Resource(semaphore, prohibitSignal, prohibitWait, isOwned);
-    isOwned ? this->registerWithCache(SkBudgeted::kNo) : this->registerWithCacheWrapped();
+    isOwned ? this->registerWithCache(SkBudgeted::kNo)
+            : this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
 void GrVkSemaphore::onRelease() {
