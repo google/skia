@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed30967b_aebe1598",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T19:41:31Z",
+      "side": 1,
+      "message": "except ?",
+      "range": {
+        "startLine": 9,
+        "startChar": 53,
+        "endLine": 9,
+        "endChar": 59
+      },
+      "revId": "6050022a2cf6c96a7dbeaf722ae30bef801a8fc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07a94f8c_d071f18a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T19:41:31Z",
+      "side": 1,
+      "message": "except ?",
+      "range": {
+        "startLine": 15,
+        "startChar": 53,
+        "endLine": 15,
+        "endChar": 59
+      },
+      "revId": "6050022a2cf6c96a7dbeaf722ae30bef801a8fc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "099133e0_5ae0900d",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-24T19:41:31Z",
+      "side": 1,
+      "message": "// These wrapped textures are marked as cacheable because:\n//   1) we will look for them again and\n//   2) we will, later, invalidate the unique key to explicitly remove them from the cache\n\n?",
+      "revId": "6050022a2cf6c96a7dbeaf722ae30bef801a8fc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
