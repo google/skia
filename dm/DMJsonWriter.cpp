@@ -9,11 +9,14 @@
 
 #include "ProcStats.h"
 #include "SkCommonFlags.h"
+#include "SkData.h"
+#include "SkJSONCPP.h"
 #include "SkJSONWriter.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkTArray.h"
 
 namespace DM {
 
@@ -111,6 +114,38 @@ void JsonWriter::DumpJson() {
     writer.endObject(); // root
     writer.flush();
     stream.flush();
+}
+
+bool JsonWriter::ReadJson(const char* path, void(*callback)(BitmapResult)) {
+    sk_sp<SkData> json(SkData::MakeFromFileName(path));
+    if (!json) {
+        return false;
+    }
+
+    Json::Reader reader;
+    Json::Value root;
+    const char* data = (const char*)json->data();
+    if (!reader.parse(data, data+json->size(), root)) {
+        return false;
+    }
+
+    const Json::Value& results = root["results"];
+    BitmapResult br;
+    for (unsigned i = 0; i < results.size(); i++) {
+        const Json::Value& r = results[i];
+        br.name         = r["key"]["name"].asCString();
+        br.config       = r["key"]["config"].asCString();
+        br.sourceType   = r["key"]["source_type"].asCString();
+        br.ext          = r["options"]["ext"].asCString();
+        br.gammaCorrect = 0 == strcmp("yes", r["options"]["gamma_correct"].asCString());
+        br.md5          = r["md5"].asCString();
+
+        if (!r["key"]["source_options"].isNull()) {
+            br.sourceOptions = r["key"]["source_options"].asCString();
+        }
+        callback(br);
+    }
+    return true;
 }
 
 } // namespace DM
