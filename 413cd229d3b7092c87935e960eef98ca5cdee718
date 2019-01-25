@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cbb9308_6db3ef9f",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T21:32:58Z",
+      "side": 1,
+      "message": "Isn\u0027t this class already private?",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "413cd229d3b7092c87935e960eef98ca5cdee718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2216bdc_980a408c",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T21:32:58Z",
+      "side": 1,
+      "message": "I never understood why this wasn\u0027t available in the public API.",
+      "range": {
+        "startLine": 38,
+        "startChar": 17,
+        "endLine": 38,
+        "endChar": 24
+      },
+      "revId": "413cd229d3b7092c87935e960eef98ca5cdee718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85515048_92d714d7",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T21:32:58Z",
+      "side": 1,
+      "message": "Why not make the constructors protected?",
+      "range": {
+        "startLine": 46,
+        "startChar": 43,
+        "endLine": 46,
+        "endChar": 54
+      },
+      "revId": "413cd229d3b7092c87935e960eef98ca5cdee718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
