@@ -15,7 +15,7 @@ class SkBitmap;
 class SkMatrix;
 class SkNormalSource;
 
-class SK_API SkLightingShader {
+class SkLightingShader {
 public:
     /** Returns a shader that lights the shape, colored by the diffuseShader, using the
         normals from normalSource, with the set of lights provided.
