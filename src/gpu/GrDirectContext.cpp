@@ -63,8 +63,8 @@ protected:
         SkASSERT(!fThreadSafeProxy);
         SkASSERT(!fFPFactoryCache);
         fFPFactoryCache.reset(new GrSkSLFPFactoryCache());
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
-                                                            fBackend, options, fFPFactoryCache));
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(), this->backend(),
+                                                            options, fFPFactoryCache));
 
         if (!INHERITED::initCommon(options)) {
             return false;

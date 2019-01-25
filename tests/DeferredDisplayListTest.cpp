@@ -56,7 +56,7 @@ static GrBackendFormat create_backend_format(GrContext* context,
                                              GrPixelConfig config) {
     const GrCaps* caps = context->contextPriv().caps();
 
-    switch (context->contextPriv().getBackend()) {
+    switch (context->contextPriv().backend()) {
     case GrBackendApi::kOpenGL: {
         const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
         GrGLStandard standard = glCaps->standard();
