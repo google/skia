@@ -33690,7 +33690,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -33807,7 +33807,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -33924,7 +33924,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34036,7 +34036,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34153,7 +34153,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -34270,7 +34270,7 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia",
         "rack:2"
@@ -62965,7 +62965,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63081,7 +63081,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63192,7 +63192,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63308,7 +63308,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63419,7 +63419,7 @@
         "Build-Debian9-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63535,7 +63535,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63656,7 +63656,7 @@
         "Build-Debian9-Clang-x86_64-Debug-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63772,7 +63772,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63888,7 +63888,7 @@
         "Build-Debian9-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -63999,7 +63999,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64115,7 +64115,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64231,7 +64231,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64352,7 +64352,7 @@
         "Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64468,7 +64468,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64589,7 +64589,7 @@
         "Build-Debian9-Clang-x86_64-Release-TSAN_Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64700,7 +64700,7 @@
         "Build-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
@@ -64816,7 +64816,7 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:10de:1cb3-390.87",
+        "gpu:10de:1cb3-415.27",
         "os:Ubuntu-18.04",
         "pool:Skia"
       ],
