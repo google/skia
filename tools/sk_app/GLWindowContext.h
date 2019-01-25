@@ -24,7 +24,7 @@ class GLWindowContext : public WindowContext {
 public:
     sk_sp<SkSurface> getBackbufferSurface() override;
 
-    bool isValid() override { return SkToBool(fBackendContext.get()); }
+    bool isValid() override { return true; }//SkToBool(fBackendContext.get()); }
 
     void resize(int w, int h) override;
     void swapBuffers() override;
