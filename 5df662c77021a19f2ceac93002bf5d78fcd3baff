@@ -22,6 +22,30 @@
       "revId": "5df662c77021a19f2ceac93002bf5d78fcd3baff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e89dfc3a_35261c0b",
+        "filename": "dm/DMJsonWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-25T15:17:17Z",
+      "side": 1,
+      "message": "For now, yes. ReadJson (further down in this file) is still using it. Converting that to use SkJSON is next. ;)",
+      "parentUuid": "d7e61942_4f5a8b24",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 21
+      },
+      "revId": "5df662c77021a19f2ceac93002bf5d78fcd3baff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
