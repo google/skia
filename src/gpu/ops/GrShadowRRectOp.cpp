@@ -627,6 +627,20 @@ std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                SkScalar blurWidth,
                                SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
+
+    {
+        SkRect r = SkRect::MakeLTRB(-8.33331f, -50.5556f, 69.4445f, 27.2222f);
+        const SkPoint pts[] = {
+            { 2.7778f, -39.4444f },
+            { 58.3334f, -39.4444f },
+            { 58.3334f, 16.1111f },
+            { 2.7778f, 16.1111f },
+        };
+        SkRRect rr;
+        rr.setRectPoints(r, pts);
+        SkRRectPriv::EqualRadii(rr);
+    }
+
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
     // Do any matrix crunching before we reset the draw state for device coords.
