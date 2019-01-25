@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cc626d1_35afd951",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-25T15:59:42Z",
+      "side": 1,
+      "message": "as_int",
+      "range": {
+        "startLine": 38,
+        "startChar": 17,
+        "endLine": 38,
+        "endChar": 22
+      },
+      "revId": "331fba192bd27c47f128d3c92b9fff106e92b4bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "713dfb17_c69832cf",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-25T15:59:42Z",
+      "side": 1,
+      "message": "Just delete?",
+      "range": {
+        "startLine": 560,
+        "startChar": 0,
+        "endLine": 570,
+        "endChar": 6
+      },
+      "revId": "331fba192bd27c47f128d3c92b9fff106e92b4bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c23d099f_4d26b712",
+        "filename": "src/utils/SkLua.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-25T15:59:42Z",
+      "side": 1,
+      "message": "Just delete",
+      "range": {
+        "startLine": 1876,
+        "startChar": 0,
+        "endLine": 1880,
+        "endChar": 5
+      },
+      "revId": "331fba192bd27c47f128d3c92b9fff106e92b4bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
