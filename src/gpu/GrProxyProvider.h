@@ -15,8 +15,9 @@
 #include "SkRefCnt.h"
 #include "SkTDynamicHash.h"
 
-class GrResourceProvider;
-class GrSingleOwner;
+class GrImageContext;
+//class GrResourceProvider;
+//class GrSingleOwner;
 class GrBackendRenderTarget;
 class SkBitmap;
 class SkImage;
@@ -26,8 +27,8 @@ class SkImage;
  */
 class GrProxyProvider {
 public:
-    GrProxyProvider(GrResourceProvider*, GrResourceCache*, sk_sp<const GrCaps>, GrSingleOwner*);
-    GrProxyProvider(uint32_t contextUniqueID, sk_sp<const GrCaps>, GrSingleOwner*);
+//    GrProxyProvider(uint32_t contextUniqueID, sk_sp<const GrCaps>, GrSingleOwner*);
+    GrProxyProvider(GrImageContext*);
 
     ~GrProxyProvider();
 
@@ -214,24 +215,34 @@ public:
      */
     void processInvalidUniqueKey(const GrUniqueKey&, GrTextureProxy*, InvalidateGPUResource);
 
+#if 0
     uint32_t contextUniqueID() const { return fContextUniqueID; }
-    const GrCaps* caps() const { return fCaps.get(); }
-    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+    const GrCaps* caps1() const { return fCaps1.get(); }
+    sk_sp<const GrCaps> refCaps1() const { return fCaps1; }
+#else
+    uint32_t contextUniqueID() const;
+    const GrCaps* caps1() const;
+    sk_sp<const GrCaps> refCaps1() const;
+#endif
 
-    void abandon() {
-        fResourceCache = nullptr;
-        fResourceProvider = nullptr;
+#if 0
+    void abandon1() {
+        fResourceCache1 = nullptr;
+        fResourceProvider1 = nullptr;
         fAbandoned = true;
     }
 
-    bool isAbandoned() const {
+    bool isAbandoned17() const {
 #ifdef SK_DEBUG
         if (fAbandoned) {
-            SkASSERT(!fResourceCache && !fResourceProvider);
+            SkASSERT(!fResourceCache1 && !fResourceProvider1);
         }
 #endif
         return fAbandoned;
     }
+#else
+    bool isAbandoned17() const;
+#endif
 
     int numUniqueKeyProxies_TestOnly() const;
 
@@ -245,7 +256,7 @@ public:
     /**
      * Are we currently recording a DDL?
      */
-    bool recordingDDL() const { return !SkToBool(fResourceProvider); }
+    bool recordingDDL1() const; // { return !SkToBool(fResourceProvider1); }
 
     /*
      * Create a texture proxy that is backed by an instantiated GrSurface.
@@ -256,6 +267,15 @@ public:
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
+    friend class GrContext; // for bam1
+    friend class GrDirectContext; // for bam1 ?????!
+
+#if 0
+    void bam1(GrResourceProvider* resourceProvider, GrResourceCache* resourceCache) {
+        fResourceProvider1 = resourceProvider;
+        fResourceCache1 = resourceCache;
+    }
+#endif
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 
@@ -270,15 +290,16 @@ private:
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
 
-    GrResourceProvider*    fResourceProvider;
-    GrResourceCache*       fResourceCache;
-    bool                   fAbandoned;
-    sk_sp<const GrCaps>    fCaps;
+    GrImageContext*        fContext73;
+//    GrResourceProvider*    fResourceProvider1;
+//    GrResourceCache*       fResourceCache1;
+//    bool                   fAbandoned;
+//    sk_sp<const GrCaps>    fCaps1;
     // If this provider is owned by a DDLContext then this is the DirectContext's ID.
-    uint32_t               fContextUniqueID;
+//    uint32_t               fContextUniqueID;
 
     // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
+//    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif

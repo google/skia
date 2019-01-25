@@ -782,7 +782,7 @@ protected:
                     }
 
                     if (context) {
-                        if (context->abandoned()) {
+                        if (context->priv().abandoned1()) {
                             return;
                         }
 
@@ -845,7 +845,11 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        this->createImages(canvas->getGrContext());
+        if (!canvas->getGrContext() || !canvas->getGrContext()->asDirectContext()) {
+            return;
+        }
+
+        this->createImages(canvas->getGrContext()->asDirectContext());
 
         int x = kLabelWidth;
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -875,9 +879,9 @@ protected:
     }
 
 private:
-    SkBitmap       fOriginalBMs[2];
-    sk_sp<SkImage> fImages[2][kLastEnum_SkYUVColorSpace+1][kLast_YUVFormat+1];
-    bool           fUseTargetColorSpace;
+    SkBitmap            fOriginalBMs[2];
+    sk_sp<SkImage>      fImages[2][kLastEnum_SkYUVColorSpace+1][kLast_YUVFormat+1];
+    bool                fUseTargetColorSpace;
     sk_sp<SkColorSpace> fTargetColorSpace;
 
     typedef GM INHERITED;

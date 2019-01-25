@@ -174,7 +174,7 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
 }
 
 void GrDrawingManager::cleanup() {
-    fDAG.cleanup(fContext->contextPriv().caps());
+    fDAG.cleanup(fContext->priv().caps());
 
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
@@ -205,7 +205,8 @@ void GrDrawingManager::freeGpuResources() {
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
+GrSemaphoresSubmitted GrDrawingManager::flush(GrContext* direct,
+                                              GrSurfaceProxy*,
                                               int numSemaphores,
                                               GrBackendSemaphore backendSemaphores[]) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
@@ -215,7 +216,9 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     }
     SkDEBUGCODE(this->validate());
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
+    // TODO: check for compatibility
+
+    GrGpu* gpu = direct->contextPriv().getGpu();
     if (!gpu) {
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
@@ -225,7 +228,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
     // but need to be flushed anyway. Closing such GrOpLists here will mean new
     // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-    fDAG.closeAll(fContext->contextPriv().caps());
+    fDAG.closeAll(direct->contextPriv().caps());
     fActiveOpList = nullptr;
 
     fDAG.prepForFlush();
@@ -235,10 +238,10 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
         fIndexBufferSpace.reset(new char[GrBufferAllocPool::kDefaultBufferSize]());
     }
 
-    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(), &fTokenTracker,
+    GrOpFlushState flushState(gpu, direct->contextPriv().resourceProvider(), &fTokenTracker,
                               fVertexBufferSpace.get(), fIndexBufferSpace.get());
 
-    GrOnFlushResourceProvider onFlushProvider(this);
+    GrOnFlushResourceProvider onFlushProvider(direct);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
     // stack here is to preserve the flush tokens.
 
@@ -264,7 +267,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
                     SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
 #endif
-                onFlushOpList->makeClosed(*fContext->contextPriv().caps());
+                onFlushOpList->makeClosed(*direct->contextPriv().caps());
                 onFlushOpList->prepare(&flushState);
                 fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
             }
@@ -283,7 +286,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(fContext->contextPriv().resourceProvider(),
+        GrResourceAllocator alloc(direct->contextPriv().resourceProvider(),
                                   flushState.deinstantiateProxyTracker());
         for (int i = 0; i < fDAG.numOpLists(); ++i) {
             if (fDAG.opList(i)) {
@@ -307,7 +310,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
                 }
             }
 
-            if (this->executeOpLists(startIndex, stopIndex, &flushState, &numOpListsExecuted)) {
+            if (this->executeOpLists(direct, startIndex, stopIndex, &flushState, &numOpListsExecuted)) {
                 flushed = true;
             }
         }
@@ -328,7 +331,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     // When we move to partial flushes this assert will no longer be valid.
     // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opLists
     // will be stored in the DDL's GrOpMemoryPools.
-    GrOpMemoryPool* opMemoryPool = fContext->contextPriv().opMemoryPool();
+    GrOpMemoryPool* opMemoryPool = direct->contextPriv().opMemoryPool();
     opMemoryPool->isEmpty();
 #endif
 
@@ -338,7 +341,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (flushed) {
-        fContext->contextPriv().getResourceCache()->purgeAsNeeded();
+        direct->contextPriv().getResourceCache()->purgeAsNeeded();
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
         onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
@@ -350,7 +353,8 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
     return result;
 }
 
-bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState,
+bool GrDrawingManager::executeOpLists(GrContext* direct,
+                                      int startIndex, int stopIndex, GrOpFlushState* flushState,
                                       int* numOpListsExecuted) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.numOpLists());
 
@@ -364,7 +368,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     }
 #endif
 
-    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = direct->contextPriv().resourceProvider();
     bool anyOpListsExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
@@ -389,7 +393,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 
         // TODO: handle this instantiation via lazy surface proxies?
         // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        opList->instantiateDeferredProxies(fContext->contextPriv().resourceProvider());
+        opList->instantiateDeferredProxies(direct->contextPriv().resourceProvider());
         opList->prepare(flushState);
     }
 
@@ -448,6 +452,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
 }
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
+        GrContext* direct,
         GrSurfaceProxy* proxy, int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
     if (this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
@@ -455,17 +460,17 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     SkDEBUGCODE(this->validate());
     SkASSERT(proxy);
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
+    GrGpu* gpu = direct->contextPriv().getGpu();
     if (!gpu) {
         return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
     }
 
     GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores) {
-        result = this->flush(proxy, numSemaphores, backendSemaphores);
+        result = this->flush(direct, proxy, numSemaphores, backendSemaphores);
     }
 
-    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
+    if (!proxy->instantiate(direct->contextPriv().resourceProvider())) {
         return result;
     }
 
@@ -492,7 +497,7 @@ void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 
     // no opList should receive a new command after this
-    fDAG.closeAll(fContext->contextPriv().caps());
+    fDAG.closeAll(fContext->priv().caps());
     fActiveOpList = nullptr;
 
     fDAG.swap(&ddl->fOpLists);
@@ -515,7 +520,7 @@ void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
         // reordering so ops that (in the single opList world) would've just glommed onto the
         // end of the single opList but referred to a far earlier RT need to appear in their
         // own opList.
-        fActiveOpList->makeClosed(*fContext->contextPriv().caps());
+        fActiveOpList->makeClosed(*fContext->priv().caps());
         fActiveOpList = nullptr;
     }
 
@@ -570,24 +575,27 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
         // they really only need to be split if they ever reference proxy's contents again but
         // that is hard to predict/handle).
         if (GrOpList* lastOpList = rtp->getLastOpList()) {
-            lastOpList->closeThoseWhoDependOnMe(*fContext->contextPriv().caps());
+            lastOpList->closeThoseWhoDependOnMe(*fContext->priv().caps());
         }
     } else if (fActiveOpList) {
         // This is  a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opList world) would've just glommed onto the
         // end of the single opList but referred to a far earlier RT need to appear in their
         // own opList.
-        fActiveOpList->makeClosed(*fContext->contextPriv().caps());
+        fActiveOpList->makeClosed(*fContext->priv().caps());
         fActiveOpList = nullptr;
     }
 
-    auto resourceProvider = fContext->contextPriv().resourceProvider();
+    // MDB TODO: remove this temporary work-around
+    auto resourceProvider = fContext->asDirectContext()
+                                    ? fContext->asDirectContext()->contextPriv().resourceProvider()
+                                    : nullptr;
 
     sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
                                                         resourceProvider,
-                                                        fContext->contextPriv().refOpMemoryPool(),
+                                                        fContext->priv().refOpMemoryPool(),
                                                         rtp,
-                                                        fContext->contextPriv().getAuditTrail()));
+                                                        fContext->priv().auditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     if (managedOpList) {
@@ -613,21 +621,25 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
         // overkill: they really only need to be split if they ever reference proxy's contents
         // again but that is hard to predict/handle).
         if (GrOpList* lastOpList = textureProxy->getLastOpList()) {
-            lastOpList->closeThoseWhoDependOnMe(*fContext->contextPriv().caps());
+            lastOpList->closeThoseWhoDependOnMe(*fContext->priv().caps());
         }
     } else if (fActiveOpList) {
         // This is  a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opList world) would've just glommed onto the
         // end of the single opList but referred to a far earlier RT need to appear in their
         // own opList.
-        fActiveOpList->makeClosed(*fContext->contextPriv().caps());
+        fActiveOpList->makeClosed(*fContext->priv().caps());
         fActiveOpList = nullptr;
     }
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
-                                                      fContext->contextPriv().refOpMemoryPool(),
+    // MDB TODO: remove this temporary work-around
+    auto resourceProvider = fContext->asDirectContext()
+                                    ? fContext->asDirectContext()->contextPriv().resourceProvider()
+                                    : nullptr;
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(resourceProvider,
+                                                      fContext->priv().refOpMemoryPool(),
                                                       textureProxy,
-                                                      fContext->contextPriv().getAuditTrail()));
+                                                      fContext->priv().auditTrail()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 
@@ -677,7 +689,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
         fSoftwarePathRenderer.reset(
-                new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
+                new GrSoftwarePathRenderer(fContext->priv().proxyProvider(),
                                            fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
     return fSoftwarePathRenderer.get();
@@ -709,7 +721,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -720,7 +732,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                         fContext, this, std::move(rtp),
                                                         std::move(colorSpace),
                                                         surfaceProps,
-                                                        fContext->contextPriv().getAuditTrail(),
+                                                        fContext->priv().auditTrail(),
                                                         fSingleOwner, managedOpList));
 }
 
@@ -732,7 +744,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage.
-    if (!SkSurface_Gpu::Valid(fContext->contextPriv().caps(), sProxy->config(), colorSpace.get())) {
+    if (!SkSurface_Gpu::Valid(fContext->priv().caps(), sProxy->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -744,6 +756,6 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
 
     return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
                                                         std::move(colorSpace),
-                                                        fContext->contextPriv().getAuditTrail(),
+                                                        fContext->priv().auditTrail(),
                                                         fSingleOwner));
 }

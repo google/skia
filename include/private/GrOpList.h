@@ -39,7 +39,7 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
-    virtual bool copySurface(GrContext*,
+    virtual bool copySurface(GrRecordingContext*,
                              GrSurfaceProxy* dst,
                              GrSurfaceProxy* src,
                              const SkIRect& srcRect,
@@ -98,6 +98,8 @@ protected:
     // This is a backpointer to the GrOpMemoryPool that holds the memory for this opLists' ops.
     // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
     // constituent opLists survive.
+    // TODO: in the new split-up context world, can the DDL just hold onto its GrRecordingContext
+    // and keep the opMemoryPool alive that way?
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
     GrSurfaceProxyRef     fTarget;
     GrAuditTrail*         fAuditTrail;

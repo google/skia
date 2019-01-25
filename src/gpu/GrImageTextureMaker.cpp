@@ -11,7 +11,7 @@
 #include "SkImage_Lazy.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
+GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint)
         : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
         , fImage(static_cast<const SkImage_Lazy*>(client))
@@ -23,7 +23,7 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    AllowedTexGenType onlyIfFast) {
-    return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
+    return fImage->lockTextureProxy(fContext3, fOriginalKey, fCachingHint,
                                     willBeMipped, onlyIfFast);
 }
 
@@ -44,7 +44,7 @@ SkColorSpace* GrImageTextureMaker::colorSpace() const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client )
+GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrRecordingContext* context, const SkImage* client)
     : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
     , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());

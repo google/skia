@@ -76,12 +76,12 @@ public:
 
     const char* name() const override { return "BezierConicTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
                                           const SkMatrix& klm) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<BezierConicTestOp>(std::move(gp), rect, color, klm);
     }
@@ -152,7 +152,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -184,7 +184,7 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                gp = GrConicEffect::Make(color, SkMatrix::I(), et, *context->priv().caps(),
                                          SkMatrix::I(), false);
                 if (!gp) {
                     continue;
@@ -298,12 +298,12 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           sk_sp<const GrGeometryProcessor> gp,
                                           const SkRect& rect,
                                           const SkPMColor4f& color,
                                           const GrPathUtils::QuadUVMatrix& devToUV) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<BezierQuadTestOp>(std::move(gp), rect, color, devToUV);
     }
@@ -369,7 +369,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (!context) {
             return;
         }
@@ -399,7 +399,7 @@ protected:
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
-                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->contextPriv().caps(),
+                gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->priv().caps(),
                                         SkMatrix::I(), false);
                 if (!gp) {
                     continue;

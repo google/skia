@@ -68,7 +68,7 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
+        auto context = canvas->getGrContext();
         if (kEffect_Type == fType && !context) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
