@@ -359,10 +359,6 @@ void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(lo
 
 #include "SkStream.h"
 
-static uintptr_t asint(const void* p) {
-    return reinterpret_cast<uintptr_t>(p);
-}
-
 #ifdef SK_DEBUG
     static void ASSERT_FITS_IN(uint32_t value, int bitCount) {
         SkASSERT(bitCount > 0 && bitCount <= 32);
@@ -495,12 +491,12 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
 void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     uint8_t flatFlags = 0;
 
-    if (asint(paint.getPathEffect()) |
-        asint(paint.getShader()) |
-        asint(paint.getMaskFilter()) |
-        asint(paint.getColorFilter()) |
-        asint(paint.getLooper()) |
-        asint(paint.getImageFilter())) {
+    if (paint.getPathEffect() ||
+        paint.getShader() ||
+        paint.getMaskFilter() ||
+        paint.getColorFilter() ||
+        paint.getLooper() ||
+        paint.getImageFilter()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
