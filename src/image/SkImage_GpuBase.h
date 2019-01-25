@@ -9,12 +9,12 @@
 #define SkImage_GpuBase_DEFINED
 
 #include "GrBackendSurface.h"
+#include "GrContext.h"
 #include "GrTypesPriv.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkImage_Base.h"
 #include "SkYUVAIndex.h"
 
-class GrContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
