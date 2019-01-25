@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "cec684c8_795653c1",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-25T16:07:44Z",
+      "side": 1,
+      "message": "Do we still need this trickery?  I suspect the compiler emits equivalent code, and even if it doesn\u0027t, Flatten doesn\u0027t seem like a critical path.  I.e. can we drop asint()?",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 386,
+        "endChar": 42
+      },
+      "revId": "331fba192bd27c47f128d3c92b9fff106e92b4bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "713dfb17_c69832cf",
         "filename": "src/utils/SkLua.cpp",
         "patchSetId": 16
