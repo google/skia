@@ -53,6 +53,24 @@
       "revId": "c0656bb44ba34b2e8bb93476cd489243403f8b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3484eb3_9e88d968",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-01-25T15:01:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7d6b22bd_6b082f40",
+      "revId": "c0656bb44ba34b2e8bb93476cd489243403f8b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
