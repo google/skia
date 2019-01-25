@@ -16,23 +16,25 @@ class SkWBuffer;
 class SkRRectPriv {
 public:
     static bool IsCircle(const SkRRect& rr) {
-        return rr.isOval() && SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY);
+        SkVector rad = rr.getSimpleRadii();
+        return rr.isOval() && SkScalarNearlyEqual(rad.fX, rad.fY);
     }
 
     static SkVector GetSimpleRadii(const SkRRect& rr) {
         SkASSERT(!rr.isComplex());
-        return rr.fRadii[0];
+        return rr.getSimpleRadii();
     }
 
     static bool IsSimpleCircular(const SkRRect& rr) {
-        return rr.isSimple() && SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY);
+        SkVector rad = rr.getSimpleRadii();
+        return rr.isSimple() && SkScalarNearlyEqual(rad.fX, rad.fY);
     }
 
     static bool EqualRadii(const SkRRect& rr) {
         return rr.isRect() || SkRRectPriv::IsCircle(rr)  || SkRRectPriv::IsSimpleCircular(rr);
     }
 
-    static const SkVector* GetRadiiArray(const SkRRect& rr) { return rr.fRadii; }
+    static SkVector* GetRadiiArray(const SkRRect& rr, SkVector radii[4]);
 
     static bool AllCornersCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
 

@@ -14,263 +14,236 @@
 #include <cmath>
 #include <utility>
 
-///////////////////////////////////////////////////////////////////////////////
+static bool is_span_legal(SkScalar a, SkScalar b, SkScalar min, SkScalar max) {
+    return min <= a && a <= b && b <= max;
+}
 
-void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
-    if (!this->initializeRect(rect)) {
+static bool are_pts_legal(const SkRect& r, const SkPoint pts[4]) {
+    return  is_span_legal(pts[0].fX, pts[1].fX, r.fLeft, r.fRight) &&
+            is_span_legal(pts[3].fX, pts[2].fX, r.fLeft, r.fRight) &&
+            is_span_legal(pts[0].fY, pts[3].fY, r.fTop, r.fBottom) &&
+            is_span_legal(pts[1].fY, pts[2].fY, r.fTop, r.fBottom);
+}
+
+static void init_rect_pts(const SkRect& r, SkPoint pts[4]) {
+    pts[0].set(r.fLeft,  r.fTop);
+    pts[1].set(r.fRight, r.fTop);
+    pts[2].set(r.fRight, r.fBottom);
+    pts[3].set(r.fLeft,  r.fBottom);
+}
+
+// we want min <= a <= b <= max using proportional scaling if need be
+static SkScalar compute_proportional_scale(SkScalar a, SkScalar b, SkScalar min, SkScalar max,
+                                           SkScalar prevScale) {
+    SkASSERT(min < max);
+    if (a > b) {
+        SkScalar span = max - min;
+        SkScalar da = a - min;
+        SkScalar db = max - b;
+        SkScalar scale = span / (da + db);
+        prevScale = SkMinScalar(prevScale, scale);
+    }
+    return prevScale;
+}
+
+static void apply_proportional_scale(SkScalar& a, SkScalar& b, SkScalar min, SkScalar max,
+                                     SkScalar scale) {
+    SkScalar da = a - min;
+    SkScalar db = max - b;
+    a = min + da * scale;
+    b = max - db * scale;
+}
+
+static void force_monotonic(SkScalar& a, SkScalar& b, SkScalar min, SkScalar max) {
+    // we are called after calls to pin_to_max/min(), so we can assert that a and b are
+    // correct relative to their sides.
+    SkASSERT(a >= min);
+    SkASSERT(b <= max);
+
+    if (a > max) {
+        a = max;
+    }
+    if (b < min) {
+        b = min;
+    }
+    if (a > b) {
+        a = b;
+    }
+
+    SkASSERT(min <= a && a <= b && b <= max);
+}
+
+static void pin_to_min(SkScalar& value, SkScalar min) {
+    value = SkMinScalar(value, min);
+}
+
+static void pin_to_max(SkScalar& value, SkScalar max) {
+    value = SkMaxScalar(value, max);
+}
+
+static void slide_edge_to_corner(SkScalar value, SkScalar edge,
+                                 SkScalar& otherValue, SkScalar otherEdge) {
+    if (value == edge) {
+        otherValue = otherEdge;
+    }
+}
+
+static void legalize_rrect_pts(const SkRect& r, SkPoint pts[4]) {
+    // 1-sided pin the pts
+    pin_to_max(pts[0].fX, r.fLeft);  pin_to_max(pts[0].fY, r.fTop);
+    pin_to_min(pts[1].fX, r.fRight); pin_to_max(pts[1].fY, r.fTop);
+    pin_to_min(pts[2].fX, r.fRight); pin_to_min(pts[2].fY, r.fBottom);
+    pin_to_max(pts[3].fX, r.fLeft);  pin_to_min(pts[3].fY, r.fBottom);
+
+    // if we're on an edge, we can slide it to the corner
+    slide_edge_to_corner(pts[0].fX, r.fLeft,  pts[0].fY, r.fTop);
+    slide_edge_to_corner(pts[1].fX, r.fRight, pts[1].fY, r.fTop);
+    slide_edge_to_corner(pts[2].fX, r.fRight, pts[2].fY, r.fBottom);
+    slide_edge_to_corner(pts[3].fX, r.fLeft,  pts[3].fY, r.fBottom);
+
+    // now modify pts to ensure they don't cross (left/right or top/bottom)
+    SkScalar scale = 1;
+    scale = compute_proportional_scale(pts[0].fX, pts[1].fX, r.fLeft, r.fRight, scale);
+    scale = compute_proportional_scale(pts[3].fX, pts[2].fX, r.fLeft, r.fRight, scale);
+    scale = compute_proportional_scale(pts[0].fY, pts[3].fY, r.fTop, r.fBottom, scale);
+    scale = compute_proportional_scale(pts[1].fY, pts[2].fY, r.fTop, r.fBottom, scale);
+    if (scale < 1) {
+        apply_proportional_scale(pts[0].fX, pts[1].fX, r.fLeft, r.fRight, scale);
+        apply_proportional_scale(pts[3].fX, pts[2].fX, r.fLeft, r.fRight, scale);
+        apply_proportional_scale(pts[0].fY, pts[3].fY, r.fTop, r.fBottom, scale);
+        apply_proportional_scale(pts[1].fY, pts[2].fY, r.fTop, r.fBottom, scale);
+    }
+    // Due to limited precision (and range) of our subtracts and computed scale, we can't
+    // trust the results trying to scale everyone proportionally, so here we clean-up
+    // with a forced check that our corner pts are monotonic in each axis.
+    force_monotonic(pts[0].fX, pts[1].fX, r.fLeft, r.fRight);
+    force_monotonic(pts[3].fX, pts[2].fX, r.fLeft, r.fRight);
+    force_monotonic(pts[0].fY, pts[3].fY, r.fTop, r.fBottom);
+    force_monotonic(pts[1].fY, pts[2].fY, r.fTop, r.fBottom);
+
+    SkASSERT(are_pts_legal(r, pts));
+}
+
+static void compute_4_radii(const SkRect& r, const SkPoint pts[4], SkVector radii[4]) {
+    radii[0].set(pts[0].fX - r.fLeft,  pts[0].fY - r.fTop);
+    radii[1].set(r.fRight - pts[1].fX, pts[1].fY - r.fTop);
+    radii[2].set(r.fRight - pts[2].fX, r.fBottom - pts[2].fY);
+    radii[3].set(pts[3].fX - r.fLeft,  r.fBottom - pts[3].fY);
+}
+
+void SkRRect::legalize() {
+    // Check this before sorting because sorting can hide nans.
+    if (!fRect.isFinite()) {
+        this->setEmpty();
         return;
     }
 
-    if (!SkScalarsAreFinite(xRad, yRad)) {
-        xRad = yRad = 0;    // devolve into a simple rect
-    }
+    SkASSERT(fRect.isSorted());
 
-    if (fRect.width() < xRad+xRad || fRect.height() < yRad+yRad) {
-        // At most one of these two divides will be by zero, and neither numerator is zero.
-        SkScalar scale = SkMinScalar(sk_ieee_float_divide(fRect. width(), xRad + xRad),
-                                     sk_ieee_float_divide(fRect.height(), yRad + yRad));
-        SkASSERT(scale < SK_Scalar1);
-        xRad *= scale;
-        yRad *= scale;
-    }
-
-    if (xRad <= 0 || yRad <= 0) {
-        // all corners are square in this case
-        this->setRect(rect);
+    if (fRect.isEmpty()) {
+        // Can't call setEmpty(), as we promise to keep the rect (position, dimensions)
+        init_rect_pts(fRect, fPts);
+        fType = kEmpty_Type;
         return;
     }
 
-    for (int i = 0; i < 4; ++i) {
-        fRadii[i].set(xRad, yRad);
+    if (!SkScalarsAreFinite(&fPts[0].fX, 8)) {
+        this->setRect(fRect);
+        return;
     }
-    fType = kSimple_Type;
-    if (xRad >= SkScalarHalf(fRect.width()) && yRad >= SkScalarHalf(fRect.height())) {
-        fType = kOval_Type;
-        // TODO: assert that all the x&y radii are already W/2 & H/2
-    }
+
+    legalize_rrect_pts(fRect, fPts);
+
+    fType = ComputeType(fRect, fPts);
 
     SkASSERT(this->isValid());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkRRect::setRect(const SkRect& rect) {
+    fRect = rect.makeSorted();
+    init_rect_pts(fRect, fPts);
+
+    this->legalize();
+}
+
+void SkRRect::setOval(const SkRect& oval) {
+    fRect = oval.makeSorted();
+    const SkPoint center = {oval.centerX(), oval.centerY()};
+    for (auto& pt : fPts) {
+        pt = center;
+    }
+
+    this->legalize();
+}
+
+void SkRRect::setRectXY(const SkRect& rect, SkScalar rx, SkScalar ry) {
+    fRect = rect.makeSorted();
+    fPts[0].set(fRect.fLeft  + rx, fRect.fTop    + ry);
+    fPts[1].set(fRect.fRight - rx, fRect.fTop    + ry);
+    fPts[2].set(fRect.fRight - rx, fRect.fBottom - ry);
+    fPts[3].set(fRect.fLeft  + rx, fRect.fBottom - ry);
+
+    this->legalize();
 }
 
 void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
                            SkScalar rightRad, SkScalar bottomRad) {
-    if (!this->initializeRect(rect)) {
-        return;
-    }
+    fRect = rect.makeSorted();
+    fPts[0].set(fRect.fLeft  + leftRad,  fRect.fTop    + topRad);
+    fPts[1].set(fRect.fRight - rightRad, fRect.fTop    + topRad);
+    fPts[2].set(fRect.fRight - rightRad, fRect.fBottom - bottomRad);
+    fPts[3].set(fRect.fLeft  + leftRad,  fRect.fBottom - bottomRad);
 
-    const SkScalar array[4] = { leftRad, topRad, rightRad, bottomRad };
-    if (!SkScalarsAreFinite(array, 4)) {
-        this->setRect(rect);    // devolve into a simple rect
-        return;
-    }
-
-    leftRad = SkMaxScalar(leftRad, 0);
-    topRad = SkMaxScalar(topRad, 0);
-    rightRad = SkMaxScalar(rightRad, 0);
-    bottomRad = SkMaxScalar(bottomRad, 0);
-
-    SkScalar scale = SK_Scalar1;
-    if (leftRad + rightRad > fRect.width()) {
-        scale = fRect.width() / (leftRad + rightRad);
-    }
-    if (topRad + bottomRad > fRect.height()) {
-        scale = SkMinScalar(scale, fRect.height() / (topRad + bottomRad));
-    }
-
-    if (scale < SK_Scalar1) {
-        leftRad *= scale;
-        topRad *= scale;
-        rightRad *= scale;
-        bottomRad *= scale;
-    }
-
-    if (leftRad == rightRad && topRad == bottomRad) {
-        if (leftRad >= SkScalarHalf(fRect.width()) && topRad >= SkScalarHalf(fRect.height())) {
-            fType = kOval_Type;
-        } else if (0 == leftRad || 0 == topRad) {
-            // If the left and (by equality check above) right radii are zero then it is a rect.
-            // Same goes for top/bottom.
-            fType = kRect_Type;
-            leftRad = 0;
-            topRad = 0;
-            rightRad = 0;
-            bottomRad = 0;
-        } else {
-            fType = kSimple_Type;
-        }
-    } else {
-        fType = kNinePatch_Type;
-    }
-
-    fRadii[kUpperLeft_Corner].set(leftRad, topRad);
-    fRadii[kUpperRight_Corner].set(rightRad, topRad);
-    fRadii[kLowerRight_Corner].set(rightRad, bottomRad);
-    fRadii[kLowerLeft_Corner].set(leftRad, bottomRad);
-
-    SkASSERT(this->isValid());
-}
-
-// These parameters intentionally double. Apropos crbug.com/463920, if one of the
-// radii is huge while the other is small, single precision math can completely
-// miss the fact that a scale is required.
-static double compute_min_scale(double rad1, double rad2, double limit, double curMin) {
-    if ((rad1 + rad2) > limit) {
-        return SkTMin(curMin, limit / (rad1 + rad2));
-    }
-    return curMin;
-}
-
-static bool clamp_to_zero(SkVector radii[4]) {
-    bool allCornersSquare = true;
-
-    // Clamp negative radii to zero
-    for (int i = 0; i < 4; ++i) {
-        if (radii[i].fX <= 0 || radii[i].fY <= 0) {
-            // In this case we are being a little fast & loose. Since one of
-            // the radii is 0 the corner is square. However, the other radii
-            // could still be non-zero and play in the global scale factor
-            // computation.
-            radii[i].fX = 0;
-            radii[i].fY = 0;
-        } else {
-            allCornersSquare = false;
-        }
-    }
-
-    return allCornersSquare;
+    this->legalize();
 }
 
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
-    if (!this->initializeRect(rect)) {
-        return;
-    }
-
-    if (!SkScalarsAreFinite(&radii[0].fX, 8)) {
-        this->setRect(rect);    // devolve into a simple rect
-        return;
-    }
-
-    memcpy(fRadii, radii, sizeof(fRadii));
-
-    if (clamp_to_zero(fRadii)) {
-        this->setRect(rect);
-        return;
-    }
-
-    this->scaleRadii(rect);
-}
-
-bool SkRRect::initializeRect(const SkRect& rect) {
-    // Check this before sorting because sorting can hide nans.
-    if (!rect.isFinite()) {
-        *this = SkRRect();
-        return false;
-    }
     fRect = rect.makeSorted();
-    if (fRect.isEmpty()) {
-        memset(fRadii, 0, sizeof(fRadii));
-        fType = kEmpty_Type;
-        return false;
-    }
-    return true;
+    fPts[0].set(fRect.fLeft  + radii[0].fX, fRect.fTop    + radii[0].fY);
+    fPts[1].set(fRect.fRight - radii[1].fX, fRect.fTop    + radii[1].fY);
+    fPts[2].set(fRect.fRight - radii[2].fX, fRect.fBottom - radii[2].fY);
+    fPts[3].set(fRect.fLeft  + radii[3].fX, fRect.fBottom - radii[3].fY);
+
+    this->legalize();
 }
 
-// If we can't distinguish one of the radii relative to the other, force it to zero so it
-// doesn't confuse us later. See crbug.com/850350
-//
-static void flush_to_zero(SkScalar& a, SkScalar& b) {
-    SkASSERT(a >= 0);
-    SkASSERT(b >= 0);
-    if (a + b == a) {
-        b = 0;
-    } else if (a + b == b) {
-        a = 0;
-    }
+void SkRRect::setRectCenters(const SkRect& rect, const SkPoint pts[4]) {
+    fRect = rect.makeSorted();
+    memcpy(fPts, pts, 4 * sizeof(SkPoint));
+
+    this->legalize();
 }
 
-void SkRRect::scaleRadii(const SkRect& rect) {
-    // Proportionally scale down all radii to fit. Find the minimum ratio
-    // of a side and the radii on that side (for all four sides) and use
-    // that to scale down _all_ the radii. This algorithm is from the
-    // W3 spec (http://www.w3.org/TR/css3-background/) section 5.5 - Overlapping
-    // Curves:
-    // "Let f = min(Li/Si), where i is one of { top, right, bottom, left },
-    //   Si is the sum of the two corresponding radii of the corners on side i,
-    //   and Ltop = Lbottom = the width of the box,
-    //   and Lleft = Lright = the height of the box.
-    // If f < 1, then all corner radii are reduced by multiplying them by f."
-    double scale = 1.0;
-
-    // The sides of the rectangle may be larger than a float.
-    double width = (double)fRect.fRight - (double)fRect.fLeft;
-    double height = (double)fRect.fBottom - (double)fRect.fTop;
-    scale = compute_min_scale(fRadii[0].fX, fRadii[1].fX, width,  scale);
-    scale = compute_min_scale(fRadii[1].fY, fRadii[2].fY, height, scale);
-    scale = compute_min_scale(fRadii[2].fX, fRadii[3].fX, width,  scale);
-    scale = compute_min_scale(fRadii[3].fY, fRadii[0].fY, height, scale);
-
-    flush_to_zero(fRadii[0].fX, fRadii[1].fX);
-    flush_to_zero(fRadii[1].fY, fRadii[2].fY);
-    flush_to_zero(fRadii[2].fX, fRadii[3].fX);
-    flush_to_zero(fRadii[3].fY, fRadii[0].fY);
-
-    if (scale < 1.0) {
-        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[0].fX, &fRadii[1].fX);
-        SkScaleToSides::AdjustRadii(height, scale, &fRadii[1].fY, &fRadii[2].fY);
-        SkScaleToSides::AdjustRadii(width,  scale, &fRadii[2].fX, &fRadii[3].fX);
-        SkScaleToSides::AdjustRadii(height, scale, &fRadii[3].fY, &fRadii[0].fY);
+SkVector SkRRect::radii(Corner corner) const {
+    const SkRect& r = fRect;
+    SkVector rad = {0, 0};
+    switch (corner) {
+        case kUpperLeft_Corner:  rad = {fPts[0].fX - r.fLeft,  fPts[0].fY - r.fTop}; break;
+        case kUpperRight_Corner: rad = {r.fRight - fPts[1].fX, fPts[1].fY - r.fTop}; break;
+        case kLowerRight_Corner: rad = {r.fRight - fPts[2].fX, r.fBottom - fPts[2].fY}; break;
+        case kLowerLeft_Corner:  rad = {fPts[3].fX - r.fLeft,  r.fBottom - fPts[3].fY}; break;
     }
-
-    // adjust radii may set x or y to zero; set companion to zero as well
-    if (clamp_to_zero(fRadii)) {
-        this->setRect(rect);
-        return;
-    }
-
-    // At this point we're either oval, simple, or complex (not empty or rect).
-    this->computeType();
-
-    SkASSERT(this->isValid());
+    SkASSERT(rad.fX >= 0 && rad.fY >= 0);
+    return rad;
 }
 
 // This method determines if a point known to be inside the RRect's bounds is
 // inside all the corners.
 bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
-    SkPoint canonicalPt; // (x,y) translated to one of the quadrants
-    int index;
+    Corner index = kUpperLeft_Corner;
 
-    if (kOval_Type == this->type()) {
-        canonicalPt.set(x - fRect.centerX(), y - fRect.centerY());
-        index = kUpperLeft_Corner;  // any corner will do in this case
-    } else {
-        if (x < fRect.fLeft + fRadii[kUpperLeft_Corner].fX &&
-            y < fRect.fTop + fRadii[kUpperLeft_Corner].fY) {
-            // UL corner
+    // If we're an oval, any corner will do. If not, we need to check x,y
+    if (kOval_Type != this->type()) {
+        if (x < fPts[kUpperLeft_Corner].fX && y < fPts[kUpperLeft_Corner].fY) {
             index = kUpperLeft_Corner;
-            canonicalPt.set(x - (fRect.fLeft + fRadii[kUpperLeft_Corner].fX),
-                            y - (fRect.fTop + fRadii[kUpperLeft_Corner].fY));
-            SkASSERT(canonicalPt.fX < 0 && canonicalPt.fY < 0);
-        } else if (x < fRect.fLeft + fRadii[kLowerLeft_Corner].fX &&
-                   y > fRect.fBottom - fRadii[kLowerLeft_Corner].fY) {
-            // LL corner
+        } else if (x < fPts[kLowerLeft_Corner].fX && y > fPts[kLowerLeft_Corner].fY) {
             index = kLowerLeft_Corner;
-            canonicalPt.set(x - (fRect.fLeft + fRadii[kLowerLeft_Corner].fX),
-                            y - (fRect.fBottom - fRadii[kLowerLeft_Corner].fY));
-            SkASSERT(canonicalPt.fX < 0 && canonicalPt.fY > 0);
-        } else if (x > fRect.fRight - fRadii[kUpperRight_Corner].fX &&
-                   y < fRect.fTop + fRadii[kUpperRight_Corner].fY) {
-            // UR corner
+        } else if (x > fPts[kUpperRight_Corner].fX && y < fPts[kUpperRight_Corner].fY) {
             index = kUpperRight_Corner;
-            canonicalPt.set(x - (fRect.fRight - fRadii[kUpperRight_Corner].fX),
-                            y - (fRect.fTop + fRadii[kUpperRight_Corner].fY));
-            SkASSERT(canonicalPt.fX > 0 && canonicalPt.fY < 0);
-        } else if (x > fRect.fRight - fRadii[kLowerRight_Corner].fX &&
-                   y > fRect.fBottom - fRadii[kLowerRight_Corner].fY) {
-            // LR corner
+        } else if (x > fPts[kLowerRight_Corner].fX && y > fPts[kLowerRight_Corner].fY) {
             index = kLowerRight_Corner;
-            canonicalPt.set(x - (fRect.fRight - fRadii[kLowerRight_Corner].fX),
-                            y - (fRect.fBottom - fRadii[kLowerRight_Corner].fY));
-            SkASSERT(canonicalPt.fX > 0 && canonicalPt.fY > 0);
         } else {
             // not in any of the corners
             return true;
@@ -283,16 +256,22 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     //      a^2     b^2
     // or :
     //     b^2*x^2 + a^2*y^2 <= (ab)^2
-    SkScalar dist =  SkScalarSquare(canonicalPt.fX) * SkScalarSquare(fRadii[index].fY) +
-                     SkScalarSquare(canonicalPt.fY) * SkScalarSquare(fRadii[index].fX);
-    return dist <= SkScalarSquare(fRadii[index].fX * fRadii[index].fY);
+
+    SkVector local = fPts[index] - SkPoint{x, y};
+    SkVector radius = this->radii(index);
+    SkScalar dist =  SkScalarSquare(local.fX) * SkScalarSquare(radius.fY) +
+                     SkScalarSquare(local.fY) * SkScalarSquare(radius.fX);
+    return dist <= SkScalarSquare(radius.fX * radius.fY);
 }
 
 bool SkRRectPriv::AllCornersCircular(const SkRRect& rr, SkScalar tolerance) {
-    return SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY, tolerance) &&
-           SkScalarNearlyEqual(rr.fRadii[1].fX, rr.fRadii[1].fY, tolerance) &&
-           SkScalarNearlyEqual(rr.fRadii[2].fX, rr.fRadii[2].fY, tolerance) &&
-           SkScalarNearlyEqual(rr.fRadii[3].fX, rr.fRadii[3].fY, tolerance);
+    for (int i = 0; i < 4; ++i) {
+        SkVector rad = rr.radii((SkRRect::Corner)i);
+        if (!SkScalarNearlyEqual(rad.fX, rad.fY, tolerance)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool SkRRect::contains(const SkRect& rect) const {
@@ -316,73 +295,57 @@ bool SkRRect::contains(const SkRect& rect) const {
            this->checkCornerContainment(rect.fLeft, rect.fBottom);
 }
 
-static bool radii_are_nine_patch(const SkVector radii[4]) {
-    return radii[SkRRect::kUpperLeft_Corner].fX == radii[SkRRect::kLowerLeft_Corner].fX &&
-           radii[SkRRect::kUpperLeft_Corner].fY == radii[SkRRect::kUpperRight_Corner].fY &&
-           radii[SkRRect::kUpperRight_Corner].fX == radii[SkRRect::kLowerRight_Corner].fX &&
-           radii[SkRRect::kLowerLeft_Corner].fY == radii[SkRRect::kLowerRight_Corner].fY;
+SkRRect::Type SkRRect::ComputeType(const SkRect& rect, const SkPoint pts[4]) {
+    SkASSERT(rect.isSorted());
+
+    if (rect.isEmpty()) {
+        return kEmpty_Type;
+    }
+
+    const SkScalar tol = 0.00005f;
+
+    if (SkScalarNearlyEqual(pts[0].fX, pts[3].fX, tol) &&
+        SkScalarNearlyEqual(pts[1].fX, pts[2].fX, tol) &&
+        SkScalarNearlyEqual(pts[0].fY, pts[1].fY, tol) &&
+        SkScalarNearlyEqual(pts[3].fY, pts[2].fY, tol))
+    {
+        // Our 4 corners form a rectangle. Subsequent tests need only look at the upper/left
+        // and lower/right corners (pts[0] and pts[2])
+
+        if (SkScalarNearlyEqual(pts[0].fX, rect.fLeft, tol) &&
+            SkScalarNearlyEqual(pts[0].fY, rect.fTop, tol) &&
+            SkScalarNearlyEqual(pts[2].fX, rect.fRight, tol) &&
+            SkScalarNearlyEqual(pts[2].fY, rect.fBottom, tol)) {
+            return kRect_Type;
+        }
+
+        SkScalar L = pts[0].fX - rect.fLeft;
+        SkScalar T = pts[0].fY - rect.fTop;
+        SkScalar R = rect.fRight - pts[2].fX;
+        SkScalar B = rect.fBottom - pts[2].fY;
+
+        if (SkScalarNearlyEqual(L, R, tol) && SkScalarNearlyEqual(T, B, tol)) {
+            if (SkScalarNearlyEqual(pts[0].fX, pts[2].fX, tol) &&
+                SkScalarNearlyEqual(pts[0].fY, pts[2].fY, tol)) {
+                return kOval_Type;
+            } else {
+                return kSimple_Type;
+            }
+        } else {
+            return kNinePatch_Type;
+        }
+    }
+    return kComplex_Type;
 }
 
-// There is a simplified version of this method in setRectXY
-void SkRRect::computeType() {
-    if (fRect.isEmpty()) {
-        SkASSERT(fRect.isSorted());
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fRadii); ++i) {
-            SkASSERT((fRadii[i] == SkVector{0, 0}));
-        }
-        fType = kEmpty_Type;
-        SkASSERT(this->isValid());
-        return;
-    }
-
-    bool allRadiiEqual = true; // are all x radii equal and all y radii?
-    bool allCornersSquare = 0 == fRadii[0].fX || 0 == fRadii[0].fY;
-
-    for (int i = 1; i < 4; ++i) {
-        if (0 != fRadii[i].fX && 0 != fRadii[i].fY) {
-            // if either radius is zero the corner is square so both have to
-            // be non-zero to have a rounded corner
-            allCornersSquare = false;
-        }
-        if (fRadii[i].fX != fRadii[i-1].fX || fRadii[i].fY != fRadii[i-1].fY) {
-            allRadiiEqual = false;
-        }
-    }
-
-    if (allCornersSquare) {
-        fType = kRect_Type;
-        SkASSERT(this->isValid());
-        return;
-    }
-
-    if (allRadiiEqual) {
-        if (fRadii[0].fX >= SkScalarHalf(fRect.width()) &&
-            fRadii[0].fY >= SkScalarHalf(fRect.height())) {
-            fType = kOval_Type;
-        } else {
-            fType = kSimple_Type;
-        }
-        SkASSERT(this->isValid());
-        return;
-    }
-
-    if (radii_are_nine_patch(fRadii)) {
-        fType = kNinePatch_Type;
-    } else {
-        fType = kComplex_Type;
-    }
-    SkASSERT(this->isValid());
+void SkRRect::offset(SkScalar dx, SkScalar dy) {
+    SkAssertResult(this->transform(SkMatrix::MakeTrans(dx, dy), this));
 }
 
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     if (nullptr == dst) {
         return false;
     }
-
-    // Assert that the caller is not trying to do this in place, which
-    // would violate const-ness. Do not return false though, so that
-    // if they know what they're doing and want to violate it they can.
-    SkASSERT(dst != this);
 
     if (matrix.isIdentity()) {
         *dst = *this;
@@ -395,83 +358,32 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return false;
     }
 
-    SkRect newRect;
-    if (!matrix.mapRect(&newRect, fRect)) {
+    SkRect rect;
+    if (!matrix.mapRect(&rect, fRect)) {
         return false;
     }
+    dst->fRect = rect;
+    matrix.mapPoints(dst->fPts, fPts, 4);
 
-    // The matrix may have scaled us to zero (or due to float madness, we now have collapsed
-    // some dimension of the rect, so we need to check for that. Note that matrix must be
-    // scale and translate and mapRect() produces a sorted rect. So an empty rect indicates
-    // loss of precision.
-    if (!newRect.isFinite() || newRect.isEmpty()) {
-        return false;
+    // Before we "legalize", we should manually swap L/R and/or T/B pts if
+    // the matrix had negative scales
+    if (matrix.getScaleX() < 0) {
+        std::swap(dst->fPts[0], dst->fPts[1]);
+        std::swap(dst->fPts[3], dst->fPts[2]);
+    }
+    if (matrix.getScaleY() < 0) {
+        std::swap(dst->fPts[0], dst->fPts[3]);
+        std::swap(dst->fPts[1], dst->fPts[2]);
     }
 
-    // At this point, this is guaranteed to succeed, so we can modify dst.
-    dst->fRect = newRect;
-
-    // Since the only transforms that were allowed are scale and translate, the type
-    // remains unchanged.
-    dst->fType = fType;
-
-    if (kRect_Type == fType) {
-        SkASSERT(dst->isValid());
-        return true;
-    }
-    if (kOval_Type == fType) {
-        for (int i = 0; i < 4; ++i) {
-            dst->fRadii[i].fX = SkScalarHalf(newRect.width());
-            dst->fRadii[i].fY = SkScalarHalf(newRect.height());
-        }
-        SkASSERT(dst->isValid());
-        return true;
-    }
-
-    // Now scale each corner
-    SkScalar xScale = matrix.getScaleX();
-    const bool flipX = xScale < 0;
-    if (flipX) {
-        xScale = -xScale;
-    }
-    SkScalar yScale = matrix.getScaleY();
-    const bool flipY = yScale < 0;
-    if (flipY) {
-        yScale = -yScale;
-    }
-
-    // Scale the radii without respecting the flip.
-    for (int i = 0; i < 4; ++i) {
-        dst->fRadii[i].fX = fRadii[i].fX * xScale;
-        dst->fRadii[i].fY = fRadii[i].fY * yScale;
-    }
-
-    // Now swap as necessary.
-    using std::swap;
-    if (flipX) {
-        if (flipY) {
-            // Swap with opposite corners
-            swap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerRight_Corner]);
-            swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerLeft_Corner]);
-        } else {
-            // Only swap in x
-            swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kUpperLeft_Corner]);
-            swap(dst->fRadii[kLowerRight_Corner], dst->fRadii[kLowerLeft_Corner]);
-        }
-    } else if (flipY) {
-        // Only swap in y
-        swap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerLeft_Corner]);
-        swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
-    }
-
-    if (!AreRectAndRadiiValid(dst->fRect, dst->fRadii)) {
-        return false;
-    }
-
-    dst->scaleRadii(dst->fRect);
-    dst->isValid();
-
+    dst->legalize();
     return true;
+}
+
+SkRRect SkRRect::makeOffset(SkScalar dx, SkScalar dy) const {
+    SkRRect rr;
+    this->transform(SkMatrix::MakeTrans(dx, dy), &rr);
+    return rr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -489,7 +401,7 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
     }
     if (degenerate) {
         dst->fRect = r;
-        memset(dst->fRadii, 0, sizeof(dst->fRadii));
+        init_rect_pts(r, dst->fPts);
         dst->fType = kEmpty_Type;
         return;
     }
@@ -498,17 +410,12 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
         return;
     }
 
-    SkVector radii[4];
-    memcpy(radii, fRadii, sizeof(radii));
-    for (int i = 0; i < 4; ++i) {
-        if (radii[i].fX) {
-            radii[i].fX -= dx;
-        }
-        if (radii[i].fY) {
-            radii[i].fY -= dy;
-        }
-    }
-    dst->setRectRadii(r, radii);
+    dst->fRect = r;
+    dst->fPts[0].fX += dx; dst->fPts[0].fY += dy;
+    dst->fPts[1].fX -= dx; dst->fPts[1].fY += dy;
+    dst->fPts[2].fX -= dx; dst->fPts[2].fY -= dy;
+    dst->fPts[3].fX += dx; dst->fPts[3].fY -= dy;
+    dst->legalize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -531,7 +438,7 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
 
     SkRRect raw;
     memcpy(&raw, buffer, kSizeInMemory);
-    this->setRectRadii(raw.fRect, raw.fRadii);
+    this->setRectCenters(raw.fRect, raw.fPts);
     return kSizeInMemory;
 }
 
@@ -554,11 +461,11 @@ void SkRRect::dump(bool asHex) const {
     SkString line("const SkPoint corners[] = {\n");
     for (int i = 0; i < 4; ++i) {
         SkString strX, strY;
-        SkAppendScalar(&strX, fRadii[i].x(), asType);
-        SkAppendScalar(&strY, fRadii[i].y(), asType);
+        SkAppendScalar(&strX, fPts[i].x(), asType);
+        SkAppendScalar(&strY, fPts[i].y(), asType);
         line.appendf("    { %s, %s },", strX.c_str(), strY.c_str());
         if (asHex) {
-            line.appendf(" /* %f %f */", fRadii[i].x(), fRadii[i].y());
+            line.appendf(" /* %f %f */", fPts[i].x(), fPts[i].y());
         }
         line.append("\n");
     }
@@ -566,99 +473,24 @@ void SkRRect::dump(bool asHex) const {
     SkDebugf("%s\n", line.c_str());
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  We need all combinations of predicates to be true to have a "safe" radius value.
- */
-static bool are_radius_check_predicates_valid(SkScalar rad, SkScalar min, SkScalar max) {
-    return (min <= max) && (rad <= max - min) && (min + rad <= max) && (max - rad >= min) &&
-           rad >= 0;
-}
-
 bool SkRRect::isValid() const {
-    if (!AreRectAndRadiiValid(fRect, fRadii)) {
+    if (!fRect.isFinite() || !SkScalarsAreFinite(&fPts[0].fX, 8)) {
+        return false;
+    }
+    if (!fRect.isSorted()) {
+        return false;
+    }
+    if (!are_pts_legal(fRect, fPts)) {
         return false;
     }
 
-    bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
-    bool allCornersSquare = (0 == fRadii[0].fX || 0 == fRadii[0].fY);
-    bool allRadiiSame = true;
-
-    for (int i = 1; i < 4; ++i) {
-        if (0 != fRadii[i].fX || 0 != fRadii[i].fY) {
-            allRadiiZero = false;
-        }
-
-        if (fRadii[i].fX != fRadii[i-1].fX || fRadii[i].fY != fRadii[i-1].fY) {
-            allRadiiSame = false;
-        }
-
-        if (0 != fRadii[i].fX && 0 != fRadii[i].fY) {
-            allCornersSquare = false;
-        }
-    }
-    bool patchesOfNine = radii_are_nine_patch(fRadii);
-
-    if (fType < 0 || fType > kLastType) {
-        return false;
-    }
-
-    switch (fType) {
-        case kEmpty_Type:
-            if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
-                return false;
-            }
-            break;
-        case kRect_Type:
-            if (fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
-                return false;
-            }
-            break;
-        case kOval_Type:
-            if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
-                return false;
-            }
-
-            for (int i = 0; i < 4; ++i) {
-                if (!SkScalarNearlyEqual(fRadii[i].fX, SkScalarHalf(fRect.width())) ||
-                    !SkScalarNearlyEqual(fRadii[i].fY, SkScalarHalf(fRect.height()))) {
-                    return false;
-                }
-            }
-            break;
-        case kSimple_Type:
-            if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
-                return false;
-            }
-            break;
-        case kNinePatch_Type:
-            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare ||
-                !patchesOfNine) {
-                return false;
-            }
-            break;
-        case kComplex_Type:
-            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare ||
-                patchesOfNine) {
-                return false;
-            }
-            break;
-    }
-
-    return true;
+    Type type = ComputeType(fRect, fPts);
+    return type == fType;
 }
 
-bool SkRRect::AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]) {
-    if (!rect.isFinite() || !rect.isSorted()) {
-        return false;
-    }
-    for (int i = 0; i < 4; ++i) {
-        if (!are_radius_check_predicates_valid(radii[i].fX, rect.fLeft, rect.fRight) ||
-            !are_radius_check_predicates_valid(radii[i].fY, rect.fTop, rect.fBottom)) {
-            return false;
-        }
-    }
-    return true;
-}
 ///////////////////////////////////////////////////////////////////////////////
+
+SkVector* SkRRectPriv::GetRadiiArray(const SkRRect& rr, SkVector radii[4]) {
+    compute_4_radii(rr.fRect, rr.fPts, radii);
+    return radii;
+}
