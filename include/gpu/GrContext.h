@@ -12,6 +12,7 @@
 #include "SkPathEffect.h"
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
+#include "../private/GrRecordingContext.h"
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
@@ -50,7 +51,7 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
-class SK_API GrContext : public SkRefCnt {
+class SK_API GrContext : public GrRecordingContext {
 public:
     /**
      * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
@@ -266,11 +267,6 @@ public:
     GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[]);
 
-    /**
-     * An ID associated with this context, guaranteed to be unique.
-     */
-    uint32_t uniqueID() { return fUniqueID; }
-
     // Provides access to functions that aren't part of the public API.
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
@@ -291,7 +287,6 @@ protected:
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
-    const GrBackendApi                         fBackend;
     sk_sp<const GrCaps>                     fCaps;
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
     sk_sp<GrSkSLFPFactoryCache>             fFPFactoryCache;
@@ -324,8 +319,6 @@ private:
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
-    const uint32_t                          fUniqueID;
-
     std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
@@ -354,7 +347,7 @@ private:
      */
     static void TextBlobCacheOverBudgetCB(void* data);
 
-    typedef SkRefCnt INHERITED;
+    typedef GrRecordingContext INHERITED;
 };
 
 #endif

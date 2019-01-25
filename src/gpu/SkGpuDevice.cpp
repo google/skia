@@ -1741,7 +1741,7 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkCanvas* canvas) {
-    GrBackendApi api = this->context()->contextPriv().getBackend();
+    GrBackendApi api = this->context()->contextPriv().backend();
     if (GrBackendApi::kVulkan == api) {
         const SkMatrix& ctm = canvas->getTotalMatrix();
         const SkMatrix& combinedMatrix = matrix ? SkMatrix::Concat(ctm, *matrix) : ctm;
