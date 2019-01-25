@@ -11,9 +11,13 @@ import("../third_party.gni")
 third_party("sfntly") {
   public_include_dirs = [ "../externals/sfntly/cpp/src" ]
   defines = [ "SFNTLY_NO_EXCEPTION" ]
-  deps = [
+  public_deps = [
     "//third_party/icu",
   ]
+  deps = []
+  if (is_win) {
+    defines += [ "WIN32", ]
+  }
   sources = [
     "../externals/sfntly/cpp/src/sample/chromium/font_subsetter.cc",
     "../externals/sfntly/cpp/src/sample/chromium/subsetter_impl.cc",
@@ -70,8 +74,4 @@ third_party("sfntly") {
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/subsetter.cc",
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/table_subsetter_impl.cc",
   ]
-
-  if (is_win) {
-    defines += [ "WIN32", ]
-  }
 }
