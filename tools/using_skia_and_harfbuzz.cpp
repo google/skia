@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "SkCanvas.h"
+#include "SkLoadICU.h"
 #include "SkPDFDocument.h"
 #include "SkShaper.h"
 #include "SkStream.h"
@@ -197,6 +198,7 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStrea
 }
 
 int main(int argc, char **argv) {
+    SkLoadICU();
     Config config(argc, argv);
     SkFILEWStream wStream(config.output_file_name.value.c_str());
     sk_sp<SkDocument> doc = MakePDFDocument(config, &wStream);
