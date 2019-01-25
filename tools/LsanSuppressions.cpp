@@ -22,6 +22,7 @@ extern "C" {
                "leak:libGLX_nvidia.so\n"    // For NVidia driver.
                "leak:libnvidia-glcore.so\n" // For NVidia driver.
                "leak:libnvidia-tls.so\n"    // For NVidia driver.
+               "leak:libxcb.so\n"           // For Mesa driver. skia:8710
                "leak:__strdup\n"            // An eternal mystery, skia:2916.
                ;
     }
