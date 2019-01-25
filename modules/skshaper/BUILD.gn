@@ -25,9 +25,11 @@ source_set("skshaper") {
       sources = skia_shaper_primitive_sources
     } else {
       sources = skia_shaper_harfbuzz_sources
+      public_deps = [
+        "//third_party/icu",
+      ]
       deps += [
         "//third_party/harfbuzz",
-        "//third_party/icu",
       ]
     }
     configs += [ "../../:skia_private" ]
