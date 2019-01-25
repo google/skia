@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8066fda_6ec9d9ad",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T19:47:44Z",
+      "side": 1,
+      "message": "We check here...",
+      "range": {
+        "startLine": 720,
+        "startChar": 40,
+        "endLine": 720,
+        "endChar": 74
+      },
+      "revId": "b99b3936019b16f7d1d2fcbf48d738e6703c8f5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "642a10c5_9778b83e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T19:47:44Z",
+      "side": 1,
+      "message": "..store the check here...",
+      "range": {
+        "startLine": 726,
+        "startChar": 12,
+        "endLine": 726,
+        "endChar": 50
+      },
+      "revId": "b99b3936019b16f7d1d2fcbf48d738e6703c8f5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "110901d8_0008cc09",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-25T19:47:44Z",
+      "side": 1,
+      "message": "and look at the stored check here.",
+      "range": {
+        "startLine": 542,
+        "startChar": 27,
+        "endLine": 542,
+        "endChar": 60
+      },
+      "revId": "b99b3936019b16f7d1d2fcbf48d738e6703c8f5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
