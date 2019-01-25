@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a0fa2af_b0b9d4d4",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "Is there a better name ? cornerCenter?",
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08374de7_ae73a6a9",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "rect_to_pts ?",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 25
+      },
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce1497b8_968d6d0f",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "of trying",
+      "range": {
+        "startLine": 117,
+        "startChar": 25,
+        "endLine": 117,
+        "endChar": 32
+      },
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bf48e5d_bf49a52e",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "It looks like we aren\u0027t sorting below",
+      "range": {
+        "startLine": 135,
+        "startChar": 25,
+        "endLine": 135,
+        "endChar": 32
+      },
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35102e16_91d45fe1",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "Can we assert that x,y is inside the bounds here ?",
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef1a952d_00710f77",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T19:49:08Z",
+      "side": 1,
+      "message": "up to here",
+      "revId": "a7f95c7ca80469aafcf7dd4c2da9dc164fdb5ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
