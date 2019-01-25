@@ -459,21 +459,31 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return sk_sp<GrTexture>();
             }
 
-            auto tex = resourceProvider->wrapBackendTexture(backendTexture, kBorrow_GrWrapOwnership,
-                                                            GrWrapCacheable::kYes, kRead_GrIOType);
-            if (!tex) {
-                // Even though we failed to wrap the backend texture, we must call the release
-                // proc to keep our contract of always calling Fulfill and Release in pairs.
-                fReleaseContext->release();
-                return sk_sp<GrTexture>();
-            }
-            // The texture gets a ref, which is balanced when the idle callback is called.
-            this->addToIdleContext(tex.get());
             static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
             GrUniqueKey::Builder builder(&fLastFulfilledKey, kDomain, 2, "promise");
             builder[0] = promiseTexture->uniqueID();
             builder[1] = fConfig;
             builder.finish();
+            // A texture with this key may already exist from a different instance of this lazy
+            // callback. This could happen if the client fulfills a promise image with a texture
+            // that was previously used to fulfill a different promise image.
+            sk_sp<GrTexture> tex;
+            if (auto surf = resourceProvider->findByUniqueKey<GrSurface>(fLastFulfilledKey)) {
+                tex = sk_ref_sp(surf->asTexture());
+                SkASSERT(tex);
+            } else {
+                if ((tex = resourceProvider->wrapBackendTexture(
+                             backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kYes,
+                             kRead_GrIOType))) {
+                    tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
+                } else {
+                    // Even though we failed to wrap the backend texture, we must call the release
+                    // proc to keep our contract of always calling Fulfill and Release in pairs.
+                    fReleaseContext->release();
+                    return sk_sp<GrTexture>();
+                }
+            }
+            this->addToIdleContext(tex.get());
             tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
             SkASSERT(fContextID == SK_InvalidUniqueID ||
                      fContextID == tex->getContext()->uniqueID());
