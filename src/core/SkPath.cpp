@@ -1001,22 +1001,22 @@ public:
 class RRectPointIterator : public PointIterator<8> {
 public:
     RRectPointIterator(const SkRRect& rrect, SkPath::Direction dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
+        : PointIterator(dir, startIndex)
+    {
         const SkRect& bounds = rrect.getBounds();
         const SkScalar L = bounds.fLeft;
         const SkScalar T = bounds.fTop;
         const SkScalar R = bounds.fRight;
         const SkScalar B = bounds.fBottom;
 
-        fPts[0] = SkPoint::Make(L + rrect.radii(SkRRect::kUpperLeft_Corner).fX, T);
-        fPts[1] = SkPoint::Make(R - rrect.radii(SkRRect::kUpperRight_Corner).fX, T);
-        fPts[2] = SkPoint::Make(R, T + rrect.radii(SkRRect::kUpperRight_Corner).fY);
-        fPts[3] = SkPoint::Make(R, B - rrect.radii(SkRRect::kLowerRight_Corner).fY);
-        fPts[4] = SkPoint::Make(R - rrect.radii(SkRRect::kLowerRight_Corner).fX, B);
-        fPts[5] = SkPoint::Make(L + rrect.radii(SkRRect::kLowerLeft_Corner).fX, B);
-        fPts[6] = SkPoint::Make(L, B - rrect.radii(SkRRect::kLowerLeft_Corner).fY);
-        fPts[7] = SkPoint::Make(L, T + rrect.radii(SkRRect::kUpperLeft_Corner).fY);
+        fPts[0] = SkPoint::Make(rrect.center(SkRRect::kUpperLeft_Corner).fX, T);
+        fPts[1] = SkPoint::Make(rrect.center(SkRRect::kUpperRight_Corner).fX, T);
+        fPts[2] = SkPoint::Make(R, rrect.center(SkRRect::kUpperRight_Corner).fY);
+        fPts[3] = SkPoint::Make(R, rrect.center(SkRRect::kLowerRight_Corner).fY);
+        fPts[4] = SkPoint::Make(rrect.center(SkRRect::kLowerRight_Corner).fX, B);
+        fPts[5] = SkPoint::Make(rrect.center(SkRRect::kLowerLeft_Corner).fX, B);
+        fPts[6] = SkPoint::Make(L, rrect.center(SkRRect::kLowerLeft_Corner).fY);
+        fPts[7] = SkPoint::Make(L, rrect.center(SkRRect::kUpperLeft_Corner).fY);
     }
 };
 
