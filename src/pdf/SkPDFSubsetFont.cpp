@@ -20,8 +20,7 @@ sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
                               const SkPDFGlyphUse& glyphUsage,
                               const char* fontName,
                               int ttcIndex) {
-    SkOnce once;
-    once([] { SkLoadICU(); });
+    SkLoadICU();
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
     std::vector<unsigned> subset;
