@@ -17,6 +17,24 @@
       "revId": "c0656bb44ba34b2e8bb93476cd489243403f8b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d9254df_e0c4cbbb",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-25T14:13:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e09a0957_cf7b6cc5",
+      "revId": "c0656bb44ba34b2e8bb93476cd489243403f8b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
