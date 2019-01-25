@@ -11,6 +11,7 @@
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrGpuResourcePriv.h"
+#include "GrImageContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
 #include "GrProxyProvider.h"
@@ -98,7 +99,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    GrContext* context = renderTargetContext->surfPriv().getContext();
+    auto context = renderTargetContext->surfPriv().getContext();
     renderTargetContext->addDrawOp(clip,
                                    GrFillRectOp::MakeWithLocalMatrix(
                                            context, std::move(paint), GrAAType::kNone, viewMatrix,
@@ -172,9 +173,10 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
+static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrImageContext* context,
+                                                              SkBackingFit fit,
                                                               int width, int height) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fWidth = width;
@@ -182,7 +184,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
 
     // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt to
     // ops), so it can't have any pending IO.
@@ -219,16 +221,16 @@ private:
 };
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
-class PathInvalidator : public SkPathRef::GenIDChangeListener {
+class PathInvalidator : public SkPathRef::GenIDChangeListener2 {
 public:
     PathInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
             : fMsg(key, contextUniqueID) {}
 
 private:
-    GrUniqueKeyInvalidatedMessage fMsg;
+    GrUniqueKeyInvalidatedMessage17 fMsg;
 
     void onChange() override {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg);
+        SkMessageBus<GrUniqueKeyInvalidatedMessage17>::Post(fMsg);
     }
 };
 
@@ -331,7 +333,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
 
-        SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
+        SkTaskGroup* taskGroup = args.fContext->asDirectContext()
+                                    ? args.fContext->asDirectContext()->contextPriv().getTaskGroup()
+                                    : nullptr;
+
         if (taskGroup) {
             proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
                                                      boundsForMask->width(),
@@ -373,7 +378,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (useCache) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
-            args.fShape->addGenIDChangeListener(
+            args.fShape->addGenIDChangeListener3(
                     sk_make_sp<PathInvalidator>(maskKey, args.fContext->uniqueID()));
         }
     }

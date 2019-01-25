@@ -35,7 +35,7 @@ public:
      * primitive type drawn is derived from the SkVertices object, unless overridePrimType is
      * specified.
      */
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&&,
                                           sk_sp<SkVertices>,
                                           const SkVertices::Bone bones[],

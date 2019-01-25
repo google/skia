@@ -136,7 +136,7 @@ void GrTextureOpList::endFlush() {
 
 // This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
 // stores extra data with the op
-bool GrTextureOpList::copySurface(GrContext* context,
+bool GrTextureOpList::copySurface(GrRecordingContext* context,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
@@ -148,7 +148,7 @@ bool GrTextureOpList::copySurface(GrContext* context,
         return false;
     }
 
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
     auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
         this->addDependency(p, *caps);
     };

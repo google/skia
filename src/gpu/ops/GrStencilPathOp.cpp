@@ -14,14 +14,14 @@
 #include "GrOpFlushState.h"
 #include "GrRenderTargetPriv.h"
 
-std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
+std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext* context,
                                             const SkMatrix& viewMatrix,
                                             bool useHWAA,
                                             GrPathRendering::FillType fillType,
                                             bool hasStencilClip,
                                             const GrScissorState& scissor,
                                             const GrPath* path) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrStencilPathOp>(viewMatrix, useHWAA, fillType,
                                            hasStencilClip, scissor, path);

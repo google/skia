@@ -16,6 +16,7 @@
 #include "SkRect.h"
 
 class GrCaps;
+class GrContext_Base;
 class GrOpList;
 class GrProxyProvider;
 class GrRenderTargetOpList;
@@ -397,20 +398,20 @@ public:
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
     // The copy is is not a render target and not multisampled.
-    static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src, GrMipMapped, SkIRect srcRect,
+    static sk_sp<GrTextureProxy> Copy(GrRecordingContext*, GrSurfaceProxy* src, GrMipMapped, SkIRect srcRect,
                                       SkBackingFit, SkBudgeted);
 
     // Copy the entire 'src'
-    static sk_sp<GrTextureProxy> Copy(GrContext*, GrSurfaceProxy* src, GrMipMapped, SkBackingFit,
+    static sk_sp<GrTextureProxy> Copy(GrRecordingContext*, GrSurfaceProxy* src, GrMipMapped, SkBackingFit,
                                       SkBudgeted budgeted);
 
     // Test-only entry point - should decrease in use as proxies propagate
-    static sk_sp<GrSurfaceContext> TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+    static sk_sp<GrSurfaceContext> TestCopy(GrRecordingContext* context, const GrSurfaceDesc& dstDesc,
                                             GrSurfaceOrigin, GrSurfaceProxy* srcProxy);
 
     bool isWrapped_ForTesting() const;
 
-    SkDEBUGCODE(void validate(GrContext*) const;)
+    SkDEBUGCODE(void validate(GrContext_Base*) const;)
 
     // Provides access to functions that aren't part of the public API.
     inline GrSurfaceProxyPriv priv();

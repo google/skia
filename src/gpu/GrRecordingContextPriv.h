@@ -1,0 +1,127 @@
+/*
+ * Copyright 2019 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef GrRecordingContextPriv_DEFINED
+#define GrRecordingContextPriv_DEFINED
+
+#include "GrRecordingContext.h"
+
+/** Class that exposes methods to GrRecordingContext that are only intended for use internal to
+    Skia. This class is purely a privileged window into GrRecordingContext. It should never have
+    additional data members or virtual methods. */
+class GrRecordingContextPriv {
+public:
+    // from GrContext_Base
+    GrBackendApi backend() const { return fContext->backend(); }
+
+    const GrCaps* caps() const { return fContext->caps();; }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() { fContext->getFPFactoryCache(); }
+
+    bool disableGpuYUVConversion() const { return fContext->disableGpuYUVConversion(); }
+    bool sharpenMipmappedTextures() const { return fContext->sharpenMipmappedTextures(); }
+
+    // from GrImageContext
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
+
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    GrSingleOwner* singleOwner() const { return fContext->singleOwner(); }
+
+    // from GrRecordingContext
+    sk_sp<GrOpMemoryPool> refOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+
+    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
+                                                      sk_sp<SkColorSpace> cs = nullptr,
+                                                      const SkSurfaceProps* props = nullptr);
+
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrBackendFormat&,
+                                                       const GrSurfaceDesc&,
+                                                       GrSurfaceOrigin,
+                                                       GrMipMapped,
+                                                       SkBackingFit,
+                                                       SkBudgeted,
+                                                       sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                       const SkSurfaceProps* = nullptr);
+
+    /*
+     * Create a new render target context backed by a deferred-style
+     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
+     * renderTargetContexts created via this entry point.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
+                                                 const GrBackendFormat& format,
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 1,
+                                                 GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+#if 0
+    {
+        return fContext->makeDeferredRenderTargetContext(format, fit, width, height, config,
+                                                         std::move(colorSpace), sampleCnt, mipMapped,
+                                                         origin, surfaceProps, budgeted);
+    }
+#endif
+
+    /*
+     * This method will attempt to create a renderTargetContext that has, at least, the number of
+     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
+     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
+     * SRGB-ness will be preserved.
+     */
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
+                                                                 const GrBackendFormat& format,
+                                                                 SkBackingFit fit,
+                                                                 int width, int height,
+                                                                 GrPixelConfig config,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 int sampleCnt = 1,
+                                                                 GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
+                                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                                 SkBudgeted budgeted = SkBudgeted::kYes);
+#if 0
+    {
+        return fContext->makeDeferredRenderTargetContextWithFallback(format, fit, width, height,
+                                                                     config, std::move(colorSpace),
+                                                                     sampleCnt, mipMapped, origin,
+                                                                     surfaceProps, budgeted);
+    }
+#endif
+
+private:
+    explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
+    GrRecordingContextPriv(const GrRecordingContextPriv&); // unimpl
+    GrRecordingContextPriv& operator=(const GrRecordingContextPriv&); // unimpl
+
+    // No taking addresses of this type.
+    const GrRecordingContextPriv* operator&() const;
+    GrRecordingContextPriv* operator&();
+
+    GrRecordingContext* fContext;
+
+    friend class GrRecordingContext; // to construct/copy this type.
+};
+
+inline GrRecordingContextPriv GrRecordingContext::priv() { return GrRecordingContextPriv(this); }
+
+inline const GrRecordingContextPriv GrRecordingContext::priv () const {
+    return GrRecordingContextPriv(const_cast<GrRecordingContext*>(this));
+}
+
+#endif

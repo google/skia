@@ -23,7 +23,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
         return nullptr;
     }
 
-    if (ctx->contextPriv().getBackend() != GrBackendApi::kVulkan) {
+    if (ctx->priv().backend() != GrBackendApi::kVulkan) {
         return nullptr;
     }
 
