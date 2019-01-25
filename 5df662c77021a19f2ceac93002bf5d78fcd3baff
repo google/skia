@@ -70,6 +70,30 @@
       "revId": "5df662c77021a19f2ceac93002bf5d78fcd3baff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ace6127_8843fbb8",
+        "filename": "dm/DMJsonWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-25T15:35:55Z",
+      "side": 1,
+      "message": "Ah, I thought it was for bots. If that\u0027s an unused feature of DM, I\u0027ll certainly remove it.",
+      "parentUuid": "f4e7a7b7_b8d1eb1e",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 21
+      },
+      "revId": "5df662c77021a19f2ceac93002bf5d78fcd3baff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
