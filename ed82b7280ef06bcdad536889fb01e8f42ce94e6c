@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bf6d3ca6_439affec",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-01-25T17:36:32Z",
+      "side": 1,
+      "message": "Seems to work fine.",
+      "parentUuid": "3338cedb_4b7ea6d8",
+      "revId": "ed82b7280ef06bcdad536889fb01e8f42ce94e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d56410a2_eb3928c1",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "ed82b7280ef06bcdad536889fb01e8f42ce94e6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7db5abee_5d746e4f",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-01-25T17:36:32Z",
+      "side": 1,
+      "message": "At least in Metal 1 there\u0027s no such constructor, unfortunately - you have to do it from a single scalar or from vectors.",
+      "parentUuid": "d56410a2_eb3928c1",
+      "revId": "ed82b7280ef06bcdad536889fb01e8f42ce94e6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
