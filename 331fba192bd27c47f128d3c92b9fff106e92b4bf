@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "61f6dc40_b02c4d12",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-25T22:35:56Z",
+      "side": 1,
+      "message": "Handled in separate CL",
+      "parentUuid": "cec684c8_795653c1",
+      "range": {
+        "startLine": 380,
+        "startChar": 0,
+        "endLine": 386,
+        "endChar": 42
+      },
+      "revId": "331fba192bd27c47f128d3c92b9fff106e92b4bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "713dfb17_c69832cf",
         "filename": "src/utils/SkLua.cpp",
         "patchSetId": 16
