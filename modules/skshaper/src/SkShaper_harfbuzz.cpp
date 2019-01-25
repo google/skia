@@ -508,8 +508,7 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    SkOnce once;
-    once([] { SkLoadICU(); });
+    SkLoadICU();  // Internally guarded by std::once
 
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
