@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                                  expectedDoneCnt,
                                                                  reporter));
 
-        bool isVulkan = GrBackendApi::kVulkan == ctx->contextPriv().getBackend();
+        bool isVulkan = GrBackendApi::kVulkan == ctx->backend();
         canvas->flush();
         expectedFulfillCnt++;
         expectedReleaseCnt++;
@@ -313,7 +313,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                                              expectedDoneCnt,
                                                              reporter));
 
-    bool isVulkan = GrBackendApi::kVulkan == ctx->contextPriv().getBackend();
+    bool isVulkan = GrBackendApi::kVulkan == ctx->backend();
     canvas->flush();
     expectedFulfillCnt++;
     expectedReleaseCnt++;

@@ -28,6 +28,13 @@ class SkDeferredDisplayList;
     data members or virtual methods. */
 class GrContextPriv {
 public:
+
+    // from GrContext_Base
+
+    // from GrImageContext
+
+    // from GrRecordingContext
+
     /**
      * Create a GrContext without a resource cache
      */
@@ -181,8 +188,6 @@ public:
     bool writeSurfacePixels(GrSurfaceContext* dst, int left, int top, int width, int height,
                             GrColorType srcColorType, SkColorSpace* srcColorSpace,
                             const void* buffer, size_t rowBytes, uint32_t pixelOpsFlags = 0);
-
-    GrBackendApi getBackend() const { return fContext->fBackend; }
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
