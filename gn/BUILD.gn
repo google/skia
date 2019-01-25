@@ -222,6 +222,8 @@ config("default") {
   }
 
   if (sanitize != "") {
+    defines += [ "SK_HAS_SANITIZERS" ]
+
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
@@ -428,7 +430,10 @@ config("debug_symbols") {
   } else if (is_win) {
     cflags = [ "/Z7" ]
     if (is_clang) {
-      cflags += [ "-mllvm", "-emit-codeview-ghash-section" ]
+      cflags += [
+        "-mllvm",
+        "-emit-codeview-ghash-section",
+      ]
       ldflags = [ "/DEBUG:GHASH" ]
     } else {
       ldflags = [ "/DEBUG:FASTLINK" ]
