@@ -7,6 +7,7 @@
 
 #include "Request.h"
 
+#include "SkJSONWriter.h"
 #include "SkPictureRecorder.h"
 #include "sk_tool_utils.h"
 
@@ -214,13 +215,17 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
 sk_sp<SkData> Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
-    Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
-    root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
-    root["drawGpuOpBounds"] = Json::Value(fDebugCanvas->getDrawGpuOpBounds());
-    root["colorMode"] = Json::Value(fColorMode);
     SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(root).c_str());
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+    writer.beginObject(); // root
 
+    writer.appendString("mode", fGPUEnabled ? "gpu" : "cpu");
+    writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
+    writer.appendS32("colorMode", fColorMode);
+    fDebugCanvas->toJSON(writer, fUrlDataManager, n, canvas);
+
+    writer.endObject(); // root
+    writer.flush();
     return stream.detachAsData();
 }
 
