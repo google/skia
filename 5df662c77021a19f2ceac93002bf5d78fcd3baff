@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7e61942_4f5a8b24",
+        "filename": "dm/DMJsonWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-25T15:16:17Z",
+      "side": 1,
+      "message": "nit: still needed?",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 21
+      },
+      "revId": "5df662c77021a19f2ceac93002bf5d78fcd3baff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
