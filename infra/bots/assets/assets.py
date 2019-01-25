@@ -46,7 +46,8 @@ def upload(args):
   """Upload a new version of the asset."""
   asset = asset_utils.Asset(args.asset_name,
                             asset_utils.MultiStore(gsutil=args.gsutil))
-  asset.upload_new_version(args.target_dir, commit=args.commit)
+  asset.upload_new_version(args.target_dir, commit=args.commit,
+                           extra_tags=args.extra_tags)
 
 
 def main(argv):
@@ -77,6 +78,9 @@ def main(argv):
   prs_upload.add_argument('--target_dir', '-t', required=True)
   prs_upload.add_argument('--gsutil')
   prs_upload.add_argument('--commit', action='store_true')
+  prs_upload.add_argument(
+    '--extra_tags', nargs='+',
+    help='Additional tags for the CIPD package, "key:value"')
 
   args = parser.parse_args(argv)
   args.func(args)

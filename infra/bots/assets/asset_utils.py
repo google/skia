@@ -117,9 +117,9 @@ class CIPDStore(object):
     versions.sort()
     return versions
 
-  def upload(self, name, version, target_dir):
+  def upload(self, name, version, target_dir, extra_tags=None):
     """Create a CIPD package."""
-    self._run([
+    cmd = [
         'create',
         '--name', CIPD_PACKAGE_NAME_TMPL % name,
         '--in', target_dir,
@@ -127,7 +127,11 @@ class CIPDStore(object):
         '--tag', TAG_VERSION_TMPL % version,
         '--compression-level', '1',
         '-verification-timeout', '30m0s',
-    ])
+    ]
+    if extra_tags:
+      for tag in extra_tags:
+        cmd.extend(['--tag', tag])
+    self._run(cmd)
 
   def download(self, name, version, target_dir):
     """Download a CIPD package."""
@@ -182,7 +186,8 @@ class GSStore(object):
     versions.sort()
     return versions
 
-  def upload(self, name, version, target_dir):
+  # pylint: disable=unused-argument
+  def upload(self, name, version, target_dir, extra_tags=None):
     """Upload to GS."""
     target_dir = os.path.abspath(target_dir)
     with utils.tmp_dir():
@@ -224,9 +229,9 @@ class MultiStore(object):
   def get_available_versions(self, name):
     return self._cipd.get_available_versions(name)
 
-  def upload(self, name, version, target_dir):
-    self._cipd.upload(name, version, target_dir)
-    self._gs.upload(name, version, target_dir)
+  def upload(self, name, version, target_dir, extra_tags=None):
+    self._cipd.upload(name, version, target_dir, extra_tags=extra_tags)
+    self._gs.upload(name, version, target_dir, extra_tags=extra_tags)
 
   def download(self, name, version, target_dir):
     self._gs.download(name, version, target_dir)
@@ -279,10 +284,10 @@ class Asset(object):
     v = self.get_current_version()
     self.download_version(v, target_dir)
 
-  def upload_new_version(self, target_dir, commit=False):
+  def upload_new_version(self, target_dir, commit=False, extra_tags=None):
     """Upload a new version and update the version file for the asset."""
     version = self.get_next_version()
-    self._store.upload(self._name, version, target_dir)
+    self._store.upload(self._name, version, target_dir, extra_tags=extra_tags)
 
     def _write_version():
       with open(self.version_file, 'w') as f:

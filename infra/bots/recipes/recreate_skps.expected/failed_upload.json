@@ -208,7 +208,9 @@
       "python",
       "[START_DIR]/cache/work/skia/infra/bots/upload_skps.py",
       "--target_dir",
-      "[START_DIR]/skp_output"
+      "[START_DIR]/skp_output",
+      "--chromium_path",
+      "[START_DIR]/cache/work/src"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
