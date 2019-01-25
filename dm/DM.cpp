@@ -77,6 +77,8 @@ DEFINE_string(blacklist, "",
         "'--blacklist ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
                                             "the name.");
 
+DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
+
 DEFINE_string(uninterestingHashesFile, "",
         "File containing a list of uninteresting hashes. If a result hashes to something in "
         "this list, no image is written for that result.");
@@ -293,6 +295,42 @@ static void find_culprit() {
         }
     }
 #endif
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+struct Gold : public SkString {
+    Gold() : SkString("") {}
+    Gold(const SkString& sink, const SkString& src,
+         const SkString& srcOptions, const SkString& name,
+         const SkString& md5)
+        : SkString("") {
+        this->append(sink);
+        this->append(src);
+        this->append(srcOptions);
+        this->append(name);
+        this->append(md5);
+    }
+    struct Hash {
+        uint32_t operator()(const Gold& g) const {
+            return SkGoodHash()((const SkString&)g);
+        }
+    };
+};
+static SkTHashSet<Gold, Gold::Hash> gGold;
+
+static void add_gold(JsonWriter::BitmapResult r) {
+    gGold.add(Gold(r.config, r.sourceType, r.sourceOptions, r.name, r.md5));
+}
+
+static void gather_gold() {
+    if (!FLAGS_readPath.isEmpty()) {
+        SkString path(FLAGS_readPath[0]);
+        path.append("/dm.json");
+        if (!JsonWriter::ReadJson(path.c_str(), add_gold)) {
+            fail(SkStringPrintf("Couldn't read %s for golden results.", path.c_str()));
+        }
+    }
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1095,7 +1133,7 @@ struct Task {
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
                 SkString md5;
-                if (!FLAGS_writePath.isEmpty()) {
+                if (!FLAGS_writePath.isEmpty() || !FLAGS_readPath.isEmpty()) {
                     SkMD5 hash;
                     if (data->getLength()) {
                         hash.writeStream(data, data->getLength());
@@ -1119,6 +1157,18 @@ struct Task {
                     for (int i = 0; i < 16; i++) {
                         md5.appendf("%02x", digest.data[i]);
                     }
+                }
+
+                if (!FLAGS_readPath.isEmpty() &&
+                    !gGold.contains(Gold(task.sink.tag, task.src.tag,
+                                         task.src.options, name, md5))) {
+                    fail(SkStringPrintf("%s not found for %s %s %s %s in %s",
+                                        md5.c_str(),
+                                        task.sink.tag.c_str(),
+                                        task.src.tag.c_str(),
+                                        task.src.options.c_str(),
+                                        name.c_str(),
+                                        FLAGS_readPath[0]));
                 }
 
                 if (!FLAGS_writePath.isEmpty()) {
@@ -1314,6 +1364,7 @@ int main(int argc, char** argv) {
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {
         info("Some resources are missing.  Do you need to set --resourcePath?\n");
     }
+    gather_gold();
     gather_uninteresting_hashes();
 
     if (!gather_srcs()) {
