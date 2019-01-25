@@ -60,7 +60,7 @@ class _LocalStore(object):
     contents = os.listdir(os.path.join(self.dir, name))
     return sorted([int(d) for d in contents])
 
-  def upload(self, name, version, target_dir):
+  def upload(self, name, version, target_dir, extra_tags=None):
     shutil.copytree(target_dir, os.path.join(self.dir, name, str(version)))
 
   def download(self, name, version, target_dir):
