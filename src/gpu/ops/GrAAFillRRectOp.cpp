@@ -72,7 +72,8 @@ GrAAFillRRectOp::GrAAFillRRectOp(const GrShaderCaps& shaderCaps, const SkMatrix&
 
     // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
     Sk4f radiiX, radiiY;
-    Sk4f::Load2(SkRRectPriv::GetRadiiArray(rrect), &radiiX, &radiiY);
+    SkVector radii[4];
+    Sk4f::Load2(SkRRectPriv::GetRadiiArray(rrect, radii), &radiiX, &radiiY);
     (radiiX * (2/(r - l))).store(this->appendInstanceData<float>(4));
     (radiiY * (2/(b - t))).store(this->appendInstanceData<float>(4));
 
@@ -512,8 +513,9 @@ static bool can_use_hw_derivatives(const GrShaderCaps& shaderCaps, const SkMatri
             return can_use_hw_derivatives(devScale, rrect.getSimpleRadii());
 
         case SkRRect::kNinePatch_Type: {
-            Sk2f r0 = Sk2f::Load(SkRRectPriv::GetRadiiArray(rrect));
-            Sk2f r1 = Sk2f::Load(SkRRectPriv::GetRadiiArray(rrect) + 2);
+            SkVector radii[4];
+            Sk2f r0 = Sk2f::Load(SkRRectPriv::GetRadiiArray(rrect, radii));
+            Sk2f r1 = Sk2f::Load(SkRRectPriv::GetRadiiArray(rrect, radii) + 2);
             Sk2f minRadii = Sk2f::Min(r0, r1);
             Sk2f maxRadii = Sk2f::Max(r0, r1);
             return can_use_hw_derivatives(devScale, Sk2f(minRadii[0], maxRadii[1])) &&
