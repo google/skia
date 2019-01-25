@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ec2237dc_3ef774ca",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-01-25T21:50:13Z",
+      "side": 1,
+      "message": "I guess, also, these are only private for now. As they become more full fledged I believe clients will need to know about them.",
+      "parentUuid": "35a092ff_6967693a",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 28
+      },
+      "revId": "413cd229d3b7092c87935e960eef98ca5cdee718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2216bdc_980a408c",
         "filename": "include/private/GrContext_Base.h",
         "patchSetId": 2
