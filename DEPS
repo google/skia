@@ -13,7 +13,8 @@ deps = {
   "third_party/externals/expat"           : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
   "third_party/externals/freetype"        : "https://skia.googlesource.com/third_party/freetype2.git@7edc937fe679d14d66f55cf6f7fa607925d38f3c",
   "third_party/externals/harfbuzz"        : "https://skia.googlesource.com/third_party/harfbuzz.git@8be74d85534534dbdd39a0a6f496e26e9f3e661d",
-  "third_party/externals/icu"             : "https://chromium.googlesource.com/chromium/deps/icu.git@407b39301e71006b68bd38e770f35d32398a7b14",
+
+  "third_party/externals/icu"             : "https://skia.googlesource.com/external/github.com/unicode-org/icu@maint-64",
   "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@d38d7c6628bebd02692cfdd6fa76b4d992a35b75",
   # TODO: remove jsoncpp after migrating clients to SkJSON
   "third_party/externals/jsoncpp"         : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
@@ -33,8 +34,8 @@ deps = {
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/wuffs"           : "https://github.com/google/wuffs.git@fda3c4c9863d9f9fcec58ae66508c4621fc71ea5",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@47af7c547f8551bd25424e56354a2ae1e9062859",
-  "third_party/externals/Nima-Cpp"      : "https://github.com/2d-inc/Nima-Cpp.git@4bd02269d7d1d2e650950411325eafa15defb084",
-  "third_party/externals/Nima-Math-Cpp" : "https://github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
+  "third_party/externals/Nima-Cpp"        : "https://skia.googlesource.com/external/github.com/2d-inc/Nima-Cpp.git@4bd02269d7d1d2e650950411325eafa15defb084",
+  "third_party/externals/Nima-Math-Cpp"   : "https://skia.googlesource.com/external/github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
 
   "../src": {
     "url": "https://chromium.googlesource.com/chromium/src.git@7fafb7b52e77b89a69c1ea80e3593b63512cb2a1",
