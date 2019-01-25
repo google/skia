@@ -7,7 +7,6 @@
 
 #include "SkFontArguments.h"
 #include "SkFontMgr.h"
-#include "SkLoadICU.h"
 #include "SkMalloc.h"
 #include "SkOnce.h"
 #include "SkFont.h"
@@ -40,6 +39,12 @@
 #include <memory>
 #include <utility>
 #include <cstring>
+
+#ifdef SK_USING_THIRD_PARTY_ICU
+#include "SkLoadICU.h"
+#else
+static inline void SkLoadICU() {}
+#endif  // SK_USING_THIRD_PARTY_ICU
 
 namespace {
 template <class T, void(*P)(T*)> using resource = std::unique_ptr<T, SkFunctionWrapper<void, T, P>>;
@@ -508,8 +513,7 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    SkOnce once;
-    once([] { SkLoadICU(); });
+    SkLoadICU();  // Internally guarded by std::once
 
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
