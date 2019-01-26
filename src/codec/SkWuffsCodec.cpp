@@ -894,10 +894,13 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     }
 
     uint64_t workbuf_len = decoder->workbuf_len().max_incl;
-    void*    workbuf_ptr_raw = workbuf_len <= SIZE_MAX ? sk_malloc_canfail(workbuf_len) : nullptr;
-    if (!workbuf_ptr_raw) {
-        *result = SkCodec::kInternalError;
-        return nullptr;
+    void*    workbuf_ptr_raw = nullptr;
+    if (workbuf_len) {
+        workbuf_ptr_raw = workbuf_len <= SIZE_MAX ? sk_malloc_canfail(workbuf_len) : nullptr;
+        if (!workbuf_ptr_raw) {
+            *result = SkCodec::kInternalError;
+            return nullptr;
+        }
     }
     std::unique_ptr<uint8_t, decltype(&sk_free)> workbuf_ptr(
         reinterpret_cast<uint8_t*>(workbuf_ptr_raw), &sk_free);
