@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9315f7ee_11e125f0",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-26T21:26:05Z",
+      "side": 0,
+      "message": "I think this may be causing the problem with the remote text blob test. The rectangle (0,0) - (10, 10) is passed in. This causes the rectangle to intersect with the surface rectangle which is also (0, 0) - (10, 10). If you don\u0027t join the bounds with the incoming rect then, this blob gets quick rejected. THIS IS JUST A GUESS.",
+      "range": {
+        "startLine": 505,
+        "startChar": 12,
+        "endLine": 505,
+        "endChar": 34
+      },
+      "revId": "6535d1f283e28bf80e0a2ba78619d4737dbbf7fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
