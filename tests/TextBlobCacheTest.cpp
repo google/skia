@@ -118,8 +118,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
                         }
                         const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(font,
                                                                                    maxTotalText,
-                                                                                   0, 0,
-                                                                                   nullptr);
+                                                                                   0, 0);
                         memcpy(run.glyphs, text.get(), maxTotalText * sizeof(uint16_t));
                     }
                 }

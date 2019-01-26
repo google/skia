@@ -76,8 +76,7 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     font.setSubpixel(true);
 
     SkTextBlobBuilder builder;
-    SkRect bounds = SkRect::MakeWH(10, 10);
-    const auto& runBuffer = builder.allocRunPosH(font, glyphCount, 0, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, glyphCount, 0);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
@@ -448,8 +447,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     int runSize = strlen(s);
 
     SkTextBlobBuilder builder;
-    SkRect bounds = SkRect::MakeIWH(100, 100);
-    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
