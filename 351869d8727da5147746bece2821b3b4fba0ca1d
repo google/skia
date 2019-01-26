@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa714c94_9f87a853",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-01-26T05:07:01Z",
+      "side": 1,
+      "message": "FWIW, I could do the same thing for the pixel buffer. But while Wuffs allows a 0-width or 0-height image, Skia does not (IIUC), and we check that ((width \u003e 0) \u0026\u0026 (height \u003e 0)) 15-ish lines above.",
+      "revId": "351869d8727da5147746bece2821b3b4fba0ca1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
