@@ -183,6 +183,7 @@ public:
     */
     void reset();
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
     /** Sets level of glyph outline adjustment.
         Does not check for valid values of hintingLevel.
 
@@ -197,6 +198,7 @@ public:
                          SkFontHinting::kFull
      */
     SkFontHinting getHinting() const { return (SkFontHinting)fBitfields.fHinting; }
+#endif
 
     /** \enum SkPaint::Flags
         The bit values stored in Flags.

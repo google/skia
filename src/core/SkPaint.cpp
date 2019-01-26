@@ -196,11 +196,11 @@ void SkPaint::setFilterQuality(SkFilterQuality quality) {
     fBitfields.fFilterQuality = quality;
 }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
 void SkPaint::setHinting(SkFontHinting hintingLevel) {
     fBitfields.fHinting = static_cast<unsigned>(hintingLevel);
 }
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FLAGS
 void SkPaint::setFlags(uint32_t flags) {
     fBitfields.fFlags = flags;
 }
@@ -433,7 +433,9 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed, SkFont* fon
         }
     }
 
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     paint->setHinting((SkFontHinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+#endif
     paint->setFilterQuality((SkFilterQuality)((packed >> 10) & BPF_Mask(kFilter_BPF)));
     return (FlatFlags)(packed & kFlatFlagMask);
 }
