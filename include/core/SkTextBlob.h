@@ -311,8 +311,7 @@ public:
         @param bounds  optional run bounding box
         @return        writable glyph buffer
     */
-    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y,
-                              const SkRect* bounds = nullptr);
+    const RunBuffer& allocRun(const SkFont& font, int count, SkScalar x, SkScalar y);
 
     /** Returns run with storage for glyphs and positions along baseline. Caller must
         write count glyphs to RunBuffer::glyphs, and count scalars to RunBuffer::pos;
@@ -335,8 +334,7 @@ public:
         @param bounds  optional run bounding box
         @return        writable glyph buffer and x-axis position buffer
     */
-    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y,
-                                  const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPosH(const SkFont& font, int count, SkScalar y);
 
     /** Returns run with storage for glyphs and SkPoint positions. Caller must
         write count glyphs to RunBuffer::glyphs, and count SkPoint to RunBuffer::pos;
@@ -358,8 +356,7 @@ public:
         @param bounds  optional run bounding box
         @return        writable glyph buffer and SkPoint buffer
     */
-    const RunBuffer& allocRunPos(const SkFont& font, int count,
-                                 const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunPos(const SkFont& font, int count);
 
     // Experimental, RunBuffer.pos points to SkRSXform array
     const RunBuffer& allocRunRSXform(const SkFont& font, int count);
@@ -370,21 +367,17 @@ private:
                                   SkScalar x,
                                   SkScalar y,
                                   int textByteCount,
-                                  SkString lang,
-                                  const SkRect* bounds = nullptr);
+                                  SkString lang);
     const RunBuffer& allocRunTextPosH(const SkFont& font, int count, SkScalar y,
-                                      int textByteCount, SkString lang,
-                                      const SkRect* bounds = nullptr);
+                                      int textByteCount, SkString lang);
     const RunBuffer& allocRunTextPos(const SkFont& font, int count,
-                                     int textByteCount, SkString lang,
-                                     const SkRect* bounds = nullptr);
+                                     int textByteCount, SkString lang);
     const RunBuffer& allocRunRSXform(const SkFont& font, int count,
-                                     int textByteCount, SkString lang,
-                                     const SkRect* bounds = nullptr);
+                                     int textByteCount, SkString lang);
 
     void reserve(size_t size);
     void allocInternal(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
-                       int count, int textBytes, SkPoint offset, const SkRect* bounds);
+                       int count, int textBytes, SkPoint offset);
     bool mergeRun(const SkFont& font, SkTextBlob::GlyphPositioning positioning,
                   uint32_t count, SkPoint offset);
     void updateDeferredBounds();
