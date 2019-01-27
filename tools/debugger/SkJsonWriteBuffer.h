@@ -10,8 +10,6 @@
 
 #include "SkWriteBuffer.h"
 
-#include "SkJSONCPP.h"
-
 class SkPath;
 class UrlDataManager;
 
