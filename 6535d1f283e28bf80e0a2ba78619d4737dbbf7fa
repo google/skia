@@ -46,6 +46,30 @@
       "revId": "6535d1f283e28bf80e0a2ba78619d4737dbbf7fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5390daa8_feedaa47",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-27T18:42:43Z",
+      "side": 0,
+      "message": "Tracked it down to SkTypeface_remote not implementing generateFontMetrics: https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkTypeface_remote.cpp?rcl\u003dfad5c773f7b60d2528dae4ccefef7bb5501f0f7b\u0026l\u003d111\n\nFont metrics may not be used for rendering, but they are definitely used for TB bounds computation -- so any TB constructed with a SkTypface_remote will have incorrect/empty bounds.",
+      "parentUuid": "de0b7dbf_3ee1edf3",
+      "range": {
+        "startLine": 505,
+        "startChar": 12,
+        "endLine": 505,
+        "endChar": 34
+      },
+      "revId": "6535d1f283e28bf80e0a2ba78619d4737dbbf7fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
