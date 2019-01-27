@@ -229,6 +229,8 @@ config("default") {
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
       sanitizers = "undefined"
+      defines += [ "SK_HAS_UBSAN" ]
+
       if (sanitize == "ASAN") {
         sanitizers += ",address"
       }
@@ -428,7 +430,10 @@ config("debug_symbols") {
   } else if (is_win) {
     cflags = [ "/Z7" ]
     if (is_clang) {
-      cflags += [ "-mllvm", "-emit-codeview-ghash-section" ]
+      cflags += [
+        "-mllvm",
+        "-emit-codeview-ghash-section",
+      ]
       ldflags = [ "/DEBUG:GHASH" ]
     } else {
       ldflags = [ "/DEBUG:FASTLINK" ]
