@@ -22,6 +22,30 @@
       "revId": "6535d1f283e28bf80e0a2ba78619d4737dbbf7fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de0b7dbf_3ee1edf3",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-27T18:19:45Z",
+      "side": 0,
+      "message": "Sounds like a good guess.\n\nThe thing is, text blobs should be able to compute their (conservative) bounds even in the absence of client hints (when fDeferredBounds \u003d\u003d true): https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkTextBlob.cpp?rcl\u003dfad5c773f7b60d2528dae4ccefef7bb5501f0f7b\u0026l\u003d300\n\nWith some instrumentation, I\u0027m seeing empty bounds being computed whenever the failures are triggered.\n\nSo, for whatever reason, glyph-bounds-related font methods (SkFontPriv::GetFontBounds, SkFont::getBounds) don\u0027t appear to work with deserialized typefaces?\n\nE.g. https://cs.chromium.org/chromium/src/third_party/skia/tests/SkRemoteGlyphCacheTest.cpp?rcl\u003dfad5c773f7b60d2528dae4ccefef7bb5501f0f7b\u0026l\u003d604",
+      "parentUuid": "9315f7ee_11e125f0",
+      "range": {
+        "startLine": 505,
+        "startChar": 12,
+        "endLine": 505,
+        "endChar": 34
+      },
+      "revId": "6535d1f283e28bf80e0a2ba78619d4737dbbf7fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
