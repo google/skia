@@ -1058,34 +1058,6 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         // TODO: this means fPreBlendForFilter is never used?
         rec->ignorePreBlend();
     }
-
-    bool luminanceColorWillBeUsed = rec->getDeviceGamma() != SK_Scalar1 ||
-                                    rec->getPaintGamma()  != SK_Scalar1;
-    // If we're asking for A8, we force the colorlum to be gray, since that
-    // limits the number of unique entries, and the scaler will only look at
-    // the lum of one of them.
-    switch (rec->fMaskFormat) {
-        case SkMask::kLCD16_Format: if (luminanceColorWillBeUsed) {
-            // filter down the luminance color to a finite number of bits
-            SkColor color = rec->getLuminanceColor();
-            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
-        } break;
-        case SkMask::kA8_Format: if (luminanceColorWillBeUsed) {
-            // filter down the luminance to a single component, since A8 can't
-            // use per-component information
-            SkColor color = rec->getLuminanceColor();
-            U8CPU lum = SkComputeLuminance(SkColorGetR(color),
-                                           SkColorGetG(color),
-                                           SkColorGetB(color));
-            // reduce to our finite number of bits
-            color = SkColorSetRGB(lum, lum, lum);
-            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
-        } break;
-        case SkMask::kBW_Format:
-            // No need to differentiate gamma or apply contrast if we're BW
-            rec->ignorePreBlend();
-            break;
-    }
 }
 
 SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
