@@ -417,8 +417,6 @@ public:
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
-    bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
-
     GrPixelConfig validateBackendRenderTarget(const GrBackendRenderTarget&,
                                               SkColorType) const override;
 
@@ -505,7 +503,6 @@ private:
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
     bool fSamplerObjectSupport : 1;
-    bool fFBFetchRequiresEnablePerSample : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

@@ -539,10 +539,10 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         }
 
         if (kGLES_GrGLStandard == this->glStandard() &&
-            this->glCaps().fbFetchRequiresEnablePerSample()) {
+                this->hasExtension("GL_ARM_shader_framebuffer_fetch")) {
             // The arm extension requires specifically enabling MSAA fetching per sample.
             // On some devices this may have a perf hit.  Also multiple render targets are disabled
-            GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE));
+            GL_CALL(Enable(GR_GL_FETCH_PER_SAMPLE_ARM));
         }
         fHWWriteToColor = kUnknown_TriState;
         // we only ever use lines in hairline mode
