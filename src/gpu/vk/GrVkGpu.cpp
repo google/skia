@@ -68,6 +68,21 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
+    PFN_vkEnumerateInstanceVersion localEnumerateInstanceVersion =
+            reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
+                    backendContext.fGetProc("vkEnumerateInstanceVersion",
+                                            VK_NULL_HANDLE, VK_NULL_HANDLE));
+    uint32_t instanceVersion = 0;
+    if (!localEnumerateInstanceVersion) {
+        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
+    } else {
+        VkResult err = localEnumerateInstanceVersion(&instanceVersion);
+        if (err) {
+            SkDebugf("Failed to enumerate instance version. Err: %d\n", err);
+            return nullptr;
+        }
+    }
+
     PFN_vkGetPhysicalDeviceProperties localGetPhysicalDeviceProperties =
             reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(
                     backendContext.fGetProc("vkGetPhysicalDeviceProperties",
@@ -81,17 +96,22 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     localGetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &physDeviceProperties);
     uint32_t physDevVersion = physDeviceProperties.apiVersion;
 
+    uint32_t apiVersion = backendContext.fMaxAPIVersion ? backendContext.fMaxAPIVersion
+                                                        : instanceVersion;
+
+    instanceVersion = SkTMin(instanceVersion, apiVersion);
+    physDevVersion = SkTMin(physDevVersion, apiVersion);
+
     sk_sp<const GrVkInterface> interface;
 
     if (backendContext.fVkExtensions) {
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,
-                                          backendContext.fInstanceVersion,
+                                          instanceVersion,
                                           physDevVersion,
                                           backendContext.fVkExtensions));
-        if (!interface->validate(backendContext.fInstanceVersion, physDevVersion,
-                                 backendContext.fVkExtensions)) {
+        if (!interface->validate(instanceVersion, physDevVersion, backendContext.fVkExtensions)) {
             return nullptr;
         }
     } else {
@@ -101,21 +121,23 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,
-                                          backendContext.fInstanceVersion,
+                                          instanceVersion,
                                           physDevVersion,
                                           &extensions));
-        if (!interface->validate(backendContext.fInstanceVersion, physDevVersion, &extensions)) {
+        if (!interface->validate(instanceVersion, physDevVersion, &extensions)) {
             return nullptr;
         }
     }
 
-    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext, interface));
+    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext, interface, instanceVersion,
+                                    physDevVersion));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
-                 const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface)
+                 const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface,
+                 uint32_t instanceVersion, uint32_t physicalDeviceVersion)
         : INHERITED(context)
         , fInterface(std::move(interface))
         , fMemoryAllocator(backendContext.fMemoryAllocator)
@@ -136,19 +158,18 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = new SkSL::Compiler();
 
-    uint32_t instanceVersion = backendContext.fInstanceVersion ? backendContext.fInstanceVersion
-                                                               : backendContext.fMinAPIVersion;
-
     if (backendContext.fDeviceFeatures2) {
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
                                    *backendContext.fDeviceFeatures2, instanceVersion,
+                                   physicalDeviceVersion,
                                    *backendContext.fVkExtensions));
     } else if (backendContext.fDeviceFeatures) {
         VkPhysicalDeviceFeatures2 features2;
         features2.pNext = nullptr;
         features2.features = *backendContext.fDeviceFeatures;
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features2, instanceVersion, *backendContext.fVkExtensions));
+                                   features2, instanceVersion, physicalDeviceVersion,
+                                   *backendContext.fVkExtensions));
     } else {
         VkPhysicalDeviceFeatures2 features;
         memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
@@ -163,7 +184,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
             features.features.sampleRateShading = true;
         }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features, instanceVersion, GrVkExtensions()));
+                                   features, instanceVersion, physicalDeviceVersion,
+                                   GrVkExtensions()));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 

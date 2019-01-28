@@ -397,6 +397,16 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
+    if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
+        // instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
+        // api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
+        // since that is the highest vulkan version.
+        apiVersion = VK_MAKE_VERSION(1, 1, 0);
+    }
+
+    instanceVersion = SkTMin(instanceVersion, apiVersion);
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -409,7 +419,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        instanceVersion,                    // apiVersion
+        apiVersion,                         // apiVersion
     };
 
     SkTArray<VkLayerProperties> instanceLayers;
@@ -512,7 +522,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
 
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
-    int physDeviceVersion = physDeviceProperties.apiVersion;
+    int physDeviceVersion = SkTMin(physDeviceProperties.apiVersion, apiVersion);
 
     // query to get the initial queue props size
     uint32_t queueCount;
@@ -666,7 +676,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fDevice = device;
     ctx->fQueue = queue;
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
-    ctx->fInstanceVersion = instanceVersion;
+    ctx->fMaxAPIVersion = apiVersion;
     ctx->fVkExtensions = extensions;
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;

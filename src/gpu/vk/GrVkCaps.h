@@ -29,7 +29,8 @@ public:
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
              VkPhysicalDevice device, const VkPhysicalDeviceFeatures2& features,
-             uint32_t instanceVersion, const GrVkExtensions& extensions);
+             uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+             const GrVkExtensions& extensions);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
@@ -165,7 +166,8 @@ private:
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, const VkPhysicalDeviceFeatures2&, const GrVkExtensions&);
+              VkPhysicalDevice device, const VkPhysicalDeviceFeatures2&,
+              uint32_t physicalDeviceVersion, const GrVkExtensions&);
     void initGrCaps(const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev,
                     const VkPhysicalDeviceProperties&,
