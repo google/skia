@@ -1796,7 +1796,6 @@ if (skia_enable_tools) {
       ":skia",
       ":tool_utils",
       "modules/sksg",
-      "//third_party/jsoncpp",
     ]
   }
 
