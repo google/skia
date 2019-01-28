@@ -376,7 +376,6 @@ GrGLGpu::~GrGLGpu() {
     fPathRendering.reset();
     fCopyProgramArrayBuffer.reset();
     fMipmapProgramArrayBuffer.reset();
-    fStencilClipClearArrayBuffer.reset();
 
     fHWProgram.reset();
     if (fHWProgramID) {
@@ -405,10 +404,6 @@ GrGLGpu::~GrGLGpu() {
         if (0 != fMipmapPrograms[i].fProgram) {
             GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
         }
-    }
-
-    if (fStencilClipClearProgram) {
-        GL_CALL(DeleteProgram(fStencilClipClearProgram));
     }
 
     delete fProgramCache;
@@ -440,9 +435,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
                 GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
             }
         }
-        if (fStencilClipClearProgram) {
-            GL_CALL(DeleteProgram(fStencilClipClearProgram));
-        }
 
         if (fSamplerObjectCache) {
             fSamplerObjectCache->release();
@@ -472,8 +464,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
         fMipmapPrograms[i].fProgram = 0;
     }
-    fStencilClipClearProgram = 0;
-    fStencilClipClearArrayBuffer.reset();
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
