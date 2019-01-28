@@ -14,7 +14,6 @@
 #include "SkTypeface.h"
 
 class SkBitmap;
-class SkFont;
 class SkImage;
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -58,6 +57,10 @@ public:
     static bool Overwrites(const SkImage*, const SkPaint* paint);
 
     static bool ShouldDither(const SkPaint&, SkColorType);
+
+    static SkTextEncoding GetEncoding(const SkPaint& paint) {
+        return paint.private_internal_getTextEncoding();
+    }
 
     /** Serializes SkPaint into a buffer. A companion unflatten() call
     can reconstitute the paint at a later time.

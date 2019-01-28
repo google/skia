@@ -16,7 +16,6 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkFont.h"
-#include "SkFontMetrics.h"
 #include "SkFontStyle.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
@@ -557,8 +556,7 @@ static int lcanvas_drawText(lua_State* L) {
         return 0;
     }
 
-    // TODO: restore this logic based on SkFont instead of SkPaint
-#if 0
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     if (lua_isstring(L, 2) && lua_isnumber(L, 3) && lua_isnumber(L, 4)) {
         size_t len;
         const char* text = lua_tolstring(L, 2, &len);
@@ -1875,8 +1873,7 @@ static int lsk_newTextBlob(lua_State* L) {
 
     SkShaper shaper(nullptr);
 
-    // TODO: restore this logic based on SkFont instead of SkPaint
-#if 0
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
     const SkPaint& paint = *get_obj<SkPaint>(L, 3);
     SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
 #else
