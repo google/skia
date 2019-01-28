@@ -250,8 +250,6 @@ private:
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    void setTextureSwizzle(int unitIdx, GrGLenum target, const GrGLenum swizzle[]);
-
     /**
      * primitiveProcessorTextures must contain GrPrimitiveProcessor::numTextureSamplers() *
      * numPrimitiveProcessorTextureSets entries.
@@ -285,8 +283,6 @@ private:
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
     void onFinishFlush(bool insertedSemaphores) override;
-
-    bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 
     bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                            GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -613,9 +609,6 @@ private:
         GrGLint     fTexCoordXformUniform = 0;
     }                                       fMipmapPrograms[4];
     sk_sp<GrGLBuffer>                       fMipmapProgramArrayBuffer;
-
-    GrGLuint                                fStencilClipClearProgram = 0;
-    sk_sp<GrGLBuffer>                       fStencilClipClearArrayBuffer;
 
     static int TextureToCopyProgramIdx(GrTexture* texture);
 
