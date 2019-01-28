@@ -18,7 +18,8 @@
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
-                   uint32_t instanceVersion, const GrVkExtensions& extensions)
+                   uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+                   const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
 
     /**************************************************************************
@@ -48,7 +49,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev, features, extensions);
+    this->init(contextOptions, vkInterface, physDev, features, physicalDeviceVersion, extensions);
 }
 
 bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -230,7 +231,7 @@ template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatu
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
-                    const GrVkExtensions& extensions) {
+                    uint32_t physicalDeviceVersion, const GrVkExtensions& extensions) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
@@ -238,7 +239,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
-    uint32_t physicalDeviceVersion = properties.apiVersion;
+    SkASSERT(physicalDeviceVersion <= properties.apiVersion);
 
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions.hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
