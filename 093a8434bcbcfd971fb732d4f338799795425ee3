@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05722954_4b2461e3",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1706,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-28T18:32:15Z",
+      "side": 1,
+      "message": "Do we need this intermediate buffer (looks like we could pass dst directly to SkJSONWriter)?",
+      "range": {
+        "startLine": 1706,
+        "startChar": 4,
+        "endLine": 1706,
+        "endChar": 34
+      },
+      "revId": "093a8434bcbcfd971fb732d4f338799795425ee3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
