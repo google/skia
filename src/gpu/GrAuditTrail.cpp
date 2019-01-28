@@ -7,6 +7,7 @@
 
 #include "GrAuditTrail.h"
 #include "ops/GrOp.h"
+#include "SkJSONWriter.h"
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
@@ -136,159 +137,64 @@ void GrAuditTrail::fullReset() {
 }
 
 template <typename T>
-void GrAuditTrail::JsonifyTArray(SkString* json, const char* name, const T& array,
-                                 bool addComma) {
+void GrAuditTrail::JsonifyTArray(SkJSONWriter& writer, const char* name, const T& array) {
     if (array.count()) {
-        if (addComma) {
-            json->appendf(",");
-        }
-        json->appendf("\"%s\": [", name);
-        const char* separator = "";
+        writer.beginArray(name);
         for (int i = 0; i < array.count(); i++) {
             // Handle sentinel nullptrs
             if (array[i]) {
-                json->appendf("%s", separator);
-                json->append(array[i]->toJson());
-                separator = ",";
+                array[i]->toJson(writer);
             }
         }
-        json->append("]");
+        writer.endArray();
     }
 }
 
-// This will pretty print a very small subset of json
-// The parsing rules are straightforward, aside from the fact that we do not want an extra newline
-// before ',' and after '}', so we have a comma exception rule.
-class PrettyPrintJson {
-public:
-    SkString prettify(const SkString& json) {
-        fPrettyJson.reset();
-        fTabCount = 0;
-        fFreshLine = false;
-        fCommaException = false;
-        for (size_t i = 0; i < json.size(); i++) {
-            if ('[' == json[i] || '{' == json[i]) {
-                this->newline();
-                this->appendChar(json[i]);
-                fTabCount++;
-                this->newline();
-            } else if (']' == json[i] || '}' == json[i]) {
-                fTabCount--;
-                this->newline();
-                this->appendChar(json[i]);
-                fCommaException = true;
-            } else if (',' == json[i]) {
-                this->appendChar(json[i]);
-                this->newline();
-            } else {
-                this->appendChar(json[i]);
-            }
-        }
-        return fPrettyJson;
-    }
-private:
-    void appendChar(char appendee) {
-        if (fCommaException && ',' != appendee) {
-            this->newline();
-        }
-        this->tab();
-        fPrettyJson += appendee;
-        fFreshLine = false;
-        fCommaException = false;
-    }
-
-    void tab() {
-        if (fFreshLine) {
-            for (int i = 0; i < fTabCount; i++) {
-                fPrettyJson += '\t';
-            }
-        }
-    }
-
-    void newline() {
-        if (!fFreshLine) {
-            fFreshLine = true;
-            fPrettyJson += '\n';
-        }
-    }
-
-    SkString fPrettyJson;
-    int fTabCount;
-    bool fFreshLine;
-    bool fCommaException;
-};
-
-static SkString pretty_print_json(SkString json) {
-    class PrettyPrintJson prettyPrintJson;
-    return prettyPrintJson.prettify(json);
+void GrAuditTrail::toJson(SkJSONWriter& writer) const {
+    writer.beginObject();
+    JsonifyTArray(writer, "Ops", fOpList);
+    writer.endObject();
 }
 
-SkString GrAuditTrail::toJson(bool prettyPrint) const {
-    SkString json;
-    json.append("{");
-    JsonifyTArray(&json, "Ops", fOpList, false);
-    json.append("}");
-
-    if (prettyPrint) {
-        return pretty_print_json(json);
-    } else {
-        return json;
-    }
-}
-
-SkString GrAuditTrail::toJson(int clientID, bool prettyPrint) const {
-    SkString json;
-    json.append("{");
+void GrAuditTrail::toJson(SkJSONWriter& writer, int clientID) const {
+    writer.beginObject();
     Ops** ops = fClientIDLookup.find(clientID);
     if (ops) {
-        JsonifyTArray(&json, "Ops", **ops, false);
+        JsonifyTArray(writer, "Ops", **ops);
     }
-    json.appendf("}");
-
-    if (prettyPrint) {
-        return pretty_print_json(json);
-    } else {
-        return json;
-    }
+    writer.endObject();
 }
 
-static void skrect_to_json(SkString* json, const char* name, const SkRect& rect) {
-    json->appendf("\"%s\": {", name);
-    json->appendf("\"Left\": %f,", rect.fLeft);
-    json->appendf("\"Right\": %f,", rect.fRight);
-    json->appendf("\"Top\": %f,", rect.fTop);
-    json->appendf("\"Bottom\": %f", rect.fBottom);
-    json->append("}");
+static void skrect_to_json(SkJSONWriter& writer, const char* name, const SkRect& rect) {
+    writer.beginObject(name);
+    writer.appendFloat("Left", rect.fLeft);
+    writer.appendFloat("Right", rect.fRight);
+    writer.appendFloat("Top", rect.fTop);
+    writer.appendFloat("Bottom", rect.fBottom);
+    writer.endObject();
 }
 
-SkString GrAuditTrail::Op::toJson() const {
-    SkString json;
-    json.append("{");
-    json.appendf("\"Name\": \"%s\",", fName.c_str());
-    json.appendf("\"ClientID\": \"%d\",", fClientID);
-    json.appendf("\"OpListID\": \"%d\",", fOpListID);
-    json.appendf("\"ChildID\": \"%d\",", fChildID);
-    skrect_to_json(&json, "Bounds", fBounds);
+void GrAuditTrail::Op::toJson(SkJSONWriter& writer) const {
+    writer.beginObject();
+    writer.appendString("Name", fName.c_str());
+    writer.appendS32("ClientID", fClientID);
+    writer.appendS32("OpListID", fOpListID);
+    writer.appendS32("ChildID", fChildID);
+    skrect_to_json(writer, "Bounds", fBounds);
     if (fStackTrace.count()) {
-        json.append(",\"Stack\": [");
+        writer.beginArray("Stack");
         for (int i = 0; i < fStackTrace.count(); i++) {
-            json.appendf("\"%s\"", fStackTrace[i].c_str());
-            if (i < fStackTrace.count() - 1) {
-                json.append(",");
-            }
+            writer.appendString(fStackTrace[i].c_str());
         }
-        json.append("]");
+        writer.endArray();
     }
-    json.append("}");
-    return json;
+    writer.endObject();
 }
 
-SkString GrAuditTrail::OpNode::toJson() const {
-    SkString json;
-    json.append("{");
-    json.appendf("\"ProxyID\": \"%u\",", fProxyUniqueID.asUInt());
-    skrect_to_json(&json, "Bounds", fBounds);
-    JsonifyTArray(&json, "Ops", fChildren, true);
-    json.append("}");
-    return json;
+void GrAuditTrail::OpNode::toJson(SkJSONWriter& writer) const {
+    writer.beginObject();
+    writer.appendU32("ProxyID", fProxyUniqueID.asUInt());
+    skrect_to_json(writer, "Bounds", fBounds);
+    JsonifyTArray(writer, "Ops", fChildren);
+    writer.endObject();
 }
