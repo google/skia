@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42afbc17_a6fc6f6c",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-28T19:27:50Z",
+      "side": 1,
+      "message": "Note: This is the only spot where we were adding to the JSON DOM out-of-order, hence the refactor to a second helper method.",
+      "revId": "9ae8065c1b1ff66fc58672ade1c3aec9d418ae93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
