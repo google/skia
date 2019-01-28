@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b97d71fb_8c520234",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-28T16:21:09Z",
+      "side": 1,
+      "message": "Is it a problem that we turn off UBSAN here?",
+      "range": {
+        "startLine": 238,
+        "startChar": 2,
+        "endLine": 241,
+        "endChar": 7
+      },
+      "revId": "77aec5546f0a95e82356d750d9413530141c0d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "900318da_d5a450b7",
+        "filename": "src/gpu/vk/GrVkCopyPipeline.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-28T16:21:09Z",
+      "side": 1,
+      "message": "What is the connection between UBSAN and sanitizer/lsan_interface.h?\n\nIs it simpler to use something like this?\n\n  #if !defined(__has_include)\n      #define  __has_include(x) 0\n  #endif\n\n  #if __has_include(\u003csanitizer/lsan_interface.h\u003e)\n      #include \u003csanitizer/lsan_interface\u003e\n  #endif\n\nOr similarly, is there a flag for LSAN like ASAN, MSAN, and TSAN that we could use with __has_feature() or SK_HAS_COMPILER_FEATURE() ?",
+      "revId": "77aec5546f0a95e82356d750d9413530141c0d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
