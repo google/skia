@@ -75,9 +75,12 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     font.setEdging(SkFont::Edging::kAntiAlias);
     font.setSubpixel(true);
 
+    SkRect bounds = font.getTypefaceOrDefault()->getBounds();
+
+    (void) bounds;
+
     SkTextBlobBuilder builder;
-    SkRect bounds = SkRect::MakeWH(10, 10);
-    const auto& runBuffer = builder.allocRunPosH(font, glyphCount, 0, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, glyphCount, 0);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 
@@ -198,24 +201,31 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter,
     SkStrikeClient client(discardableManager, false);
 
     // Server.
-    auto serverTf = SkTestEmptyTypeface::Make();
-    auto serverTfData = server.serializeTypeface(serverTf.get());
-    REPORTER_ASSERT(reporter, serverTf->unique());
-
+    SkTypeface* weakServerTf;
     {
-        const SkPaint paint;
-        int glyphCount = 10;
-        auto serverBlob = buildTextBlob(serverTf, glyphCount);
-        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
-        SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server,
-                                                    MakeSettings(ctxInfo.grContext()));
-        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
-        REPORTER_ASSERT(reporter, !serverTf->unique());
+        auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+        weakServerTf = serverTf.get();
+        weakServerTf->weak_ref();
+        auto serverTfData = server.serializeTypeface(serverTf.get());
+        //REPORTER_ASSERT(reporter, serverTf->unique());
 
-        std::vector<uint8_t> serverStrikeData;
-        server.writeStrikeData(&serverStrikeData);
+        {
+            const SkPaint paint;
+            int glyphCount = 10;
+            auto serverBlob = buildTextBlob(serverTf, glyphCount);
+            const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+            SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server,
+                                                        MakeSettings(ctxInfo.grContext()));
+            cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+            REPORTER_ASSERT(reporter, !serverTf->unique());
+
+            std::vector<uint8_t> serverStrikeData;
+            server.writeStrikeData(&serverStrikeData);
+        }
+        //REPORTER_ASSERT(reporter, serverTf->unique());
     }
-    REPORTER_ASSERT(reporter, serverTf->unique());
+    weakServerTf->weak_unref();
+    REPORTER_ASSERT(reporter, weakServerTf->weak_expired());
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
@@ -448,8 +458,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     int runSize = strlen(s);
 
     SkTextBlobBuilder builder;
-    SkRect bounds = SkRect::MakeIWH(100, 100);
-    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10, &bounds);
+    const auto& runBuffer = builder.allocRunPosH(font, runSize, 10);
     SkASSERT(runBuffer.utf8text == nullptr);
     SkASSERT(runBuffer.clusters == nullptr);
 

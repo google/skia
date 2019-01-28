@@ -252,11 +252,19 @@ void SkTextBlobCacheDiffCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar 
 
 struct WireTypeface {
     WireTypeface() = default;
-    WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style, bool is_fixed)
-            : typefaceID(typeface_id), glyphCount(glyph_count), style(style), isFixed(is_fixed) {}
+
+    WireTypeface(SkFontID typeface_id,
+                 int glyph_count,
+                 const SkRect& conservative_bounds,
+                 SkFontStyle style, bool is_fixed)
+            : typefaceID(typeface_id)
+            , glyphCount(glyph_count)
+            , style(style)
+            , isFixed(is_fixed) {}
 
     SkFontID        typefaceID;
     int             glyphCount;
+    SkRect          conservativeBounds;
     SkFontStyle     style;
     bool            isFixed;
 };
@@ -276,7 +284,10 @@ sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
         return *data;
     }
 
-    WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
+    SkRect conservativeBounds = tf->getBounds();
+    WireTypeface wire(SkTypeface::UniqueID(tf),
+                      tf->countGlyphs(), conservativeBounds,
+                      tf->fontStyle(),
                       tf->isFixedPitch());
     data = fSerializedTypefaces.set(SkTypeface::UniqueID(tf),
                                     SkData::MakeWithCopy(&wire, sizeof(wire)));
@@ -362,7 +373,10 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     const SkFontID typefaceId = tf->uniqueID();
     if (!fCachedTypefaces.contains(typefaceId)) {
         fCachedTypefaces.add(typefaceId);
-        fTypefacesToSend.emplace_back(typefaceId, tf->countGlyphs(), tf->fontStyle(),
+        fTypefacesToSend.emplace_back(typefaceId,
+                                      tf->countGlyphs(),
+                                      tf->getBounds(),
+                                      tf->fontStyle(),
                                       tf->isFixedPitch());
     }
 
@@ -728,7 +742,7 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     if (typeface) return *typeface;
 
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(
-            wire.typefaceID, wire.glyphCount, wire.style, wire.isFixed,
+            wire.typefaceID, wire.glyphCount, wire.conservativeBounds, wire.style, wire.isFixed,
             fDiscardableHandleManager, fIsLogging);
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
     return std::move(newTypeface);

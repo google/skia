@@ -50,15 +50,12 @@ class SkTypefaceProxy : public SkTypeface {
 public:
     SkTypefaceProxy(SkFontID fontId,
                     int glyphCount,
+                    const SkRect& conservativeBounds,
                     const SkFontStyle& style,
                     bool isFixed,
                     sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
-                    bool isLogging = true)
-            : INHERITED{style, false}
-            , fFontId{fontId}
-            , fGlyphCount{glyphCount}
-            , fIsLogging{isLogging}
-            , fDiscardableManager{std::move(manager)} {}
+                    bool isLogging = true);
+
     SkFontID remoteTypefaceID() const {return fFontId;}
     int glyphCount() const {return fGlyphCount;}
     bool isLogging() const {return fIsLogging;}
@@ -132,6 +129,8 @@ protected:
         return this->glyphCount();
     }
 
+    bool onComputeBounds(SkRect* rect) const override;
+
     void* onGetCTFontRef() const override {
         SK_ABORT("Should never be called.");
         return nullptr;
@@ -141,6 +140,7 @@ private:
     const SkFontID                                  fFontId;
     const int                                       fGlyphCount;
     const bool                                      fIsLogging;
+    const SkRect                                    fConservativeBounds;
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
 
 

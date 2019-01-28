@@ -113,6 +113,24 @@ void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
     sk_bzero(metrics, sizeof(*metrics));
 }
 
+SkTypefaceProxy::SkTypefaceProxy(SkFontID fontId, int glyphCount, const SkRect& conservativeBounds,
+                                 const SkFontStyle& style, bool isFixed,
+                                 sk_sp<SkStrikeClient::DiscardableHandleManager> manager,
+                                 bool isLogging)
+        : INHERITED{style, false}
+        , fFontId{fontId}
+        , fGlyphCount{glyphCount}
+        , fIsLogging{isLogging}
+        , fConservativeBounds{conservativeBounds}
+        , fDiscardableManager{std::move(manager)} {}
+
 SkTypefaceProxy* SkScalerContextProxy::getProxyTypeface() const {
     return (SkTypefaceProxy*)this->getTypeface();
 }
+
+bool SkTypefaceProxy::onComputeBounds(SkRect* rect) const {
+    *rect = fConservativeBounds;
+    return true;
+}
+
+
