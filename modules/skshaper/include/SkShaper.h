@@ -52,7 +52,7 @@ public:
 
     bool good() const;
     SkPoint shape(RunHandler* handler,
-                  const SkFont& srcPaint,
+                  const SkFont& srcFont,
                   const char* utf8text,
                   size_t textBytes,
                   bool leftToRight,
