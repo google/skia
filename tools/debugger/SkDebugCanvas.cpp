@@ -8,11 +8,13 @@
 #include "SkCanvasPriv.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
+#include "SkJSONWriter.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkRectPriv.h"
 #include "SkTextBlob.h"
 #include "SkClipOpPriv.h"
+#include "SkJSONCPP.h"
 
 #include "GrAuditTrail.h"
 #include "GrContext.h"
@@ -248,34 +250,41 @@ void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
     }
 }
 
-Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
+void SkDebugCanvas::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, int n,
+                           SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
 
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
-    Json::Value result = Json::Value(Json::objectValue);
-    result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
-    Json::Value commands = Json::Value(Json::arrayValue);
+    writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
+    writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
+
     for (int i = 0; i < this->getSize() && i <= n; i++) {
-        commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
+        writer.beginObject(); // command
+        this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
+
         if (at) {
+            // XXX TODO XXX
+#if 0
             // TODO if this is inefficient we could add a method to GrAuditTrail which takes
             // a Json::Value and is only compiled in this file
             Json::Value parsedFromString;
             Json::Reader reader;
             SkAssertResult(reader.parse(at->toJson(i).c_str(), parsedFromString));
-
             commands[i][SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
+#endif
         }
+        writer.endObject(); // command
     }
+
+    writer.endArray(); // commands
     this->cleanupAuditTrail(canvas);
-    result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
-    return result;
 }
 
-Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
+void SkDebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
-
+    // XXX TODO XXX
+#if 0
     Json::Value parsedFromString;
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
@@ -285,6 +294,7 @@ Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
     }
     this->cleanupAuditTrail(canvas);
     return parsedFromString;
+#endif
 }
 
 void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {

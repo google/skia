@@ -9,155 +9,164 @@
 
 #include "SkDrawCommand.h"
 
-void SkJsonWriteBuffer::append(const char* type, const Json::Value& value) {
-    SkString fullName = SkStringPrintf("%02d_%s", fJson.size(), type);
-    fJson[fullName.c_str()] = value;
+void SkJsonWriteBuffer::append(const char* type) {
+    SkString fullName = SkStringPrintf("%02d_%s", fCount++, type);
+    fWriter->appendName(fullName.c_str());
 }
 
 void SkJsonWriteBuffer::writePad32(const void* data, size_t size) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("rawBytes");
+    fWriter->beginArray();
     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
     for (size_t i = 0; i < size; ++i) {
         SkString hexByte = SkStringPrintf("%02x", bytes[i]);
-        jsonArray.append(hexByte.c_str());
+        fWriter->appendString(hexByte.c_str());
     }
-    this->append("rawBytes", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeByteArray(const void* data, size_t size) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("byteArray");
+    fWriter->beginArray();
     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
     for (size_t i = 0; i < size; ++i) {
         SkString hexByte = SkStringPrintf("%02x", bytes[i]);
-        jsonArray.append(hexByte.c_str());
+        fWriter->appendString(hexByte.c_str());
     }
-    this->append("byteArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeBool(bool value) {
-    this->append("bool", value);
+    this->append("bool"); fWriter->appendBool(value);
 }
 
 void SkJsonWriteBuffer::writeScalar(SkScalar value) {
-    this->append("scalar", value);
+    this->append("scalar"); fWriter->appendFloat(value);
 }
 
 void SkJsonWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("scalarArray");
+    fWriter->beginArray();
     for (uint32_t i = 0; i < count; ++i) {
-        jsonArray.append(value[i]);
+        fWriter->appendFloat(value[i]);
     }
-    this->append("scalarArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeInt(int32_t value) {
-    this->append("int", value);
+    this->append("int"); fWriter->appendS32(value);
 }
 
 void SkJsonWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("intArray");
+    fWriter->beginArray();
     for (uint32_t i = 0; i < count; ++i) {
-        jsonArray.append(value[i]);
+        fWriter->appendS32(value[i]);
     }
-    this->append("intArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeUInt(uint32_t value) {
-    this->append("uint", value);
+    this->append("uint"); fWriter->appendU32(value);
 }
 
 void SkJsonWriteBuffer::writeString(const char* value) {
-    this->append("string", value);
+    this->append("string"); fWriter->appendString(value);
 }
 
 void SkJsonWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     if (flattenable) {
-        SkJsonWriteBuffer flattenableBuffer(fUrlDataManager);
+        this->append(flattenable->getTypeName());
+        fWriter->beginObject();
+        SkJsonWriteBuffer flattenableBuffer(fWriter, fUrlDataManager);
         flattenable->flatten(flattenableBuffer);
-        this->append(flattenable->getTypeName(), flattenableBuffer.getValue());
+        fWriter->endObject();
     } else {
-        this->append("flattenable", Json::Value());
+        this->append("flattenable"); fWriter->appendPointer(nullptr);
     }
 }
 
 void SkJsonWriteBuffer::writeColor(SkColor color) {
-    this->append("color", SkDrawCommand::MakeJsonColor(color));
+    this->append("color"); SkDrawCommand::MakeJsonColor(*fWriter, color);
 }
 
 void SkJsonWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("colorArray");
+    fWriter->beginArray();
     for (uint32_t i = 0; i < count; ++i) {
-        jsonArray.append(SkDrawCommand::MakeJsonColor(color[i]));
+        SkDrawCommand::MakeJsonColor(*fWriter, color[i]);
     }
-    this->append("colorArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeColor4f(const SkColor4f& color) {
-    this->append("color", SkDrawCommand::MakeJsonColor4f(color));
+    this->append("color"); SkDrawCommand::MakeJsonColor4f(*fWriter, color);
 }
 
 void SkJsonWriteBuffer::writeColor4fArray(const SkColor4f* color, uint32_t count) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("colorArray");
+    fWriter->beginArray();
     for (uint32_t i = 0; i < count; ++i) {
-        jsonArray.append(SkDrawCommand::MakeJsonColor4f(color[i]));
+        SkDrawCommand::MakeJsonColor4f(*fWriter, color[i]);
     }
-    this->append("colorArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writePoint(const SkPoint& point) {
-    this->append("point", SkDrawCommand::MakeJsonPoint(point));
+    this->append("point"); SkDrawCommand::MakeJsonPoint(*fWriter, point);
 }
 
 void SkJsonWriteBuffer::writePoint3(const SkPoint3& point) {
-    this->append("point3", SkDrawCommand::MakeJsonPoint3(point));
+    this->append("point3"); SkDrawCommand::MakeJsonPoint3(*fWriter, point);
 }
 
 void SkJsonWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
-    Json::Value jsonArray(Json::arrayValue);
+    this->append("pointArray");
+    fWriter->beginArray();
     for (uint32_t i = 0; i < count; ++i) {
-        jsonArray.append(SkDrawCommand::MakeJsonPoint(point[i]));
+        SkDrawCommand::MakeJsonPoint(*fWriter, point[i]);
     }
-    this->append("pointArray", jsonArray);
+    fWriter->endArray();
 }
 
 void SkJsonWriteBuffer::writeMatrix(const SkMatrix& matrix) {
-    this->append("matrix", SkDrawCommand::MakeJsonMatrix(matrix));
+    this->append("matrix"); SkDrawCommand::MakeJsonMatrix(*fWriter, matrix);
 }
 
 void SkJsonWriteBuffer::writeIRect(const SkIRect& rect) {
-    this->append("irect", SkDrawCommand::MakeJsonIRect(rect));
+    this->append("irect"); SkDrawCommand::MakeJsonIRect(*fWriter, rect);
 }
 
 void SkJsonWriteBuffer::writeRect(const SkRect& rect) {
-    this->append("rect", SkDrawCommand::MakeJsonRect(rect));
+    this->append("rect"); SkDrawCommand::MakeJsonRect(*fWriter, rect);
 }
 
 void SkJsonWriteBuffer::writeRegion(const SkRegion& region) {
-    this->append("region", SkDrawCommand::MakeJsonRegion(region));
+    this->append("region"); SkDrawCommand::MakeJsonRegion(*fWriter, region);
 }
 
 void SkJsonWriteBuffer::writePath(const SkPath& path) {
-    this->append("path", SkDrawCommand::MakeJsonPath(path));
+    this->append("path"); SkDrawCommand::MakeJsonPath(*fWriter, path);
 }
 
 size_t SkJsonWriteBuffer::writeStream(SkStream* stream, size_t length) {
     // Contents not supported
-    SkASSERT(length < Json::Value::maxUInt);
-    this->append("stream", static_cast<Json::UInt>(length));
+    this->append("stream"); fWriter->appendU64(static_cast<uint64_t>(length));
     return 0;
 }
 
 void SkJsonWriteBuffer::writeImage(const SkImage* image) {
-    Json::Value jsonImage;
-    SkDrawCommand::flatten(*image, &jsonImage, *fUrlDataManager);
-    this->append("image", jsonImage);
+    this->append("image");
+    fWriter->beginObject();
+    SkDrawCommand::flatten(*image, *fWriter, *fUrlDataManager);
+    fWriter->endObject();
 }
 
 void SkJsonWriteBuffer::writeTypeface(SkTypeface* typeface) {
     // Unsupported
-    this->append("typeface", Json::Value());
+    this->append("typeface"); fWriter->appendPointer(typeface);
 }
 
 void SkJsonWriteBuffer::writePaint(const SkPaint& paint) {
-    this->append("paint", SkDrawCommand::MakeJsonPaint(paint, *fUrlDataManager));
+    this->append("paint"); SkDrawCommand::MakeJsonPaint(*fWriter, paint, *fUrlDataManager);
 }

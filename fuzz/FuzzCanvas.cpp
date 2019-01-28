@@ -1726,6 +1726,12 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     fuzz_canvas(fuzz, &debugCanvas);
     std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
-    Json::Value json = debugCanvas.toJSON(dataManager, debugCanvas.getSize(), nullCanvas.get());
-    Json::StyledStreamWriter("  ").write(std::cout, json);
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    writer.beginObject(); // root
+    debugCanvas.toJSON(writer, dataManager, debugCanvas.getSize(), nullCanvas.get());
+    writer.endObject(); // root
+    writer.flush();
+    sk_sp<SkData> json = stream.detachAsData();
+    fwrite(json->data(), json->size(), 1, stdout);
 }
