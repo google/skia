@@ -1218,7 +1218,7 @@ void SkDrawBitmapCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMa
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_COORDS); MakeJsonPoint(writer, fLeft, fTop);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 }
 
@@ -1255,7 +1255,7 @@ void SkDrawBitmapLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& ur
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 
     SkString desc;
@@ -1290,7 +1290,7 @@ void SkDrawBitmapNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDa
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 }
 
@@ -1326,7 +1326,7 @@ void SkDrawBitmapRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDa
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
     if (fConstraint == SkCanvas::kStrict_SrcRectConstraint) {
         writer.appendBool(SKDEBUGCANVAS_ATTRIBUTE_STRICT, true);
@@ -1368,7 +1368,7 @@ void SkDrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMan
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_COORDS); MakeJsonPoint(writer, fLeft, fTop);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 
     writer.appendU32(SKDEBUGCANVAS_ATTRIBUTE_UNIQUE_ID, fImage->uniqueID());
@@ -1423,7 +1423,7 @@ void SkDrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& url
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 
     SkString desc;
@@ -1467,7 +1467,7 @@ void SkDrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDat
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
     if (fConstraint == SkCanvas::kStrict_SrcRectConstraint) {
         writer.appendBool(SKDEBUGCANVAS_ATTRIBUTE_STRICT, true);
@@ -1523,7 +1523,7 @@ void SkDrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDat
     writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_DST); MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
 }
 
@@ -2075,7 +2075,7 @@ void SkSaveLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMan
     }
     if (fPaint.isValid()) {
         writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_PAINT);
-        MakeJsonPaint(writer, *fPaint.get(), urlDataManager);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
     }
     if (fBackdrop != nullptr) {
         writer.beginObject(SKDEBUGCANVAS_ATTRIBUTE_BACKDROP);
