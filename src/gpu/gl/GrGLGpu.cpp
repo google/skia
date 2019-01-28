@@ -411,10 +411,6 @@ GrGLGpu::~GrGLGpu() {
         GL_CALL(DeleteProgram(fStencilClipClearProgram));
     }
 
-    if (fClearColorProgram.fProgram) {
-        GL_CALL(DeleteProgram(fClearColorProgram.fProgram));
-    }
-
     delete fProgramCache;
     fSamplerObjectCache.reset();
 }
@@ -448,9 +444,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
             GL_CALL(DeleteProgram(fStencilClipClearProgram));
         }
 
-        if (fClearColorProgram.fProgram) {
-            GL_CALL(DeleteProgram(fClearColorProgram.fProgram));
-        }
         if (fSamplerObjectCache) {
             fSamplerObjectCache->release();
         }
@@ -481,7 +474,6 @@ void GrGLGpu::disconnect(DisconnectType type) {
     }
     fStencilClipClearProgram = 0;
     fStencilClipClearArrayBuffer.reset();
-    fClearColorProgram.fProgram = 0;
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);

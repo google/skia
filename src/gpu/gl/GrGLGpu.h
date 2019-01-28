@@ -614,13 +614,6 @@ private:
     GrGLuint                                fStencilClipClearProgram = 0;
     sk_sp<GrGLBuffer>                       fStencilClipClearArrayBuffer;
 
-    /** IDs for clear render target color program. */
-    struct {
-        GrGLuint    fProgram = 0;
-        GrGLint     fColorUniform = 0;
-    }                                       fClearColorProgram;
-    sk_sp<GrGLBuffer>                       fClearProgramArrayBuffer;
-
     static int TextureToCopyProgramIdx(GrTexture* texture);
 
     static int TextureSizeToMipmapProgramIdx(int width, int height) {
