@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "eb7f09c1_67738e97",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 26
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-01-28T17:15:09Z",
+      "side": 1,
+      "message": "Hmm. It seems that LSAN is enabled with sanitizers\u003d\"address\" plus ASAN_OPTIONS\u003ddetect_leaks\u003d1. The LSAN headers seem to be available for both sanitizers\u003d\"address\" and sanitizers\u003d\"undefined\" (they are not available for \"thread\" and not sure about \"memory\"). So, the only real problem is the naming of SK_HAS_UBSAN, but I think it\u0027s better as-is rather than SK_HAS_ASAN_OR_UBSAN.",
+      "parentUuid": "b97d71fb_8c520234",
+      "range": {
+        "startLine": 238,
+        "startChar": 2,
+        "endLine": 241,
+        "endChar": 7
+      },
+      "revId": "77aec5546f0a95e82356d750d9413530141c0d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "900318da_d5a450b7",
         "filename": "src/gpu/vk/GrVkCopyPipeline.cpp",
         "patchSetId": 26
@@ -39,6 +63,24 @@
       "revId": "77aec5546f0a95e82356d750d9413530141c0d40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5311480e_3e6a9ada",
+        "filename": "src/gpu/vk/GrVkCopyPipeline.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-01-28T17:15:09Z",
+      "side": 1,
+      "message": "I looked into this briefly and it seems there is not a way to detect LSAN at compile time, perhaps intentionally.\n\nIt seems slightly odd to have\n#if __has_include(\u003csanitizer/lsan_interface.h\u003e)\n        __lsan::ScopedDisabler lsanDisabler;\n#endif\nbut if you feel it\u0027s better than introducing an explicit define for SK_HAS_UBSAN, I suppose it\u0027s not too bad.",
+      "parentUuid": "900318da_d5a450b7",
+      "revId": "77aec5546f0a95e82356d750d9413530141c0d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

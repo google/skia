@@ -16,6 +16,24 @@
       "revId": "27e5125dbc05fee1c678108c4a92105758477955",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86e2183d_0ff1ed01",
+        "filename": "tools/LsanSuppressions.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-01-28T17:15:09Z",
+      "side": 0,
+      "message": "It didn\u0027t show up in my many tryjobs. I fully expect it to pop up after I submit this CL, and then I will need to re-add this suppression. But maybe we\u0027ll be lucky.",
+      "parentUuid": "0ec1fc7f_d21033f7",
+      "revId": "27e5125dbc05fee1c678108c4a92105758477955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
