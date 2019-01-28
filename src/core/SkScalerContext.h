@@ -215,9 +215,10 @@ private:
         return fLumBits;
     }
 
-
+    // setLuminanceColor forces the alpha to be 0xFF because the blitter that draws the glyph
+    // will apply the alpha from the paint. Don't apply the alpha twice.
     void setLuminanceColor(SkColor c) {
-        fLumBits = c;
+        fLumBits = SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));
     }
 };
 SK_END_REQUIRE_DENSE
@@ -409,6 +410,8 @@ protected:
 
 private:
     friend class SkRandomScalerContext; // For debug purposes
+
+    static SkScalerContextRec PreprocessRec(const SkDescriptor& desc);
 
     // never null
     sk_sp<SkTypeface> fTypeface;
