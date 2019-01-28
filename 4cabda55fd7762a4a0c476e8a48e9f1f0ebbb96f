@@ -22,6 +22,30 @@
       "revId": "4cabda55fd7762a4a0c476e8a48e9f1f0ebbb96f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03ca1abf_c06c7ea3",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-01-28T18:33:22Z",
+      "side": 1,
+      "message": "TBH I went back and forth on this a bunch. Technically there is also backendContext.fMixAPIVersion from a few versions ago of GrVkBackendContext. After thinking about, if a client was using the fInstanceVersion before there is really only one valid fInstanceVersion they could give us and that is the instanceVersion I get above in 71-85. So I could use backendContext.fInstanceVersion, but it should be equal to instanceVersion.\n\nSo IMO it should be both safe and better to just not even use backendContext.fInstanceVersion. This should also just be a short term thing after we go back and update clients to use the new API.",
+      "parentUuid": "d1adf8ac_ee31aa71",
+      "range": {
+        "startLine": 100,
+        "startChar": 58,
+        "endLine": 100,
+        "endChar": 73
+      },
+      "revId": "4cabda55fd7762a4a0c476e8a48e9f1f0ebbb96f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
