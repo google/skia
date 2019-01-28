@@ -94,10 +94,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     bool wasDestroyed = false;
     if (fBufferPtr) {
         SkASSERT(!fBlocks.empty());
-        if (fBlocks.back().fBuffer->isMapped()) {
-            GrBuffer* buf = fBlocks.back().fBuffer;
-            SkASSERT(buf->mapPtr() == fBufferPtr);
-        } else {
+        if (!fBlocks.back().fBuffer->isMapped()) {
             SkASSERT(fCpuData == fBufferPtr);
         }
     } else {
