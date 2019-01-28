@@ -987,7 +987,7 @@
 #define GR_GL_PATH_MODELVIEW                                0x1700
 
 /*  ARM specific define for MSAA support on framebuffer fetch */
-#define GR_GL_FETCH_PER_SAMPLE_ARM                          0x8F65
+#define GR_GL_FETCH_PER_SAMPLE                              0x8F65
 
 /* GL_EXT_raster_multisample */
 #define GR_GL_RASTER_MULTISAMPLE                            0x9327
