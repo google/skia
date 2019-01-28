@@ -868,10 +868,10 @@ or was parsed from encoded data.
     source.peekPixels(&pixmap);
     canvas->scale(.25f, .25f);
     int y = 0;
-    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,
-                        SkColorSpace::kSRGB_RenderTargetGamma } ) {
+    for (auto gamma : { SkNamedTransferFn::kLinear,
+                        SkNamedTransferFn::kSRGB } ) {
         int x = 0;
-        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkNamedGamut::kSRGB);
         for (int index = 0; index < 2; ++index) {
             pixmap.setColorSpace(colorSpace);
             sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
@@ -901,10 +901,10 @@ or was parsed from encoded data.
     source.peekPixels(&pixmap);
     canvas->scale(.25f, .25f);
     int y = 0;
-    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,
-                        SkColorSpace::kSRGB_RenderTargetGamma } ) {
+    for (auto gamma : { SkNamedTransferFn::kLinear,
+                        SkNamedTransferFn::kSRGB } ) {
         int x = 0;
-        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkNamedGamut::kSRGB);
         for (int index = 0; index < 2; ++index) {
             pixmap.setColorSpace(colorSpace);
             sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
@@ -1771,7 +1771,7 @@ void draw(SkCanvas* canvas) {
 #Image 5
 #Set sRGB
     sk_sp<SkColorSpace> normalColorSpace = SkColorSpace::MakeRGB(
-             SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kSRGB_Gamut);
+             SkNamedTransferFn::kSRGB, SkNamedGamut::kSRGB);
     sk_sp<SkColorSpace> wackyColorSpace = normalColorSpace->makeColorSpin();
     for (auto colorSpace : { normalColorSpace, wackyColorSpace  } ) {
         sk_sp<SkImage> colorSpaced = image->makeColorSpace(colorSpace);
