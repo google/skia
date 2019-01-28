@@ -49,7 +49,10 @@ struct SK_API GrVkBackendContext {
     VkQueue                    fQueue;
     uint32_t                   fGraphicsQueueIndex;
     uint32_t                   fMinAPIVersion; // Deprecated. Set fInstanceVersion instead.
-    uint32_t                   fInstanceVersion = 0;
+    uint32_t                   fInstanceVersion = 0; // Deprecated. Set fMaxApiVersion instead.
+    // The max api version set here should match the value set in VkApplicationInfo::apiVersion when
+    // then VkInstance was created.
+    uint32_t                   fMaxAPIVersion = 0;
     uint32_t                   fExtensions = 0; // Deprecated. Use fVkExtensions instead.
     const GrVkExtensions*      fVkExtensions = nullptr;
     uint32_t                   fFeatures; // Deprecated. Use either fDeviceFeatures[2] instead.
