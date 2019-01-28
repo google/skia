@@ -9,7 +9,7 @@
 #ifndef WindowContextFactory_mac_DEFINED
 #define WindowContextFactory_mac_DEFINED
 
-#include "SDL.h"
+#include <Cocoa/Cocoa.h>
 
 namespace sk_app {
 
@@ -19,8 +19,7 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-    SDL_Window*   fWindow;
-    SDL_GLContext fGLContext;
+    NSView*   fMainView;
 };
 
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
