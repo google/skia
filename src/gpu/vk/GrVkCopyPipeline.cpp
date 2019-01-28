@@ -11,6 +11,10 @@
 #include "GrVkUtil.h"
 #include "SkOnce.h"
 
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+#include <sanitizer/lsan_interface.h>
+#endif
+
 static void setup_multisample_state(int numSamples,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
@@ -174,10 +178,17 @@ GrVkCopyPipeline* GrVkCopyPipeline::Create(GrVkGpu* gpu,
     pipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline vkPipeline;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                          cache, 1,
-                                                                          &pipelineCreateInfo,
-                                                                          nullptr, &vkPipeline));
+    VkResult err;
+    {
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8712
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
+        err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
+                                                                     cache, 1,
+                                                                     &pipelineCreateInfo,
+                                                                     nullptr, &vkPipeline));
+    }
     if (err) {
         SkDebugf("Failed to create copy pipeline. Error: %d\n", err);
         return nullptr;
