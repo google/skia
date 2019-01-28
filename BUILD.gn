@@ -2130,10 +2130,10 @@ if (skia_enable_tools) {
       }
     } else if (is_mac) {
       sources += [
-        "tools/sk_app/mac/GLWindowContext_mac.cpp",
-        "tools/sk_app/mac/RasterWindowContext_mac.cpp",
-        "tools/sk_app/mac/Window_mac.cpp",
-        "tools/sk_app/mac/main_mac.cpp",
+        "tools/sk_app/mac/GLWindowContext_mac.mm",
+        "tools/sk_app/mac/RasterWindowContext_mac.mm",
+        "tools/sk_app/mac/Window_mac.mm",
+        "tools/sk_app/mac/main_mac.mm",
       ]
       libs += [
         "QuartzCore.framework",
