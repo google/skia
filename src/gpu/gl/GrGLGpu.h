@@ -338,6 +338,7 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
+    void flushClearColor(GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -586,6 +587,8 @@ private:
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
     TriState                                fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
+
+    GrGLfloat fHWClearColor[4];
 
     GrGLuint fBoundDrawFramebuffer = 0;
 
