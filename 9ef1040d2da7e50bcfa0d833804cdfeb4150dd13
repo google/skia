@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "291cbe70_f5f4f361",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-01-28T21:26:52Z",
+      "side": 0,
+      "message": "Interesting to note that moving this call to the constructor will now preserve the ordering with the luminance color calculation.",
+      "range": {
+        "startLine": 1042,
+        "startChar": 8,
+        "endLine": 1042,
+        "endChar": 35
+      },
+      "revId": "9ef1040d2da7e50bcfa0d833804cdfeb4150dd13",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
