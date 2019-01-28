@@ -537,7 +537,7 @@ bool SkShaper::good() const {
 }
 
 SkPoint SkShaper::shape(RunHandler* handler,
-                        const SkFont& srcPaint,
+                        const SkFont& srcFont,
                         const char* utf8,
                         size_t utf8Bytes,
                         bool leftToRight,
@@ -653,9 +653,9 @@ SkPoint SkShaper::shape(RunHandler* handler,
             return point;
         }
 
-        SkFont paint(srcPaint);
-        paint.setTypeface(sk_ref_sp(font->currentTypeface()));
-        ShapedRun& run = runs.emplace_back(utf8Start, utf8End, len, paint, bidi->currentLevel(),
+        SkFont runFont(srcFont);
+        runFont.setTypeface(sk_ref_sp(font->currentTypeface()));
+        ShapedRun& run = runs.emplace_back(utf8Start, utf8End, len, runFont, bidi->currentLevel(),
                                            std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]));
         int scaleX, scaleY;
         hb_font_get_scale(font->currentHBFont(), &scaleX, &scaleY);
