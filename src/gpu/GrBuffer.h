@@ -69,14 +69,6 @@ public:
      }
 
     /**
-     * Returns the same ptr that map() returned at time of map or nullptr if the
-     * is not mapped.
-     *
-     * @return ptr to mapped buffer data or nullptr if buffer is not mapped.
-     */
-     void* mapPtr() const { return fMapPtr; }
-
-    /**
      Queries whether the buffer has been mapped.
 
      @return true if the buffer is mapped, false otherwise.
