@@ -1539,7 +1539,6 @@ if (skia_enable_tools) {
     ]
     public_deps = [
       ":common_flags",
-      "//third_party/jsoncpp",
     ]
   }
 
@@ -1762,7 +1761,6 @@ if (skia_enable_tools) {
         "modules/skottie",
         "modules/skottie:utils",
         "modules/sksg",
-        "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
 
@@ -1897,7 +1895,6 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":tool_utils",
-        "//third_party/jsoncpp",
         "//third_party/libmicrohttpd",
         "//third_party/libpng",
       ]
@@ -1943,7 +1940,6 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       "modules/skottie:fuzz",
-      "//third_party/jsoncpp",
       "//third_party/libpng",
     ]
   }
@@ -1992,7 +1988,6 @@ if (skia_enable_tools) {
     deps = [
       ":skia",
       ":tool_utils",
-      "//third_party/jsoncpp",
     ]
   }
 
@@ -2376,7 +2371,6 @@ if (skia_enable_tools) {
         ":generate_mocs",
         ":generate_resources",
         ":skia",
-        "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
     }

@@ -10,16 +10,16 @@
 
 #include "SkWriteBuffer.h"
 
-#include "SkJSONCPP.h"
-
+class SkJSONWriter;
 class SkPath;
 class UrlDataManager;
 
 class SkJsonWriteBuffer final : public SkWriteBuffer {
 public:
-    SkJsonWriteBuffer(UrlDataManager* urlDataManager)
+    SkJsonWriteBuffer(SkJSONWriter* writer, UrlDataManager* urlDataManager)
         : fUrlDataManager(urlDataManager)
-        , fJson(Json::objectValue) {}
+        , fWriter(writer)
+        , fCount(0) {}
 
     void writePad32(const void* buffer, size_t bytes) override;
     void writeByteArray(const void* data, size_t size) override;
@@ -49,13 +49,12 @@ public:
     void writeTypeface(SkTypeface* typeface) override;
     void writePaint(const SkPaint& paint) override;
 
-    const Json::Value& getValue() const { return fJson; }
-
 private:
-    void append(const char* type, const Json::Value& value);
+    void append(const char* type);
 
     UrlDataManager* fUrlDataManager;
-    Json::Value fJson;
+    SkJSONWriter* fWriter;
+    int fCount;
 };
 
 #endif

@@ -7,6 +7,7 @@
 
 #include "Request.h"
 
+#include "SkJSONWriter.h"
 #include "SkPictureRecorder.h"
 #include "sk_tool_utils.h"
 
@@ -214,25 +215,29 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
 sk_sp<SkData> Request::getJsonOps(int n) {
     SkCanvas* canvas = this->getCanvas();
-    Json::Value root = fDebugCanvas->toJSON(fUrlDataManager, n, canvas);
-    root["mode"] = Json::Value(fGPUEnabled ? "gpu" : "cpu");
-    root["drawGpuOpBounds"] = Json::Value(fDebugCanvas->getDrawGpuOpBounds());
-    root["colorMode"] = Json::Value(fColorMode);
     SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(root).c_str());
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+    writer.beginObject(); // root
 
+    writer.appendString("mode", fGPUEnabled ? "gpu" : "cpu");
+    writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
+    writer.appendS32("colorMode", fColorMode);
+    fDebugCanvas->toJSON(writer, fUrlDataManager, n, canvas);
+
+    writer.endObject(); // root
+    writer.flush();
     return stream.detachAsData();
 }
 
 sk_sp<SkData> Request::getJsonOpList(int n) {
     SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
-
-    Json::Value result = fDebugCanvas->toJSONOpList(n, canvas);
-
     SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(result).c_str());
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
 
+    fDebugCanvas->toJSONOpList(writer, n, canvas);
+
+    writer.flush();
     return stream.detachAsData();
 }
 
@@ -245,16 +250,20 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
     fDebugCanvas->drawTo(canvas, n);
 
     // make some json
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+
     SkMatrix vm = fDebugCanvas->getCurrentMatrix();
     SkIRect clip = fDebugCanvas->getCurrentClip();
-    Json::Value info(Json::objectValue);
-    info["ViewMatrix"] = SkDrawCommand::MakeJsonMatrix(vm);
-    info["ClipRect"] = SkDrawCommand::MakeJsonIRect(clip);
 
-    std::string json = Json::FastWriter().write(info);
+    writer.beginObject(); // root
+    writer.appendName("ViewMatrix"); SkDrawCommand::MakeJsonMatrix(writer, vm);
+    writer.appendName("ClipRect"); SkDrawCommand::MakeJsonIRect(writer, clip);
+    writer.endObject(); // root
 
-    // We don't want the null terminator so strlen is correct
-    return SkData::MakeWithCopy(json.c_str(), strlen(json.c_str()));
+    // TODO: Old code explicitly avoided the null terminator in the returned data. Important?
+    writer.flush();
+    return stream.detachAsData();
 }
 
 SkColor Request::getPixel(int x, int y) {

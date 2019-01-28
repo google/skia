@@ -17,6 +17,7 @@
 #include "SkTHash.h"
 
 class GrOp;
+class SkJSONWriter;
 
 /*
  * GrAuditTrail collects a list of draw ops, detailed information about those ops, and can dump them
@@ -91,10 +92,10 @@ public:
     // this means is that for some sequence of draw calls N, the below toJson calls will only
     // produce JSON which reflects N draw calls. This JSON may or may not be accurate for N + 1 or
     // N - 1 draws depending on the actual combining algorithm used.
-    SkString toJson(bool prettyPrint = false) const;
+    void toJson(SkJSONWriter& writer) const;
 
     // returns a json string of all of the ops associated with a given client id
-    SkString toJson(int clientID, bool prettyPrint = false) const;
+    void toJson(SkJSONWriter& writer, int clientID) const;
 
     bool isEnabled() { return fEnabled; }
     void setEnabled(bool enabled) { fEnabled = enabled; }
@@ -124,7 +125,7 @@ public:
 private:
     // TODO if performance becomes an issue, we can move to using SkVarAlloc
     struct Op {
-        SkString toJson() const;
+        void toJson(SkJSONWriter& writer) const;
         SkString fName;
         SkTArray<SkString> fStackTrace;
         SkRect fBounds;
@@ -138,7 +139,7 @@ private:
 
     struct OpNode {
         OpNode(const GrSurfaceProxy::UniqueID& proxyID) : fProxyUniqueID(proxyID) { }
-        SkString toJson() const;
+        void toJson(SkJSONWriter& writer) const;
 
         SkRect                         fBounds;
         Ops                            fChildren;
@@ -149,8 +150,7 @@ private:
     void copyOutFromOpList(OpInfo* outOpInfo, int opListID);
 
     template <typename T>
-    static void JsonifyTArray(SkString* json, const char* name, const T& array,
-                              bool addComma);
+    static void JsonifyTArray(SkJSONWriter& writer, const char* name, const T& array);
 
     OpPool fOpPool;
     SkTHashMap<uint32_t, int> fIDLookup;

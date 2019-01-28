@@ -47,15 +47,14 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
         request->fDebugCanvas->getDrawCommandAt(i)->execute(canvas);
     }
     SkColor target = request->getPixel(x, y);
-    Json::Value response(Json::objectValue);
-    Json::Value startColor(Json::arrayValue);
-    startColor.append(Json::Value(SkColorGetR(target)));
-    startColor.append(Json::Value(SkColorGetG(target)));
-    startColor.append(Json::Value(SkColorGetB(target)));
-    startColor.append(Json::Value(SkColorGetA(target)));
-    response["startColor"] = startColor;
-    response["endColor"] = startColor;
-    response["endOp"] = Json::Value(n);
+
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+    writer.beginObject(); // root
+
+    writer.appendName("startColor"); SkDrawCommand::MakeJsonColor(writer, target);
+
+    bool changed = false;
     for (int i = n + 1; i < n + count; ++i) {
         int index = i % count;
         if (index == 0) {
@@ -67,18 +66,19 @@ int BreakHandler::handle(Request* request, MHD_Connection* connection,
         request->fDebugCanvas->getDrawCommandAt(index)->execute(canvas);
         SkColor current = request->getPixel(x, y);
         if (current != target) {
-            Json::Value endColor(Json::arrayValue);
-            endColor.append(Json::Value(SkColorGetR(current)));
-            endColor.append(Json::Value(SkColorGetG(current)));
-            endColor.append(Json::Value(SkColorGetB(current)));
-            endColor.append(Json::Value(SkColorGetA(current)));
-            response["endColor"] = endColor;
-            response["endOp"] = Json::Value(index);
+            writer.appendName("endColor"); SkDrawCommand::MakeJsonColor(writer, current);
+            writer.appendS32("endOp", index);
+            changed = true;
             break;
         }
     }
+    if (!changed) {
+        writer.appendName("endColor"); SkDrawCommand::MakeJsonColor(writer, target);
+        writer.appendS32("endOp", n);
+    }
     canvas->restoreToCount(saveCount);
-    SkDynamicMemoryWStream stream;
-    stream.writeText(Json::FastWriter().write(response).c_str());
+
+    writer.endObject(); // root
+    writer.flush();
     return SendData(connection, stream.detachAsData().get(), "application/json");
 }
