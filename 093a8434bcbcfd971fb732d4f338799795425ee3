@@ -22,6 +22,30 @@
       "revId": "093a8434bcbcfd971fb732d4f338799795425ee3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecd21b7d_ea1e24d3",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1706,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-01-28T18:41:33Z",
+      "side": 1,
+      "message": "Ah, no. I actually wrote it that way on my laptop, then forgot to upload to Gerrit, and re-wrote it like this.",
+      "parentUuid": "05722954_4b2461e3",
+      "range": {
+        "startLine": 1706,
+        "startChar": 4,
+        "endLine": 1706,
+        "endChar": 34
+      },
+      "revId": "093a8434bcbcfd971fb732d4f338799795425ee3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
