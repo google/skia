@@ -199,15 +199,15 @@ public:
     void appendS64(int64_t value);
     void appendU32(uint32_t value) { this->beginValue(); this->appendf("%u", value); }
     void appendU64(uint64_t value);
-    void appendFloat(float value) { this->beginValue(); this->appendf("%f", value); }
-    void appendDouble(double value) { this->beginValue(); this->appendf("%f", value); }
+    void appendFloat(float value) { this->beginValue(); this->appendf("%g", value); }
+    void appendDouble(double value) { this->beginValue(); this->appendf("%g", value); }
     void appendFloatDigits(float value, int digits) {
         this->beginValue();
-        this->appendf("%.*f", digits, value);
+        this->appendf("%.*g", digits, value);
     }
     void appendDoubleDigits(double value, int digits) {
         this->beginValue();
-        this->appendf("%.*f", digits, value);
+        this->appendf("%.*g", digits, value);
     }
     void appendHexU32(uint32_t value) { this->beginValue(); this->appendf("\"0x%x\"", value); }
     void appendHexU64(uint64_t value);
