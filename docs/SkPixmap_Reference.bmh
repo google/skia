@@ -159,8 +159,8 @@ void draw(SkCanvas* canvas) {
 #Example
 void draw(SkCanvas* canvas) {
     SkPixmap pixmap;
-    sk_sp<SkColorSpace> colorSpace1 = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
-                                                            SkColorSpace::kRec2020_Gamut);
+    sk_sp<SkColorSpace> colorSpace1 = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear,
+                                                            SkNamedGamut::kRec2020);
     SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not ");
     pixmap.setColorSpace(colorSpace1);
     SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not ");
