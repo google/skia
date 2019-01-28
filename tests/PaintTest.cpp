@@ -147,6 +147,7 @@ DEF_TEST(Paint_copy, reporter) {
 
     // copy the paint using the copy constructor and check they are the same
     SkPaint copiedPaint = paint;
+    REPORTER_ASSERT(reporter, paint.getHash() == copiedPaint.getHash());
     REPORTER_ASSERT(reporter, paint == copiedPaint);
 
     // copy the paint using the equal operator and check they are the same
@@ -267,10 +268,6 @@ DEF_TEST(Paint_regression_measureText, reporter) {
 DEF_TEST(Paint_MoreFlattening, r) {
     SkPaint paint;
     paint.setColor(0x00AABBCC);
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-    paint.setTextScaleX(1.0f);  // Default value, ignored.
-    paint.setTextSize(19);
-#endif
     paint.setBlendMode(SkBlendMode::kModulate);
     paint.setLooper(nullptr);  // Default value, ignored.
 
@@ -304,18 +301,10 @@ DEF_TEST(Paint_getHash, r) {
     paint.setColor(SK_ColorBLACK);  // Reset to default value.
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 
-#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
-    // SkTypeface is the first field we hash, so test it specially.
-    paint.setTypeface(SkTypeface::MakeDefault());
-    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setTypeface(nullptr);
-    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
-#endif
-
     // This is part of fBitfields, the last field we hash.
-    paint.setHinting(kSlight_SkFontHinting);
+    paint.setBlendMode(SkBlendMode::kSrc);
     REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setHinting(kNormal_SkFontHinting);
+    paint.setBlendMode(SkBlendMode::kSrcOver);
     REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
@@ -344,43 +333,6 @@ DEF_TEST(Paint_nothingToDraw, r) {
     paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     REPORTER_ASSERT(r, !paint.nothingToDraw());
 }
-
-#ifdef SK_SUPPORT_LEGACY_PAINT_TEXTMEASURE
-DEF_TEST(Paint_getwidths, r) {
-    SkPaint paint;
-    const char text[] = "Hamburgefons!@#!#23425,./;'[]";
-    int count = paint.countText(text, strlen(text));
-    SkAutoTArray<uint16_t> glyphStorage(count * 2);
-    uint16_t* glyphs = glyphStorage.get();
-
-    (void)paint.textToGlyphs(text, strlen(text), glyphs);
-    paint.setTextEncoding(kGlyphID_SkTextEncoding);
-
-    SkAutoTArray<SkScalar> widthStorage(count * 2);
-    SkScalar* widths = widthStorage.get();
-    SkAutoTArray<SkRect> rectStorage(count * 2);
-    SkRect* bounds = rectStorage.get();
-
-    for (bool subpix : { false, true }) {
-        paint.setSubpixelText(subpix);
-        for (auto hint : { kNo_SkFontHinting, kSlight_SkFontHinting, kNormal_SkFontHinting, kFull_SkFontHinting}) {
-            paint.setHinting(hint);
-            for (auto size : { 1.0f, 12.0f, 100.0f }) {
-                paint.setTextSize(size);
-                paint.getTextWidths(glyphs, count * 2, widths, bounds);
-
-                SkFont font = SkFont::LEGACY_ExtractFromPaint(paint);
-                font.getWidths(glyphs, count, widths + count, bounds + count);
-
-                for (int i = 0; i < count; ++i) {
-                    REPORTER_ASSERT(r, widths[i] == widths[i + count]);
-                    REPORTER_ASSERT(r, bounds[i] == bounds[i + count]);
-                }
-            }
-        }
-    }
-}
-#endif
 
 DEF_TEST(Font_getpos, r) {
     SkFont font;
