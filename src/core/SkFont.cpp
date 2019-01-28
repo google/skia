@@ -494,6 +494,74 @@ sk_sp<SkTypeface> SkFont::refTypefaceOrDefault() const {
     return fTypeface ? fTypeface : SkTypeface::MakeDefault();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkPaint.h"
+
+#ifdef SK_SUPPORT_LEGACY_PAINT_FONT_FIELDS
+void SkFont::LEGACY_applyToPaint(SkPaint* paint) const {
+    paint->setTypeface(fTypeface);
+    paint->setTextSize(fSize);
+    paint->setTextScaleX(fScaleX);
+    paint->setTextSkewX(fSkewX);
+
+    paint->setEmbeddedBitmapText(SkToBool(fFlags & kEmbeddedBitmaps_PrivFlag));
+    paint->setFakeBoldText(SkToBool(fFlags & kEmbolden_PrivFlag));
+    paint->setAutohinted(SkToBool(fFlags & kForceAutoHinting_PrivFlag));
+    paint->setSubpixelText(SkToBool(fFlags & kSubpixel_PrivFlag));
+    paint->setLinearText(SkToBool(fFlags & kLinearMetrics_PrivFlag));
+
+    bool doAA = false,
+         doLCD = false;
+    switch (this->getEdging()) {
+        case Edging::kAlias:                                        break;
+        case Edging::kAntiAlias:         doAA = true;               break;
+        case Edging::kSubpixelAntiAlias: doAA = true; doLCD = true; break;
+    }
+    paint->setAntiAlias(doAA);
+    paint->setLCDRenderText(doLCD);
+
+    paint->setHinting((SkFontHinting)this->getHinting());
+}
+
+SkFont SkFont::LEGACY_ExtractFromPaint(const SkPaint& paint) {
+    SkFont font(sk_ref_sp(paint.getTypeface()), paint.getTextSize(), paint.getTextScaleX(),
+                paint.getTextSkewX());
+    font.LEGACY_applyPaintFlags(paint.getFlags());
+    font.setHinting((SkFontHinting)paint.getHinting());
+    return font;
+}
+
+void SkFont::LEGACY_applyPaintFlags(uint32_t paintFlags) {
+    uint32_t flags = 0;
+    if (paintFlags & SkPaint::kEmbeddedBitmapText_Flag) {
+        flags |= kEmbeddedBitmaps_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kFakeBoldText_Flag) {
+        flags |= kEmbolden_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kAutoHinting_Flag) {
+        flags |= kForceAutoHinting_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kSubpixelText_Flag) {
+        flags |= kSubpixel_PrivFlag;
+    }
+    if (paintFlags & SkPaint::kLinearText_Flag) {
+        flags |= kLinearMetrics_PrivFlag;
+    }
+    fFlags = flags;
+
+    Edging edging = Edging::kAlias;
+    if (paintFlags & SkPaint::kAntiAlias_Flag) {
+        edging = Edging::kAntiAlias;
+        if (paintFlags & SkPaint::kLCDRenderText_Flag) {
+            edging = Edging::kSubpixelAntiAlias;
+        }
+    }
+    this->setEdging(edging);
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 int SkFontPriv::ValidCountText(const void* text, size_t length, SkTextEncoding encoding) {
