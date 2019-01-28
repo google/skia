@@ -35,6 +35,7 @@
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
+#include "SkJSONWriter.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -211,23 +212,23 @@ struct GPUTarget : public Target {
         }
         return true;
     }
-    void fillOptions(ResultsWriter* log) override {
+    void fillOptions(NanoJSONResultsWriter& log) override {
         const GrGLubyte* version;
         if (this->contextInfo.backend() == GrBackendApi::kOpenGL) {
             const GrGLInterface* gl =
                     static_cast<GrGLGpu*>(this->contextInfo.grContext()->contextPriv().getGpu())
                             ->glInterface();
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
-            log->configOption("GL_VERSION", (const char*)(version));
+            log.appendString("GL_VERSION", (const char*)(version));
 
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_RENDERER));
-            log->configOption("GL_RENDERER", (const char*) version);
+            log.appendString("GL_RENDERER", (const char*) version);
 
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VENDOR));
-            log->configOption("GL_VENDOR", (const char*) version);
+            log.appendString("GL_VENDOR", (const char*) version);
 
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-            log->configOption("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
+            log.appendString("GL_SHADING_LANGUAGE_VERSION", (const char*) version);
         }
     }
 
@@ -1011,23 +1012,27 @@ public:
         return nullptr;
     }
 
-    void fillCurrentOptions(ResultsWriter* log) const {
-        log->configOption("source_type", fSourceType);
-        log->configOption("bench_type",  fBenchType);
+    void fillCurrentOptions(NanoJSONResultsWriter& log) const {
+        log.appendString("source_type", fSourceType);
+        log.appendString("bench_type",  fBenchType);
         if (0 == strcmp(fSourceType, "skp")) {
-            log->configOption("clip",
+            log.appendString("clip",
                     SkStringPrintf("%d %d %d %d", fClip.fLeft, fClip.fTop,
                                                   fClip.fRight, fClip.fBottom).c_str());
             SkASSERT_RELEASE(fCurrentScale < fScales.count());  // debugging paranoia
-            log->configOption("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]).c_str());
+            log.appendString("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]).c_str());
             if (fCurrentUseMPD > 0) {
                 SkASSERT(1 == fCurrentUseMPD || 2 == fCurrentUseMPD);
-                log->configOption("multi_picture_draw", fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
+                log.appendString("multi_picture_draw",
+                                 fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
             }
         }
+    }
+
+    void fillCurrentMetrics(NanoJSONResultsWriter& log) const {
         if (0 == strcmp(fBenchType, "recording")) {
-            log->metric("bytes", fSKPBytes);
-            log->metric("ops",   fSKPOps);
+            log.appendMetric("bytes", fSKPBytes);
+            log.appendMetric("ops", fSKPOps);
         }
     }
 
@@ -1124,30 +1129,36 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::unique_ptr<ResultsWriter> log(new ResultsWriter);
+    std::unique_ptr<SkWStream> logStream(new SkNullWStream);
     if (!FLAGS_outResultsFile.isEmpty()) {
 #if defined(SK_RELEASE)
-        log.reset(new NanoJSONResultsWriter(FLAGS_outResultsFile[0]));
+        logStream.reset(new SkFILEWStream(FLAGS_outResultsFile[0]));
 #else
         SkDebugf("I'm ignoring --outResultsFile because this is a Debug build.");
         return 1;
 #endif
     }
+    NanoJSONResultsWriter log(logStream.get(), SkJSONWriter::Mode::kPretty);
+    log.beginObject(); // root
 
     if (1 == FLAGS_properties.count() % 2) {
         SkDebugf("ERROR: --properties must be passed with an even number of arguments.\n");
         return 1;
     }
     for (int i = 1; i < FLAGS_properties.count(); i += 2) {
-        log->property(FLAGS_properties[i-1], FLAGS_properties[i]);
+        log.appendString(FLAGS_properties[i-1], FLAGS_properties[i]);
     }
 
     if (1 == FLAGS_key.count() % 2) {
         SkDebugf("ERROR: --key must be passed with an even number of arguments.\n");
         return 1;
     }
-    for (int i = 1; i < FLAGS_key.count(); i += 2) {
-        log->key(FLAGS_key[i-1], FLAGS_key[i]);
+    if (FLAGS_key.count()) {
+        log.beginObject("key");
+        for (int i = 1; i < FLAGS_key.count(); i += 2) {
+            log.appendString(FLAGS_key[i - 1], FLAGS_key[i]);
+        }
+        log.endObject(); // key
     }
 
     const double overhead = estimate_timer_overhead();
@@ -1189,6 +1200,7 @@ int main(int argc, char** argv) {
 
     int runs = 0;
     BenchmarkStream benchStream;
+    log.beginObject("results");
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
@@ -1196,7 +1208,7 @@ int main(int argc, char** argv) {
         }
 
         if (!configs.empty()) {
-            log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
+            log.beginBench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
             bench->delayedSetup();
         }
         for (int i = 0; i < configs.count(); ++i) {
@@ -1280,22 +1292,34 @@ int main(int argc, char** argv) {
             const bool want_plot = !FLAGS_quiet;
 
             Stats stats(samples, want_plot);
-            log->config(config);
-            log->configOption("name", bench->getName());
-            benchStream.fillCurrentOptions(log.get());
-            target->fillOptions(log.get());
-            log->metric("min_ms",    stats.min);
-            log->metrics("samples",    samples);
+            log.beginObject(config);
+
+            log.beginObject("options");
+            log.appendString("name", bench->getName());
+            benchStream.fillCurrentOptions(log);
+            target->fillOptions(log);
+            log.endObject(); // options
+
+            // Metrics
+            log.appendMetric("min_ms", stats.min);
+            log.beginArray("samples");
+            for (double sample : samples) {
+                log.appendDoubleDigits(sample, 16);
+            }
+            log.endArray(); // samples
+            benchStream.fillCurrentMetrics(log);
             if (gpuStatsDump) {
                 // dump to json, only SKPBench currently returns valid keys / values
                 SkASSERT(keys.count() == values.count());
                 for (int i = 0; i < keys.count(); i++) {
-                    log->metric(keys[i].c_str(), values[i]);
+                    log.appendMetric(keys[i].c_str(), values[i]);
                 }
             }
 
+            log.endObject(); // config
+
             if (runs++ % FLAGS_flushEvery == 0) {
-                log->flush();
+                log.flush();
             }
 
             if (kAutoTuneLoops != FLAGS_loops) {
@@ -1360,13 +1384,22 @@ int main(int argc, char** argv) {
             }
             cleanup_run(target);
         }
+        if (!configs.empty()) {
+            log.endBench();
+        }
     }
 
     SkGraphics::PurgeAllCaches();
 
-    log->bench("memory_usage", 0,0);
-    log->config("meta");
-    log->metric("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
+    log.beginBench("memory_usage", 0, 0);
+    log.beginObject("meta"); // config
+    log.appendS32("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
+    log.endObject(); // config
+    log.endBench();
+
+    log.endObject(); // results
+    log.endObject(); // root
+    log.flush();
 
     return 0;
 }
