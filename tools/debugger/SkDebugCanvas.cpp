@@ -8,6 +8,7 @@
 #include "SkCanvasPriv.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
+#include "SkJSONWriter.h"
 #include "SkPaintFilterCanvas.h"
 #include "SkPicture.h"
 #include "SkRectPriv.h"
@@ -248,43 +249,42 @@ void SkDebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
     }
 }
 
-Json::Value SkDebugCanvas::toJSON(UrlDataManager& urlDataManager, int n, SkCanvas* canvas) {
+void SkDebugCanvas::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, int n,
+                           SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
 
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
-    Json::Value result = Json::Value(Json::objectValue);
-    result[SKDEBUGCANVAS_ATTRIBUTE_VERSION] = Json::Value(SKDEBUGCANVAS_VERSION);
-    Json::Value commands = Json::Value(Json::arrayValue);
-    for (int i = 0; i < this->getSize() && i <= n; i++) {
-        commands[i] = this->getDrawCommandAt(i)->toJSON(urlDataManager);
-        if (at) {
-            // TODO if this is inefficient we could add a method to GrAuditTrail which takes
-            // a Json::Value and is only compiled in this file
-            Json::Value parsedFromString;
-            Json::Reader reader;
-            SkAssertResult(reader.parse(at->toJson(i).c_str(), parsedFromString));
+    writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
+    writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
-            commands[i][SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL] = parsedFromString;
+    for (int i = 0; i < this->getSize() && i <= n; i++) {
+        writer.beginObject(); // command
+        this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
+
+        if (at) {
+            writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL);
+            at->toJson(writer, i);
         }
+        writer.endObject(); // command
     }
+
+    writer.endArray(); // commands
     this->cleanupAuditTrail(canvas);
-    result[SKDEBUGCANVAS_ATTRIBUTE_COMMANDS] = commands;
-    return result;
 }
 
-Json::Value SkDebugCanvas::toJSONOpList(int n, SkCanvas* canvas) {
+void SkDebugCanvas::toJSONOpList(SkJSONWriter& writer, int n, SkCanvas* canvas) {
     this->drawAndCollectOps(n, canvas);
 
-    Json::Value parsedFromString;
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoManageOpList enable(at);
-        Json::Reader reader;
-        SkAssertResult(reader.parse(at->toJson().c_str(), parsedFromString));
+        at->toJson(writer);
+    } else {
+        writer.beginObject();
+        writer.endObject();
     }
     this->cleanupAuditTrail(canvas);
-    return parsedFromString;
 }
 
 void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {
