@@ -9,6 +9,7 @@
 #include "SkColorFilter.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
+#include "SkFontPriv.h"
 #include "SkGraphics.h"
 #include "SkPaintDefaults.h"
 #include "SkPaintPriv.h"
@@ -24,7 +25,6 @@
 #include "SkTextBlob.h"
 #include "SkTextBlobPriv.h"
 #include "SkTextFormatParams.h"
-#include "SkTextToPathIter.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 
@@ -168,18 +168,6 @@ SkFontPriv::GlyphCacheProc SkFontPriv::GetGlyphCacheProc(SkTextEncoding encoding
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// xyIndex is 0 for fAdvanceX or 1 for fAdvanceY
-static SkScalar advance(const SkGlyph& glyph) {
-    return SkFloatToScalar(glyph.fAdvanceX);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
-                                   SkScalar* intervals) const {
-    return blob->getIntercepts(bounds, intervals, this);
-}
-
 // return true if the paint is just a single color (i.e. not a shader). If its
 // a shader, then we can't compute a const luminance for it :(
 static bool just_a_color(const SkPaint& paint, SkColor* color) {
@@ -204,73 +192,4 @@ SkColor SkPaint::computeLuminanceColor() const {
         c = SkColorSetRGB(0x7F, 0x80, 0x7F);
     }
     return c;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static bool has_thick_frame(const SkPaint& paint) {
-    return  paint.getStrokeWidth() > 0 &&
-            paint.getStyle() != SkPaint::kFill_Style;
-}
-
-SkTextBaseIter::SkTextBaseIter(const SkGlyphID glyphs[], int count, const SkFont& font,
-                               const SkPaint* paint)
-        : fFont(font)
-{
-    SkAssertResult(count >= 0);
-
-    fFont.setLinearMetrics(true);
-
-    if (paint) {
-        fPaint = *paint;
-    }
-    fPaint.setMaskFilter(nullptr);   // don't want this affecting our path-cache lookup
-
-    // can't use our canonical size if we need to apply patheffects
-    if (fPaint.getPathEffect() == nullptr) {
-        fScale = fFont.getSize() / SkFontPriv::kCanonicalTextSizeForPaths;
-        fFont.setSize(SkIntToScalar(SkFontPriv::kCanonicalTextSizeForPaths));
-        // Note: fScale can be zero here (even if it wasn't before the divide). It can also
-        // be very very small. We call sk_ieee_float_divide below to ensure IEEE divide behavior,
-        // since downstream we will check for the resulting coordinates being non-finite anyway.
-        // Thus we don't need to check for zero here.
-        if (has_thick_frame(fPaint)) {
-            fPaint.setStrokeWidth(sk_ieee_float_divide(fPaint.getStrokeWidth(), fScale));
-        }
-    } else {
-        fScale = SK_Scalar1;
-    }
-
-    SkPaint::Style prevStyle = fPaint.getStyle();
-    auto prevPE = fPaint.refPathEffect();
-    auto prevMF = fPaint.refMaskFilter();
-    fPaint.setStyle(SkPaint::kFill_Style);
-    fPaint.setPathEffect(nullptr);
-
-    fCache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(fFont, fPaint);
-
-    fPaint.setStyle(prevStyle);
-    fPaint.setPathEffect(std::move(prevPE));
-    fPaint.setMaskFilter(std::move(prevMF));
-
-    // now compute fXOffset if needed
-
-    SkScalar xOffset = 0;
-    fXPos = xOffset;
-    fPrevAdvance = 0;
-
-    fGlyphs = glyphs;
-    fStop = glyphs + count;
-}
-
-bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
-    SkASSERT(fGlyphs < fStop);
-    const SkGlyph& glyph = fCache->getGlyphIDMetrics(*fGlyphs++);
-    fXPos += fPrevAdvance * fScale;
-    fPrevAdvance = advance(glyph);   // + fPaint.getTextTracking();
-    if (fCache->findPath(glyph)) {
-        fCache->findIntercepts(fBounds, fScale, fXPos, false,
-                const_cast<SkGlyph*>(&glyph), array, count);
-    }
-    return fGlyphs < fStop;
 }

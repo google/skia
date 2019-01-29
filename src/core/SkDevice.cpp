@@ -28,7 +28,6 @@
 #include "SkSpecialImage.h"
 #include "SkTLazy.h"
 #include "SkTextBlobPriv.h"
-#include "SkTextToPathIter.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 #include "SkVertices.h"
