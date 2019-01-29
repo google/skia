@@ -1166,7 +1166,7 @@ private:
                 !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, fWideColor,
                 localMatrix));
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
                                                         &vertexBuffer, &firstVertex)};
@@ -1175,7 +1175,7 @@ private:
             return;
         }
 
-        const GrBuffer* indexBuffer = nullptr;
+        sk_sp<const GrBuffer> indexBuffer = nullptr;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
@@ -1283,9 +1283,9 @@ private:
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -1491,7 +1491,7 @@ private:
         sk_sp<GrGeometryProcessor> gp(new ButtCapDashedCircleGeometryProcessor(fWideColor,
                                                                                localMatrix));
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         GrVertexWriter vertices{target->makeVertexSpace(gp->vertexStride(), fVertCount,
                                                         &vertexBuffer, &firstVertex)};
@@ -1500,7 +1500,7 @@ private:
             return;
         }
 
-        const GrBuffer* indexBuffer = nullptr;
+        sk_sp<const GrBuffer> indexBuffer;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
@@ -1567,9 +1567,9 @@ private:
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -2358,7 +2358,7 @@ private:
                 new CircleGeometryProcessor(!fAllFill, false, false, false, false, fWideColor,
                                             localMatrix));
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
 
         GrVertexWriter verts{target->makeVertexSpace(gp->vertexStride(), fVertCount,
@@ -2368,7 +2368,7 @@ private:
             return;
         }
 
-        const GrBuffer* indexBuffer = nullptr;
+        sk_sp<const GrBuffer> indexBuffer;
         int firstIndex = 0;
         uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
         if (!indices) {
@@ -2442,9 +2442,9 @@ private:
         }
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -2646,11 +2646,15 @@ private:
         sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
+        if (!indexBuffer) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
         PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
-                             indexBuffer.get(), kVertsPerStandardRRect, indicesPerInstance,
+                             std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
                              fRRects.count());
         GrVertexWriter verts{helper.vertices()};
-        if (!verts.fPtr || !indexBuffer) {
+        if (!verts.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }

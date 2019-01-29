@@ -186,7 +186,7 @@ private:
             vertexCount = kVertsPerStrokeRect;
         }
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
 
         void* verts =
@@ -215,7 +215,7 @@ private:
 
         GrMesh* mesh = target->allocMesh(primType);
         mesh->setNonIndexedNonInstanced(vertexCount);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -474,10 +474,15 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
 
     sk_sp<const GrBuffer> indexBuffer =
             GetIndexBuffer(target->resourceProvider(), this->miterStroke());
-    PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(), indexBuffer.get(),
-                         verticesPerInstance, indicesPerInstance, instanceCount);
+    if (!indexBuffer) {
+        SkDebugf("Could not allocate indices\n");
+        return;
+    }
+    PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
+                         std::move(indexBuffer), verticesPerInstance, indicesPerInstance,
+                         instanceCount);
     GrVertexWriter vertices{ helper.vertices() };
-    if (!vertices.fPtr || !indexBuffer) {
+    if (!vertices.fPtr) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }

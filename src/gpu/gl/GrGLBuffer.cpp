@@ -29,8 +29,8 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-GrGLBuffer* GrGLBuffer::Create(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
-                               GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
+                                   GrAccessPattern accessPattern, const void* data) {
     if (gpu->glCaps().transferBufferType() == GrGLCaps::kNone_TransferBufferType &&
         (kXferCpuToGpu_GrBufferType == intendedType ||
          kXferGpuToCpu_GrBufferType == intendedType)) {
@@ -41,7 +41,7 @@ GrGLBuffer* GrGLBuffer::Create(GrGLGpu* gpu, size_t size, GrBufferType intendedT
     if (0 == buffer->bufferID()) {
         return nullptr;
     }
-    return buffer.release();
+    return buffer;
 }
 
 // GL_STREAM_DRAW triggers an optimization in Chromium's GPU process where a client's vertex buffer

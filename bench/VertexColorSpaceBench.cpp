@@ -163,7 +163,7 @@ private:
 
         size_t vertexStride = gp->vertexStride();
         const int kVertexCount = 1024;
-        const GrBuffer* vertexBuffer = nullptr;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex = 0;
         void* verts = target->makeVertexSpace(vertexStride, kVertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -221,7 +221,7 @@ private:
 
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(kVertexCount);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
         target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
