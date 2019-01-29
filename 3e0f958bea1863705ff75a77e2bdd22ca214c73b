@@ -22,6 +22,30 @@
       "revId": "3e0f958bea1863705ff75a77e2bdd22ca214c73b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "983e5d5d_fd72bdb7",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-29T17:37:50Z",
+      "side": 1,
+      "message": "Possibly. I am interesting in the api reduction / code-rearrangement first, hence this CL.\n\nAs I look at a possible class refactor, there may be even more radial changes, given on client, so I\u0027d like to defer that til another CL, so I don\u0027t feel constrained on its complexity (or timeliness).",
+      "parentUuid": "e3b19f03_8be3384f",
+      "range": {
+        "startLine": 905,
+        "startChar": 0,
+        "endLine": 905,
+        "endChar": 30
+      },
+      "revId": "3e0f958bea1863705ff75a77e2bdd22ca214c73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
