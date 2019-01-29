@@ -252,14 +252,21 @@ static uint32_t get_modifiers(const NSEvent* event) {
     Window::Key key = get_key([event keyCode]);
     if (key != Window::Key::kNONE) {
         if (!fWindow->onKey(key, Window::kDown_InputState, get_modifiers(event))) {
-            [[self superview] keyDown:event];
+            if (Window::Key::kEscape == key) {
+                [NSApp terminate:self];
+            }
         }
-    } else {
-        NSString* characters = [event charactersIgnoringModifiers];
-        if ([characters length] > 0) {
-            unichar firstChar = [characters characterAtIndex:0];
-            (void) fWindow->onChar((SkUnichar) firstChar, get_modifiers(event));
+    }
+
+    NSString* characters = [event charactersIgnoringModifiers];
+    NSUInteger len = [characters length];
+    if (len > 0) {
+        unichar* charBuffer = new unichar[len+1];
+        [characters getCharacters:charBuffer range:NSMakeRange(0, len)];
+        for (NSUInteger i = 0; i < len; ++i) {
+            (void) fWindow->onChar((SkUnichar) charBuffer[i], get_modifiers(event));
         }
+        delete [] zcharBuffer;
     }
 }
 
