@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13f3bed4_49ec6524",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-01-29T15:03:56Z",
+      "side": 1,
+      "message": "I haven\u0027t removed this, because I wasn\u0027t sure how to conditionally include it. I think we need to add something to template(\"optional\"), but I don\u0027t know how to do that.\n\nBut with this patch, if skia_use_wuffs is true, we don\u0027t look at anything in this directory. (I tested by deleting the directory.)",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 22
+      },
+      "revId": "7a5f7a5c875b2b326444ab4053f4895e7846b65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcc5afdf_5ae91e88",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-01-29T15:03:56Z",
+      "side": 1,
+      "message": "The arcore app does not currently build wuffs, but I don\u0027t think this should be an issue for flutter?",
+      "range": {
+        "startLine": 2277,
+        "startChar": 0,
+        "endLine": 2277,
+        "endChar": 47
+      },
+      "revId": "7a5f7a5c875b2b326444ab4053f4895e7846b65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
