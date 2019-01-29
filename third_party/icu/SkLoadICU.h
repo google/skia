@@ -11,38 +11,28 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "../private/SkLeanWindows.h"
-
 #include "unicode/uvernum.h"
 #include "unicode/udata.h"
+#include "../private/SkMacros.h"
 
-#define ICU_UTIL_DATA_SYMBOL "icudt" U_ICU_VERSION_SHORT "_dat"
-#define ICU_UTIL_DATA_SHARED_MODULE_NAME "icudt.dll"
+#define ICU_DATA_SYMBOL SK_MACRO_CONCAT(SK_MACRO_CONCAT(icudt, U_ICU_VERSION_MAJOR_NUM), _dat)
+
+extern "C" void* ICU_DATA_SYMBOL;
 
 inline void SkLoadICU() {
-    HMODULE module = LoadLibraryA(ICU_UTIL_DATA_SHARED_MODULE_NAME);
-    if (!module) {
-        SK_ABORT("Failed to load " ICU_UTIL_DATA_SHARED_MODULE_NAME "\n");
-    }
-    FARPROC addr = GetProcAddress(module, ICU_UTIL_DATA_SYMBOL);
-    if (!addr) {
-        SK_ABORT("Symbol " ICU_UTIL_DATA_SYMBOL " missing in "
-                 ICU_UTIL_DATA_SHARED_MODULE_NAME ".\n");
-    }
     UErrorCode err = U_ZERO_ERROR;
-    udata_setCommonData(reinterpret_cast<void*>(addr), &err);
+    udata_setCommonData(&ICU_DATA_SYMBOL, &err);
     if (err != U_ZERO_ERROR) {
         SkDebugf("udata_setCommonData() returned %d.\n", (int)err);
         SK_ABORT("");
     }
-    udata_setFileAccess(UDATA_ONLY_PACKAGES, &err);
+    udata_setFileAccess(UDATA_NO_FILES, &err);
     if (err != U_ZERO_ERROR) {
         SkDebugf("udata_setFileAccess() returned %d.\n", (int)err);
         SK_ABORT("");
     }
 }
 
-#undef ICU_UTIL_DATA_SHARED_MODULE_NAME
 #undef ICU_UTIL_DATA_SYMBOL
 
 #else
