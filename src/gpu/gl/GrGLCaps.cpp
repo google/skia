@@ -2464,8 +2464,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMipMapSupport = false;
     }
 
-    // TODO: Use isX86PowerVRRogue?
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+    if (isX86PowerVRRogue) {
         // Temporarily disabling clip analytic fragments processors on Nexus player while we work
         // around a driver bug related to gl_FragCoord.
         // https://bugs.chromium.org/p/skia/issues/detail?id=7286
