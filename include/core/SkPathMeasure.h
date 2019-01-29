@@ -123,4 +123,64 @@ private:
     bool cubic_too_curvy(const SkPoint pts[4]);
 };
 
+class SkPathMeasureFactory {
+public:
+    SkPathMeasureFactory();
+    SkPathMeasureFactory(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
+    ~SkPathMeasureFactory();
+
+    void reset(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
+
+    /**
+     *  Iterates through contours in path, returning a contour-measure object for each one
+     *  until it returns null (no more contours).
+     */
+    std::unique_ptr<SkContourMeasure> nextContour();
+};
+
+class SkContourMeasure {
+public:
+    /** Return the total length of the contour.
+     */
+    SkScalar length();
+
+    /** Pins distance to 0 <= distance <= length(), and then computes the corresponding
+     *  position and tangent.
+     */
+    bool SK_WARN_UNUSED_RESULT getPosTan(SkScalar distance, SkPoint* position,
+                                         SkVector* tangent);
+
+    enum MatrixFlags {
+        kGetPosition_MatrixFlag     = 0x01,
+        kGetTangent_MatrixFlag      = 0x02,
+        kGetPosAndTan_MatrixFlag    = kGetPosition_MatrixFlag | kGetTangent_MatrixFlag
+    };
+
+    /** Pins distance to 0 <= distance <= getLength(), and then computes
+     the corresponding matrix (by calling getPosTan).
+     Returns false if there is no path, or a zero-length path was specified, in which case
+     matrix is unchanged.
+     */
+    bool SK_WARN_UNUSED_RESULT getMatrix(SkScalar distance, SkMatrix* matrix,
+                                         MatrixFlags flags = kGetPosAndTan_MatrixFlag);
+
+    /** Given a start and stop distance, return in dst the intervening segment(s).
+     If the segment is zero-length, return false, else return true.
+     startD and stopD are pinned to legal values (0..getLength()). If startD > stopD
+     then return false (and leave dst untouched).
+     Begin the segment with a moveTo if startWithMoveTo is true
+     */
+    bool SK_WARN_UNUSED_RESULT getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
+                                          bool startWithMoveTo);
+
+    /** Return true if the contour is closed()
+     */
+    bool isClosed();
+
+private:
+    SkContourMeasure();
+    ~SkContourMeasure();
+
+};
+
 #endif
