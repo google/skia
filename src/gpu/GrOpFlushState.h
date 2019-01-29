@@ -83,13 +83,15 @@ public:
               const GrPipeline::DynamicStateArrays*,
               const GrMesh[],
               int meshCnt) final;
-    void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
+    void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
-    uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) final;
+    uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) final;
     void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
-                                 const GrBuffer**, int* startVertex, int* actualVertexCount) final;
-    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount, const GrBuffer**,
-                                    int* startIndex, int* actualIndexCount) final;
+                                 sk_sp<const GrBuffer>*, int* startVertex,
+                                 int* actualVertexCount) final;
+    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                    sk_sp<const GrBuffer>*, int* startIndex,
+                                    int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
     GrRenderTargetProxy* proxy() const final { return fOpArgs->fProxy; }

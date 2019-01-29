@@ -16,7 +16,7 @@ GrVkVertexBuffer::GrVkVertexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkVertexBuffer* GrVkVertexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
+sk_sp<GrVkVertexBuffer> GrVkVertexBuffer::Make(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fType = GrVkBuffer::kVertex_Type;
@@ -31,7 +31,7 @@ GrVkVertexBuffer* GrVkVertexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynam
     if (!buffer) {
         bufferResource->unref(gpu);
     }
-    return buffer;
+    return sk_sp<GrVkVertexBuffer>(buffer);
 }
 
 void GrVkVertexBuffer::onRelease() {

@@ -73,7 +73,6 @@ public:
             , fGeometryProcessor(std::move(geometryProcessor))
             , fPipeline(pipeline)
             , fFixedDynamicState(fixedDynamicState)
-            , fIndexBuffer(nullptr)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
             , fIndices(nullptr) {
@@ -275,10 +274,10 @@ private:
             if (!this->isIndexed()) {
                 mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
-                mesh->setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
-                                 GrPrimitiveRestart::kNo);
+                mesh->setIndexed(std::move(fIndexBuffer), indexCount, fFirstIndex, 0,
+                                 vertexCount - 1, GrPrimitiveRestart::kNo);
             }
-            mesh->setVertexData(fVertexBuffer, fFirstVertex);
+            mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
             fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
         }
 
@@ -319,13 +318,13 @@ private:
     const GrPipeline* fPipeline;
     const GrPipeline::FixedDynamicState* fFixedDynamicState;
 
-    const GrBuffer* fVertexBuffer;
+    sk_sp<const GrBuffer> fVertexBuffer;
     int fFirstVertex;
     int fVerticesInChunk;
     SkPoint* fVertices;
     SkPoint* fCurVert;
 
-    const GrBuffer* fIndexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
     int fFirstIndex;
     int fIndicesInChunk;
     uint16_t* fIndices;

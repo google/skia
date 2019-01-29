@@ -396,7 +396,7 @@ private:
         size_t vertexSize = gp->vertexStride();
 
         GrMesh* meshes = target->allocMeshes(numProxies);
-        const GrBuffer* vbuffer;
+        sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
         int numQuadVerticesLeft = numTotalQuads * vertexSpec.verticesPerQuad();
         int numAllocatedVertices = 0;

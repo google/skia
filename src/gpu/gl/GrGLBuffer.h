@@ -16,8 +16,8 @@ class GrGLCaps;
 
 class GrGLBuffer : public GrBuffer {
 public:
-    static GrGLBuffer* Create(GrGLGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
-                              const void* data = nullptr);
+    static sk_sp<GrGLBuffer> Make(GrGLGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
+                                  const void* data = nullptr);
 
     ~GrGLBuffer() override {
         // either release or abandon should have been called by the owner of this object.
