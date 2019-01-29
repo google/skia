@@ -123,4 +123,82 @@ private:
     bool cubic_too_curvy(const SkPoint pts[4]);
 };
 
+class SkContourMeasure {
+public:
+    /** Return the total length of the contour.
+     */
+    SkScalar length() const { return fLength; }
+
+    /** Pins distance to 0 <= distance <= length(), and then computes the corresponding
+     *  position and tangent.
+     */
+    bool SK_WARN_UNUSED_RESULT getPosTan(SkScalar distance, SkPoint* position,
+                                         SkVector* tangent) const ;
+
+    enum MatrixFlags {
+        kGetPosition_MatrixFlag     = 0x01,
+        kGetTangent_MatrixFlag      = 0x02,
+        kGetPosAndTan_MatrixFlag    = kGetPosition_MatrixFlag | kGetTangent_MatrixFlag
+    };
+
+    /** Pins distance to 0 <= distance <= getLength(), and then computes
+     the corresponding matrix (by calling getPosTan).
+     Returns false if there is no path, or a zero-length path was specified, in which case
+     matrix is unchanged.
+     */
+    bool SK_WARN_UNUSED_RESULT getMatrix(SkScalar distance, SkMatrix* matrix,
+                                         MatrixFlags flags = kGetPosAndTan_MatrixFlag) const ;
+
+    /** Given a start and stop distance, return in dst the intervening segment(s).
+     If the segment is zero-length, return false, else return true.
+     startD and stopD are pinned to legal values (0..getLength()). If startD > stopD
+     then return false (and leave dst untouched).
+     Begin the segment with a moveTo if startWithMoveTo is true
+     */
+    bool SK_WARN_UNUSED_RESULT getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
+                                          bool startWithMoveTo) const ;
+
+    /** Return true if the contour is closed()
+     */
+    bool isClosed() const { return fIsClosed; }
+
+private:
+    struct Segment {
+        SkScalar    fDistance;  // total distance up to this point
+        unsigned    fPtIndex; // index into the fPts array
+        unsigned    fTValue : 30;
+        unsigned    fType : 2;  // actually the enum SkSegType
+        // See SkPathMeasurePriv.h
+
+        SkScalar getScalarT() const;
+    };
+
+    const SkTDArray<Segment>  fSegments;
+    const SkTDArray<SkPoint>  fPts; // Points used to define the segments
+
+    const SkScalar fLength;
+    const bool fIsClosed;
+
+    SkContourMeasure(SkTDArray<Segment>&& segs, SkTDArray<SkPoint>&& pts,
+                     SkScalar length, bool isClosed);
+    ~SkContourMeasure();
+
+    const Segment* distanceToSegment(SkScalar distance, SkScalar* t) const;
+};
+
+class SkContourMeasureFactory {
+public:
+    SkContourMeasureFactory();
+    SkContourMeasureFactory(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
+    ~SkContourMeasureFactory();
+
+    void reset(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
+
+    /**
+     *  Iterates through contours in path, returning a contour-measure object for each one
+     *  until it returns null (no more contours).
+     */
+    sk_sp<SkContourMeasure> nextContour();
+};
+
 #endif
