@@ -2152,7 +2152,17 @@ if (skia_enable_tools) {
         libs += [ "X11-xcb" ]
       } else if (is_win) {
         sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
+      } else if (is_mac) {
+        sources += [ "tools/sk_app/macos/VulkanWindowContext_mac.cpp" ]
       }
+    }
+
+    if (skia_use_metal) {
+      sources += [ "tools/sk_app/MetalWindowContext.mm" ]
+      if (is_mac) {
+        sources += [ "tools/sk_app/mac/MetalWindowContext_mac.mm" ]
+      }
+      libs += [ "MetalKit.framework" ]
     }
 
     deps = [
