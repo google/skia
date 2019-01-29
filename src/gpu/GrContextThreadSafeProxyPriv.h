@@ -8,7 +8,7 @@
 #ifndef GrContextThreadSafeProxyPriv_DEFINED
 #define GrContextThreadSafeProxyPriv_DEFINED
 
-#include "GrContextThreadSafeProxy.h"
+#include "GrContext.h"
 
 /**
  * Class that adds methods to GrContextThreadSafeProxy that are only intended for use internal to
@@ -23,7 +23,7 @@ public:
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
     uint32_t contextUniqueID() const { return fProxy->fContextUniqueID; }
     GrBackendApi backend() const { return fProxy->fBackend; }
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() const;
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() const { return fProxy->fFPFactoryCache; }
 
 private:
     explicit GrContextThreadSafeProxyPriv(GrContextThreadSafeProxy* proxy) : fProxy(proxy) {}

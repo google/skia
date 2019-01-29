@@ -279,7 +279,9 @@ public:
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
 
-    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache();
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() {
+        return fContext->fFPFactoryCache;
+    }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )

@@ -17,7 +17,7 @@
 class SkColorSpace;
 
 #if SK_SUPPORT_GPU
-#include "GrContextThreadSafeProxy.h"
+#include "GrContext.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal

@@ -9,7 +9,6 @@
 #include "GrContext.h"
 
 #include "GrContextPriv.h"
-#include "GrContextThreadSafeProxy.h"
 #include "GrGpu.h"
 
 #include "effects/GrSkSLFP.h"

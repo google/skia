@@ -9,7 +9,6 @@
 #include "GrCaps.h"
 #include "GrContextPriv.h"
 #include "GrContextThreadSafeProxyPriv.h"
-#include "GrSkSLFPFactoryCache.h"
 
 /**
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
