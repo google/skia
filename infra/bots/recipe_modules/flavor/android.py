@@ -425,7 +425,7 @@ time.sleep(10)
 wait_for_device()
 # Sleep again to hopefully avoid error "secure_mkdirs failed: No such file or
 # directory" when pushing resources to the device.
-time.sleep(20)
+time.sleep(60)
 """,
         args = [self.ADB_BINARY, asan_setup],
           infra_step=True,
