@@ -33,6 +33,7 @@
 #include "sk_tool_utils.h"
 
 #include "GrContextPriv.h"
+#include "GrContextThreadSafeProxy.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "GrTexture.h"

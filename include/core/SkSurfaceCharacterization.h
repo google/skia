@@ -17,7 +17,9 @@
 class SkColorSpace;
 
 #if SK_SUPPORT_GPU
+// TODO: remove the GrContext.h include once Flutter is updated
 #include "GrContext.h"
+#include "GrContextThreadSafeProxy.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal
