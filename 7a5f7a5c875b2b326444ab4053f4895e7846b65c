@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "16462deb_94bf76a3",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-29T15:18:37Z",
+      "side": 1,
+      "message": "Yeah, seems harmless to leave in.",
+      "parentUuid": "13f3bed4_49ec6524",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 22
+      },
+      "revId": "7a5f7a5c875b2b326444ab4053f4895e7846b65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fcc5afdf_5ae91e88",
         "filename": "BUILD.gn",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-01-29T15:03:56Z",
       "side": 1,
       "message": "The arcore app does not currently build wuffs, but I don\u0027t think this should be an issue for flutter?",
+      "range": {
+        "startLine": 2277,
+        "startChar": 0,
+        "endLine": 2277,
+        "endChar": 47
+      },
+      "revId": "7a5f7a5c875b2b326444ab4053f4895e7846b65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91a1d117_4ad81d28",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-29T15:18:37Z",
+      "side": 1,
+      "message": "Yeah, this is fine.  The whole arcore target is fair game to delete if it\u0027s found to be even slightly annoying.  It was an intern project demo, but isn\u0027t actively used.",
+      "parentUuid": "fcc5afdf_5ae91e88",
       "range": {
         "startLine": 2277,
         "startChar": 0,
