@@ -797,6 +797,7 @@ protected:
                         for (int i = 0; i < numTextures; ++i) {
                             yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
                                                                   yuvaIndices, i);
+                            fBackendTextures.push_back(yuvaTextures[i]);
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
@@ -872,12 +873,24 @@ protected:
                 x += kTileWidthHeight + kPad;
             }
         }
+        if (auto context = canvas->getGrContext()) {
+            context->flush();
+            GrGpu* gpu = context->contextPriv().getGpu();
+            SkASSERT(gpu);
+            gpu->testingOnly_flushGpuAndSync();
+            for (const auto& tex : fBackendTextures) {
+                gpu->deleteTestingOnlyBackendTexture(tex);
+            }
+            fBackendTextures.reset();
+        }
+        SkASSERT(!fBackendTextures.count());
     }
 
 private:
-    SkBitmap       fOriginalBMs[2];
-    sk_sp<SkImage> fImages[2][kLastEnum_SkYUVColorSpace+1][kLast_YUVFormat+1];
-    bool           fUseTargetColorSpace;
+    SkBitmap fOriginalBMs[2];
+    sk_sp<SkImage> fImages[2][kLastEnum_SkYUVColorSpace + 1][kLast_YUVFormat + 1];
+    SkTArray<GrBackendTexture> fBackendTextures;
+    bool fUseTargetColorSpace;
     sk_sp<SkColorSpace> fTargetColorSpace;
 
     typedef GM INHERITED;
