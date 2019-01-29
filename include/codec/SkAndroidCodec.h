@@ -91,7 +91,7 @@ public:
      *  Otherwise, this returns a color type that is an appropriate
      *  match for the the encoded data.
      */
-    SkColorType computeOutputColorType(SkColorType requestedColorType);
+    SkColorType computeOutputColorType(SkColorType requestedColorType) const;
 
     /**
      *  @param requestedUnpremul  Indicates if the client requested
@@ -100,7 +100,7 @@ public:
      *  Returns the appropriate alpha type to decode to.  If the image
      *  has alpha, the value of requestedUnpremul will be honored.
      */
-    SkAlphaType computeOutputAlphaType(bool requestedUnpremul);
+    SkAlphaType computeOutputAlphaType(bool requestedUnpremul) const;
 
     /**
      *  @param outputColorType Color type that the client will decode to.
@@ -113,7 +113,7 @@ public:
      *  Returns the appropriate color space to decode to.
      */
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
-                                                sk_sp<SkColorSpace> prefColorSpace = nullptr);
+                                                sk_sp<SkColorSpace> prefColorSpace = nullptr) const;
 
     /**
      *  Compute the appropriate sample size to get to |size|.

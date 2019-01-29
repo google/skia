@@ -121,7 +121,7 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<SkData> data,
     return MakeFromStream(SkMemoryStream::Make(std::move(data)), chunkReader);
 }
 
-SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
+SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) const {
     bool highPrecision = fCodec->getEncodedInfo().bitsPerComponent() > 8;
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
@@ -152,7 +152,7 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
     return highPrecision ? kRGBA_F16_SkColorType : kN32_SkColorType;
 }
 
-SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
+SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) const {
     if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
         return kOpaque_SkAlphaType;
     }
@@ -160,7 +160,7 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
 }
 
 sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType,
-                                                            sk_sp<SkColorSpace> prefColorSpace) {
+                                                            sk_sp<SkColorSpace> prefColorSpace) const {
     switch (outputColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType: {
