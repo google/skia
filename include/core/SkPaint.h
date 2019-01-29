@@ -584,26 +584,6 @@ public:
     */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
-    /** DEPRECATED -- call method on SkTextBlob
-        Returns the number of intervals that intersect bounds.
-        bounds describes a pair of lines parallel to the text advance.
-        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
-        the string.
-
-        SkTextEncoding must be set to kGlyphID_SkTextEncoding.
-
-        Pass nullptr for intervals to determine the size of the interval array.
-
-        intervals are cached to improve performance for multiple calls.
-
-        @param blob       glyphs, positions, and text paint attributes
-        @param bounds     lower and upper line parallel to the advance
-        @param intervals  returned intersections; may be nullptr
-        @return           number of intersections; may be zero
-    */
-    int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
-                              SkScalar* intervals) const;
-
     /** Returns true if SkPaint prevents all drawing;
         otherwise, the SkPaint may or may not allow drawing.
 

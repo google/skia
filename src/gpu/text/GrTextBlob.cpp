@@ -14,7 +14,6 @@
 #include "GrTextTarget.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilterBase.h"
-#include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
 
 #include <new>

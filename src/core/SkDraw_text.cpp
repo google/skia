@@ -11,7 +11,6 @@
 #include "SkRasterClip.h"
 #include "SkScalerContext.h"
 #include "SkStrike.h"
-#include "SkTextToPathIter.h"
 #include "SkUtils.h"
 
 bool SkDraw::ShouldDrawTextAsPaths(const SkFont& font, const SkPaint& paint,
