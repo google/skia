@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3b19f03_8be3384f",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-29T15:59:34Z",
+      "side": 1,
+      "message": "SkTextInterceptsIter looks like is the only subclass of SkTextBaseIter. Can we just combine them into a single thing at this point?",
+      "range": {
+        "startLine": 905,
+        "startChar": 0,
+        "endLine": 905,
+        "endChar": 30
+      },
+      "revId": "3e0f958bea1863705ff75a77e2bdd22ca214c73b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
