@@ -83,9 +83,9 @@ private:
 
     void drawVertices(Target*,
                       sk_sp<const GrGeometryProcessor>,
-                      const GrBuffer* vertexBuffer,
+                      sk_sp<const GrBuffer> vertexBuffer,
                       int firstVertex,
-                      const GrBuffer* indexBuffer,
+                      sk_sp<const GrBuffer> indexBuffer,
                       int firstIndex);
 
     sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,

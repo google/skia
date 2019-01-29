@@ -396,7 +396,7 @@ void GrCCCoverageProcessor::initGS() {
     this->setWillUseGeoShader();
 }
 
-void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceCount,
+void GrCCCoverageProcessor::appendGSMesh(sk_sp<const GrBuffer> instanceBuffer, int instanceCount,
                                          int baseInstance, SkTArray<GrMesh>* out) const {
     // GSImpl doesn't actually make instanced draw calls. Instead, we feed transposed x,y point
     // values to the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex
@@ -405,7 +405,7 @@ void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceC
     SkASSERT(Impl::kGeometryShader == fImpl);
     GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
     mesh.setNonIndexedNonInstanced(instanceCount * 2);
-    mesh.setVertexData(instanceBuffer, baseInstance * 2);
+    mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
 }
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {

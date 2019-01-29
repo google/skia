@@ -17,8 +17,8 @@ class GrMtlGpu;
 
 class GrMtlBuffer: public GrBuffer {
 public:
-    static GrMtlBuffer* Create(GrMtlGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
-                               const void* data = nullptr);
+    static sk_sp<GrMtlBuffer> Make(GrMtlGpu*, size_t size, GrBufferType intendedType,
+                                   GrAccessPattern, const void* data = nullptr);
 
     ~GrMtlBuffer() override;
 

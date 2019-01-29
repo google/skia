@@ -17,7 +17,7 @@ class GrVkGpu;
 class GrVkTransferBuffer : public GrBuffer, public GrVkBuffer {
 
 public:
-    static GrVkTransferBuffer* Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type);
+    static sk_sp<GrVkTransferBuffer> Make(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type);
 
 protected:
     void onAbandon() override;

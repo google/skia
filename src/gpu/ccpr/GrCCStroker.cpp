@@ -735,7 +735,7 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
         GrMesh& mesh = fMeshesBuffer.emplace_back(GrPrimitiveType::kTriangleStrip);
-        mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance + startIdx,
+        mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                           numStripVertices);
         fScissorsBuffer.push_back(drawBounds);
     }
@@ -749,7 +749,7 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
             GrMesh& mesh = fMeshesBuffer.emplace_back(GrPrimitiveType::kTriangleStrip);
-            mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance + startIdx,
+            mesh.setInstanced(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                               numStripVertices);
             fScissorsBuffer.push_back(subBatch.fScissor);
             startIdx = endIdx;
@@ -784,7 +784,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        processor.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance + startIdx,
+        processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                              &fMeshesBuffer);
         fScissorsBuffer.push_back(drawBounds);
     }
@@ -797,7 +797,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
         endIdx = subBatch.fEndInstances->*InstanceType;
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            processor.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance + startIdx,
+            processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                                  &fMeshesBuffer);
             fScissorsBuffer.push_back(subBatch.fScissor);
             startIdx = endIdx;

@@ -473,8 +473,8 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
         }
 
         mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
-        mesh->setIndexedPatterned(ibuffer.get(), kIndicesPerAAFillRect, kVertsPerAAFillRect,
-                quadCount, kNumAAQuadsInIndexBuffer);
+        mesh->setIndexedPatterned(std::move(ibuffer), kIndicesPerAAFillRect, kVertsPerAAFillRect,
+                                  quadCount, kNumAAQuadsInIndexBuffer);
     } else {
         // Non-AA quads use 4 vertices, and regular triangle strip layout
         if (quadCount > 1) {
@@ -484,7 +484,7 @@ bool ConfigureMeshIndices(GrMeshDrawOp::Target* target, GrMesh* mesh, const Vert
             }
 
             mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
-            mesh->setIndexedPatterned(ibuffer.get(), 6, 4, quadCount,
+            mesh->setIndexedPatterned(std::move(ibuffer), 6, 4, quadCount,
                                       GrResourceProvider::QuadCountOfQuadBuffer());
         } else {
             mesh->setPrimitiveType(GrPrimitiveType::kTriangleStrip);

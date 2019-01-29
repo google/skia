@@ -77,8 +77,9 @@ public:
     }
     void* lock(int vertexCount) override {
         size_t size = vertexCount * stride();
-        fVertexBuffer.reset(fResourceProvider->createBuffer(
-            size, kVertex_GrBufferType, kStatic_GrAccessPattern, GrResourceProvider::Flags::kNone));
+        fVertexBuffer =
+                fResourceProvider->createBuffer(size, kVertex_GrBufferType, kStatic_GrAccessPattern,
+                                                GrResourceProvider::Flags::kNone);
         if (!fVertexBuffer.get()) {
             return nullptr;
         }
@@ -98,7 +99,8 @@ public:
         }
         fVertices = nullptr;
     }
-    GrBuffer* vertexBuffer() { return fVertexBuffer.get(); }
+    sk_sp<GrBuffer> detachVertexBuffer() { return std::move(fVertexBuffer); }
+
 private:
     sk_sp<GrBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
@@ -122,11 +124,12 @@ public:
         fTarget->putBackVertices(fVertexCount - actualCount, stride());
         fVertices = nullptr;
     }
-    const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
+    sk_sp<const GrBuffer> detachVertexBuffer() const { return std::move(fVertexBuffer); }
     int firstVertex() const { return fFirstVertex; }
+
 private:
     GrMeshDrawOp::Target* fTarget;
-    const GrBuffer* fVertexBuffer;
+    sk_sp<const GrBuffer> fVertexBuffer;
     int fVertexCount;
     int fFirstVertex;
     void* fVertices;
@@ -263,7 +266,8 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
         if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, std::move(gp), cachedVertexBuffer.get(), 0, actualCount);
+            this->drawVertices(target, std::move(gp), std::move(cachedVertexBuffer), 0,
+                               actualCount);
             return;
         }
 
@@ -282,13 +286,15 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), 0, count);
+        sk_sp<GrBuffer> vb = allocator.detachVertexBuffer();
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
-        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
-        rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
         fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
+        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
+        rp->assignUniqueKeyToResource(key, vb.get());
+
+        this->drawVertices(target, std::move(gp), std::move(vb), 0, count);
     }
 
     void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
@@ -307,8 +313,8 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), allocator.firstVertex(),
-                           count);
+        this->drawVertices(target, std::move(gp), allocator.detachVertexBuffer(),
+                           allocator.firstVertex(), count);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -351,12 +357,12 @@ private:
         }
     }
 
-    void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrBuffer* vb,
+    void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, sk_sp<const GrBuffer> vb,
                       int firstVertex, int count) {
         GrMesh* mesh = target->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
                                                                : GrPrimitiveType::kTriangles);
         mesh->setNonIndexedNonInstanced(count);
-        mesh->setVertexData(vb, firstVertex);
+        mesh->setVertexData(std::move(vb), firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }

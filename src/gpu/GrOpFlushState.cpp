@@ -130,24 +130,25 @@ void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline*
     }
 }
 
-void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer** buffer,
-                                      int* startVertex) {
+void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
+                                      sk_sp<const GrBuffer>* buffer, int* startVertex) {
     return fVertexPool.makeSpace(vertexSize, vertexCount, buffer, startVertex);
 }
 
-uint16_t* GrOpFlushState::makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex) {
+uint16_t* GrOpFlushState::makeIndexSpace(int indexCount, sk_sp<const GrBuffer>* buffer,
+                                         int* startIndex) {
     return reinterpret_cast<uint16_t*>(fIndexPool.makeSpace(indexCount, buffer, startIndex));
 }
 
 void* GrOpFlushState::makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount,
-                                             int fallbackVertexCount, const GrBuffer** buffer,
+                                             int fallbackVertexCount, sk_sp<const GrBuffer>* buffer,
                                              int* startVertex, int* actualVertexCount) {
     return fVertexPool.makeSpaceAtLeast(vertexSize, minVertexCount, fallbackVertexCount, buffer,
                                         startVertex, actualVertexCount);
 }
 
 uint16_t* GrOpFlushState::makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
-                                                const GrBuffer** buffer, int* startIndex,
+                                                sk_sp<const GrBuffer>* buffer, int* startIndex,
                                                 int* actualIndexCount) {
     return reinterpret_cast<uint16_t*>(fIndexPool.makeSpaceAtLeast(
             minIndexCount, fallbackIndexCount, buffer, startIndex, actualIndexCount));

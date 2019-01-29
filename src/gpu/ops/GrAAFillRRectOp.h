@@ -66,7 +66,7 @@ private:
     int fInstanceCount = 1;
     int fInstanceStride = 0;
 
-    const GrBuffer* fInstanceBuffer = nullptr;
+    sk_sp<const GrBuffer> fInstanceBuffer;
     int fBaseInstance;
 
     friend class GrOpMemoryPool;

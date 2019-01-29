@@ -761,7 +761,7 @@ private:
                 continue;
             }
 
-            const GrBuffer* vertexBuffer;
+            sk_sp<const GrBuffer> vertexBuffer;
             int firstVertex;
 
             GrVertexWriter verts{target->makeVertexSpace(kVertexStride, vertexCount,
@@ -772,7 +772,7 @@ private:
                 return;
             }
 
-            const GrBuffer* indexBuffer;
+            sk_sp<const GrBuffer> indexBuffer;
             int firstIndex;
 
             uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);

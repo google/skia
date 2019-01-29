@@ -82,10 +82,7 @@ protected:
      * @param offset       returns the offset into buffer of the data.
      * @return pointer to where the client should write the data.
      */
-    void* makeSpace(size_t size,
-                    size_t alignment,
-                    const GrBuffer** buffer,
-                    size_t* offset);
+    void* makeSpace(size_t size, size_t alignment, sk_sp<const GrBuffer>* buffer, size_t* offset);
 
     /**
      * Returns a block of memory to hold data. A buffer designated to hold the
@@ -115,16 +112,16 @@ protected:
     void* makeSpaceAtLeast(size_t minSize,
                            size_t fallbackSize,
                            size_t alignment,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            size_t* offset,
                            size_t* actualSize);
 
-    GrBuffer* getBuffer(size_t size);
+    sk_sp<GrBuffer> getBuffer(size_t size);
 
 private:
     struct BufferBlock {
-        size_t      fBytesFree;
-        GrBuffer*   fBuffer;
+        size_t fBytesFree;
+        sk_sp<GrBuffer> fBuffer;
     };
 
     bool createBlock(size_t requestSize);
@@ -184,7 +181,7 @@ public:
      */
     void* makeSpace(size_t vertexSize,
                     int vertexCount,
-                    const GrBuffer** buffer,
+                    sk_sp<const GrBuffer>* buffer,
                     int* startVertex);
 
     /**
@@ -217,7 +214,7 @@ public:
     void* makeSpaceAtLeast(size_t vertexSize,
                            int minVertexCount,
                            int fallbackVertexCount,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            int* startVertex,
                            int* actualVertexCount);
 
@@ -258,9 +255,7 @@ public:
      * @param startIndex   returns the offset into buffer of the first index.
      * @return pointer to first index.
      */
-    void* makeSpace(int indexCount,
-                    const GrBuffer** buffer,
-                    int* startIndex);
+    void* makeSpace(int indexCount, sk_sp<const GrBuffer>* buffer, int* startIndex);
 
     /**
      * Returns a block of memory to hold indices. A buffer designated to hold
@@ -289,7 +284,7 @@ public:
      */
     void* makeSpaceAtLeast(int minIndexCount,
                            int fallbackIndexCount,
-                           const GrBuffer** buffer,
+                           sk_sp<const GrBuffer>* buffer,
                            int* startIndex,
                            int* actualIndexCount);
 

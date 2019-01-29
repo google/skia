@@ -17,8 +17,9 @@ public:
     /**
      * Creates a client-side buffer.
      */
-    static SK_WARN_UNUSED_RESULT GrBuffer* CreateCPUBacked(GrGpu*, size_t sizeInBytes, GrBufferType,
-                                                           const void* data = nullptr);
+    static SK_WARN_UNUSED_RESULT sk_sp<GrBuffer> MakeCPUBacked(GrGpu*, size_t sizeInBytes,
+                                                               GrBufferType,
+                                                               const void* data = nullptr);
 
     /**
      * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with

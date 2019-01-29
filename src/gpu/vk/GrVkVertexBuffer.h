@@ -15,7 +15,7 @@ class GrVkGpu;
 
 class GrVkVertexBuffer : public GrBuffer, public GrVkBuffer {
 public:
-    static GrVkVertexBuffer* Create(GrVkGpu* gpu, size_t size, bool dynamic);
+    static sk_sp<GrVkVertexBuffer> Make(GrVkGpu* gpu, size_t size, bool dynamic);
 
 protected:
     void onAbandon() override;

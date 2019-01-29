@@ -16,8 +16,8 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-GrMtlBuffer* GrMtlBuffer::Create(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
-                                 GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
+                                     GrAccessPattern accessPattern, const void* data) {
     // TODO: DrawIndirect buffers aren't actually supported yet because we don't have a way of
     // uploading data to them.
     SkASSERT(intendedType != kDrawIndirect_GrBufferType);
@@ -25,7 +25,7 @@ GrMtlBuffer* GrMtlBuffer::Create(GrMtlGpu* gpu, size_t size, GrBufferType intend
     if (data && !buffer->onUpdateData(data, size)) {
         return nullptr;
     }
-    return buffer.release();
+    return buffer;
 }
 
 GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,

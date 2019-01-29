@@ -110,10 +110,15 @@ private:
             return;
         }
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
+        if (!indexBuffer) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
         PatternHelper helper(target, GrPrimitiveType::kTriangles, gp->vertexStride(),
-                             indexBuffer.get(), kVertsPerInstance, kIndicesPerInstance, numRects);
+                             std::move(indexBuffer), kVertsPerInstance, kIndicesPerInstance,
+                             numRects);
         GrVertexWriter vertices{helper.vertices()};
-        if (!vertices.fPtr || !indexBuffer) {
+        if (!vertices.fPtr) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }

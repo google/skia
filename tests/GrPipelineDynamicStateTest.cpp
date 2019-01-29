@@ -142,7 +142,7 @@ private:
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);
             mesh.setNonIndexedNonInstanced(4);
-            mesh.setVertexData(fVertexBuffer.get(), 4 * i);
+            mesh.setVertexData(fVertexBuffer, 4 * i);
         }
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;

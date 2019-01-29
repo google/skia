@@ -21,22 +21,22 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
 //////////////////////////////////////////////////////////////////////////////
 
 GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primitiveType,
-                                           size_t vertexStride, const GrBuffer* indexBuffer,
+                                           size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                            int verticesPerRepetition, int indicesPerRepetition,
                                            int repeatCount) {
-    this->init(target, primitiveType, vertexStride, indexBuffer, verticesPerRepetition,
+    this->init(target, primitiveType, vertexStride, std::move(indexBuffer), verticesPerRepetition,
                indicesPerRepetition, repeatCount);
 }
 
 void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitiveType,
-                                       size_t vertexStride, const GrBuffer* indexBuffer,
+                                       size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                        int verticesPerRepetition, int indicesPerRepetition,
                                        int repeatCount) {
     SkASSERT(target);
     if (!indexBuffer) {
         return;
     }
-    const GrBuffer* vertexBuffer;
+    sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerRepetition * repeatCount;
     fVertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
@@ -50,7 +50,7 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
     fMesh = target->allocMesh(primitiveType);
     fMesh->setIndexedPatterned(indexBuffer, indicesPerRepetition, verticesPerRepetition,
                                repeatCount, maxRepetitions);
-    fMesh->setVertexData(vertexBuffer, firstVertex);
+    fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
@@ -67,7 +67,7 @@ GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int qu
         SkDebugf("Could not get quad index buffer.");
         return;
     }
-    this->init(target, GrPrimitiveType::kTriangles, vertexStride, quadIndexBuffer.get(),
+    this->init(target, GrPrimitiveType::kTriangles, vertexStride, std::move(quadIndexBuffer),
                kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
 }
 

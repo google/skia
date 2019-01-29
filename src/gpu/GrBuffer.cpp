@@ -9,8 +9,8 @@
 #include "GrGpu.h"
 #include "GrCaps.h"
 
-GrBuffer* GrBuffer::CreateCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType intendedType,
-                                    const void* data) {
+sk_sp<GrBuffer> GrBuffer::MakeCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType intendedType,
+                                        const void* data) {
     SkASSERT(GrBufferTypeIsVertexOrIndex(intendedType));
     void* cpuData;
     if (gpu->caps()->mustClearUploadedBufferData()) {
@@ -21,7 +21,7 @@ GrBuffer* GrBuffer::CreateCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType
     if (data) {
         memcpy(cpuData, data, sizeInBytes);
     }
-    return new GrBuffer(gpu, sizeInBytes, intendedType, cpuData);
+    return sk_sp<GrBuffer>(new GrBuffer(gpu, sizeInBytes, intendedType, cpuData));
 }
 
 GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuData)

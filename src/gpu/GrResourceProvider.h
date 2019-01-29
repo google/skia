@@ -205,9 +205,8 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
-                           const void* data = nullptr);
-
+    sk_sp<GrBuffer> createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
+                                 const void* data = nullptr);
 
     /**
      * If passed in render target already has a stencil buffer, return true. Otherwise attempt to
