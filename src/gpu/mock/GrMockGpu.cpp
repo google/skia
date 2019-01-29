@@ -183,9 +183,9 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
             new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc, rtInfo));
 }
 
-GrBuffer* GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
-                                    GrAccessPattern accessPattern, const void*) {
-    return new GrMockBuffer(this, sizeInBytes, type, accessPattern);
+sk_sp<GrBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
+                                          GrAccessPattern accessPattern, const void*) {
+    return sk_sp<GrBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));
 }
 
 GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,

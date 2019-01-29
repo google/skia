@@ -199,7 +199,7 @@ private:
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -209,7 +209,7 @@ private:
         }
         memcpy(verts, vertices, vertexCount * vertexStride);
 
-        const GrBuffer* indexBuffer;
+        sk_sp<const GrBuffer> indexBuffer;
         int firstIndex;
         uint16_t* idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
         if (!idxs) {
@@ -218,9 +218,9 @@ private:
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
         GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
+        mesh->setIndexed(std::move(indexBuffer), indexCount, firstIndex, 0, vertexCount - 1,
                          GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        mesh->setVertexData(std::move(vertexBuffer), firstVertex);
         target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
