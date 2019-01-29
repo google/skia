@@ -681,6 +681,14 @@ optional("gpu_for_real") {
   }
 }
 
+optional("gif") {
+  enabled = !skia_use_wuffs
+  sources = [
+    "src/codec/SkGifCodec.cpp",
+    "third_party/gif/SkGifImageReader.cpp",
+  ]
+}
+
 optional("heif") {
   enabled = skia_use_libheif
   public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
@@ -888,6 +896,7 @@ component("skia") {
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":fontmgr_wasm",
+    ":gif",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -934,7 +943,6 @@ component("skia") {
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
     "src/codec/SkEncodedInfo.cpp",
-    "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
     "src/codec/SkSampledCodec.cpp",
@@ -952,7 +960,6 @@ component("skia") {
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
   ]
 
   defines = []
