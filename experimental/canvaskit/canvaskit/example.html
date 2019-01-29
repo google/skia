@@ -43,6 +43,9 @@
 <canvas id=paths width=200 height=200></canvas>
 <canvas id=ink width=300 height=300></canvas>
 
+<h2> CanvasKit can allow for text shaping (e.g. breaking)</h2>
+<canvas id=shape1 width=600 height=600></canvas>
+
 <h2> Skottie </h2>
 <canvas id=sk_legos width=300 height=300></canvas>
 <canvas id=sk_drinks width=500 height=500></canvas>
@@ -85,12 +88,14 @@
     CanvasAPI5(CanvasKit);
     CanvasAPI6(CanvasKit);
     CanvasAPI7(CanvasKit);
-    CanvasAPI8(CanvasKit)
+    CanvasAPI8(CanvasKit);
 
     VertexAPI1(CanvasKit);
     VertexAPI2(CanvasKit, bonesImageData);
 
     GradiantAPI1(CanvasKit);
+
+    TextShapingAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -183,7 +188,7 @@
       canvas.clear(CanvasKit.TRANSPARENT);
 
       canvas.drawPath(path, paint);
-      canvas.drawText('Try Clicking!', 10, 280, textFont, textPaint);
+      canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
 
       surface.flush();
 
@@ -1076,6 +1081,50 @@
     paint.delete()
     textFont.delete();
     textBlob.delete();
+    surface.flush();
+  }
+
+  function TextShapingAPI1(CanvasKit) {
+    const surface = CanvasKit.MakeCanvasSurface('shape1');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+    const context = CanvasKit.currentContext();
+    const canvas = surface.getCanvas();
+    const paint = new CanvasKit.SkPaint();
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const textPaint = new CanvasKit.SkPaint();
+    // use the built-in monospace typeface.
+    const textFont = new CanvasKit.SkFont(null, 20);
+
+    canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
+    canvas.drawText('This text is not shaped, and overflows the boundry', 35, 50, textPaint, textFont);
+
+    const shapedText = {
+      font: textFont,
+      leftToRight: true,
+      padding: [5, 5],
+      text: 'This text *is* shaped, and wraps to the right width.',
+      width: 50,
+    };
+    canvas.drawText(shapedText, 30, 50, textPaint);
+
+    const SHAPE_TEST_TEXT = 'VAVAVAVAVA';
+    const textFont2 = new CanvasKit.SkFont(null, 60);
+    const shapedText2 = {
+      font: textFont2,
+      leftToRight: true,
+      padding: [0, 0],
+      text: SHAPE_TEST_TEXT,
+      width: 50,
+    };
+
+    canvas.drawText(SHAPE_TEST_TEXT, 10, 300, textPaint, textFont2);
+    canvas.drawText(shapedText2, 10, 300, textPaint);
+
     surface.flush();
   }
 </script>

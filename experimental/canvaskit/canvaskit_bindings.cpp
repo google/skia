@@ -40,6 +40,7 @@
 #include "SkScalar.h"
 #include "SkShader.h"
 #include "SkShadowUtils.h"
+#include "SkShaper.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
@@ -462,6 +463,25 @@ Uint8Array getSkDataBytes(const SkData *data) {
     return Uint8Array(typed_memory_view(data->size(), data->bytes()));
 }
 
+// Text Shaping abstraction
+
+struct ShapedText {
+    SkFont font;
+    bool leftToRight;
+    SkPoint padding;
+    std::string text;
+    SkScalar width;
+};
+
+void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
+                     SkScalar y, SkPaint paint) {
+    SkTextBlobBuilderRunHandler builder;
+    SkShaper shaper(st.font.refTypeface());
+    shaper.shape(&builder, st.font, st.text.c_str(), st.text.length(),
+                 st.leftToRight, st.padding, st.width);
+    canvas.drawTextBlob(builder.makeBlob(), x, y, paint);
+}
+
 // These objects have private destructors / delete mthods - I don't think
 // we need to do anything other than tell emscripten to do nothing.
 namespace emscripten {
@@ -690,6 +710,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkShadowUtils::DrawShadow(&self, path, zPlaneParams, lightPos, lightRadius,
                                       SkColor(ambientColor), SkColor(spotColor), flags);
         }))
+        .function("_drawShapedText", &drawShapedText)
         .function("_drawSimpleText", optional_override([](SkCanvas& self, uintptr_t /* char* */ sptr,
                                                           size_t len, SkScalar x, SkScalar y, const SkFont& font,
                                                           const SkPaint& paint) {
@@ -1043,6 +1064,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
     // A value object is much simpler than a class - it is returned as a JS
     // object and does not require delete().
     // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+    value_object<ShapedText>("ShapedText")
+        .field("font",        &ShapedText::font)
+        .field("leftToRight", &ShapedText::leftToRight)
+        .field("padding",     &ShapedText::padding)
+        .field("text",        &ShapedText::text)
+        .field("width",       &ShapedText::width);
+
     value_object<SkRect>("SkRect")
         .field("fLeft",   &SkRect::fLeft)
         .field("fTop",    &SkRect::fTop)
