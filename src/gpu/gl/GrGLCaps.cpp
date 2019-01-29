@@ -2414,8 +2414,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fClearTextureSupport = false;
     }
 
-    // Calling glClearTexImage crashes on the NexusPlayer. TODO: Use isX86PowerVRRogue?
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+    // Calling glClearTexImage crashes on the NexusPlayer.
+    if (isX86PowerVRRogue) {
         fClearTextureSupport = false;
     }
 
