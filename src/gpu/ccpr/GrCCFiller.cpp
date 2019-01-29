@@ -519,7 +519,7 @@ void GrCCFiller::drawPrimitives(GrOpFlushState* flushState, const GrPipeline& pi
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
+        proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
         fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
                                                       drawBounds.height());
         SkDEBUGCODE(totalInstanceCount += instanceCount);
@@ -537,8 +537,8 @@ void GrCCFiller::drawPrimitives(GrOpFlushState* flushState, const GrPipeline& pi
             continue;
         }
         SkASSERT(instanceCount > 0);
-        proc.appendMesh(fInstanceBuffer.get(), instanceCount,
-                        baseScissorInstance + startIndex, &fMeshesScratchBuffer);
+        proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
+                        &fMeshesScratchBuffer);
         fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }

@@ -110,7 +110,7 @@ private:
 
         size_t vertexStride = gp->vertexStride();
 
-        const GrBuffer* indexBuffer;
+        sk_sp<const GrBuffer> indexBuffer;
         int firstIndex;
         uint16_t* indices = target->makeIndexSpace(6, &indexBuffer, &firstIndex);
         if (!indices) {
@@ -118,7 +118,7 @@ private:
             return;
         }
 
-        const GrBuffer* vertexBuffer;
+        sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
         void* vertices = target->makeVertexSpace(vertexStride, 4, &vertexBuffer, &firstVertex);
         if (!vertices) {

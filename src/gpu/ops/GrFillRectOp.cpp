@@ -186,7 +186,7 @@ private:
         sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
         size_t vertexSize = gp->vertexStride();
 
-        const GrBuffer* vbuffer;
+        sk_sp<const GrBuffer> vbuffer;
         int vertexOffsetInBuffer = 0;
 
         // Fill the allocated vertex data
@@ -223,7 +223,7 @@ private:
             SkDebugf("Could not allocate indices\n");
             return;
         }
-        mesh->setVertexData(vbuffer, vertexOffsetInBuffer);
+        mesh->setVertexData(std::move(vbuffer), vertexOffsetInBuffer);
 
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);

@@ -198,8 +198,8 @@ private:
     sk_sp<GrRenderTarget> onWrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                 const GrVkDrawableInfo&) override;
 
-    GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
-                             const void* data) override;
+    sk_sp<GrBuffer> onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
+                                   const void* data) override;
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
                       void* buffer, size_t rowBytes) override;

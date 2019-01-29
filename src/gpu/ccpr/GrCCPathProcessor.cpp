@@ -130,10 +130,10 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
     GrMesh mesh(primitiveType);
     auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
 
-    mesh.setIndexedInstanced(resources.indexBuffer(), numIndicesPerInstance,
-                             resources.instanceBuffer(), endInstance - baseInstance, baseInstance,
-                             enablePrimitiveRestart);
-    mesh.setVertexData(resources.vertexBuffer());
+    mesh.setIndexedInstanced(resources.refIndexBuffer(), numIndicesPerInstance,
+                             resources.refInstanceBuffer(), endInstance - baseInstance,
+                             baseInstance, enablePrimitiveRestart);
+    mesh.setVertexData(resources.refVertexBuffer());
 
     flushState->rtCommandBuffer()->draw(*this, pipeline, fixedDynamicState, nullptr, &mesh, 1,
                                         bounds);

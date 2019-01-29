@@ -227,7 +227,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
 
     // Allocate buffers.
     size_t vertexStride = gp->vertexStride();
-    const GrBuffer* vertexBuffer = nullptr;
+    sk_sp<const GrBuffer> vertexBuffer = nullptr;
     int firstVertex = 0;
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
     if (!verts) {
@@ -235,7 +235,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
         return;
     }
 
-    const GrBuffer* indexBuffer = nullptr;
+    sk_sp<const GrBuffer> indexBuffer = nullptr;
     int firstIndex = 0;
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
@@ -255,7 +255,8 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
                       indices);
 
     // Draw the vertices.
-    this->drawVertices(target, std::move(gp), vertexBuffer, firstVertex, indexBuffer, firstIndex);
+    this->drawVertices(target, std::move(gp), std::move(vertexBuffer), firstVertex, indexBuffer,
+                       firstIndex);
 }
 
 void GrDrawVerticesOp::drawNonVolatile(Target* target) {
@@ -292,16 +293,17 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
 
     // Draw using the cached buffers if possible.
     if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+        this->drawVertices(target, std::move(gp), std::move(vertexBuffer), 0,
+                           std::move(indexBuffer), 0);
         return;
     }
 
     // Allocate vertex buffer.
     size_t vertexStride = gp->vertexStride();
-    vertexBuffer.reset(rp->createBuffer(fVertexCount * vertexStride,
-                                        kVertex_GrBufferType,
-                                        kStatic_GrAccessPattern,
-                                        GrResourceProvider::Flags::kNone));
+    vertexBuffer = rp->createBuffer(fVertexCount * vertexStride,
+                                    kVertex_GrBufferType,
+                                    kStatic_GrAccessPattern,
+                                    GrResourceProvider::Flags::kNone);
     void* verts = vertexBuffer ? vertexBuffer->map() : nullptr;
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -311,10 +313,10 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     // Allocate index buffer.
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
-        indexBuffer.reset(rp->createBuffer(fIndexCount * sizeof(uint16_t),
-                                           kIndex_GrBufferType,
-                                           kStatic_GrAccessPattern,
-                                           GrResourceProvider::Flags::kNone));
+        indexBuffer = rp->createBuffer(fIndexCount * sizeof(uint16_t),
+                                       kIndex_GrBufferType,
+                                       kStatic_GrAccessPattern,
+                                       GrResourceProvider::Flags::kNone);
         indices = indexBuffer ? static_cast<uint16_t*>(indexBuffer->map()) : nullptr;
         if (!indices) {
             SkDebugf("Could not allocate indices\n");
@@ -341,7 +343,8 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
 
     // Draw the vertices.
-    this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+    this->drawVertices(target, std::move(gp), std::move(vertexBuffer), 0, std::move(indexBuffer),
+                       0);
 }
 
 void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
@@ -457,18 +460,18 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
 
 void GrDrawVerticesOp::drawVertices(Target* target,
                                     sk_sp<const GrGeometryProcessor> gp,
-                                    const GrBuffer* vertexBuffer,
+                                    sk_sp<const GrBuffer> vertexBuffer,
                                     int firstVertex,
-                                    const GrBuffer* indexBuffer,
+                                    sk_sp<const GrBuffer> indexBuffer,
                                     int firstIndex) {
     GrMesh* mesh = target->allocMesh(this->primitiveType());
     if (this->isIndexed()) {
-        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1,
+        mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertexCount - 1,
                          GrPrimitiveRestart::kNo);
     } else {
         mesh->setNonIndexedNonInstanced(fVertexCount);
     }
-    mesh->setVertexData(vertexBuffer, firstVertex);
+    mesh->setVertexData(std::move(vertexBuffer), firstVertex);
     auto pipe = fHelper.makePipeline(target);
     target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }

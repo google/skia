@@ -37,8 +37,8 @@ GrMtlPipelineState::GrMtlPipelineState(
         MTLPixelFormat pixelFormat,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
-        GrMtlBuffer* geometryUniformBuffer,
-        GrMtlBuffer* fragmentUniformBuffer,
+        sk_sp<GrMtlBuffer> geometryUniformBuffer,
+        sk_sp<GrMtlBuffer> fragmentUniformBuffer,
         uint32_t numSamplers,
         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -48,8 +48,8 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fPipelineState(pipelineState)
         , fPixelFormat(pixelFormat)
         , fBuiltinUniformHandles(builtinUniformHandles)
-        , fGeometryUniformBuffer(geometryUniformBuffer)
-        , fFragmentUniformBuffer(fragmentUniformBuffer)
+        , fGeometryUniformBuffer(std::move(geometryUniformBuffer))
+        , fFragmentUniformBuffer(std::move(fragmentUniformBuffer))
         , fNumSamplers(numSamplers)
         , fGeometryProcessor(std::move(geometryProcessor))
         , fXferProcessor(std::move(xferProcessor))
