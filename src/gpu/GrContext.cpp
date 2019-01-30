@@ -59,18 +59,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static int32_t next_id() {
-    static std::atomic<int32_t> nextID{1};
-    int32_t id;
-    do {
-        id = nextID++;
-    } while (id == SK_InvalidGenID);
-    return id;
-}
-
 GrContext::GrContext(GrBackendApi backend, int32_t id)
-        : fBackend(backend)
-        , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
+        : INHERITED(backend, id) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
@@ -84,7 +74,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
 
     if (fGpu) {
         fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, fUniqueID);
+        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, this->uniqueID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
                                                    options.fExplicitlyAllocateGPUResources);
         fProxyProvider =
@@ -165,6 +155,10 @@ GrContext::~GrContext() {
     delete fResourceCache;
     delete fProxyProvider;
     delete fGlyphCache;
+}
+
+sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
+    return fThreadSafeProxy;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1153,7 +1147,7 @@ SkString GrContextPriv::dump() const {
     GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
     GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
     GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
-    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");
     fContext->fCaps->dumpJSON(&writer);
