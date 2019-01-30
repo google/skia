@@ -36,6 +36,8 @@ public:
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrTextureProxy* const* primProcProxies() const { return fPrimProcProxies; }
+    GrSurfaceOrigin origin() const { return fOrigin; }
+    const GrRenderTarget* renderTarget() const { return fRenderTarget; }
     const GrPipeline& pipeline() const { return fPipeline; }
     GrProgramDesc* desc() { return fDesc; }
     const GrProgramDesc::KeyHeader& header() const { return fDesc->header(); }
@@ -81,6 +83,8 @@ public:
 
     int fStageIndex;
 
+    const GrRenderTarget*        fRenderTarget;
+    const GrSurfaceOrigin        fOrigin;
     const GrPipeline&            fPipeline;
     const GrPrimitiveProcessor&  fPrimProc;
     const GrTextureProxy* const* fPrimProcProxies;
@@ -95,7 +99,8 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(const GrPrimitiveProcessor&,
+    explicit GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                                  const GrPrimitiveProcessor&,
                                   const GrTextureProxy* const primProcProxies[],
                                   const GrPipeline&,
                                   GrProgramDesc*);
