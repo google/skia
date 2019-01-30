@@ -683,14 +683,14 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     GrRenderTarget* rt = pipeline.renderTarget();
 
     if (!pipeline.isScissorEnabled()) {
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
-                                                 rt, pipeline.proxy()->origin(),
-                                                 SkIRect::MakeWH(rt->width(), rt->height()));
+        GrVkPipeline::SetDynamicScissorRectState(
+                fGpu, cbInfo.currentCmdBuf(), rt, pipeline.origin(),
+                SkIRect::MakeWH(rt->width(), rt->height()));
     } else if (!dynamicStateArrays || !dynamicStateArrays->fScissorRects) {
         SkASSERT(fixedDynamicState);
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
-                                                 pipeline.proxy()->origin(),
-                                                 fixedDynamicState->fScissorRect);
+        GrVkPipeline::SetDynamicScissorRectState(
+                fGpu, cbInfo.currentCmdBuf(), rt, pipeline.origin(),
+                fixedDynamicState->fScissorRect);
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(), rt->config(),
@@ -781,9 +781,9 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         }
 
         if (dynamicScissor) {
-            GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), fRenderTarget,
-                                                     pipeline.proxy()->origin(),
-                                                     dynamicStateArrays->fScissorRects[i]);
+            GrVkPipeline::SetDynamicScissorRectState(
+                    fGpu, cbInfo.currentCmdBuf(), fRenderTarget, pipeline.origin(),
+                    dynamicStateArrays->fScissorRects[i]);
         }
         if (dynamicTextures) {
             GrTextureProxy* const* meshProxies = dynamicStateArrays->fPrimitiveProcessorTextures +

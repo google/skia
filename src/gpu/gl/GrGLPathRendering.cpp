@@ -11,6 +11,7 @@
 
 #include "GrGLPath.h"
 #include "GrGLPathRendering.h"
+#include "GrRenderTargetProxy.h"
 
 #include "SkStream.h"
 #include "SkTypeface.h"

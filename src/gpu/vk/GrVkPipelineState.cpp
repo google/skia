@@ -143,7 +143,7 @@ void GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
                                            GrVkCommandBuffer* commandBuffer) {
-    this->setRenderTargetState(pipeline.proxy());
+    this->setRenderTargetState(pipeline.renderTarget(), pipeline.origin());
 
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
@@ -351,9 +351,7 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
-    GrRenderTarget* rt = proxy->peekRenderTarget();
-
+void GrVkPipelineState::setRenderTargetState(GrRenderTarget* rt, GrSurfaceOrigin origin) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
@@ -364,10 +362,10 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
-    if (fRenderTargetState.fRenderTargetOrigin != proxy->origin() ||
+    if (fRenderTargetState.fRenderTargetOrigin != origin ||
         fRenderTargetState.fRenderTargetSize != size) {
         fRenderTargetState.fRenderTargetSize = size;
-        fRenderTargetState.fRenderTargetOrigin = proxy->origin();
+        fRenderTargetState.fRenderTargetOrigin = origin;
 
         float rtAdjustmentVec[4];
         fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);

@@ -114,7 +114,7 @@ private:
     };
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrRenderTargetProxy*);
+    void setRenderTargetState(GrRenderTarget*, GrSurfaceOrigin);
 
     // GrVkResources
     GrVkPipeline* fPipeline;

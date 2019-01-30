@@ -18,7 +18,7 @@ class GrGLSLPrimitiveProcessor;
 class GrGLSLXferProcessor;
 class GrPipeline;
 class GrPrimitiveProcessor;
-class GrRenderTargetProxy;
+class GrRenderTarget;
 class GrTextureProxy;
 
 /**
@@ -144,7 +144,7 @@ private:
     void setFragmentData(const GrPipeline&, int* nextTexSamplerIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTargetProxy*);
+    void setRenderTargetState(const GrPrimitiveProcessor&, GrRenderTarget*, GrSurfaceOrigin);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;

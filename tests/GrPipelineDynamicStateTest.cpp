@@ -136,8 +136,8 @@ private:
     }
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
-        GrRenderTargetProxy* proxy = state->drawOpArgs().fProxy;
-        GrPipeline pipeline(proxy, fScissorTest, SkBlendMode::kSrc);
+        GrPipeline pipeline(state->drawOpArgs().renderTarget(), state->drawOpArgs().origin(),
+                            fScissorTest, SkBlendMode::kSrc);
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);

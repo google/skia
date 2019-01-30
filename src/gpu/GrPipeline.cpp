@@ -10,6 +10,7 @@
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrGpu.h"
+#include "GrRenderTarget.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrXferProcessor.h"
@@ -18,11 +19,11 @@
 
 GrPipeline::GrPipeline(const InitArgs& args,
                        GrProcessorSet&& processors,
-                       GrAppliedClip&& appliedClip) {
-    SkASSERT(args.fProxy);
+                       GrAppliedClip&& appliedClip)
+        : fRenderTarget(args.fRenderTarget)
+        , fOrigin(args.fOrigin) {
+    SkASSERT(fRenderTarget);
     SkASSERT(processors.isFinalized());
-
-    fProxy.reset(args.fProxy);
 
     fFlags = args.fFlags;
     if (appliedClip.hasStencilClip()) {
@@ -77,6 +78,8 @@ GrPipeline::GrPipeline(const InitArgs& args,
     }
 }
 
+GrPipeline::~GrPipeline() {}
+
 void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         GrFragmentProcessor::TextureAccessIter iter(fFragmentProcessors[i].get());
@@ -93,21 +96,23 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&
-        fDstTextureProxy.get()->peekTexture() == fProxy.get()->peekTexture()) {
+        fDstTextureProxy.get()->peekTexture() == fRenderTarget.get()->asTexture()) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, GrScissorTest scissorTest, SkBlendMode blendmode)
-        : fProxy(proxy)
+GrPipeline::GrPipeline(GrRenderTarget* rt, GrSurfaceOrigin origin, GrScissorTest scissorTest,
+                       SkBlendMode blendmode)
+        : fRenderTarget(rt)
+        , fOrigin(origin)
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
         , fNumColorProcessors(0) {
-    SkASSERT(proxy);
+    SkASSERT(rt);
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= kScissorEnabled_Flag;
     }
