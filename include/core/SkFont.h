@@ -337,7 +337,9 @@ public:
      */
     bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
 
-    /** Returns the bytes of text that fit within maxWidth.
+#ifdef SK_SUPPORT_LEGACY_BREAKTEXT
+    /** Deprecated.
+        Returns the bytes of text that fit within maxWidth.
         The text fragment fits if its advance width is less than or equal to maxWidth.
         Measures only while the advance is less than or equal to maxWidth.
         Returns the advance or the text fragment in measuredWidth if it not nullptr.
@@ -354,7 +356,7 @@ public:
     */
     size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth,
                      SkScalar* measuredWidth = nullptr) const;
-
+#endif
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
         Returns the bounding box of text if bounds is not nullptr.
