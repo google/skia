@@ -321,8 +321,8 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
                  SkIntToScalar(g.fTop + g.fHeight));
 }
 
-SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding encoding,
-                             SkRect* bounds, const SkPaint* paint) const {
+SkScalar SkFont::legacy_measureText(const void* textD, size_t length, SkTextEncoding encoding,
+                                    SkRect* bounds, const SkPaint* paint) const {
     if (length == 0) {
         if (bounds) {
             bounds->setEmpty();
@@ -365,6 +365,63 @@ SkScalar SkFont::measureText(const void* textD, size_t length, SkTextEncoding en
             bounds->fBottom *= scale;
         }
     }
+    return width;
+}
+
+SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding,
+                             SkRect* bounds, const SkPaint* paint) const {
+    SkCanonicalizeFont canon(*this, paint);
+    const SkFont& font = canon.getFont();
+    const SkScalar scale = canon.getScale();
+
+    SkAutoToGlyphs atg(font, text, length, encoding);
+    const int count = atg.count();
+    if (count == 0) {
+        if (bounds) {
+            bounds->setEmpty();
+        }
+        return 0;
+    }
+    const uint16_t* glyphs = atg.glyphs();
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
+
+    SkScalar width = 0;
+    if (bounds) {
+        const SkGlyph* g = &cache->getGlyphIDMetrics(glyphs[0]);
+        set_bounds(*g, bounds);
+        width = g->fAdvanceX;
+        for (int i = 1; i < count; ++i) {
+            g = &cache->getGlyphIDMetrics(glyphs[i]);
+            join_bounds_x(*g, bounds, width);
+            width += g->fAdvanceX;
+        }
+    } else {
+        for (int i = 0; i < count; ++i) {
+            width += cache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
+        }
+    }
+
+    if (scale) {
+        width *= scale;
+        if (bounds) {
+            bounds->fLeft *= scale;
+            bounds->fTop *= scale;
+            bounds->fRight *= scale;
+            bounds->fBottom *= scale;
+        }
+    }
+
+#ifdef SK_DEBUG
+    {
+        SkRect b2;
+        SkScalar w2 = this->legacy_measureText(text, length, encoding, &b2, paint);
+        SkASSERT(width == w2);
+        if (bounds) {
+            SkASSERT(*bounds == b2);
+        }
+    }
+#endif
     return width;
 }
 
