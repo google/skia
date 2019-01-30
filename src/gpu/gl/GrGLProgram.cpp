@@ -72,10 +72,12 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::updateUniformsAndTextureBindings(const GrPrimitiveProcessor& primProc,
+void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderTarget,
+                                                   GrSurfaceOrigin origin,
+                                                   const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
                                                    const GrTextureProxy* const primProcTextures[]) {
-    this->setRenderTargetState(primProc, pipeline.proxy());
+    this->setRenderTargetState(renderTarget, origin, primProc);
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
@@ -130,9 +132,8 @@ void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSample
     SkASSERT(!fp && !glslFP);
 }
 
-void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
-                                       const GrRenderTargetProxy* proxy) {
-    GrRenderTarget* rt = proxy->peekRenderTarget();
+void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                       const GrPrimitiveProcessor& primProc) {
     // Load the RT size uniforms if they are needed
     if (fBuiltinUniformHandles.fRTWidthUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fWidth != rt->width()) {
@@ -147,10 +148,10 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
     SkISize size;
     size.set(rt->width(), rt->height());
     if (!primProc.isPathRendering()) {
-        if (fRenderTargetState.fRenderTargetOrigin != proxy->origin() ||
+        if (fRenderTargetState.fRenderTargetOrigin != origin ||
             fRenderTargetState.fRenderTargetSize != size) {
             fRenderTargetState.fRenderTargetSize = size;
-            fRenderTargetState.fRenderTargetOrigin = proxy->origin();
+            fRenderTargetState.fRenderTargetOrigin = origin;
 
             float rtAdjustmentVec[4];
             fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
@@ -160,6 +161,6 @@ void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
         SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         fGpu->glPathRendering()->setProjectionMatrix(pathProc.viewMatrix(),
-                                                     size, proxy->origin());
+                                                     size, origin);
     }
 }

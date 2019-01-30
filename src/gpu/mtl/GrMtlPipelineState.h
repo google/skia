@@ -93,7 +93,7 @@ private:
         }
     };
 
-    void setRenderTargetState(const GrRenderTargetProxy*);
+    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     struct SamplerBindings {
         id<MTLSamplerState> fSampler;
