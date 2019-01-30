@@ -300,6 +300,34 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 
     canvas->translate(0,80);
 
+    // Leon's blue -> green -> red gradient, interpolating in premul.
+    {
+        SkPoint points[] = {{10.5,10.5}, {10.5,69.5}};
+        SkColor4f colors[] = { {0,0,1,1}, {0,1,0,1}, {1,0,0,1} };
+
+        SkPaint paint;
+        paint.setShader(
+                SkGradientShader::MakeLinear(points, colors, p3,
+                                             nullptr, SK_ARRAY_COUNT(colors),
+                                             SkShader::kClamp_TileMode,
+                                             SkGradientShader::kInterpolateColorsInPremul_Flag,
+                                             nullptr/*local matrix*/));
+        canvas->drawRect({10,10,70,70}, paint);
+        canvas->save();
+            compare_pixel("Leon's gradient, P3 blue",
+                          canvas, 10,10,
+                          {0,0,1,1}, p3.get());
+
+            canvas->translate(180, 0);
+
+            compare_pixel("Leon's gradient, P3 red",
+                          canvas, 10,69,
+                          {1,0,0,1}, p3.get());
+        canvas->restore();
+    }
+
+    canvas->translate(0,80);
+
     // Draw an A8 image with a P3 red, scaled and not, as a shader or bitmap.
     {
         uint8_t mask[256];
