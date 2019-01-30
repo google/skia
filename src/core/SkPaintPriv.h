@@ -45,18 +45,6 @@ public:
         return Overwrites(&paint, kNone_ShaderOverrideOpacity);
     }
 
-    /**
-     *  Returns true if drawing this bitmap with this paint (or nullptr) will ovewrite all affected
-     *  pixels.
-     */
-    static bool Overwrites(const SkBitmap&, const SkPaint* paint);
-
-    /**
-     *  Returns true if drawing this image with this paint (or nullptr) will ovewrite all affected
-     *  pixels.
-     */
-    static bool Overwrites(const SkImage*, const SkPaint* paint);
-
     static bool ShouldDither(const SkPaint&, SkColorType);
 
     /** Serializes SkPaint into a buffer. A companion unflatten() call
