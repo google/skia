@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b55e53f_0864149a",
+        "filename": "samplecode/SampleThinAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-30T21:34:54Z",
+      "side": 1,
+      "message": "could use sk_make_sp here.",
+      "revId": "061a95dca426aa33a19eb3604dd69043da9d2ac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb42a27_36204097",
+        "filename": "samplecode/SampleThinAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-30T21:34:54Z",
+      "side": 1,
+      "message": "sk_make_sp again",
+      "revId": "061a95dca426aa33a19eb3604dd69043da9d2ac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
