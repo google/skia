@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d4abc2b_860b984d",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-30T15:56:54Z",
+      "side": 1,
+      "message": "nit: simpler to call fCurrFont-\u003eunicharToGlyph(u) \u003d\u003d 0",
+      "range": {
+        "startLine": 330,
+        "startChar": 31,
+        "endLine": 330,
+        "endChar": 42
+      },
+      "revId": "72145e5e5803cb400377020848a90a168ed41017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d92909db_d529a3d9",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-30T15:56:54Z",
+      "side": 1,
+      "message": "nit: can skip the (default) paint arg. It only needs to be passed if the paint has stroking or blurs.\n\nfFont.getWidthBounds(\u0026glyph.fID, 1, \u0026advance, \u0026bounds);",
+      "range": {
+        "startLine": 1064,
+        "startChar": 18,
+        "endLine": 1064,
+        "endChar": 33
+      },
+      "revId": "72145e5e5803cb400377020848a90a168ed41017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
