@@ -48,9 +48,9 @@
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define ASSERT_SINGLE_OWNER_PRIV \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(&fContext->fSingleOwner);)
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->singleOwner());)
 #define RETURN_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_IF_ABANDONED_PRIV if (fContext->fDrawingManager->wasAbandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED if (fDrawingManager->wasAbandoned()) { return false; }
@@ -59,46 +59,36 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static int32_t next_id() {
-    static std::atomic<int32_t> nextID{1};
-    int32_t id;
-    do {
-        id = nextID++;
-    } while (id == SK_InvalidGenID);
-    return id;
-}
-
-GrContext::GrContext(GrBackendApi backend, int32_t id)
-        : fBackend(backend)
-        , fUniqueID(SK_InvalidGenID == id ? next_id() : id) {
+GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
-    fProxyProvider = nullptr;
+//    fProxyProvider = nullptr;
     fGlyphCache = nullptr;
 }
 
-bool GrContext::initCommon(const GrContextOptions& options) {
+bool GrContext::initCommon17(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fCaps);  // needs to have been initialized by derived classes
-    SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
+    SkASSERT(this->caps());  // needs to have been initialized by derived classes
+    SkASSERT(this->threadSafeProxy()); // needs to have been initialized by derived classes
 
     if (fGpu) {
-        fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, fUniqueID);
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
+        fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->uniqueID());
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner(),
                                                    options.fExplicitlyAllocateGPUResources);
-        fProxyProvider =
-                new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
-    } else {
-        fProxyProvider = new GrProxyProvider(this->uniqueID(), fCaps, &fSingleOwner);
-    }
+//        this->proxyProvider()->bam1(fResourceProvider, fResourceCache);
+//        fProxyProvider =
+//                new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
+    } //else {
+//        fProxyProvider = new GrProxyProvider(this->uniqueID(), fCaps, &fSingleOwner);
+    //}
 
     if (fResourceCache) {
-        fResourceCache->setProxyProvider(fProxyProvider);
+        fResourceCache->setProxyProvider(this->proxyProvider());
     }
 
-    fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
-    fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
+//    fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
+//    fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
     fDidTestPMConversions = false;
 
     GrPathRendererChain::Options prcOptions;
@@ -135,11 +125,11 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                             ? fResourceProvider->explicitlyAllocateGPUResources()
                                             : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
-                                               &fSingleOwner, explicitlyAllocatingResources,
+                                               this->singleOwner(), explicitlyAllocatingResources,
                                                options.fSortRenderTargets,
                                                options.fReduceOpListSplitting));
 
-    fGlyphCache = new GrStrikeCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
+    fGlyphCache = new GrStrikeCache(this->caps(), options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
                                              this, this->uniqueID()));
@@ -163,11 +153,159 @@ GrContext::~GrContext() {
     }
     delete fResourceProvider;
     delete fResourceCache;
-    delete fProxyProvider;
+//    delete fProxyProvider;
     delete fGlyphCache;
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+#if 0
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
+
+}
+
+#if 0
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
+                                                   GrBackendApi backend,
+                                                   const GrContextOptions& options,
+                                                   sk_sp<GrSkSLFPFactoryCache> cache)
+        : fCaps(std::move(caps))
+        , fContextUniqueID(uniqueID)
+        , fBackend(backend)
+        , fOptions(options)
+        , fFPFactoryCache(std::move(cache)) {}
+#endif
+
+GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
+
+//sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
+//    return fThreadSafeProxy;
+//}
+
+SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
+                                     size_t cacheMaxResourceBytes,
+                                     const SkImageInfo& ii, const GrBackendFormat& backendFormat,
+                                     int sampleCnt, GrSurfaceOrigin origin,
+                                     const SkSurfaceProps& surfaceProps,
+                                     bool isMipMapped, bool willUseGLFBO0) {
+    if (!backendFormat.isValid()) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
+        // The willUseGLFBO0 flags can only be used for a GL backend.
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    const GrCaps* caps = this->caps();
+
+    if (!caps->mipMapSupport()) {
+        isMipMapped = false;
+    }
+
+    GrPixelConfig config = caps->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    if (config == kUnknown_GrPixelConfig) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (!SkSurface_Gpu::Valid(caps, config, ii.colorSpace())) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    sampleCnt = caps->getRenderTargetSampleCount(sampleCnt, config);
+    if (!sampleCnt) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    GrFSAAType FSAAType = GrFSAAType::kNone;
+    if (sampleCnt > 1) {
+        FSAAType = caps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
+    }
+
+    // This surface characterization factory assumes that the resulting characterization is
+    // textureable.
+    if (!caps->isConfigTexturable(config)) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
+                                     cacheMaxResourceBytes, ii,
+                                     origin, config, FSAAType, sampleCnt,
+                                     SkSurfaceCharacterization::Textureable(true),
+                                     SkSurfaceCharacterization::MipMapped(isMipMapped),
+                                     SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
+                                     SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+                                     surfaceProps);
+}
+
+#include "SkImage_Gpu.h"
+#include "SkImage_GpuYUVA.h"
+#include "SkYUVAIndex.h"
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makePromiseTexture(
+        const GrBackendFormat& backendFormat,
+        int width,
+        int height,
+        GrMipMapped mipMapped,
+        GrSurfaceOrigin origin,
+        SkColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContext) {
+    return SkImage_Gpu::MakePromiseTexture(sk_make_sp<GrContext_Base>(this),
+                                           backendFormat,
+                                           width,
+                                           height,
+                                           mipMapped,
+                                           origin,
+                                           colorType,
+                                           alphaType,
+                                           std::move(colorSpace),
+                                           textureFulfillProc,
+                                           textureReleaseProc,
+                                           promiseDoneProc,
+                                           textureContext);
+}
+
+sk_sp<SkImage> GrContextThreadSafeProxy::makeYUVAPromiseTexture(
+        SkYUVColorSpace yuvColorSpace,
+        const GrBackendFormat yuvaFormats[],
+        const SkISize yuvaSizes[],
+        const SkYUVAIndex yuvaIndices[4],
+        int imageWidth,
+        int imageHeight,
+        GrSurfaceOrigin imageOrigin,
+        sk_sp<SkColorSpace> imageColorSpace,
+        TextureFulfillProc textureFulfillProc,
+        TextureReleaseProc textureReleaseProc,
+        PromiseDoneProc promiseDoneProc,
+        TextureContext textureContexts[]) {
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(sk_make_sp<GrContext_Base>(this),
+                                                   yuvColorSpace,
+                                                   yuvaFormats,
+                                                   yuvaSizes,
+                                                   yuvaIndices,
+                                                   imageWidth,
+                                                   imageHeight,
+                                                   imageOrigin,
+                                                   std::move(imageColorSpace),
+                                                   textureFulfillProc,
+                                                   textureReleaseProc,
+                                                   promiseDoneProc,
+                                                   textureContexts);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+#endif
 
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
@@ -189,19 +327,21 @@ void GrContext::abandonContext() {
     fTextBlobCache->freeAll();
 }
 
+#if 0
 bool GrContext::abandoned() const {
     ASSERT_SINGLE_OWNER
     // If called from ~GrContext(), the drawing manager may already be gone.
     return !fDrawingManager || fDrawingManager->wasAbandoned();
 }
+#endif
 
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
-    if (this->abandoned()) {
+    if (this->abandoned1()) {
         return;
     }
-    fProxyProvider->abandon();
+    this->proxyProvider()->abandon1();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -277,18 +417,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
+int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 
-int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
+int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->isConfigTexturable(config);
+    return this->caps()->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -812,65 +952,21 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
-    if (!fContext->fOpMemoryPool) {
-        // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
-        // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
-        // memory.
-        fContext->fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
-    }
-
-    SkASSERT(fContext->fOpMemoryPool);
-    return fContext->fOpMemoryPool;
-}
-
-GrOpMemoryPool* GrContextPriv::opMemoryPool() {
-    return this->refOpMemoryPool().get();
-}
-
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER_PRIV
-
-    if (proxy->asRenderTargetProxy()) {
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                               std::move(colorSpace), props);
-    } else {
-        SkASSERT(proxy->asTextureProxy());
-        SkASSERT(!props);
-        return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
-    }
+    return nullptr;
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrBackendFormat& format,
-                                                                  const GrSurfaceDesc& dstDesc,
-                                                                  GrSurfaceOrigin origin,
-                                                                  GrMipMapped mipMapped,
-                                                                  SkBackingFit fit,
-                                                                  SkBudgeted isDstBudgeted,
-                                                                  sk_sp<SkColorSpace> colorSpace,
-                                                                  const SkSurfaceProps* props) {
-    sk_sp<GrTextureProxy> proxy;
-    if (GrMipMapped::kNo == mipMapped) {
-        proxy = this->proxyProvider()->createProxy(format, dstDesc, origin, fit, isDstBudgeted);
-    } else {
-        SkASSERT(SkBackingFit::kExact == fit);
-        proxy = this->proxyProvider()->createMipMapProxy(format, dstDesc, origin, isDstBudgeted);
-    }
-    if (!proxy) {
-        return nullptr;
-    }
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-    sk_sp<GrSurfaceContext> sContext = this->makeWrappedSurfaceContext(std::move(proxy),
-                                                                       std::move(colorSpace),
-                                                                       props);
-    if (sContext && sContext->asRenderTargetContext()) {
-        sContext->asRenderTargetContext()->discard();
-    }
-
-    return sContext;
+sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
+    return fContext->refOpMemoryPool();
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
@@ -968,107 +1064,6 @@ void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
     fContext->fDrawingManager->copyOpListsFromDDL(ddl, newDest);
 }
 
-static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
-    switch (config) {
-        case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
-        case kRGB_565_GrPixelConfig:
-        case kRGBA_4444_GrPixelConfig:
-        case kBGRA_8888_GrPixelConfig:
-        case kRGBA_1010102_GrPixelConfig:
-        case kRGBA_half_GrPixelConfig:
-            return kRGBA_8888_GrPixelConfig;
-        case kSBGRA_8888_GrPixelConfig:
-            return kSRGBA_8888_GrPixelConfig;
-        case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
-            return kRGBA_half_GrPixelConfig;
-        case kGray_8_GrPixelConfig:
-        case kGray_8_as_Lum_GrPixelConfig:
-        case kGray_8_as_Red_GrPixelConfig:
-            return kRGB_888_GrPixelConfig;
-        default:
-            return kUnknown_GrPixelConfig;
-    }
-}
-
-sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
-                                                                 const GrBackendFormat& format,
-                                                                 SkBackingFit fit,
-                                                                 int width, int height,
-                                                                 GrPixelConfig config,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 int sampleCnt,
-                                                                 GrMipMapped mipMapped,
-                                                                 GrSurfaceOrigin origin,
-                                                                 const SkSurfaceProps* surfaceProps,
-                                                                 SkBudgeted budgeted) {
-    GrBackendFormat localFormat = format;
-    SkASSERT(sampleCnt > 0);
-    if (0 == fContext->contextPriv().caps()->getRenderTargetSampleCount(sampleCnt, config)) {
-        config = GrPixelConfigFallback(config);
-        // TODO: First we should be checking the getRenderTargetSampleCount from the GrBackendFormat
-        // and not GrPixelConfig. Besides that, we should implement the fallback in the caps, but
-        // for now we just convert the fallback pixel config to an SkColorType and then get the
-        // GrBackendFormat from that.
-        SkColorType colorType;
-        if (!GrPixelConfigToColorType(config, &colorType)) {
-            return nullptr;
-        }
-        localFormat = fContext->fCaps->getBackendFormatFromColorType(colorType);
-    }
-
-    return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config,
-                                                 std::move(colorSpace), sampleCnt, mipMapped,
-                                                 origin, surfaceProps, budgeted);
-}
-
-sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-                                                        const GrBackendFormat& format,
-                                                        SkBackingFit fit,
-                                                        int width, int height,
-                                                        GrPixelConfig config,
-                                                        sk_sp<SkColorSpace> colorSpace,
-                                                        int sampleCnt,
-                                                        GrMipMapped mipMapped,
-                                                        GrSurfaceOrigin origin,
-                                                        const SkSurfaceProps* surfaceProps,
-                                                        SkBudgeted budgeted) {
-    SkASSERT(sampleCnt > 0);
-    if (fContext->abandoned()) {
-        return nullptr;
-    }
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-    desc.fSampleCnt = sampleCnt;
-
-    sk_sp<GrTextureProxy> rtp;
-    if (GrMipMapped::kNo == mipMapped) {
-        rtp = fContext->fProxyProvider->createProxy(format, desc, origin, fit, budgeted);
-    } else {
-        rtp = fContext->fProxyProvider->createMipMapProxy(format, desc, origin, budgeted);
-    }
-    if (!rtp) {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTargetContext> renderTargetContext(
-        fContext->fDrawingManager->makeRenderTargetContext(std::move(rtp),
-                                                           std::move(colorSpace),
-                                                           surfaceProps));
-    if (!renderTargetContext) {
-        return nullptr;
-    }
-
-    renderTargetContext->discard();
-
-    return renderTargetContext;
-}
 
 sk_sp<GrSkSLFPFactoryCache> GrContextPriv::getFPFactoryCache() { return fContext->fFPFactoryCache; }
 
@@ -1106,7 +1101,7 @@ bool GrContext::validPMUPMConversionExists() {
 }
 
 bool GrContext::supportsDistanceFieldText() const {
-    return fCaps->shaderCaps()->supportsDistanceFieldText();
+    return this->caps()->shaderCaps()->supportsDistanceFieldText();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1153,10 +1148,10 @@ SkString GrContextPriv::dump() const {
     GR_STATIC_ASSERT(1 == (unsigned)GrBackendApi::kOpenGL);
     GR_STATIC_ASSERT(2 == (unsigned)GrBackendApi::kVulkan);
     GR_STATIC_ASSERT(3 == (unsigned)GrBackendApi::kMock);
-    writer.appendString("backend", kBackendStr[(unsigned)fContext->fBackend]);
+    writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");
-    fContext->fCaps->dumpJSON(&writer);
+    fContext->caps()->dumpJSON(&writer);
 
     writer.appendName("gpu");
     fContext->fGpu->dumpJSON(&writer);

@@ -98,7 +98,7 @@ public:
                                    textureReleaseProc, and textureDoneProc
         @return                    created SkImage, or nullptr
      */
-    static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
+    static sk_sp<SkImage> MakePromiseYUVATexture(sk_sp<GrImageContext> context,
                                                  SkYUVColorSpace yuvColorSpace,
                                                  const GrBackendFormat yuvaFormats[],
                                                  const SkISize yuvaSizes[],

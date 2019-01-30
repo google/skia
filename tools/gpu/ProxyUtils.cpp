@@ -18,7 +18,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
                                                GrColorType colorType, GrSRGBEncoded srgbEncoded,
                                                GrSurfaceOrigin origin, const void* data,
                                                size_t rowBytes) {
-    if (context->abandoned()) {
+    if (context->priv().abandoned1()) {
         return nullptr;
     }
 

@@ -97,8 +97,13 @@ protected:
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses sk_tool_utils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
-        if (nullptr == canvas->getGrContext()) {
+        if (!canvas->getGrContext()) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
+        auto direct = canvas->getGrContext()->asDirectContext();
+        if (!direct) {
             return;
         }
 
@@ -143,9 +148,7 @@ protected:
         yOffset += stride;
 
         // free gpu resources and verify
-        if (canvas->getGrContext()) {
-            canvas->getGrContext()->freeGpuResources();
-        }
+        direct->freeGpuResources();
 
         canvas->rotate(-0.05f);
         canvas->drawTextBlob(fBlob, 10, yOffset, paint);

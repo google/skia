@@ -22,8 +22,8 @@
 static bool can_use_hw_derivatives(const GrShaderCaps&, const SkMatrix&, const SkRRect&);
 
 std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
-        GrContext* ctx, const SkMatrix& viewMatrix, const SkRRect& rrect, const GrCaps& caps,
-        GrPaint&& paint) {
+        GrRecordingContext* ctx, const SkMatrix& viewMatrix, const SkRRect& rrect,
+        const GrCaps& caps, GrPaint&& paint) {
     if (!caps.instanceAttribSupport()) {
         return nullptr;
     }
@@ -35,7 +35,7 @@ std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
         return nullptr;
     }
 
-    GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
     return pool->allocate<GrAAFillRRectOp>(*caps.shaderCaps(), viewMatrix, rrect, std::move(paint));
 }
 
