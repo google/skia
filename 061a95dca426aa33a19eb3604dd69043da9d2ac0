@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0c08f398_ee104cd6",
+        "filename": "samplecode/SampleThinAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-30T21:35:47Z",
+      "side": 1,
+      "message": "Nevermind. I see it\u0027s private.",
+      "parentUuid": "5b55e53f_0864149a",
+      "revId": "061a95dca426aa33a19eb3604dd69043da9d2ac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0eb42a27_36204097",
         "filename": "samplecode/SampleThinAA.cpp",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "061a95dca426aa33a19eb3604dd69043da9d2ac0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eed6e6b_bb9e8c29",
+        "filename": "samplecode/SampleThinAA.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-30T21:35:47Z",
+      "side": 1,
+      "message": "private again",
+      "parentUuid": "0eb42a27_36204097",
+      "revId": "061a95dca426aa33a19eb3604dd69043da9d2ac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
