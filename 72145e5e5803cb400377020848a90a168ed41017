@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "17d2d9be_4e188652",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-01-30T21:37:26Z",
+      "side": 1,
+      "message": "While looking at the SkTypeface, maybe we need something like bool utf32GlyphExists(SkUnichar).",
+      "parentUuid": "8d4abc2b_860b984d",
+      "range": {
+        "startLine": 330,
+        "startChar": 31,
+        "endLine": 330,
+        "endChar": 42
+      },
+      "revId": "72145e5e5803cb400377020848a90a168ed41017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d92909db_d529a3d9",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 4
