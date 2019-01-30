@@ -799,42 +799,6 @@ Whether edge pixels draw opaque or with partial transparency.
 
 # ------------------------------------------------------------------------------
 
-#Method size_t breakText(const void* text, size_t length, SkTextEncoding encoding, SkScalar maxWidth,
-                     SkScalar* measuredWidth = nullptr) const
-#In  incomplete
-#Line # incomplete ##
-#Populate
-
-#Example
-    #Description
-    Line under "Breakfast" shows desired width, shorter than available characters.
-    Line under "Bre" shows measured width after breaking text.
-    ##
-    #Height 128
-    #Width 280
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            SkFont font(nullptr, 50);
-            const char str[] = "Breakfast";
-            const int count = strlen(str);
-            canvas->drawSimpleText(str, count, kUTF8_SkTextEncoding,
-                                   25, 50, font, paint);
-            SkScalar measuredWidth;
-            int partialBytes = font.breakText(str, count, kUTF8_SkTextEncoding,
-                                              100, &measuredWidth);
-            canvas->drawSimpleText(str, partialBytes, kUTF8_SkTextEncoding,
-                                   25, 100, font, paint);
-            canvas->drawLine(25, 60, 25 + 100, 60, paint);
-            canvas->drawLine(25, 110, 25 + measuredWidth, 110, paint);
-        }
-##
-
-#SeeAlso incomplete
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
 #Method SkScalar measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkRect* bounds = nullptr) const
 #In incomplete

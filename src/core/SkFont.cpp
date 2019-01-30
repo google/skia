@@ -256,6 +256,7 @@ bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncodin
     return true;
 }
 
+#ifdef SK_SUPPORT_LEGACY_BREAKTEXT
 size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encoding,
                          SkScalar maxWidth, SkScalar* measuredWidth) const {
     if (0 == length || !(maxWidth > 0)) {
@@ -304,6 +305,7 @@ size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encodi
     }
     return text - stop + length;
 }
+#endif
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
     bounds->set(SkIntToScalar(g.fLeft),
