@@ -25,17 +25,14 @@ public:
     // This is our common entrypoint for creating the blitter once we've sorted out shaders.
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkArenaAlloc*,
                              const SkRasterPipeline& shaderPipeline,
-                             SkShaderBase::Context*,
                              bool is_opaque, bool is_constant);
 
     SkRasterPipelineBlitter(SkPixmap dst,
                             SkBlendMode blend,
-                            SkArenaAlloc* alloc,
-                            SkShaderBase::Context* burstCtx)
+                            SkArenaAlloc* alloc)
         : fDst(dst)
         , fBlend(blend)
         , fAlloc(alloc)
-        , fBurstCtx(burstCtx)
         , fColorPipeline(alloc)
     {}
 
@@ -51,17 +48,12 @@ private:
     void append_load_dst      (SkRasterPipeline*) const;
     void append_store         (SkRasterPipeline*) const;
 
-    // If we have an burst context, use it to fill our shader buffer.
-    void burst_shade(int x, int y, int w);
-
     SkPixmap               fDst;
     SkBlendMode            fBlend;
     SkArenaAlloc*          fAlloc;
-    SkShaderBase::Context* fBurstCtx;
     SkRasterPipeline       fColorPipeline;
 
     SkRasterPipeline_MemoryCtx
-        fShaderOutput = {nullptr,0},  // Possibly updated each call to burst_shade().
         fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
         fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
     SkRasterPipeline_EmbossCtx fEmbossCtx;  // Used only for k3D_Format masks.
@@ -81,8 +73,6 @@ private:
     // which allows us to adjust them from call to call.
     float fCurrentCoverage = 0.0f;
     float fDitherRate      = 0.0f;
-
-    std::vector<SkPMColor4f> fShaderBuffer;
 
     typedef SkBlitter INHERITED;
 };
@@ -113,28 +103,19 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
         bool is_opaque    = paintColor.fA == 1.0f,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
-                                               shaderPipeline, nullptr,
-                                               is_opaque, is_constant);
+                                               shaderPipeline, is_opaque, is_constant);
     }
 
     bool is_opaque    = shader->isOpaque() && paintColor.fA == 1.0f;
     bool is_constant  = shader->isConstant();
-
-    // Check whether the shader prefers to run in burst mode.
-    if (auto* burstCtx = shader->makeBurstPipelineContext(
-        SkShaderBase::ContextRec(paint, ctm, nullptr, dstCT, dstCS), alloc)) {
-        return SkRasterPipelineBlitter::Create(dst, paint, alloc,
-                                               shaderPipeline, burstCtx,
-                                               is_opaque, is_constant);
-    }
 
     if (shader->appendStages({&shaderPipeline, alloc, dstCT, dstCS, paint, nullptr, ctm})) {
         if (paintColor.fA != 1.0f) {
             shaderPipeline.append(SkRasterPipeline::scale_1_float,
                                   alloc->make<float>(paintColor.fA));
         }
-        return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                               is_opaque, is_constant);
+        return SkRasterPipelineBlitter::Create(dst, paint, alloc,
+                                               shaderPipeline, is_opaque, is_constant);
     }
 
     // The shader has opted out of drawing anything.
@@ -147,21 +128,19 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          bool is_opaque,
                                          SkArenaAlloc* alloc) {
     bool is_constant = false;  // If this were the case, it'd be better to just set a paint color.
-    return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                           is_opaque, is_constant);
+    return SkRasterPipelineBlitter::Create(dst, paint, alloc,
+                                           shaderPipeline, is_opaque, is_constant);
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            SkArenaAlloc* alloc,
                                            const SkRasterPipeline& shaderPipeline,
-                                           SkShaderBase::Context* burstCtx,
                                            bool is_opaque,
                                            bool is_constant) {
     auto blitter = alloc->make<SkRasterPipelineBlitter>(dst,
                                                         paint.getBlendMode(),
-                                                        alloc,
-                                                        burstCtx);
+                                                        alloc);
 
     // Our job in this factory is to fill out the blitter's color pipeline.
     // This is the common front of the full blit pipelines, each constructed lazily on first use.
@@ -169,11 +148,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     auto colorPipeline = &blitter->fColorPipeline;
 
     // Let's get the shader in first.
-    if (burstCtx) {
-        colorPipeline->append(SkRasterPipeline::load_f32, &blitter->fShaderOutput);
-    } else {
-        colorPipeline->extend(shaderPipeline);
-    }
+    colorPipeline->extend(shaderPipeline);
 
     // If there's a color filter it comes next.
     if (auto colorFilter = paint.getColorFilter()) {
@@ -299,16 +274,6 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     p->append_store(fDst.info().colorType(), &fDstPtr);
 }
 
-void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
-    SkASSERT(fBurstCtx);
-    if (w > SkToInt(fShaderBuffer.size())) {
-        fShaderBuffer.resize(w);
-    }
-    fBurstCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
-    // We'll be reading from fShaderOutput.pixels + x, so back up by x.
-    fShaderOutput = SkRasterPipeline_MemoryCtx{ fShaderBuffer.data() - x, 0 };
-}
-
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     this->blitRect(x,y,w,1);
 }
@@ -343,16 +308,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
         fBlitRect = p.compile();
     }
 
-    if (fBurstCtx) {
-        // We can only burst shade one row at a time.
-        for (int ylimit = y+h; y < ylimit; y++) {
-            this->burst_shade(x,y,w);
-            fBlitRect(x,y, w,1);
-        }
-    } else {
-        // If not bursting we can blit the entire rect at once.
-        fBlitRect(x,y,w,h);
-    }
+    fBlitRect(x,y,w,h);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
@@ -380,9 +336,6 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             case 0xff: this->blitH(x,y,run); break;
             default:
                 fCurrentCoverage = *aa * (1/255.0f);
-                if (fBurstCtx) {
-                    this->burst_shade(x,y,run);
-                }
                 fBlitAntiH(x,y,run,1);
         }
         x    += run;
@@ -528,15 +481,5 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
 
     SkASSERT(blitter);
-    if (fBurstCtx) {
-        // We can only burst shade one row at a time.
-        int x = clip.left();
-        for (int y = clip.top(); y < clip.bottom(); y++) {
-            this->burst_shade(x,y,clip.width());
-            (*blitter)(x,y, clip.width(),1);
-        }
-    } else {
-        // If not bursting we can blit the entire mask at once.
-        (*blitter)(clip.left(),clip.top(), clip.width(),clip.height());
-    }
+    (*blitter)(clip.left(),clip.top(), clip.width(),clip.height());
 }

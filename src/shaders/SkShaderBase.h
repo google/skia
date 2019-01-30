@@ -124,15 +124,6 @@ public:
      */
     Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
-    /**
-     * Shaders may opt-in for burst mode, if they can operate
-     * significantly more efficiently in that mode.
-     *
-     * Burst mode is prioritized in SkRasterPipelineBlitter over
-     * regular (appendStages) pipeline operation.
-     */
-    Context* makeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const;
-
 #if SK_SUPPORT_GPU
     /**
      *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is

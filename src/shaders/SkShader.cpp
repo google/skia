@@ -92,22 +92,6 @@ SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaA
 #endif
 }
 
-SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
-                                                              SkArenaAlloc* alloc) const {
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-    // Always use vanilla stages for perspective.
-    if (rec.fMatrix->hasPerspective() || fLocalMatrix.hasPerspective()) {
-        return nullptr;
-    }
-
-    return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
-        ? this->onMakeBurstPipelineContext(rec, alloc)
-        : nullptr;
-#else
-    return nullptr;
-#endif
-}
-
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
     : fShader(shader), fCTM(*rec.fMatrix)
 {
