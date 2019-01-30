@@ -47,7 +47,9 @@ struct SkYUVAIndex;
 // all the replaying is complete. This will pin the GrBackendTextures in VRAM.
 class DDLPromiseImageHelper {
 public:
-    DDLPromiseImageHelper() { }
+    using DelayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback;
+    DDLPromiseImageHelper(DelayReleaseCallback delayReleaseCallback = DelayReleaseCallback::kNo)
+            : fDelayReleaseCallback(delayReleaseCallback) {}
     ~DDLPromiseImageHelper();
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
@@ -251,6 +253,7 @@ private:
     // returns -1 on failure
     int findOrDefineImage(SkImage* image);
 
+    DelayReleaseCallback fDelayReleaseCallback;
     SkTArray<PromiseImageInfo> fImageInfo;
 };
 
