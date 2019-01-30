@@ -1954,7 +1954,15 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
-    DDLPromiseImageHelper promiseImageHelper;
+    // When we're only doing one replay we exercise the code path that delays calling release
+    // until the SkImage is destroyed.
+    SkDeferredDisplayListRecorder::DelayReleaseCallback delayReleaseCallback;
+    if (fNumReplays > 1) {
+        delayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo;
+    } else {
+        delayReleaseCallback = SkDeferredDisplayListRecorder::DelayReleaseCallback::kYes;
+    }
+    DDLPromiseImageHelper promiseImageHelper(delayReleaseCallback);
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
         return SkStringPrintf("ViaDDL: Couldn't deflate SkPicture");
