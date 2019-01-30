@@ -28,7 +28,7 @@ std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
 }
 
 void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    GrRenderTarget* rt = state->drawOpArgs().renderTarget();
+    GrRenderTarget* rt = state->drawOpArgs().renderTarget1();
     SkASSERT(rt);
 
     int numStencilBits = rt->renderTargetPriv().numStencilBits();

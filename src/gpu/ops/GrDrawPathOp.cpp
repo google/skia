@@ -45,7 +45,6 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
     args.fUserStencil = &kCoverPass;
-    args.fProxy = state.drawOpArgs().fProxy;
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
@@ -59,7 +58,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
+                   flushState.drawOpArgs().renderTarget1()->renderTargetPriv().numStencilBits());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -83,7 +82,8 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(*pathProc, pipeline, fixedDynamicState, stencil,
+    state->gpu()->pathRendering()->drawPath(nullptr, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                            *pathProc, pipeline, fixedDynamicState, stencil,
                                             fPath.get());
 }
 

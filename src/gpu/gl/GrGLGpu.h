@@ -79,7 +79,8 @@ public:
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
     // on GrGLRTGpuCommandBuffer.
-    void draw(const GrPrimitiveProcessor&,
+    void draw(GrRenderTarget*, GrSurfaceOrigin,
+              const GrPrimitiveProcessor&,
               const GrPipeline&,
               const GrPipeline::FixedDynamicState*,
               const GrPipeline::DynamicStateArrays*,
@@ -263,7 +264,7 @@ private:
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
     // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
     // state entries in each array.
-    bool flushGLState(const GrPrimitiveProcessor&, const GrPipeline&,
+    bool flushGLState(GrRenderTarget*, GrSurfaceOrigin, const GrPrimitiveProcessor&, const GrPipeline&,
                       const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
                       int dynamicStateArraysLength, bool willDrawPoints);
 
@@ -302,7 +303,7 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(GrGLGpu*, const GrPrimitiveProcessor&,
+        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, GrSurfaceOrigin, const GrPrimitiveProcessor&,
                                 const GrTextureProxy* const primProcProxies[],
                                 const GrPipeline&, bool hasPointSize);
 

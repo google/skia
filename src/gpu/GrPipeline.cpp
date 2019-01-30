@@ -19,10 +19,7 @@
 GrPipeline::GrPipeline(const InitArgs& args,
                        GrProcessorSet&& processors,
                        GrAppliedClip&& appliedClip) {
-    SkASSERT(args.fProxy);
     SkASSERT(processors.isFinalized());
-
-    fProxy.reset(args.fProxy);
 
     fFlags = args.fFlags;
     if (appliedClip.hasStencilClip()) {
@@ -91,17 +88,15 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
 
 }
 
-GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
-    if (fDstTextureProxy.get() &&
-        fDstTextureProxy.get()->peekTexture() == fProxy.get()->peekTexture()) {
+GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& caps) const {
+    if (fDstTextureProxy.get() && fDstTextureProxy.get()->peekTexture() == texture) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
 GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, GrScissorTest scissorTest, SkBlendMode blendmode)
-        : fProxy(proxy)
-        , fWindowRectsState()
+        : fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
