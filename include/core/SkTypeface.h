@@ -15,7 +15,9 @@
 #include "SkFontParameters.h"
 #include "SkFontStyle.h"
 #include "SkRect.h"
+#include "SkSharedMutex.h"
 #include "SkString.h"
+#include "SkTHash.h"
 
 class SkData;
 class SkDescriptor;
@@ -200,6 +202,17 @@ public:
      */
     int charsToGlyphs(const void* chars, Encoding encoding, SkGlyphID glyphs[],
                       int glyphCount) const;
+
+    /**
+     *  Given an array of UTF32 return their corresponding glyph IDs.
+     *
+     *  @param unichar pointer to an array of UTF32
+     *  @param unicharCount number of unicode code points.
+     *  @param glyphs returns the corresponding glyph IDs for each
+     *         character code, up to unicharCount values. If a character code is
+     *         not found in the typeface, the corresponding glyph ID will be 0.
+     */
+    void utf32ToGlyphs(const SkUnichar* unichar, int unicharCount, SkGlyphID* glyphIDs) const;
 
     /**
      *  Return the glyphID that corresponds to the specified unicode code-point
@@ -440,11 +453,14 @@ private:
     friend class SkFont;           // getGlyphToUnicodeMap
 
 private:
+    class Utf32ToGlyphCache;
+
     SkFontID            fUniqueID;
     SkFontStyle         fStyle;
     mutable SkRect      fBounds;
     mutable SkOnce      fBoundsOnce;
     bool                fIsFixedPitch;
+    mutable std::unique_ptr<Utf32ToGlyphCache> fUTF32ToGlyph;
 
     typedef SkWeakRefCnt INHERITED;
 };
