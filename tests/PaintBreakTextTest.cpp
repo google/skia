@@ -9,6 +9,7 @@
 #include "SkFont.h"
 #include "Test.h"
 
+#ifdef SK_SUPPORT_LEGACY_BREAKTEXT
 static void test_monotonic(skiatest::Reporter* reporter, const SkFont& font, const char* msg) {
     const char* text = "sdfkljAKLDFJKEWkldfjlk#$%&sdfs.dsj";
     const size_t length = strlen(text);
@@ -78,3 +79,4 @@ DEF_TEST(PaintBreakText, reporter) {
     font.setSize(0);
     test_monotonic(reporter, font, "zero text size");
 }
+#endif
