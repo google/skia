@@ -109,21 +109,6 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 
 SkShaderBase::Context::~Context() {}
 
-void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPMColor4f dst[], int count) {
-    const int N = 128;
-    SkPMColor tmp[N];
-    while (count > 0) {
-        int n = SkTMin(count, N);
-        this->shadeSpan(x, y, tmp, n);
-        for (int i = 0; i < n; ++i) {
-            dst[i] = SkPMColor4f::FromPMColor(tmp[i]);
-        }
-        dst += n;
-        x += n;
-        count -= n;
-    }
-}
-
 const SkMatrix& SkShader::getLocalMatrix() const {
     return as_SB(this)->getLocalMatrix();
 }
@@ -171,9 +156,9 @@ bool SkShaderBase::appendStages(const StageRec& rec) const {
 }
 
 bool SkShaderBase::onAppendStages(const StageRec& rec) const {
-    // SkShader::Context::shadeSpan4f() handles the paint opacity internally,
+    // SkShader::Context::shadeSpan() handles the paint opacity internally,
     // but SkRasterPipelineBlitter applies it as a separate stage.
-    // We skip the internal shadeSpan4f() step by forcing the paint opaque.
+    // We skip the internal shadeSpan() step by forcing the paint opaque.
     SkTCopyOnFirstWrite<SkPaint> opaquePaint(rec.fPaint);
     if (rec.fPaint.getAlpha() != SK_AlphaOPAQUE) {
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
@@ -192,8 +177,14 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
     cb->fn  = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
-        y = (int)c->rgba[1];
-        c->ctx->shadeSpan4f(x,y, (SkPMColor4f*)c->rgba, active_pixels);
+            y = (int)c->rgba[1];
+        SkPMColor tmp[SkRasterPipeline_kMaxStride];
+        c->ctx->shadeSpan(x,y, tmp, active_pixels);
+
+        for (int i = 0; i < active_pixels; i++) {
+            auto rgba_4f = SkPMColor4f::FromPMColor(tmp[i]);
+            memcpy(c->rgba + 4*i, rgba_4f.vec(), 4*sizeof(float));
+        }
     };
 
     if (cb->ctx) {

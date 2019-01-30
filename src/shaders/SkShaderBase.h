@@ -99,8 +99,6 @@ public:
          */
         virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
 
-        virtual void shadeSpan4f(int x, int y, SkPMColor4f[], int count);
-
     protected:
         // Reference to shader, so we don't have to dupe information.
         const SkShaderBase& fShader;
