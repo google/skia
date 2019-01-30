@@ -257,6 +257,51 @@ bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncodin
 }
 
 #ifdef SK_SUPPORT_LEGACY_BREAKTEXT
+
+#include "SkUTF.h"
+static const char* skip_utf8_codepoint(const char* p) {
+    SkUTF::NextUTF8(&p, p + 8);
+    return p;
+}
+
+size_t sk_utf8_break_text(const SkFont& font, const char* text, size_t length,
+                          SkScalar maxWidth, SkScalar* measuredWidth) {
+    if (0 == length || !(maxWidth > 0)) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return 0;
+    }
+    if (0 == font.getSize()) {
+        if (measuredWidth) {
+            *measuredWidth = 0;
+        }
+        return length;
+    }
+
+    std::vector<uint16_t> glyphs(length);   // worst-case allocation
+    int count = font.textToGlyphs(text, length, kUTF8_SkTextEncoding, glyphs.data(), length);
+    std::vector<SkScalar> widths(count);
+    font.getWidths(glyphs.data(), count, widths.data());
+
+    SkScalar width = 0;
+    const char* startText = text;
+    for (int i = 0; i < count; ++i) {
+        SkScalar x = widths[i];
+        if ((width += x) > maxWidth) {
+            width -= x;
+            break;
+        }
+        text = skip_utf8_codepoint(text);
+        SkASSERT(text - startText <= (ptrdiff_t)length);
+    }
+
+    if (measuredWidth) {
+        *measuredWidth = width;
+    }
+    return text - startText;
+}
+
 size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encoding,
                          SkScalar maxWidth, SkScalar* measuredWidth) const {
     if (0 == length || !(maxWidth > 0)) {
@@ -303,6 +348,19 @@ size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encodi
         }
         *measuredWidth = width;
     }
+
+#ifdef SK_DEBUG
+    if (encoding == kUTF8_SkTextEncoding) {
+        if (scale) {
+            maxWidth *= scale;
+        }
+        SkScalar meas;
+        size_t len = sk_utf8_break_text(*this, (const char*)textD, length, maxWidth, &meas);
+        size_t target = text - stop + length;
+        SkASSERT(len == target);
+        SkASSERT(SkScalarNearlyEqual(width, meas));
+    }
+#endif
     return text - stop + length;
 }
 #endif

@@ -17,6 +17,10 @@ class SkPaint;
 class SkPath;
 struct SkFontMetrics;
 
+#ifndef SK_SUPPORT_LEGACY_BREAKTEXT
+#define SK_SUPPORT_LEGACY_BREAKTEXT
+#endif
+
 /** \class SkFont
     SkFont controls options applied when drawing and measuring text.
 */
