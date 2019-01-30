@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkExchange.h"
 #include "Test.h"
 
 #include "GrBackendSurface.h"
@@ -43,11 +44,7 @@ struct PromiseTextureChecker {
      */
     sk_sp<const SkPromiseImageTexture> replaceTexture(
             const GrBackendTexture& tex = GrBackendTexture()) {
-        // Can't change this while in active fulfillment.
-        REPORTER_ASSERT(fReporter, fFulfillCount == fReleaseCount);
-        auto temp = std::move(fTexture);
-        fTexture = SkPromiseImageTexture::Make(tex);
-        return std::move(temp);
+        return skstd::exchange(fTexture, SkPromiseImageTexture::Make(tex));
     }
 
     SkTArray<GrUniqueKey> uniqueKeys() const {
@@ -74,11 +71,14 @@ struct PromiseTextureChecker {
     }
 };
 
-// Because Vulkan may delay when it actually calls the ReleaseProcs depending on when command
-// buffers finish their work, we need some slight wiggle room in what values we expect for fulfill
-// and release counts.
+enum class ReleaseBalanceExpecation {
+    kBalanced,
+    kBalancedOrPlusOne,
+    kAny
+};
+
 static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseChecker,
-                                           bool countsMustBeEqual,
+                                           ReleaseBalanceExpecation balanceExpecation,
                                            int expectedFulfillCnt,
                                            int expectedReleaseCnt,
                                            bool expectedRequired,
@@ -88,12 +88,16 @@ static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseC
     int countDiff = promiseChecker.fFulfillCount - promiseChecker.fReleaseCount;
     // FulfillCount should always equal ReleaseCount or be at most one higher
     if (countDiff != 0) {
-        if (countsMustBeEqual) {
+        if (balanceExpecation == ReleaseBalanceExpecation::kBalanced) {
             result = false;
             REPORTER_ASSERT(reporter, 0 == countDiff);
-        } else if (countDiff != 1) {
+        } else if (countDiff != 1 &&
+                   balanceExpecation == ReleaseBalanceExpecation::kBalancedOrPlusOne) {
             result = false;
             REPORTER_ASSERT(reporter, 0 == countDiff || 1 == countDiff);
+        } else if (countDiff < 0) {
+            result = false;
+            REPORTER_ASSERT(reporter, countDiff >= 0);
         }
     }
 
@@ -129,7 +133,7 @@ static bool check_fulfill_and_release_cnts(const PromiseTextureChecker& promiseC
     return result;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTestNoDelayedRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -147,14 +151,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         PromiseTextureChecker promiseChecker(backendTex, reporter, false);
         GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
         sk_sp<SkImage> refImg(
-                SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
-                                                GrMipMapped::kNo, texOrigin,
-                                                kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                                nullptr,
-                                                PromiseTextureChecker::Fulfill,
-                                                PromiseTextureChecker::Release,
-                                                PromiseTextureChecker::Done,
-                                                &promiseChecker));
+                SkImage_Gpu::MakePromiseTexture(
+                        ctx, backendFormat, kWidth, kHeight,
+                        GrMipMapped::kNo, texOrigin,
+                        kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                        nullptr,
+                        PromiseTextureChecker::Fulfill,
+                        PromiseTextureChecker::Release,
+                        PromiseTextureChecker::Done,
+                        &promiseChecker,
+                        SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo));
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
         sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
@@ -163,10 +169,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         int expectedFulfillCnt = 0;
         int expectedReleaseCnt = 0;
         int expectedDoneCnt = 0;
+        ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
 
         canvas->drawImage(refImg, 0, 0);
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 true,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  true,
@@ -177,8 +184,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         canvas->flush();
         expectedFulfillCnt++;
         expectedReleaseCnt++;
+        if (isVulkan) {
+            balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
+        }
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 !isVulkan,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  !isVulkan,
@@ -186,8 +196,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
                                                                  reporter));
 
         gpu->testingOnly_flushGpuAndSync();
+        balanceExpecation = ReleaseBalanceExpecation::kBalanced;
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 true,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  true,
@@ -203,7 +214,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
         gpu->testingOnly_flushGpuAndSync();
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 true,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  true,
@@ -218,8 +229,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         canvas->flush();
         expectedFulfillCnt++;
         expectedReleaseCnt++;
+        if (isVulkan) {
+            balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
+        }
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 !isVulkan,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  !isVulkan,
@@ -233,7 +247,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         }
 
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 !isVulkan,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  !isVulkan,
@@ -248,8 +262,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         if (releaseImageEarly) {
             expectedDoneCnt++;
         }
+        balanceExpecation = ReleaseBalanceExpecation::kBalanced;
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 true,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  !isVulkan,
@@ -264,7 +279,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
         }
 
         REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                 true,
+                                                                 balanceExpecation,
                                                                  expectedFulfillCnt,
                                                                  expectedReleaseCnt,
                                                                  true,
@@ -275,6 +290,129 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTestDelayedRelease, reporter, ctxInfo) {
+    const int kWidth = 10;
+    const int kHeight = 10;
+
+    GrContext* ctx = ctxInfo.grContext();
+    GrGpu* gpu = ctx->contextPriv().getGpu();
+
+    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+            nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTex.isValid());
+
+    GrBackendFormat backendFormat = backendTex.getBackendFormat();
+    REPORTER_ASSERT(reporter, backendFormat.isValid());
+
+    PromiseTextureChecker promiseChecker(backendTex, reporter, false);
+    GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
+    sk_sp<SkImage> refImg(
+            SkImage_Gpu::MakePromiseTexture(
+                    ctx, backendFormat, kWidth, kHeight,
+                    GrMipMapped::kNo, texOrigin,
+                    kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                    nullptr,
+                    PromiseTextureChecker::Fulfill,
+                    PromiseTextureChecker::Release,
+                    PromiseTextureChecker::Done,
+                    &promiseChecker,
+                    SkDeferredDisplayListRecorder::DelayReleaseCallback::kYes));
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+    SkCanvas* canvas = surface->getCanvas();
+
+    int expectedFulfillCnt = 0;
+    int expectedReleaseCnt = 0;
+    int expectedDoneCnt = 0;
+    ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
+
+    canvas->drawImage(refImg, 0, 0);
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    bool isVulkan = GrBackendApi::kVulkan == ctx->backend();
+    canvas->flush();
+    expectedFulfillCnt++;
+    // Because we've delayed release, we expect a +1 balance.
+    balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    gpu->testingOnly_flushGpuAndSync();
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    canvas->drawImage(refImg, 0, 0);
+    canvas->drawImage(refImg, 0, 0);
+
+    canvas->flush();
+
+    gpu->testingOnly_flushGpuAndSync();
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             true,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    canvas->drawImage(refImg, 0, 0);
+    canvas->flush();
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    canvas->drawImage(refImg, 0, 0);
+
+    refImg.reset();
+
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    canvas->flush();
+    gpu->testingOnly_flushGpuAndSync();
+    // We released the image already and we flushed and synced.
+    balanceExpecation = ReleaseBalanceExpecation::kBalanced;
+    expectedReleaseCnt++;
+    expectedDoneCnt++;
+    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                             balanceExpecation,
+                                                             expectedFulfillCnt,
+                                                             expectedReleaseCnt,
+                                                             !isVulkan,
+                                                             expectedDoneCnt,
+                                                             reporter));
+
+    gpu->deleteTestingOnlyBackendTexture(backendTex);
+}
+
+// Tests replacing the backing texture for a promise image after a release and then refulfilling in
+// the SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo case.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
@@ -300,14 +438,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     PromiseTextureChecker promiseChecker(backendTex1, reporter, true);
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
-            SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
-                                            GrMipMapped::kNo, texOrigin,
-                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                            nullptr,
-                                            PromiseTextureChecker::Fulfill,
-                                            PromiseTextureChecker::Release,
-                                            PromiseTextureChecker::Done,
-                                            &promiseChecker));
+            SkImage_Gpu::MakePromiseTexture(
+                    ctx, backendFormat, kWidth, kHeight,
+                    GrMipMapped::kNo, texOrigin,
+                    kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                    nullptr,
+                    PromiseTextureChecker::Fulfill,
+                    PromiseTextureChecker::Release,
+                    PromiseTextureChecker::Done,
+                    &promiseChecker,
+                    SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo));
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -320,8 +460,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
 
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 5, 5);
+    ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -332,8 +473,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     canvas->flush();
     expectedFulfillCnt++;
     expectedReleaseCnt++;
+    if (isVulkan) {
+        balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
+    }
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             !isVulkan,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              !isVulkan,
@@ -352,8 +496,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey1));
 
     gpu->testingOnly_flushGpuAndSync();
+    balanceExpecation = ReleaseBalanceExpecation::kBalanced;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -373,7 +518,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
 
     canvas->drawImage(refImg, 0, 0);
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -383,6 +528,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     canvas->flush();
     expectedFulfillCnt++;
     expectedReleaseCnt++;
+    if (isVulkan) {
+        balanceExpecation = ReleaseBalanceExpecation::kBalancedOrPlusOne;
+    }
     // Second texture should be in the cache.
     keys = promiseChecker.uniqueKeys();
     REPORTER_ASSERT(reporter, keys.count() == 1);
@@ -394,7 +542,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
 
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             !isVulkan,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              !isVulkan,
@@ -404,8 +552,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                                       promiseChecker.fLastFulfilledTexture, backendTex2));
 
     gpu->testingOnly_flushGpuAndSync();
+    balanceExpecation = ReleaseBalanceExpecation::kBalanced;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -424,7 +573,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     expectedFulfillCnt++;
     expectedReleaseCnt++;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -453,7 +602,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     expectedFulfillCnt++;
     expectedReleaseCnt++;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -473,14 +622,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
 
     // Make a new promise image also backed by texture 3.
     sk_sp<SkImage> refImg2(
-            SkImage_Gpu::MakePromiseTexture(ctx, backendFormat, kWidth, kHeight,
-                                            GrMipMapped::kNo, texOrigin,
-                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                            nullptr,
-                                            PromiseTextureChecker::Fulfill,
-                                            PromiseTextureChecker::Release,
-                                            PromiseTextureChecker::Done,
-                                            &promiseChecker));
+            SkImage_Gpu::MakePromiseTexture(
+                    ctx, backendFormat, kWidth, kHeight,
+                    GrMipMapped::kNo, texOrigin,
+                    kRGBA_8888_SkColorType, kPremul_SkAlphaType,
+                    nullptr,
+                    PromiseTextureChecker::Fulfill,
+                    PromiseTextureChecker::Release,
+                    PromiseTextureChecker::Done,
+                    &promiseChecker,
+                    SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo));
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg2, 1, 1);
 
@@ -489,7 +640,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     expectedFulfillCnt += 2;
     expectedReleaseCnt += 2;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -518,7 +669,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     refImg.reset();
     ++expectedDoneCnt;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -527,7 +678,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     refImg2.reset();
     ++expectedDoneCnt;
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
+                                                             balanceExpecation,
                                                              expectedFulfillCnt,
                                                              expectedReleaseCnt,
                                                              true,
@@ -553,75 +704,82 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     GrBackendTexture backendTex2 = gpu->createTestingOnlyBackendTexture(
             nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
     REPORTER_ASSERT(reporter, backendTex2.isValid());
+    if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
+        gpu->deleteTestingOnlyBackendTexture(backendTex1);
+        return;
+    }
+    // We only needed this texture to check that alpha and gray color types use the same format.
+    gpu->deleteTestingOnlyBackendTexture(backendTex2);
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
-    if (backendTex1.getBackendFormat() != backendTex2.getBackendFormat()) {
-        gpu->deleteTestingOnlyBackendTexture(backendTex1);
-        gpu->deleteTestingOnlyBackendTexture(backendTex2);
-        return;
-    }
-    PromiseTextureChecker promiseChecker(backendTex1, reporter, true);
-    sk_sp<SkImage> alphaImg(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
-            kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
-            PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
-    REPORTER_ASSERT(reporter, alphaImg);
+    for (auto delayRelease : {SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo,
+                              SkDeferredDisplayListRecorder::DelayReleaseCallback::kYes}) {
+        PromiseTextureChecker promiseChecker(backendTex1, reporter, true);
+        sk_sp<SkImage> alphaImg(SkImage_Gpu::MakePromiseTexture(
+                ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+                kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
+                PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+                PromiseTextureChecker::Done, &promiseChecker, delayRelease));
+        REPORTER_ASSERT(reporter, alphaImg);
 
-    sk_sp<SkImage> grayImg(SkImage_Gpu::MakePromiseTexture(
-            ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin, kGray_8_SkColorType, kOpaque_SkAlphaType, nullptr,
-            PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
-    REPORTER_ASSERT(reporter, grayImg);
+        sk_sp<SkImage> grayImg(SkImage_Gpu::MakePromiseTexture(
+                ctx, backendTex1.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
+                kBottomLeft_GrSurfaceOrigin, kGray_8_SkColorType, kOpaque_SkAlphaType, nullptr,
+                PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+                PromiseTextureChecker::Done, &promiseChecker, delayRelease));
+        REPORTER_ASSERT(reporter, grayImg);
 
-    canvas->drawImage(alphaImg, 0, 0);
-    canvas->drawImage(grayImg, 1, 1);
-    canvas->flush();
-    gpu->testingOnly_flushGpuAndSync();
+        canvas->drawImage(alphaImg, 0, 0);
+        canvas->drawImage(grayImg, 1, 1);
+        canvas->flush();
+        gpu->testingOnly_flushGpuAndSync();
 
-    int expectedFulfillCnt = 2;
-    int expectedReleaseCnt = 2;
-    int expectedDoneCnt = 0;
-    REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                             true,
-                                                             expectedFulfillCnt,
-                                                             expectedReleaseCnt,
-                                                             true,
-                                                             expectedDoneCnt,
-                                                             reporter));
+        int expectedFulfillCnt = 2;
+        int expectedReleaseCnt = 0;
+        int expectedDoneCnt = 0;
+        ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kAny;
+        if (delayRelease == SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo) {
+            expectedReleaseCnt = 2;
+            balanceExpecation = ReleaseBalanceExpecation::kBalanced;
+        }
+        REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
+                                                                 balanceExpecation,
+                                                                 expectedFulfillCnt,
+                                                                 expectedReleaseCnt,
+                                                                 true,
+                                                                 expectedDoneCnt,
+                                                                 reporter));
 
-    // Because they use different configs, each image should have created a different GrTexture
-    // and they both should still be cached.
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+        // Because they use different configs, each image should have created a different GrTexture
+        // and they both should still be cached.
+        ctx->contextPriv().getResourceCache()->purgeAsNeeded();
 
-    auto keys = promiseChecker.uniqueKeys();
-    REPORTER_ASSERT(reporter, keys.count() == 2);
-    for (const auto& key : keys) {
-        auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
-        REPORTER_ASSERT(reporter, surf && surf->asTexture());
-        if (surf && surf->asTexture()) {
-            REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(
-                                              backendTex1, surf->asTexture()->getBackendTexture()));
+        auto keys = promiseChecker.uniqueKeys();
+        REPORTER_ASSERT(reporter, keys.count() == 2);
+        for (const auto& key : keys) {
+            auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+            REPORTER_ASSERT(reporter, surf && surf->asTexture());
+            if (surf && surf->asTexture()) {
+                REPORTER_ASSERT(reporter,
+                                !GrBackendTexture::TestingOnly_Equals(
+                                        backendTex1, surf->asTexture()->getBackendTexture()));
+            }
+        }
+
+        // Change the backing texture, this should invalidate the keys.
+        promiseChecker.replaceTexture();
+        ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+
+        for (const auto& key : keys) {
+            auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+            REPORTER_ASSERT(reporter, !surf);
         }
     }
-
-    // Change the backing texture, this should invalidate the keys. The cached textures should
-    // get purged after purgeAsNeeded is called.
-    promiseChecker.replaceTexture(backendTex2);
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-
-    for (const auto& key : keys) {
-        auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
-        REPORTER_ASSERT(reporter, !surf);
-    }
-
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
-    gpu->deleteTestingOnlyBackendTexture(backendTex2);
 }
 
 DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
@@ -670,9 +828,10 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             PromiseTextureChecker promiseChecker(backendTex, reporter, false);
             sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
                     ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
-                    kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType,
-                    nullptr, PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-                    PromiseTextureChecker::Done, &promiseChecker));
+                    kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
+                    PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
+                    PromiseTextureChecker::Done, &promiseChecker,
+                    SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -687,8 +846,9 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             int expectedFulfillCnt = 1;
             int expectedReleaseCnt = 1;
             int expectedDoneCnt = 1;
+            ReleaseBalanceExpecation balanceExpecation = ReleaseBalanceExpecation::kBalanced;
             REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
-                                                                     true,
+                                                                     balanceExpecation,
                                                                      expectedFulfillCnt,
                                                                      expectedReleaseCnt,
                                                                      true,
@@ -719,7 +879,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
             ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
             PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker));
+            PromiseTextureChecker::Done, &promiseChecker,
+            SkDeferredDisplayListRecorder::DelayReleaseCallback::kNo));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
