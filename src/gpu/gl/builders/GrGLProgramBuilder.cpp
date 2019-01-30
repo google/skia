@@ -100,7 +100,7 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
     if (inputs.fFlipY) {
         GrProgramDesc* d = this->desc();
         d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().proxy()->origin()));
+                                                     this->pipeline().origin()));
     }
 
     return true;
@@ -227,7 +227,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 

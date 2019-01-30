@@ -246,7 +246,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
 
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
-    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(pipeline.proxy()->config()).asKey();
+    header->fOutputSwizzle =
+            shaderCaps.configOutputSwizzle(pipeline.renderTarget()->config()).asKey();
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
     header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();

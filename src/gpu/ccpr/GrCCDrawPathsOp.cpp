@@ -399,7 +399,8 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     }
 
     GrPipeline::InitArgs initArgs;
-    initArgs.fProxy = flushState->drawOpArgs().fProxy;
+    initArgs.fRenderTarget = flushState->drawOpArgs().renderTarget();
+    initArgs.fOrigin = flushState->drawOpArgs().origin();
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
