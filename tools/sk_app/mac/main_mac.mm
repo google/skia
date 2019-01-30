@@ -7,7 +7,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "Window_mac.h"
 #include "../Application.h"
 
 @interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate>
@@ -34,6 +33,8 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     [NSApp stop:nil];
 }
+
+
 
 @end
 
