@@ -18,6 +18,7 @@
 #include "SkSurfacePriv.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
+#include "SkUtils.h"
 
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
     : fUniqueID(SkTypefaceCache::NewFontID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
@@ -296,7 +297,133 @@ int SkTypeface::charsToGlyphs(const void* chars, Encoding encoding,
         }
         return 0;
     }
-    return this->onCharsToGlyphs(chars, encoding, glyphs, glyphCount);
+
+    // Convert to UTF32 for cache lookup
+    const SkUnichar* utf32Src = nullptr;
+    SkAutoSTMalloc<1024, SkUnichar> utf32Storage;
+    switch (encoding) {
+        case kUTF8_Encoding: {
+            const char* utf8 = reinterpret_cast<const char*>(chars);
+            SkUnichar* cursor = utf32Storage.reset(glyphCount * sizeof(SkUnichar));
+            utf32Src = cursor;
+            for (int i = 0; i < glyphCount; ++i) {
+                *cursor++ = SkUTF8_NextUnichar(&utf8);
+            }
+            break;
+        }
+        case kUTF16_Encoding: {
+            const uint16_t* utf16 = reinterpret_cast<const uint16_t*>(chars);
+            SkUnichar* cursor = utf32Storage.reset(glyphCount * sizeof(SkUnichar));
+            utf32Src = cursor;
+            for (int i = 0; i < glyphCount; ++i) {
+                *cursor++ = SkUTF16_NextUnichar(&utf16);
+            }
+            break;
+        }
+        case kUTF32_Encoding: {
+            utf32Src = reinterpret_cast<const SkUnichar*>(chars);
+            break;
+        }
+    }
+
+    this->utf32ToGlyphs(utf32Src, glyphCount, glyphs);
+
+    uint16_t* cursor = glyphs;
+    for (int i = 0; i < glyphCount; i++) {
+        if (*cursor++ == 0) {
+            break;
+        }
+    }
+
+    return SkTo<int>(cursor - glyphs);
+}
+
+class SkTypeface::Utf32ToGlyphCache {
+public:
+    Utf32ToGlyphCache() {
+        std::memset(fDirect, 0xFF, sizeof(fDirect));
+    }
+
+    int lookupUntilFirstFailure(const SkUnichar* unichar, int unicharCount, SkGlyphID* glyphIDs) {
+        SkGlyphID* outCursor = glyphIDs;
+        // Lookup as shared hoping for all cache hits.
+        SkAutoSharedMutexShared mu(fMu);
+        for (int i = 0; i < unicharCount; i++) {
+            SkUnichar u = unichar[i];
+
+            if (u < kDirectSplit) {
+                SkGlyphID glyphID = fDirect[u];
+                if (glyphID == kEmptyGlyphID) {
+                    // Cache miss. Do hard work.
+                    break;
+                } else {
+                    *outCursor++ = glyphID;
+                }
+            } else {
+                auto glyphIDPtr = fMap.find(u);
+                if (glyphIDPtr == nullptr) {
+                    // Cache miss. Do hard work.
+                    break;
+                } else {
+                    *outCursor++ = *glyphIDPtr;
+                }
+            }
+        }
+
+        return SkTo<int>(outCursor - glyphIDs);
+    }
+
+    void insertIntoMap(const SkUnichar* unichar, int unicharCount, SkGlyphID* glyphIDs) {
+        // Under an exclusive lock, add glyphs into the map.
+        SkAutoMutexAcquire mu(fMu);
+        for (int i = 0; i < unicharCount; i++) {
+            SkUnichar u = unichar[i];
+            if (u < kDirectSplit) {
+                SkGlyphID glyphID = fDirect[u];
+                if (glyphID == kEmptyGlyphID) {
+                    fDirect[u] = glyphIDs[i];
+                }
+            } else {
+                auto glyphIDPtr = fMap.find(u);
+                if (glyphIDPtr == nullptr) {
+                    fMap.set(u, glyphIDs[i]);
+                }
+            }
+        }
+    }
+
+private:
+    static constexpr SkUnichar kDirectSplit = 128;
+    static constexpr SkGlyphID kEmptyGlyphID = 0xFFFF;
+    SkSharedMutex fMu;
+    SkTHashMap<SkUnichar, SkGlyphID> fMap;
+    SkGlyphID fDirect[kDirectSplit];
+};
+
+void SkTypeface::utf32ToGlyphs(
+        const SkUnichar* unichar, int unicharCount, SkGlyphID* glyphIDs) const {
+
+    if (unicharCount <= 0) { return; }
+
+    if (fUTF32ToGlyph == nullptr) {
+        fUTF32ToGlyph = skstd::make_unique<Utf32ToGlyphCache>();
+    }
+
+    // Lookup as using shared lock hoping for all cache hits.
+    int successfulLookups = fUTF32ToGlyph->lookupUntilFirstFailure(unichar, unicharCount, glyphIDs);
+
+    // Were all the glyphs found in the cache?
+    if (successfulLookups < unicharCount) {
+        int remainder = unicharCount - successfulLookups;
+
+        (void) this->onCharsToGlyphs(unichar + successfulLookups,
+                                     kUTF32_Encoding,
+                                     glyphIDs + successfulLookups,
+                                     remainder);
+
+        fUTF32ToGlyph->insertIntoMap(
+                unichar + successfulLookups, remainder, glyphIDs + successfulLookups);
+    }
 }
 
 SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
