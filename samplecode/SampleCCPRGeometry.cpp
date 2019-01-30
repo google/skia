@@ -333,7 +333,8 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
         GR_GL_CALL(glGpu->glInterface(), Enable(GR_GL_LINE_SMOOTH));
     }
 
-    GrPipeline pipeline(state->drawOpArgs().fProxy, GrScissorTest::kDisabled, SkBlendMode::kPlus);
+    GrPipeline pipeline(state->drawOpArgs().renderTarget(), state->drawOpArgs().origin(),
+                        GrScissorTest::kDisabled, SkBlendMode::kPlus);
 
     if (!fView->fDoStroke) {
         GrCCCoverageProcessor proc(rp, fView->fPrimitiveType);

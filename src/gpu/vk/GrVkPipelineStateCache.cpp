@@ -103,7 +103,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
-        GrSurfaceOrigin origin = pipeline.proxy()->origin();
+        GrSurfaceOrigin origin = pipeline.origin();
         desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
         entry = fMap.find(desc);
     }

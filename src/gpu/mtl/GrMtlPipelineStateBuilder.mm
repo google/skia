@@ -77,7 +77,7 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
     }
     if (inputs.fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                               this->pipeline().proxy()->origin()));
+                                                               this->pipeline().origin()));
     }
     return shaderLibrary;
 }
@@ -316,7 +316,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
 
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = fGpu->getContext()->contextPriv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
 

@@ -84,7 +84,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     }
     if (outInputs->fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().proxy()->origin()));
+                                                     this->pipeline().origin()));
     }
     return true;
 }
@@ -271,7 +271,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
 

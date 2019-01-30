@@ -284,7 +284,7 @@ static void setup_multisample_state(const GrPrimitiveProcessor& primProc,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    int numSamples = pipeline.proxy()->numColorSamples();
+    int numSamples = pipeline.renderTarget()->numColorSamples();
     SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
                    &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;

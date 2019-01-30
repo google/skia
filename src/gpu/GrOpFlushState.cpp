@@ -40,7 +40,8 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const S
             this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
             ++fCurrUpload;
         }
-        SkASSERT(fCurrDraw->fPipeline->proxy() == this->drawOpArgs().fProxy);
+        SkASSERT(fCurrDraw->fPipeline->renderTarget()->asTexture()
+                         == this->drawOpArgs().fProxy->peekTexture());
         this->rtCommandBuffer()->draw(*fCurrDraw->fGeometryProcessor, *fCurrDraw->fPipeline,
                                       fCurrDraw->fFixedDynamicState, fCurrDraw->fDynamicStateArrays,
                                       fCurrDraw->fMeshes, fCurrDraw->fMeshCnt, opBounds);
