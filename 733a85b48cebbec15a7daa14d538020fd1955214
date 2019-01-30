@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e03d8651_bfd6a511",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-01-30T13:42:11Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "revId": "733a85b48cebbec15a7daa14d538020fd1955214",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
