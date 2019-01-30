@@ -6,7 +6,6 @@
 */
 
 #include "SkUtils.h"
-#include "Timer.h"
 #include "WindowContextFactory_mac.h"
 #include "Window_mac.h"
 
@@ -119,6 +118,10 @@ bool Window_mac::attach(BackendType attachType) {
 
 void Window_mac::onInval() {
     [[fWindow contentView] setNeedsDisplay:YES];
+    // MacOS already queues a single drawRect event for multiple invalidations
+    // so we don't need to use our invalidation method (and it can mess things up
+    // if for some reason MacOS skips a drawRect when we need one).
+    this->markInvalProcessed();
 }
 
 }   // namespace sk_app
