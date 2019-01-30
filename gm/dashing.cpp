@@ -614,3 +614,53 @@ DEF_GM(return new Dashing3GM;)
 DEF_GM(return new Dashing4GM;)
 DEF_GM(return new Dashing5GM(true);)
 DEF_GM(return new Dashing5GM(false);)
+
+//////////////////////////////////////////////////////////////////////////////
+
+static void make_path0(SkPath* path) {
+    SkRect r = { 0, 0, 50, 100 };
+    path->addRect(r);
+    path->addRect(r.makeOffset(80, 0));
+}
+
+static void make_path1(SkPath* path) {
+    path->moveTo(0, 0).lineTo(100, 10);
+    path->moveTo(20, 40).lineTo(120, 100);
+    path->moveTo(120, 120).lineTo(50, 120);
+}
+
+typedef void (*PathMaker)(SkPath*);
+
+const PathMaker gMakers[] = {
+    make_path0, make_path1,
+};
+
+class DashingContoursGM : public skiagm::GM {
+public:
+    DashingContoursGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("dashing-contours");
+    }
+
+    SkISize onISize() override { return SkISize::Make(640, 480); }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(6);
+        paint.setAntiAlias(true);
+
+        canvas->translate(20, 20);
+
+        for (auto& proc : gMakers) {
+            SkPath path;
+            proc(&path);
+            canvas->drawPath(path, paint);
+            canvas->translate(200, 0);
+        }
+    }
+};
+DEF_GM(return new DashingContoursGM;)
