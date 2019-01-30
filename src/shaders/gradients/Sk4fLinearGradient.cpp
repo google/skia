@@ -6,7 +6,6 @@
  */
 
 #include "Sk4fLinearGradient.h"
-#include "Sk4x4f.h"
 #include "SkPaint.h"
 
 #include <cmath>
