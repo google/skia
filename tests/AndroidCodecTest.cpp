@@ -264,3 +264,34 @@ DEF_TEST(AndroidCodec_orientation, r) {
         }
     }
 }
+
+DEF_TEST(AndroidCodec_sampledOrientation, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    // kRightTop_SkEncodedOrigin    = 6, // Rotated 90 CW
+    auto path = "images/orientation/6.jpg";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Failed to get resource %s", path);
+        return;
+    }
+
+    auto androidCodec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)),
+                SkAndroidCodec::ExifOrientationBehavior::kRespect);
+    constexpr int sampleSize = 7;
+    auto sampledDims = androidCodec->getSampledDimensions(sampleSize);
+
+    SkAndroidCodec::AndroidOptions options;
+    options.fSampleSize = sampleSize;
+
+    SkBitmap bm;
+    auto info = androidCodec->getInfo().makeWH(sampledDims.width(), sampledDims.height());
+    bm.allocPixels(info);
+
+    auto result = androidCodec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &options);
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "got result \"%s\"\n", SkCodec::ResultToString(result));
+    }
+}

@@ -300,7 +300,13 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
         return fInfo.dimensions();
     }
 
-    return this->onGetSampledDimensions(sampleSize);
+    auto dims = this->onGetSampledDimensions(sampleSize);
+    if (fOrientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kIgnore
+            || !SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+        return dims;
+    }
+
+    return { dims.height(), dims.width() };
 }
 
 bool SkAndroidCodec::getSupportedSubset(SkIRect* desiredSubset) const {
