@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "395bf9c2_415a3b4b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-01-30T17:54:15Z",
+      "side": 1,
+      "message": "Add \n\nBug: b/120870651\n\n?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 16
+      },
+      "revId": "f405b951b1fa6fa016e5b89abdb17b82576580cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eee7634_0eaed54f",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-01-30T17:54:15Z",
+      "side": 1,
+      "message": "I assume you\u0027ll add this to SkUserConfigManual.h before landing this?",
+      "range": {
+        "startLine": 165,
+        "startChar": 7,
+        "endLine": 165,
+        "endChar": 49
+      },
+      "revId": "f405b951b1fa6fa016e5b89abdb17b82576580cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
