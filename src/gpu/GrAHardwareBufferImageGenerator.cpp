@@ -57,7 +57,7 @@ static bool can_import_protected_content_eglimpl() {
 }
 
 static bool can_import_protected_content(GrContext* context) {
-    if (GrBackendApi::kOpenGL == context->contextPriv().getBackend()) {
+    if (GrBackendApi::kOpenGL == context->backend()) {
         // Only compute whether the extension is present once the first time this
         // function is called.
         static bool hasIt = can_import_protected_content_eglimpl();
@@ -158,7 +158,7 @@ static GrBackendTexture make_vk_backend_texture(
         GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
         bool isProtectedContent,
         const GrBackendFormat& backendFormat) {
-    SkASSERT(context->contextPriv().getBackend() == GrBackendApi::kVulkan);
+    SkASSERT(context->backend() == GrBackendApi::kVulkan);
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     VkPhysicalDevice physicalDevice = gpu->physicalDevice();
@@ -434,11 +434,11 @@ static GrBackendTexture make_backend_texture(
     }
     bool createProtectedImage = isProtectedContent && can_import_protected_content(context);
 
-    if (GrBackendApi::kOpenGL == context->contextPriv().getBackend()) {
+    if (GrBackendApi::kOpenGL == context->backend()) {
         return make_gl_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
                                        deleteCtx, createProtectedImage, backendFormat);
     } else {
-        SkASSERT(GrBackendApi::kVulkan == context->contextPriv().getBackend());
+        SkASSERT(GrBackendApi::kVulkan == context->backend());
 #ifdef SK_VULKAN
         // Currently we don't support protected images on vulkan
         SkASSERT(!createProtectedImage);
@@ -542,7 +542,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     }
 
     GrBackendFormat backendFormat = get_backend_format(context, fHardwareBuffer,
-                                                       context->contextPriv().getBackend(),
+                                                       context->backend(),
                                                        fBufferFormat);
     GrPixelConfig pixelConfig = context->contextPriv().caps()->getConfigFromBackendFormat(
             backendFormat, this->getInfo().colorType());
@@ -560,9 +560,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     desc.fConfig = pixelConfig;
 
     GrTextureType textureType = GrTextureType::k2D;
-    if (context->contextPriv().getBackend() == GrBackendApi::kOpenGL) {
+    if (context->backend() == GrBackendApi::kOpenGL) {
         textureType = GrTextureType::kExternal;
-    } else if (context->contextPriv().getBackend() == GrBackendApi::kVulkan) {
+    } else if (context->backend() == GrBackendApi::kVulkan) {
         const VkFormat* format = backendFormat.getVkFormat();
         SkASSERT(format);
         if (*format == VK_FORMAT_UNDEFINED) {
@@ -653,8 +653,8 @@ bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
     if (nullptr == context) {
         return false; //CPU backend is not supported, because hardware buffer can be swizzled
     }
-    return GrBackendApi::kOpenGL == context->contextPriv().getBackend() ||
-           GrBackendApi::kVulkan == context->contextPriv().getBackend();
+    return GrBackendApi::kOpenGL == context->backend() ||
+           GrBackendApi::kVulkan == context->backend();
 }
 
 #endif //SK_BUILD_FOR_ANDROID_FRAMEWORK

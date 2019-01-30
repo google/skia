@@ -92,7 +92,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
     SkASSERT(context);
 
-    if (context->contextPriv().getBackend() != fBackendTexture.backend()) {
+    if (context->backend() != fBackendTexture.backend()) {
         return nullptr;
     }
     if (info.colorType() != this->getInfo().colorType()) {

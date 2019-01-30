@@ -26,10 +26,6 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    return fThreadSafeProxy;
-}
-
 bool GrContextThreadSafeProxy::matches(GrContext* context) const {
     return context->uniqueID() == fContextUniqueID;
 }
