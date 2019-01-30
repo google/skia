@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2016 Google Inc.
+# Copyright 2017 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -18,12 +18,8 @@ import utils
 
 
 def main():
-  if 'linux' not in sys.platform:
-    print >> sys.stderr, 'This script only runs on Linux.'
-    sys.exit(1)
   parser = argparse.ArgumentParser()
   parser.add_argument('--gsutil')
-  parser.add_argument('--sdk_path', '-s', required=True)
   args = parser.parse_args()
 
   with utils.tmp_dir():
@@ -32,11 +28,7 @@ def main():
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
 
     try:
-      cwd = os.path.join(cwd, 'sdk')
-      cmd = ['python', create_script,
-             '-t', cwd,
-             '--sdk_path', args.sdk_path]
-      subprocess.check_call(cmd)
+      subprocess.check_call(['python', create_script, '-t', cwd])
       cmd = ['python', upload_script, '-t', cwd]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])

@@ -5,13 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmap.h"
 #include "SkColorFilter.h"
 #include "SkPaintPriv.h"
-#include "SkImage.h"
 #include "SkPaint.h"
 #include "SkShaderBase.h"
-#include "SkUTF.h"
 #include "SkXfermodePriv.h"
 
 static bool changes_alpha(const SkPaint& paint) {
@@ -44,16 +41,6 @@ bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrid
     }
 
     return SkXfermode::IsOpaque(paint->getBlendMode(), opacityType);
-}
-
-bool SkPaintPriv::Overwrites(const SkBitmap& bitmap, const SkPaint* paint) {
-    return Overwrites(paint, bitmap.isOpaque() ? kOpaque_ShaderOverrideOpacity
-                                               : kNotOpaque_ShaderOverrideOpacity);
-}
-
-bool SkPaintPriv::Overwrites(const SkImage* image, const SkPaint* paint) {
-    return Overwrites(paint, image->isOpaque() ? kOpaque_ShaderOverrideOpacity
-                                               : kNotOpaque_ShaderOverrideOpacity);
 }
 
 bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {

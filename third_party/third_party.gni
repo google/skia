@@ -25,7 +25,7 @@ template("third_party") {
       not_needed(invoker, "*")
     }
   }
-  source_set(target_name) {
+  static_library(target_name) {
     if (enabled) {
       forward_variables_from(invoker, "*", [ "public_include_dirs" ])
       public_configs = [ ":" + target_name + "_public" ]

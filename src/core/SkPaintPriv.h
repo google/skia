@@ -8,14 +8,9 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
-#include "SkImageInfo.h"
-#include "SkMatrix.h"
 #include "SkPaint.h"
-#include "SkTypeface.h"
 
-class SkBitmap;
 class SkFont;
-class SkImage;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -40,22 +35,6 @@ public:
      *        in fact overwrite its pixels.
      */
     static bool Overwrites(const SkPaint* paint, ShaderOverrideOpacity);
-
-    static bool Overwrites(const SkPaint& paint) {
-        return Overwrites(&paint, kNone_ShaderOverrideOpacity);
-    }
-
-    /**
-     *  Returns true if drawing this bitmap with this paint (or nullptr) will ovewrite all affected
-     *  pixels.
-     */
-    static bool Overwrites(const SkBitmap&, const SkPaint* paint);
-
-    /**
-     *  Returns true if drawing this image with this paint (or nullptr) will ovewrite all affected
-     *  pixels.
-     */
-    static bool Overwrites(const SkImage*, const SkPaint* paint);
 
     static bool ShouldDither(const SkPaint&, SkColorType);
 
