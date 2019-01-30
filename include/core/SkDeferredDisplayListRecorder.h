@@ -120,19 +120,6 @@ public:
                                       PromiseImageTextureReleaseProc textureReleaseProc,
                                       PromiseImageTextureDoneProc textureDoneProc,
                                       PromiseImageTextureContext textureContext);
-    /** Deprecated variant of above. */
-    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
-                                      int width,
-                                      int height,
-                                      GrMipMapped mipMapped,
-                                      GrSurfaceOrigin origin,
-                                      SkColorType colorType,
-                                      SkAlphaType alphaType,
-                                      sk_sp<SkColorSpace> colorSpace,
-                                      LegacyPromiseImageTextureFulfillProc textureFulfillProc,
-                                      PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureDoneProc textureDoneProc,
-                                      PromiseImageTextureContext textureContext);
 
     /**
         This entry point operates the same as 'makePromiseTexture' except that its
@@ -150,19 +137,6 @@ public:
                                           GrSurfaceOrigin imageOrigin,
                                           sk_sp<SkColorSpace> imageColorSpace,
                                           PromiseImageTextureFulfillProc textureFulfillProc,
-                                          PromiseImageTextureReleaseProc textureReleaseProc,
-                                          PromiseImageTextureDoneProc textureDoneProc,
-                                          PromiseImageTextureContext textureContexts[]);
-    /** Deprecated variant of above. */
-    sk_sp<SkImage> makeYUVAPromiseTexture(SkYUVColorSpace yuvColorSpace,
-                                          const GrBackendFormat yuvaFormats[],
-                                          const SkISize yuvaSizes[],
-                                          const SkYUVAIndex yuvaIndices[4],
-                                          int imageWidth,
-                                          int imageHeight,
-                                          GrSurfaceOrigin imageOrigin,
-                                          sk_sp<SkColorSpace> imageColorSpace,
-                                          LegacyPromiseImageTextureFulfillProc textureFulfillProc,
                                           PromiseImageTextureReleaseProc textureReleaseProc,
                                           PromiseImageTextureDoneProc textureDoneProc,
                                           PromiseImageTextureContext textureContexts[]);
