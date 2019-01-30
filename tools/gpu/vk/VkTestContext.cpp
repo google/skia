@@ -180,6 +180,7 @@ public:
                                                      features, &debugCallback)) {
                 sk_gpu_test::FreeVulkanFeaturesStructs(features);
                 delete features;
+                delete extensions;
                 return nullptr;
             }
             if (debugCallback != VK_NULL_HANDLE) {
@@ -226,8 +227,7 @@ protected:
             grVkDestroyDevice(fVk.fDevice, nullptr);
 #ifdef SK_ENABLE_VK_LAYERS
             if (fDebugCallback != VK_NULL_HANDLE) {
-                ACQUIRE_VK_PROC_LOCAL(DestroyDebugReportCallbackEXT, fVk.fInstance);
-                grVkDestroyDebugReportCallbackEXT(fVk.fInstance, fDebugCallback, nullptr);
+                fDestroyDebugReportCallbackEXT(fVk.fInstance, fDebugCallback, nullptr);
             }
 #endif
             grVkDestroyInstance(fVk.fInstance, nullptr);
