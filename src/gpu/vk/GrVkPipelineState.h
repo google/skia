@@ -56,8 +56,8 @@ public:
 
     ~GrVkPipelineState();
 
-    void setAndBindUniforms(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
-                            GrVkCommandBuffer*);
+    void setAndBindUniforms(GrVkGpu*, const GrRenderTarget*, GrSurfaceOrigin,
+                            const GrPrimitiveProcessor&, const GrPipeline&, GrVkCommandBuffer*);
     /**
      * This must be called after setAndBindUniforms() since that function invalidates texture
      * bindings.
@@ -114,7 +114,7 @@ private:
     };
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrRenderTargetProxy*);
+    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     // GrVkResources
     GrVkPipeline* fPipeline;
