@@ -45,7 +45,8 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
     args.fUserStencil = &kCoverPass;
-    args.fProxy = state.drawOpArgs().fProxy;
+    args.fRenderTarget = state.drawOpArgs().renderTarget();
+    args.fOrigin = state.drawOpArgs().origin();
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;

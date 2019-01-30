@@ -13,6 +13,7 @@
 #include "GrBufferAllocPool.h"
 #include "GrDeferredUpload.h"
 #include "GrDeinstantiateProxyTracker.h"
+#include "GrRenderTargetProxy.h"
 #include "SkArenaAlloc.h"
 #include "SkArenaAllocList.h"
 #include "ops/GrMeshDrawOp.h"
@@ -54,6 +55,7 @@ public:
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
         GrRenderTarget* renderTarget() const { return fProxy->peekRenderTarget(); }
+        GrSurfaceOrigin origin() const { return fProxy->origin(); }
 
         GrOp* fOp;
         // TODO: do we still need the dst proxy here?

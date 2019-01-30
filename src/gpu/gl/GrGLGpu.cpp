@@ -1998,8 +1998,7 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     this->flushProgram(std::move(program));
 
     // Swizzle the blend to match what the shader will output.
-    const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-        pipeline.proxy()->config());
+    const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(pipeline.config());
     this->flushBlend(blendInfo, swizzle);
 
     fHWProgram->updateUniformsAndTextureBindings(primProc, pipeline, primProcProxiesToBind);
@@ -2016,11 +2015,11 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     if (pipeline.isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
         GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
-        this->flushScissor(state, glRT->getViewport(), pipeline.proxy()->origin());
+        this->flushScissor(state, glRT->getViewport(), pipeline.origin());
     } else {
         this->disableScissor();
     }
-    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, pipeline.proxy()->origin());
+    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, pipeline.origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
     // This must come after textures are flushed because a texture may need
@@ -2550,7 +2549,7 @@ void GrGLGpu::draw(const GrPrimitiveProcessor& primProc,
         if (dynamicScissor) {
             GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
             this->flushScissor(GrScissorState(dynamicStateArrays->fScissorRects[m]),
-                               glRT->getViewport(), pipeline.proxy()->origin());
+                               glRT->getViewport(), pipeline.origin());
         }
         if (dynamicPrimProcTextures) {
             auto texProxyArray = dynamicStateArrays->fPrimitiveProcessorTextures +
