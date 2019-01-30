@@ -797,7 +797,9 @@ protected:
                         for (int i = 0; i < numTextures; ++i) {
                             yuvaTextures[i] = create_yuva_texture(gpu, resultBMs[i],
                                                                   yuvaIndices, i);
-                            fBackendTextures.push_back(yuvaTextures[i]);
+                            if (yuvaTextures[i].isValid()) {
+                                fBackendTextures.push_back(yuvaTextures[i]);
+                            }
                             yuvaPixmaps[i] = resultBMs[i].pixmap();
                         }
 
@@ -874,14 +876,16 @@ protected:
             }
         }
         if (auto context = canvas->getGrContext()) {
-            context->flush();
-            GrGpu* gpu = context->contextPriv().getGpu();
-            SkASSERT(gpu);
-            gpu->testingOnly_flushGpuAndSync();
-            for (const auto& tex : fBackendTextures) {
-                gpu->deleteTestingOnlyBackendTexture(tex);
+            if (!context->abandoned()) {
+                context->flush();
+                GrGpu* gpu = context->contextPriv().getGpu();
+                SkASSERT(gpu);
+                gpu->testingOnly_flushGpuAndSync();
+                for (const auto& tex : fBackendTextures) {
+                    gpu->deleteTestingOnlyBackendTexture(tex);
+                }
+                fBackendTextures.reset();
             }
-            fBackendTextures.reset();
         }
         SkASSERT(!fBackendTextures.count());
     }
