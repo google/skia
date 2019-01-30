@@ -109,7 +109,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
-        if (GrBackendApi::kOpenGL != fContext->contextPriv().getBackend() ||
+        if (GrBackendApi::kOpenGL != fContext->backend() ||
             fCharacterization.isTextureable()) {
             return false;
         }

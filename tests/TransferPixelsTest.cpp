@@ -70,7 +70,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
     const int kTextureHeight = 16;
 #ifdef SK_BUILD_FOR_IOS
     // UNPACK_ROW_LENGTH is broken on iOS so rowBytes needs to match data width
-    const int kBufferWidth = GrBackendApi::kOpenGL == context->contextPriv().getBackend() ? 16 : 20;
+    const int kBufferWidth = GrBackendApi::kOpenGL == context->backend() ? 16 : 20;
 #else
     const int kBufferWidth = 20;
 #endif
@@ -144,7 +144,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
         // transfer partial data
 #ifdef SK_BUILD_FOR_IOS
         // UNPACK_ROW_LENGTH is broken on iOS so we can't do partial transfers
-        if (GrBackendApi::kOpenGL == context->contextPriv().getBackend()) {
+        if (GrBackendApi::kOpenGL == context->backend()) {
             continue;
         }
 #endif
