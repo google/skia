@@ -58,45 +58,7 @@ public:
     SkColorSpace* targetColorSpace() const { return fTargetColorSpace.get(); }
 
     /**
-        Create a new SkImage_GpuYUVA that's very similar to SkImage created by MakeFromYUVATextures.
-        The main difference is that the client doesn't have the backend textures on the gpu yet but
-        they know all the properties of the texture. So instead of passing in GrBackendTextures the
-        client supplies GrBackendFormats and the image size.
-
-        When we actually send the draw calls to the GPU, we will call the textureFulfillProc and
-        the client will return the GrBackendTextures to us. The properties of the GrBackendTextures
-        must match those set during the SkImage creation, and it must have valid backend gpu
-        textures. The gpu textures supplied by the client must stay valid until we call the
-        textureReleaseProc.
-
-        When we are done with the texture returned by the textureFulfillProc we will call the
-        textureReleaseProc passing in the textureContext. This is a signal to the client that they
-        are free to delete the underlying gpu textures. If future draws also use the same promise
-        image we will call the textureFulfillProc again if we've already called the
-        textureReleaseProc. We will always call textureFulfillProc and textureReleaseProc in pairs.
-        In other words we will never call textureFulfillProc or textureReleaseProc multiple times
-        for the same textureContext before calling the other.
-
-        We call the promiseDoneProc when we will no longer call the textureFulfillProc again. We
-        also guarantee that there will be no outstanding textureReleaseProcs that still need to be
-        called when we call the textureDoneProc. Thus when the textureDoneProc gets called the
-        client is able to cleanup all GPU objects and meta data needed for the textureFulfill call.
-
-        @param context             Gpu context
-        @param yuvColorSpace       color range of expected YUV pixels
-        @param yuvaFormats         formats of promised gpu textures for each YUVA plane
-        @param yuvaSizes           width and height of promised gpu textures
-        @param yuvaIndices         mapping from yuv plane index to texture representing that plane
-        @param width               width of promised gpu texture
-        @param height              height of promised gpu texture
-        @param imageOrigin         one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
-        @param imageColorSpace     range of colors; may be nullptr
-        @param textureFulfillProc  function called to get actual gpu texture
-        @param textureReleaseProc  function called when texture can be released
-        @param textureDoneProc     function called when we will no longer call textureFulfillProc
-        @param textureContexts     per-texture state passed to textureFulfillProc,
-                                   textureReleaseProc, and textureDoneProc
-        @return                    created SkImage, or nullptr
+     * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
      */
     static sk_sp<SkImage> MakePromiseYUVATexture(GrContext* context,
                                                  SkYUVColorSpace yuvColorSpace,
@@ -110,7 +72,8 @@ public:
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
                                                  PromiseImageTextureDoneProc textureDoneProc,
-                                                 PromiseImageTextureContext textureContexts[]);
+                                                 PromiseImageTextureContext textureContexts[],
+                                                 DelayReleaseCallback delayReleaseCallback);
 
 private:
     SkImage_GpuYUVA(const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
