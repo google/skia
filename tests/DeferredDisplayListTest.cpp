@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
-
+#include <initializer_list>
+#include <memory>
+#include <utility>
 #include "GrBackendSurface.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -30,6 +31,7 @@
 #include "SkImageInfo.h"
 #include "SkImage_Gpu.h"
 #include "SkPaint.h"
+#include "SkPromiseImageTexture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkSurface.h"
@@ -40,14 +42,9 @@
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLTypes.h"
-
 #ifdef SK_VULKAN
 #include <vulkan/vulkan_core.h>
 #endif
-
-#include <initializer_list>
-#include <memory>
-#include <utility>
 
 // Try to create a backend format from the provided colorType and config. Return an invalid
 // backend format if the combination is infeasible.
@@ -739,9 +736,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     params.cleanUpBackEnd(context, backend);
 }
 
-static void dummy_fulfill_proc(void*, GrBackendTexture*) { SkASSERT(0); }
+static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
+    SkASSERT(0);
+    return nullptr;
+}
 static void dummy_release_proc(void*) { SkASSERT(0); }
-static void dummy_done_proc(void*) { }
+static void dummy_done_proc(void*) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
