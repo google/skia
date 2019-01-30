@@ -160,9 +160,9 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = sampleCount;
     fSampleCount = SkTMax(fSampleCount, 1);
 
-    const NSRect backingRect = [fGLView convertRectToBacking:fGLView.bounds];
-    fWidth = backingRect.size.width;
-    fHeight = backingRect.size.height;
+    const NSRect viewportRect = [fMainView bounds];
+    fWidth = viewportRect.size.width;
+    fHeight = viewportRect.size.height;
     glViewport(0, 0, fWidth, fHeight);
 
     return GrGLMakeNativeInterface();
