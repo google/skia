@@ -372,7 +372,7 @@ def WriteCopy(out, target, project, sources, synthetic_dependencies):
   out.write('\n')
 
   for src, dst in zip(inputs, outputs):
-    out.write('  COMMAND ${CMAKE_COMMAND} -E copy "')
+    out.write('  COMMAND ${CMAKE_COMMAND} -E copy_directory "')
     out.write(CMakeStringEscape(project.GetAbsolutePath(src)))
     out.write('" "')
     out.write(CMakeStringEscape(dst))
