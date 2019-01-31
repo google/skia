@@ -16,6 +16,24 @@
       "revId": "733a85b48cebbec15a7daa14d538020fd1955214",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8381ab0d_ddab12a3",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-01-31T17:47:13Z",
+      "side": 1,
+      "message": "Hope to remove this in a day.",
+      "parentUuid": "e03d8651_bfd6a511",
+      "revId": "733a85b48cebbec15a7daa14d538020fd1955214",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
