@@ -75,7 +75,7 @@ public:
         auto srcProxy = fSrcProxy.get();
         dynamicState.fPrimitiveProcessorTextures = &srcProxy;
 
-        GrPipeline pipeline(flushState->proxy(), GrScissorTest::kDisabled, SkBlendMode::kSrc);
+        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc);
         GrCCPathProcessor pathProc(srcProxy);
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());

@@ -276,7 +276,8 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-static void setup_multisample_state(const GrPrimitiveProcessor& primProc,
+static void setup_multisample_state(int numColorSamples,
+                                    const GrPrimitiveProcessor& primProc,
                                     const GrPipeline& pipeline,
                                     const GrCaps* caps,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
@@ -284,8 +285,7 @@ static void setup_multisample_state(const GrPrimitiveProcessor& primProc,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    int numSamples = pipeline.proxy()->numColorSamples();
-    SkAssertResult(GrSampleCountToVkSampleCount(numSamples,
+    SkAssertResult(GrSampleCountToVkSampleCount(numColorSamples,
                    &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
@@ -496,7 +496,8 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
-GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& primProc,
+GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, int numColorSamples,
+                                   const GrPrimitiveProcessor& primProc,
                                    const GrPipeline& pipeline, const GrStencilSettings& stencil,
                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                    int shaderStageCount, GrPrimitiveType primitiveType,
@@ -520,7 +521,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPrimitiveProcessor& pri
     setup_viewport_scissor_state(&viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(primProc, pipeline, gpu->caps(), &multisampleInfo);
+    setup_multisample_state(numColorSamples, primProc, pipeline, gpu->caps(), &multisampleInfo);
 
     // We will only have one color attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];
