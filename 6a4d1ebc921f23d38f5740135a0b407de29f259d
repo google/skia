@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3cef50b_fad53804",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-01-31T16:49:12Z",
+      "side": 1,
+      "message": "Do we need to make a new variable? :-)",
+      "revId": "6a4d1ebc921f23d38f5740135a0b407de29f259d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
