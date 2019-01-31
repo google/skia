@@ -160,3 +160,22 @@ DEF_TEST(Rect_center, reporter) {
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
 }
 
+#include "SkSurface.h"
+
+// Before the fix, this sequence would trigger a release_assert in the Tiler
+// in SkBitmapDevice.cpp
+DEF_TEST(big_tiled_rect_crbug_927075, reporter) {
+    const int w = 67108863;
+    const int h = 1;
+    const auto info = SkImageInfo::MakeN32Premul(w, h);
+
+    auto surf = SkSurface::MakeRaster(info);
+    auto canvas = surf->getCanvas();
+
+    const SkRect r = { 257, 213, 67109120, 214 };
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    canvas->translate(-r.fLeft, -r.fTop);
+    canvas->drawRect(r, paint);
+}
