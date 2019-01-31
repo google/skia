@@ -56,7 +56,6 @@ public:
     struct InitArgs {
         uint32_t fFlags = 0;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
-        GrRenderTargetProxy* fProxy = nullptr;
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
@@ -161,14 +160,6 @@ public:
 
     /// @}
 
-    /**
-     * Retrieves the currently set render-target.
-     *
-     * @return    The currently set render target.
-     */
-    GrRenderTargetProxy* proxy() const { return fProxy.get(); }
-    GrRenderTarget* renderTarget() const { return fProxy.get()->peekRenderTarget(); }
-
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     bool isScissorEnabled() const {
@@ -189,7 +180,7 @@ public:
     }
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
-    GrXferBarrierType xferBarrierType(const GrCaps& caps) const;
+    GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
     static SkString DumpFlags(uint32_t flags) {
         if (flags) {
@@ -222,8 +213,6 @@ private:
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
-    // MDB TODO: do we still need the destination proxy here?
-    RenderTargetProxy fProxy;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fFlags;
