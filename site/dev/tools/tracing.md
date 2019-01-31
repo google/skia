@@ -12,6 +12,32 @@ the Android framework, Skia's tracing is integrated into
 For standalone builds, Skia's tools (DM, nanobench, and Viewer) are capable of tracing execution
 in three ways, controlled by the `--trace` command line argument.
 
+Standalone Tracing
+------------------
+
+Most arguments to `--trace` will be interpreted as a filename (the two exceptions are described
+below), and trace events will be written to that file in JSON format, suitable for viewing with
+[chrome://tracing](chrome://tracing).
+
+<!--?prettify lang=sh?-->
+
+    # Run DM on several GMs to get tracing data
+    out/Release/dm --config gl --match bleed --trace gl_bleed_gms.json
+
+This creates a file `gl_bleed_gms.json` in the current directory. There are limitations in Chrome's
+tracing tool that prevent loading a file larger than 256 MB. To stay under that limit (and avoid
+clutter and slowdown in the interface), it's best to run a small number of tests/benchmarks when
+tracing. Once you have generated a file in this way, go to
+[chrome://tracing](chrome://tracing), click Load:
+
+![Load Button](tracing_load.png)
+
+... then select the JSON file. The data will be loaded and can be navigated/inspected using the
+tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
+controls.
+
+![Tracing interface](tracing.png)
+
 Android ATrace
 --------------
 
@@ -55,25 +81,3 @@ For simple situations, all tracing events can be directed to the console with `-
 [ 0] } SkCanvas::drawRect()
 ...
 ~~~
-
-Chrome Tracing
---------------
-
-Any other argument to `--trace` will be interpreted as a filename, and trace events will be written
-to that file in JSON format, suitable for viewing with [chrome://tracing](chrome://tracing).
-
-<!--?prettify lang=sh?-->
-
-    # Run DM on several GMs to get tracing data
-    out/Release/dm --config gl --match bleed --trace gl_bleed_gms.json
-
-This creates a file `gl_bleed_gms.json` in the current directory. Go to
-[chrome://tracing](chrome://tracing), click Load:
-
-![Load Button](tracing_load.png)
-
-... then select the JSON file. The data will be loaded and can be navigated/inspected using the
-tracing tools. Tip: press '?' for a help screen explaining the available keyboard and mouse
-controls.
-
-![Tracing interface](tracing.png)
