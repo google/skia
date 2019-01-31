@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0946f782_f9ddef92",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-31T14:55:30Z",
+      "side": 1,
+      "message": "will change to \"replay\".",
+      "range": {
+        "startLine": 1957,
+        "startChar": 33,
+        "endLine": 1957,
+        "endChar": 40
+      },
+      "revId": "24bc6b78d431c825be3f328957872c642e8c271e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d80b3f3b_0f98d7bb",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-31T14:55:30Z",
+      "side": 1,
+      "message": "Alternatives I considered to using an enum:\n\n1) Always call Release but have it return a value saying \"no thanks, keep my texture and don\u0027t refullfill\"\n\n2) A different make function that just takes a SkPromiseImageTexture, never calls fulfill/release, just calls done when its done.\n\nI\u0027m not opposed to going in either of those directions. They\u0027d just be a little more bifurcated in their implementation from current release/fulfill/done implementation under the hood.",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 72
+      },
+      "revId": "24bc6b78d431c825be3f328957872c642e8c271e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
