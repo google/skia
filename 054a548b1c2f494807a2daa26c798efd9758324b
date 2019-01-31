@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "db3a7b45_57855326",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d1e9469_cef6cce8",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a827f339_2913add1",
         "filename": "docker/cmake-release/Dockerfile",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3ae313ba_41caff0c",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "3.7 - so not horrible, but this was the recommended way to install it.",
+      "parentUuid": "a827f339_2913add1",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f47a1d3_7c00a773",
         "filename": "gn/gn_to_cmake.py",
         "patchSetId": 9
@@ -50,6 +86,24 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dbd7ce6_645e629f",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f47a1d3_7c00a773",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "37dfe091_088a35ec",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9740840d_61480c74",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 51
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7103ca19_38e180ce",
         "filename": "infra/bots/recipe_modules/build/cmake.py",
         "patchSetId": 9
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "f0350625_9ffcf5a3",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7103ca19_38e180ce",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c2f0e10_cdbe214b",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 9
@@ -107,6 +203,24 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0293f0fa_628e837e",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 20293,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c2f0e10_cdbe214b",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -150,6 +264,48 @@
     },
     {
       "key": {
+        "uuid": "7f0bc99e_96d347d0",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "All the other, similar scripts are under infra/canvaskit infra/pathkit, etc.",
+      "parentUuid": "b6691f86_fb68f4f0",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 11
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f3b30a8_65a30b44",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "There\u0027s two main categories of tasks we use Docker for: running on bots and running in cloud build (https://github.com/google/skia-buildbot/blob/master/kube/README.md#continuous-deployment). As a concrete example of the first, we have PathKit (located in skia/infra/pathkit/docker), where we want to build and test at each commit using Swarming.  As an example of the latter, we have skia-release, which creates a skia binary on Google Cloud Build used by fiddle.skia.org. skia-release runs semi-continuously (at ToT, but not backfilling).\n\nThe first category has lightweight containers with just the required libraries.  The container itself does not have a Skia checkout, but expects to have one mounted as a volume. I\u0027ve been mounting this on /SRC, by convention.\n\nThe second category is more heavyweight, in that as a part of building the container, a Skia checkout is performed and things are compiled.  This lets another Docker image use skia-release as a dependency and then we get autodeployment of fiddle.skia.org, jsfiddle.skia.org, debugger, etc, where those apps are always running with near-ToT Skia.\n\nThis CMake bot is of the first category, so thus the Dockerfile is lightweight and the logic to build it exists in the Skia checkout.  This lets us have the flexibility of changing how to build an artifact without having to re-deploy the image (unless we update CMake or add a new library, etc).\n\n \u003e Is it that things which interact with /SRC need to be in here, and setup independent of /SRC goes Is it that things which interact with /SRC need to be in here, and setup independent of /SRC goes in Dockerfile?in Dockerfile?\n\nYes. This is the case for the first category of Dockerfiles.",
+      "parentUuid": "33cbee24_62e225d8",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c1b4483_a35033e6",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -164,6 +320,24 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "629619c3_2a9cc759",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Not necessarily - the Skia checkout is not in the container. The checkout is shared between tasks and thus might have previous build artifacts laying around.",
+      "parentUuid": "7c1b4483_a35033e6",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -184,6 +358,24 @@
     },
     {
       "key": {
+        "uuid": "2e5142f9_b48296d8",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a84d2575_7d1080b9",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51cea5b4_4c93c60f",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -198,6 +390,24 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9c0ebe7_5f190d11",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Ack.  If this build isn\u0027t representative of CLion, we can consider making such tweaks (or tweak the CLion setup).",
+      "parentUuid": "51cea5b4_4c93c60f",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -235,6 +445,42 @@
     },
     {
       "key": {
+        "uuid": "6e546010_373ee827",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "I think so.  The number is optional, AFAIK",
+      "parentUuid": "07ab61dc_fdc05d94",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a585651a_5bc30d50",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f681ff67_4eb399ee",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57a232e2_d6cbea90",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -249,6 +495,24 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd8ce27f_e8450cfc",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "Not that I could find.",
+      "parentUuid": "57a232e2_d6cbea90",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -272,6 +536,30 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b15b9f4_a16cacfe",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T17:51:36Z",
+      "side": 1,
+      "message": "It does not appear I can do gn gen /OUT:\n+ gn gen /OUT --args\u003dis_debug\u003dfalse --ide\u003djson --json-ide-script\u003d../../gn/gn_to_cmake.py\npython: can\u0027t open file \u0027/gn/gn_to_cmake.py\u0027: [Errno 2] No such file or directory",
+      "parentUuid": "ad2bd087_14ca3911",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
