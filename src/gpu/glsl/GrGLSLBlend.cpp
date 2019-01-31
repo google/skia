@@ -146,7 +146,7 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
     GrShaderVar getLumArgs[] = {
         GrShaderVar("color", kHalf3_GrSLType),
     };
-    SkString getLumBody("return dot(float3(0.3, 0.59, 0.11), color);");
+    SkString getLumBody("return dot(half3(0.3, 0.59, 0.11), color);");
     fsBuilder->emitFunction(kHalf_GrSLType,
                             "luminance",
                             SK_ARRAY_COUNT(getLumArgs), getLumArgs,

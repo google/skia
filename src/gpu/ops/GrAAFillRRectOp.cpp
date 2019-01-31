@@ -405,7 +405,7 @@ public:
         f->codeAppendf("float x_plus_1=%s.x, y=%s.y;", arcCoord.fsIn(), arcCoord.fsIn());
         f->codeAppendf("half coverage;");
         f->codeAppendf("if (0 == x_plus_1) {");
-        f->codeAppendf(    "coverage = y;");  // We are a non-arc pixel (i.e., linear coverage).
+        f->codeAppendf(    "coverage = half(y);");  // We are a non-arc pixel (i.e., linear coverage).
         f->codeAppendf("} else {");
         f->codeAppendf(    "float fn = x_plus_1 * (x_plus_1 - 2);");  // fn = (x+1)*(x-1) = x^2-1
         f->codeAppendf(    "fn = fma(y,y, fn);");  // fn = x^2 + y^2 - 1
@@ -416,7 +416,7 @@ public:
             f->codeAppendf("float gx=%s.z, gy=%s.w;", arcCoord.fsIn(), arcCoord.fsIn());
             f->codeAppendf("float fnwidth = abs(gx) + abs(gy);");
         }
-        f->codeAppendf(    "half d = fn/fnwidth;");
+        f->codeAppendf(    "half d = half(fn/fnwidth);");
         f->codeAppendf(    "coverage = clamp(.5 - d, 0, 1);");
         f->codeAppendf("}");
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
