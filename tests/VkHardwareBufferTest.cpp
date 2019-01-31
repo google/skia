@@ -651,7 +651,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
 
     err = fVkGetAndroidHardwareBufferPropertiesANDROID(fDevice, buffer, &hwbProps);
     if (VK_SUCCESS != err) {
-        ERRORF(reporter, "GetAndroidHardwareBufferPropertiesAndoird failed, err: %d", err);
+        ERRORF(reporter, "GetAndroidHardwareBufferPropertiesAndroid failed, err: %d", err);
         return false;
     }
 
