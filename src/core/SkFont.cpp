@@ -321,53 +321,6 @@ static void join_bounds_x(const SkGlyph& g, SkRect* bounds, SkScalar dx) {
                  SkIntToScalar(g.fTop + g.fHeight));
 }
 
-SkScalar SkFont::legacy_measureText(const void* textD, size_t length, SkTextEncoding encoding,
-                                    SkRect* bounds, const SkPaint* paint) const {
-    if (length == 0) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
-        return 0;
-    }
-
-    SkCanonicalizeFont canon(*this, paint);
-    const SkFont& font = canon.getFont();
-    SkScalar scale = canon.getScale();
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font, canon.getPaint());
-
-    const char* text = static_cast<const char*>(textD);
-    const char* stop = text + length;
-    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(encoding, nullptr != bounds);
-    const SkGlyph* g = &glyphCacheProc(cache.get(), &text, stop);
-    SkScalar width = g->fAdvanceX;
-
-    if (nullptr == bounds) {
-        while (text < stop) {
-            width += glyphCacheProc(cache.get(), &text, stop).fAdvanceX;
-        }
-    } else {
-        set_bounds(*g, bounds);
-        while (text < stop) {
-            g = &glyphCacheProc(cache.get(), &text, stop);
-            join_bounds_x(*g, bounds, width);
-            width += g->fAdvanceX;
-        }
-    }
-    SkASSERT(text == stop);
-
-    if (scale) {
-        width *= scale;
-        if (bounds) {
-            bounds->fLeft *= scale;
-            bounds->fTop *= scale;
-            bounds->fRight *= scale;
-            bounds->fBottom *= scale;
-        }
-    }
-    return width;
-}
-
 SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding,
                              SkRect* bounds, const SkPaint* paint) const {
     SkCanonicalizeFont canon(*this, paint);
@@ -412,16 +365,6 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
         }
     }
 
-#ifdef SK_DEBUG
-    {
-        SkRect b2;
-        SkScalar w2 = this->legacy_measureText(text, length, encoding, &b2, paint);
-        SkASSERT(width == w2);
-        if (bounds) {
-            SkASSERT(*bounds == b2);
-        }
-    }
-#endif
     return width;
 }
 
