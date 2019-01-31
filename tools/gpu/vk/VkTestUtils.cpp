@@ -99,6 +99,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pLayerPrefix,
     const char*                 pMessage,
     void*                       pUserData) {
+    std::function<void()> foo;
+    foo();
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
         return VK_TRUE; // skip further layers
