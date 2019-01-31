@@ -47,7 +47,8 @@ public:
 
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
-    void setData(const GrPrimitiveProcessor& primPRoc, const GrPipeline& pipeline,
+    void setData(const GrRenderTarget*, GrSurfaceOrigin,
+                 const GrPrimitiveProcessor& primPRoc, const GrPipeline& pipeline,
                  const GrTextureProxy* const primProcTextures[]);
 
     void bind(id<MTLRenderCommandEncoder>);
@@ -93,7 +94,7 @@ private:
         }
     };
 
-    void setRenderTargetState(const GrRenderTargetProxy*);
+    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
     struct SamplerBindings {
         id<MTLSamplerState> fSampler;

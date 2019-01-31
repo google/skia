@@ -370,7 +370,6 @@ private:
                 std::move(fTextureColorSpaceXform));
 
         GrPipeline::InitArgs args;
-        args.fProxy = target->proxy();
         args.fCaps = &target->caps();
         args.fResourceProvider = target->resourceProvider();
         args.fFlags = 0;

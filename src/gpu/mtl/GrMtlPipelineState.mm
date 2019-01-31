@@ -60,12 +60,14 @@ GrMtlPipelineState::GrMtlPipelineState(
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
-void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
+void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
+                                 GrSurfaceOrigin origin,
+                                 const GrPrimitiveProcessor& primProc,
                                  const GrPipeline& pipeline,
                                  const GrTextureProxy* const primProcTextures[]) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
 
-    this->setRenderTargetState(pipeline.proxy());
+    this->setRenderTargetState(renderTarget, origin);
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     fSamplerBindings.reset();
@@ -110,10 +112,9 @@ void GrMtlPipelineState::setData(const GrPrimitiveProcessor& primProc,
     }
 
     if (pipeline.isStencilEnabled()) {
-        GrRenderTarget* rt = pipeline.renderTarget();
-        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
         fStencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
-                       rt->renderTargetPriv().numStencilBits());
+                       renderTarget->renderTargetPriv().numStencilBits());
     }
 }
 
@@ -137,9 +138,7 @@ void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     }
 }
 
-void GrMtlPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
-    GrRenderTarget* rt = proxy->peekRenderTarget();
-
+void GrMtlPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
@@ -150,10 +149,10 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) 
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
-    if (fRenderTargetState.fRenderTargetOrigin != proxy->origin() ||
+    if (fRenderTargetState.fRenderTargetOrigin != origin ||
         fRenderTargetState.fRenderTargetSize != size) {
         fRenderTargetState.fRenderTargetSize = size;
-        fRenderTargetState.fRenderTargetOrigin = proxy->origin();
+        fRenderTargetState.fRenderTargetOrigin = origin;
 
         float rtAdjustmentVec[4];
         fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);

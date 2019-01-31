@@ -38,6 +38,7 @@ public:
     class Desc : public GrProgramDesc {
     public:
         static bool Build(Desc*,
+                          GrRenderTarget*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,
                           const GrStencilSettings&,
@@ -61,6 +62,7 @@ public:
     * @return true if generation was successful.
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
+                                                  GrRenderTarget*, GrSurfaceOrigin,
                                                   const GrPrimitiveProcessor&,
                                                   const GrTextureProxy* const primProcProxies[],
                                                   const GrPipeline&,
@@ -77,7 +79,7 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*,
+    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
                              const GrPipeline&,
                              const GrPrimitiveProcessor&,
                              const GrTextureProxy* const primProcProxies[],

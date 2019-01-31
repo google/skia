@@ -9,6 +9,7 @@
 
 #include "GrCaps.h"
 #include "GrPipeline.h"
+#include "GrRenderTarget.h"
 #include "GrShaderCaps.h"
 #include "GrTexturePriv.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -19,7 +20,8 @@
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
-GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPrimitiveProcessor& primProc,
+GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                                           const GrPrimitiveProcessor& primProc,
                                            const GrTextureProxy* const primProcProxies[],
                                            const GrPipeline& pipeline,
                                            GrProgramDesc* desc)
@@ -27,6 +29,9 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPrimitiveProcessor& primProc,
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
+        , fConfig(renderTarget->config())
+        , fNumColorSamples(renderTarget->numColorSamples())
+        , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)
         , fPrimProcProxies(primProcProxies)

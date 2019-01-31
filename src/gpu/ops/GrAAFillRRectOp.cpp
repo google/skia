@@ -460,7 +460,6 @@ void GrAAFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     SkASSERT(proc.instanceStride() == (size_t)fInstanceStride);
 
     GrPipeline::InitArgs initArgs;
-    initArgs.fProxy = flushState->drawOpArgs().fProxy;
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;

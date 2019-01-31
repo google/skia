@@ -7,6 +7,7 @@
 
 #include "GrGpu.h"
 #include "GrPathRendering.h"
+#include "GrRenderTarget.h"
 #include "SkDescriptor.h"
 #include "SkScalerContext.h"
 #include "SkGlyph.h"
@@ -49,15 +50,18 @@ void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* pat
     this->onStencilPath(args, path);
 }
 
-void GrPathRendering::drawPath(const GrPrimitiveProcessor& primProc,
+void GrPathRendering::drawPath(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                               const GrPrimitiveProcessor& primProc,
                                const GrPipeline& pipeline,
                                const GrPipeline::FixedDynamicState& fixedDynamicState,
                                // Cover pass settings in pipeline.
                                const GrStencilSettings& stencilPassSettings,
                                const GrPath* path) {
     fGpu->handleDirtyContext();
-    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-        fGpu->xferBarrier(pipeline.renderTarget(), barrierType);
+    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(renderTarget->asTexture(),
+                                                                 *fGpu->caps())) {
+        fGpu->xferBarrier(renderTarget, barrierType);
     }
-    this->onDrawPath(primProc, pipeline, fixedDynamicState, stencilPassSettings, path);
+    this->onDrawPath(renderTarget, origin, primProc, pipeline, fixedDynamicState,
+                     stencilPassSettings, path);
 }

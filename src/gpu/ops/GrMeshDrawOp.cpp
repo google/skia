@@ -101,7 +101,6 @@ GrMeshDrawOp::Target::PipelineAndFixedDynamicState GrMeshDrawOp::Target::makePip
         int numPrimProcTextures) {
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fFlags = pipelineFlags;
-    pipelineArgs.fProxy = this->proxy();
     pipelineArgs.fDstProxy = this->dstProxy();
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fResourceProvider = this->resourceProvider();

@@ -17,12 +17,14 @@
 #import <simd/simd.h>
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
+        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
         GrProgramDesc* desc,
         GrMtlGpu* gpu) {
-    GrMtlPipelineStateBuilder builder(primProc, primProcProxies, pipeline, desc, gpu);
+    GrMtlPipelineStateBuilder builder(renderTarget, origin, primProc, primProcProxies, pipeline,
+                                      desc, gpu);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -30,12 +32,13 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
     return builder.finalize(primProc, pipeline, desc);
 }
 
-GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(const GrPrimitiveProcessor& primProc,
+GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                                                     const GrPrimitiveProcessor& primProc,
                                                      const GrTextureProxy* const primProcProxies[],
                                                      const GrPipeline& pipeline,
                                                      GrProgramDesc* desc,
                                                      GrMtlGpu* gpu)
-        : INHERITED(primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fUniformHandler(this)
         , fVaryingHandler(this) {
@@ -76,8 +79,7 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     if (inputs.fFlipY) {
-        desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                               this->pipeline().proxy()->origin()));
+        desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(this->origin()));
     }
     return shaderLibrary;
 }
@@ -266,12 +268,12 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation
 }
 
 static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
-        const GrPipeline& pipeline) {
+        GrPixelConfig config, const GrPipeline& pipeline) {
     auto mtlColorAttachment = [[MTLRenderPipelineColorAttachmentDescriptor alloc] init];
 
     // pixel format
     MTLPixelFormat format;
-    SkAssertResult(GrPixelConfigToMTLFormat(pipeline.renderTarget()->config(), &format));
+    SkAssertResult(GrPixelConfigToMTLFormat(config, &format));
     mtlColorAttachment.pixelFormat = format;
 
     // blending
@@ -316,7 +318,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
 
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = fGpu->getContext()->contextPriv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
 
@@ -341,7 +343,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(primProc);
-    pipelineDescriptor.colorAttachments[0] = create_color_attachment(pipeline);
+    pipelineDescriptor.colorAttachments[0] = create_color_attachment(this->config(), pipeline);
 
     SkASSERT(pipelineDescriptor.vertexFunction);
     SkASSERT(pipelineDescriptor.fragmentFunction);
