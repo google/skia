@@ -546,9 +546,6 @@ private:
 
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
-    SkScalar legacy_measureText(const void* text, size_t byteLength, SkTextEncoding encoding,
-                         SkRect* bounds, const SkPaint* paint) const;
-
     friend class GrTextBlob;
     friend class SkCanonicalizeFont;
     friend class SkFontPriv;
