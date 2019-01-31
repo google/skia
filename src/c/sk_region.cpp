@@ -33,6 +33,10 @@ void sk_region_contains2(sk_region_t *r, int x, int y) {
     AsRegion(r)->contains(x, y);
 }
 
+bool sk_region_intersects_rect(sk_region_t* r, const sk_irect_t* rect) {
+    return AsRegion(r)->intersects(*AsIRect(rect));
+}
+
 bool sk_region_intersects(sk_region_t *r, const sk_region_t *src) {
     return AsRegion(r)->intersects(*AsRegion(src));
 }
