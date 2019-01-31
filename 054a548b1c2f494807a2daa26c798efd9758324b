@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "b92c3ee3_48e57778",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T22:01:02Z",
+      "side": 1,
+      "message": "I\u0027m ok with revisiting this cmake version if it is not representative of what we want.",
+      "parentUuid": "8e4f0afc_aa1e9ed1",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f47a1d3_7c00a773",
         "filename": "gn/gn_to_cmake.py",
         "patchSetId": 9
@@ -394,6 +412,24 @@
     },
     {
       "key": {
+        "uuid": "ee70aec3_8920d67a",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T22:01:02Z",
+      "side": 1,
+      "message": "I explicitly want this to be with permissions 777 so that it doesn\u0027t get created as root read-write only, which is what happens if we let gn do it while inside of Docker.",
+      "parentUuid": "eb002a4a_832ed9e7",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a84d2575_7d1080b9",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -628,6 +664,30 @@
       "side": 1,
       "message": "FWIW, this by happenstance not design.  I bet there\u0027s probably just a few places in our GN files that need calls to rebase_path() to make out/ directories that aren\u0027t underneath skia/ work.  I agree it\u0027d be nice to just build to where you want the build.\n\nYou could probably use a symlink in the meantime?",
       "parentUuid": "8b15b9f4_a16cacfe",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9119bd2d_5e202e85",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T22:01:02Z",
+      "side": 1,
+      "message": "My only concern with symlinks is that there might be something with Docker\u0027s volume mounts doesn\u0027t play well them.  I\u0027m ok removing this copy code when the rebase_paths are all in the right spot.",
+      "parentUuid": "6a2397b7_b346cdaf",
       "range": {
         "startLine": 33,
         "startChar": 0,

@@ -16,6 +16,24 @@
       "revId": "6180f3a1d8392489fe3820cc10ca1abb7651ed19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db24caaa_0dba89cc",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-01-31T22:01:02Z",
+      "side": 1,
+      "message": "I just copied one of our other recipes... which was a copy of a copy of a copy.... chromium original.  That\u0027s my guess, anyway",
+      "parentUuid": "6782775b_5c6a26c8",
+      "revId": "6180f3a1d8392489fe3820cc10ca1abb7651ed19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
