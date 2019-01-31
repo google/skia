@@ -19,6 +19,7 @@ typedef size_t shader_size;
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
+        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
         const GrPrimitiveProcessor& primProc,
         const GrTextureProxy* const primProcProxies[],
         const GrPipeline& pipeline,
@@ -28,7 +29,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         VkRenderPass compatibleRenderPass) {
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, pipeline, primProc, primProcProxies, desc);
+    GrVkPipelineStateBuilder builder(gpu, renderTarget, origin, pipeline, primProc,
+                                     primProcProxies, desc);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -38,11 +40,13 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
+                                                   GrRenderTarget* renderTarget,
+                                                   GrSurfaceOrigin origin,
                                                    const GrPipeline& pipeline,
                                                    const GrPrimitiveProcessor& primProc,
                                                    const GrTextureProxy* const primProcProxies[],
                                                    GrProgramDesc* desc)
-        : INHERITED(primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -84,7 +88,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     }
     if (outInputs->fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().proxy()->origin()));
+                                                     this->origin()));
     }
     return true;
 }
@@ -271,7 +275,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
 
@@ -326,7 +330,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(vert, vertInputs, frag, fragInputs, geom, geomInputs);
         }
     }
-    GrVkPipeline* pipeline = resourceProvider.createPipeline(fPrimProc,
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(this->numColorSamples(),
+                                                             fPrimProc,
                                                              fPipeline,
                                                              stencil,
                                                              shaderStageInfo,
@@ -386,13 +391,14 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 }
 
 bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
+                                           GrRenderTarget* renderTarget,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
                                            const GrStencilSettings& stencil,
                                            GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
-                          gpu)) {
+    if (!INHERITED::Build(desc, renderTarget->config(), primProc,
+                          primitiveType == GrPrimitiveType::kPoints, pipeline, gpu)) {
         return false;
     }
 
@@ -403,7 +409,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     SkASSERT(0 == (keyLength % 4));
     desc->fShaderKeyLength = SkToU32(keyLength);
 
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);

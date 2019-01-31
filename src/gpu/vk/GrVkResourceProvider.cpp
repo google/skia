@@ -92,7 +92,8 @@ void GrVkResourceProvider::init() {
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
 }
 
-GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPrimitiveProcessor& primProc,
+GrVkPipeline* GrVkResourceProvider::createPipeline(int numColorSamples,
+                                                   const GrPrimitiveProcessor& primProc,
                                                    const GrPipeline& pipeline,
                                                    const GrStencilSettings& stencil,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
@@ -100,7 +101,7 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPrimitiveProcessor& p
                                                    GrPrimitiveType primitiveType,
                                                    VkRenderPass compatibleRenderPass,
                                                    VkPipelineLayout layout) {
-    return GrVkPipeline::Create(fGpu, primProc, pipeline, stencil, shaderStageInfo,
+    return GrVkPipeline::Create(fGpu, numColorSamples, primProc, pipeline, stencil, shaderStageInfo,
                                 shaderStageCount, primitiveType, compatibleRenderPass, layout,
                                 this->pipelineCache());
 }
@@ -254,11 +255,12 @@ GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerY
 }
 
 GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+        GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
         const GrPipeline& pipeline, const GrPrimitiveProcessor& proc,
         const GrTextureProxy* const primProcProxies[], GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->refPipelineState(proc, primProcProxies, pipeline, primitiveType,
-                                                 compatibleRenderPass);
+    return fPipelineStateCache->refPipelineState(renderTarget, origin, proc, primProcProxies,
+                                                 pipeline, primitiveType, compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
