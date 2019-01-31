@@ -12,7 +12,7 @@
 #include "GrSamplerState.h"
 #include "SkRefCnt.h"
 
-class GrContext;
+class GrRecordingContext;
 class GrDrawOp;
 class GrPaint;
 class SkLatticeIter;
@@ -22,7 +22,7 @@ class SkMatrix;
 struct SkRect;
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrContext*,
+std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext*,
                                     GrPaint&&,
                                     const SkMatrix& viewMatrix,
                                     sk_sp<GrTextureProxy>,

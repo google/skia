@@ -18,6 +18,24 @@ public:
     // from GrContext_Base
 
     // from GrImageContext
+    GrBackendApi backend() const { return fContext->backend(); }
+
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() { fContext->getFPFactoryCache(); }
+
+    bool disableGpuYUVConversion() const { return fContext->disableGpuYUVConversion(); }
+    bool sharpenMipmappedTextures() const { return fContext->sharpenMipmappedTextures(); }
+
+    // from GrImageContext
+    bool abandoned1() const { return fContext->abandoned1(); }
+    void abandon1() { return fContext->abandon1(); }
+
+    GrProxyProvider* proxyProvider() { return fContext->proxyProvider(); }
+    const GrProxyProvider* proxyProvider() const { return fContext->proxyProvider(); }
+
+    GrSingleOwner* singleOwner() const { return fContext->singleOwner(); }
 
 private:
     explicit GrImageContextPriv(GrImageContext* context) : fContext(context) {}

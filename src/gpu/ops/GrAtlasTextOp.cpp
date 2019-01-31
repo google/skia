@@ -24,12 +24,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
+std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrRecordingContext* context,
                                                          GrPaint&& paint,
                                                          GrMaskFormat maskFormat,
                                                          int glyphCount,
                                                          bool needsTransform) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
 
@@ -52,7 +52,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeBitmap(GrContext* context,
     }
 
 std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
-                                            GrContext* context,
+                                            GrRecordingContext* context,
                                             GrPaint&& paint,
                                             int glyphCount,
                                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -61,7 +61,7 @@ std::unique_ptr<GrAtlasTextOp> GrAtlasTextOp::MakeDistanceField(
                                             const SkSurfaceProps& props,
                                             bool isAntiAliased,
                                             bool useLCD) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         std::unique_ptr<GrAtlasTextOp> op = pool->allocate<GrAtlasTextOp>(std::move(paint));
 

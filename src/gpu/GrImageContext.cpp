@@ -7,8 +7,17 @@
 
 #include "GrImageContext.h"
 
-GrImageContext::GrImageContext(GrBackendApi backend, uint32_t uniqueID)
-            : INHERITED(backend, uniqueID) {
+#include "GrProxyProvider.h"
+
+GrImageContext::GrImageContext(GrBackendApi backend,
+                               const GrContextOptions& options,
+                               uint32_t uniqueID)
+            : INHERITED(backend, options, uniqueID) {
+    fProxyProvider1.reset(new GrProxyProvider(this));
 }
 
 GrImageContext::~GrImageContext() {}
+
+//GrProxyProvider* GrImageContext::proxyProvider() {
+//    return fProxyProvider1.get();
+//}

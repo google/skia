@@ -79,7 +79,7 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceChar
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     if (fContext) {
-        auto proxyProvider = fContext->contextPriv().proxyProvider();
+        auto proxyProvider = fContext->proxyProvider();
 
         // This allows the uniquely keyed proxies to keep their keys but removes their back
         // pointer to the about-to-be-deleted proxy provider. The proxies will use their
@@ -107,7 +107,7 @@ bool SkDeferredDisplayListRecorder::init() {
     fLazyProxyData = sk_sp<SkDeferredDisplayList::LazyProxyData>(
                                                     new SkDeferredDisplayList::LazyProxyData);
 
-    auto proxyProvider = fContext->contextPriv().proxyProvider();
+    auto proxyProvider = fContext->proxyProvider();
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
@@ -131,7 +131,7 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (fContext->contextPriv().caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
+    if (fContext->caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
         // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
@@ -145,7 +145,7 @@ bool SkDeferredDisplayListRecorder::init() {
         optionalTextureInfo = &kTextureInfo;
     }
 
-    const GrBackendFormat format = fContext->contextPriv().caps()->getBackendFormatFromColorType(
+    const GrBackendFormat format = fContext->caps()->getBackendFormatFromColorType(
             fCharacterization.colorType());
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
@@ -167,7 +167,7 @@ bool SkDeferredDisplayListRecorder::init() {
             SkBackingFit::kExact,
             SkBudgeted::kYes);
 
-    sk_sp<GrSurfaceContext> c = fContext->contextPriv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> c = fContext->makeWrappedSurfaceContext(
                                                                  std::move(proxy),
                                                                  fCharacterization.refColorSpace(),
                                                                  &fCharacterization.surfaceProps());
@@ -228,7 +228,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
         return nullptr;
     }
 
-    return SkImage_Gpu::MakePromiseTexture(fContext.get(),
+    return SkImage_Gpu::MakePromiseTexture(fContext,
                                            backendFormat,
                                            width,
                                            height,
@@ -262,7 +262,7 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVAPromiseTexture(
         return nullptr;
     }
 
-    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext.get(),
+    return SkImage_GpuYUVA::MakePromiseYUVATexture(fContext,
                                                    yuvColorSpace,
                                                    yuvaFormats,
                                                    yuvaSizes,

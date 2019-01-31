@@ -70,15 +70,15 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawShape(const GrClip& clip, const SkPaint& paint,
+    void drawShape1(const GrClip& clip, const SkPaint& paint,
                   const SkMatrix& viewMatrix, const GrShape& shape) override {
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+        GrBlurUtils::drawShapeWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                      GrPaint* grPaint) override {
-        GrContext* context = fRenderTargetContext->fContext;
+        auto context = fRenderTargetContext->fContext;
         const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
             SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
@@ -87,9 +87,9 @@ public:
         }
     }
 
-    GrContext* getContext() override {
-        return fRenderTargetContext->fContext;
-    }
+//    GrContext* getContext() override {
+//        return fRenderTargetContext->fContext;
+//    }
 
     SkGlyphRunListPainter* glyphPainter() override {
         return &fGlyphPainter;
@@ -158,7 +158,7 @@ bool GrRenderTargetContext::wasAbandoned() const {
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
+GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              GrDrawingManager* drawingMgr,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              sk_sp<SkColorSpace> colorSpace,
@@ -172,7 +172,11 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpList(managedOpList) {
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+
+    GrResourceProvider* resourceProvider = context->asDirectContext()
+                                   ? context->asDirectContext()->contextPriv().resourceProvider()
+                                   : nullptr;
+
     if (resourceProvider && !resourceProvider->explicitlyAllocateGPUResources()) {
         // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
         // world we need to get the correct opList here so that it, in turn, can grab and hold

@@ -199,13 +199,13 @@ static void draw_contents(SkCanvas* canvas) {
     canvas->drawCircle(50, 50, 35, paint);
 }
 
-static sk_sp<SkImage> make_raster(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_raster(const SkImageInfo& info, GrRecordingContext*, void (*draw)(SkCanvas*)) {
     auto surface(SkSurface::MakeRaster(info));
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrRecordingContext*, void (*draw)(SkCanvas*)) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
@@ -213,20 +213,26 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
                                     SkColorSpace::MakeSRGB());
 }
 
-static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
+static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrRecordingContext*, void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw));
     return SkImage::MakeFromEncoded(image->encodeToData());
 }
 
-static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {
-    if (!ctx) { return nullptr; }
+static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrRecordingContext* ctx, void (*draw)(SkCanvas*)) {
+    if (!ctx) {
+        return nullptr;
+    }
+
     auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
-    if (!surface) { return nullptr; }
+    if (!surface) {
+        return nullptr;
+    }
+
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
 
-typedef sk_sp<SkImage> (*ImageMakerProc)(const SkImageInfo&, GrContext*, void (*)(SkCanvas*));
+typedef sk_sp<SkImage> (*ImageMakerProc)(const SkImageInfo&, GrRecordingContext*, void (*)(SkCanvas*));
 
 class ScalePixelsGM : public skiagm::GM {
 public:
@@ -264,7 +270,7 @@ DEF_GM( return new ScalePixelsGM; )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
-    GrContext* context = canvas->getGrContext();
+    auto context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;

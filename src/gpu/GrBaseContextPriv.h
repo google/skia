@@ -16,6 +16,13 @@
 class GrBaseContextPriv {
 public:
     // from GrContext_Base
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() { return fContext->getFPFactoryCache(); }
+
+    bool disableGpuYUVConversion() const { return fContext->disableGpuYUVConversion(); }
+    bool sharpenMipmappedTextures() const { return fContext->sharpenMipmappedTextures(); }
 
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
