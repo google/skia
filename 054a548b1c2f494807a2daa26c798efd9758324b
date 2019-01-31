@@ -184,6 +184,23 @@
     },
     {
       "key": {
+        "uuid": "51cea5b4_4c93c60f",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-31T14:29:33Z",
+      "side": 1,
+      "message": "CLion uses the -G \"CodeBlocks - Unix Makefiles\" generator. I\u0027m guessing that it just generates extra files in addition to the make files.",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f681ff67_4eb399ee",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -195,6 +212,23 @@
       "writtenOn": "2019-01-31T14:25:47Z",
       "side": 1,
       "message": "Just make -j?  If you\u0027re going to use an arbitrary number, it\u0027s probably better to leave off?\n\nOr better yet, use Ninja?\n\ncmake -G Ninja .\nninja  (or cmake --build .)",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ab61dc_fdc05d94",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-01-31T14:29:33Z",
+      "side": 1,
+      "message": "FWIW (probably not much) Clion actually builds with \"cmake --build -- -j \u003cn\u003e\". I\u0027m guessing that just invokes make with -j, though.",
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
