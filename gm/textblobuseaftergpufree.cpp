@@ -35,6 +35,11 @@ protected:
             return;
         }
 
+        auto direct = canvas->getGrContext()->asDirectContext();
+        if (!direct) {
+            return;
+        }
+
         const char text[] = "Hamburgefons";
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 20);
@@ -48,7 +53,7 @@ protected:
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
-        canvas->getGrContext()->freeGpuResources();
+        direct->freeGpuResources();
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
 

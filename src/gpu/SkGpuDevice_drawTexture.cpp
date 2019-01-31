@@ -152,7 +152,7 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
                      alphaType, colorSpace, this->clip(), fRenderTargetContext.get());
         return;
     }
-    GrTextureAdjuster adjuster(this->context(), std::move(proxy), alphaType, pinnedUniqueID,
+    GrTextureAdjuster adjuster(this->context12(), std::move(proxy), alphaType, pinnedUniqueID,
                                colorSpace);
     this->drawTextureProducer(&adjuster, srcRect, dstRect, constraint, viewMatrix, paint, false);
 }

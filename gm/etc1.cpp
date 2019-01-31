@@ -70,8 +70,8 @@ protected:
             return;
         }
 
-        GrContext* context = canvas->getGrContext();
-        if (!context || context->abandoned()) {
+        GrRecordingContext* context = canvas->getGrContext();
+        if (!context /*|| context->abandoned()*/) {
             return;
         }
 
