@@ -40,6 +40,7 @@ public:
     * @param GrProgramDesc  The built and finalized descriptor
     **/
     static bool Build(GrProgramDesc*,
+                      GrRenderTarget*,
                       const GrPrimitiveProcessor&,
                       bool hasPointSize,
                       const GrPipeline&,

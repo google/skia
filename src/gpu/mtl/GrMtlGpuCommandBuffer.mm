@@ -139,7 +139,7 @@ GrMtlPipelineState* GrMtlGpuRTCommandBuffer::prepareDrawState(
     // We cannot have an active encoder when we set the pipeline data since it requires its own
     // command encoder.
     SkASSERT(fActiveRenderCmdEncoder == nil);
-    pipelineState->setData(primProc, pipeline, primProcProxies);
+    pipelineState->setData(fRenderTarget, fOrigin, primProc, pipeline, primProcProxies);
 
     return pipelineState;
 }
