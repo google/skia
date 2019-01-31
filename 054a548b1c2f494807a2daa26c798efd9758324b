@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d1e9469_cef6cce8",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Is this a copy and paste?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a827f339_2913add1",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Is the cmake in apt too old?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f47a1d3_7c00a773",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Wanna land this first so it sticks if we have to revert for some reason?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7103ca19_38e180ce",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Is this up to date?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c2f0e10_cdbe214b",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 20293,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "I think you need to  go get -u go.skia.org/infra/... and/or revert this.",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33cbee24_62e225d8",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "I\u0027m not sure I\u0027m clear on the dividing line between the Docker images specified by the Dockerfile and the work we do in the scripts.  Is it that things which interact with /SRC need to be in here, and setup independent of /SRC goes in Dockerfile?\n\nskia-release/Dockerfile does the build itself, right?\n\nWhile we\u0027re talking about skia-release, what factors into piling onto an existing Docker image or creating a new one?  Is it not just a small tweak to skia-release to give it the tools it needs for CMake builds too?  Is there a philosophy here or some mechanical behavior we\u0027re thinking of?  Caching?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c1b4483_a35033e6",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Do we not get a fresh container each build?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a84d2575_7d1080b9",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "This seems like we\u0027re configuring a Debug build here, but I think we mentioned Release somewhere else in the CL?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f681ff67_4eb399ee",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Just make -j?  If you\u0027re going to use an arbitrary number, it\u0027s probably better to leave off?\n\nOr better yet, use Ninja?\n\ncmake -G Ninja .\nninja  (or cmake --build .)",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57a232e2_d6cbea90",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T14:25:47Z",
+      "side": 1,
+      "message": "Might be a cp flag for this?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
