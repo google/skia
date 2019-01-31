@@ -32,8 +32,8 @@ def compile_fn(api, checkout_root, _ignore):
   # toolchain changes.
   # Of note, the wasm build doesn't re-use any intermediate steps from the
   # previous builds, so it's essentially a build from scratch every time.
-  cmd = ['docker', 'run', '--rm', '-v', '%s:/SRC' % checkout_root,
-         '-v', '%s:/OUT' % out_dir,
+  cmd = ['docker', 'run', '--rm', '--volume', '%s:/SRC' % checkout_root,
+         '--volume', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
   if configuration == 'Debug':
     cmd.append('debug') # It defaults to Release

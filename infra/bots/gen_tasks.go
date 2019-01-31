@@ -315,7 +315,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -351,10 +351,10 @@ func linuxGceDimensions(machineType string) []string {
 	}
 }
 
-func wasmGceDimensions() []string {
+func dockerGceDimensions() []string {
 	// There's limited parallelism for WASM builds, so we can get away with the medium
 	// instance instead of the beefy large instance.
-	// Docker being intsalled is the most important part.
+	// Docker being installed is the most important part.
 	return append(linuxGceDimensions(MACHINE_TYPE_MEDIUM), "docker_installed:true")
 }
 
@@ -560,7 +560,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if strings.Contains(parts["extra_config"], "CanvasKit") {
 				// GPU is defined for the WebGL version of CanvasKit, but
 				// it can still run on a GCE instance.
-				return wasmGceDimensions()
+				return dockerGceDimensions()
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
 					"GT610":         "10de:104a-23.21.13.9101",
@@ -632,8 +632,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
-			if strings.Contains(parts["extra_config"], "PathKit") || strings.Contains(parts["extra_config"], "CanvasKit") {
-				return wasmGceDimensions()
+			if strings.Contains(parts["extra_config"], "PathKit") || strings.Contains(parts["extra_config"], "CanvasKit") || strings.Contains(parts["extra_config"], "CMake") {
+				return dockerGceDimensions()
 			}
 			if parts["role"] == "BuildStats" {
 				// Doesn't require a lot of resources
@@ -791,7 +791,7 @@ func usesGo(b *specs.TasksCfgBuilder, t *specs.TaskSpec) {
 
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
-	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") {
+	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") {
 		t.Caches = append(t.Caches, CACHES_DOCKER...)
 	}
 }

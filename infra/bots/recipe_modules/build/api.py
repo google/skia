@@ -12,6 +12,7 @@ from . import android
 from . import canvaskit
 from . import chromebook
 from . import chromecast
+from . import cmake
 from . import default
 from . import flutter
 from . import pathkit
@@ -44,6 +45,9 @@ class BuildApi(recipe_api.RecipeApi):
       else:
         self.compile_fn = canvaskit.compile_fn
         self.copy_fn = canvaskit.copy_extra_build_products
+    elif 'CMake' in b:
+      self.compile_fn = cmake.compile_fn
+      self.copy_fn = cmake.copy_extra_build_products
     else:
       self.compile_fn = default.compile_fn
       self.copy_fn = default.copy_extra_build_products

@@ -29,7 +29,6 @@ need to manually push a verison, then run the following commands:
     docker push gcr.io/skia-public/skia-wasm-release:prod
 
 
-
 skia-with-swift-shader-base
 ------
 
@@ -49,3 +48,24 @@ following commands:
     docker build -t skia-with-swift-shader-base ./docker/skia-with-swift-shader-base/
     docker tag skia-with-swift-shader-base gcr.io/skia-public/skia-with-swift-shader-base:prod
     docker push gcr.io/skia-public/skia-with-swift-shader-base:prod
+
+cmake-release
+------
+
+This image is used to build Skia using CMake.
+
+It gets manually pushed anytime there's an update to the Dockerfile or relevant
+installed libraries. To push:
+
+    docker build -t cmake-release ./cmake-release/
+    docker tag cmake-release gcr.io/skia-public/cmake-release:3.13.1_v1
+    docker push gcr.io/skia-public/cmake-release:3.13.1_v1
+
+For testing the image locally, the following flow can be helpful:
+
+    docker build -t cmake-release ./cmake-release/
+    # Run bash in it to poke around and make sure things are properly
+    # installed and configured. Also useful to get version of CMake.
+    docker run -it cmake-release /bin/bash
+    # Compile Skia in a local checkout with the local image
+    docker run -v $SKIA_ROOT:/SRC -v /tmp/output:/OUT cmake-release /SRC/infra/docker/cmake/build_skia.sh

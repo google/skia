@@ -43,6 +43,7 @@
   "Build-Debian9-Clang-x86_64-Release-ANGLE",
   "Build-Debian9-Clang-x86_64-Release-ASAN",
   "Build-Debian9-Clang-x86_64-Release-ASAN_Vulkan",
+  "Build-Debian9-Clang-x86_64-Release-CMake",
   "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
   "Build-Debian9-Clang-x86_64-Release-Fast",
   "Build-Debian9-Clang-x86_64-Release-NoDEPS",
