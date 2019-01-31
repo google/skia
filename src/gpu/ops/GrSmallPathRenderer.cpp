@@ -960,8 +960,8 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     using PathTestStruct = GrSmallPathRenderer::PathTestStruct;
     static PathTestStruct gTestStruct;
 
-    if (context->uniqueID() != gTestStruct.fContextID) {
-        gTestStruct.fContextID = context->uniqueID();
+    if (context->contextID() != gTestStruct.fContextID) {
+        gTestStruct.fContextID = context->contextID();
         gTestStruct.reset();
         const GrBackendFormat format =
                 context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);

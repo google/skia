@@ -200,7 +200,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
                                                          const GrSamplerState& params,
                                                          SkScalar scaleAdjust[2]) const {
-    if (context->uniqueID() != fContext->uniqueID()) {
+    if (context->contextID() != fContext->contextID()) {
         SkASSERT(0);
         return nullptr;
     }
@@ -498,8 +498,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
             tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
             SkASSERT(fContextID == SK_InvalidUniqueID ||
-                     fContextID == tex->getContext()->uniqueID());
-            fContextID = tex->getContext()->uniqueID();
+                     fContextID == tex->getContext()->contextID());
+            fContextID = tex->getContext()->contextID();
             promiseTexture->addKeyToInvalidate(fContextID, fLastFulfilledKey);
             return std::move(tex);
         }

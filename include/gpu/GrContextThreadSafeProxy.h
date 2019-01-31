@@ -68,7 +68,7 @@ public:
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (fContextUniqueID == that.fContextUniqueID));
+        SkASSERT((this == &that) == (fContextID == that.fContextID));
         return this == &that;
     }
 
@@ -87,8 +87,8 @@ private:
                              sk_sp<GrSkSLFPFactoryCache> cache);
 
     sk_sp<const GrCaps>         fCaps;
-    const uint32_t              fContextUniqueID;
-    const GrBackendApi             fBackend;
+    const uint32_t              fContextID;
+    const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 

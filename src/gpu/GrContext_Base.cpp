@@ -17,9 +17,9 @@ static int32_t next_id() {
 }
 
 GrContext_Base::GrContext_Base(GrBackendApi backend,
-                               uint32_t uniqueID)
+                               uint32_t contextID)
         : fBackend(backend)
-        , fUniqueID(SK_InvalidGenID == uniqueID ? next_id() : uniqueID) {
+        , fContextID(SK_InvalidGenID == contextID ? next_id() : contextID) {
 }
 
 GrContext_Base::~GrContext_Base() {

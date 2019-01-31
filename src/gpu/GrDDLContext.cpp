@@ -18,7 +18,7 @@
 class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->priv().backend(), proxy->priv().contextUniqueID()) {
+            : INHERITED(proxy->priv().backend(), proxy->priv().contextID()) {
         fCaps = proxy->priv().refCaps();
         fFPFactoryCache = proxy->priv().fpFactoryCache();
         SkASSERT(fFPFactoryCache);

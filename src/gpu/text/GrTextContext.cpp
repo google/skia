@@ -210,8 +210,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     static std::unique_ptr<GrTextContext> gTextContext;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
-    if (context->uniqueID() != gContextID) {
-        gContextID = context->uniqueID();
+    if (context->contextID() != gContextID) {
+        gContextID = context->contextID();
         gTextContext = GrTextContext::Make(GrTextContext::Options());
     }
 
