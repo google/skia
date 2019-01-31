@@ -10,6 +10,7 @@
 
 #include "bmhParser.h"
 #include "includeParser.h"
+#include <map>
 
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },

@@ -9,7 +9,7 @@
 #define parserCommon_DEFINED
 
 #include "SkData.h"
-#include "SkJSONCPP.h"
+#include "SkJSON.h"
 
 #include "definition.h"
 #include "textParser.h"
@@ -255,10 +255,50 @@ private:
 };
 
 struct JsonStatus {
-    const Json::Value& fObject;
-    Json::Value::iterator fIter;
+    const skjson::ArrayValue* fArray;
+    const skjson::Value* fArrayIter;
+    const skjson::ObjectValue* fObject;
+    const skjson::Member* fObjectIter;
     string fName;
     StatusFilter fStatusFilter;
+
+    static JsonStatus Make(const skjson::Value& value, string name, StatusFilter filter) {
+        JsonStatus status = { value, nullptr, value, nullptr, name, filter };
+        status.reset();
+        return status;
+    }
+
+    void reset() {
+        fArrayIter = fArray ? fArray->begin() : nullptr;
+        fObjectIter = fObject ? fObject->begin() : nullptr;
+    }
+
+    bool atEnd() const {
+        if (fArray) {
+            return fArrayIter == fArray->end();
+        } else if (fObject) {
+            return fObjectIter == fObject->end();
+        } else {
+            return true;
+        }
+    }
+
+    void advance() {
+        if (fArrayIter) {
+            fArrayIter++;
+        } else if (fObjectIter) {
+            fObjectIter++;
+        }
+    }
+
+    const skjson::Value& current() const {
+        if (fArrayIter) {
+            return *fArrayIter;
+        } else {
+            SkASSERT(fObjectIter);
+            return fObjectIter->fValue;
+        }
+    }
 };
 
 class JsonCommon : public ParserCommon {
@@ -272,7 +312,7 @@ public:
     }
 
     vector<JsonStatus> fStack;
-    Json::Value fRoot;
+    const skjson::ObjectValue* fRoot;
 private:
     typedef ParserCommon INHERITED;
 };

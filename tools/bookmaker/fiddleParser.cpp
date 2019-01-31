@@ -24,52 +24,55 @@ bool FiddleBase::parseFiddles() {
         return false;
     }
     JsonStatus* status = &fStack.back();
-    while (status->fIter != status->fObject.end()) {
-        const char* blockName = status->fIter.memberName();
+    while (!status->atEnd()) {
+        const char* blockName = status->fObjectIter->fKey.begin();
         Definition* example = nullptr;
         string textString;
-        if (!status->fObject.isObject()) {
+        if (!status->fObject) {
             return report_error(blockName, "expected object");
         }
-        for (auto iter = status->fIter->begin(); status->fIter->end() != iter; ++iter) {
-            const char* memberName = iter.memberName();
+        const skjson::ObjectValue* obj = status->fObjectIter->fValue;
+        for (auto iter = obj->begin(); obj->end() != iter; ++iter) {
+            const char* memberName = iter->fKey.begin();
             if (!strcmp("compile_errors", memberName)) {
-                if (!iter->isArray()) {
+                if (!iter->fValue.is<skjson::ArrayValue>()) {
                     return report_error(blockName, "expected array");
                 }
-                if (iter->size()) {
+                if (iter->fValue.as<skjson::ArrayValue>().size()) {
                     return report_error(blockName, "fiddle compiler error");
                 }
                 continue;
             }
             if (!strcmp("runtime_error", memberName)) {
-                if (!iter->isString()) {
+                if (!iter->fValue.is<skjson::StringValue>()) {
                     return report_error(blockName, "expected string 1");
                 }
-                if (iter->asString().length()) {
+                if (iter->fValue.as<skjson::StringValue>().size()) {
                     return report_error(blockName, "fiddle runtime error");
                 }
                 continue;
             }
             if (!strcmp("fiddleHash", memberName)) {
-                if (!iter->isString()) {
+                const skjson::StringValue* sv = iter->fValue;
+                if (!sv) {
                     return report_error(blockName, "expected string 2");
                 }
                 example = this->findExample(blockName);
                 if (!example) {
                     return report_error(blockName, "missing example");
                 }
-                if (example->fHash.length() && example->fHash != iter->asString()) {
+                if (example->fHash.length() && example->fHash != sv->begin()) {
                     return example->reportError<bool>("mismatched hash");
                 }
-                example->fHash = iter->asString();
+                example->fHash = sv->begin();
                 continue;
             }
             if (!strcmp("text", memberName)) {
-                if (!iter->isString()) {
+                const skjson::StringValue* sv = iter->fValue;
+                if (!sv) {
                     return report_error(blockName, "expected string 3");
                 }
-                textString = iter->asString();
+                textString = sv->begin();
                 continue;
             }
             return report_error(blockName, "unexpected key");
@@ -86,7 +89,7 @@ bool FiddleBase::parseFiddles() {
         } else if (fPngOut && !this->pngOut(example)) {
             return false;
         }
-        status->fIter++;
+        status->advance();
     }
     return true;
 }
