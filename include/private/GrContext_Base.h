@@ -32,7 +32,10 @@ public:
      * a third thread with a direct context, then all three contexts will report the same id.
      * It is an error for an image to be used with contexts that report different ids.
      */
-    uint32_t uniqueID() const { return fUniqueID; }
+    uint32_t contextID() const { return fContextID; }
+
+    /* Deprecated version */
+    //uint32_t contextID() const { return fContextID; }
 
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
@@ -50,7 +53,7 @@ protected:
 
 private:
     const GrBackendApi fBackend;
-    const uint32_t     fUniqueID;
+    const uint32_t     fContextID;
 
     typedef SkRefCnt INHERITED;
 };
