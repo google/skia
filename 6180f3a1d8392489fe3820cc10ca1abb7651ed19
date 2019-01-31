@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6782775b_5c6a26c8",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T21:49:21Z",
+      "side": 1,
+      "message": "Just curious... why do we attribute these to Chromium and not Skia like normal?",
+      "revId": "6180f3a1d8392489fe3820cc10ca1abb7651ed19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

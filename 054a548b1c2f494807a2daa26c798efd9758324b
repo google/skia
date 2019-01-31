@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "8e4f0afc_aa1e9ed1",
+        "filename": "docker/cmake-release/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T21:49:21Z",
+      "side": 1,
+      "message": "This is fine I guess, but if the object of the bot is to not break developers, I think we may want something older.  IIRC the version on gLinux is 3.10, so if we can get away with 3.7 or 3.10, that\u0027d be nice.",
+      "parentUuid": "3ae313ba_41caff0c",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f47a1d3_7c00a773",
         "filename": "gn/gn_to_cmake.py",
         "patchSetId": 9
@@ -306,6 +324,24 @@
     },
     {
       "key": {
+        "uuid": "5b870eea_f29b17ac",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T21:49:21Z",
+      "side": 1,
+      "message": "Thanks, that makes sense.",
+      "parentUuid": "8f3b30a8_65a30b44",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c1b4483_a35033e6",
         "filename": "infra/cmake/build_skia.sh",
         "patchSetId": 9
@@ -338,6 +374,23 @@
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb002a4a_832ed9e7",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T21:49:21Z",
+      "side": 1,
+      "message": "(gn gen ought to do this mkdir for you)",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {
@@ -551,6 +604,30 @@
       "side": 1,
       "message": "It does not appear I can do gn gen /OUT:\n+ gn gen /OUT --args\u003dis_debug\u003dfalse --ide\u003djson --json-ide-script\u003d../../gn/gn_to_cmake.py\npython: can\u0027t open file \u0027/gn/gn_to_cmake.py\u0027: [Errno 2] No such file or directory",
       "parentUuid": "ad2bd087_14ca3911",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a2397b7_b346cdaf",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-01-31T21:49:21Z",
+      "side": 1,
+      "message": "FWIW, this by happenstance not design.  I bet there\u0027s probably just a few places in our GN files that need calls to rebase_path() to make out/ directories that aren\u0027t underneath skia/ work.  I agree it\u0027d be nice to just build to where you want the build.\n\nYou could probably use a symlink in the meantime?",
+      "parentUuid": "8b15b9f4_a16cacfe",
       "range": {
         "startLine": 33,
         "startChar": 0,
