@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "9740840d_61480c74",
+        "filename": "infra/bots/recipe_modules/build/cmake.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-31T14:28:51Z",
+      "side": 1,
+      "message": "Is this just to indicate that \"Debug\" in the task name would be ignored?  If so, can we error out with a message saying that?  I\u0027m concerned that someone could come by later wanting a debug build for whatever reason, and just add it to jobs.json assuming that it\u0027ll just work.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 51
+      },
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7103ca19_38e180ce",
         "filename": "infra/bots/recipe_modules/build/cmake.py",
         "patchSetId": 9
@@ -98,6 +121,29 @@
       "writtenOn": "2019-01-31T14:25:47Z",
       "side": 1,
       "message": "I\u0027m not sure I\u0027m clear on the dividing line between the Docker images specified by the Dockerfile and the work we do in the scripts.  Is it that things which interact with /SRC need to be in here, and setup independent of /SRC goes in Dockerfile?\n\nskia-release/Dockerfile does the build itself, right?\n\nWhile we\u0027re talking about skia-release, what factors into piling onto an existing Docker image or creating a new one?  Is it not just a small tweak to skia-release to give it the tools it needs for CMake builds too?  Is there a philosophy here or some mechanical behavior we\u0027re thinking of?  Caching?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6691f86_fb68f4f0",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-31T14:28:51Z",
+      "side": 1,
+      "message": "Just curious, why isn\u0027t this under infra/bots?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 11
+      },
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -166,6 +212,29 @@
       "writtenOn": "2019-01-31T14:25:47Z",
       "side": 1,
       "message": "Might be a cp flag for this?",
+      "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad2bd087_14ca3911",
+        "filename": "infra/cmake/build_skia.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-01-31T14:28:51Z",
+      "side": 1,
+      "message": "If we\u0027re not doing incremental builds, why not just build directly to /OUT?",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 16
+      },
       "revId": "054a548b1c2f494807a2daa26c798efd9758324b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
