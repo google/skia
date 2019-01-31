@@ -29,7 +29,8 @@
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
-GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primProc,
+GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+                                               const GrPrimitiveProcessor& primProc,
                                                const GrTextureProxy* const primProcProxies[],
                                                const GrPipeline& pipeline,
                                                GrProgramDesc* desc,
@@ -41,7 +42,8 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, pipeline, primProc, primProcProxies, desc);
+    GrGLProgramBuilder builder(gpu, renderTarget, origin,
+                               pipeline, primProc, primProcProxies, desc);
 
     auto persistentCache = gpu->getContext()->contextPriv().getPersistentCache();
     if (persistentCache) {
@@ -60,11 +62,13 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
 /////////////////////////////////////////////////////////////////////////////
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
+                                       GrRenderTarget* renderTarget,
+                                       GrSurfaceOrigin origin,
                                        const GrPipeline& pipeline,
                                        const GrPrimitiveProcessor& primProc,
                                        const GrTextureProxy* const primProcProxies[],
                                        GrProgramDesc* desc)
-        : INHERITED(primProc, primProcProxies, pipeline, desc)
+        : INHERITED(renderTarget, origin, primProc, primProcProxies, pipeline, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
@@ -99,8 +103,7 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
     *shaderIds->append() = shaderId;
     if (inputs.fFlipY) {
         GrProgramDesc* d = this->desc();
-        d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().proxy()->origin()));
+        d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(this->origin()));
     }
 
     return true;
@@ -227,7 +230,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
     SkSL::Program::Settings settings;
     settings.fCaps = this->gpu()->glCaps().shaderCaps();
-    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
     settings.fFragColorIsInOut = this->fragColorIsInOut();
 
