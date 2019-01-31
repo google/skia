@@ -14,12 +14,12 @@
 #include "SkSurface_Gpu.h"
 #include "SkSurfaceCharacterization.h"
 
-GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t contextID,
                                                    GrBackendApi backend,
                                                    const GrContextOptions& options,
                                                    sk_sp<GrSkSLFPFactoryCache> cache)
         : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID)
+        , fContextID(contextID)
         , fBackend(backend)
         , fOptions(options)
         , fFPFactoryCache(std::move(cache)) {}
@@ -27,7 +27,7 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
 bool GrContextThreadSafeProxy::matches(GrContext* context) const {
-    return context->uniqueID() == fContextUniqueID;
+    return context->contextID() == fContextID;
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
