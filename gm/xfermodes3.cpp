@@ -23,7 +23,7 @@ namespace skiagm {
  */
 class Xfermodes3GM : public GM {
 public:
-    Xfermodes3GM() {}
+    Xfermodes3GM() { this->setBGColor(sk_tool_utils::color_to_565(0xFF70D0E0)); }
 
 protected:
     SkString onShortName() override {
@@ -32,12 +32,6 @@ protected:
 
     SkISize onISize() override {
         return SkISize::Make(630, 1215);
-    }
-
-    void onDrawBackground(SkCanvas* canvas) override {
-        SkPaint bgPaint;
-        bgPaint.setColor(sk_tool_utils::color_to_565(0xFF70D0E0));
-        canvas->drawPaint(bgPaint);
     }
 
     void onDraw(SkCanvas* canvas) override {

@@ -43,7 +43,7 @@ void GM::drawBackground(SkCanvas* canvas) {
         this->onOnceBeforeDraw();
     }
     SkAutoCanvasRestore acr(canvas, true);
-    this->onDrawBackground(canvas);
+    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
 }
 
 const char* GM::getName() {
@@ -62,10 +62,6 @@ bool GM::animate(const SkAnimTimer& timer) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-
-void GM::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
-}
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     SkISize size = this->getISize();
