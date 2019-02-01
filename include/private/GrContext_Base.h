@@ -25,15 +25,6 @@ public:
      */
     GrBackendApi backend() const { return fBackend; }
 
-    /**
-     * An identifier for this context. The id is used by all compatible contexts. For example,
-     * if SkImages are created on one thread using an image creation context, then fed into a
-     * DDL Recorder on second thread (which has a recording context) and finally replayed on
-     * a third thread with a direct context, then all three contexts will report the same id.
-     * It is an error for an image to be used with contexts that report different ids.
-     */
-    uint32_t uniqueID() const { return fUniqueID; }
-
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;
@@ -43,6 +34,15 @@ protected:
 
     GrContext_Base(GrBackendApi backend, uint32_t uniqueID);
 
+    /**
+     * An identifier for this context. The id is used by all compatible contexts. For example,
+     * if SkImages are created on one thread using an image creation context, then fed into a
+     * DDL Recorder on second thread (which has a recording context) and finally replayed on
+     * a third thread with a direct context, then all three contexts will report the same id.
+     * It is an error for an image to be used with contexts that report different ids.
+     */
+    uint32_t contextID() const { return fContextID; }
+
     GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
@@ -50,7 +50,7 @@ protected:
 
 private:
     const GrBackendApi fBackend;
-    const uint32_t     fUniqueID;
+    const uint32_t     fContextID;
 
     typedef SkRefCnt INHERITED;
 };

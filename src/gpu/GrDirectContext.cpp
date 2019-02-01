@@ -63,7 +63,7 @@ protected:
         SkASSERT(!fThreadSafeProxy);
         SkASSERT(!fFPFactoryCache);
         fFPFactoryCache.reset(new GrSkSLFPFactoryCache());
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->contextID(),
                                                             this->backend(),
                                                             options, fFPFactoryCache));
 

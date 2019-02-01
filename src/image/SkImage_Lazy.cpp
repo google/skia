@@ -417,7 +417,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
                 *fUniqueKeyInvalidatedMessages.append() =
-                        new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+                        new GrUniqueKeyInvalidatedMessage(key, ctx->contextPriv().contextID());
                 return proxy;
             }
         }
@@ -450,7 +450,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+                    new GrUniqueKeyInvalidatedMessage(key, ctx->contextPriv().contextID());
             return proxy;
         }
     }
@@ -469,7 +469,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             *fUniqueKeyInvalidatedMessages.append() =
-                    new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+                    new GrUniqueKeyInvalidatedMessage(key, ctx->contextPriv().contextID());
             return proxy;
         }
     }
@@ -482,7 +482,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         SkASSERT(willBeMipped);
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
         *fUniqueKeyInvalidatedMessages.append() =
-                new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
+                new GrUniqueKeyInvalidatedMessage(key, ctx->contextPriv().contextID());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;

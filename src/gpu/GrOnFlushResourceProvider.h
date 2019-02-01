@@ -92,7 +92,7 @@ public:
     sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType, size_t, const void* data,
                                                  const GrUniqueKey&);
 
-    uint32_t contextUniqueID() const;
+    uint32_t contextID() const;
     const GrCaps* caps() const;
 
 private:

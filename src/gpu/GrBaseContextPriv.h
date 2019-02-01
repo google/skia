@@ -16,6 +16,7 @@
 class GrBaseContextPriv {
 public:
     // from GrContext_Base
+    uint32_t contextID() const { return fContext->contextID(); }
 
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}

@@ -9,7 +9,7 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
+#include "GrRecordingContextPriv.h"
 #include "GrSDFMaskFilter.h"
 #include "GrTextBlobCache.h"
 #include "SkDistanceFieldGen.h"
@@ -210,8 +210,8 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     static std::unique_ptr<GrTextContext> gTextContext;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
-    if (context->uniqueID() != gContextID) {
-        gContextID = context->uniqueID();
+    if (context->priv().contextID() != gContextID) {
+        gContextID = context->priv().contextID();
         gTextContext = GrTextContext::Make(GrTextContext::Options());
     }
 

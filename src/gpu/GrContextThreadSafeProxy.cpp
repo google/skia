@@ -8,26 +8,27 @@
 #include "GrContextThreadSafeProxy.h"
 #include "GrContextThreadSafeProxyPriv.h"
 
+#include "GrBaseContextPriv.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrSkSLFPFactoryCache.h"
 #include "SkSurface_Gpu.h"
 #include "SkSurfaceCharacterization.h"
 
-GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID,
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t contextID,
                                                    GrBackendApi backend,
                                                    const GrContextOptions& options,
                                                    sk_sp<GrSkSLFPFactoryCache> cache)
         : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID)
+        , fContextID(contextID)
         , fBackend(backend)
         , fOptions(options)
         , fFPFactoryCache(std::move(cache)) {}
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
-bool GrContextThreadSafeProxy::matches(GrContext* context) const {
-    return context->uniqueID() == fContextUniqueID;
+bool GrContextThreadSafeProxy::matches(GrContext_Base* context) const {
+    return context->priv().contextID() == fContextID;
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(

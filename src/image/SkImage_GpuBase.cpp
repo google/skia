@@ -31,6 +31,13 @@ SkImage_GpuBase::~SkImage_GpuBase() {}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if GR_TEST_UTILS
+void SkImage_GpuBase::resetContext(sk_sp<GrContext> newContext) {
+    SkASSERT(fContext->contextPriv().contextID() == newContext->contextPriv().contextID());
+    fContext = newContext;
+}
+#endif
+
 bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendTexture& tex,
                                              GrPixelConfig* config, SkColorType ct, SkAlphaType at,
                                              sk_sp<SkColorSpace> cs) {
@@ -52,6 +59,10 @@ bool SkImage_GpuBase::ValidateBackendTexture(GrContext* ctx, const GrBackendText
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+uint32_t SkImage_GpuBase::contextID() const {
+    return fContext->contextPriv().contextID();
+}
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
     if (!fContext->contextPriv().resourceProvider()) {
@@ -200,7 +211,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrContext* context,
                                                          const GrSamplerState& params,
                                                          SkScalar scaleAdjust[2]) const {
-    if (context->uniqueID() != fContext->uniqueID()) {
+    if (context->contextPriv().contextID() != fContext->contextPriv().contextID()) {
         SkASSERT(0);
         return nullptr;
     }
@@ -498,8 +509,8 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             }
             tex->resourcePriv().setUniqueKey(fLastFulfilledKey);
             SkASSERT(fContextID == SK_InvalidUniqueID ||
-                     fContextID == tex->getContext()->uniqueID());
-            fContextID = tex->getContext()->uniqueID();
+                     fContextID == tex->getContext()->contextPriv().contextID());
+            fContextID = tex->getContext()->contextPriv().contextID();
             promiseTexture->addKeyToInvalidate(fContextID, fLastFulfilledKey);
             return std::move(tex);
         }

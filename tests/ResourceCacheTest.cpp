@@ -1045,8 +1045,8 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     typedef SkMessageBus<GrUniqueKeyInvalidatedMessage> Bus;
 
     // Invalidate two of the three, they should be purged and no longer accessible via their keys.
-    Bus::Post(Msg(key1, context->uniqueID()));
-    Bus::Post(Msg(key2, context->uniqueID()));
+    Bus::Post(Msg(key1, context->contextPriv().contextID()));
+    Bus::Post(Msg(key2, context->contextPriv().contextID()));
     cache->purgeAsNeeded();
     // a should be deleted now, but we still have a ref on b.
     REPORTER_ASSERT(reporter, !cache->hasUniqueKey(key1));
@@ -1055,7 +1055,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, cache->hasUniqueKey(key3));
 
     // Invalidate the third.
-    Bus::Post(Msg(key3, context->uniqueID()));
+    Bus::Post(Msg(key3, context->contextPriv().contextID()));
     cache->purgeAsNeeded();
     // we still have a ref on b, c should be recycled as scratch.
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
@@ -1571,13 +1571,13 @@ static void test_free_resource_messages(skiatest::Reporter* reporter) {
     cache->purgeAsNeeded();
 
     // Send message to free the first resource
-    GrGpuResourceFreedMessage msg1{wrapped1, context->uniqueID()};
+    GrGpuResourceFreedMessage msg1{wrapped1, context->contextPriv().contextID()};
     SkMessageBus<GrGpuResourceFreedMessage>::Post(msg1);
     cache->purgeAsNeeded();
 
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
-    GrGpuResourceFreedMessage msg2{wrapped3, context->uniqueID()};
+    GrGpuResourceFreedMessage msg2{wrapped3, context->contextPriv().contextID()};
     SkMessageBus<GrGpuResourceFreedMessage>::Post(msg2);
     cache->purgeAsNeeded();
 

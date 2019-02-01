@@ -56,7 +56,8 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
-          info, texture.get(), origin, context->uniqueID(), std::move(semaphore), backendTexture));
+          info, texture.get(), origin, context->contextPriv().contextID(),
+          std::move(semaphore), backendTexture));
 }
 
 GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo& info,
@@ -104,7 +105,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     fBorrowingMutex.acquire();
     sk_sp<GrReleaseProcHelper> releaseProcHelper;
     if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
-        if (fRefHelper->fBorrowingContextID != context->uniqueID()) {
+        if (fRefHelper->fBorrowingContextID != context->contextPriv().contextID()) {
             fBorrowingMutex.release();
             return nullptr;
         } else {
@@ -121,10 +122,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                                                         fRefHelper));
         fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
-    fRefHelper->fBorrowingContextID = context->uniqueID();
+    fRefHelper->fBorrowingContextID = context->contextPriv().contextID();
     fBorrowingMutex.release();
 
-    SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
+    SkASSERT(fRefHelper->fBorrowingContextID == context->contextPriv().contextID());
 
     GrSurfaceDesc desc;
     desc.fWidth = fBackendTexture.width();

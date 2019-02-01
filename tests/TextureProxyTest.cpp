@@ -203,7 +203,7 @@ static void basic_test(GrContext* context,
 
     if (expectResourceToOutliveProxy) {
         proxy.reset();
-        GrUniqueKeyInvalidatedMessage msg(texKey, context->uniqueID());
+        GrUniqueKeyInvalidatedMessage msg(texKey, context->contextPriv().contextID());
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount--;
@@ -278,7 +278,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 
     // Send an invalidation message, which will be sitting in the cache's inbox
     SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-            GrUniqueKeyInvalidatedMessage(key, context->uniqueID()));
+            GrUniqueKeyInvalidatedMessage(key, context->contextPriv().contextID()));
 
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
