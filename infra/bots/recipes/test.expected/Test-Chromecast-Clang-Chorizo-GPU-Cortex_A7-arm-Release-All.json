@@ -602,6 +602,7 @@
       "~matrixconvolution",
       "~textblobmixedsizes_df",
       "~textblobrandomfont",
+      "~big_tiled_rect_crbug_927075",
       "~bigbitmaprect_",
       "~DrawBitmapRect",
       "~drawbitmaprect",

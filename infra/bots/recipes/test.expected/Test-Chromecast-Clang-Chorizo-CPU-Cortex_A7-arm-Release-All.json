@@ -495,6 +495,7 @@
       "_",
       "GrShape",
       "--match",
+      "~big_tiled_rect_crbug_927075",
       "~bigbitmaprect_",
       "~DrawBitmapRect",
       "~drawbitmaprect",

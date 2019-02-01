@@ -604,6 +604,7 @@ def dm_flags(api, bot):
       match.append('~textblobmixedsizes_df')
       match.append('~textblobrandomfont')
     # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
+    match.append('~big_tiled_rect_crbug_927075')
     match.append('~bigbitmaprect_')
     match.append('~DrawBitmapRect')
     match.append('~drawbitmaprect')
