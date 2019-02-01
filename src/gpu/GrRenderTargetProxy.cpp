@@ -111,8 +111,7 @@ bool GrRenderTargetProxy::refsWrappedObjects() const {
 
 #ifdef SK_DEBUG
 void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
-    // We do not check that surface->asTexture returns null since, when replaying DDLs we
-    // can fulfill a renderTarget-only proxy w/ a textureRenderTarget.
+    SkASSERT(!surface->asTexture());
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asRenderTarget());
