@@ -166,6 +166,9 @@ private:
     SkScalar         fScale = 0;
 };
 
+SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
+    return this->getTypefaceOrDefault()->unicharToGlyph(uni);
+}
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          uint16_t glyphs[], int maxGlyphCount) const {
@@ -218,96 +221,6 @@ void SkFont::glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar tex
         text[i] = (id < numGlyphsInTypeface) ? unichars[id] : 0xFFFD;
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_CONTAINSTEXT
-static SkTypeface::Encoding to_encoding(SkTextEncoding e) {
-    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)kUTF8_SkTextEncoding,  "");
-    static_assert((int)SkTypeface::kUTF16_Encoding == (int)kUTF16_SkTextEncoding, "");
-    static_assert((int)SkTypeface::kUTF32_Encoding == (int)kUTF32_SkTextEncoding, "");
-    return (SkTypeface::Encoding)e;
-}
-
-bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncoding textEnc) const {
-    if (0 == byteLength) {
-        return true;
-    }
-
-    SkASSERT(textData != nullptr);
-
-    // handle this encoding before the setup for the glyphcache
-    if (textEnc == kGlyphID_SkTextEncoding) {
-        const uint16_t* glyphID = static_cast<const uint16_t*>(textData);
-        size_t count = byteLength >> 1;
-        for (size_t i = 0; i < count; i++) {
-            if (0 == glyphID[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(*this);
-    const void* stop = (const char*)textData + byteLength;
-    const SkTypeface::Encoding encoding = to_encoding(textEnc);
-    while (textData < stop) {
-        if (0 == cache->unicharToGlyph(SkUTFN_Next(encoding, &textData, stop))) {
-            return false;
-        }
-    }
-    return true;
-}
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_BREAKTEXT
-size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encoding,
-                         SkScalar maxWidth, SkScalar* measuredWidth) const {
-    if (0 == length || !(maxWidth > 0)) {
-        if (measuredWidth) {
-            *measuredWidth = 0;
-        }
-        return 0;
-    }
-    if (0 == fSize) {
-        if (measuredWidth) {
-            *measuredWidth = 0;
-        }
-        return length;
-    }
-
-    SkCanonicalizeFont canon(*this, nullptr);
-    const SkFont& font = canon.getFont();
-    SkScalar scale = canon.getScale();
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(font);
-
-    const char* text = static_cast<const char*>(textD);
-    const char* stop = text + length;
-    auto glyphCacheProc = SkFontPriv::GetGlyphCacheProc(encoding, false);
-
-    if (scale) {
-        maxWidth /= scale;
-    }
-
-    SkScalar width = 0;
-    while (text < stop) {
-        const char* curr = text;
-        SkScalar x = glyphCacheProc(cache.get(), &text, stop).fAdvanceX;
-        if ((width += x) > maxWidth) {
-            width -= x;
-            text = curr;
-            break;
-        }
-    }
-
-    if (measuredWidth) {
-        if (scale) {
-            width *= scale;
-        }
-        *measuredWidth = width;
-    }
-    return text - stop + length;
-}
-#endif
 
 static void set_bounds(const SkGlyph& g, SkRect* bounds) {
     bounds->set(SkIntToScalar(g.fLeft),

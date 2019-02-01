@@ -26,7 +26,7 @@ static void do_font_stuff(SkFont* font) {
                 SkScalerContextFlags::kNone, SkMatrix::I());
         uint16_t glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {
-            glyphs[c] = cache->unicharToGlyph(c);
+            glyphs[c] = font->unicharToGlyph(c);
         }
         for (int lookups = 0; lookups < 10; lookups++) {
             for (int c = ' '; c < 'z'; c++) {

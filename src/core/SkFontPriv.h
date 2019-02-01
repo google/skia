@@ -12,8 +12,6 @@
 #include "SkMatrix.h"
 #include "SkTypeface.h"
 
-class SkGlyph;
-class SkStrike;
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -58,10 +56,6 @@ public:
 
     // returns -1 if buffer is invalid for specified encoding
     static int ValidCountText(const void* text, size_t length, SkTextEncoding);
-
-    typedef const SkGlyph& (*GlyphCacheProc)(SkStrike*, const char**, const char*);
-
-    static GlyphCacheProc GetGlyphCacheProc(SkTextEncoding encoding, bool needFullMetrics);
 
     /**
         Returns the union of bounds of all glyphs.

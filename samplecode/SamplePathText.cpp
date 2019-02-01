@@ -38,7 +38,7 @@ public:
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
             char c = "aQCDEFGH7JKLMNOPBRZTUVWXYSAbcdefghijk1mnopqrstuvwxyz"[i];
-            SkPackedGlyphID id(cache->unicharToGlyph(c));
+            SkPackedGlyphID id(defaultFont.unicharToGlyph(c));
             sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &glyphPaths[i]));
         }
 
