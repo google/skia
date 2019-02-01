@@ -229,7 +229,10 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
         }
     }
 
-    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
+    if (rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0() && !characterization.usesGLFBO0()) {
+        // In GL, FBO0 render targets are very restricted (e.g., no MSAA or windows rectangles).
+        // We allow DDLs generated with an FBO0-based characterization to be replayed into a
+        // more flexible (non-FBO0) destination.
         return false;
     }
 
