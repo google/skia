@@ -95,18 +95,25 @@ void Window::onResize(int w, int h) {
     this->visitLayers([=](Layer* layer) { layer->onResize(w, h); });
 }
 
-int Window::width() {
+int Window::width() const {
     if (!fWindowContext) {
         return 0;
     }
     return fWindowContext->width();
 }
 
-int Window::height() {
+int Window::height() const {
     if (!fWindowContext) {
         return 0;
     }
     return fWindowContext->height();
+}
+
+SkScalar Window::pixelScale() const {
+    if (!fWindowContext) {
+        return 1;
+    }
+    return fWindowContext->pixelScale();
 }
 
 void Window::setRequestedDisplayParams(const DisplayParams& params, bool /* allowReattach */) {

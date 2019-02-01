@@ -44,6 +44,8 @@ public:
 
     ~RasterWindowContext_mac() override;
 
+    SkScalar pixelScale() const override { return fPixelScale; }
+
     sk_sp<SkSurface> getBackbufferSurface() override;
 
     void onSwapBuffers() override;
@@ -56,6 +58,7 @@ private:
     RasterView*          fRasterView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
+    SkScalar             fPixelScale;
     sk_sp<SkSurface>     fBackbufferSurface;
 
     typedef GLWindowContext INHERITED;
@@ -172,9 +175,11 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     fSampleCount = SkTMax(fSampleCount, 1);
 
     const NSRect viewportRect = [fMainView bounds];
-    fWidth = viewportRect.size.width;
-    fHeight = viewportRect.size.height;
-    glViewport(0, 0, fWidth, fHeight);
+    glViewport(0, 0, viewportRect.size.width, viewportRect.size.height);
+    const NSRect backingRect = [fRasterView convertRectToBacking:viewportRect];
+    fWidth = backingRect.size.width;
+    fHeight = backingRect.size.height;
+    fPixelScale = SkIntToScalar(fWidth)/viewportRect.size.width;
 
     // make the offscreen image
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
