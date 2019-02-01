@@ -48,7 +48,7 @@ private:
         SkFont defaultFont;
         auto cache = SkStrikeCache::FindOrCreateStrikeWithNoDeviceExclusive(defaultFont);
         for (int i = 0; i < kNumGlyphs; ++i) {
-            SkPackedGlyphID id(cache->unicharToGlyph(kGlyphs[i]));
+            SkPackedGlyphID id(defaultFont.unicharToGlyph(kGlyphs[i]));
             sk_ignore_unused_variable(cache->getScalerContext()->getPath(id, &fGlyphs[i]));
             fGlyphs[i].setIsVolatile(fUncached);
         }
