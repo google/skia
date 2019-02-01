@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4f8c4b3_e34a0160",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-01T18:56:29Z",
+      "side": 1,
+      "message": "Maybe we could try shelling out to gn/cp.py to do the copy?",
+      "revId": "4984b872e90747bb378c52051a689fdcf3a86543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
