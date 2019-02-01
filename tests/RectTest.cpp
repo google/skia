@@ -165,17 +165,22 @@ DEF_TEST(Rect_center, reporter) {
 // Before the fix, this sequence would trigger a release_assert in the Tiler
 // in SkBitmapDevice.cpp
 DEF_TEST(big_tiled_rect_crbug_927075, reporter) {
-    const int w = 67108863;
-    const int h = 1;
-    const auto info = SkImageInfo::MakeN32Premul(w, h);
+    // since part of the regression test allocates a huge buffer, don't bother trying on
+    // 32-bit devices (e.g. chromecast) so we avoid them failing to allocated.
 
-    auto surf = SkSurface::MakeRaster(info);
-    auto canvas = surf->getCanvas();
+    if (sizeof(void*) == 8) {
+        const int w = 67108863;
+        const int h = 1;
+        const auto info = SkImageInfo::MakeN32Premul(w, h);
 
-    const SkRect r = { 257, 213, 67109120, 214 };
-    SkPaint paint;
-    paint.setAntiAlias(true);
+        auto surf = SkSurface::MakeRaster(info);
+        auto canvas = surf->getCanvas();
 
-    canvas->translate(-r.fLeft, -r.fTop);
-    canvas->drawRect(r, paint);
+        const SkRect r = { 257, 213, 67109120, 214 };
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        canvas->translate(-r.fLeft, -r.fTop);
+        canvas->drawRect(r, paint);
+    }
 }
