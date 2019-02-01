@@ -14,6 +14,7 @@
 #include "GrTextTarget.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilterBase.h"
+#include "SkPaintPriv.h"
 #include "ops/GrAtlasTextOp.h"
 
 #include <new>
@@ -81,7 +82,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects
     if (fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
-        fLuminanceColor != paint.computeLuminanceColor()) {
+        fLuminanceColor != SkPaintPriv::ComputeLuminanceColor(paint)) {
         return true;
     }
 
@@ -176,7 +177,8 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
         // TODO: Can we be even smarter based on the dest transfer function?
         op = GrAtlasTextOp::MakeDistanceField(
                 target->getContext(), std::move(grPaint), glyphCount, distanceAdjustTable,
-                target->colorSpaceInfo().isLinearlyBlended(), paint.computeLuminanceColor(),
+                target->colorSpaceInfo().isLinearlyBlended(),
+                SkPaintPriv::ComputeLuminanceColor(paint),
                 props, info.isAntiAliased(), info.hasUseLCDText());
     } else {
         op = GrAtlasTextOp::MakeBitmap(target->getContext(), std::move(grPaint), format, glyphCount,

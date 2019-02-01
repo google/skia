@@ -1015,7 +1015,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     // these modify fFlags, so do them after assigning fFlags
     rec->setHinting(computeHinting(font));
 
-    rec->setLuminanceColor(paint.computeLuminanceColor());
+    rec->setLuminanceColor(SkPaintPriv::ComputeLuminanceColor(paint));
 
     // For now always set the paint gamma equal to the device gamma.
     // The math in SkMaskGamma can handle them being different,
