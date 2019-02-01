@@ -276,7 +276,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
-    settings.fSharpenTextures = this->gpu()->getContext()->contextPriv().sharpenMipmappedTextures();
+    settings.fSharpenTextures = this->gpu()->getContext()->options().fSharpenMipmappedTextures;
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
