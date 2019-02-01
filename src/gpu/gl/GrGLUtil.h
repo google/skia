@@ -99,8 +99,7 @@ enum class GrGLANGLEBackend {
 
 enum class GrGLANGLEVendor {
     kUnknown,
-    kIntel,
-    kNVIDIA
+    kIntel
 };
 
 enum class GrGLANGLERenderer {

@@ -2499,16 +2499,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+    // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
+    // bugs seems to involve clearing too much and not skipping the clear.
+    // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620
+    // but only for D3D11 ANGLE.
     if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend()) {
-        if (GrGLANGLEVendor::kIntel == ctxInfo.angleVendor()) {
-            // See crbug.com/755871. This driver bug involves clearing too much and ignoring the
-            // scissor bounds, so disable native partial clears but allow native fullscreen clears.
-            fPerformPartialClearsAsDraws = true;
-        } else if (GrGLANGLEVendor::kNVIDIA == ctxInfo.angleVendor()) {
-            // See crbug.com/768134. This is needed for full clears and was seen on an nVidia K620
-            // but only for D3D11 ANGLE.
-            fPerformColorClearsAsDraws = true;
-        }
+        fPerformColorClearsAsDraws = true;
     }
 
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||

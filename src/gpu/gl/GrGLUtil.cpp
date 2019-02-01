@@ -488,8 +488,6 @@ void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend* ba
                     break;
             }
         }
-    } else if (strstr(rendererString, "NVIDIA")) {
-        *vendor = GrGLANGLEVendor::kNVIDIA;
     }
     if (strstr(rendererString, "Direct3D11")) {
         *backend = GrGLANGLEBackend::kD3D11;
