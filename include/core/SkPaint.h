@@ -35,10 +35,6 @@ class SkPathEffect;
 struct SkPoint;
 class SkShader;
 
-// TODO: remove after updating android sites to IWYU
-#include "SkFontMetrics.h"
-class SkSurfaceProps;
-
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
