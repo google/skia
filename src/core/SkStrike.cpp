@@ -40,36 +40,11 @@ const SkDescriptor& SkStrike::getDescriptor() const {
     return *fDesc.getDesc();
 }
 
-SkStrike::CharGlyphRec* SkStrike::getCharGlyphRec(SkPackedUnicharID packedUnicharID) {
-    if (!fPackedUnicharIDToPackedGlyphID) {
-        fPackedUnicharIDToPackedGlyphID.reset(new CharGlyphRec[kHashCount]);
-    }
-
-    return &fPackedUnicharIDToPackedGlyphID[packedUnicharID.hash() & kHashMask];
-}
-
 #ifdef SK_DEBUG
 #define VALIDATE()  AutoValidate av(this)
 #else
 #define VALIDATE()
 #endif
-
-SkGlyphID SkStrike::unicharToGlyph(SkUnichar charCode) {
-    VALIDATE();
-    SkPackedUnicharID packedUnicharID(charCode);
-    CharGlyphRec* rec = this->getCharGlyphRec(packedUnicharID);
-
-    if (rec->fPackedUnicharID == packedUnicharID) {
-        // The glyph exists in the unichar to glyph mapping cache. Return it.
-        return rec->fPackedGlyphID.code();
-    } else {
-        // The glyph is not in the unichar to glyph mapping cache. Insert it.
-        rec->fPackedUnicharID = packedUnicharID;
-        SkGlyphID glyphID = fScalerContext->charToGlyphID(charCode);
-        rec->fPackedGlyphID = SkPackedGlyphID(glyphID);
-        return glyphID;
-    }
-}
 
 unsigned SkStrike::getGlyphCount() const {
     return fScalerContext->getGlyphCount();
@@ -88,25 +63,10 @@ SkGlyph* SkStrike::getRawGlyphByID(SkPackedGlyphID id) {
     return lookupByPackedGlyphID(id, kNothing_MetricsType);
 }
 
-const SkGlyph& SkStrike::getUnicharAdvance(SkUnichar charCode) {
-    VALIDATE();
-    return *this->lookupByChar(charCode, kJustAdvance_MetricsType);
-}
-
 const SkGlyph& SkStrike::getGlyphIDAdvance(uint16_t glyphID) {
     VALIDATE();
     SkPackedGlyphID packedGlyphID(glyphID);
     return *this->lookupByPackedGlyphID(packedGlyphID, kJustAdvance_MetricsType);
-}
-
-const SkGlyph& SkStrike::getUnicharMetrics(SkUnichar charCode) {
-    VALIDATE();
-    return *this->lookupByChar(charCode, kFull_MetricsType);
-}
-
-const SkGlyph& SkStrike::getUnicharMetrics(SkUnichar charCode, SkFixed x, SkFixed y) {
-    VALIDATE();
-    return *this->lookupByChar(charCode, kFull_MetricsType, x, y);
 }
 
 const SkGlyph& SkStrike::getGlyphIDMetrics(uint16_t glyphID) {
@@ -126,16 +86,6 @@ void SkStrike::getAdvances(SkSpan<const SkGlyphID> glyphIDs, SkPoint advances[])
         auto glyph = this->getGlyphIDAdvance(glyphID);
         *advances++ = SkPoint::Make(glyph.fAdvanceX, glyph.fAdvanceY);
     }
-}
-
-SkGlyph* SkStrike::lookupByChar(SkUnichar charCode, MetricsType type, SkFixed x, SkFixed y) {
-    SkPackedUnicharID id(charCode, x, y);
-    CharGlyphRec* rec = this->getCharGlyphRec(id);
-    if (rec->fPackedUnicharID != id) {
-        rec->fPackedUnicharID = id;
-        rec->fPackedGlyphID = SkPackedGlyphID(fScalerContext->charToGlyphID(charCode), x, y);
-    }
-    return this->lookupByPackedGlyphID(rec->fPackedGlyphID, type);
 }
 
 SkGlyph* SkStrike::lookupByPackedGlyphID(SkPackedGlyphID packedGlyphID, MetricsType type) {
