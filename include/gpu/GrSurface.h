@@ -45,6 +45,20 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+        this->onSetRelease(releaseHelper);
+        fReleaseHelper = std::move(releaseHelper);
+    }
+
+    // These match the definitions in SkImage, from whence they came.
+    // TODO: Remove Chrome's need to call this on a GrTexture
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
+        sk_sp<GrReleaseProcHelper> helper(new GrReleaseProcHelper(proc, ctx));
+        this->setRelease(std::move(helper));
+    }
+
     /**
      * @return the texture associated with the surface, may be null.
      */
@@ -107,7 +121,10 @@ protected:
             , fSurfaceFlags(GrInternalSurfaceFlags::kNone) {
     }
 
-    ~GrSurface() override {}
+    ~GrSurface() override {
+        // check that invokeReleaseProc has been called (if needed)
+        SkASSERT(!fReleaseHelper);
+    }
 
     void onRelease() override;
     void onAbandon() override;
@@ -115,10 +132,18 @@ protected:
 private:
     const char* getResourceType() const override { return "Surface"; }
 
-    GrPixelConfig          fConfig;
-    int                    fWidth;
-    int                    fHeight;
-    GrInternalSurfaceFlags fSurfaceFlags;
+    virtual void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) = 0;
+    void invokeReleaseProc() {
+        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+        // ReleaseProc to be called.
+        fReleaseHelper.reset();
+    }
+
+    GrPixelConfig              fConfig;
+    int                        fWidth;
+    int                        fHeight;
+    GrInternalSurfaceFlags     fSurfaceFlags;
+    sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     typedef GrGpuResource INHERITED;
 };
