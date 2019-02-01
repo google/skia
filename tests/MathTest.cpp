@@ -522,6 +522,7 @@ DEF_TEST(TestEndian, reporter) {
 
 template <typename T>
 static void test_divmod(skiatest::Reporter* r) {
+#if !defined(__MSVC_RUNTIME_CHECKS)
     const struct {
         T numer;
         T denom;
@@ -557,6 +558,7 @@ static void test_divmod(skiatest::Reporter* r) {
         REPORTER_ASSERT(r, numer/denom == div);
         REPORTER_ASSERT(r, numer%denom == mod);
     }
+#endif
 }
 
 DEF_TEST(divmod_u8, r) {

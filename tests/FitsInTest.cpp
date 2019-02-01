@@ -13,7 +13,14 @@
 
 #define TEST(S, s, D, expected) REPORTER_ASSERT(reporter, (SkTFitsIn<D>((S)(s)) == (expected)))
 
+enum TestEnum_t : uint8_t {
+    kFoo,
+    kBar,
+    kBaz,
+};
+
 DEF_TEST(FitsIn, reporter) {
+    // This test explicitly exercises SkFitsIn in ways that trigger /RTCc
     TEST(uint16_t, 257, int8_t, false);
 
     TEST(int32_t,  1, int8_t, true);
@@ -31,6 +38,8 @@ DEF_TEST(FitsIn, reporter) {
     TEST(int32_t, -1, uint8_t, false);
     TEST(int32_t, -127, uint8_t, false);
     TEST(int32_t, -128, uint8_t, false);
+
+    TEST(uint8_t, 2, TestEnum_t, true);
 
     TEST(int32_t, 1000, int8_t, false);
     TEST(int32_t, 1000, uint8_t, false);

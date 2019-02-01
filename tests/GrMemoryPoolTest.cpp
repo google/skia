@@ -19,10 +19,10 @@ class A {
 public:
     A() {}
     virtual void setValues(int v) {
-        fChar = static_cast<char>(v);
+        fChar = static_cast<char>(v & 0xFF);
     }
     virtual bool checkValues(int v) {
-        return fChar == static_cast<char>(v);
+        return fChar == static_cast<char>(v & 0xFF);
     }
     virtual ~A() {}
 

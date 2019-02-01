@@ -32,6 +32,7 @@ declare_args() {
   win_toolchain_version = ""
 
   clang_win = ""
+  msvc_san = false
 
   skia_moltenvk_path = ""
 }
@@ -238,6 +239,9 @@ default_configs += [
   "//gn:warnings_except_public_headers",
   "//gn:extra_flags",
 ]
+if (msvc_san) {
+  default_configs += [ "//gn:msvc_san" ]
+}
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
