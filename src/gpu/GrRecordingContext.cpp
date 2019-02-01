@@ -7,8 +7,10 @@
 
 #include "GrRecordingContext.h"
 
-GrRecordingContext::GrRecordingContext(GrBackendApi backend, uint32_t uniqueID)
-        : INHERITED(backend, uniqueID) {
+GrRecordingContext::GrRecordingContext(GrBackendApi backend,
+                                       const GrContextOptions& options,
+                                       uint32_t uniqueID)
+        : INHERITED(backend, options, uniqueID) {
 }
 
 GrRecordingContext::~GrRecordingContext() { }

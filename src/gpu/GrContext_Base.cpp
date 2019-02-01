@@ -17,12 +17,13 @@ static int32_t next_id() {
 }
 
 GrContext_Base::GrContext_Base(GrBackendApi backend,
+                               const GrContextOptions& options,
                                uint32_t uniqueID)
-        : fBackend(backend)
+        : fOptions(options)
+        , fBackend(backend)
         , fUniqueID(SK_InvalidGenID == uniqueID ? next_id() : uniqueID) {
 }
 
-GrContext_Base::~GrContext_Base() {
-}
+GrContext_Base::~GrContext_Base() { }
 
 
