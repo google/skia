@@ -16,6 +16,24 @@
       "revId": "3105238ed5fba23632239d32b8f04d793fc8478f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24b2e12_11dcd616",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-02-01T20:05:20Z",
+      "side": 1,
+      "message": "LGTM",
+      "parentUuid": "6a3281f5_8fb0f115",
+      "revId": "3105238ed5fba23632239d32b8f04d793fc8478f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
