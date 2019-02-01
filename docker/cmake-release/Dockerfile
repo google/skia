@@ -8,6 +8,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   libfontconfig-dev \
   libgl1-mesa-dev \
   libglu1-mesa-dev \
+  libxi-dev \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 skia
 

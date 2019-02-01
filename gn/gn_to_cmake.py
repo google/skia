@@ -372,8 +372,15 @@ def WriteCopy(out, target, project, sources, synthetic_dependencies):
   out.write('\n')
 
   for src, dst in zip(inputs, outputs):
-    out.write('  COMMAND ${CMAKE_COMMAND} -E copy_directory "')
-    out.write(CMakeStringEscape(project.GetAbsolutePath(src)))
+    abs_src_path = CMakeStringEscape(project.GetAbsolutePath(src))
+    # CMake distinguishes between copying files and copying directories but
+    # gn does not. We assume if the src has a period in its name then it is
+    # a file and otherwise a directory.
+    if "." in os.path.basename(abs_src_path):
+      out.write('  COMMAND ${CMAKE_COMMAND} -E copy "')
+    else:
+      out.write('  COMMAND ${CMAKE_COMMAND} -E copy_directory "')
+    out.write(abs_src_path)
     out.write('" "')
     out.write(CMakeStringEscape(dst))
     out.write('"\n')
