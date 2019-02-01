@@ -172,8 +172,9 @@ public:
     void onPaint();
     void onResize(int width, int height);
 
-    int width();
-    int height();
+    int width() const;
+    int height() const;
+    SkScalar pixelScale() const;
 
     virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
     virtual void setRequestedDisplayParams(const DisplayParams&, bool allowReattach = true);
