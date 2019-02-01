@@ -75,6 +75,8 @@ private:
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                       numColorSamples, GrMipMapped::kNo, false);
     }
+
+    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
 };
 
 #endif
