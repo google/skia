@@ -368,9 +368,8 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
 sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
     auto resourceProvider = fGpu->getContext()->contextPriv().resourceProvider();
 
-    // Shouldn't have to use this flag (https://bug.skia.org/4156)
-    static const auto kFlags = GrResourceProvider::Flags::kNoPendingIO;
-    return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
+    return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern,
+            GrResourceProvider::Flags::kNone);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

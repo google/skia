@@ -313,7 +313,7 @@ sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint1
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
     sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, kIndex_GrBufferType,
-                                              kStatic_GrAccessPattern, Flags::kNoPendingIO));
+                                              kStatic_GrAccessPattern, Flags::kNone));
     if (!buffer) {
         return nullptr;
     }

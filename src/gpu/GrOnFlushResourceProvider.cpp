@@ -78,7 +78,7 @@ sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType,
     auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
     return sk_sp<GrBuffer>(resourceProvider->createBuffer(size, intendedType,
                                                           kDynamic_GrAccessPattern,
-                                                          GrResourceProvider::Flags::kNoPendingIO,
+                                                          GrResourceProvider::Flags::kNone,
                                                           data));
 }
 
