@@ -377,7 +377,6 @@ sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count)
     return sk_sp<const GrBuffer>(
         fState->resourceProvider()->createBuffer(
             count * sizeof(T), kVertex_GrBufferType, kDynamic_GrAccessPattern,
-            GrResourceProvider::Flags::kNoPendingIO |
             GrResourceProvider::Flags::kRequireGpuMemory, data));
 }
 

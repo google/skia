@@ -196,7 +196,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
 
     sk_sp<const GrBuffer> vbuff(rp->createBuffer(sizeof(vdata), kVertex_GrBufferType,
                                                  kDynamic_GrAccessPattern,
-                                                 GrResourceProvider::Flags::kNoPendingIO |
                                                  GrResourceProvider::Flags::kRequireGpuMemory,
                                                  vdata));
     if (!vbuff) {

@@ -345,7 +345,6 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
             sk_sp<GrBuffer> instBuff(rp->createBuffer(
                     fView->fQuadPointInstances.count() * sizeof(QuadPointInstance),
                     kVertex_GrBufferType, kDynamic_GrAccessPattern,
-                    GrResourceProvider::Flags::kNoPendingIO |
                     GrResourceProvider::Flags::kRequireGpuMemory,
                     fView->fQuadPointInstances.begin()));
             if (!fView->fQuadPointInstances.empty() && instBuff) {
@@ -355,7 +354,6 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
             sk_sp<GrBuffer> instBuff(rp->createBuffer(
                     fView->fTriPointInstances.count() * sizeof(TriPointInstance),
                     kVertex_GrBufferType, kDynamic_GrAccessPattern,
-                    GrResourceProvider::Flags::kNoPendingIO |
                     GrResourceProvider::Flags::kRequireGpuMemory, fView->fTriPointInstances.begin()));
             if (!fView->fTriPointInstances.empty() && instBuff) {
                 proc.appendMesh(std::move(instBuff), fView->fTriPointInstances.count(), 0, &mesh);
