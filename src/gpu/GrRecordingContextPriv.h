@@ -16,6 +16,7 @@
 class GrRecordingContextPriv {
 public:
     // from GrContext_Base
+    uint32_t contextID() const { return fContext->contextID(); }
 
     // from GrImageContext
 

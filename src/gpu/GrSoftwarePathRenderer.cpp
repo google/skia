@@ -374,7 +374,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
             args.fShape->addGenIDChangeListener(
-                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->uniqueID()));
+                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->contextPriv().contextID()));
         }
     }
     if (inverseFilled) {
