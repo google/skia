@@ -55,29 +55,3 @@ SkScalar SkFontPriv::MaxCacheSize2(SkScalar maxLimit) {
     const SkScalar maxSize = SkIntToScalar(limit);
     return maxSize * maxSize;
 }
-
-// return true if the paint is just a single color (i.e. not a shader). If its
-// a shader, then we can't compute a const luminance for it :(
-static bool just_a_color(const SkPaint& paint, SkColor* color) {
-    SkColor c = paint.getColor();
-
-    const auto* shader = as_SB(paint.getShader());
-    if (shader && !shader->asLuminanceColor(&c)) {
-        return false;
-    }
-    if (paint.getColorFilter()) {
-        c = paint.getColorFilter()->filterColor(c);
-    }
-    if (color) {
-        *color = c;
-    }
-    return true;
-}
-
-SkColor SkPaint::computeLuminanceColor() const {
-    SkColor c;
-    if (!just_a_color(*this, &c)) {
-        c = SkColorSetRGB(0x7F, 0x80, 0x7F);
-    }
-    return c;
-}
