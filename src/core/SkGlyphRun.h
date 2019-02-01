@@ -20,6 +20,7 @@
 
 class SkBaseDevice;
 class SkGlyph;
+class SkTextBlob;
 
 class SkGlyphRun {
 public:
