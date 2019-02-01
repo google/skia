@@ -227,7 +227,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
                         kWidthHeight, kWidthHeight, SkColorTypeToGrColorType(colorType));
                 sk_sp<GrSurfaceProxy> sProxy(
-                        proxyProvider->wrapBackendRenderTarget(backendRT, origin));
+                        proxyProvider->wrapBackendRenderTarget(backendRT, origin, nullptr,
+                                                               nullptr));
                 check_surface(reporter, sProxy.get(), origin, kWidthHeight, kWidthHeight,
                               backendRT.pixelConfig(), SkBudgeted::kNo);
                 static constexpr int kExpectedNumSamples = 1;
@@ -256,7 +257,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                     kStencilBits, fboInfo);
                     backendRT.setPixelConfig(config);
                     sk_sp<GrSurfaceProxy> sProxy(
-                            proxyProvider->wrapBackendRenderTarget(backendRT, origin));
+                            proxyProvider->wrapBackendRenderTarget(backendRT, origin, nullptr,
+                                                                   nullptr));
                     check_surface(reporter, sProxy.get(), origin,
                                   kWidthHeight, kWidthHeight,
                                   backendRT.pixelConfig(), SkBudgeted::kNo);
@@ -298,7 +300,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                     sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
                             backendTex, origin, supportedNumSamples, kBorrow_GrWrapOwnership,
-                            GrWrapCacheable::kNo);
+                            GrWrapCacheable::kNo, nullptr, nullptr);
                     if (!sProxy) {
                         gpu->deleteTestingOnlyBackendTexture(backendTex);
                         continue;  // This can fail on Mesa
