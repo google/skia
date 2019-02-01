@@ -22,16 +22,10 @@
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
-#include "SkMatrix.h"
 #include "SkRefCnt.h"
 
-// TODO: remove after updating android sites to IWYU
-#include "SkFontMetrics.h"
-
-class GrTextBlob;
 class SkColorFilter;
 class SkColorSpace;
-class SkData;
 class SkDrawLooper;
 struct SkRect;
 class SkImageFilter;
@@ -40,8 +34,10 @@ class SkPath;
 class SkPathEffect;
 struct SkPoint;
 class SkShader;
+
+// TODO: remove after updating android sites to IWYU
+#include "SkFontMetrics.h"
 class SkSurfaceProps;
-class SkTextBlob;
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
@@ -692,29 +688,6 @@ private:
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
-
-    /*
-     * The luminance color is used to determine which Gamma Canonical color to map to.  This is
-     * really only used by backends which want to cache glyph masks, and need some way to know if
-     * they need to generate new masks based off a given color.
-     */
-    SkColor computeLuminanceColor() const;
-
-    friend class GrTextBlob;
-    friend class GrTextContext;
-    friend class GrGLPathRendering;
-    friend class GrPathRendering;
-    friend class SkAutoGlyphCacheNoGamma;
-    friend class SkCanonicalizePaint;
-    friend class SkCanvas;
-    friend class SkDraw;
-    friend class SkGlyphRunListPainter;
-    friend class SkPaintPriv;
-    friend class SkPicturePlayback;
-    friend class SkPDFDevice;
-    friend class SkScalerContext;
-    friend class SkTextBaseIter;
-    friend class SkTextBlobCacheDiffCanvas;
 };
 
 #endif

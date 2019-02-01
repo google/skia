@@ -38,6 +38,13 @@ public:
 
     static bool ShouldDither(const SkPaint&, SkColorType);
 
+    /*
+     * The luminance color is used to determine which Gamma Canonical color to map to.  This is
+     * really only used by backends which want to cache glyph masks, and need some way to know if
+     * they need to generate new masks based off a given color.
+     */
+    static SkColor ComputeLuminanceColor(const SkPaint&);
+
     /** Serializes SkPaint into a buffer. A companion unflatten() call
     can reconstitute the paint at a later time.
 
