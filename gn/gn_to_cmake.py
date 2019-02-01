@@ -141,7 +141,7 @@ cmake_target_types = {
   'executable': CMakeTargetType('add_executable', None, 'RUNTIME', True),
   'loadable_module': CMakeTargetType('add_library', 'MODULE', 'LIBRARY', True),
   'shared_library': CMakeTargetType('add_library', 'SHARED', 'LIBRARY', True),
-  'static_library': CMakeTargetType('add_library', 'STATIC', 'ARCHIVE', False),
+  'static_library': CMakeTargetType('add_library', 'STATIC', 'ARCHIVE', True),
   'source_set': CMakeTargetType('add_library', 'OBJECT', None, False),
   'copy': CMakeTargetType.custom,
   'action': CMakeTargetType.custom,
