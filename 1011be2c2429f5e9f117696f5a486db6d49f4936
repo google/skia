@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42c09328_b1319b7b",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 7952
+      },
+      "writtenOn": "2019-02-01T17:21:17Z",
+      "side": 1,
+      "message": "Looks like isTextureable should always be !willUseGLFBO0. So maybe the new parameter is not necessary.",
+      "range": {
+        "startLine": 83,
+        "startChar": 37,
+        "endLine": 83,
+        "endChar": 90
+      },
+      "revId": "1011be2c2429f5e9f117696f5a486db6d49f4936",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
