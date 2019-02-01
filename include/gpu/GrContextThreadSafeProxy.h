@@ -14,6 +14,7 @@
 class GrBackendFormat;
 class GrCaps;
 class GrContext;
+class GrContext_Base;
 class GrContextThreadSafeProxyPriv;
 class GrSkSLFPFactoryCache;
 struct SkImageInfo;
@@ -27,7 +28,7 @@ class SK_API GrContextThreadSafeProxy : public SkRefCnt {
 public:
     ~GrContextThreadSafeProxy() override;
 
-    bool matches(GrContext* context) const;
+    bool matches(GrContext_Base* context) const;
 
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
@@ -68,7 +69,7 @@ public:
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (fContextUniqueID == that.fContextUniqueID));
+        SkASSERT((this == &that) == (fContextID == that.fContextID));
         return this == &that;
     }
 
@@ -87,8 +88,8 @@ private:
                              sk_sp<GrSkSLFPFactoryCache> cache);
 
     sk_sp<const GrCaps>         fCaps;
-    const uint32_t              fContextUniqueID;
-    const GrBackendApi             fBackend;
+    const uint32_t              fContextID;
+    const GrBackendApi          fBackend;
     const GrContextOptions      fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 

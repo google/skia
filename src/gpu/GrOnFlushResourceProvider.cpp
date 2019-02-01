@@ -94,8 +94,8 @@ sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBuffer
     return buffer;
 }
 
-uint32_t GrOnFlushResourceProvider::contextUniqueID() const {
-    return fDrawingMgr->getContext()->uniqueID();
+uint32_t GrOnFlushResourceProvider::contextID() const {
+    return fDrawingMgr->getContext()->contextPriv().contextID();
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {

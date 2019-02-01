@@ -351,7 +351,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
         return nullptr;
     }
     if (uint32_t incumbentID = as_IB(this)->contextID()) {
-        if (incumbentID != context->uniqueID()) {
+        if (incumbentID != context->contextPriv().contextID()) {
             return nullptr;
         }
         sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();

@@ -74,13 +74,13 @@ bool GrContext::initCommon(const GrContextOptions& options) {
 
     if (fGpu) {
         fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, this->uniqueID());
+        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
                                                    options.fExplicitlyAllocateGPUResources);
         fProxyProvider =
                 new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
     } else {
-        fProxyProvider = new GrProxyProvider(this->uniqueID(), fCaps, &fSingleOwner);
+        fProxyProvider = new GrProxyProvider(this->contextID(), fCaps, &fSingleOwner);
     }
 
     if (fResourceCache) {
@@ -131,8 +131,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
 
     fGlyphCache = new GrStrikeCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
 
-    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB,
-                                             this, this->uniqueID()));
+    fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this, this->contextID()));
 
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
