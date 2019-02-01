@@ -45,7 +45,7 @@ struct IntLiteral : public Expression {
     }
 
     int coercionCost(const Type& target) const override {
-        if (target.isUnsigned()) {
+        if (target.isSigned() || target.isUnsigned() || target.isFloat()) {
             return 0;
         }
         return INHERITED::coercionCost(target);

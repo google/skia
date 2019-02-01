@@ -85,8 +85,8 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
                        squircleCoord.fsIn(), squircleCoord.fsIn());
 
         // Squircle function!
-        f->codeAppendf("float fn = pow(x, golden_ratio*pi) + pow(y, golden_ratio*pi) - 1;");
-        f->codeAppendf("float fnwidth = fwidth(fn);");
+        f->codeAppendf("half fn = half(pow(x, golden_ratio*pi) + pow(y, golden_ratio*pi) - 1);");
+        f->codeAppendf("half fnwidth = fwidth(fn);");
         f->codeAppendf("fnwidth += 1e-10;");  // Guard against divide-by-zero.
         f->codeAppendf("half coverage = clamp(.5 - fn/fnwidth, 0, 1);");
 

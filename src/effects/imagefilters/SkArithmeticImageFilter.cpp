@@ -31,7 +31,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 GR_FP_SRC_STRING SKSL_ARITHMETIC_SRC = R"(
-in uniform float4 k;
+in uniform half4 k;
 layout(key) const in bool enforcePMColor;
 in fragmentProcessor child;
 
