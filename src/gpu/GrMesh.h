@@ -75,12 +75,10 @@ public:
     void sendToGpu(SendToGpuImpl*) const;
 
 private:
-    using PendingBuffer = GrPendingIOResource<const GrBuffer, kRead_GrIOType>;
-
     GrPrimitiveType fPrimitiveType;
-    PendingBuffer fIndexBuffer;
-    PendingBuffer fInstanceBuffer;
-    PendingBuffer fVertexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    sk_sp<const GrBuffer> fInstanceBuffer;
+    sk_sp<const GrBuffer> fVertexBuffer;
     int fBaseVertex;
     GrPrimitiveRestart fPrimitiveRestart;
 
