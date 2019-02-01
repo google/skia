@@ -153,7 +153,6 @@ tests_sources = [
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PackBitsTest.cpp",
   "$_tests/PackedConfigsTextureTest.cpp",
-  "$_tests/PaintBreakTextTest.cpp",
   "$_tests/PaintImageFilterTest.cpp",
   "$_tests/PaintTest.cpp",
   "$_tests/ParametricStageTest.cpp",
