@@ -320,6 +320,7 @@ public:
         return this->textToGlyphs(text, byteLength, encoding, nullptr, 0);
     }
 
+#ifdef SK_SUPPORT_LEGACY_CONTAINSTEXT
     /** Returns true if all text corresponds to a non-zero glyph index.
         Returns false if any characters in text are not supported in
         SkTypeface.
@@ -336,6 +337,7 @@ public:
         @return            true if all text corresponds to a non-zero glyph index
      */
     bool containsText(const void* text, size_t byteLength, SkTextEncoding encoding) const;
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_BREAKTEXT
     /** Deprecated.
