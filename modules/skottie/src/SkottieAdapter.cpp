@@ -102,6 +102,43 @@ void TransformAdapter3D::apply() {
     fMatrixNode->setMatrix(this->totalMatrix());
 }
 
+RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> repeater_node, Composite composite)
+    : fRepeaterNode(repeater_node)
+    , fComposite(composite)
+    , fRoot(sksg::Group::Make()) {}
+
+RepeaterAdapter::~RepeaterAdapter() = default;
+
+void RepeaterAdapter::apply() {
+    static constexpr SkScalar kMaxCount = 512;
+    const auto count = static_cast<size_t>(SkTPin(fCount, 0.0f, kMaxCount) + 0.5f);
+
+    const auto& compute_transform = [this] (size_t index) {
+        const auto t = fOffset + index;
+
+        // Position, scale & rotation are "scaled" by index/offset.
+        SkMatrix m = SkMatrix::MakeTrans(-fAnchorPoint.x(),
+                                         -fAnchorPoint.y());
+        m.postScale(std::pow(fScale.x() * .01f, fOffset),
+                    std::pow(fScale.y() * .01f, fOffset));
+        m.postRotate(t * fRotation);
+        m.postTranslate(t * fPosition.x() + fAnchorPoint.x(),
+                        t * fPosition.y() + fAnchorPoint.y());
+
+        return m;
+    };
+
+    // TODO: start/end opacity support.
+
+    // TODO: we can avoid rebuilding all the fragments in most cases.
+    fRoot->clear();
+    for (size_t i = 0; i < count; ++i) {
+        const auto insert_index = (fComposite == Composite::kAbove) ? i : count - i - 1;
+        fRoot->addChild(sksg::TransformEffect::Make(fRepeaterNode,
+                                                    compute_transform(insert_index)));
+    }
+}
+
 PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
     : fPathNode(std::move(wrapped_node))
     , fType(t) {}

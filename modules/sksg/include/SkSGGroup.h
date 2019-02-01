@@ -32,6 +32,7 @@ public:
 
     size_t size() const { return fChildren.size(); }
     bool  empty() const { return fChildren.empty(); }
+    void  clear();
 
 protected:
     explicit Group(std::vector<sk_sp<RenderNode>>);
