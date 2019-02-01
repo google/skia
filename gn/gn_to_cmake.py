@@ -566,7 +566,9 @@ def WriteTarget(out, target, project):
     gn_dependency_type = project.targets.get(dependency, {}).get('type', None)
     cmake_dependency_type = cmake_target_types.get(gn_dependency_type, None)
     cmake_dependency_name = project.GetCMakeTargetName(dependency)
-    if cmake_dependency_type.command != 'add_library':
+    if gn_dependency_type == 'static_library':
+      libraries.add(cmake_dependency_name)
+    elif cmake_dependency_type.command != 'add_library':
       nonlibraries.add(cmake_dependency_name)
     elif cmake_dependency_type.modifier != 'OBJECT':
       if target.cmake_type.is_linkable:
@@ -585,7 +587,7 @@ def WriteTarget(out, target, project):
 
   # Non-OBJECT library dependencies.
   external_libraries = target.properties.get('libs', [])
-  if target.cmake_type.is_linkable and (external_libraries or libraries):
+  if target.cmake_type.command != 'add_custom_target' and (external_libraries or libraries):
     library_dirs = target.properties.get('lib_dirs', [])
     if library_dirs:
       SetVariableList(out, '${target}__library_directories', library_dirs)
