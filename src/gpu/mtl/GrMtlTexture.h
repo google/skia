@@ -36,13 +36,6 @@ public:
 
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
-    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
-        // Since all MTLResources are inherently ref counted, we can call the Release proc when we
-        // delete the GrMtlTexture without worry of the MTLTexture getting deleted before it is done
-        // on the GPU.
-        fReleaseHelper = std::move(releaseHelper);
-    }
-
     void setIdleProc(IdleProc proc, void* context) override {
         fIdleProc = proc;
         fIdleProcContext = context;
@@ -55,11 +48,9 @@ protected:
     GrMtlGpu* getMtlGpu() const;
 
     void onAbandon() override {
-        this->invokeReleaseProc();
         fTexture = nil;
     }
     void onRelease() override {
-        this->invokeReleaseProc();
         fTexture = nil;
     }
 
@@ -70,11 +61,10 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    void invokeReleaseProc() {
-        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
-        // ReleaseProc to be called.
-        fReleaseHelper.reset();
-    }
+    // Since all MTLResources are inherently ref counted, we can call the Release proc when we
+    // delete the GrMtlTexture without worry of the MTLTexture getting deleted before it is done on
+    // the GPU. Thus we do nothing special here with the releaseHelper.
+    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
 
     void removedLastRefOrPendingIO() override {
         if (fIdleProc) {

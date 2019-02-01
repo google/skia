@@ -64,10 +64,7 @@ public:
 
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus);
 
-    ~GrGLTexture() override {
-        // check that invokeReleaseProc has been called (if needed)
-        SkASSERT(!fReleaseHelper);
-    }
+    ~GrGLTexture() override {}
 
     GrBackendTexture getBackendTexture() const override;
 
@@ -76,10 +73,6 @@ public:
     void textureParamsModified() override {
         fSamplerParams.invalidate();
         fNonSamplerParams.invalidate();
-    }
-
-    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
-        fReleaseHelper = std::move(releaseHelper);
     }
 
     void setIdleProc(IdleProc proc, void* context) override {
@@ -131,11 +124,7 @@ protected:
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
 
 private:
-    void invokeReleaseProc() {
-        // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
-        // ReleaseProc to be called.
-        fReleaseHelper.reset();
-    }
+    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {}
 
     void removedLastRefOrPendingIO() override {
         if (fIdleProc) {
@@ -148,7 +137,6 @@ private:
     SamplerParams fSamplerParams;
     NonSamplerParams fNonSamplerParams;
     GrGpu::ResetTimestamp fParamsTimestamp;
-    sk_sp<GrReleaseProcHelper> fReleaseHelper;
     IdleProc* fIdleProc = nullptr;
     void* fIdleProcContext = nullptr;
     GrGLuint fID;

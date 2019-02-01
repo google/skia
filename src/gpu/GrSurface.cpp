@@ -177,9 +177,11 @@ bool GrSurface::hasPendingIO() const {
 }
 
 void GrSurface::onRelease() {
+    this->invokeReleaseProc();
     this->INHERITED::onRelease();
 }
 
 void GrSurface::onAbandon() {
+    this->invokeReleaseProc();
     this->INHERITED::onAbandon();
 }

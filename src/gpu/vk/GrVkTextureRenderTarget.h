@@ -104,6 +104,13 @@ private:
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
+
+    // In Vulkan we call the release proc after we are finished with the underlying
+    // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
+    void onSetRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
+        // Forward the release proc on to GrVkImage
+        this->setResourceRelease(std::move(releaseHelper));
+    }
 };
 
 #endif

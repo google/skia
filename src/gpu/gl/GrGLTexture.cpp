@@ -91,13 +91,11 @@ void GrGLTexture::onRelease() {
         }
         fID = 0;
     }
-    this->invokeReleaseProc();
     INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
     fID = 0;
-    this->invokeReleaseProc();
     INHERITED::onAbandon();
 }
 
