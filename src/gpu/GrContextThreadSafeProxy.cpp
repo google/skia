@@ -36,7 +36,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                      int sampleCnt, GrSurfaceOrigin origin,
                                      const SkSurfaceProps& surfaceProps,
-                                     bool isMipMapped, bool willUseGLFBO0) {
+                                     bool isMipMapped, bool willUseGLFBO0, bool isTextureable) {
     if (!backendFormat.isValid()) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -69,16 +69,19 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         FSAAType = fCaps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
     }
 
-    // This surface characterization factory assumes that the resulting characterization is
-    // textureable.
-    if (!fCaps->isConfigTexturable(config)) {
+    if (willUseGLFBO0 && isTextureable) {
+        return SkSurfaceCharacterization(); // return an invalid characterization
+    }
+
+    if (isTextureable && !fCaps->isConfigTexturable(config)) {
+        // Skia doesn't agree that this is textureable.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     return SkSurfaceCharacterization(sk_ref_sp<GrContextThreadSafeProxy>(this),
                                      cacheMaxResourceBytes, ii,
                                      origin, config, FSAAType, sampleCnt,
-                                     SkSurfaceCharacterization::Textureable(true),
+                                     SkSurfaceCharacterization::Textureable(isTextureable),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
                                      SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
                                      SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
