@@ -219,6 +219,7 @@ void SkFont::glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar tex
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_CONTAINSTEXT
 static SkTypeface::Encoding to_encoding(SkTextEncoding e) {
     static_assert((int)SkTypeface::kUTF8_Encoding  == (int)kUTF8_SkTextEncoding,  "");
     static_assert((int)SkTypeface::kUTF16_Encoding == (int)kUTF16_SkTextEncoding, "");
@@ -255,6 +256,7 @@ bool SkFont::containsText(const void* textData, size_t byteLength, SkTextEncodin
     }
     return true;
 }
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_BREAKTEXT
 size_t SkFont::breakText(const void* textD, size_t length, SkTextEncoding encoding,

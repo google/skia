@@ -17,13 +17,6 @@ enum {
 typedef void (*TypefaceProc)(int loops, const SkFont&, const void* text, size_t len,
                              int glyphCount);
 
-static void containsText_proc(int loops, const SkFont& font, const void* text, size_t len,
-                              int glyphCount) {
-    for (int i = 0; i < loops; ++i) {
-        font.containsText(text, len, kUTF8_SkTextEncoding);
-    }
-}
-
 static void textToGlyphs_proc(int loops, const SkFont& font, const void* text, size_t len,
                               int glyphCount) {
     uint16_t glyphs[NGLYPHS];
@@ -87,7 +80,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new CMAPBench(containsText_proc, "paint_containsText"); )
 DEF_BENCH( return new CMAPBench(textToGlyphs_proc, "paint_textToGlyphs"); )
 DEF_BENCH( return new CMAPBench(charsToGlyphs_proc, "face_charsToGlyphs"); )
 DEF_BENCH( return new CMAPBench(charsToGlyphsNull_proc, "face_charsToGlyphs_null"); )

@@ -93,7 +93,6 @@ DEF_TEST(Paint_cmap, reporter) {
 
             uint16_t    glyphs0[NGLYPHS], glyphs1[NGLYPHS];
 
-            bool contains = font.containsText(dst, len, gRec[k].fEncoding);
             int nglyphs = font.textToGlyphs(dst, len, gRec[k].fEncoding, glyphs0, NGLYPHS);
             int first = face->charsToGlyphs(dst, (SkTypeface::Encoding)gRec[k].fEncoding,
                                             glyphs1, NGLYPHS);
@@ -102,11 +101,6 @@ DEF_TEST(Paint_cmap, reporter) {
             REPORTER_ASSERT(reporter, NGLYPHS == nglyphs);
             REPORTER_ASSERT(reporter, index == first);
             REPORTER_ASSERT(reporter, 0 == memcmp(glyphs0, glyphs1, NGLYPHS * sizeof(uint16_t)));
-            if (contains) {
-                REPORTER_ASSERT(reporter, NGLYPHS == first);
-            } else {
-                REPORTER_ASSERT(reporter, NGLYPHS > first);
-            }
         }
     }
 }
