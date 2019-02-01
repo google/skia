@@ -68,7 +68,7 @@ inline SkFixed SkFDot6ToFixed(SkFDot6 x) {
 inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
     SkASSERT(b != 0);
 
-    if (a == (int16_t)a) {
+    if (SkTFitsIn<int16_t>(a)) {
         return SkLeftShift(a, 16) / b;
     } else {
         return SkFixedDiv(a, b);
