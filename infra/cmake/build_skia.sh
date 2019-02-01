@@ -23,11 +23,11 @@ rm -rf $SKIA_DIR/out/CMAKE
 mkdir --mode=0777 -p $SKIA_DIR/out/CMAKE
 
 cd $SKIA_DIR
-gn gen out/CMAKE --args='is_debug=false' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
+gn gen out/CMAKE --args='is_debug=false skia_use_angle=true' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 
 cd $SKIA_DIR/out/CMAKE
-cmake -G Ninja .
-cmake --build .
+cmake -G"CodeBlocks - Unix Makefiles" .
+cmake --build . --parallel 8
 
 # Copy build products, ignoring the warning
 # for not copying directories.
