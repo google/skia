@@ -115,11 +115,6 @@ void SkColorSpace::computeLazyDstFields() const {
     });
 }
 
-bool SkColorSpace::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
-    this->transferFn(&coeffs->fG);
-    return true;
-}
-
 bool SkColorSpace::isNumericalTransferFn(skcms_TransferFunction* coeffs) const {
     this->transferFn(&coeffs->g);
     return true;
