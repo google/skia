@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a3281f5_8fb0f115",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-01T20:03:51Z",
+      "side": 1,
+      "message": "what about this?\n\n\tfor _, v :\u003d range []string {\"EMCC\", \"SKQP\", \"LottieWeb\", \"CMake\"} {\n\t\tif strings.Contains(name, v) {\n\t\t\tt.Caches \u003d append(t.Caches, CACHES_DOCKER...)\n\t\t\tbreak\n\t\t}\n\t}",
+      "revId": "3105238ed5fba23632239d32b8f04d793fc8478f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
