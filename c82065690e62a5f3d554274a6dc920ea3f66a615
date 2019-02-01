@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f851cc33_9e7bcdae",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-01T19:53:48Z",
+      "side": 1,
+      "message": "Isn\u0027t this change the same as setting this to \u0027True\u0027? (except for source_set handling?) Note that with very new CMakes I think they finally fixed that depending on and OBJECT library doesn\u0027t propagate any properties which should be, so if you\u0027re depending on that be sure to update the minimum version.",
+      "range": {
+        "startLine": 144,
+        "startChar": 72,
+        "endLine": 144,
+        "endChar": 77
+      },
+      "revId": "c82065690e62a5f3d554274a6dc920ea3f66a615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
