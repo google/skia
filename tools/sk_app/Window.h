@@ -49,6 +49,9 @@ public:
 #ifdef SK_VULKAN
         kVulkan_BackendType,
 #endif
+#if SK_METAL && defined(SK_BUILD_FOR_MAC)
+        kMetal_BackendType,
+#endif
         kRaster_BackendType,
 
         kLast_BackendType = kRaster_BackendType

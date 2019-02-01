@@ -87,6 +87,9 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
+#if SK_METAL && defined(SK_BUILD_FOR_MAC)
+    "Metal",
+#endif
     "Raster"
 };
 
