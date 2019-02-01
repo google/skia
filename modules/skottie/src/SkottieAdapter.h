@@ -24,8 +24,10 @@ template <typename>
 class Matrix;
 class Path;
 class RadialGradient;
+class RenderNode;
 class RRect;
 class TextBlob;
+class TransformEffect;
 class TrimEffect;
 
 };
@@ -131,6 +133,36 @@ private:
     void apply();
 
     sk_sp<sksg::Matrix<SkMatrix44>> fMatrixNode;
+};
+
+class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
+public:
+    enum class Composite { kAbove, kBelow };
+
+    RepeaterAdapter(sk_sp<sksg::RenderNode>, Composite);
+    ~RepeaterAdapter();
+
+    // Repeater props
+    ADAPTER_PROPERTY(Count       , SkScalar, 0)
+    ADAPTER_PROPERTY(Offset      , SkScalar, 0)
+
+    // Transform props
+    ADAPTER_PROPERTY(AnchorPoint , SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(Position    , SkPoint , SkPoint::Make(0, 0))
+    ADAPTER_PROPERTY(Scale       , SkVector, SkPoint::Make(100, 100))
+    ADAPTER_PROPERTY(Rotation    , SkScalar, 0)
+    ADAPTER_PROPERTY(StartOpacity, SkScalar, 100)
+    ADAPTER_PROPERTY(EndOpacity  , SkScalar, 100)
+
+    const sk_sp<sksg::Group>& root() const { return fRoot; }
+
+private:
+    void apply();
+
+    const sk_sp<sksg::RenderNode> fRepeaterNode;
+    const Composite               fComposite;
+
+    sk_sp<sksg::Group>            fRoot;
 };
 
 class GradientAdapter : public SkRefCnt {
