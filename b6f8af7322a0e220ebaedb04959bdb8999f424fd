@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99e9292b_8dea74c4",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-01T19:47:51Z",
+      "side": 1,
+      "message": "move to prev line?",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 6
+      },
+      "revId": "b6f8af7322a0e220ebaedb04959bdb8999f424fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd7ff28f_aa298244",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-01T19:47:51Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "b6f8af7322a0e220ebaedb04959bdb8999f424fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a38d2e_2d256fe6",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-01T19:47:51Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 6
+      },
+      "revId": "b6f8af7322a0e220ebaedb04959bdb8999f424fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18c6c83f_e2c2dd2c",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-01T19:47:51Z",
+      "side": 1,
+      "message": "ERRORF(reporter, \"Failed to create surface\");\n?",
+      "range": {
+        "startLine": 922,
+        "startChar": 12,
+        "endLine": 922,
+        "endChar": 45
+      },
+      "revId": "b6f8af7322a0e220ebaedb04959bdb8999f424fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
