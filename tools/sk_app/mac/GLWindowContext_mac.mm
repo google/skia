@@ -37,6 +37,8 @@ public:
 
     ~GLWindowContext_mac() override;
 
+    SkScalar pixelScale() const override { return fPixelScale; }
+
     void onSwapBuffers() override;
 
     sk_sp<const GrGLInterface> onInitializeContext() override;
@@ -47,6 +49,7 @@ private:
     GLView*              fGLView;
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
+    SkScalar             fPixelScale;
 
     typedef GLWindowContext INHERITED;
 };
@@ -161,9 +164,11 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fSampleCount = SkTMax(fSampleCount, 1);
 
     const NSRect viewportRect = [fMainView bounds];
-    fWidth = viewportRect.size.width;
-    fHeight = viewportRect.size.height;
-    glViewport(0, 0, fWidth, fHeight);
+    glViewport(0, 0, viewportRect.size.width, viewportRect.size.height);
+    const NSRect backingRect = [fGLView convertRectToBacking:viewportRect];
+    fWidth = backingRect.size.width;
+    fHeight = backingRect.size.height;
+    fPixelScale = SkIntToScalar(fWidth)/viewportRect.size.width;
 
     return GrGLMakeNativeInterface();
 }

@@ -43,6 +43,7 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    virtual SkScalar pixelScale() const { return SK_Scalar1; }
     int sampleCount() const { return fSampleCount; }
     int stencilBits() const { return fStencilBits; }
 
