@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64917bea_731c63e1",
+        "filename": "bench/TypefaceBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-01T18:26:09Z",
+      "side": 1,
+      "message": "Does it make sense to time finding a typeface? Should probably look up / create the typeface in onDelayedSetup? Also, monospace may be a different font on different platforms (and possibly differ by bot if they\u0027re not kept in sync), is that ok? Also, I\u0027m not sure if the bench bots run with native fonts, if they don\u0027t then you\u0027ll be benching the portable fonts which are really fast (their cmaps are already cached / hardcoded). We may need to add native font bench bots.",
+      "revId": "d195eb579b434c1960966affe0507d262f0ec0f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
