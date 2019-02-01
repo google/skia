@@ -23,7 +23,7 @@ public:
 protected:
     friend class GrImageContextPriv; // for hidden functions
 
-    GrImageContext(GrBackendApi backend, uint32_t uniqueID);
+    GrImageContext(GrBackendApi, const GrContextOptions&, uint32_t uniqueID);
 
     GrImageContext* asImageContext() override { return this; }
 

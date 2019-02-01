@@ -9,6 +9,7 @@
 #define GrContext_Base_DEFINED
 
 #include "SkRefCnt.h"
+#include "GrContextOptions.h"
 #include "GrTypes.h"
 
 class GrBaseContextPriv;
@@ -34,6 +35,11 @@ public:
      */
     uint32_t uniqueID() const { return fUniqueID; }
 
+    /*
+     * The options in effect for this context
+     */
+    const GrContextOptions& options() const { return fOptions; }
+
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;
@@ -41,16 +47,18 @@ public:
 protected:
     friend class GrBaseContextPriv; // for hidden functions
 
-    GrContext_Base(GrBackendApi backend, uint32_t uniqueID);
+    GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID);
 
     GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
 
+    const GrContextOptions fOptions;
+
 private:
-    const GrBackendApi fBackend;
-    const uint32_t     fUniqueID;
+    const GrBackendApi     fBackend;
+    const uint32_t         fUniqueID;
 
     typedef SkRefCnt INHERITED;
 };
