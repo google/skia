@@ -102,7 +102,6 @@ namespace skiagm {
     protected:
         virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;
-        virtual void onDrawBackground(SkCanvas*);
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
