@@ -237,7 +237,10 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
     // Delta must be less than 0.5 to prevent over/underflow issues with the input color
     SkASSERT(delta <= 0.5);
 
-    SkColor color = SkColorSetARGB((uint8_t)i, (uint8_t)j, (uint8_t)(i + j), (uint8_t)(2 * j - i));
+    SkColor color = SkColorSetARGB((uint8_t)(i & 0xFF),
+                                   (uint8_t)(j & 0xFF),
+                                   (uint8_t)((i + j) & 0xFF),
+                                   (uint8_t)((2 * j - i) & 0xFF));
     SkColor4f color4f = SkColor4f::FromColor(color);
     for (int i = 0; i < 4; i++) {
         if (color4f[i] > 0.5) {
@@ -481,6 +484,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // written.
             timesToInvokeFactory *= FPFactory::Count() / 2;
         }
+#if defined(__MSVC_RUNTIME_CHECKS)
+        // This test is infuriatingly slow with MSVC runtime checks enabled
+        timesToInvokeFactory = 1;
+#endif
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
             if (!fp->instantiate(resourceProvider)) {

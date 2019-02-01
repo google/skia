@@ -114,10 +114,10 @@ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
 
     // require that rowBytes fit in 31bits
     int64_t mrb = info.minRowBytes64();
-    if ((int32_t)mrb != mrb) {
+    if (!SkTFitsIn<int32_t>(mrb)) {
         return reset_return_false(this);
     }
-    if ((int64_t)rowBytes != (int32_t)rowBytes) {
+    if (!SkTFitsIn<int32_t>(rowBytes)) {
         return reset_return_false(this);
     }
 

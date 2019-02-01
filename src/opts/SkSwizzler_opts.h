@@ -22,10 +22,10 @@ namespace SK_OPTS_NS {
 
 static void RGBA_to_rgbA_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                b = src[i] >> 16,
-                g = src[i] >>  8,
-                r = src[i] >>  0;
+        uint8_t a = (src[i] >> 24) & 0xFF,
+                b = (src[i] >> 16) & 0xFF,
+                g = (src[i] >>  8) & 0xFF,
+                r = (src[i] >>  0) & 0xFF;
         b = (b*a+127)/255;
         g = (g*a+127)/255;
         r = (r*a+127)/255;
@@ -38,10 +38,10 @@ static void RGBA_to_rgbA_portable(uint32_t* dst, const uint32_t* src, int count)
 
 static void RGBA_to_bgrA_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                b = src[i] >> 16,
-                g = src[i] >>  8,
-                r = src[i] >>  0;
+        uint8_t a = (src[i] >> 24) & 0xFF,
+                b = (src[i] >> 16) & 0xFF,
+                g = (src[i] >>  8) & 0xFF,
+                r = (src[i] >>  0) & 0xFF;
         b = (b*a+127)/255;
         g = (g*a+127)/255;
         r = (r*a+127)/255;
@@ -54,10 +54,10 @@ static void RGBA_to_bgrA_portable(uint32_t* dst, const uint32_t* src, int count)
 
 static void RGBA_to_BGRA_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
-        uint8_t a = src[i] >> 24,
-                b = src[i] >> 16,
-                g = src[i] >>  8,
-                r = src[i] >>  0;
+        uint8_t a = (src[i] >> 24) & 0xFF,
+                b = (src[i] >> 16) & 0xFF,
+                g = (src[i] >>  8) & 0xFF,
+                r = (src[i] >>  0) & 0xFF;
         dst[i] = (uint32_t)a << 24
                | (uint32_t)r << 16
                | (uint32_t)g <<  8
@@ -127,10 +127,10 @@ static void grayA_to_rgbA_portable(uint32_t dst[], const uint8_t* src, int count
 
 static void inverted_CMYK_to_RGB1_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
-        uint8_t k = src[i] >> 24,
-                y = src[i] >> 16,
-                m = src[i] >>  8,
-                c = src[i] >>  0;
+        uint8_t k = (src[i] >> 24) & 0xFF,
+                y = (src[i] >> 16) & 0xFF,
+                m = (src[i] >>  8) & 0xFF,
+                c = (src[i] >>  0) & 0xFF;
         // See comments in SkSwizzler.cpp for details on the conversion formula.
         uint8_t b = (y*k+127)/255,
                 g = (m*k+127)/255,
@@ -144,10 +144,10 @@ static void inverted_CMYK_to_RGB1_portable(uint32_t* dst, const uint32_t* src, i
 
 static void inverted_CMYK_to_BGR1_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
-        uint8_t k = src[i] >> 24,
-                y = src[i] >> 16,
-                m = src[i] >>  8,
-                c = src[i] >>  0;
+        uint8_t k = (src[i] >> 24) & 0xFF,
+                y = (src[i] >> 16) & 0xFF,
+                m = (src[i] >>  8) & 0xFF,
+                c = (src[i] >>  0) & 0xFF;
         uint8_t b = (y*k+127)/255,
                 g = (m*k+127)/255,
                 r = (c*k+127)/255;
