@@ -22,6 +22,30 @@
       "revId": "1011be2c2429f5e9f117696f5a486db6d49f4936",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eb8efb3_3343e557",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-01T17:24:46Z",
+      "side": 1,
+      "message": "It\u0027s possible to create a SkSurface backed by a FBO that is not FBO 0 via SkSurface::MakeFromBackendRenderTarget. That FBO could have either a GL renderbuffer or texture as its color attachemnt. Even if it\u0027s backed by a texture Skia doesn\u0027t know what type the color attachment is (and doesn\u0027t query GL to find out). So from Skia\u0027s perspective it\u0027s not texturable.",
+      "parentUuid": "42c09328_b1319b7b",
+      "range": {
+        "startLine": 83,
+        "startChar": 37,
+        "endLine": 83,
+        "endChar": 90
+      },
+      "revId": "1011be2c2429f5e9f117696f5a486db6d49f4936",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
