@@ -16,6 +16,24 @@
       "revId": "4e16f7f217085621935678533294516bac1c8e1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbae239d_cc814921",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-02-01T20:21:43Z",
+      "side": 1,
+      "message": "From an off-line conversation, I will try to disallow this behavior in a follow up CL.",
+      "parentUuid": "807e3e58_af74c86d",
+      "revId": "4e16f7f217085621935678533294516bac1c8e1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
