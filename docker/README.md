@@ -58,8 +58,8 @@ It gets manually pushed anytime there's an update to the Dockerfile or relevant
 installed libraries. To push:
 
     docker build -t cmake-release ./cmake-release/
-    docker tag cmake-release gcr.io/skia-public/cmake-release:3.13.1_v1
-    docker push gcr.io/skia-public/cmake-release:3.13.1_v1
+    docker tag cmake-release gcr.io/skia-public/cmake-release:3.13.1_v2
+    docker push gcr.io/skia-public/cmake-release:3.13.1_v2
 
 For testing the image locally, the following flow can be helpful:
 
