@@ -16,6 +16,24 @@
       "revId": "d195eb579b434c1960966affe0507d262f0ec0f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae2ba6a0_9446da18",
+        "filename": "bench/TypefaceBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-01T18:31:20Z",
+      "side": 1,
+      "message": "Ben and I think all the bench bots are native font bots when looking deeper (and I bet we don\u0027t really care about the bots\u0027 numbers on this bench as we do having it locally to run).\n\nThe looping ought to drown out the cost of getting the typeface, but I agree there\u0027s no real reason not to put it in onDelayedSetup().",
+      "parentUuid": "64917bea_731c63e1",
+      "revId": "d195eb579b434c1960966affe0507d262f0ec0f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
