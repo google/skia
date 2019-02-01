@@ -62,7 +62,7 @@ protected:
         if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.cpuType());
-            g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
+            g->codeAppendf("%s *= half(sk_in[0].sk_Position.w);", wind.c_str());
         }
 
         SkString emitVertexFn;

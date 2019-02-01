@@ -103,7 +103,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // that suffices. Additionally we should assert that the upstream code only lets us get here if
     // either float or half provides the required number of bits.
 
-    GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0);
+    GrShaderVar edgeAlpha("edgeAlpha", kHalf_GrSLType, 0);
     GrShaderVar dklmdx("dklmdx", kFloat3_GrSLType, 0);
     GrShaderVar dklmdy("dklmdy", kFloat3_GrSLType, 0);
     GrShaderVar dfdx("dfdx", kFloat_GrSLType, 0);
@@ -142,7 +142,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = abs(%s);", func.c_str(), func.c_str());
-            fragBuilder->codeAppendf("%s = %s / %s;",
+            fragBuilder->codeAppendf("%s = half(%s / %s);",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
             fragBuilder->codeAppendf("%s = max(1.0 - %s, 0.0);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
@@ -171,7 +171,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      gFM.c_str(), gF.c_str(), gF.c_str());
             fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
                                      func.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = %s / %s;",
+            fragBuilder->codeAppendf("%s = half(%s / %s);",
                                      edgeAlpha.c_str(), func.c_str(), gFM.c_str());
             fragBuilder->codeAppendf("%s = saturate(0.5 - %s);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
@@ -180,9 +180,9 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case GrClipEdgeType::kFillBW: {
-            fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
+            fragBuilder->codeAppendf("%s = half(%s.x * %s.x - %s.y * %s.z);",
                                      edgeAlpha.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("%s = float(%s < 0.0);",
+            fragBuilder->codeAppendf("%s = half(%s < 0.0);",
                                      edgeAlpha.c_str(), edgeAlpha.c_str());
             break;
         }
@@ -197,7 +197,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kFloat_GrSLType,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = half4(%s * %s);",
+        fragBuilder->codeAppendf("%s = half4(half(%s) * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
         fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
@@ -354,12 +354,12 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case GrClipEdgeType::kHairlineAA: {
-            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("half2 duvdx = half2(dFdx(%s.xy));", v.fsIn());
+            fragBuilder->codeAppendf("half2 duvdy = half2(dFdy(%s.xy));", v.fsIn());
             fragBuilder->codeAppendf("half2 gF = half2(2.0 * %s.x * duvdx.x - duvdx.y,"
                                      "               2.0 * %s.x * duvdy.x - duvdy.y);",
                                      v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
+            fragBuilder->codeAppendf("edgeAlpha = half(%s.x * %s.x - %s.y);",
                                      v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppend("edgeAlpha = sqrt(edgeAlpha * edgeAlpha / dot(gF, gF));");
             fragBuilder->codeAppend("edgeAlpha = max(1.0 - edgeAlpha, 0.0);");
@@ -368,12 +368,12 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case GrClipEdgeType::kFillAA: {
-            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("half2 duvdx = half2(dFdx(%s.xy));", v.fsIn());
+            fragBuilder->codeAppendf("half2 duvdy = half2(dFdy(%s.xy));", v.fsIn());
             fragBuilder->codeAppendf("half2 gF = half2(2.0 * %s.x * duvdx.x - duvdx.y,"
                                      "               2.0 * %s.x * duvdy.x - duvdy.y);",
                                      v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
+            fragBuilder->codeAppendf("edgeAlpha = half(%s.x * %s.x - %s.y);",
                                      v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppend("edgeAlpha = edgeAlpha / sqrt(dot(gF, gF));");
             fragBuilder->codeAppend("edgeAlpha = saturate(0.5 - edgeAlpha);");
@@ -382,7 +382,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case GrClipEdgeType::kFillBW: {
-            fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
+            fragBuilder->codeAppendf("edgeAlpha = half(%s.x * %s.x - %s.y);",
                                      v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppend("edgeAlpha = half(edgeAlpha < 0.0);");
             break;

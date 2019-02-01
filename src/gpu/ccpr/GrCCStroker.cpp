@@ -138,7 +138,7 @@ void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Use the 4 edge distances to calculate coverage in the fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-    f->codeAppendf("half2 coverages = min(%s.xy, .5) + min(%s.zw, .5);",
+    f->codeAppendf("half2 coverages = half2(min(%s.xy, .5) + min(%s.zw, .5));",
                    edgeDistances.fsIn(), edgeDistances.fsIn());
     f->codeAppendf("%s = half4(coverages.x * coverages.y);", args.fOutputColor);
 
@@ -260,9 +260,9 @@ void CubicStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Use the 2 edge distances and interpolated butt cap AA to calculate fragment coverage.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
-    f->codeAppendf("half2 edge_coverages = min(%s.xy, .5);", coverages.fsIn());
+    f->codeAppendf("half2 edge_coverages = min(half2(%s.xy), .5);", coverages.fsIn());
     f->codeAppend ("half coverage = edge_coverages.x + edge_coverages.y;");
-    f->codeAppendf("coverage *= %s.z;", coverages.fsIn());  // Butt cap AA.
+    f->codeAppendf("coverage *= half(%s.z);", coverages.fsIn());  // Butt cap AA.
 
     // As is common for CCPR, clockwise-winding triangles from the strip emit positive coverage, and
     // counter-clockwise triangles emit negative.

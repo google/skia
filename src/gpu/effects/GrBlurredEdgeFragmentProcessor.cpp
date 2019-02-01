@@ -26,10 +26,9 @@ public:
         auto mode = _outer.mode();
         (void)mode;
         fragBuilder->codeAppendf(
-                "half factor = half(1.0 - float(%s.w));\n@switch (%d) {\n    case 0:\n        "
-                "factor = half(exp(float(float(-factor * factor) * 4.0)) - "
-                "0.017999999999999999);\n        break;\n    case 1:\n        factor = "
-                "half(smoothstep(1.0, 0.0, float(factor)));\n        break;\n}\n%s = "
+                "half factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
+                "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
+                "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
                 "half4(factor);\n",
                 args.fInputColor, (int)_outer.mode(), args.fOutputColor);
     }
