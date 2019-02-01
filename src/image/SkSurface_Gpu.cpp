@@ -213,6 +213,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
 
+#if 0
     if (characterization.isTextureable()) {
         if (!rtc->asTextureProxy()) {
             // If the characterization was textureable we require the replay dest to also be
@@ -228,6 +229,7 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
             return false;
         }
     }
+#endif
 
     if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
         return false;
