@@ -480,10 +480,10 @@ void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask,
 }
 
 static void writeBigEndian(etc1_byte* pOut, etc1_uint32 d) {
-    pOut[0] = (etc1_byte)(d >> 24);
-    pOut[1] = (etc1_byte)(d >> 16);
-    pOut[2] = (etc1_byte)(d >> 8);
-    pOut[3] = (etc1_byte) d;
+    pOut[0] = (etc1_byte) (d >> 24);
+    pOut[1] = (etc1_byte)((d >> 16) & 0xFF);
+    pOut[2] = (etc1_byte)((d >>  8) & 0xFF);
+    pOut[3] = (etc1_byte)((d >>  0) & 0xFF);
 }
 
 // Input is a 4 x 4 square of 3-byte pixels in form R, G, B

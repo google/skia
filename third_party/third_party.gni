@@ -55,6 +55,11 @@ set_defaults("third_party") {
     # Official builds don't have warnings to begin with.
     configs -= [ "//gn:warnings" ]
   }
+
+  # Don't want to to deal with this (especially /RTCc)
+  if (msvc_san) {
+    configs -= [ "//gn:msvc_san" ]
+  }
   if (is_debug) {
     configs += [ "//gn:optimize" ]
   }
