@@ -32,6 +32,22 @@
 
 namespace skottie {
 
+namespace  {
+
+SkMatrix ComputeMatrix(const SkPoint& anchor_point,
+                       const SkPoint& position,
+                       const SkVector& scale,
+                       SkScalar rotation) {
+    SkMatrix m = SkMatrix::MakeTrans(-anchor_point.x(), -anchor_point.y());
+    m.postScale(scale.x() / 100, scale.y() / 100); // 100% based
+    m.postRotate(rotation);
+    m.postTranslate(position.x(), position.y());
+
+    return m;
+}
+
+} // namespace
+
 RRectAdapter::RRectAdapter(sk_sp<sksg::RRect> wrapped_node)
     : fRRectNode(std::move(wrapped_node)) {}
 
@@ -53,14 +69,9 @@ TransformAdapter2D::TransformAdapter2D(sk_sp<sksg::Matrix<SkMatrix>> matrix)
 TransformAdapter2D::~TransformAdapter2D() = default;
 
 SkMatrix TransformAdapter2D::totalMatrix() const {
-    SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x(), -fAnchorPoint.y());
-
-    t.postScale(fScale.x() / 100, fScale.y() / 100); // 100% based
-    t.postRotate(fRotation);
-    t.postTranslate(fPosition.x(), fPosition.y());
     // TODO: skew
 
-    return t;
+    return ComputeMatrix(fAnchorPoint, fPosition, fScale, fRotation);
 }
 
 void TransformAdapter2D::apply() {
@@ -100,6 +111,39 @@ SkMatrix44 TransformAdapter3D::totalMatrix() const {
 
 void TransformAdapter3D::apply() {
     fMatrixNode->setMatrix(this->totalMatrix());
+}
+
+RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> repeater_node, Composite composite)
+    : fRepeaterNode(repeater_node)
+    , fComposite(composite)
+    , fRoot(sksg::Group::Make()) {}
+
+RepeaterAdapter::~RepeaterAdapter() = default;
+
+void RepeaterAdapter::apply() {
+    SkASSERT(fComposite == Composite::kAbove);
+
+    static constexpr SkScalar kMaxCount = 512;
+    const auto count = static_cast<size_t>(SkTPin(fCount, 0.0f, kMaxCount) + 0.5f);
+
+    // TODO: we can avoid rebuilding all the fragments in most cases.
+    fRoot->clear();
+
+    SkPoint anchor_point = fAnchorPoint * fOffset,
+                position = fPosition    * fOffset;
+    SkScalar    rotation = fRotation    * fOffset;
+    SkVector scale = { std::pow(fScale.x() * .01f, fOffset),
+                       std::pow(fScale.y() * .01f, fOffset) };
+
+    for (size_t i = 0; i < count; ++i) {
+        const auto m = ComputeMatrix(anchor_point, position, scale * 100, rotation);
+        fRoot->addChild(sksg::TransformEffect::Make(fRepeaterNode, m));
+
+        anchor_point += fAnchorPoint;
+        position     += fPosition;
+        rotation     += fRotation;
+        scale = { scale.x() * fScale.x() * 0.01f, scale.y() * fScale.y() * 0.01f };
+    }
 }
 
 PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)

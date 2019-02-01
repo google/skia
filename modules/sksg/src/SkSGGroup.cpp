@@ -24,6 +24,13 @@ Group::~Group() {
     }
 }
 
+void Group::clear() {
+    for (const auto& child : fChildren) {
+        this->unobserveInval(child);
+    }
+    fChildren.clear();
+}
+
 void Group::addChild(sk_sp<RenderNode> node) {
     // should we allow duplicates?
     for (const auto& child : fChildren) {
