@@ -35,9 +35,10 @@ class SkPathEffect;
 struct SkPoint;
 class SkShader;
 
-// TODO: remove after updating android sites to IWYU
+#ifdef SK_SUPPORT_LEGACY_INCLUDEFONTMETRICS
 #include "SkFontMetrics.h"
 class SkSurfaceProps;
+#endif
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
