@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e77240_8fdb8d24",
+        "filename": "include/private/SkTFitsIn.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-02T05:27:34Z",
+      "side": 1,
+      "message": "Used to be at https://skia-review.googlesource.com/c/skia/+/134800/2/include/private/SkTFitsIn.h#b189 but alas, missed this issue in the review.",
+      "range": {
+        "startLine": 19,
+        "startChar": 7,
+        "endLine": 19,
+        "endChar": 20
+      },
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2860d3a0_881536ed",
+        "filename": "include/private/SkTFitsIn.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-02T05:27:34Z",
+      "side": 1,
+      "message": "If we can get away with this now, we should probably remove skstd::underlying_type (note the comment where it is defined in SkTLogic).",
+      "range": {
+        "startLine": 25,
+        "startChar": 21,
+        "endLine": 25,
+        "endChar": 41
+      },
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f704680_4cb6ae41",
+        "filename": "tests/FitsInTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-02T05:27:34Z",
+      "side": 1,
+      "message": "Can we add a test case where the first value is an enum as well? Simple test, should work, nice for symmetry.",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
