@@ -472,14 +472,15 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              int stencilBits,
                                              const GrGLFramebufferInfo& glInfo)
-        : fIsValid(true)
-        , fWidth(width)
+        : fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
         , fConfig(kUnknown_GrPixelConfig)
         , fBackend(GrBackendApi::kOpenGL)
-        , fGLInfo(glInfo) {}
+        , fGLInfo(glInfo) {
+    fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
+}
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,

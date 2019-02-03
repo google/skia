@@ -20,6 +20,7 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
+#include "gl/GrGLDefines.h"
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
@@ -251,6 +252,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
                     GrGLFramebufferInfo fboInfo;
                     fboInfo.fFBOID = 0;
+                    fboInfo.fFormat = GR_GL_RGBA8;
                     static constexpr int kStencilBits = 8;
                     GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
                                                     kStencilBits, fboInfo);
