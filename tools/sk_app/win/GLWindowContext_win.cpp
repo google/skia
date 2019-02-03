@@ -119,6 +119,9 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         fWidth = rect.right - rect.left;
         fHeight = rect.bottom - rect.top;
         glViewport(0, 0, fWidth, fHeight);
+
+        // Enable vsync
+        extensions.swapInterval(1);
     }
     return GrGLMakeNativeInterface();
 }
