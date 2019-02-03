@@ -846,7 +846,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 }
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
-                               GrColorType bufferColorType, GrBuffer* transferBuffer, size_t offset,
+                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
                                size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
@@ -868,7 +868,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
     SkASSERT(!transferBuffer->isMapped());
-    SkASSERT(!transferBuffer->isCPUBacked());
+    SkASSERT(!transferBuffer->isCpuBuffer());
     const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
     this->bindBuffer(kXferCpuToGpu_GrBufferType, glBuffer);
 
@@ -1856,7 +1856,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
-sk_sp<GrBuffer> GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
+sk_sp<GrGpuBuffer> GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
                                         GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Make(this, size, intendedType, accessPattern, data);
 }
@@ -2083,6 +2083,7 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
 
     if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
+        // WHAT IS BASE OFFSET?
         size_t bufferOffset = vertexBuffer->baseOffset();
         bufferOffset += baseVertex * static_cast<size_t>(vertexStride);
         for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
@@ -2118,17 +2119,20 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
     SkASSERT(type >= 0 && type <= kLast_GrBufferType);
     auto& bufferState = fHWBufferState[type];
 
-    if (buffer->uniqueID() != bufferState.fBoundBufferUniqueID) {
-        if (buffer->isCPUBacked()) {
-            if (!bufferState.fBufferZeroKnownBound) {
-                GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
-            }
-        } else {
-            const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(buffer);
-            GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
+    GrGpuResource::UniqueID id;
+    if (buffer->isCpuBuffer()) {
+        if (!bufferState.fBufferZeroKnownBound) {
+            GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
+            bufferState.fBufferZeroKnownBound = true;
+            bufferState.fBoundBufferUniqueID.makeInvalid();
         }
-        bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
-        bufferState.fBoundBufferUniqueID = buffer->uniqueID();
+    } else {
+        auto glBuffer = static_cast<const GrGLBuffer*>(buffer);
+        if (glBuffer->uniqueID() != bufferState.fBoundBufferUniqueID) {
+            GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
+            bufferState.fBufferZeroKnownBound = false;
+            bufferState.fBoundBufferUniqueID = glBuffer->uniqueID();
+        }
     }
 
     return bufferState.fGLTarget;
@@ -4195,7 +4199,7 @@ void GrGLGpu::testingOnly_flushGpuAndSync() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLGpu* gpu,
-                                                                           const GrBuffer* ibuf) {
+                                                                           const GrGpuBuffer* ibuf) {
     GrGLAttribArrayState* attribState;
 
     if (gpu->glCaps().isCoreProfile()) {

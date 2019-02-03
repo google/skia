@@ -9,42 +9,26 @@
 #include "GrGpu.h"
 #include "GrCaps.h"
 
-sk_sp<GrBuffer> GrBuffer::MakeCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType intendedType,
-                                        const void* data) {
-    SkASSERT(GrBufferTypeIsVertexOrIndex(intendedType));
-    void* cpuData;
-    if (gpu->caps()->mustClearUploadedBufferData()) {
-        cpuData = sk_calloc_throw(sizeInBytes);
-    } else {
-        cpuData = sk_malloc_throw(sizeInBytes);
-    }
-    if (data) {
-        memcpy(cpuData, data, sizeInBytes);
-    }
-    return sk_sp<GrBuffer>(new GrBuffer(gpu, sizeInBytes, intendedType, cpuData));
-}
 
-GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuData)
+GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuData)
     : INHERITED(gpu)
     , fMapPtr(nullptr)
     , fSizeInBytes(sizeInBytes)
     , fAccessPattern(kDynamic_GrAccessPattern)
-    , fCPUData(cpuData)
     , fIntendedType(type) {
     this->registerWithCache(SkBudgeted::kNo);
 }
 
-GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, GrAccessPattern pattern)
+GrGpuBuffer::GrGpuBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, GrAccessPattern pattern)
     : INHERITED(gpu)
     , fMapPtr(nullptr)
     , fSizeInBytes(sizeInBytes)
     , fAccessPattern(pattern)
-    , fCPUData(nullptr)
     , fIntendedType(type) {
     // Subclass registers with cache.
 }
 
-void GrBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType intendedType,
+void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType intendedType,
                                               GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
@@ -58,15 +42,8 @@ void GrBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType intended
     }
 }
 
-bool GrBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
-    SkASSERT(this->isCPUBacked());
-    memcpy(fCPUData, src, srcSizeInBytes);
-    return true;
-}
-
-void GrBuffer::computeScratchKey(GrScratchKey* key) const {
-    if (!this->isCPUBacked() && SkIsPow2(fSizeInBytes) &&
-        kDynamic_GrAccessPattern == fAccessPattern) {
+void GrGpuBuffer::computeScratchKey(GrScratchKey* key) const {
+    if (SkIsPow2(fSizeInBytes) && kDynamic_GrAccessPattern == fAccessPattern) {
         ComputeScratchKeyForDynamicVBO(fSizeInBytes, fIntendedType, key);
     }
 }

@@ -112,7 +112,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrScissorTest scissorTest,
-                                          sk_sp<const GrBuffer> vbuff) {
+                                          sk_sp<const GrGpuBuffer> vbuff) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
         return pool->allocate<GrPipelineDynamicStateTestOp>(scissorTest, std::move(vbuff));
@@ -121,7 +121,7 @@ public:
 private:
     friend class GrOpMemoryPool;
 
-    GrPipelineDynamicStateTestOp(GrScissorTest scissorTest, sk_sp<const GrBuffer> vbuff)
+    GrPipelineDynamicStateTestOp(GrScissorTest scissorTest, sk_sp<const GrGpuBuffer> vbuff)
         : INHERITED(ClassID())
         , fScissorTest(scissorTest)
         , fVertexBuffer(std::move(vbuff)) {
@@ -151,7 +151,7 @@ private:
     }
 
     GrScissorTest               fScissorTest;
-    const sk_sp<const GrBuffer> fVertexBuffer;
+    const sk_sp<const GrGpuBuffer> fVertexBuffer;
 
     typedef GrDrawOp INHERITED;
 };
@@ -194,9 +194,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
         {d, d, kMeshColors[3]}
     };
 
-    sk_sp<const GrBuffer> vbuff(rp->createBuffer(sizeof(vdata), kVertex_GrBufferType,
+    sk_sp<const GrGpuBuffer> vbuff(rp->createBuffer(sizeof(vdata), kVertex_GrBufferType,
                                                  kDynamic_GrAccessPattern,
-                                                 GrResourceProvider::Flags::kNoPendingIO |
                                                  GrResourceProvider::Flags::kRequireGpuMemory,
                                                  vdata));
     if (!vbuff) {
