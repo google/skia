@@ -665,6 +665,7 @@ SkCanvas::~SkCanvas() {
     dec_canvas();
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_METADATA
 SkMetaData& SkCanvas::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we
     // can decide to just make it a field in the device (rather than a ptr)
@@ -673,6 +674,7 @@ SkMetaData& SkCanvas::getMetaData() {
     }
     return *fMetaData;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
