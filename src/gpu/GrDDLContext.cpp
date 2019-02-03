@@ -18,16 +18,14 @@
 class SK_API GrDDLContext : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
-            : INHERITED(proxy->priv().backend(), proxy->priv().contextID()) {
+            : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {
         fCaps = proxy->priv().refCaps();
         fFPFactoryCache = proxy->priv().fpFactoryCache();
         SkASSERT(fFPFactoryCache);
         fThreadSafeProxy = std::move(proxy);
     }
 
-    ~GrDDLContext() override {
-        // The GrDDLContext doesn't actually own the fRestrictedAtlasManager so don't delete it
-    }
+    ~GrDDLContext() override { }
 
     void abandonContext() override {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
@@ -45,11 +43,11 @@ public:
     }
 
 protected:
-    bool init(const GrContextOptions& options) override {
+    bool init() override {
         SkASSERT(fCaps);  // should've been set in ctor
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
-        if (!INHERITED::initCommon(options)) {
+        if (!INHERITED::initCommon()) {
             return false;
         }
 
@@ -70,7 +68,7 @@ sk_sp<GrContext> GrContextPriv::MakeDDL(const sk_sp<GrContextThreadSafeProxy>& p
 
     // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
     // also not be created
-    if (!context->init(proxy->priv().contextOptions())) {
+    if (!context->init()) {
         return nullptr;
     }
     return context;

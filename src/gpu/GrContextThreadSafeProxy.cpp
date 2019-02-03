@@ -19,16 +19,14 @@ GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uin
                                                    GrBackendApi backend,
                                                    const GrContextOptions& options,
                                                    sk_sp<GrSkSLFPFactoryCache> cache)
-        : fCaps(std::move(caps))
-        , fContextID(contextID)
-        , fBackend(backend)
-        , fOptions(options)
+        : INHERITED(backend, options, contextID)
+        , fCaps(std::move(caps))
         , fFPFactoryCache(std::move(cache)) {}
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 
 bool GrContextThreadSafeProxy::matches(GrContext_Base* context) const {
-    return context->priv().contextID() == fContextID;
+    return context->priv().contextID() == this->contextID();
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
