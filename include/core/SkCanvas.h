@@ -41,7 +41,6 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
-class SkMetaData;
 class SkPath;
 class SkPicture;
 class SkPixmap;
@@ -51,6 +50,10 @@ struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
+
+#ifdef SK_SUPPORT_LEGACY_CANVAS_METADATA
+class SkMetaData;
+#endif
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -217,13 +220,14 @@ public:
     */
     virtual ~SkCanvas();
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_METADATA
     /** Returns storage to associate additional data with the canvas.
         The storage is freed when SkCanvas is deleted.
 
         @return  storage that can be read from and written to
     */
     SkMetaData& getMetaData();
-
+#endif
     /** Returns SkImageInfo for SkCanvas. If SkCanvas is not associated with raster surface or
         GPU surface, returned SkColorType is set to kUnknown_SkColorType.
 
@@ -2519,7 +2523,9 @@ private:
 
     int         fSaveCount;         // value returned by getSaveCount()
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_METADATA
     SkMetaData* fMetaData;
+#endif
     std::unique_ptr<SkRasterHandleAllocator> fAllocator;
 
     SkSurface_Base*  fSurfaceBase;
