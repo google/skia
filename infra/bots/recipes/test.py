@@ -756,6 +756,7 @@ def dm_flags(api, bot):
     # skia:8243
     match.append('~^ClearOp$')
     match.append('~^DDLSurfaceCharacterizationTest$')
+    match.append('~^DDLNonTextureabilityTest$')
     match.append('~^DDLOperatorEqTest$')
     match.append('~^DeferredProxyTest$')
     match.append('~^GPUMemorySize$')
