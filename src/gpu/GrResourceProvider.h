@@ -8,7 +8,7 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
-#include "GrBuffer.h"
+#include "GrGpuBuffer.h"
 #include "GrContextOptions.h"
 #include "GrResourceCache.h"
 #include "SkImageInfoPriv.h"
@@ -51,11 +51,6 @@ public:
          *  Make this automatic: https://bug.skia.org/4156
          */
         kNoPendingIO     = 0x1,
-
-        /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
-         *  creating a buffer to guarantee it resides in GPU memory.
-         */
-        kRequireGpuMemory = 0x2,
     };
 
     GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*,
@@ -66,7 +61,8 @@ public:
      * must be sure that if a resource of exists in the cache with the given unique key then it is
      * of type T.
      */
-    template <typename T = GrGpuResource> sk_sp<T> findByUniqueKey(const GrUniqueKey& key) {
+    template <typename T = GrGpuResource>
+    typename std::enable_if<std::is_base_of<GrGpuResource, T>::value, sk_sp<T>>::type findByUniqueKey(const GrUniqueKey& key) {
         return sk_sp<T>(static_cast<T*>(this->findResourceByUniqueKey(key).release()));
     }
 
@@ -145,8 +141,8 @@ public:
      *
      * @return The buffer if successful, otherwise nullptr.
      */
-    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType intendedType, size_t size,
-                                                 const void* data, const GrUniqueKey& key);
+    sk_sp<const GrGpuBuffer> findOrMakeStaticBuffer(GrBufferType intendedType, size_t size,
+                                                    const void* data, const GrUniqueKey& key);
 
     /**
      * Either finds and refs, or creates an index buffer with a repeating pattern for drawing
@@ -161,12 +157,12 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    sk_sp<const GrBuffer> findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
+    sk_sp<const GrGpuBuffer> findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
                                                            int patternSize,
                                                            int reps,
                                                            int vertCount,
                                                            const GrUniqueKey& key) {
-        if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
+        if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
             return std::move(buffer);
         }
         return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
@@ -179,8 +175,8 @@ public:
      * Draw with GrPrimitiveType::kTriangles
      * @ return the quad index buffer
      */
-    sk_sp<const GrBuffer> refQuadIndexBuffer() {
-        if (auto buffer = this->findByUniqueKey<const GrBuffer>(fQuadIndexBufferKey)) {
+    sk_sp<const GrGpuBuffer> refQuadIndexBuffer() {
+        if (auto buffer = this->findByUniqueKey<const GrGpuBuffer>(fQuadIndexBufferKey)) {
             return buffer;
         }
         return this->createQuadIndexBuffer();
@@ -205,7 +201,7 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    sk_sp<GrBuffer> createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
+    sk_sp<GrGpuBuffer> createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern, Flags,
                                  const void* data = nullptr);
 
     /**
@@ -286,13 +282,13 @@ private:
         return !SkToBool(fCache);
     }
 
-    sk_sp<const GrBuffer> createPatternedIndexBuffer(const uint16_t* pattern,
+    sk_sp<const GrGpuBuffer> createPatternedIndexBuffer(const uint16_t* pattern,
                                                      int patternSize,
                                                      int reps,
                                                      int vertCount,
                                                      const GrUniqueKey& key);
 
-    sk_sp<const GrBuffer> createQuadIndexBuffer();
+    sk_sp<const GrGpuBuffer> createQuadIndexBuffer();
 
     GrResourceCache*    fCache;
     GrGpu*              fGpu;

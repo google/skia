@@ -174,8 +174,8 @@ void GrGLBuffer::onMap() {
         case GrGLCaps::kMapBuffer_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
             // Let driver know it can discard the old data
-            if (this->glCaps().useBufferDataNullHint() || fGLSizeInBytes != this->sizeInBytes()) {
-                GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+            if (this->glCaps().useBufferDataNullHint() || fGLSizeInBytes != this->size()) {
+                GL_CALL(BufferData(target, this->size(), nullptr, fUsage));
             }
             GL_CALL_RET(fMapPtr, MapBuffer(target, readOnly ? GR_GL_READ_ONLY : GR_GL_WRITE_ONLY));
             break;
@@ -183,30 +183,30 @@ void GrGLBuffer::onMap() {
         case GrGLCaps::kMapBufferRange_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
             // Make sure the GL buffer size agrees with fDesc before mapping.
-            if (fGLSizeInBytes != this->sizeInBytes()) {
-                GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+            if (fGLSizeInBytes != this->size()) {
+                GL_CALL(BufferData(target, this->size(), nullptr, fUsage));
             }
             GrGLbitfield writeAccess = GR_GL_MAP_WRITE_BIT;
             if (kXferCpuToGpu_GrBufferType != fIntendedType) {
                 // TODO: Make this a function parameter.
                 writeAccess |= GR_GL_MAP_INVALIDATE_BUFFER_BIT;
             }
-            GL_CALL_RET(fMapPtr, MapBufferRange(target, 0, this->sizeInBytes(),
+            GL_CALL_RET(fMapPtr, MapBufferRange(target, 0, this->size(),
                                                 readOnly ?  GR_GL_MAP_READ_BIT : writeAccess));
             break;
         }
         case GrGLCaps::kChromium_MapBufferType: {
             GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
             // Make sure the GL buffer size agrees with fDesc before mapping.
-            if (fGLSizeInBytes != this->sizeInBytes()) {
-                GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+            if (fGLSizeInBytes != this->size()) {
+                GL_CALL(BufferData(target, this->size(), nullptr, fUsage));
             }
-            GL_CALL_RET(fMapPtr, MapBufferSubData(target, 0, this->sizeInBytes(),
+            GL_CALL_RET(fMapPtr, MapBufferSubData(target, 0, this->size(),
                                                   readOnly ?  GR_GL_READ_ONLY : GR_GL_WRITE_ONLY));
             break;
         }
     }
-    fGLSizeInBytes = this->sizeInBytes();
+    fGLSizeInBytes = this->size();
     VALIDATE();
 }
 
@@ -249,15 +249,15 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
 
     SkASSERT(!this->isMapped());
     VALIDATE();
-    if (srcSizeInBytes > this->sizeInBytes()) {
+    if (srcSizeInBytes > this->size()) {
         return false;
     }
-    SkASSERT(srcSizeInBytes <= this->sizeInBytes());
+    SkASSERT(srcSizeInBytes <= this->size());
     // bindbuffer handles dirty context
     GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
 
     if (this->glCaps().useBufferDataNullHint()) {
-        if (this->sizeInBytes() == srcSizeInBytes) {
+        if (this->size() == srcSizeInBytes) {
             GL_CALL(BufferData(target, (GrGLsizeiptr) srcSizeInBytes, src, fUsage));
         } else {
             // Before we call glBufferSubData we give the driver a hint using
@@ -267,10 +267,10 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
             // assign a different allocation for the new contents to avoid
             // flushing the gpu past draws consuming the old contents.
             // TODO I think we actually want to try calling bufferData here
-            GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+            GL_CALL(BufferData(target, this->size(), nullptr, fUsage));
             GL_CALL(BufferSubData(target, 0, (GrGLsizeiptr) srcSizeInBytes, src));
         }
-        fGLSizeInBytes = this->sizeInBytes();
+        fGLSizeInBytes = this->size();
     } else {
         // Note that we're cheating on the size here. Currently no methods
         // allow a partial update that preserves contents of non-updated
@@ -294,7 +294,7 @@ void GrGLBuffer::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
 
 void GrGLBuffer::validate() const {
     SkASSERT(0 != fBufferID || 0 == fGLSizeInBytes);
-    SkASSERT(nullptr == fMapPtr || fGLSizeInBytes <= this->sizeInBytes());
+    SkASSERT(nullptr == fMapPtr || fGLSizeInBytes <= this->size());
 }
 
 #endif

@@ -227,7 +227,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
 
     // Allocate buffers.
     size_t vertexStride = gp->vertexStride();
-    sk_sp<const GrBuffer> vertexBuffer = nullptr;
+    sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex = 0;
     void* verts = target->makeVertexSpace(vertexStride, fVertexCount, &vertexBuffer, &firstVertex);
     if (!verts) {
@@ -235,7 +235,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
         return;
     }
 
-    sk_sp<const GrBuffer> indexBuffer = nullptr;
+    sk_sp<const GrBuffer> indexBuffer;
     int firstIndex = 0;
     uint16_t* indices = nullptr;
     if (this->isIndexed()) {
@@ -286,9 +286,9 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     indexKeyBuilder.finish();
 
     // Try to grab data from the cache.
-    sk_sp<GrBuffer> vertexBuffer = rp->findByUniqueKey<GrBuffer>(vertexKey);
-    sk_sp<GrBuffer> indexBuffer = this->isIndexed() ?
-            rp->findByUniqueKey<GrBuffer>(indexKey) :
+    sk_sp<GrGpuBuffer> vertexBuffer = rp->findByUniqueKey<GrGpuBuffer>(vertexKey);
+    sk_sp<GrGpuBuffer> indexBuffer = this->isIndexed() ?
+            rp->findByUniqueKey<GrGpuBuffer>(indexKey) :
             nullptr;
 
     // Draw using the cached buffers if possible.

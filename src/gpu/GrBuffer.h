@@ -7,7 +7,7 @@
 
 #ifndef GrBuffer_DEFINED
 #define GrBuffer_DEFINED
-
+#if 0
 #include "GrGpuResource.h"
 
 class GrGpu;
@@ -126,5 +126,5 @@ private:
 
     typedef GrGpuResource INHERITED;
 };
-
+#endif
 #endif

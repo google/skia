@@ -846,7 +846,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
 }
 
 bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width, int height,
-                               GrColorType bufferColorType, GrBuffer* transferBuffer, size_t offset,
+                               GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
                                size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
     GrPixelConfig texConfig = glTex->config();
@@ -868,7 +868,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture, int left, int top, int width,
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
     SkASSERT(!transferBuffer->isMapped());
-    SkASSERT(!transferBuffer->isCPUBacked());
+    SkASSERT(!transferBuffer->isCpuBuffer());
     const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
     this->bindBuffer(kXferCpuToGpu_GrBufferType, glBuffer);
 
@@ -1856,7 +1856,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
-sk_sp<GrBuffer> GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
+sk_sp<GrGpuBuffer> GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
                                         GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Make(this, size, intendedType, accessPattern, data);
 }
@@ -2083,8 +2083,7 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
 
     if (int vertexStride = fHWProgram->vertexStride()) {
         SkASSERT(vertexBuffer && !vertexBuffer->isMapped());
-        size_t bufferOffset = vertexBuffer->baseOffset();
-        bufferOffset += baseVertex * static_cast<size_t>(vertexStride);
+        size_t bufferOffset = baseVertex * static_cast<size_t>(vertexStride);
         for (int i = 0; i < fHWProgram->numVertexAttributes(); ++i) {
             const auto& attrib = fHWProgram->vertexAttribute(i);
             static constexpr int kDivisor = 0;
@@ -2094,8 +2093,7 @@ void GrGLGpu::setupGeometry(const GrBuffer* indexBuffer,
     }
     if (int instanceStride = fHWProgram->instanceStride()) {
         SkASSERT(instanceBuffer && !instanceBuffer->isMapped());
-        size_t bufferOffset = instanceBuffer->baseOffset();
-        bufferOffset += baseInstance * static_cast<size_t>(instanceStride);
+        size_t bufferOffset = baseInstance * static_cast<size_t>(instanceStride);
         int attribIdx = fHWProgram->numVertexAttributes();
         for (int i = 0; i < fHWProgram->numInstanceAttributes(); ++i, ++attribIdx) {
             const auto& attrib = fHWProgram->instanceAttribute(i);
@@ -2118,17 +2116,20 @@ GrGLenum GrGLGpu::bindBuffer(GrBufferType type, const GrBuffer* buffer) {
     SkASSERT(type >= 0 && type <= kLast_GrBufferType);
     auto& bufferState = fHWBufferState[type];
 
-    if (buffer->uniqueID() != bufferState.fBoundBufferUniqueID) {
-        if (buffer->isCPUBacked()) {
-            if (!bufferState.fBufferZeroKnownBound) {
-                GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
-            }
-        } else {
-            const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(buffer);
-            GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
+    GrGpuResource::UniqueID id;
+    if (buffer->isCpuBuffer()) {
+        if (!bufferState.fBufferZeroKnownBound) {
+            GL_CALL(BindBuffer(bufferState.fGLTarget, 0));
+            bufferState.fBufferZeroKnownBound = true;
+            bufferState.fBoundBufferUniqueID.makeInvalid();
         }
-        bufferState.fBufferZeroKnownBound = buffer->isCPUBacked();
-        bufferState.fBoundBufferUniqueID = buffer->uniqueID();
+    } else {
+        auto glBuffer = static_cast<const GrGLBuffer*>(buffer);
+        if (glBuffer->uniqueID() != bufferState.fBoundBufferUniqueID) {
+            GL_CALL(BindBuffer(bufferState.fGLTarget, glBuffer->bufferID()));
+            bufferState.fBufferZeroKnownBound = false;
+            bufferState.fBoundBufferUniqueID = glBuffer->uniqueID();
+        }
     }
 
     return bufferState.fGLTarget;
@@ -2619,21 +2620,29 @@ void GrGLGpu::sendMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* verte
     fStats.incNumDraws();
 }
 
+static const GrGLvoid* element_ptr(const GrBuffer* indexBuffer, int baseIndex) {
+    size_t baseOffset = baseIndex * sizeof(uint16_t);
+    if (indexBuffer->isCpuBuffer()) {
+        return static_cast<const GrCpuBuffer*>(indexBuffer)->data() + baseOffset;
+    } else {
+        return reinterpret_cast<const GrGLvoid*>(baseOffset);
+    }
+}
+
 void GrGLGpu::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* indexBuffer,
                                    int indexCount, int baseIndex, uint16_t minIndexValue,
                                    uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
                                    int baseVertex, GrPrimitiveRestart enablePrimitiveRestart) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
-    GrGLvoid* const indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
-                                                      sizeof(uint16_t) * baseIndex);
+    const GrGLvoid* elementPtr = element_ptr(indexBuffer, baseIndex);
 
     this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, nullptr, 0, enablePrimitiveRestart);
 
     if (this->glCaps().drawRangeElementsSupport()) {
         GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
-                                  GR_GL_UNSIGNED_SHORT, indices));
+                                  GR_GL_UNSIGNED_SHORT, elementPtr));
     } else {
-        GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices));
+        GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, elementPtr));
     }
     fStats.incNumDraws();
 }
@@ -2660,13 +2669,12 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
                                             int instanceCount, int baseInstance,
                                             GrPrimitiveRestart enablePrimitiveRestart) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
-    GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
-                                                sizeof(uint16_t) * baseIndex);
+    const GrGLvoid* elementPtr = element_ptr(indexBuffer, baseIndex);
     int maxInstances = this->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
         this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, instanceBuffer, baseInstance + i,
                             enablePrimitiveRestart);
-        GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices,
+        GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, elementPtr,
                                       SkTMin(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
     }

@@ -424,7 +424,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         }
     }
     int maxGlyphsPerDraw =
-            static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
+            static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
     GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
     mesh->setIndexedPatterned(flushInfo->fIndexBuffer, kIndicesPerGlyph, kVerticesPerGlyph,
                               flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
