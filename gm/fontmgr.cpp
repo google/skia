@@ -190,6 +190,7 @@ protected:
             }
         }
         if (nullptr == fset.get()) {
+            skiagm::GM::DrawFailureMessage(canvas, "No SkFontStyleSet");
             return;
         }
 
