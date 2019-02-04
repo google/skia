@@ -653,7 +653,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
 sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
         LazyInstantiateCallback&& callback, const GrBackendFormat& format,
         const GrSurfaceDesc& desc, GrSurfaceOrigin origin, GrInternalSurfaceFlags surfaceFlags,
-        const TextureInfo* textureInfo, SkBackingFit fit, SkBudgeted budgeted) {
+        const TextureInfo* textureInfo, SkBackingFit fit, SkBudgeted budgeted,
+        bool wrapsVkSecondaryCB) {
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
 
@@ -675,13 +676,19 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
                                                        : LazyInstantiationType::kMultipleUse;
 
     if (textureInfo) {
+        SkASSERT(!wrapsVkSecondaryCB);
         return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(
                 std::move(callback), lazyType, format, desc, origin, textureInfo->fMipMapped,
                 fit, budgeted, surfaceFlags));
     }
 
+    GrRenderTargetProxy::WrapsVkSecondaryCB vkSCB =
+            wrapsVkSecondaryCB ? GrRenderTargetProxy::WrapsVkSecondaryCB::kYes
+                               : GrRenderTargetProxy::WrapsVkSecondaryCB::kNo;
+
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(
-            std::move(callback), lazyType, format, desc, origin, fit, budgeted, surfaceFlags));
+            std::move(callback), lazyType, format, desc, origin, fit, budgeted, surfaceFlags,
+            vkSCB));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallback&& callback,

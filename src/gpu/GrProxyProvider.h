@@ -182,7 +182,8 @@ public:
                                                            GrInternalSurfaceFlags,
                                                            const TextureInfo*,
                                                            SkBackingFit,
-                                                           SkBudgeted);
+                                                           SkBudgeted,
+                                                           bool forVkWrappedSecondaryCB);
 
     /**
      * Fully lazy proxies have unspecified width and height. Methods that rely on those values

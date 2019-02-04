@@ -117,6 +117,14 @@ bool SkDeferredDisplayListRecorder::init() {
         }
     }
 
+    if (fCharacterization.vulkanSecondaryCBCompatible()) {
+        if (usesGLFBO0 ||
+            fCharacterization.isTextureable() ||
+            fCharacterization.origin() == kBottomLeft_GrSurfaceOrigin) {
+            return false;
+        }
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = fCharacterization.width();
@@ -165,7 +173,8 @@ bool SkDeferredDisplayListRecorder::init() {
             surfaceFlags,
             optionalTextureInfo,
             SkBackingFit::kExact,
-            SkBudgeted::kYes);
+            SkBudgeted::kYes,
+            fCharacterization.vulkanSecondaryCBCompatible());
 
     sk_sp<GrSurfaceContext> c = fContext->contextPriv().makeWrappedSurfaceContext(
                                                                  std::move(proxy),
