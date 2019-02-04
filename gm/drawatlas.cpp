@@ -49,7 +49,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
         auto atlas = MakeAtlas(canvas, target);
 
@@ -91,6 +91,7 @@ protected:
         canvas->drawAtlas(atlas.get(), xform, tex, N, nullptr, &paint);
         canvas->translate(0, 100);
         canvas->drawAtlas(atlas.get(), xform, tex, colors, N, SkBlendMode::kSrcIn, nullptr, &paint);
+        return kDrawComplete;
     }
 
 private:

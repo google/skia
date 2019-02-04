@@ -152,7 +152,7 @@ protected:
         fImage = makebm(canvas, &fLargeBitmap, gBmpSize, gBmpSize);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fImage || !fImage->isValid(canvas->getGrContext())) {
             this->setupImage(canvas);
         }
@@ -228,6 +228,7 @@ protected:
             sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
             fProc(canvas, image.get(), bm, srcRect, dstRect, &paint);
         }
+        return kDrawComplete;
     }
 
 private:

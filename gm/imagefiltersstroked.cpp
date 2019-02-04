@@ -46,7 +46,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         void (*drawProc[])(SkCanvas*, const SkRect&, const SkPaint&) = {
             draw_line, draw_rect, draw_circle,
         };
@@ -93,6 +93,7 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height());
         }
+        return kDrawComplete;
     }
 
 private:

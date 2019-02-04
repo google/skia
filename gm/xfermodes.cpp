@@ -215,7 +215,7 @@ protected:
         return SkISize::Make(1990, 570);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const SkScalar w = SkIntToScalar(W);
@@ -278,6 +278,7 @@ protected:
                 y0 = 0;
             }
         }
+        return kDrawComplete;
     }
 
 private:

@@ -42,7 +42,7 @@ protected:
                                                       8));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;
 
@@ -65,6 +65,7 @@ protected:
         SkImageFilter::CropRect rect(SkRect::Make(cropRect));
         paint.setImageFilter(SkOffsetImageFilter::Make(-5, -10, nullptr, &rect));
         DrawClippedImage(canvas, fBitmap.get(), paint, 2, cropRect);
+        return kDrawComplete;
     }
 private:
     static void DrawClippedImage(SkCanvas* canvas, const SkImage* image, const SkPaint& paint,
@@ -146,7 +147,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkRect r = SkRect::MakeWH(40, 40);
         SkImageFilter::CropRect cr0(r);
         SkImageFilter::CropRect cr1(SkRect::MakeWH(20, 20));
@@ -196,6 +197,7 @@ protected:
         // crop==clip==dst
         canvas->translate(100, 0);
         this->doDraw(canvas, r, SkOffsetImageFilter::Make(40, 0, nullptr, &cr2), &r2);
+        return kDrawComplete;
     }
 
 private:

@@ -152,11 +152,10 @@ protected:
         context->resetContext();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrContext* context = canvas->getGrContext();
         if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
 
@@ -207,6 +206,7 @@ protected:
             };
             this->deleteBackendTextures(context, texturesToDelete, 4);
         }
+        return kDrawComplete;
      }
 
 private:

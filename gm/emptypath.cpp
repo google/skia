@@ -40,7 +40,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;
@@ -108,6 +108,7 @@ protected:
         }
         canvas->restore();
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:
@@ -162,7 +163,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(200, 240); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const MakePathProc procs[] = {
             make_path_move,             // expect red red red
             make_path_move_close,       // expect black black black
@@ -187,6 +188,7 @@ protected:
             canvas->drawPath(path, strokePaint);
             canvas->translate(0, 40);
         }
+        return kDrawComplete;
     }
 
 private:

@@ -62,7 +62,7 @@ protected:
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
@@ -117,6 +117,7 @@ protected:
             }
         }
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

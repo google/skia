@@ -54,7 +54,7 @@ public:
         return SkISize::Make(1400, 1450);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         this->drawSceneColumn(canvas, SkPoint::Make(0, 0), 1, 1, 0);
         this->drawSceneColumn(canvas, SkPoint::Make(0, fSceneSize * 6.4f), 1, 2, 0);
         this->drawSceneColumn(canvas, SkPoint::Make(fSceneSize * 2.4f, 0), 1, 1, 1);
@@ -83,6 +83,7 @@ public:
         localMatrix.preRotate(45);
         localMatrix.preScale(-2, -2);
         this->drawScene(canvas, ctm, localMatrix, 0);
+        return kDrawComplete;
     }
 
 private:

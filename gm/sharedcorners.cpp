@@ -49,7 +49,7 @@ protected:
 
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(kPadSize, kPadSize);
         canvas->save();
 
@@ -100,6 +100,7 @@ protected:
         }
         indices.push_back({{0, (int)pts.size() - 1, 1}});
         this->drawTriangleBoxes(canvas, pts, indices);
+        return kDrawComplete;
     }
 
     void drawTriangleBoxes(SkCanvas* canvas, const std::vector<SkPoint>& points,

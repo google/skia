@@ -6,10 +6,11 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
-#include "SkShader.h"
+#include "SkFont.h"
 #include "SkTraceEvent.h"
 using namespace skiagm;
+
+constexpr char GM::kDrawSkippedGPUOnly[];
 
 GM::GM() {
     fMode = kGM_Mode;
@@ -20,20 +21,20 @@ GM::GM() {
 
 GM::~GM() {}
 
-void GM::draw(SkCanvas* canvas) {
+const char* GM::draw(SkCanvas* canvas) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
-    this->drawContent(canvas);
+    return this->drawContent(canvas);
 }
 
-void GM::drawContent(SkCanvas* canvas) {
+const char* GM::drawContent(SkCanvas* canvas) {
     TRACE_EVENT0("GM", TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();
     }
     SkAutoCanvasRestore acr(canvas, true);
-    this->onDraw(canvas);
+    return this->onDraw(canvas);
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
@@ -72,26 +73,6 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
     canvas->drawRect(r, paint);
 }
 
-void GM::DrawGpuOnlyMessage(SkCanvas* canvas) {
-    SkBitmap bmp;
-    bmp.allocN32Pixels(128, 64);
-    SkCanvas bmpCanvas(bmp);
-    bmpCanvas.drawColor(SK_ColorWHITE);
-    SkFont font(sk_tool_utils::create_portable_typeface(), 20);
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
-    bmpCanvas.drawString("GPU Only", 20, 40, font, paint);
-    SkMatrix localM;
-    localM.setRotate(35.f);
-    localM.postTranslate(10.f, 0.f);
-    paint.setShader(SkShader::MakeBitmapShader(bmp, SkShader::kMirror_TileMode,
-                                               SkShader::kMirror_TileMode,
-                                               &localM));
-    paint.setFilterQuality(kMedium_SkFilterQuality);
-    canvas->drawPaint(paint);
-    return;
-}
-
 void GM::DrawFailureMessage(SkCanvas* canvas, const char format[], ...)  {
     SkString failureMsg;
 
@@ -113,16 +94,20 @@ void GM::DrawFailureMessage(SkCanvas* canvas, const char format[], ...)  {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-void skiagm::SimpleGM::onDraw(SkCanvas* canvas) {
-    fDrawProc(canvas);
+SimpleGM* SimpleGM::Create(
+        const SkString& name, std::function<void(SkCanvas*)> simpleDrawProc, const SkISize& size,
+        SkColor backgroundColor) {
+    auto drawProc = [simpleDrawProc](SkCanvas* canvas) {
+        simpleDrawProc(canvas);
+        return kDrawComplete;
+    };
+    return new SimpleGM(name, std::move(drawProc), size, backgroundColor);
 }
 
-SkISize skiagm::SimpleGM::onISize() {
-    return fSize;
-}
-
-SkString skiagm::SimpleGM::onShortName() {
-    return fName;
+SimpleGM* SimpleGM::CreateSkippable(
+        const SkString& name, std::function<const char*(SkCanvas*)> drawProc, const SkISize& size,
+        SkColor backgroundColor) {
+    return new SimpleGM(name, drawProc, size, backgroundColor);
 }
 
 template <typename Fn>

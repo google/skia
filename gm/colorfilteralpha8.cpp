@@ -22,7 +22,7 @@ protected:
         return SkISize::Make(400, 400);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorRED);
 
         SkBitmap bitmap;
@@ -40,6 +40,7 @@ protected:
         paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(opaqueGrayMatrix));
 
         canvas->drawBitmap(bitmap, 100.0f, 100.0f, &paint);
+        return kDrawComplete;
     }
 
 private:

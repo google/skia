@@ -37,7 +37,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
 
         SkPaint paint;
@@ -47,6 +47,7 @@ protected:
 
         paint.setColor(0xFF00FFFF);
         canvas->drawRegion(fRegion, paint);
+        return kDrawComplete;
     }
 
     SkRegion fRegion;

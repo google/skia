@@ -31,7 +31,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         constexpr int kBig = 65536;
         const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4));
 
@@ -100,6 +100,7 @@ protected:
                 desiredY += kCloseUpSize;
             }
         }
+        return kDrawComplete;
     }
 
 private:

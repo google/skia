@@ -31,7 +31,7 @@ struct DownsampleBitmapGM : public skiagm::GM {
         return SkISize::Make(bm.width(), 4 * bm.height());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkImageInfo info = canvas->imageInfo();
         if (!info.colorType()) { info = info.makeColorType(   kN32_SkColorType); }
         if (!info.alphaType()) { info = info.makeAlphaType(kPremul_SkAlphaType); }
@@ -59,6 +59,7 @@ struct DownsampleBitmapGM : public skiagm::GM {
             curY += curHeight;
             curScale *= 0.75f;
         } while (curHeight >= 2 && curY < 4*bm.height());
+        return kDrawComplete;
     }
 };
 

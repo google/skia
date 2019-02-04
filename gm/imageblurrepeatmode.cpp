@@ -77,7 +77,7 @@ protected:
 
     bool runAsBench() const override { return true; }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> image[] =
                 { make_image(canvas, 1), make_image(canvas, 2), make_image(canvas, 3) };
 
@@ -105,6 +105,7 @@ protected:
             canvas->restore();
             canvas->translate(0, image[0]->height() + 20);
         }
+        return kDrawComplete;
     }
 
 private:

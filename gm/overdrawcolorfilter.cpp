@@ -33,7 +33,7 @@ protected:
         return SkISize::Make(200, 400);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         static const SkPMColor colors[SkOverdrawColorFilter::kNumColors] = {
                 0x80800000, 0x80008000, 0x80000080, 0x80808000, 0x80008080, 0x80800080,
         };
@@ -59,6 +59,7 @@ protected:
         canvas->drawBitmap(bitmap, 100, 100, &paint);
         set_bitmap(&bitmap, 6);
         canvas->drawBitmap(bitmap, 100, 200, &paint);
+        return kDrawComplete;
     }
 
 private:

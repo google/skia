@@ -49,7 +49,7 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
@@ -73,6 +73,7 @@ protected:
                 rnd_rect(&r, &paint, rand);
             }
         }
+        return kDrawComplete;
     }
 
 private:
@@ -112,7 +113,7 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint fillPaint, strokePaint, dashPaint;
         fillPaint.setAntiAlias(true);
         strokePaint = fillPaint;
@@ -153,6 +154,7 @@ protected:
             canvas->drawPath(fLinePath, strokePaint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:
@@ -183,12 +185,13 @@ class TeenyStrokesGM : public skiagm::GM {
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         line(0.00005f, canvas, SK_ColorBLACK);
         line(0.000045f, canvas, SK_ColorRED);
         line(0.0000035f, canvas, SK_ColorGREEN);
         line(0.000003f, canvas, SK_ColorBLUE);
         line(0.000002f, canvas, SK_ColorBLACK);
+        return kDrawComplete;
     }
 private:
     typedef skiagm::GM INHERITED;
@@ -291,7 +294,7 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         SkPaint paint;
@@ -315,6 +318,7 @@ protected:
                 canvas->drawPath(fPath, paint);
             }
         }
+        return kDrawComplete;
     }
 
 private:
@@ -383,7 +387,7 @@ protected:
         return SkISize::Make(1500, 1500);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint origPaint;
         origPaint.setAntiAlias(true);
         origPaint.setStyle(SkPaint::kStroke_Style);
@@ -420,6 +424,7 @@ protected:
             canvas->restore();
             canvas->translate(0, dy);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -440,13 +445,14 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(0.055f);
 
         canvas->scale(1000, 1000);
         canvas->drawCircle(0, 2, 1.97f, paint);
+        return kDrawComplete;
     }
 
 private:
@@ -468,7 +474,7 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
@@ -501,6 +507,7 @@ protected:
         path.moveTo(180, 250);
         path.conicTo(180, 250, 210, 280, 0.707f);
         canvas->drawPath(path, p);
+        return kDrawComplete;
     }
 
 private:

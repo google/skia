@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         canvas->clear(SK_ColorBLACK);
         test(canvas,   0,   0, Type::kFractalNoise,
              0.1f, 0.1f, 0, 0, false);
@@ -95,6 +95,7 @@ protected:
              0.1f, 0.1f, 2, 0, false);
         test(canvas, 100, 400, Type::kFractalNoise,
              0.1f, 0.05f, 1, 0, true);
+        return kDrawComplete;
     }
 
 private:
@@ -128,7 +129,7 @@ protected:
         paint->setShader(std::move(shader));
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         canvas->translate(10, 10);
 
         SkPaint paint;
@@ -177,6 +178,7 @@ protected:
         canvas->translate(w + 100, h + 10);
         canvas->drawRect(r, paint);
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

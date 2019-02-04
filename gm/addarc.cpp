@@ -21,7 +21,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1040, 1040); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
 
         SkRect r = SkRect::MakeWH(1000, 1000);
@@ -50,6 +50,7 @@ protected:
             r.inset(inset, inset);
             sign = -sign;
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -113,7 +114,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(520, 520); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);
         canvas->translate(13, 13);
 
@@ -136,6 +137,7 @@ protected:
             r.inset(delta, delta);
             sign = -sign;
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -163,7 +165,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(520, 520); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);
         canvas->translate(13, 13);
 
@@ -189,6 +191,7 @@ protected:
             r.inset(delta, delta);
             sign = -sign;
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

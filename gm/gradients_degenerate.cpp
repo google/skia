@@ -123,7 +123,7 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(3 * TILE_GAP, 3 * TILE_GAP);
         draw_tile_header(canvas);
 
@@ -135,6 +135,7 @@ protected:
         draw_row(canvas, "2pt-conic-0: empty, blue, blue, green", make_2pt_conic_zero_rad);
         draw_row(canvas, "2pt-conic-1: empty, blue, blue, full red circle on green",
                  make_2pt_conic);
+        return kDrawComplete;
     }
 
 private:

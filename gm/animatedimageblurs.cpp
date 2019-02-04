@@ -37,7 +37,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -57,6 +57,7 @@ protected:
                 canvas->drawRRect(rrect, paint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

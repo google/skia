@@ -38,7 +38,7 @@ protected:
         return SkISize::Make(1024, 768);
     }
 
-    virtual void onDraw(SkCanvas* inputCanvas) override {
+    const char* onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
         SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
 
@@ -222,6 +222,7 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
+        return kDrawComplete;
     }
 
 private:

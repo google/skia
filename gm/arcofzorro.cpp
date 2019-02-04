@@ -29,7 +29,7 @@ protected:
         return SkISize::Make(1000, 1000);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkRandom rand;
 
         SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
@@ -71,6 +71,7 @@ protected:
             }
         }
 
+        return kDrawComplete;
     }
 
 private:

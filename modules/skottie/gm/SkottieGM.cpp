@@ -61,14 +61,15 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
             DrawFailureMessage(canvas, "No animation");
-            return;
+            return kDrawComplete;
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
         fAnimation->render(canvas, &dest);
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -113,14 +114,15 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
             DrawFailureMessage(canvas, "No animation");
-            return;
+            return kDrawComplete;
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
         fAnimation->render(canvas, &dest);
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -185,14 +187,15 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
             DrawFailureMessage(canvas, "No animation");
-            return;
+            return kDrawComplete;
         }
 
         auto dest = SkRect::MakeWH(kSize, kSize);
         fAnimation->render(canvas, &dest);
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

@@ -77,7 +77,7 @@ protected:
         return SkISize::Make(680, 130);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrix); ++i) {
             SkSize size = computeSize(fBM, fMatrix[i]);
@@ -87,6 +87,7 @@ protected:
             draw_row(canvas, fBM, fMatrix[i], size.fWidth);
             canvas->translate(0, size.fHeight);
         }
+        return kDrawComplete;
     }
 
   protected:

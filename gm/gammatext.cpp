@@ -50,7 +50,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         drawGrad(canvas);
 
         const SkColor fg[] = {
@@ -78,6 +78,7 @@ protected:
             }
             x += SkIntToScalar(1024) / SK_ARRAY_COUNT(fg);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -135,7 +136,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font(SkTypeface::MakeFromName("serif", SkFontStyle::Italic()), 18);
@@ -145,6 +146,7 @@ protected:
             draw_pair(canvas, font, fColors[i], fShaders[i]);
             canvas->translate(0, 80);
         }
+        return kDrawComplete;
     }
 
 private:

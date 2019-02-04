@@ -62,7 +62,7 @@ protected:
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkMatrix matrix;
         matrix.reset();
         matrix.setTranslate(WIDTH * .1f, HEIGHT * .1f);
@@ -78,6 +78,7 @@ protected:
         draw_rects(canvas);
 
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:
@@ -122,7 +123,7 @@ protected:
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkMatrix matrix;
         matrix.reset();
         matrix.setTranslate(WIDTH * .1f, HEIGHT * .1f);
@@ -134,7 +135,7 @@ protected:
                                                              kPremul_SkAlphaType));
         if (!surface) {
             DrawFailureMessage(canvas, "make_color_matching_surface failed");
-            return;
+            return kDrawComplete;
         }
 
         surface->getCanvas()->clear(SK_ColorTRANSPARENT);
@@ -143,6 +144,7 @@ protected:
         SkPaint paint = create_filter_paint();
         canvas->clipRect(SkRect::MakeLTRB(100, 100, WIDTH - 100, HEIGHT - 100));
         canvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, &paint);
+        return kDrawComplete;
     }
 
 private:
