@@ -21,18 +21,6 @@
 
 DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
-namespace {
-    void error(SkCanvas* canvas, const SkString& errorText) {
-        constexpr SkScalar kOffset = 5.0f;
-        canvas->drawColor(SK_ColorRED);
-        SkPaint paint;
-        SkFont font;
-        SkRect bounds;
-        font.measureText(errorText.c_str(), errorText.size(), kUTF8_SkTextEncoding, &bounds);
-        canvas->drawString(errorText, kOffset, bounds.height() + kOffset, font, paint);
-    }
-}
-
 class AnimatedGifGM : public skiagm::GM {
 private:
     std::unique_ptr<SkCodec>        fCodec;
@@ -115,7 +103,6 @@ private:
 
         fCodec = SkCodec::MakeFromStream(std::move(stream));
         if (!fCodec) {
-            SkDebugf("Could create codec from %s", FLAGS_animatedGif[0]);
             return false;
         }
 
@@ -127,8 +114,7 @@ private:
 
     void onDraw(SkCanvas* canvas) override {
         if (!this->initCodec()) {
-            SkString errorText = SkStringPrintf("Nothing to draw; %s", FLAGS_animatedGif[0]);
-            error(canvas, errorText);
+            DrawFailureMessage(canvas, "Could not create codec from %s", FLAGS_animatedGif[0]);
             return;
         }
 

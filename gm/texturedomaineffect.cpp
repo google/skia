@@ -101,6 +101,7 @@ protected:
             SkBitmap copy;
             SkImageInfo info = as_IB(fImage)->onImageInfo().makeColorType(kN32_SkColorType);
             if (!copy.tryAllocPixels(info) || !fImage->readPixels(copy.pixmap(), 0, 0)) {
+                DrawFailureMessage(canvas, "Failed to read pixels.");
                 return;
             }
             proxy = proxyProvider->createMipMapProxyFromBitmap(copy);
@@ -109,6 +110,7 @@ protected:
                 fImage, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes, SkBackingFit::kExact);
         }
         if (!proxy) {
+            DrawFailureMessage(canvas, "Failed to create proxy.");
             return;
         }
 
