@@ -105,7 +105,10 @@ bool Window_mac::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = NewRasterForMac(info, fRequestedDisplayParams);
             break;
-
+#ifdef SK_METAL
+        case kMetal_BackendType:
+            fWindowContext = NewMetalForMac(info, fRequestedDisplayParams);
+#endif
         case kNativeGL_BackendType:
         default:
             fWindowContext = NewGLForMac(info, fRequestedDisplayParams);
