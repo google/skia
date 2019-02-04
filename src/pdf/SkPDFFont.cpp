@@ -34,6 +34,7 @@
 SkExclusiveStrikePtr SkPDFFont::MakeVectorCache(SkTypeface* face, int* size) {
     SkFont font;
     font.setHinting(kNo_SkFontHinting);
+    font.setEdging(SkFont::Edging::kAlias);
     font.setTypeface(sk_ref_sp(face));
     int unitsPerEm = face->getUnitsPerEm();
     if (unitsPerEm <= 0) {
