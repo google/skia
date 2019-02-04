@@ -80,9 +80,9 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     {
-        auto rtc =  ctx->contextPriv().makeDeferredRenderTargetContext(
+        auto rtc =  ctx->priv().makeDeferredRenderTargetContext(
                                                          format,
                                                          SkBackingFit::kApprox,
                                                          kBigSize/2+1, kBigSize/2+1,
@@ -103,7 +103,7 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
     }
 
     {
-        auto rtc = ctx->contextPriv().makeDeferredRenderTargetContext(
+        auto rtc = ctx->priv().makeDeferredRenderTargetContext(
                                                         format, SkBackingFit::kExact, kBigSize,
                                                         kBigSize, kRGBA_8888_GrPixelConfig,
                                                         nullptr);

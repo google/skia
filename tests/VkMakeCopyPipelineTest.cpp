@@ -181,7 +181,7 @@ public:
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkMakeCopyPipelineTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     TestVkCopyProgram copyProgram;
     copyProgram.test(gpu, reporter);

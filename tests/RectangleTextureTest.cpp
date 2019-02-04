@@ -25,7 +25,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
                                    sk_sp<GrTextureProxy> rectProxy, uint32_t expectedPixelValues[]) {
     GrBackendFormat format = rectProxy->backendFormat().makeTexture2D();
     SkASSERT(format.isValid());
-    sk_sp<GrRenderTargetContext> rtContext(context->contextPriv().makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtContext(context->priv().makeDeferredRenderTargetContext(
                                                      format,
                                                      SkBackingFit::kExact, rectProxy->width(),
                                                      rectProxy->height(), rectProxy->config(),
@@ -93,7 +93,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
     static const int kWidth = 13;
     static const int kHeight = 13;
@@ -159,13 +159,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         test_copy_from_surface(reporter, context, rectProxy.get(), refPixels,
                                false, "RectangleTexture-copy-from");
 
-        sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
+        sk_sp<GrSurfaceContext> rectContext = context->priv().makeWrappedSurfaceContext(
                                                                             std::move(rectProxy));
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");
 
-        test_copy_to_surface(reporter, context->contextPriv().proxyProvider(),
+        test_copy_to_surface(reporter, context->priv().proxyProvider(),
                               rectContext.get(), "RectangleTexture-copy-to");
 
         test_write_pixels(reporter, rectContext.get(), true, "RectangleTexture-write");

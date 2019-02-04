@@ -192,7 +192,7 @@ static void print_backend_info(const char* dstPath,
         if (std::unique_ptr<sk_gpu_test::TestContext> testCtx = make_test_context(backend)) {
             testCtx->makeCurrent();
             if (sk_sp<GrContext> ctx = testCtx->makeGrContext(context_options())) {
-                SkString info = ctx->contextPriv().dump();
+                SkString info = ctx->priv().dump();
                 // remove null
                 out.write(info.c_str(), info.size());
                 out.writeText(",\n");

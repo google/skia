@@ -782,11 +782,11 @@ protected:
                     }
 
                     if (context) {
-                        if (context->abandoned()) {
+                        if (context->priv().abandoned1()) {
                             return;
                         }
 
-                        GrGpu* gpu = context->contextPriv().getGpu();
+                        GrGpu* gpu = context->priv().getGpu();
                         if (!gpu) {
                             return;
                         }
@@ -848,7 +848,11 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        this->createImages(canvas->getGrContext());
+        if (!canvas->getGrContext() || !canvas->getGrContext()->asDirectContext()) {
+            return;
+        }
+
+        this->createImages(canvas->getGrContext()->asDirectContext());
 
         int x = kLabelWidth;
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -878,7 +882,7 @@ protected:
         if (auto context = canvas->getGrContext()) {
             if (!context->abandoned()) {
                 context->flush();
-                GrGpu* gpu = context->contextPriv().getGpu();
+                GrGpu* gpu = context->priv().getGpu();
                 SkASSERT(gpu);
                 gpu->testingOnly_flushGpuAndSync();
                 for (const auto& tex : fBackendTextures) {

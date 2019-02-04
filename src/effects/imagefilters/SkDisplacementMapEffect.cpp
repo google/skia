@@ -301,10 +301,10 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         SkColorType colorType = ctx.outputProperties().colorType();
         GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
         GrBackendFormat format =
-                context->contextPriv().caps()->getBackendFormatFromColorType(colorType);
+                context->priv().caps()->getBackendFormatFromColorType(colorType);
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->contextPriv().makeDeferredRenderTargetContext(
+            context->priv().makeDeferredRenderTargetContext(
                     format, SkBackingFit::kApprox, bounds.width(), bounds.height(), config,
                     sk_ref_sp(colorSpace)));
         if (!renderTargetContext) {

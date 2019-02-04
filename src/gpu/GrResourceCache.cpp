@@ -22,7 +22,7 @@
 #include "SkTSort.h"
 #include "SkTo.h"
 
-DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage);
+DECLARE_SKMESSAGEBUS_MESSAGE(GrUniqueKeyInvalidatedMessage17);
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrGpuResourceFreedMessage);
 
@@ -488,7 +488,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 }
 
 void GrResourceCache::purgeAsNeeded() {
-    SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
+    SkTArray<GrUniqueKeyInvalidatedMessage17> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
         SkASSERT(fProxyProvider);
