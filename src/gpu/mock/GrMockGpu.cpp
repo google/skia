@@ -183,7 +183,7 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
             new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc, rtInfo));
 }
 
-sk_sp<GrBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
+sk_sp<GrBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                           GrAccessPattern accessPattern, const void*) {
     return sk_sp<GrBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));
 }

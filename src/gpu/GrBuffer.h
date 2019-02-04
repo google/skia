@@ -18,14 +18,14 @@ public:
      * Creates a client-side buffer.
      */
     static SK_WARN_UNUSED_RESULT sk_sp<GrBuffer> MakeCPUBacked(GrGpu*, size_t sizeInBytes,
-                                                               GrBufferType,
+                                                               GrGpuBufferType,
                                                                const void* data = nullptr);
 
     /**
      * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with
      * "static" and "stream" patterns are disqualified by nature from being cached and reused.)
      */
-    static void ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType, GrScratchKey*);
+    static void ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType, GrScratchKey*);
 
     GrAccessPattern accessPattern() const { return fAccessPattern; }
     size_t sizeInBytes() const { return fSizeInBytes; }
@@ -101,7 +101,7 @@ public:
     }
 
 protected:
-    GrBuffer(GrGpu*, size_t sizeInBytes, GrBufferType, GrAccessPattern);
+    GrBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, GrAccessPattern);
 
     void* fMapPtr;
 
@@ -109,7 +109,7 @@ private:
     /**
      * Internal constructor to make a CPU-backed buffer.
      */
-    GrBuffer(GrGpu*, size_t sizeInBytes, GrBufferType, void* cpuData);
+    GrBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, void* cpuData);
 
     virtual void onMap() { SkASSERT(this->isCPUBacked()); fMapPtr = fCPUData; }
     virtual void onUnmap() { SkASSERT(this->isCPUBacked()); }
@@ -122,7 +122,7 @@ private:
     size_t            fSizeInBytes;
     GrAccessPattern   fAccessPattern;
     void*             fCPUData;
-    GrBufferType      fIntendedType;
+    GrGpuBufferType   fIntendedType;
 
     typedef GrGpuResource INHERITED;
 };
