@@ -34,6 +34,7 @@ static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
     pmapA.alloc(info);
     pmapB.alloc(info);
     if (!imgA->readPixels(pmapA, 0, 0) || !imgB->readPixels(pmapB, 0, 0)) {
+        skiagm::GM::DrawFailureMessage(canvas, "Failed to read pixels.");
         return;
     }
 
