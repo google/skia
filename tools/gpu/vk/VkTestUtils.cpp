@@ -9,6 +9,7 @@
 
 #ifdef SK_VULKAN
 
+#include <execinfo.h>
 #include "SkAutoMalloc.h"
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkExtensions.h"
@@ -100,7 +101,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pMessage,
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        // TODO
+        if (strstr(pMessage,
+                   "Mapping an image with layout VK_IMAGE_LAYOUT_UNDEFINED can result in undefined "
+                   "behavior if this memory is used by the device. Only GENERAL or PREINITIALIZED "
+                   "should be used.")) {
+            return VK_FALSE;
+        }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        void* stack[64];
+        int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+        backtrace_symbols_fd(stack, count, 2);
         return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         // There is currently a bug in the spec which doesn't have
@@ -110,6 +121,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
                     "pCreateInfo->pNext chain includes a structure with unexpected VkStructureType "
                     "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT")) {
             SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+            void* stack[64];
+            int count = backtrace(stack, SK_ARRAY_COUNT(stack));
+            backtrace_symbols_fd(stack, count, 2);
         }
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
         SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
