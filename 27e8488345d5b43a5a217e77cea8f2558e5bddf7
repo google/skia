@@ -16,6 +16,144 @@
       "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cac51e76_166cd1d7",
+        "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "These could be converted to half before the multiply, and then make an fma while we\u0027re at it, since it\u0027s poly-filled now:\n\n  coverage \u003d fma(half(z), half(w), coverage);\n\n(Or do you think that would be slower? Another option to explore could be putting those last two in a separate half2 varying instead of packing them in with the other floats)",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 46
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f147f8f3_c4117f77",
+        "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "I think it might not be safe to convert to half until the end. I think this ought to say:\n\n  float curve_coverage \u003d min(0.5 - f/fwidth, 1);\n  float edge_coverage \u003d min(k - .5, 0); // K doubles as the flat opposite edge\u0027s AA.\n  outputCoverage \u003d half(max(curve_coverage + edge_coverage), 0);",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 93,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7df69c5e_274fcfe3",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "Probably (maybe?) better to do sign(half()) like below",
+      "range": {
+        "startLine": 69,
+        "startChar": 65,
+        "endLine": 69,
+        "endChar": 84
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a4f22a_ecd0eb83",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "leftDir and rightDir should both be halfs.\n\nShould I just file a bug and have us land this CL as-is?",
+      "range": {
+        "startLine": 152,
+        "startChar": 67,
+        "endLine": 152,
+        "endChar": 84
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b099523_c376be8d",
+        "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "ditto for the calcHullCoverage in GrCCConicShader.",
+      "range": {
+        "startLine": 147,
+        "startChar": 4,
+        "endLine": 149,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3342256_2c263048",
+        "filename": "src/gpu/ccpr/GrCCQuadraticShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:26:48Z",
+      "side": 1,
+      "message": "ditto for the calcHullCoverage in GrCCConicShader.",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
