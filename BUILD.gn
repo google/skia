@@ -6,6 +6,7 @@
 import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
+import("gn/skia.gni")
 
 if (is_fuchsia) {
   import("//build/vulkan/config.gni")
@@ -28,7 +29,6 @@ declare_args() {
   skia_use_fonthost_mac = is_mac
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_fixed_gamma_text = is_android
-  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -734,7 +734,7 @@ optional("pdf") {
 
   if (skia_use_sfntly) {
     deps += [ "//third_party/sfntly" ]
-    public_defines += [ "SK_PDF_USE_SFNTLY" ]
+    defines = [ "SK_PDF_USE_SFNTLY" ]
   }
 }
 
