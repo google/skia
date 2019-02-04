@@ -34,6 +34,24 @@
       "revId": "21893fa1a0dc9f769846ebef90f1820204165c1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2243263c_46485325",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T21:07:27Z",
+      "side": 1,
+      "message": "Yeah, returning {ok,fail,skip} and then sometimes filling out some SkString why sounds good to me.\n\nI think it\u0027s a little weird to scope the onDraw() error to the object and not to the onDraw() call,\nbut on the other hand I don\u0027t think it\u0027s important.",
+      "parentUuid": "f213b62d_5d0857ab",
+      "revId": "21893fa1a0dc9f769846ebef90f1820204165c1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
