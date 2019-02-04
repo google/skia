@@ -97,17 +97,6 @@ static bool compare_bitmaps(skiatest::Reporter* r,
     return true;
 }
 
-// Temporary hack to avoid linear sRGB 8888 surfaces.
-static SkImageInfo temporarily_sanitize(SkImageInfo info) {
-    if (info.colorType() == kRGBA_8888_SkColorType ||
-        info.colorType() == kBGRA_8888_SkColorType) {
-        if (info.colorSpace() && info.colorSpace()->isSRGB()) {
-            info = info.makeColorSpace(nullptr);
-        }
-    }
-    return info;
-}
-
 DEF_TEST(AnimatedImage_copyOnWrite, r) {
     if (GetResourcePath().isEmpty()) {
         return;
@@ -148,7 +137,7 @@ DEF_TEST(AnimatedImage_copyOnWrite, r) {
         std::vector<sk_sp<SkPicture>> pictures(frameCount);
         for (int i = 0; i < frameCount; i++) {
             SkBitmap& bm = expected[i];
-            bm.allocPixels(temporarily_sanitize(imageInfo));
+            bm.allocPixels(imageInfo);
             bm.eraseColor(SK_ColorTRANSPARENT);
             SkCanvas canvas(bm);
 
@@ -168,7 +157,7 @@ DEF_TEST(AnimatedImage_copyOnWrite, r) {
 
         for (int i = 0; i < frameCount; i++) {
             SkBitmap test;
-            test.allocPixels(temporarily_sanitize(imageInfo));
+            test.allocPixels(imageInfo);
             test.eraseColor(SK_ColorTRANSPARENT);
             SkCanvas canvas(test);
 
@@ -248,7 +237,7 @@ DEF_TEST(AnimatedImage, r) {
         auto testDraw = [r, &frames, &imageInfo, file](const sk_sp<SkAnimatedImage>& animatedImage,
                                                        int expectedFrame) {
             SkBitmap test;
-            test.allocPixels(temporarily_sanitize(imageInfo));
+            test.allocPixels(imageInfo);
             test.eraseColor(0);
             SkCanvas c(test);
             animatedImage->draw(&c);
