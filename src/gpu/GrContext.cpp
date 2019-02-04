@@ -67,20 +67,24 @@ GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int3
     fGlyphCache = nullptr;
 }
 
-bool GrContext::initCommon() {
+bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(fCaps);  // needs to have been initialized by derived classes
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
 
+    if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
+        return false;
+    }
+
+    SkASSERT(this->caps());
+
     if (fGpu) {
-        fCaps = fGpu->refCaps();
-        fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, this->contextID());
+        fResourceCache = new GrResourceCache(this->caps(), &fSingleOwner, this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
                                                    this->options().fExplicitlyAllocateGPUResources);
-        fProxyProvider =
-                new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
+        fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache,
+                                             this->refCaps(), &fSingleOwner);
     } else {
-        fProxyProvider = new GrProxyProvider(this->contextID(), fCaps, &fSingleOwner);
+        fProxyProvider = new GrProxyProvider(this->contextID(), this->refCaps(), &fSingleOwner);
     }
 
     if (fResourceCache) {
@@ -127,7 +131,7 @@ bool GrContext::initCommon() {
                                                this->options().fSortRenderTargets,
                                                this->options().fReduceOpListSplitting));
 
-    fGlyphCache = new GrStrikeCache(fCaps.get(), this->options().fGlyphCacheTextureMaximumBytes);
+    fGlyphCache = new GrStrikeCache(this->caps(), this->options().fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this, this->contextID()));
 
@@ -268,18 +272,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return fCaps->maxTextureSize(); }
+int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
 
-int GrContext::maxRenderTargetSize() const { return fCaps->maxRenderTargetSize(); }
+int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
 
 bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->isConfigTexturable(config);
+    return this->caps()->isConfigTexturable(config);
 }
 
 int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
     GrPixelConfig config = SkColorType2GrPixelConfig(colorType);
-    return fCaps->maxRenderTargetSampleCount(config);
+    return this->caps()->maxRenderTargetSampleCount(config);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1007,7 +1011,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
         if (!GrPixelConfigToColorType(config, &colorType)) {
             return nullptr;
         }
-        localFormat = fContext->fCaps->getBackendFormatFromColorType(colorType);
+        localFormat = fContext->caps()->getBackendFormatFromColorType(colorType);
     }
 
     return this->makeDeferredRenderTargetContext(localFormat, fit, width, height, config,
@@ -1061,7 +1065,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
     return renderTargetContext;
 }
 
-sk_sp<GrSkSLFPFactoryCache> GrContextPriv::getFPFactoryCache() { return fContext->fFPFactoryCache; }
+sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
+    return fContext->fpFactoryCache();
+}
 
 std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
@@ -1097,7 +1103,7 @@ bool GrContext::validPMUPMConversionExists() {
 }
 
 bool GrContext::supportsDistanceFieldText() const {
-    return fCaps->shaderCaps()->supportsDistanceFieldText();
+    return this->caps()->shaderCaps()->supportsDistanceFieldText();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1147,7 +1153,7 @@ SkString GrContextPriv::dump() const {
     writer.appendString("backend", kBackendStr[(unsigned)fContext->backend()]);
 
     writer.appendName("caps");
-    fContext->fCaps->dumpJSON(&writer);
+    fContext->caps()->dumpJSON(&writer);
 
     writer.appendName("gpu");
     fContext->fGpu->dumpJSON(&writer);
