@@ -48,10 +48,10 @@ DEF_SIMPLE_GM_BG(matriximagefilter, canvas, 420, 100, SK_ColorBLACK) {
         SkRect srcRect = SkRect::MakeWH(96, 96);
 
         canvas->translate(margin, margin);
-        draw(canvas, srcRect, checkerboard, matrix, kNone_SkFilterQuality);
+        ::draw(canvas, srcRect, checkerboard, matrix, kNone_SkFilterQuality);
 
         canvas->translate(srcRect.width() + margin, 0);
-        draw(canvas, srcRect, checkerboard, matrix, kLow_SkFilterQuality);
+        ::draw(canvas, srcRect, checkerboard, matrix, kLow_SkFilterQuality);
 
 #if 0
         // This may be causing Mac 10.6 to barf.
