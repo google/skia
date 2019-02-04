@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9504461_36ab1a5e",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T12:43:58Z",
+      "side": 1,
+      "message": "I think I find myself immediately confused about the multiple ways to signal errors here.  Can we not streamline them into one?",
+      "revId": "21893fa1a0dc9f769846ebef90f1820204165c1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
