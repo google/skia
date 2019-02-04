@@ -190,6 +190,7 @@ protected:
             }
         }
         if (nullptr == fset.get()) {
+            DrawFailureMessage(canvas, "No SkFontStyleSet");
             return;
         }
 

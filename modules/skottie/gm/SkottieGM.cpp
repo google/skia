@@ -63,6 +63,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
+            DrawFailureMessage(canvas, "No animation");
             return;
         }
 
@@ -114,6 +115,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
+            DrawFailureMessage(canvas, "No animation");
             return;
         }
 
@@ -185,6 +187,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fAnimation) {
+            DrawFailureMessage(canvas, "No animation");
             return;
         }
 

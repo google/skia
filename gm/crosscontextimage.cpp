@@ -20,6 +20,8 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
 
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_512.png");
     if (!encodedData) {
+        skiagm::GM::DrawFailureMessage(canvas, "Could not load mandrill_512.png. "
+                                               "Did you forget to set the resourcePath?");
         return;
     }
 
