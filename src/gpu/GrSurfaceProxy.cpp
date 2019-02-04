@@ -353,7 +353,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
             format, dstDesc, src->origin(), mipMapped, fit, budgeted));
     if (!dstContext) {
         return nullptr;
@@ -383,7 +383,7 @@ sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSur
         return nullptr;
     }
 
-    sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> dstContext(context->priv().makeDeferredSurfaceContext(
             format, dstDesc, origin, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes));
     if (!dstContext) {
         return nullptr;

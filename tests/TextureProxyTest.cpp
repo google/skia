@@ -42,7 +42,7 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
                                           GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
     GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit,
@@ -56,7 +56,7 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
                                             GrProxyProvider* proxyProvider, SkBackingFit fit) {
     const GrSurfaceDesc desc = make_desc(kRenderTarget_GrSurfaceFlag);
     GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrTextureProxy> proxy =
             proxyProvider->createProxy(format, desc, kBottomLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes);
@@ -99,8 +99,8 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrCo
 
 static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackingFit fit,
                                                     sk_sp<GrTexture>* backingSurface) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
     const GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
@@ -125,9 +125,9 @@ static void basic_test(GrContext* context,
                        sk_sp<GrTextureProxy> proxy) {
     static int id = 1;
 
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceCache* cache = context->priv().getResourceCache();
 
     int startCacheCount = cache->getResourceCount();
 
@@ -203,7 +203,7 @@ static void basic_test(GrContext* context,
 
     if (expectResourceToOutliveProxy) {
         proxy.reset();
-        GrUniqueKeyInvalidatedMessage msg(texKey, context->contextPriv().contextID());
+        GrUniqueKeyInvalidatedMessage msg(texKey, context->priv().contextID());
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount--;
@@ -219,8 +219,8 @@ static void basic_test(GrContext* context,
 // Test if invalidating unique ids operates as expected for texture proxies.
 static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) {
 
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceCache* cache = context->priv().getResourceCache();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 
     sk_sp<SkImage> rasterImg;
@@ -252,7 +252,7 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     textureImg = nullptr;
-    context->contextPriv().purgeAllUnlockedResources_ForTesting();
+    context->priv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -260,9 +260,9 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
 
 // Test if invalidating unique ids prior to instantiating operates as expected
 static void invalidation_and_instantiation_test(GrContext* context, skiatest::Reporter* reporter) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->priv().resourceProvider();
+    GrResourceCache* cache = context->priv().getResourceCache();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 
     static GrUniqueKey::Domain d = GrUniqueKey::GenerateDomain();
@@ -278,7 +278,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 
     // Send an invalidation message, which will be sitting in the cache's inbox
     SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-            GrUniqueKeyInvalidatedMessage(key, context->contextPriv().contextID()));
+            GrUniqueKeyInvalidatedMessage(key, context->priv().contextID()));
 
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -293,7 +293,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 
     proxy = nullptr;
-    context->contextPriv().purgeAllUnlockedResources_ForTesting();
+    context->priv().purgeAllUnlockedResources_ForTesting();
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -301,8 +301,8 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrResourceCache* cache = context->priv().getResourceCache();
 
     REPORTER_ASSERT(reporter, !proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());

@@ -196,7 +196,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // clamp-to-border is reset to clamp since the hw cannot implement it directly.
     GrTextureDomain::Mode domainX = GrTextureDomain::kIgnore_Mode;
     GrTextureDomain::Mode domainY = GrTextureDomain::kIgnore_Mode;
-    if (!args.fContext->contextPriv().caps()->clampToBorderSupport()) {
+    if (!args.fContext->priv().caps()->clampToBorderSupport()) {
         if (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder) {
             domainX = GrTextureDomain::kDecal_Mode;
             wrapModes[0] = GrSamplerState::WrapMode::kClamp;
@@ -214,7 +214,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     bool doBicubic;
     GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
             args.fFilterQuality, *args.fViewMatrix, *lm,
-            args.fContext->contextPriv().options().fSharpenMipmappedTextures, &doBicubic);
+            args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,

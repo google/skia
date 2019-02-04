@@ -157,15 +157,15 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
     const GrBackendFormat format = caps->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                               SkBackingFit::kExact,
-                                                               kRenderTargetWidth,
-                                                               kRenderTargetHeight,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               nullptr,
-                                                               sampleCnt,
-                                                               GrMipMapped::kNo,
-                                                               origin));
+        context->priv().makeDeferredRenderTargetContext(format,
+                                                        SkBackingFit::kExact,
+                                                        kRenderTargetWidth,
+                                                        kRenderTargetHeight,
+                                                        kRGBA_8888_GrPixelConfig,
+                                                        nullptr,
+                                                        sampleCnt,
+                                                        GrMipMapped::kNo,
+                                                        origin));
     return renderTargetContext;
 }
 
@@ -256,8 +256,8 @@ static void set_random_color_coverage_stages(GrPaint* paint,
 bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
 #else
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int maxLevels) {
-    GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrDrawingManager* drawingManager = context->priv().drawingManager();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxies[2];
 
@@ -269,7 +269,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 18;
         dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         proxies[0] = proxyProvider->createProxy(format, dummyDesc, kBottomLeft_GrSurfaceOrigin,
                                                 GrMipMapped::kYes, SkBackingFit::kExact,
                                                 SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
@@ -281,7 +281,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         dummyDesc.fHeight = 22;
         dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
         proxies[1] = proxyProvider->createProxy(format, dummyDesc, kTopLeft_GrSurfaceOrigin,
                                                 GrMipMapped::kYes, SkBackingFit::kExact,
                                                 SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
@@ -300,7 +300,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
         sk_sp<GrRenderTargetContext> renderTargetContext(
-                random_render_target_context(context, &random, context->contextPriv().caps()));
+                random_render_target_context(context, &random, context->priv().caps()));
         if (!renderTargetContext) {
             SkDebugf("Could not allocate renderTargetContext");
             return false;
@@ -316,15 +316,15 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     drawingManager->flush(nullptr);
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
     // Validate that GrFPs work correctly without an input.
     sk_sp<GrRenderTargetContext> renderTargetContext(
-                 context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                                        SkBackingFit::kExact,
-                                                                        kRenderTargetWidth,
-                                                                        kRenderTargetHeight,
-                                                                        kRGBA_8888_GrPixelConfig,
-                                                                        nullptr));
+                 context->priv().makeDeferredRenderTargetContext(format,
+                                                                 SkBackingFit::kExact,
+                                                                 kRenderTargetWidth,
+                                                                 kRenderTargetHeight,
+                                                                 kRGBA_8888_GrPixelConfig,
+                                                                 nullptr));
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
         return false;
@@ -352,7 +352,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 
 static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->priv().getGpu());
     int maxStages = 6;
     if (kGLES_GrGLStandard == gpu->glStandard()) {
     // We've had issues with driver crashes and HW limits being exceeded with many effects on

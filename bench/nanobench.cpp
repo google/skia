@@ -216,7 +216,7 @@ struct GPUTarget : public Target {
         const GrGLubyte* version;
         if (this->contextInfo.backend() == GrBackendApi::kOpenGL) {
             const GrGLInterface* gl =
-                    static_cast<GrGLGpu*>(this->contextInfo.grContext()->contextPriv().getGpu())
+                    static_cast<GrGLGpu*>(this->contextInfo.grContext()->priv().getGpu())
                             ->glInterface();
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
             log.appendString("GL_VERSION", (const char*)(version));
@@ -233,8 +233,8 @@ struct GPUTarget : public Target {
     }
 
     void dumpStats() override {
-        this->contextInfo.grContext()->contextPriv().printCacheStats();
-        this->contextInfo.grContext()->contextPriv().printGpuStats();
+        this->contextInfo.grContext()->priv().printCacheStats();
+        this->contextInfo.grContext()->priv().printGpuStats();
     }
 };
 
@@ -426,7 +426,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
             GrPixelConfig grPixConfig = SkColorType2GrPixelConfig(colorType);
             int supportedSampleCount =
-                    ctx->contextPriv().caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
+                    ctx->priv().caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
             if (sampleCount != supportedSampleCount) {
                 SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
                          config->getTag().c_str(), sampleCount);

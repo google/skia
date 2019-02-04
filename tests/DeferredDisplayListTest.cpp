@@ -51,7 +51,7 @@
 static GrBackendFormat create_backend_format(GrContext* context,
                                              SkColorType ct,
                                              GrPixelConfig config) {
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
 
     switch (context->backend()) {
     case GrBackendApi::kOpenGL: {
@@ -363,7 +363,7 @@ public:
 
     // Create the surface with the current set of parameters
     sk_sp<SkSurface> make(GrContext* context, GrBackendTexture* backend) const {
-        GrGpu* gpu = context->contextPriv().getGpu();
+        GrGpu* gpu = context->priv().getGpu();
 
         GrMipMapped mipmapped = !fIsTextureable
                                         ? GrMipMapped::kNo
@@ -420,7 +420,7 @@ public:
             return;
         }
 
-        GrGpu* gpu = context->contextPriv().getGpu();
+        GrGpu* gpu = context->priv().getGpu();
 
         gpu->deleteTestingOnlyBackendTexture(backend);
     }
@@ -490,7 +490,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo) {
 // This tests SkSurfaceCharacterization/SkSurface compatibility
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     // Create a bitmap that we can readback into
     SkImageInfo imageInfo = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType,
@@ -536,7 +536,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         if (SurfaceParameters::kSampleCount == i) {
             SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(s.get());
 
-            int supportedSampleCount = context->contextPriv().caps()->getRenderTargetSampleCount(
+            int supportedSampleCount = context->priv().caps()->getRenderTargetSampleCount(
                     params.sampleCount(),
                     gpuSurf->getDevice()
                             ->accessRenderTargetContext()
@@ -552,7 +552,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
         }
 
         if (SurfaceParameters::kMipMipCount == i &&
-            !context->contextPriv().caps()->mipMapSupport()) {
+            !context->priv().caps()->mipMapSupport()) {
             // If changing the mipmap setting won't result in a different surface characterization,
             // skip this step
             s = nullptr;
@@ -677,7 +677,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctx
 // into a textureable destination.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     // Create a bitmap that we can readback into
     SkImageInfo imageInfo = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType,
@@ -785,7 +785,7 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 // This tests the ability to create and use wrapped textures in a DDL world
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
             nullptr, kSize, kSize, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
     if (!backendTex.isValid()) {

@@ -102,7 +102,7 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
                                    GrSurfaceOrigin surfaceOrigin) {
 
     GrContext* context = info.grContext();
-    if (!context->contextPriv().caps()->supportsAHardwareBufferImages()) {
+    if (!context->priv().caps()->supportsAHardwareBufferImages()) {
         return;
     }
 

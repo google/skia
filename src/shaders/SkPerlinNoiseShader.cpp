@@ -1423,7 +1423,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
     m.setTranslateY(-localMatrix->getTranslateY() + SK_Scalar1);
 
-    auto proxyProvider = args.fContext->contextPriv().proxyProvider();
+    auto proxyProvider = args.fContext->priv().proxyProvider();
     if (fType == kImprovedNoise_Type) {
         // Need to assert that the textures we'll create are power of 2 so a copy isn't needed.
         // We also know that we will not be using mipmaps. If things things weren't true we should

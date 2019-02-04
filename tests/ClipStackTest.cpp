@@ -1040,7 +1040,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
 
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
+        const GrCaps* caps = context->priv().caps();
 
         // Zero the memory we will new the GrReducedClip into. This ensures the elements gen ID
         // will be kInvalidGenID if left uninitialized.
@@ -1111,7 +1111,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
+        const GrCaps* caps = context->priv().caps();
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
         memset(storage.get(), 0, sizeof(GrReducedClip));
@@ -1200,7 +1200,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 #undef XYWH
 #undef IXYWH
         auto context = GrContext::MakeMock(nullptr);
-        const GrCaps* caps = context->contextPriv().caps();
+        const GrCaps* caps = context->priv().caps();
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(testCases); ++i) {
             const GrReducedClip reduced(stack, testCases[i].testBounds, caps);
@@ -1228,7 +1228,7 @@ static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
     SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
 
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
 
     // At the time, this would crash.
     const GrReducedClip reduced(stack, bounds, caps);
@@ -1247,7 +1247,7 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
                           const SkRect& preXformQuery, ClipMethod expectedMethod,
                           int numExpectedElems = 0) {
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
 
     SkRect queryBounds;
     queryXform.mapRect(&queryBounds, preXformQuery);
@@ -1409,7 +1409,7 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     pathStack.clipPath(clipPath, SkMatrix::I(), kIntersect_SkClipOp, true);
 
     auto context = GrContext::MakeMock(nullptr);
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
 
     for (const SkClipStack& stack : {rectStack, pathStack}) {
         for (SkRect queryBounds : {SkRect::MakeXYWH(53, 60, GrClip::kBoundsTolerance, 1000),
@@ -1499,7 +1499,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     path.setFillType(SkPath::kEvenOdd_FillType);
 
     static const char* kTag = GrClipStackClip::kMaskTestTag;
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrResourceCache* cache = context->priv().getResourceCache();
 
     static constexpr int kN = 5;
 
@@ -1509,7 +1509,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
         sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
-        mask->instantiate(context->contextPriv().resourceProvider());
+        mask->instantiate(context->priv().resourceProvider());
         GrTexture* tex = mask->peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.

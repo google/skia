@@ -2391,7 +2391,7 @@ uint32_t GrVkGpu::getExtraSamplerKeyForProgram(const GrSamplerState& samplerStat
 }
 
 void GrVkGpu::storeVkPipelineCacheData() {
-    if (this->getContext()->contextPriv().getPersistentCache()) {
+    if (this->getContext()->priv().getPersistentCache()) {
         this->resourceProvider().storePipelineCacheData();
     }
 }

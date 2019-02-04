@@ -46,16 +46,16 @@ uniform half blurRadius;
         }
         builder.finish();
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         sk_sp<GrTextureProxy> mask(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                  key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             GrBackendFormat format =
-                context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+                context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
             // TODO: this could be approx but the texture coords will need to be updated
             sk_sp<GrRenderTargetContext> rtc(
-                    context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+                    context->priv().makeDeferredRenderTargetContextWithFallback(
                                                 format, SkBackingFit::kExact, size.fWidth,
                                                 size.fHeight, kAlpha_8_GrPixelConfig, nullptr));
             if (!rtc) {

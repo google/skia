@@ -105,6 +105,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653_noExplicitResourceAllocation, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     ctx->flush();
-    ctx->contextPriv().resourceProvider()->testingOnly_setExplicitlyAllocateGPUResources(false);
+    ctx->priv().resourceProvider()->testingOnly_setExplicitlyAllocateGPUResources(false);
     test_bug_6653(ctx, reporter, "No ERA");
 }

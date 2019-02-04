@@ -174,7 +174,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
 
 static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
                                                               int width, int height) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fWidth = width;
@@ -182,7 +182,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
 
     // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt to
     // ops), so it can't have any pending IO.
@@ -331,7 +331,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
 
-        SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
+        SkTaskGroup* taskGroup = args.fContext->priv().getTaskGroup();
         if (taskGroup) {
             proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
                                                      boundsForMask->width(),
@@ -374,7 +374,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
             args.fShape->addGenIDChangeListener(
-                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->contextPriv().contextID()));
+                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->priv().contextID()));
         }
     }
     if (inverseFilled) {

@@ -17,8 +17,8 @@
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
     SkASSERT(gpu->getContext());
-    SkASSERT(gpu->getContext()->contextPriv().getResourceCache());
-    return gpu->getContext()->contextPriv().getResourceCache();
+    SkASSERT(gpu->getContext()->priv().getResourceCache());
+    return gpu->getContext()->priv().getResourceCache();
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu) : fGpu(gpu), fUniqueID(CreateUniqueID()) {

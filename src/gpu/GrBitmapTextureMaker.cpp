@@ -36,7 +36,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         return nullptr;
     }
 
-    GrProxyProvider* proxyProvider = this->context()->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {

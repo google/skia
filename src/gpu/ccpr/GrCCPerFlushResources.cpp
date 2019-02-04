@@ -60,7 +60,7 @@ public:
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           sk_sp<GrTextureProxy> copyProxy, int baseInstance,
                                           int endInstance, const SkISize& drawBounds) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<CopyAtlasOp>(std::move(resources), std::move(copyProxy),
                                            baseInstance, endInstance, drawBounds);
@@ -105,7 +105,7 @@ public:
                                           sk_sp<const GrCCPerFlushResources> resources,
                                           FillBatchID fillBatchID, StrokeBatchID strokeBatchID,
                                           const SkISize& drawBounds) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<RenderAtlasOp>(std::move(resources), fillBatchID, strokeBatchID,
                                              drawBounds);

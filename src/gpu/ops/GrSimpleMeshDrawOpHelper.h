@@ -196,7 +196,7 @@ template <typename Op, typename... OpArgs>
 std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* context,
                                                                   GrPaint&& paint,
                                                                   OpArgs... opArgs) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     MakeArgs makeArgs;
 

@@ -86,9 +86,9 @@ static sk_sp<GrTextureProxy> make_wrapped(GrProxyProvider* proxyProvider, const 
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
-    const GrCaps* caps = ctxInfo.grContext()->contextPriv().caps();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
+    const GrCaps* caps = ctxInfo.grContext()->priv().caps();
 
     for (auto make : { make_deferred, make_wrapped }) {
         // A single write

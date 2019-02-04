@@ -59,7 +59,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInf
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels, reporter, ctxInfo) {
     auto* ctx = ctxInfo.grContext();
-    if (!ctx->contextPriv().caps()->mipMapSupport()) {
+    if (!ctx->priv().caps()->mipMapSupport()) {
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;

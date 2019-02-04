@@ -17,7 +17,7 @@
 std::unique_ptr<GrOp> GrDebugMarkerOp::Make(GrContext* context,
                                             GrRenderTargetProxy* proxy,
                                             const SkString& str) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrDebugMarkerOp>(proxy, str);
 }

@@ -96,7 +96,7 @@ public:
 
     static std::unique_ptr<TestOp> Make(GrContext* context, int value, const Range& range,
                                         int result[], const Combinable* combinable) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<TestOp>(value, range, result, combinable);
     }
 
@@ -169,13 +169,13 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    auto proxy = context->contextPriv().proxyProvider()->createProxy(
+    auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
             SkBudgeted::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
-    proxy->instantiate(context->contextPriv().resourceProvider());
+    proxy->instantiate(context->priv().resourceProvider());
     int result[result_width()];
     int validResult[result_width()];
 
@@ -202,13 +202,13 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
             for (int c = 0; c < kNumCombinabilitiesPerGrouping; ++c) {
                 init_combinable(g, &combinable, &random);
                 GrTokenTracker tracker;
-                GrOpFlushState flushState(context->contextPriv().getGpu(),
-                                          context->contextPriv().resourceProvider(), &tracker,
+                GrOpFlushState flushState(context->priv().getGpu(),
+                                          context->priv().resourceProvider(), &tracker,
                                           nullptr, nullptr);
-                GrRenderTargetOpList opList(context->contextPriv().resourceProvider(),
-                                            sk_ref_sp(context->contextPriv().opMemoryPool()),
+                GrRenderTargetOpList opList(context->priv().resourceProvider(),
+                                            sk_ref_sp(context->priv().opMemoryPool()),
                                             proxy->asRenderTargetProxy(),
-                                            context->contextPriv().getAuditTrail());
+                                            context->priv().getAuditTrail());
                 // This assumes the particular values of kRanges.
                 std::fill_n(result, result_width(), -1);
                 std::fill_n(validResult, result_width(), -1);
@@ -222,9 +222,9 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                     range.fOffset += pos;
                     auto op = TestOp::Make(context.get(), value, range, result, &combinable);
                     op->writeResult(validResult);
-                    opList.addOp(std::move(op), *context->contextPriv().caps());
+                    opList.addOp(std::move(op), *context->priv().caps());
                 }
-                opList.makeClosed(*context->contextPriv().caps());
+                opList.makeClosed(*context->priv().caps());
                 opList.prepare(&flushState);
                 opList.execute(&flushState);
                 opList.endFlush();

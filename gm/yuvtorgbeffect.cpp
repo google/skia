@@ -85,7 +85,7 @@ protected:
             return;
         }
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
@@ -213,7 +213,7 @@ protected:
             return;
         }
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[2];
 
         for (int i = 0; i < 2; ++i) {

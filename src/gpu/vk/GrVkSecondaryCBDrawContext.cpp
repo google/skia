@@ -28,7 +28,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrContext* ct
     }
 
     sk_sp<GrRenderTargetContext> rtc(
-            ctx->contextPriv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
+            ctx->priv().makeVulkanSecondaryCBRenderTargetContext(imageInfo, vkInfo, props));
 
     int width = rtc->width();
     int height = rtc->height();

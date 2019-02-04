@@ -27,7 +27,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrOpListFlushCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     SkImageInfo imageInfo = SkImageInfo::Make(1000, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 

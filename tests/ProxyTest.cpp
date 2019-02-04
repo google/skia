@@ -105,9 +105,9 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
-    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().caps();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
+    const GrCaps& caps = *ctxInfo.grContext()->priv().caps();
 
     int attempt = 0; // useful for debugging
 
@@ -210,10 +210,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
-    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().caps();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
+    GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();
+    const GrCaps& caps = *ctxInfo.grContext()->priv().caps();
 
     static const int kWidthHeight = 100;
 
@@ -347,7 +347,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
-    GrProxyProvider* provider = ctxInfo.grContext()->contextPriv().proxyProvider();
+    GrProxyProvider* provider = ctxInfo.grContext()->priv().proxyProvider();
 
     for (auto flags : { kRenderTarget_GrSurfaceFlag, kNone_GrSurfaceFlags }) {
         for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
@@ -365,7 +365,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     desc.fSampleCnt = 1;
 
                     const GrBackendFormat format =
-                        ctxInfo.grContext()->contextPriv().caps()->getBackendFormatFromColorType(
+                        ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
                                 kRGBA_8888_SkColorType);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(

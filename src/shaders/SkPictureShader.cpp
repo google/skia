@@ -332,7 +332,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     int maxTextureSize = 0;
     if (args.fContext) {
-        maxTextureSize = args.fContext->contextPriv().caps()->maxTextureSize();
+        maxTextureSize = args.fContext->priv().caps()->maxTextureSize();
     }
 
     auto lm = this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix);

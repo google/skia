@@ -44,7 +44,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&& paint,
                                           const SkRect& rect) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<PolyBoundsOp>(std::move(paint), rect);
     }

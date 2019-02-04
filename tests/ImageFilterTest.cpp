@@ -378,7 +378,7 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input,
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, int widthHeight) {
     if (context) {
         GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         return SkSpecialSurface::MakeRenderTarget(context, format,
                                                   widthHeight, widthHeight,
                                                   kRGBA_8888_GrPixelConfig, nullptr);
@@ -1655,7 +1655,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     int largeH = 5000;
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
     if (GrContext* ctx = canvas->getGrContext()) {
-        largeW = ctx->contextPriv().caps()->maxTextureSize() + 1;
+        largeW = ctx->priv().caps()->maxTextureSize() + 1;
     }
 
     largeBmp.allocN32Pixels(largeW, largeH);

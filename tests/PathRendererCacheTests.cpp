@@ -77,12 +77,12 @@ static void test_path(skiatest::Reporter* reporter,
     sk_sp<GrContext> ctx = GrContext::MakeMock(nullptr);
     // The cache needs to be big enough that nothing gets flushed, or our expectations can be wrong
     ctx->setResourceCacheLimits(100, 8000000);
-    GrResourceCache* cache = ctx->contextPriv().getResourceCache();
+    GrResourceCache* cache = ctx->priv().getResourceCache();
 
     const GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> rtc(ctx->contextPriv().makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(ctx->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1,
             GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
@@ -135,7 +135,7 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, /* options */) {
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrContext* ctx) {
-        return new GrSoftwarePathRenderer(ctx->contextPriv().proxyProvider(), true);
+        return new GrSoftwarePathRenderer(ctx->priv().proxyProvider(), true);
     };
 
     // Software path renderer creates a mask texture and renders with a non-AA rect, but the flush

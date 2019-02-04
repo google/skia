@@ -109,7 +109,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     GrContext* context = fGpu->getContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     SkColorType colorType;
     if (GrPixelConfigToColorType(desc.fConfig, &colorType)) {
@@ -127,7 +127,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         }
         auto srcInfo = SkImageInfo::Make(desc.fWidth, desc.fHeight, colorType,
                                          kUnknown_SkAlphaType);
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
                 std::move(proxy));
         if (!sContext) {
             return nullptr;

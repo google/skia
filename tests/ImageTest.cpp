@@ -426,7 +426,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 }
                 if (GrMipMapped::kYes == mipMapped &&
                     as_IB(texImage)->peekProxy()->mipMapped() != mipMapped &&
-                    context->contextPriv().caps()->mipMapSupport()) {
+                    context->priv().caps()->mipMapSupport()) {
                     ERRORF(reporter, "makeTextureImage returned non-mipmapped texture.");
                     continue;
                 }
@@ -487,7 +487,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
         static constexpr int kSize = 10;
         SkColorType colorType = static_cast<SkColorType>(ct);
         bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
-        auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+        auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, colorType, false, GrMipMapped::kNo);
         auto img =
@@ -829,7 +829,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                pixels.get(), kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
@@ -876,7 +876,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         // If we don't have proper support for this feature, the factory will fallback to returning
         // codec-backed images. Those will "work", but some of our checks will fail because we
         // expect the cross-context images not to work on multiple contexts at once.
-        if (!ctx->contextPriv().caps()->crossContextTextureSupport()) {
+        if (!ctx->priv().caps()->crossContextTextureSupport()) {
             continue;
         }
 
@@ -967,7 +967,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // This is specifically here for vulkan to guarantee the command buffer will finish
             // which is when we call the ReleaseProc.
-            otherCtx->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+            otherCtx->priv().getGpu()->testingOnly_flushGpuAndSync();
         }
 
         // Case #6: Verify that only one context can be using the image at a time
@@ -1056,7 +1056,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
             GrContext* ctx = ctxInfo.grContext();
-            if (!ctx || !ctx->contextPriv().caps()->crossContextTextureSupport()) {
+            if (!ctx || !ctx->priv().caps()->crossContextTextureSupport()) {
                 continue;
             }
 
@@ -1084,7 +1084,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
     testContext->makeCurrent();
     REPORTER_ASSERT(reporter, proxy);
     auto createLarge = [context] {
-        return create_image_large(context->contextPriv().caps()->maxTextureSize());
+        return create_image_large(context->priv().caps()->maxTextureSize());
     };
     struct {
         std::function<sk_sp<SkImage> ()>                      fImageFactory;

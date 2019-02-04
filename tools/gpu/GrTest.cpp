@@ -244,7 +244,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
-        fRenderTargetContext->fContext->contextPriv().opMemoryPool()->release(std::move(op));
+        fRenderTargetContext->fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
     SkDEBUGCODE(fRenderTargetContext->validate());

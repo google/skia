@@ -15,7 +15,7 @@
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
     static constexpr auto opaque = GrProcessorAnalysisColor::Opaque::kYes;
     static constexpr auto coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().caps();
+    const GrCaps& caps = *ctxInfo.grContext()->priv().caps();
 
     for (int mode = (int)SkBlendMode::kLastMode; mode > (int)SkBlendMode::kLastCoeffMode; --mode) {
         const SkBlendMode blendMode = (SkBlendMode)mode;

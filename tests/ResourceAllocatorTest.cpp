@@ -59,8 +59,8 @@ static GrSurfaceProxy* make_deferred(GrProxyProvider* proxyProvider, const GrCap
 
 static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
                                     GrBackendTexture* backendTex) {
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrGpu* gpu = context->priv().getGpu();
 
     *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
                                                        p.fColorType, false,
@@ -83,7 +83,7 @@ static GrSurfaceProxy* make_backend(GrContext* context, const ProxyParams& p,
 }
 
 static void cleanup_backend(GrContext* context, const GrBackendTexture& backendTex) {
-    context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+    context->priv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
@@ -138,9 +138,9 @@ bool GrResourceProvider::testingOnly_setExplicitlyAllocateGPUResources(bool newV
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
-    const GrCaps* caps = ctxInfo.grContext()->contextPriv().caps();
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    const GrCaps* caps = ctxInfo.grContext()->priv().caps();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
 
@@ -185,9 +185,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         p2->completedRead();
     }
 
-    int k2 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(
+    int k2 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
                                                                     2, kRGBA_8888_GrPixelConfig);
-    int k4 = ctxInfo.grContext()->contextPriv().caps()->getRenderTargetSampleCount(
+    int k4 = ctxInfo.grContext()->priv().caps()->getRenderTargetSampleCount(
                                                                     4, kRGBA_8888_GrPixelConfig);
 
     //--------------------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ static void draw(GrContext* context) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     int maxNum;
     size_t maxBytes;
@@ -320,7 +320,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
     for (auto explicitlyAllocating : {false, true}) {
         resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(explicitlyAllocating);
         ProxyParams texParams;
@@ -332,8 +332,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(LazyDeinstantiation, reporter, ctxInfo) {
         texParams.fSize = 100;
         ProxyParams rtParams = texParams;
         rtParams.fIsRT = true;
-        auto proxyProvider = context->contextPriv().proxyProvider();
-        auto caps = context->contextPriv().caps();
+        auto proxyProvider = context->priv().proxyProvider();
+        auto caps = context->priv().caps();
         auto p0 = make_lazy(proxyProvider, caps, texParams, true);
         auto p1 = make_lazy(proxyProvider, caps, texParams, false);
         texParams.fFit = rtParams.fFit = SkBackingFit::kApprox;

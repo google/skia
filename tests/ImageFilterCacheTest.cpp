@@ -209,12 +209,12 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
     if (!srcProxy) {
         return;
     }
 
-    if (!srcProxy->instantiate(context->contextPriv().resourceProvider())) {
+    if (!srcProxy->instantiate(context->priv().resourceProvider())) {
         return;
     }
     GrTexture* tex = srcProxy->peekTexture();
@@ -250,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
     if (!srcProxy) {
         return;
     }

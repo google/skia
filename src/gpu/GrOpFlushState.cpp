@@ -166,11 +166,11 @@ GrAppliedClip GrOpFlushState::detachAppliedClip() {
 }
 
 GrStrikeCache* GrOpFlushState::glyphCache() const {
-    return fGpu->getContext()->contextPriv().getGlyphCache();
+    return fGpu->getContext()->priv().getGlyphCache();
 }
 
 GrAtlasManager* GrOpFlushState::atlasManager() const {
-    return fGpu->getContext()->contextPriv().getAtlasManager();
+    return fGpu->getContext()->priv().getAtlasManager();
 }
 
 //////////////////////////////////////////////////////////////////////////////

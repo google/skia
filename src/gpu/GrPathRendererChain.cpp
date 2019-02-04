@@ -23,13 +23,13 @@
 #include "ops/GrTessellatingPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& options) {
-    const GrCaps& caps = *context->contextPriv().caps();
+    const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         sk_sp<GrPathRenderer> pr(
-           GrStencilAndCoverPathRenderer::Create(context->contextPriv().resourceProvider(), caps));
+           GrStencilAndCoverPathRenderer::Create(context->priv().resourceProvider(), caps));
         if (pr) {
             fChain.push_back(std::move(pr));
         }
@@ -41,9 +41,9 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         using AllowCaching = GrCoverageCountingPathRenderer::AllowCaching;
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(
                                 caps, AllowCaching(options.fAllowPathMaskCaching),
-                                context->contextPriv().contextID())) {
+                                context->priv().contextID())) {
             fCoverageCountingPathRenderer = ccpr.get();
-            context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
+            context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
             fChain.push_back(std::move(ccpr));
         }
     }
@@ -55,7 +55,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         auto spr = sk_make_sp<GrSmallPathRenderer>();
-        context->contextPriv().addOnFlushCallbackObject(spr.get());
+        context->priv().addOnFlushCallbackObject(spr.get());
         fChain.push_back(std::move(spr));
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {

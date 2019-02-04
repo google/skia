@@ -1665,7 +1665,7 @@ DEF_FUZZ(SerializedImageFilter, fuzz) {
 #if SK_SUPPORT_GPU
 
 static void dump_GPU_info(GrContext* context) {
-    const GrGLInterface* gl = static_cast<GrGLGpu*>(context->contextPriv().getGpu())
+    const GrGLInterface* gl = static_cast<GrGLGpu*>(context->priv().getGpu())
                                     ->glInterface();
     const GrGLubyte* output;
     GR_GL_CALL_RET(gl, output, GetString(GR_GL_RENDERER));

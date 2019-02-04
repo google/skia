@@ -269,7 +269,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         return ContextInfo();
     }
     if (ContextOverrides::kRequireNVPRSupport & overrides) {
-        if (!grCtx->contextPriv().caps()->shaderCaps()->pathRenderingSupport()) {
+        if (!grCtx->priv().caps()->shaderCaps()->pathRenderingSupport()) {
             return ContextInfo();
         }
     }

@@ -35,7 +35,7 @@ std::unique_ptr<GrAAFillRRectOp> GrAAFillRRectOp::Make(
         return nullptr;
     }
 
-    GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
     return pool->allocate<GrAAFillRRectOp>(*caps.shaderCaps(), viewMatrix, rrect, std::move(paint));
 }
 

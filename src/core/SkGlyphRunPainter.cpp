@@ -528,8 +528,8 @@ void GrTextContext::drawGlyphRunList(
                                                  (mf && !as_MFB(mf)->asABlur(&blurRec)));
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
-    auto glyphCache = context->contextPriv().getGlyphCache();
-    GrTextBlobCache* textBlobCache = context->contextPriv().getTextBlobCache();
+    auto glyphCache = context->priv().getGlyphCache();
+    GrTextBlobCache* textBlobCache = context->priv().getTextBlobCache();
 
     sk_sp<GrTextBlob> cacheBlob;
     GrTextBlob::Key key;
@@ -564,7 +564,7 @@ void GrTextContext::drawGlyphRunList(
             textBlobCache->remove(cacheBlob.get());
             cacheBlob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, listPaint, color);
             cacheBlob->generateFromGlyphRunList(
-                    glyphCache, *context->contextPriv().caps()->shaderCaps(), fOptions,
+                    glyphCache, *context->priv().caps()->shaderCaps(), fOptions,
                     listPaint, scalerContextFlags, viewMatrix, props,
                     glyphRunList, target->glyphPainter());
         } else {
@@ -574,7 +574,7 @@ void GrTextContext::drawGlyphRunList(
                 sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(glyphRunList, color));
                 sanityBlob->setupKey(key, blurRec, listPaint);
                 cacheBlob->generateFromGlyphRunList(
-                        glyphCache, *context->contextPriv().caps()->shaderCaps(), fOptions,
+                        glyphCache, *context->priv().caps()->shaderCaps(), fOptions,
                         listPaint, scalerContextFlags, viewMatrix, props, glyphRunList,
                         target->glyphPainter());
                 GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
@@ -587,7 +587,7 @@ void GrTextContext::drawGlyphRunList(
             cacheBlob = textBlobCache->makeBlob(glyphRunList, color);
         }
         cacheBlob->generateFromGlyphRunList(
-                glyphCache, *context->contextPriv().caps()->shaderCaps(), fOptions, listPaint,
+                glyphCache, *context->priv().caps()->shaderCaps(), fOptions, listPaint,
                 scalerContextFlags, viewMatrix, props, glyphRunList,
                 target->glyphPainter());
     }
@@ -882,7 +882,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
                                                               const char* text,
                                                               int x,
                                                               int y) {
-    auto glyphCache = context->contextPriv().getGlyphCache();
+    auto glyphCache = context->priv().getGlyphCache();
 
     static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
 
@@ -898,12 +898,12 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
     if (!glyphRunList.empty()) {
-        blob = context->contextPriv().getTextBlobCache()->makeBlob(glyphRunList, color);
+        blob = context->priv().getTextBlobCache()->makeBlob(glyphRunList, color);
         // Use the text and textLen below, because we don't want to mess with the paint.
         SkScalerContextFlags scalerContextFlags =
                 ComputeScalerContextFlags(rtc->colorSpaceInfo());
         blob->generateFromGlyphRunList(
-                glyphCache, *context->contextPriv().caps()->shaderCaps(), textContext->fOptions,
+                glyphCache, *context->priv().caps()->shaderCaps(), textContext->fOptions,
                 skPaint, scalerContextFlags, viewMatrix, surfaceProps,
                 glyphRunList, rtc->textTarget()->glyphPainter());
     }

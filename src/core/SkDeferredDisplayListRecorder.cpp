@@ -79,7 +79,7 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(const SkSurfaceChar
 
 SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     if (fContext) {
-        auto proxyProvider = fContext->contextPriv().proxyProvider();
+        auto proxyProvider = fContext->priv().proxyProvider();
 
         // This allows the uniquely keyed proxies to keep their keys but removes their back
         // pointer to the about-to-be-deleted proxy provider. The proxies will use their
@@ -107,7 +107,7 @@ bool SkDeferredDisplayListRecorder::init() {
     fLazyProxyData = sk_sp<SkDeferredDisplayList::LazyProxyData>(
                                                     new SkDeferredDisplayList::LazyProxyData);
 
-    auto proxyProvider = fContext->contextPriv().proxyProvider();
+    auto proxyProvider = fContext->priv().proxyProvider();
 
     bool usesGLFBO0 = fCharacterization.usesGLFBO0();
     if (usesGLFBO0) {
@@ -131,7 +131,7 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (fContext->contextPriv().caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
+    if (fContext->priv().caps()->usesMixedSamples() && desc.fSampleCnt > 1 && !usesGLFBO0) {
         // In GL, FBO 0 never supports mixed samples
         surfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;
     }
@@ -145,7 +145,7 @@ bool SkDeferredDisplayListRecorder::init() {
         optionalTextureInfo = &kTextureInfo;
     }
 
-    const GrBackendFormat format = fContext->contextPriv().caps()->getBackendFormatFromColorType(
+    const GrBackendFormat format = fContext->priv().caps()->getBackendFormatFromColorType(
             fCharacterization.colorType());
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
@@ -167,7 +167,7 @@ bool SkDeferredDisplayListRecorder::init() {
             SkBackingFit::kExact,
             SkBudgeted::kYes);
 
-    sk_sp<GrSurfaceContext> c = fContext->contextPriv().makeWrappedSurfaceContext(
+    sk_sp<GrSurfaceContext> c = fContext->priv().makeWrappedSurfaceContext(
                                                                  std::move(proxy),
                                                                  fCharacterization.refColorSpace(),
                                                                  &fCharacterization.surfaceProps());
@@ -202,7 +202,7 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
                            new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
 
-    fContext->contextPriv().moveOpListsToDDL(ddl.get());
+    fContext->priv().moveOpListsToDDL(ddl.get());
 
     // We want a new lazy proxy target for each recorded DDL so force the (lazy proxy-backed)
     // SkSurface to be regenerated for each DDL.

@@ -58,8 +58,8 @@ static sk_sp<GrSurfaceProxy> make_texture(GrProxyProvider* provider,
 
 // Test converting between RenderTargetProxies and TextureProxies for preinstantiated Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreinstantiatedProxyConversionTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
+    GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -129,7 +129,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PreinstantiatedProxyConversionTest, reporter,
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->priv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     const GrBackendFormat format =
-            ctxInfo.grContext()->contextPriv().caps()->getBackendFormatFromColorType(
+            ctxInfo.grContext()->priv().caps()->getBackendFormatFromColorType(
                     kRGBA_8888_SkColorType);
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(

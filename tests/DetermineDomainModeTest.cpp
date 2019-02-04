@@ -122,7 +122,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
                                           bool isPowerOfTwo,
                                           bool isExact,
                                           RectInfo* rect) {
-    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     int size = isPowerOfTwo ? 128 : 100;
     SkBackingFit fit = isExact ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
@@ -132,7 +132,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
     static const char* name = "proxy";
 

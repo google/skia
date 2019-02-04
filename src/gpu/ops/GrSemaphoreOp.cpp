@@ -20,7 +20,7 @@ public:
     static std::unique_ptr<GrOp> Make(GrContext* context,
                                       sk_sp<GrSemaphore> semaphore,
                                       GrRenderTargetProxy* proxy) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<GrWaitSemaphoreOp>(std::move(semaphore), proxy);
     }
