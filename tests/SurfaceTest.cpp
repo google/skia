@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                         colorType, can, SkToBool(surf));
 
-        auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+        auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
         surf = SkSurface::MakeFromBackendTexture(ctxInfo.grContext(), backendTex,
@@ -141,7 +141,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         if (surf) {
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numStencilSamples();
-            int allowedCnt = ctxInfo.grContext()->contextPriv().caps()->getSampleCount(
+            int allowedCnt = ctxInfo.grContext()->priv().caps()->getSampleCount(
                     storedCnt, rtc->asSurfaceProxy()->config());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         if (surf) {
             auto* rtc = ((SkSurface_Gpu*)(surf.get()))->getDevice()->accessRenderTargetContext();
             int storedCnt = rtc->numStencilSamples();
-            int allowedCnt = ctxInfo.grContext()->contextPriv().caps()->getSampleCount(
+            int allowedCnt = ctxInfo.grContext()->priv().caps()->getSampleCount(
                     storedCnt, rtc->asSurfaceProxy()->config());
             REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
                             "Should store an allowed sample count (%d vs %d)", allowedCnt,
@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
         if (!max) {
             continue;
         }
-        auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+        auto* gpu = ctxInfo.grContext()->priv().getGpu();
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, colorType, true, GrMipMapped::kNo);
         if (!backendTex.isValid()) {
@@ -655,7 +655,7 @@ DEF_TEST(surface_raster_zeroinitialized, reporter) {
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendTexture* outTexture) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     // On Pixel and Pixel2XL's with Adreno 530 and 540s, setting width and height to 10s reliably
     // triggers what appears to be a driver race condition where the 10x10 surface from the
@@ -703,7 +703,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendTexture* outTexture) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     const int kWidth = 10;
     const int kHeight = 10;
@@ -728,8 +728,8 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     return surface;
 }
 
-static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> surface,
-                               std::function<sk_sp<GrSurfaceContext>(SkSurface*)> grSurfaceGetter,
+static void test_surface_clear(skiatest::Reporter* reporter, GrContext* context, sk_sp<SkSurface> surface,
+                               std::function<sk_sp<GrSurfaceContext>(GrContext*, SkSurface*)> grSurfaceGetter,
                                uint32_t expectedValue) {
     if (!surface) {
         ERRORF(reporter, "Could not create GPU SkSurface.");
@@ -740,7 +740,7 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     sk_memset32(pixels.get(), ~expectedValue, w * h);
 
-    sk_sp<GrSurfaceContext> grSurfaceContext(grSurfaceGetter(surface.get()));
+    sk_sp<GrSurfaceContext> grSurfaceContext(grSurfaceGetter(context, surface.get()));
     if (!grSurfaceContext) {
         ERRORF(reporter, "Could access render target of GPU SkSurface.");
         return;
@@ -770,18 +770,18 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
-    std::function<sk_sp<GrSurfaceContext>(SkSurface*)> grSurfaceContextGetters[] = {
-        [] (SkSurface* s){
+    std::function<sk_sp<GrSurfaceContext>(GrContext*, SkSurface*)> grSurfaceContextGetters[] = {
+        [] (GrContext* context, SkSurface* s){
             return sk_ref_sp(s->getCanvas()->internal_private_accessTopLayerRenderTargetContext());
         },
-        [] (SkSurface* s){
+        [] (GrContext* context, SkSurface* s){
             sk_sp<SkImage> i(s->makeImageSnapshot());
             SkImage_Gpu* gpuImage = (SkImage_Gpu *) as_IB(i);
             sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef();
-            GrContext* context = gpuImage->context();
-            return context->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
+
+            return context->priv().makeWrappedSurfaceContext(std::move(proxy),
                                                                     gpuImage->refColorSpace());
         }
     };
@@ -790,7 +790,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         // Test that non-wrapped RTs are created clear.
         for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
             auto surface = surface_func(context, kPremul_SkAlphaType, nullptr);
-            test_surface_clear(reporter, surface, grSurfaceGetter, 0x0);
+            test_surface_clear(reporter, context, surface, grSurfaceGetter, 0x0);
         }
         // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
         const uint32_t kOrigColor = 0xABABABAB;
@@ -798,7 +798,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
                                   &create_gpu_surface_backend_texture_as_render_target}) {
             GrBackendTexture backendTex;
             auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
-            test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
+            test_surface_clear(reporter, context, surface, grSurfaceGetter, kOrigColor);
             surface.reset();
             gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
@@ -848,7 +848,7 @@ static void test_surface_draw_partially(
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();
     if (!gpu) {
         return;
     }
@@ -871,7 +871,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
 
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->priv().getGpu();
     if (!gpu) {
         return;
     }
@@ -880,7 +880,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
     }
     static const uint32_t kOrigColor = 0xFFAABBCC;
 
-    auto resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    auto resourceProvider = ctxInfo.grContext()->priv().resourceProvider();
 
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {

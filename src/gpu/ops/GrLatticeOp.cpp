@@ -133,7 +133,7 @@ public:
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           sk_sp<GrTextureProxy> proxy,
@@ -329,7 +329,7 @@ private:
 }  // anonymous namespace
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrContext* context,
+std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
                                     GrPaint&& paint,
                                     const SkMatrix& viewMatrix,
                                     sk_sp<GrTextureProxy> proxy,
@@ -398,8 +398,8 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     GrSurfaceOrigin origin =
             random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-    auto proxy = context->contextPriv().proxyProvider()->createProxy(
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    auto proxy = context->priv().proxyProvider()->createProxy(
             format, desc, origin, SkBackingFit::kExact, SkBudgeted::kYes);
 
     do {

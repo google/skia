@@ -154,13 +154,13 @@ void SKPBench::drawPicture() {
 static void draw_pic_for_stats(SkCanvas* canvas, GrContext* context, const SkPicture* picture,
                                SkTArray<SkString>* keys, SkTArray<double>* values,
                                const char* tag) {
-    context->contextPriv().resetGpuStats();
+    context->priv().resetGpuStats();
     canvas->drawPicture(picture);
     canvas->flush();
 
     int offset = keys->count();
-    context->contextPriv().dumpGpuStatsKeyValuePairs(keys, values);
-    context->contextPriv().dumpCacheStatsKeyValuePairs(keys, values);
+    context->priv().dumpGpuStatsKeyValuePairs(keys, values);
+    context->priv().dumpCacheStatsKeyValuePairs(keys, values);
 
     // append tag, but only to new tags
     for (int i = offset; i < keys->count(); i++, offset++) {
@@ -179,7 +179,7 @@ void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<
     context->flush();
     context->freeGpuResources();
     context->resetContext();
-    context->contextPriv().getGpu()->resetShaderCacheForTesting();
+    context->priv().getGpu()->resetShaderCacheForTesting();
     draw_pic_for_stats(canvas, context, fPic.get(), keys, values, "first_frame");
 
     // draw second frame

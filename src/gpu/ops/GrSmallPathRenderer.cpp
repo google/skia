@@ -229,7 +229,7 @@ public:
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeDataKey>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;
 
-    static std::unique_ptr<GrDrawOp> Make(GrContext* context,
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const GrShape& shape,
                                           const SkMatrix& viewMatrix,
@@ -873,9 +873,9 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
         const GrBackendFormat format =
-                args.fContext->contextPriv().caps()->getBackendFormatFromColorType(
+                args.fContext->priv().caps()->getBackendFormatFromColorType(
                         kAlpha_8_SkColorType);
-        fAtlas = GrDrawOpAtlas::Make(args.fContext->contextPriv().proxyProvider(),
+        fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(),
                                      format,
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
@@ -940,7 +940,7 @@ struct GrSmallPathRenderer::PathTestStruct {
 };
 
 std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
-                                                        GrContext* context,
+                                                        GrRecordingContext* context,
                                                         GrPaint&& paint,
                                                         const GrShape& shape,
                                                         const SkMatrix& viewMatrix,
@@ -960,12 +960,12 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     using PathTestStruct = GrSmallPathRenderer::PathTestStruct;
     static PathTestStruct gTestStruct;
 
-    if (context->contextPriv().contextID() != gTestStruct.fContextID) {
-        gTestStruct.fContextID = context->contextPriv().contextID();
+    if (context->priv().contextID() != gTestStruct.fContextID) {
+        gTestStruct.fContextID = context->priv().contextID();
         gTestStruct.reset();
         const GrBackendFormat format =
-                context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
-        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->contextPriv().proxyProvider(),
+                context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->priv().proxyProvider(),
                                                  format, kAlpha_8_GrPixelConfig,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  PLOT_WIDTH, PLOT_HEIGHT,

@@ -104,7 +104,7 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
                                       const GrMipLevel texels[], int mipLevelCount) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "createTexture", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT2("GrGpu", "createTexture", fContext);
     GrSurfaceDesc desc = origDesc;
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -378,7 +378,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                          GrBackendSemaphore backendSemaphores[]) {
     this->stats()->incNumFinishFlushes();
-    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
     if (this->caps()->fenceSyncSupport()) {
         for (int i = 0; i < numSemaphores; ++i) {

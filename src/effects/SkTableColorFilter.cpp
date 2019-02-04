@@ -398,7 +398,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedImageProxy(context->contextPriv().proxyProvider(),
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedImageProxy(context->priv().proxyProvider(),
                                                          std::move(srcImage));
     if (!proxy) {
         return nullptr;

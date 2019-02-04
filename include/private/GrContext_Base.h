@@ -13,9 +13,12 @@
 #include "GrTypes.h"
 
 class GrBaseContextPriv;
+class GrCaps;
 class GrContext;
+class GrContextThreadSafeProxy;
 class GrImageContext;
 class GrRecordingContext;
+class GrSkSLFPFactoryCache;
 
 class SK_API GrContext_Base : public SkRefCnt {
 public:
@@ -49,15 +52,34 @@ protected:
      */
     const GrContextOptions& options() const { return fOptions; }
 
+    bool matches(GrContext_Base* context) const;
+
+    const GrCaps* caps() const { return fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache();
+
+    virtual sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
+
     GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
 
+    // must be called after the ctor!
+    bool initWeakest(sk_sp<const GrCaps> caps,
+                     sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
+                     sk_sp<GrSkSLFPFactoryCache> cache);
+
 private:
-    const GrBackendApi     fBackend;
-    const GrContextOptions fOptions;
-    const uint32_t         fContextID;
+    friend class GrContextThreadSafeProxy; // for ctor
+
+    const GrBackendApi              fBackend;
+    const GrContextOptions          fOptions;
+    const uint32_t                  fContextID;
+    sk_sp<const GrCaps>             fCaps;
+    sk_sp<GrContextThreadSafeProxy> fThreadSafeProxy;
+    sk_sp<GrSkSLFPFactoryCache>     fFPFactoryCache;
 
     typedef SkRefCnt INHERITED;
 };

@@ -244,7 +244,7 @@ void GrRenderTargetContextPriv::testingOnly_addDrawOp(
         const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
-        fRenderTargetContext->fContext->contextPriv().opMemoryPool()->release(std::move(op));
+        fRenderTargetContext->fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
     SkDEBUGCODE(fRenderTargetContext->validate());
@@ -320,7 +320,7 @@ const GrTexture* GrCCPerFlushResources::testingOnly_frontRenderedAtlasTexture() 
     return (proxy) ? proxy->peekTexture() : nullptr;
 }
 
-const SkTHashTable<GrCCPathCache::HashNode, const GrCCPathCache::Key&>&
+const SkTHashTable<GrCCPathCache::HashNode, const GrCCPathCache::Key100&>&
 GrCCPathCache::testingOnly_getHashTable() const {
     return fHashTable;
 }

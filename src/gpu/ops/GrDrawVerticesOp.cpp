@@ -12,7 +12,7 @@
 #include "SkGr.h"
 #include "SkRectPriv.h"
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
+std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
                                                  const SkVertices::Bone bones[],
@@ -609,7 +609,7 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
     } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
-             !context->contextPriv().caps()->shaderCaps()->geometryShaderSupport());
+             !context->priv().caps()->shaderCaps()->geometryShaderSupport());
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

@@ -378,7 +378,7 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input,
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, int widthHeight) {
     if (context) {
         GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         return SkSpecialSurface::MakeRenderTarget(context, format,
                                                   widthHeight, widthHeight,
                                                   kRGBA_8888_GrPixelConfig, nullptr);
@@ -1655,7 +1655,7 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     int largeH = 5000;
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
     if (GrContext* ctx = canvas->getGrContext()) {
-        largeW = ctx->contextPriv().caps()->maxTextureSize() + 1;
+        largeW = ctx->priv().caps()->maxTextureSize() + 1;
     }
 
     largeBmp.allocN32Pixels(largeW, largeH);
@@ -1710,31 +1710,31 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
     SkIPoint offset;
     sk_sp<SkImage> result;
 
-    result = sourceImage->makeWithFilter(nullptr, subset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, nullptr, subset, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, nullptr, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, nullptr, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, nullptr);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, nullptr);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect bigSubset = SkIRect::MakeXYWH(-10000, -10000, 20000, 20000);
-    result = sourceImage->makeWithFilter(filter.get(), bigSubset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), bigSubset, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect empty = SkIRect::MakeEmpty();
-    result = sourceImage->makeWithFilter(filter.get(), empty, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), empty, clipBounds, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, empty, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, empty, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
     SkIRect leftField = SkIRect::MakeXYWH(-1000, 0, 100, 100);
-    result = sourceImage->makeWithFilter(filter.get(), subset, leftField, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, leftField, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
+    result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, &offset);
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->bounds().contains(outSubset));
@@ -1749,7 +1749,7 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
         subset.setXYWH(0, 0, 160, 90);
 
         filter = SkXfermodeImageFilter::Make(SkBlendMode::kSrc, nullptr);
-        result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
+        result = sourceImage->makeWithFilter(nullptr, filter.get(), subset, clipBounds, &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
     }
 }

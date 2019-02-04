@@ -23,7 +23,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->contextPriv().getGpu();
+        GrGpu* gpu = fContext->priv().getGpu();
         gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
@@ -32,7 +32,7 @@ void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
         const GrBackendTexture& backendTexture) {
     SkASSERT(!fUnreleasedFulfills);
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->contextPriv().getGpu();
+        GrGpu* gpu = fContext->priv().getGpu();
         gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
     fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
@@ -107,7 +107,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
     SkASSERT(gpu);
 
     for (int i = 0; i < fImageInfo.count(); ++i) {
@@ -151,7 +151,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 }
 
 void DDLPromiseImageHelper::replaceEveryOtherPromiseTexture(GrContext* context) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
     SkASSERT(gpu);
 
     for (int i = 0; i < fImageInfo.count(); i += 2) {
@@ -179,10 +179,9 @@ void DDLPromiseImageHelper::replaceEveryOtherPromiseTexture(GrContext* context) 
 }
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
-                                                   SkDeferredDisplayListRecorder* recorder,
                                                    SkData* compressedPictureData,
                                                    SkTArray<sk_sp<SkImage>>* promiseImages) const {
-    PerRecorderContext perRecorderContext { recorder, this, promiseImages };
+    PerRecorderContext perRecorderContext { this, promiseImages };
 
     SkDeserialProcs procs;
     procs.fImageCtx = (void*) &perRecorderContext;
@@ -198,7 +197,6 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
                                                           size_t length, void* ctxIn) {
     PerRecorderContext* perRecorderContext = static_cast<PerRecorderContext*>(ctxIn);
     const DDLPromiseImageHelper* helper = perRecorderContext->fHelper;
-    SkDeferredDisplayListRecorder* recorder = perRecorderContext->fRecorder;
 
     SkASSERT(length == sizeof(int));
 
@@ -235,7 +233,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
             sizes[i] = SkISize::MakeEmpty();
         }
 
-        image = recorder->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
+        image = helper->foo()->makeYUVAPromiseTexture(curImage.yuvColorSpace(),
                                                  backendFormats,
                                                  sizes,
                                                  curImage.yuvaIndices(),
@@ -259,7 +257,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         // Each DDL recorder gets its own ref on the promise callback context for the
         // promise images it creates.
         // DDL TODO: sort out mipmapping
-        image = recorder->makePromiseTexture(backendFormat,
+        image = helper->foo()->makePromiseTexture(backendFormat,
                                              curImage.overallWidth(),
                                              curImage.overallHeight(),
                                              GrMipMapped::kNo,

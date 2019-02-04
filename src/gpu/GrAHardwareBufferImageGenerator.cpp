@@ -159,7 +159,7 @@ static GrBackendTexture make_vk_backend_texture(
         bool isProtectedContent,
         const GrBackendFormat& backendFormat) {
     SkASSERT(context->backend() == GrBackendApi::kVulkan);
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     VkPhysicalDevice physicalDevice = gpu->physicalDevice();
     VkDevice device = gpu->device();
@@ -485,7 +485,7 @@ GrBackendFormat get_backend_format(GrContext* context, AHardwareBuffer* hardware
             case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
                 return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
             default: {
-                GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+                GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
                 SkASSERT(gpu);
                 VkDevice device = gpu->device();
 
@@ -544,7 +544,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     GrBackendFormat backendFormat = get_backend_format(context, fHardwareBuffer,
                                                        context->backend(),
                                                        fBufferFormat);
-    GrPixelConfig pixelConfig = context->contextPriv().caps()->getConfigFromBackendFormat(
+    GrPixelConfig pixelConfig = context->priv().caps()->getConfigFromBackendFormat(
             backendFormat, this->getInfo().colorType());
 
     if (pixelConfig == kUnknown_GrPixelConfig) {
@@ -570,7 +570,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
         }
     }
 
-    auto proxyProvider = context->contextPriv().proxyProvider();
+    auto proxyProvider = context->priv().proxyProvider();
 
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
     AHardwareBuffer_acquire(hardwareBuffer);

@@ -19,6 +19,8 @@
 #include "SkSurface.h"
 #include "SkTLazy.h"
 
+#include "GrContext.h"
+
 namespace {
     struct MaybePaint {
        SkTLazy<SkPaint> fStorage;
@@ -308,7 +310,7 @@ public:
         return false;
     }
 
-    GrContext* getGrContext() override { return fTarget->getGrContext(); }
+    GrRecordingContext* getGrContext() override { return fTarget->getGrContext(); }
     bool onGetProps(SkSurfaceProps* props) const override { return fTarget->getProps(props); }
     void onFlush() override { return fTarget->flush(); }
     GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
@@ -317,7 +319,7 @@ public:
 
 private:
     sk_sp<SkImage> prepareImage(const SkImage* image) {
-        GrContext* gr = fTarget->getGrContext();
+        GrRecordingContext* gr = fTarget->getGrContext();
         // If fTarget is GPU-accelerated, we want to upload to a texture before applying the
         // transform. This way, we can get cache hits in the texture cache and the transform gets
         // applied on the GPU.

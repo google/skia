@@ -70,15 +70,15 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawShape(const GrClip& clip, const SkPaint& paint,
+    void drawShape1(const GrClip& clip, const SkPaint& paint,
                   const SkMatrix& viewMatrix, const GrShape& shape) override {
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+        GrBlurUtils::drawShapeWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                      GrPaint* grPaint) override {
-        GrContext* context = fRenderTargetContext->fContext;
+        auto context = fRenderTargetContext->fContext;
         const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
             SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
@@ -87,9 +87,9 @@ public:
         }
     }
 
-    GrContext* getContext() override {
-        return fRenderTargetContext->fContext;
-    }
+//    GrContext* getContext() override {
+//        return fRenderTargetContext->fContext;
+//    }
 
     SkGlyphRunListPainter* glyphPainter() override {
         return &fGlyphPainter;
@@ -158,7 +158,7 @@ bool GrRenderTargetContext::wasAbandoned() const {
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpList, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpList).
-GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
+GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              GrDrawingManager* drawingMgr,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              sk_sp<SkColorSpace> colorSpace,
@@ -172,7 +172,11 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpList(managedOpList) {
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+
+    GrResourceProvider* resourceProvider = context->asDirectContext()
+                                   ? context->asDirectContext()->priv().resourceProvider()
+                                   : nullptr;
+
     if (resourceProvider && !resourceProvider->explicitlyAllocateGPUResources()) {
         // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
         // world we need to get the correct opList here so that it, in turn, can grab and hold
@@ -982,7 +986,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
 
     GrAAType aaType = this->chooseAAType(GrAA::kYes, GrAllowMixedSamples::kNo);
     if (mode != SkBlendMode::kSrcOver ||
-        !fContext->contextPriv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
         // Draw one at a time with GrFillRectOp and a GrPaint that emulates what GrTextureOp does
         const GrXPFactory* xpFactory = SkBlendMode_AsXPFactory(mode);
         for (int i = 0; i < cnt; ++i) {
@@ -1645,7 +1649,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
         return false;
     }
 
-    auto resourceProvider = fContext->contextPriv().resourceProvider();
+    auto resourceProvider = fContext->priv().resourceProvider();
 
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
@@ -1934,7 +1938,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (this->drawingManager()->wasAbandoned()) {
-        fContext->contextPriv().opMemoryPool()->release(std::move(op));
+        fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
     SkDEBUGCODE(this->validate();)
@@ -1949,7 +1953,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
                     fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
                     &bounds)) {
-        fContext->contextPriv().opMemoryPool()->release(std::move(op));
+        fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
 
@@ -1976,7 +1980,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     GrProcessorSet::Analysis analysis = op->finalize(*this->caps(), &appliedClip);
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, *op, &dstProxy)) {
-            fContext->contextPriv().opMemoryPool()->release(std::move(op));
+            fContext->priv().opMemoryPool()->release(std::move(op));
             return;
         }
     }
@@ -2068,7 +2072,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     SkASSERT(rtProxy->backendFormat().textureType() == GrTextureType::k2D);
     const GrBackendFormat& format = rtProxy->backendFormat();
-    sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeDeferredSurfaceContext(
+    sk_sp<GrSurfaceContext> sContext = fContext->priv().makeDeferredSurfaceContext(
             format, desc, origin, GrMipMapped::kNo, fit, SkBudgeted::kYes,
             sk_ref_sp(this->colorSpaceInfo().colorSpace()));
     if (!sContext) {

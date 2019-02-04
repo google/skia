@@ -55,7 +55,7 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
-        fProxyProvider = fTarget->asTexture()->getContext()->contextPriv().proxyProvider();
+        fProxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
         fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget);
     }
 }

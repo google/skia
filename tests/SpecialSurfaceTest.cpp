@@ -79,7 +79,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     for (auto config : { kRGBA_8888_GrPixelConfig, kRGBA_1010102_GrPixelConfig }) {
-        const GrCaps* caps = ctxInfo.grContext()->contextPriv().caps();
+        const GrCaps* caps = ctxInfo.grContext()->priv().caps();
         if (!caps->isConfigRenderable(config)) {
             continue;
         }

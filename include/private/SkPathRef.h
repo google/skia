@@ -308,10 +308,10 @@ public:
      */
     uint32_t genID() const;
 
-    class GenIDChangeListener : public SkRefCnt {
+    class GenIDChangeListener2 : public SkRefCnt {
     public:
-        GenIDChangeListener() : fShouldUnregisterFromPath(false) {}
-        virtual ~GenIDChangeListener() {}
+        GenIDChangeListener2() : fShouldUnregisterFromPath(false) {}
+        virtual ~GenIDChangeListener2() {}
 
         virtual void onChange() = 0;
 
@@ -320,7 +320,7 @@ public:
         void markShouldUnregisterFromPath() {
             fShouldUnregisterFromPath.store(true, std::memory_order_relaxed);
         }
-        bool shouldUnregisterFromPath() {
+        bool shouldUnregisterFromPath() const {
             return fShouldUnregisterFromPath.load(std::memory_order_acquire);
         }
 
@@ -328,7 +328,7 @@ public:
         std::atomic<bool> fShouldUnregisterFromPath;
     };
 
-    void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
+    void addGenIDChangeListener2(sk_sp<GenIDChangeListener2>);  // Threadsafe.
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
@@ -560,7 +560,7 @@ private:
     SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
 
     SkMutex                         fGenIDChangeListenersMutex;
-    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
+    SkTDArray<GenIDChangeListener2*> fGenIDChangeListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid

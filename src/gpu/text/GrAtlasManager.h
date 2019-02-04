@@ -34,7 +34,7 @@ public:
     // GrStrikeCache.cpp
     GrMaskFormat resolveMaskFormat(GrMaskFormat format) const {
         if (kA565_GrMaskFormat == format &&
-            !fProxyProvider->caps()->isConfigTexturable(kRGB_565_GrPixelConfig)) {
+            !fProxyProvider->caps1()->isConfigTexturable(kRGB_565_GrPixelConfig)) {
             format = kARGB_GrMaskFormat;
         }
         return format;

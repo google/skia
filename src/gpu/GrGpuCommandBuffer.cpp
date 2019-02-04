@@ -47,7 +47,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
              (dynamicStateArrays && dynamicStateArrays->fScissorRects));
 
-    auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
+    auto resourceProvider = this->gpu()->getContext()->priv().resourceProvider();
 
     if (pipeline.isBad()) {
         return false;

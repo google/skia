@@ -84,9 +84,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kExact, kImageWidth, kImageHeight, kRGBA_8888_GrPixelConfig,
             nullptr));
     if (!rtc) {
@@ -204,7 +204,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     });
 
     for (bool indexed : {false, true}) {
-        if (!context->contextPriv().caps()->instanceAttribSupport()) {
+        if (!context->priv().caps()->instanceAttribSupport()) {
             break;
         }
 
@@ -233,7 +233,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 }
                 switch (y % 3) {
                     case 0:
-                        if (context->contextPriv().caps()->shaderCaps()->vertexIDSupport()) {
+                        if (context->priv().caps()->shaderCaps()->vertexIDSupport()) {
                             if (y % 2) {
                                 // We don't need this call because it's the initial state of GrMesh.
                                 mesh.setVertexData(nullptr);
@@ -262,7 +262,7 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           std::function<void(DrawMeshHelper*)> testFn) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<GrMeshTestOp>(testFn);
     }

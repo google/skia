@@ -271,7 +271,7 @@ void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
     SkASSERT(!fRenderTarget);
     SkASSERT(fCommandBufferInfos.empty());
     SkASSERT(-1 == fCurrentCmdInfo);
-    SkASSERT(fGpu == rt->getContext()->contextPriv().getGpu());
+    SkASSERT(fGpu == rt->getContext()->priv().getGpu());
     SkASSERT(!fLastPipelineState);
 
     this->INHERITED::set(rt, origin);
