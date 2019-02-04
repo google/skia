@@ -100,6 +100,16 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pMessage,
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        // TODO
+        if (strstr(pMessage,
+                   "Mapping an image with layout VK_IMAGE_LAYOUT_UNDEFINED can result in undefined "
+                   "behavior if this memory is used by the device. Only GENERAL or PREINITIALIZED "
+                   "should be used.")) {
+            return VK_FALSE;
+        }
+        if (strstr(pMessage, "VUID-vkDestroyDevice-device-00378")) {
+            return VK_FALSE;
+        }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
         return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
