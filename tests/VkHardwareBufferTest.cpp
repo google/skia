@@ -676,9 +676,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
     const VkExternalMemoryImageCreateInfo externalMemoryImageInfo {
         VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO, // sType
         &externalFormatInfo, // pNext
-        //nullptr, // pNext
         VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID, // handleTypes
-        //0x80, // handleTypes
     };
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
@@ -711,22 +709,6 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
         ERRORF(reporter, "Create Image failed, err: %d", err);
         return false;
     }
-
-    VkImageMemoryRequirementsInfo2 memReqsInfo;
-    memReqsInfo.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2;
-    memReqsInfo.pNext = nullptr;
-    memReqsInfo.image = fImage;
-
-    VkMemoryDedicatedRequirements dedicatedMemReqs;
-    dedicatedMemReqs.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS;
-    dedicatedMemReqs.pNext = nullptr;
-
-    VkMemoryRequirements2 memReqs;
-    memReqs.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
-    memReqs.pNext = &dedicatedMemReqs;
-
-    fVkGetImageMemoryRequirements2(fDevice, &memReqsInfo, &memReqs);
-    REPORTER_ASSERT(reporter, VK_TRUE == dedicatedMemReqs.requiresDedicatedAllocation);
 
     VkPhysicalDeviceMemoryProperties2 phyDevMemProps;
     phyDevMemProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
