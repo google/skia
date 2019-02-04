@@ -600,7 +600,7 @@ static SkIRect safeRoundOut(const SkRect& src) {
 }
 
 constexpr int kSampleSize = 8;
-#if !defined(SK_DISABLE_DAA) || !defined(SK_DISABLE_AAA)
+#if !defined(SK_DISABLE_AAA)
     constexpr SkScalar kComplexityThreshold = 0.25;
 #endif
 
@@ -638,48 +638,7 @@ static void compute_complexity(const SkPath& path, SkScalar& avgLength, SkScalar
 }
 
 static bool ShouldUseDAA(const SkPath& path, SkScalar avgLength, SkScalar complexity) {
-#if defined(SK_DISABLE_DAA)
     return false;
-#else
-    if (gSkForceDeltaAA) {
-        return true;
-    }
-    if (!gSkUseDeltaAA || SkPathPriv::IsBadForDAA(path)) {
-        return false;
-    }
-
-    #ifdef SK_SUPPORT_LEGACY_AA_CHOICE
-        const SkRect& bounds = path.getBounds();
-        return !path.isConvex()
-            && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
-    #else
-        if (avgLength < 0 || complexity < 0 || path.getBounds().isEmpty() || path.isConvex()) {
-            return false;
-        }
-
-        // DAA is fast with mask
-        if (SkCoverageDeltaMask::CanHandle(safeRoundOut(path.getBounds()))) {
-            return true;
-        }
-
-        // DAA is much faster in small cubics (since we don't have to chop them).
-        // If there are many cubics, and the average length if small, use DAA.
-        constexpr SkScalar kSmallCubicThreshold = 16;
-        if (avgLength < kSmallCubicThreshold) {
-            uint8_t sampleVerbs[kSampleSize];
-            int verbCount = SkTMin(kSampleSize, path.getVerbs(sampleVerbs, kSampleSize));
-            int cubicCount = 0;
-            for(int i = 0; i < verbCount; ++i) {
-                cubicCount += (sampleVerbs[i] == SkPath::kCubic_Verb);
-            }
-            if (cubicCount * 2 >= verbCount) {
-                return true;
-            }
-        }
-
-        return complexity >= kComplexityThreshold;
-    #endif
-#endif
 }
 
 static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar complexity) {
