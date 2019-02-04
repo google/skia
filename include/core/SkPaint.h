@@ -35,11 +35,6 @@ class SkPathEffect;
 struct SkPoint;
 class SkShader;
 
-#ifdef SK_SUPPORT_LEGACY_INCLUDEFONTMETRICS
-#include "SkFontMetrics.h"
-class SkSurfaceProps;
-#endif
-
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
