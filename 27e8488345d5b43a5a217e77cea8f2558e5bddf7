@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87d8ca78_14ea19d0",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T17:46:42Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter for this particular test, but I wonder if it would be safer to remain in fp32 until after fn/fnwidth?",
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
