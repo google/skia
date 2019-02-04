@@ -216,7 +216,13 @@ GrVkImage::~GrVkImage() {
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
     if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
-        this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
+        // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image
+        // memory barrier says the dstStageMask must not be zero. However, in the spec when it talks
+        // about family queue transfers it says the dstStageMask is ignored and should be set to
+        // zero. Assuming it really is ignored we set it to VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT here
+        // since it makes the Vulkan validation layers happy.
+        this->setImageLayout(gpu, this->currentLayout(), 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                             false, true);
     }
     if (fResource) {
         fResource->removeOwningTexture();
