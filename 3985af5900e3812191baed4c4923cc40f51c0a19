@@ -50,6 +50,24 @@
       "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82472308_f533e3eb",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T15:25:42Z",
+      "side": 1,
+      "message": "No, we\u0027re still expecting a terminating \\0 here somewhere.",
+      "parentUuid": "4687affc_4e151276",
+      "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
