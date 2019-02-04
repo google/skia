@@ -41,6 +41,7 @@ protected:
         sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
 
         if (!distortableStream) {
+            DrawFailureMessage(canvas, "No distortableStream");
             return;
         }
         const char* text = "abc";

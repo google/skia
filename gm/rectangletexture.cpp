@@ -145,9 +145,7 @@ protected:
         };
         SkASSERT(SkToBool(rectImgs[0]) == SkToBool(rectImgs[1]));
         if (!rectImgs[0]) {
-            SkPaint paint;
-            SkFont font;
-            canvas->drawString("Could not create rectangle texture image.", 10, 100, font, paint);
+            DrawFailureMessage(canvas, "Could not create rectangle texture image.");
             return;
         }
 

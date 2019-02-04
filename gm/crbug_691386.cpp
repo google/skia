@@ -11,6 +11,7 @@
 DEF_SIMPLE_GM(crbug_691386, canvas, 256, 256) {
     SkPath path;
     if (!SkParsePath::FromSVGString("M -1 0 A 1 1 0 0 0 1 0 Z", &path)) {
+        skiagm::GM::DrawFailureMessage(canvas, "Failed to parse path.");
         return;
     }
     SkPaint p;
