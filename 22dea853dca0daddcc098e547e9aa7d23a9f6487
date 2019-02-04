@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2cac8d1_12b3dfb9",
+        "filename": "tools/fonts/SkTestSVGTypeface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-04T19:11:51Z",
+      "side": 1,
+      "message": "I can\u0027t believe I missed the \u0027t\u0027 in \u0027get\u0027 here. I\u0027ll see about fixing that...",
+      "range": {
+        "startLine": 170,
+        "startChar": 23,
+        "endLine": 170,
+        "endChar": 25
+      },
+      "revId": "22dea853dca0daddcc098e547e9aa7d23a9f6487",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
