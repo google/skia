@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "553a8eb2_4b62e6a0",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-04T16:24:37Z",
+      "side": 1,
+      "message": "How many things that we don\u0027t do should we document? Skia no longer has any reference to kerning anywhere in its api. I\u0027m not against kerning per-se, I just thought it was semi-arbitrary to mention it here.",
+      "parentUuid": "57c20e6a_334df0b9",
+      "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c6c7b09_ef4b737d",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 2
@@ -68,6 +86,24 @@
       "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0774c7d_e222cfa5",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-04T16:24:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c6c7b09_ef4b737d",
+      "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
