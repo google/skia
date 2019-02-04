@@ -140,7 +140,7 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    sk_sp<GrBuffer> createBuffer(size_t size, GrBufferType intendedType,
+    sk_sp<GrBuffer> createBuffer(size_t size, GrGpuBufferType intendedType,
                                  GrAccessPattern accessPattern, const void* data = nullptr);
 
     /**
@@ -467,8 +467,8 @@ private:
     virtual sk_sp<GrRenderTarget> onWrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                         const GrVkDrawableInfo&);
 
-    virtual sk_sp<GrBuffer> onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
-                                           const void* data) = 0;
+    virtual sk_sp<GrBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType,
+                                           GrAccessPattern, const void* data) = 0;
 
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,

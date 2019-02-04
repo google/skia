@@ -440,18 +440,16 @@ void GrAAFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
-    sk_sp<const GrBuffer> indexBuffer =
-            flushState->resourceProvider()->findOrMakeStaticBuffer(
-                    kIndex_GrBufferType, sizeof(kIndexData), kIndexData, gIndexBufferKey);
+    sk_sp<const GrBuffer> indexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+            GrGpuBufferType::kIndex, sizeof(kIndexData), kIndexData, gIndexBufferKey);
     if (!indexBuffer) {
         return;
     }
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
-    sk_sp<const GrBuffer> vertexBuffer =
-            flushState->resourceProvider()->findOrMakeStaticBuffer(
-                    kVertex_GrBufferType, sizeof(kVertexData), kVertexData, gVertexBufferKey);
+    sk_sp<const GrBuffer> vertexBuffer = flushState->resourceProvider()->findOrMakeStaticBuffer(
+            GrGpuBufferType::kVertex, sizeof(kVertexData), kVertexData, gVertexBufferKey);
     if (!vertexBuffer) {
         return;
     }

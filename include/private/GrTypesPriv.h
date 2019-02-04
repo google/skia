@@ -821,24 +821,25 @@ enum GrIOType {
 /**
  * Indicates the type of data that a GPU buffer will be used for.
  */
-enum GrBufferType {
-    kVertex_GrBufferType,
-    kIndex_GrBufferType,
-    kTexel_GrBufferType,
-    kDrawIndirect_GrBufferType,
-    kXferCpuToGpu_GrBufferType,
-    kXferGpuToCpu_GrBufferType,
-
-    kLast_GrBufferType = kXferGpuToCpu_GrBufferType
+enum class GrGpuBufferType {
+    kVertex,
+    kIndex,
+    kXferCpuToGpu,
+    kXferGpuToCpu,
 };
-static const int kGrBufferTypeCount = kLast_GrBufferType + 1;
+static const int kGrGpuBufferTypeCount = static_cast<int>(GrGpuBufferType::kXferGpuToCpu) + 1;
 
-static inline bool GrBufferTypeIsVertexOrIndex(GrBufferType type) {
-    SkASSERT(type >= 0 && type < kGrBufferTypeCount);
-    return type <= kIndex_GrBufferType;
-
-    GR_STATIC_ASSERT(0 == kVertex_GrBufferType);
-    GR_STATIC_ASSERT(1 == kIndex_GrBufferType);
+static inline bool GrBufferTypeIsVertexOrIndex(GrGpuBufferType type) {
+    switch (type) {
+        case GrGpuBufferType::kVertex:
+        case GrGpuBufferType::kIndex:
+            return true;
+        case GrGpuBufferType::kXferCpuToGpu:
+        case GrGpuBufferType::kXferGpuToCpu:
+            return false;
+    }
+    SK_ABORT("Unexpected GrGpuBufferType.");
+    return false;
 }
 
 /**

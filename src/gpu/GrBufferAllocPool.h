@@ -59,7 +59,7 @@ protected:
      *                              This parameter can be used to avoid malloc/free when all
      *                              usages can be satisfied with default-sized buffers.
      */
-    GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, void* initialBuffer);
+    GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, void* initialBuffer);
 
     virtual ~GrBufferAllocPool();
 
@@ -136,7 +136,7 @@ private:
 
     SkTArray<BufferBlock> fBlocks;
     GrGpu* fGpu;
-    GrBufferType fBufferType;
+    GrGpuBufferType fBufferType;
     void* fInitialCpuData = nullptr;
     void* fCpuData = nullptr;
     size_t fCpuDataSize = 0;

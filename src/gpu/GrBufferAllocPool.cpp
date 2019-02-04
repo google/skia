@@ -36,7 +36,7 @@ do {                                                                            
 
 constexpr size_t GrBufferAllocPool::kDefaultBufferSize;
 
-GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, void* initialBuffer)
+GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType, void* initialBuffer)
         : fBlocks(8), fGpu(gpu), fBufferType(bufferType), fInitialCpuData(initialBuffer) {
     if (fInitialCpuData) {
         fCpuDataSize = kDefaultBufferSize;
@@ -375,7 +375,7 @@ sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu, void* initialCpuBuffer)
-        : GrBufferAllocPool(gpu, kVertex_GrBufferType, initialCpuBuffer) {}
+        : GrBufferAllocPool(gpu, GrGpuBufferType::kVertex, initialCpuBuffer) {}
 
 void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
                                          int vertexCount,
@@ -428,7 +428,7 @@ void* GrVertexBufferAllocPool::makeSpaceAtLeast(size_t vertexSize, int minVertex
 ////////////////////////////////////////////////////////////////////////////////
 
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu, void* initialCpuBuffer)
-        : GrBufferAllocPool(gpu, kIndex_GrBufferType, initialCpuBuffer) {}
+        : GrBufferAllocPool(gpu, GrGpuBufferType::kIndex, initialCpuBuffer) {}
 
 void* GrIndexBufferAllocPool::makeSpace(int indexCount, sk_sp<const GrBuffer>* buffer,
                                         int* startIndex) {
