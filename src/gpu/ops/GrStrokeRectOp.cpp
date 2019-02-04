@@ -420,7 +420,7 @@ private:
     static const int kBevelVertexCnt = 24;
     static const int kNumBevelRectsInIndexBuffer = 256;
 
-    static sk_sp<const GrBuffer> GetIndexBuffer(GrResourceProvider*, bool miterStroke);
+    static sk_sp<const GrGpuBuffer> GetIndexBuffer(GrResourceProvider*, bool miterStroke);
 
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
@@ -472,7 +472,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fRects.count();
 
-    sk_sp<const GrBuffer> indexBuffer =
+    sk_sp<const GrGpuBuffer> indexBuffer =
             GetIndexBuffer(target->resourceProvider(), this->miterStroke());
     if (!indexBuffer) {
         SkDebugf("Could not allocate indices\n");
@@ -503,8 +503,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
-sk_sp<const GrBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                                     bool miterStroke) {
+sk_sp<const GrGpuBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                                        bool miterStroke) {
     if (miterStroke) {
         // clang-format off
         static const uint16_t gMiterIndices[] = {

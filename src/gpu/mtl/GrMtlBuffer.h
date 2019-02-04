@@ -8,7 +8,7 @@
 #ifndef GrMtlBuffer_DEFINED
 #define GrMtlBuffer_DEFINED
 
-#include "GrBuffer.h"
+#include "GrGpuBuffer.h"
 
 #import <metal/metal.h>
 

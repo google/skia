@@ -387,6 +387,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
          ctxInfo.vendor() == kQualcomm_GrGLVendor)) {
         fPreferClientSideDynamicBuffers = true;
     }
+    fPreferClientSideDynamicBuffers = true;
 
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.

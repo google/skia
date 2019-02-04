@@ -46,15 +46,15 @@ class DrawMeshHelper {
 public:
     DrawMeshHelper(GrOpFlushState* state) : fState(state) {}
 
-    sk_sp<const GrBuffer> getIndexBuffer();
+    sk_sp<const GrGpuBuffer> getIndexBuffer();
 
-    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const SkTArray<T>& data) {
+    template<typename T> sk_sp<const GrGpuBuffer> makeVertexBuffer(const SkTArray<T>& data) {
         return this->makeVertexBuffer(data.begin(), data.count());
     }
-    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const std::vector<T>& data) {
+    template<typename T> sk_sp<const GrGpuBuffer> makeVertexBuffer(const std::vector<T>& data) {
         return this->makeVertexBuffer(data.data(), data.size());
     }
-    template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
+    template<typename T> sk_sp<const GrGpuBuffer> makeVertexBuffer(const T* data, int count);
 
     void drawMesh(const GrMesh& mesh);
 
@@ -373,15 +373,14 @@ GrGLSLPrimitiveProcessor* GrMeshTestProcessor::createGLSLInstance(const GrShader
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count) {
-    return sk_sp<const GrBuffer>(
+sk_sp<const GrGpuBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count) {
+    return sk_sp<const GrGpuBuffer>(
         fState->resourceProvider()->createBuffer(
             count * sizeof(T), kVertex_GrBufferType, kDynamic_GrAccessPattern,
-            GrResourceProvider::Flags::kNoPendingIO |
-            GrResourceProvider::Flags::kRequireGpuMemory, data));
+            GrResourceProvider::Flags::kNone, data));
 }
 
-sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
+sk_sp<const GrGpuBuffer> DrawMeshHelper::getIndexBuffer() {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     return fState->resourceProvider()->findOrCreatePatternedIndexBuffer(
             kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
