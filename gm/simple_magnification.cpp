@@ -105,6 +105,8 @@ protected:
         sk_sp<SkImage> bottomLImg = make_image(context, kImgSize, kBottomLeft_GrSurfaceOrigin);
         sk_sp<SkImage> topLImg = make_image(context, kImgSize, kTopLeft_GrSurfaceOrigin);
         if (!bottomLImg || !topLImg) {
+            DrawFailureMessage(canvas, "Could not load images. "
+                                       "Did you forget to set the resourcePath?");
             return;
         }
 

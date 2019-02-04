@@ -88,7 +88,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (!fRenderer || !fTarget || !fTarget->handle()) {
-            canvas->clear(SK_ColorRED);
+            DrawFailureMessage(canvas, "No renderer and/or target.");
             return;
         }
         fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
