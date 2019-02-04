@@ -988,14 +988,28 @@ struct PositionedGlyph {
 };
 }
 
+static SkRect bounds(const SkGlyph& g) {
+    return SkRect{g.fLeft, g.fTop, g.fLeft + g.fWidth, g.fTop + g.fHeight};
+}
+
+static void scale_rect(SkRect* r, SkScalar xScale, SkScalar yScale) {
+    r->fLeft *= xScale;
+    r->fTop *= yScale;
+    r->fRight *= xScale;
+    r->fBottom *= yScale;
+}
+
 static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkStrike* cache,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
     const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
-    SkRect glyphBounds = {glyph.fLeft * xScale,
-                          glyph.fTop * yScale,
-                          (glyph.fLeft + glyph.fWidth) * xScale,
-                          (glyph.fTop + glyph.fHeight) * yScale};
+    SkRect glyphBounds = bounds(glyph);
+    if (glyphBounds.isEmpty()) {
+        if (const SkPath* path = cache->findPath(glyph)) {
+            glyphBounds = path->getBounds();
+        }
+    }
+    scale_rect(&glyphBounds, xScale, yScale);  // scale before offset.
     glyphBounds.offset(xy);
     ctm.mapRect(&glyphBounds); // now in dev space.
     return glyphBounds;
