@@ -74,27 +74,27 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
                     SkIntToScalar(outset));
         SkImageFilter::CropRect bigRect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Make(cfAlphaTrans,
-                                                                        noopCropped,
-                                                                        &bigRect));
+        ::draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Make(cfAlphaTrans,
+                                                                          noopCropped,
+                                                                          &bigRect));
 
-        draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(0.3f, 0.3f,
-                                                                 noopCropped,
-                                                                 &bigRect));
-
-        draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(8.0f, 8.0f,
-                                                                 noopCropped,
-                                                                 &bigRect));
-
-        draw(canvas, checkerboard, rect, SkDilateImageFilter::Make(2, 2,
+        ::draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(0.3f, 0.3f,
                                                                    noopCropped,
                                                                    &bigRect));
 
-        draw(canvas, checkerboard, rect, SkErodeImageFilter::Make(2, 2,
-                                                                  noopCropped,
-                                                                  &bigRect));
+        ::draw(canvas, checkerboard, rect, SkBlurImageFilter::Make(8.0f, 8.0f,
+                                                                   noopCropped,
+                                                                   &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        ::draw(canvas, checkerboard, rect, SkDilateImageFilter::Make(2, 2,
+                                                                     noopCropped,
+                                                                     &bigRect));
+
+        ::draw(canvas, checkerboard, rect, SkErodeImageFilter::Make(2, 2,
+                                                                    noopCropped,
+                                                                    &bigRect));
+
+        ::draw(canvas, checkerboard, rect,
              SkDropShadowImageFilter::Make(
                                 SkIntToScalar(10),
                                 SkIntToScalar(10),
@@ -105,7 +105,7 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
                                 noopCropped,
                                 &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        ::draw(canvas, checkerboard, rect,
              SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
                                            SkDisplacementMapEffect::kR_ChannelSelectorType,
                                            SkIntToScalar(12),
@@ -113,12 +113,12 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
                                            noopCropped,
                                            &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        ::draw(canvas, checkerboard, rect,
              SkOffsetImageFilter::Make(SkIntToScalar(-8), SkIntToScalar(16),
                                        noopCropped,
                                        &bigRect));
 
-        draw(canvas, checkerboard, rect,
+        ::draw(canvas, checkerboard, rect,
              SkLightingImageFilter::MakePointLitDiffuse(pointLocation,
                                                         SK_ColorWHITE,
                                                         surfaceScale,
