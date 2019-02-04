@@ -32,7 +32,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint whitePaint;
         whitePaint.setColor(SK_ColorWHITE);
         whitePaint.setBlendMode(SkBlendMode::kSrc);
@@ -77,6 +77,7 @@ protected:
                 canvas->restore();
             canvas->restore();
         canvas->restore();
+        return kDrawComplete;
     }
 
 private:

@@ -93,13 +93,12 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses sk_tool_utils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
         if (nullptr == canvas->getGrContext()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         canvas->drawColor(SK_ColorWHITE);
@@ -111,7 +110,7 @@ protected:
         auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
         if (!surface) {
             DrawFailureMessage(canvas, "This test requires a surface");
-            return;
+            return kDrawComplete;
         }
 
         SkPaint paint;
@@ -150,6 +149,7 @@ protected:
         canvas->rotate(-0.05f);
         canvas->drawTextBlob(fBlob, 10, yOffset, paint);
         yOffset += stride;
+        return kDrawComplete;
     }
 
 private:

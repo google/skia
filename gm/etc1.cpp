@@ -62,18 +62,17 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
         if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         GrContext* context = canvas->getGrContext();
         if (!context || context->abandoned()) {
             DrawFailureMessage(canvas, "GrContext unavailable or abandoned.");
-            return;
+            return kDrawComplete;
         }
 
         sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, fETC1Data,
@@ -81,6 +80,7 @@ protected:
                                                            SkImage::kETC1_CompressionType);
 
         canvas->drawImage(image, 0, 0);
+        return kDrawComplete;
     }
 
 private:

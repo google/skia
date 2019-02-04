@@ -49,7 +49,7 @@ protected:
     // This draws the same text blob 3 times.  The second draw used a different xfer mode so its
     // GrDrawOp doesn't get combined with the first and third. Ultimately, they will be flushed in
     // the order first, third, and then second.
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
@@ -73,6 +73,7 @@ protected:
 
         canvas->translate(SkIntToScalar(xDelta), SkIntToScalar(yDelta));
         canvas->drawTextBlob(fBlob, 0, 0, paint);
+        return kDrawComplete;
     }
 
 private:

@@ -110,7 +110,7 @@ protected:
         return SkISize::Make(960, 1200);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->scale(2, 2);
 
         SkFont font(sk_tool_utils::create_portable_typeface(), 8);
@@ -145,6 +145,7 @@ protected:
             canvas->translate(80, 0);
             test_surface(canvas, surf2.get(), true);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -241,7 +242,7 @@ protected:
         return SkISize::Make(960, 1200);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
         const ImageMakerProc procs[] = {
@@ -254,6 +255,7 @@ protected:
             }
             canvas->translate(0, 120);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -334,6 +336,8 @@ DEF_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
         }
         canvas->translate(kSize + kPad, 0);
     }
+
+    return skiagm::GM::kDrawComplete;
 }
 
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pm, SkScalar x, SkScalar y) {

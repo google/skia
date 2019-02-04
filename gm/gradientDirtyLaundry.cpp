@@ -67,7 +67,7 @@ protected:
     SkString onShortName() override { return SkString("gradient_dirty_laundry"); }
     SkISize onISize() override { return SkISize::Make(640, 615); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] = { { 0, 0 },
                            { SkIntToScalar(100), SkIntToScalar(100) }
         };
@@ -87,6 +87,7 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        return kDrawComplete;
     }
 
 private:

@@ -50,12 +50,13 @@ protected:
         return SkISize::Make(120, 120);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         canvas->drawRect(SkRect::MakeWH(100, 100), paint);
         paint.setShader(fShader);
         canvas->drawRect(SkRect::MakeWH(100, 100), paint);
+        return kDrawComplete;
     }
 
 protected:
@@ -79,7 +80,7 @@ protected:
         return SkISize::Make(750, 220);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         sk_sp<SkShader> shaders[] = {
             make_shader(SkBlendMode::kDstIn),
             make_shader(SkBlendMode::kSrcOver),
@@ -106,6 +107,7 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height() + 5);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -176,7 +178,7 @@ protected:
         return SkISize::Make(7 * (squareLength + 5), 2 * (squareLength + 5));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkBlendMode mode = SkBlendMode::kDstOver;
 
         sk_sp<SkShader> shaders[] = {
@@ -204,6 +206,7 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height() + 5);
         }
+        return kDrawComplete;
     }
 
 private:

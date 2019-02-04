@@ -52,7 +52,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -75,6 +75,7 @@ protected:
             y += metrics.fDescent + metrics.fLeading;
         }
 
+        return kDrawComplete;
     }
 
 private:
@@ -104,7 +105,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -136,6 +137,7 @@ protected:
             y += metrics.fDescent + metrics.fLeading;
         }
 
+        return kDrawComplete;
     }
 
 private:

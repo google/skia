@@ -60,8 +60,10 @@ static void draw_tile_bitmap_with_fractional_offset(GrContext* context, SkCanvas
 
 DEF_GPU_GM_BG(bitmaptiled_fractional_horizontal, context, rtc, canvas, 1124, 365, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(context, canvas, false);
+    return skiagm::GM::kDrawComplete;
 }
 
 DEF_GPU_GM_BG(bitmaptiled_fractional_vertical, context, rtc, canvas, 365, 1124, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(context, canvas, true);
+    return skiagm::GM::kDrawComplete;
 }

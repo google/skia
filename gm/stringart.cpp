@@ -35,7 +35,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
         SkScalar size = SkIntToScalar(SkMin32(kWidth, kHeight));
         SkPoint center = SkPoint::Make(SkScalarHalf(kWidth), SkScalarHalf(kHeight));
@@ -59,6 +59,7 @@ protected:
         paint.setColor(sk_tool_utils::color_to_565(0xFF007700));
 
         canvas->drawPath(path, paint);
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
@@ -131,7 +132,7 @@ protected:
         fDur = fAnims[0]->duration();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fAnims[0]) {
             this->init();
         }
@@ -139,6 +140,7 @@ protected:
         for (int i = 0; i < N; ++i) {
             fAnims[0]->render(canvas, &fRects[i]);
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

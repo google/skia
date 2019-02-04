@@ -32,7 +32,7 @@ protected:
 
     SkISize onISize() { return SkISize::Make(1000, 950); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    const char* onDraw(SkCanvas* canvas) {
         SkPath clipSimple;
         clipSimple.addCircle(SkIntToScalar(70), SkIntToScalar(50), SkIntToScalar(20));
 
@@ -118,6 +118,7 @@ protected:
                 canvas->translate(0, SkIntToScalar(150));
             }
         }
+        return kDrawComplete;
     }
 
 private:

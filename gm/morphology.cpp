@@ -50,7 +50,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         struct {
             int fWidth, fHeight;
             int fRadiusX, fRadiusY;
@@ -81,6 +81,7 @@ protected:
                 this->drawClippedBitmap(canvas, paint, i * 140, j * 140);
             }
         }
+        return kDrawComplete;
     }
 
 private:

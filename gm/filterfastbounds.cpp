@@ -225,7 +225,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override{
+    const char* onDraw(SkCanvas* canvas) override{
 
         SkPaint blackFill;
 
@@ -311,6 +311,7 @@ protected:
             }
         }
 
+        return kDrawComplete;
     }
 
 private:

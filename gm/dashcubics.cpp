@@ -98,7 +98,7 @@ protected:
         return SkISize::Make(1400, 1000);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         static constexpr SkSize kCellSize = { 440, 150 };
         static constexpr SkScalar kOffsets[][2] = {
             { -0.33f, -0.66f },
@@ -151,6 +151,7 @@ protected:
 
             canvas->translate(0, kCellSize.height());
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& t) override {

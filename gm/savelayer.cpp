@@ -54,7 +54,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(320, 640); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkScalar L = 10;
         const SkScalar T = 10;
         const SkScalar R = 310;
@@ -74,6 +74,7 @@ protected:
 
             do_draw(canvas);
         }
+        return kDrawComplete;
     }
 
 private:

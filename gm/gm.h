@@ -42,16 +42,18 @@ struct GrContextOptions;
     void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 // A GPU GM is a Simple GM that makes direct GPU calls. Its draw proc includes GPU objects as params
-// and is only called on GPU configs.
+// and is only called on GPU configs. The draw proc should return kDrawComplete if meaningful pixels
+// were drawn to the canvas, or a string if required GPU features were not supported (See
+// GM::draw()).
 #define DEF_GPU_GM(NAME, CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H) \
     DEF_GPU_GM_BG(NAME, CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, SK_ColorWHITE)
 #define DEF_GPU_GM_BG(NAME, CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, BGCOLOR) \
-    static void SK_MACRO_CONCAT(NAME, _GM)(GrContext*, GrRenderTargetContext*, SkCanvas*); \
+    static const char* SK_MACRO_CONCAT(NAME, _GM)(GrContext*, GrRenderTargetContext*, SkCanvas*); \
     DEF_GM(return skiagm::SimpleGM::CreateForGPU(SkString(#NAME), SK_MACRO_CONCAT(NAME, _GM), \
                                                  SkISize::Make(W, H), BGCOLOR);) \
-    void SK_MACRO_CONCAT(NAME, _GM)(GrContext* CONTEXT, \
-                                    GrRenderTargetContext* RENDER_TARGET_CONTEXT, \
-                                    SkCanvas* CANVAS)
+    const char* SK_MACRO_CONCAT(NAME, _GM)(GrContext* CONTEXT, \
+                                           GrRenderTargetContext* RENDER_TARGET_CONTEXT, \
+                                           SkCanvas* CANVAS)
 
 namespace skiagm {
 
@@ -69,9 +71,21 @@ namespace skiagm {
         void setMode(Mode mode) { fMode = mode; }
         Mode getMode() const { return fMode; }
 
-        void draw(SkCanvas*);
+        // Common return values for draw().
+        static constexpr char* kDrawComplete = nullptr;
+        static constexpr char kDrawSkippedGPUOnly[] = "This test is for GPU configs only.";
+
+        // Returns kDrawComplete (nullptr) if meaningful pixels have been drawn into the canvas
+        // (whether successful, or unsuccessful with appropriate error information.)
+        //
+        // If this GM should be silently ignored (e.g., because it is trying to test a hardware
+        // feature that isn't supported in the current context), this method returns a string
+        // describing why. When a string is returned, the caller should not output any images or
+        // upload any data to Gold.
+        const char* draw(SkCanvas*);
+
         void drawBackground(SkCanvas*);
-        void drawContent(SkCanvas*);
+        const char* drawContent(SkCanvas*);
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();
@@ -107,14 +121,13 @@ namespace skiagm {
 
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
-        /** draws a standard message that the GM is only intended to be used with the GPU.*/
-        static void DrawGpuOnlyMessage(SkCanvas*);
-
         static void DrawFailureMessage(SkCanvas*, const char[], ...) SK_PRINTF_LIKE(2, 3);
 
     protected:
         virtual void onOnceBeforeDraw() {}
-        virtual void onDraw(SkCanvas*) = 0;
+        // Returns kDrawComplete if meaningful pixels have been drawn into the canvas, or a string
+        // if the GM should be skipped. (See the comment for draw().)
+        virtual const char* onDraw(SkCanvas*) = 0;
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
@@ -144,12 +157,12 @@ namespace skiagm {
                 const SkISize&, SkColor backgroundColor);
 
     protected:
-        void onDraw(SkCanvas* canvas) override { fDrawProc(canvas); }
+        const char* onDraw(SkCanvas* canvas) override { return fDrawProc(canvas); }
         SkISize onISize() override { return fSize; }
         SkString onShortName() override { return fName; }
 
     private:
-        SimpleGM(const SkString& name, std::function<void(SkCanvas*)> drawProc,
+        SimpleGM(const SkString& name, std::function<const char*(SkCanvas*)> drawProc,
                  const SkISize& size, SkColor backgroundColor)
             : fName(name), fDrawProc(drawProc), fSize(size) {
             if (backgroundColor != SK_ColorWHITE) {
@@ -158,7 +171,7 @@ namespace skiagm {
         }
 
         SkString fName;
-        std::function<void(SkCanvas*)> fDrawProc;
+        std::function<const char*(SkCanvas*)> fDrawProc;
         SkISize fSize;
     };
 }

@@ -74,7 +74,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(650, 1200); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -175,6 +175,7 @@ protected:
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }
+        return kDrawComplete;
     }
 
     typedef GM INHERITED;

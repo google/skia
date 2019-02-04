@@ -581,7 +581,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         // the right edge of the last drawn path
         SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
         if (!fConvexOnly) {
@@ -591,6 +591,7 @@ protected:
         for (int i = 0; i < kNumPaths; ++i) {
             this->drawPolygon(canvas, i, &offset);
         }
+        return kDrawComplete;
     }
 
 private:

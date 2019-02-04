@@ -31,7 +31,7 @@ protected:
         fRegion.op( 50, 100, 150, 150, SkRegion::kUnion_Op);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorGREEN);
 
         SkPaint paint;
@@ -70,6 +70,7 @@ protected:
         paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
                                                      SkShader::kClamp_TileMode));
         canvas->drawRegion(fRegion, paint);
+        return kDrawComplete;
     }
 
 private:

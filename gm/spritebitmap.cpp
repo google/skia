@@ -64,7 +64,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkBitmap bm;
         make_bm(&bm);
 
@@ -81,6 +81,7 @@ protected:
         draw_1_bitmap(canvas, bm, true, dx, dy, nullptr);
         dy += bm.height() + 20;
         draw_1_bitmap(canvas, bm, true, dx, dy, filter);
+        return kDrawComplete;
     }
 
 private:

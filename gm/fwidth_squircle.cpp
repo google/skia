@@ -157,14 +157,13 @@ private:
 
 DEF_GPU_GM(fwidth_squircle, ctx, rtc, canvas, 200, 200) {
     if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
-        SkFont font(sk_tool_utils::create_portable_typeface(), 15);
-        skiagm::GM::DrawFailureMessage(canvas, "Shader derivatives not supported.");
-        return;
+        return "Shader derivatives not supported.";
     }
 
     // Draw the test directly to the frame buffer.
     canvas->clear(SK_ColorWHITE);
     rtc->priv().testingOnly_addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
+    return skiagm::GM::kDrawComplete;
 }
 
 }

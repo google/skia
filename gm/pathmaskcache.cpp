@@ -23,7 +23,7 @@ protected:
         return SkISize::Make(650, 950);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         static constexpr SkScalar kPad = 5.f;
 
         SkPaint paint;
@@ -99,6 +99,7 @@ protected:
             ty = drawPathSet(path, r);
             canvas->translate(0.f, ty);
         }
+        return kDrawComplete;
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {

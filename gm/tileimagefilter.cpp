@@ -45,7 +45,7 @@ protected:
                                                       8));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkPaint red;
         red.setColor(SK_ColorRED);
@@ -122,6 +122,7 @@ protected:
         paint.setColor(SK_ColorRED);
         paint.setImageFilter(std::move(tile));
         canvas->drawRect(dstRect, paint);
+        return kDrawComplete;
     }
 private:
     sk_sp<SkImage> fBitmap, fCheckerboard;

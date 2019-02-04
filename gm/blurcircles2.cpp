@@ -44,7 +44,7 @@ protected:
         return SkISize::Make(730, 1350);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kMaxR = kMaxRadius + kMaxBlurRadius;
 
         auto almostCircleMaker = [] (SkScalar radius, SkPath* dst) {
@@ -131,6 +131,7 @@ protected:
             }
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

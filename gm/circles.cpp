@@ -139,7 +139,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         // Draw a giant AA circle as the background.
         SkISize size = this->getISize();
         SkScalar giantRadius = SkTMin(SkIntToScalar(size.fWidth),
@@ -190,6 +190,7 @@ protected:
 
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

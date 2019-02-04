@@ -67,7 +67,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->save();
         canvas->scale(1, -1);
         canvas->translate(0, -kHeight);
@@ -80,6 +80,7 @@ protected:
             canvas->drawPath(fPaths[p], paint);
         }
         canvas->restore();
+        return kDrawComplete;
     }
 
     const SkScalar kWidth = 256;

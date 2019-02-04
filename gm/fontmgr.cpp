@@ -73,7 +73,7 @@ protected:
         return SkISize::Make(1536, 768);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
@@ -109,6 +109,7 @@ protected:
             }
             y += 24;
         }
+        return kDrawComplete;
     }
 
 private:
@@ -172,7 +173,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
@@ -191,13 +192,14 @@ protected:
         }
         if (nullptr == fset.get()) {
             DrawFailureMessage(canvas, "No SkFontStyleSet");
-            return;
+            return kDrawComplete;
         }
 
         canvas->translate(20, 40);
         this->exploreFamily(canvas, font, fset.get());
         canvas->translate(150, 0);
         this->iterateFamily(canvas, font, fset.get());
+        return kDrawComplete;
     }
 
 private:
@@ -309,7 +311,7 @@ protected:
         return SkISize::Make(1024, 850);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkFont font;
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
@@ -344,11 +346,12 @@ protected:
                         y += 160;
                     }
                     if (y >= 700) {
-                        return;
+                        return kDrawComplete;
                     }
                 }
             }
         }
+        return kDrawComplete;
     }
 
 private:

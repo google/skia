@@ -73,7 +73,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar offsetX = kWidth / 4.0f;
         SkScalar offsetY = kHeight / 4.0f;
         drawTestCase(canvas, offsetX, offsetY,  SkBlendMode::kSrc, SkBlendMode::kSrc);
@@ -81,6 +81,7 @@ protected:
         drawTestCase(canvas, offsetX, 3 * offsetY,  SkBlendMode::kHardLight,
                      SkBlendMode::kLuminosity);
         drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrc);
+        return kDrawComplete;
     }
 
 private:

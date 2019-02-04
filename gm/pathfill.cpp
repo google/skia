@@ -313,7 +313,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -335,6 +335,7 @@ protected:
         canvas->scale(0.5f, 0.5f);
         canvas->translate(5, 50);
         canvas->drawPath(fVisualizerPath, paint);
+        return kDrawComplete;
     }
 
 private:
@@ -373,7 +374,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPath path;
 
         path.addCircle(SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(40));
@@ -400,6 +401,7 @@ protected:
                 canvas->translate(SkIntToScalar(110), 0);
             }
         }
+        return kDrawComplete;
     }
 
 private:

@@ -123,11 +123,10 @@ protected:
         return nullptr;
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrContext *context = canvas->getGrContext();
         if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         constexpr int kWidth = 50;
@@ -146,7 +145,7 @@ protected:
         SkASSERT(SkToBool(rectImgs[0]) == SkToBool(rectImgs[1]));
         if (!rectImgs[0]) {
             DrawFailureMessage(canvas, "Could not create rectangle texture image.");
-            return;
+            return kDrawComplete;
         }
 
         constexpr SkFilterQuality kQualities[] = {
@@ -201,6 +200,7 @@ protected:
                 canvas->translate(0, kPad + 1.5f * kHeight * s);
             }
         }
+        return kDrawComplete;
     }
 
 private:

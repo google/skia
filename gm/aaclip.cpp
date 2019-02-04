@@ -269,11 +269,12 @@ protected:
         this->doDraw(canvas, path);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(80, 10);
         this->drawAndClip(canvas, fVPath, 200, 0);
         canvas->translate(0, 200);
         this->drawAndClip(canvas, fHPath, 200, 0);
+        return kDrawComplete;
     }
 
 private:

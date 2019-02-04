@@ -131,7 +131,7 @@ protected:
         return SkISize::Make(1024, 512);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkPoint points[2] = { SkPoint::Make(0, 0), SkPoint::Make(RECT_WIDTH, 0.0) };
 
         for (int cellRow = 0; cellRow < NUM_ROWS; cellRow++) {
@@ -169,6 +169,7 @@ protected:
                 shade_rect(canvas, shader, cellRow, cellCol);
             }
         }
+        return kDrawComplete;
     }
 
 private:

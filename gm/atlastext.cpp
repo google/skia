@@ -86,16 +86,17 @@ protected:
         fTypefaces[5] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fRenderer || !fTarget || !fTarget->handle()) {
             DrawFailureMessage(canvas, "No renderer and/or target.");
-            return;
+            return kDrawComplete;
         }
         fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
         auto bmp = this->drawText();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         canvas->drawBitmap(bmp, 0, 0);
+        return kDrawComplete;
     }
 
 private:

@@ -76,12 +76,11 @@ protected:
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
         if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         SkPaint paint;
@@ -102,6 +101,7 @@ protected:
                 canvas->drawImage(img, 200, 0);
             }
         }
+        return kDrawComplete;
     }
 
 private:
