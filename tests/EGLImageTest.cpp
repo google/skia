@@ -30,7 +30,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
         glctx1->makeCurrent();
         if (grctx1) {
             if (backendTex1 && backendTex1->isValid()) {
-                GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->contextPriv().getGpu());
+                GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->priv().getGpu());
                 gpu1->deleteTestingOnlyBackendTexture(*backendTex1);
             }
         }
@@ -55,7 +55,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     if (kGLES_GrGLStandard != glCtx0->gl()->fStandard) {
         return;
     }
-    GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->contextPriv().getGpu());
+    GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->priv().getGpu());
     if (!gpu0->glCaps().shaderCaps()->externalTextureSupport()) {
         return;
     }
@@ -85,7 +85,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Use GL Context 1 to create a texture unknown to GrContext.
     context1->flush();
-    GrGpu* gpu1 = context1->contextPriv().getGpu();
+    GrGpu* gpu1 = context1->priv().getGpu();
     static const int kSize = 100;
     backendTexture1 =
         gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, GrColorType::kRGBA_8888,
@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test
     // fails on the Nexus5. Why?
-    sk_sp<GrTextureContext> surfaceContext = context0->contextPriv().makeBackendTextureContext(
+    sk_sp<GrTextureContext> surfaceContext = context0->priv().makeBackendTextureContext(
             backendTex, kBottomLeft_GrSurfaceOrigin, nullptr);
 
     if (!surfaceContext) {
@@ -179,7 +179,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     // Should not be able to wrap as a RT
     {
         sk_sp<GrRenderTargetContext> temp =
-                context0->contextPriv().makeBackendTextureRenderTargetContext(
+                context0->priv().makeBackendTextureRenderTargetContext(
                         backendTex, kBottomLeft_GrSurfaceOrigin, 1, nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");

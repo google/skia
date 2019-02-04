@@ -82,7 +82,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
     for (int i = 0; i < fNumProxies; ++i) {
         GrTextureProducer::CopyParams copyParams;
         int mipCount = SkMipMap::ComputeLevelCount(fProxies[i]->width(), fProxies[i]->height());
-        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->contextPriv().caps(),
+        if (mipCount && GrGpu::IsACopyNeededForMips(fContext->priv().caps(),
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
@@ -101,11 +101,11 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes() const {
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef() const {
     if (!fRGBProxy) {
         const GrBackendFormat format =
-            fContext->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            fContext->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            fContext->contextPriv().makeDeferredRenderTargetContext(
+            fContext->priv().makeDeferredRenderTargetContext(
                 format, SkBackingFit::kExact, this->width(), this->height(),
                 kRGBA_8888_GrPixelConfig, fColorSpace, 1, GrMipMapped::kNo, fOrigin));
         if (!renderTargetContext) {
@@ -195,12 +195,12 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
     }
 
     // Make proxies
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> tempTextureProxies[4];
     for (int i = 0; i < numPixmaps; ++i) {
         const SkPixmap* pixmap = &yuvaPixmaps[i];
         SkAutoPixmapStorage resized;
-        int maxTextureSize = context->contextPriv().caps()->maxTextureSize();
+        int maxTextureSize = context->priv().caps()->maxTextureSize();
         int maxDim = SkTMax(yuvaPixmaps[i].width(), yuvaPixmaps[i].height());
         if (limitToMaxTextureSize && maxDim > maxTextureSize) {
             float scale = static_cast<float>(maxTextureSize) / maxDim;
@@ -314,7 +314,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     sk_sp<GrTextureProxy> proxies[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
         GrPixelConfig config =
-                context->contextPriv().caps()->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
+                context->priv().caps()->getYUVAConfigFromBackendFormat(yuvaFormats[texIdx]);
         if (config == kUnknown_GrPixelConfig) {
             return nullptr;
         }

@@ -110,7 +110,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& childInfo2,
                             bool flushContext) {
     GrContext* mainCtx = mainInfo.grContext();
-    if (!mainCtx->contextPriv().caps()->fenceSyncSupport()) {
+    if (!mainCtx->priv().caps()->fenceSyncSupport()) {
         return;
     }
 
@@ -127,7 +127,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 #ifdef SK_VULKAN
     if (GrBackendApi::kVulkan == mainInfo.backend()) {
         // Initialize the secondary semaphore instead of having Ganesh create one internally
-        GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->contextPriv().getGpu());
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->priv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
 
@@ -212,7 +212,7 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
-    if (!ctx->contextPriv().caps()->fenceSyncSupport()) {
+    if (!ctx->priv().caps()->fenceSyncSupport()) {
         return;
     }
 
@@ -231,7 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
     if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->contextPriv().getGpu());
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->priv().getGpu());
         const GrGLInterface* interface = gpu->glInterface();
         GrGLsync sync = semaphore.glSync();
         REPORTER_ASSERT(reporter, sync);
@@ -242,7 +242,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
 
 #ifdef SK_VULKAN
     if (GrBackendApi::kVulkan == ctxInfo.backend()) {
-        GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->contextPriv().getGpu());
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->priv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
         VkQueue queue = gpu->queue();

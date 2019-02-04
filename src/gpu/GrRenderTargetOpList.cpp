@@ -585,7 +585,7 @@ bool GrRenderTargetOpList::copySurface(GrContext* context,
         return false;
     }
 
-    this->addOp(std::move(op), *context->contextPriv().caps());
+    this->addOp(std::move(op), *context->priv().caps());
     return true;
 }
 

@@ -32,7 +32,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                        kTopLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
+        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(proxy);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
@@ -62,7 +62,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
                                                   kBottomLeft_GrSurfaceOrigin, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
+        sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(proxy);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 

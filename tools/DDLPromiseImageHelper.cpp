@@ -23,7 +23,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->contextPriv().getGpu();
+        GrGpu* gpu = fContext->priv().getGpu();
         gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
@@ -32,7 +32,7 @@ void DDLPromiseImageHelper::PromiseImageCallbackContext::setBackendTexture(
         const GrBackendTexture& backendTexture) {
     SkASSERT(!fUnreleasedFulfills);
     if (fPromiseImageTexture) {
-        GrGpu* gpu = fContext->contextPriv().getGpu();
+        GrGpu* gpu = fContext->priv().getGpu();
         gpu->deleteTestingOnlyBackendTexture(fPromiseImageTexture->backendTexture());
     }
     fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
@@ -107,7 +107,7 @@ static GrBackendTexture create_yuva_texture(GrGpu* gpu, const SkPixmap& pm,
 }
 
 void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
     SkASSERT(gpu);
 
     for (int i = 0; i < fImageInfo.count(); ++i) {
@@ -151,7 +151,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 }
 
 void DDLPromiseImageHelper::replaceEveryOtherPromiseTexture(GrContext* context) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
     SkASSERT(gpu);
 
     for (int i = 0; i < fImageInfo.count(); i += 2) {

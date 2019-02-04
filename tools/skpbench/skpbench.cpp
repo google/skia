@@ -407,7 +407,7 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
                                      config->getColorType());
     }
-    int supportedSampleCount = ctx->contextPriv().caps()->getRenderTargetSampleCount(
+    int supportedSampleCount = ctx->priv().caps()->getRenderTargetSampleCount(
             config->getSamples(), grPixConfig);
     if (supportedSampleCount != config->getSamples()) {
         exitf(ExitErr::kUnavailable, "sample count %i not supported by platform",
