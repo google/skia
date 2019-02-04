@@ -14,8 +14,6 @@
 
 class GrBackendFormat;
 class GrCaps;
-class GrContext;
-class GrContext_Base;
 class GrContextThreadSafeProxyPriv;
 class GrSkSLFPFactoryCache;
 struct SkImageInfo;
@@ -84,18 +82,12 @@ public:
     const GrContextThreadSafeProxyPriv priv() const;
 
 private:
+    friend class GrContextThreadSafeProxyPriv; // for ctor and hidden methods
+
     // DDL TODO: need to add unit tests for backend & maybe options
-    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
-                             uint32_t uniqueID,
-                             GrBackendApi backend,
-                             const GrContextOptions& options,
-                             sk_sp<GrSkSLFPFactoryCache> cache);
+    GrContextThreadSafeProxy(GrBackendApi, const GrContextOptions&, uint32_t contextID);
 
-    sk_sp<const GrCaps>         fCaps;
-    sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
-
-    friend class GrDirectContext; // To construct this object
-    friend class GrContextThreadSafeProxyPriv;
+    bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
 
     typedef GrContext_Base INHERITED;
 };

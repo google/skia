@@ -20,6 +20,11 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() { return fContext->fpFactoryCache(); }
+
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
     GrBaseContextPriv(const GrBaseContextPriv&); // unimpl

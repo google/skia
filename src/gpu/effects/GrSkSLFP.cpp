@@ -234,7 +234,7 @@ public:
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext* context, int index, const char* name,
                                          const char* sksl, const void* inputs,
                                          size_t inputSize) {
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().getFPFactoryCache(),
+    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
                                                   context->priv().caps()->shaderCaps(),
                                                   index, name, sksl, inputs, inputSize));
 }

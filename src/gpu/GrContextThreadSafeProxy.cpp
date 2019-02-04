@@ -15,15 +15,18 @@
 #include "SkSurface_Gpu.h"
 #include "SkSurfaceCharacterization.h"
 
-GrContextThreadSafeProxy::GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t contextID,
-                                                   GrBackendApi backend,
+GrContextThreadSafeProxy::GrContextThreadSafeProxy(GrBackendApi backend,
                                                    const GrContextOptions& options,
-                                                   sk_sp<GrSkSLFPFactoryCache> cache)
-        : INHERITED(backend, options, contextID)
-        , fCaps(std::move(caps))
-        , fFPFactoryCache(std::move(cache)) {}
+                                                   uint32_t contextID)
+        : INHERITED(backend, options, contextID) {
+}
 
 GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
+
+bool GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
+                                    sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
+    return INHERITED::init(std::move(caps), std::move(FPFactoryCache));
+}
 
 bool GrContextThreadSafeProxy::matches(GrContext_Base* context) const {
     return context->priv().contextID() == this->contextID();
@@ -44,34 +47,35 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!fCaps->mipMapSupport()) {
+    if (!this->caps()->mipMapSupport()) {
         isMipMapped = false;
     }
 
-    GrPixelConfig config = fCaps->getConfigFromBackendFormat(backendFormat, ii.colorType());
+    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, ii.colorType());
     if (config == kUnknown_GrPixelConfig) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (!SkSurface_Gpu::Valid(fCaps.get(), config, ii.colorSpace())) {
+    if (!SkSurface_Gpu::Valid(this->caps(), config, ii.colorSpace())) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, config);
+    sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
     if (!sampleCnt) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
     GrFSAAType FSAAType = GrFSAAType::kNone;
     if (sampleCnt > 1) {
-        FSAAType = fCaps->usesMixedSamples() ? GrFSAAType::kMixedSamples : GrFSAAType::kUnifiedMSAA;
+        FSAAType = this->caps()->usesMixedSamples() ? GrFSAAType::kMixedSamples
+                                                    : GrFSAAType::kUnifiedMSAA;
     }
 
     if (willUseGLFBO0 && isTextureable) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
-    if (isTextureable && !fCaps->isConfigTexturable(config)) {
+    if (isTextureable && !this->caps()->isConfigTexturable(config)) {
         // Skia doesn't agree that this is textureable.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
@@ -87,6 +91,22 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrSkSLFPFactoryCache> GrContextThreadSafeProxyPriv::fpFactoryCache() const {
-    return fProxy->fFPFactoryCache;
+sk_sp<GrSkSLFPFactoryCache> GrContextThreadSafeProxyPriv::fpFactoryCache() {
+    return fProxy->fpFactoryCache();
 }
+
+sk_sp<GrContextThreadSafeProxy> GrContextThreadSafeProxyPriv::Make(
+                             GrBackendApi backend,
+                             const GrContextOptions& options,
+                             uint32_t contextID,
+                             sk_sp<const GrCaps> caps,
+                             sk_sp<GrSkSLFPFactoryCache> cache) {
+    sk_sp<GrContextThreadSafeProxy> proxy(new GrContextThreadSafeProxy(backend, options,
+                                                                       contextID));
+
+    if (!proxy->init(std::move(caps), std::move(cache))) {
+        return nullptr;
+    }
+    return proxy;
+}
+
