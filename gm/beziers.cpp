@@ -67,7 +67,7 @@ protected:
         return SkISize::Make(W, H*2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
@@ -85,6 +85,7 @@ protected:
             rnd_cubic(&p, &paint, rand);
             canvas->drawPath(p, paint);
         }
+        return kDrawComplete;
     }
 
 private:

@@ -84,7 +84,7 @@ private:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setStyle(SkPaint::kFill_Style);
@@ -101,6 +101,7 @@ private:
                                      p);
             }
         }
+        return kDrawComplete;
     }
 
     SkTDArray<uint16_t> fGlyphs;

@@ -55,7 +55,7 @@ protected:
         return SkISize::Make(200, 200);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         sk_sp<SkDrawLooper> shadowLoopers[] = {
               SkBlurDrawLooper::Make(SK_ColorBLUE,
                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
@@ -117,6 +117,7 @@ protected:
             canvas->drawRect(SkRect::MakeXYWH(10, 10, 20, 20), paint);
             paint.setShader(nullptr);
         }
+        return kDrawComplete;
     }
 
 private:

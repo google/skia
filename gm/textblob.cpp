@@ -101,7 +101,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
             sk_sp<SkTextBlob> blob(this->makeBlob(b));
 
@@ -120,6 +120,7 @@ protected:
             canvas->drawRect(box, p);
 
         }
+        return kDrawComplete;
     }
 
 private:

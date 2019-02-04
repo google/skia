@@ -24,7 +24,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -61,6 +61,7 @@ protected:
                 canvas->restore();
             }
         }
+        return kDrawComplete;
     }
 
 private:

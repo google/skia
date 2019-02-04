@@ -29,7 +29,7 @@ protected:
         return SkISize::Make(1450, 750);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         //With freetype the default (normal hinting) can be really ugly.
@@ -68,6 +68,7 @@ protected:
             canvas->translate(0, SkIntToScalar(360));
             font.setSubpixel(true);
         }
+        return kDrawComplete;
     }
 
 private:

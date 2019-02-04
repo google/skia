@@ -11,11 +11,10 @@
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
-static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool vertical) {
+static const char* draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool vertical) {
     GrContext* context = canvas->getGrContext();
     if (!context) {
-        skiagm::GM::DrawGpuOnlyMessage(canvas);
-        return;
+        return skiagm::GM::kDrawSkippedGPUOnly;
     }
 
     // This should match kBmpSmallTileSize in SkGpuDevice.cpp. Note that our canvas size is tuned
@@ -61,12 +60,13 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
 
     // Restore the cache
     context->setResourceCacheLimits(oldMaxResources, oldMaxResourceBytes);
+    return skiagm::GM::kDrawComplete;
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(canvas, false);
+DEF_SKIPPABLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorBLACK) {
+    return draw_tile_bitmap_with_fractional_offset(canvas, false);
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(canvas, true);
+DEF_SKIPPABLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
+    return draw_tile_bitmap_with_fractional_offset(canvas, true);
 }

@@ -28,11 +28,10 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend.
         if (nullptr == canvas->getGrContext()) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         const char text[] = "Hamburgefons";
@@ -50,6 +49,7 @@ protected:
         // This text should look fine
         canvas->getGrContext()->freeGpuResources();
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
+        return kDrawComplete;
     }
 
 private:

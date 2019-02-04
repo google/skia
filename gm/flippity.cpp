@@ -225,11 +225,10 @@ protected:
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrContext* context = canvas->getGrContext();
         if (!context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         this->makeLabels(context);
@@ -263,6 +262,7 @@ protected:
         for (int i = 0; i < kNumMatrices; ++i) {
             canvas->drawLine(i * kCellSize, 0, i * kCellSize, kGMHeight, SkPaint());
         }
+        return kDrawComplete;
     }
 
 private:

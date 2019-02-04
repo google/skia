@@ -25,7 +25,7 @@ protected:
         return SkISize::Make(240, 320);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         SkPaint white;
         white.setColor(SK_ColorWHITE);
@@ -61,6 +61,7 @@ protected:
                 DrawSquares(canvas, green);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

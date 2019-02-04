@@ -45,7 +45,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         drawDirs(canvas, [](const SkRect& rect, SkPath::Direction dir, unsigned startIndex) {
             SkPath path;
@@ -87,6 +87,7 @@ protected:
             return path;
         });
 
+        return kDrawComplete;
     }
 
 private:

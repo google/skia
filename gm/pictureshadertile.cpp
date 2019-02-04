@@ -130,7 +130,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         SkPaint paint;
@@ -145,6 +145,7 @@ protected:
             canvas->drawRect(SkRect::MakeWH(kFillSize, kFillSize), paint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

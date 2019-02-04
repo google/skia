@@ -168,7 +168,7 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
@@ -208,6 +208,7 @@ protected:
             canvas->restore();
             canvas->translate(DX, 0);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -253,7 +254,7 @@ protected:
 
     virtual void installFilter(SkPaint* paint) = 0;
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->translate(20, 40);
@@ -279,6 +280,7 @@ protected:
             acr.restore();
             canvas->translate(0, 200);
         }
+        return kDrawComplete;
     }
 
 private:

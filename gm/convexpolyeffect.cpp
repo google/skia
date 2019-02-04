@@ -177,17 +177,12 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (!context) {
-            return;
+        if (!renderTargetContext || !context) {
+            return kDrawSkippedGPUOnly;
         }
 
         SkScalar y = 0;
@@ -273,6 +268,7 @@ protected:
 
             y += SkScalarCeilToScalar(iter.get()->height() + 20.f);
         }
+        return kDrawComplete;
     }
 
 private:

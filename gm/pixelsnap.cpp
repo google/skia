@@ -33,7 +33,7 @@ protected:
                              (kSubPixelSteps + 1) * kTrans + kLabelOffsetY + kLabelPad);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint bgPaint;
         bgPaint.setShader(
                 sk_tool_utils::create_checkerboard_shader(0xFFAAAAAA, 0xFF777777, 1));
@@ -93,6 +93,7 @@ protected:
                 canvas->restore();
             }
         }
+        return kDrawComplete;
     }
 
     virtual void drawElement(SkCanvas*) = 0;

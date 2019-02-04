@@ -49,7 +49,7 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkColor colors[] = { 0xFF555555, 0xFF444444 };
         const int colorCount = SK_ARRAY_COUNT(colors);
 
@@ -60,6 +60,7 @@ protected:
         paint.setShader(fProc(colors, colorCount, size));
         paint.setDither(fDither);
         canvas->drawRect(r, paint);
+        return kDrawComplete;
     }
 
 private:

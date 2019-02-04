@@ -135,7 +135,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fImage || !fImage->isValid(canvas->getGrContext())) {
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
@@ -148,6 +148,7 @@ protected:
         canvas->translate(0, SkIntToScalar(kCellSize));
         this->drawRow(canvas, kHigh_SkFilterQuality);
         canvas->translate(0, SkIntToScalar(kCellSize));
+        return kDrawComplete;
     }
 private:
     static constexpr int kCellSize = 50;

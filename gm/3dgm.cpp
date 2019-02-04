@@ -101,10 +101,10 @@ protected:
         proc(0xC0FF0000, m4 * tmp);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!fAnim) {
             DrawFailureMessage(canvas, "No animation.");
-            return;
+            return kDrawComplete;
         }
         SkMatrix44  camera,
                     perspective,
@@ -175,6 +175,7 @@ protected:
 
         fAnim->seek(fAnimT);
         draw_skia(canvas, mv, viewport, fAnim.get());
+        return kDrawComplete;
     }
 
     SkISize onISize() override { return { 1024, 768 }; }
