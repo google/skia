@@ -9,16 +9,15 @@
 #include "SkAutoBlitterChoose.h"
 #include "SkComposeShader.h"
 #include "SkConvertPixels.h"
+#include "SkCoreBlitters.h"
 #include "SkDraw.h"
 #include "SkNx.h"
 #include "SkRasterClip.h"
+#include "SkRasterPipeline.h"
 #include "SkScan.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkVertState.h"
-
-#include "SkArenaAlloc.h"
-#include "SkCoreBlitters.h"
 
 struct Matrix43 {
     float fMat[12];    // column major

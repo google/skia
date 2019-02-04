@@ -72,13 +72,9 @@ public:
             Normal,
             AnalyticAAEnabled,
             AnalyticAAForced,
-            DeltaAAEnabled,
-            DeltaAAForced,
         } fAntiAliasState = AntiAliasState::Alias;
         const bool fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
         const bool fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
-        const bool fOriginalSkUseDeltaAA = gSkUseDeltaAA;
-        const bool fOriginalSkForceDeltaAA = gSkForceDeltaAA;
 
         bool fCapType = false;
         bool fJoinType = false;
