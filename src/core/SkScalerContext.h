@@ -431,10 +431,6 @@ private:
 protected:
     // Visible to subclasses so that generateImage can apply the pre-blend directly.
     const SkMaskGamma::PreBlend fPreBlend;
-private:
-    // When there is a filter, previous steps must create a linear mask
-    // and the pre-blend applied as a final step.
-    const SkMaskGamma::PreBlend fPreBlendForFilter;
 };
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
