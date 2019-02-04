@@ -16,6 +16,24 @@
       "revId": "21893fa1a0dc9f769846ebef90f1820204165c1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f213b62d_5d0857ab",
+        "filename": "gm/3dgm.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T17:36:53Z",
+      "side": 1,
+      "message": "Agreed- definitely open to ideas.\n\nThere are 3 different outcomes a GM can have:\n\n1) Success\n2) Fail (which is what happened here. We don\u0027t want to silently hide failures.)\n3) Test is N/A (for example, not having hardware support for the window rectangles test)\n\nHere\u0027s a new idea:\n\nWe could define an enum with 3 different values to return from onDraw -- kSuccess, kFail, and kTestNotApplicable. onDraw returns one of these 3 values, and additionally, we add \"SkString fErrorMessage\" to the GM class and onDraw can set that with relevant info upon returning kFail or kTestNotApplicable.\n\nThoughts?",
+      "parentUuid": "e9504461_36ab1a5e",
+      "revId": "21893fa1a0dc9f769846ebef90f1820204165c1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
