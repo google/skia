@@ -87,6 +87,9 @@ const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
+#if SK_METAL && defined(SK_BUILD_FOR_MAC)
+    "Metal",
+#endif
     "Raster"
 };
 
@@ -1510,6 +1513,10 @@ void Viewer::drawImGui() {
 #if defined(SK_VULKAN)
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
+#endif
+#if defined(SK_METAL)
+                ImGui::SameLine();
+                ImGui::RadioButton("Metal", &newBackend, sk_app::Window::kMetal_BackendType);
 #endif
                 if (newBackend != fBackendType) {
                     fDeferredActions.push_back([=]() {
