@@ -37,10 +37,27 @@ struct GrContextOptions;
 #define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR)\
     DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, SkString(#NAME))
 #define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR)         \
-    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);               \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS);                \
     DEF_GM(return new skiagm::SimpleGM(NAME_STR, SK_MACRO_CONCAT(NAME, _GM), \
                                        SkISize::Make(W, H), BGCOLOR);)       \
-    void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
+    void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas* CANVAS)
+
+
+// A SimpleGpuGM is a SimpleGM that makes direct GPU calls. It uses a new onDraw hook that includes
+// GPU objects as params, and is only invoked on GPU configs. Non-GPU configs automatically draw
+// a GPU-only message and abort.
+#define DEF_SIMPLE_GPU_GM(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H) \
+    DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, SK_ColorWHITE)
+
+#define DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, BGCOLOR)       \
+    static void SK_MACRO_CONCAT(NAME, _GM)(GrContext* GR_CONTEXT,                                  \
+                                           GrRenderTargetContext* RENDER_TARGET_CONTEXT,           \
+                                           SkCanvas* CANVAS);                                      \
+    DEF_GM(return new skiagm::SimpleGpuGM(SkString(#NAME), SK_MACRO_CONCAT(NAME, _GM),             \
+                                          SkISize::Make(W, H), BGCOLOR);)                          \
+    static void SK_MACRO_CONCAT(NAME, _GM)(GrContext* GR_CONTEXT,                                  \
+                                           GrRenderTargetContext* RENDER_TARGET_CONTEXT,           \
+                                           SkCanvas* CANVAS)
 
 namespace skiagm {
 
@@ -129,18 +146,43 @@ namespace skiagm {
                  void (*drawProc)(SkCanvas*),
                  const SkISize& size,
                  SkColor backgroundColor)
-            : fName(name), fDrawProc(drawProc), fSize(size) {
+            : fName(name), fDrawProc(drawProc), fSize(size)
+        {
             if (backgroundColor != SK_ColorWHITE) {
                 this->setBGColor(backgroundColor);
             }
         }
-    protected:
-        void onDraw(SkCanvas* canvas) override;
-        SkISize onISize() override;
-        SkString onShortName() override;
+
     private:
+        void onDraw(SkCanvas*) override;
+        SkISize onISize() override { return fSize; }
+        SkString onShortName() override { return fName; }
+
         SkString fName;
         void (*fDrawProc)(SkCanvas*);
+        SkISize fSize;
+    };
+
+    class SimpleGpuGM : public skiagm::GM {
+    public:
+        SimpleGpuGM(const SkString& name,
+                    void (*drawProc)(GrContext*, GrRenderTargetContext*, SkCanvas*),
+                    const SkISize& size,
+                    SkColor backgroundColor)
+            : fName(name), fDrawProc(drawProc), fSize(size)
+        {
+            if (backgroundColor != SK_ColorWHITE) {
+                this->setBGColor(backgroundColor);
+            }
+        }
+
+    private:
+        void onDraw(SkCanvas*) final;
+        SkISize onISize() override { return fSize; }
+        SkString onShortName() override { return fName; }
+
+        SkString fName;
+        void (*fDrawProc)(GrContext*, GrRenderTargetContext*, SkCanvas*);
         SkISize fSize;
     };
 }
