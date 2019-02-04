@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1dc44a_e059fd3e",
+        "filename": "src/core/SkTypeface.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-02-04T20:05:49Z",
+      "side": 1,
+      "message": "This is a bug. Let me make this thread safe.",
+      "range": {
+        "startLine": 410,
+        "startChar": 3,
+        "endLine": 413,
+        "endChar": 0
+      },
+      "revId": "2d0d712349410fec8c3f570d3f036042722517c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
