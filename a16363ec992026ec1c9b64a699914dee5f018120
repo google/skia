@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fba52d6_552c8c38",
+        "filename": "include/private/GrContext_Base.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-02-04T14:44:32Z",
+      "side": 1,
+      "message": "It seems like either fOptions should be private or we should delete options().",
+      "revId": "a16363ec992026ec1c9b64a699914dee5f018120",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
