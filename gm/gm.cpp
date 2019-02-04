@@ -113,16 +113,26 @@ void GM::DrawFailureMessage(SkCanvas* canvas, const char format[], ...)  {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-void skiagm::SimpleGM::onDraw(SkCanvas* canvas) {
-    fDrawProc(canvas);
+SimpleGM* SimpleGM::Create(
+        const SkString& name, std::function<void(SkCanvas*)> drawProc, const SkISize& size,
+        SkColor backgroundColor) {
+    return new SimpleGM(name, std::move(drawProc), size, backgroundColor);
 }
 
-SkISize skiagm::SimpleGM::onISize() {
-    return fSize;
-}
-
-SkString skiagm::SimpleGM::onShortName() {
-    return fName;
+SimpleGM* SimpleGM::CreateForGPU(
+        const SkString& name,
+        std::function<void(GrContext*, GrRenderTargetContext*, SkCanvas*)> gpuDrawProc,
+        const SkISize& size, SkColor backgroundColor) {
+    auto drawProc = [gpuDrawProc](SkCanvas* canvas) {
+        GrContext* ctx = canvas->getGrContext();
+        GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!ctx || !rtc) {
+            DrawGpuOnlyMessage(canvas);
+            return;
+        }
+        gpuDrawProc(ctx, rtc, canvas);
+    };
+    return new SimpleGM(name, drawProc, size, backgroundColor);
 }
 
 template <typename Fn>
