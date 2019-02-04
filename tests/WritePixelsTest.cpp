@@ -453,7 +453,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu, reporter, ctxInfo) {
 
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter, GrContext* context,
                                           int sampleCnt) {
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
@@ -505,7 +505,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // in between uses of the shared backing resource).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     static const int kFullSize = 62;
     static const int kHalfSize = 31;
@@ -530,11 +530,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
                 format, desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kApprox, SkBudgeted::kYes);
-        temp->instantiate(context->contextPriv().resourceProvider());
+        temp->instantiate(context->priv().resourceProvider());
     }
 
     // Create the surfaces and flush them to ensure there is no lingering pendingIO

@@ -34,7 +34,7 @@ const GrColorType kColorType = GrColorType::kRGBA_8888;
 
 void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kColorType, false,
@@ -87,7 +87,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kColorType, true,
@@ -129,7 +129,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kColorType, true,

@@ -44,7 +44,7 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 static void setup_always_evict_atlas(GrContext* context) {
-    context->contextPriv().getAtlasManager()->setAtlasSizesToMinimum_ForTesting();
+    context->priv().getAtlasManager()->setAtlasSizesToMinimum_ForTesting();
 }
 
 // This test hammers the GPU textblobcache and font atlas
@@ -58,7 +58,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
         setup_always_evict_atlas(context);
-        context->contextPriv().setTextBlobCacheLimit_ForTesting(0);
+        context->priv().setTextBlobCacheLimit_ForTesting(0);
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kN32_SkColorType, kPremul_SkAlphaType);

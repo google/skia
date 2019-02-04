@@ -319,7 +319,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
-    settings.fSharpenTextures = fGpu->getContext()->contextPriv().sharpenMipmappedTextures();
+    settings.fSharpenTextures = fGpu->getContext()->priv().sharpenMipmappedTextures();
     SkASSERT(!this->fragColorIsInOut());
 
     id<MTLLibrary> vertexLibrary = nil;
