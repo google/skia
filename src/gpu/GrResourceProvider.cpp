@@ -6,13 +6,13 @@
  */
 
 #include "GrResourceProvider.h"
-
+#include "../private/GrSingleOwner.h"
 #include "GrBackendSemaphore.h"
-#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrGpuBuffer.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrProxyProvider.h"
@@ -22,7 +22,6 @@
 #include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
 #include "GrTexturePriv.h"
-#include "../private/GrSingleOwner.h"
 #include "SkGr.h"
 #include "SkMathPriv.h"
 
@@ -285,35 +284,34 @@ sk_sp<GrGpuResource> GrResourceProvider::findResourceByUniqueKey(const GrUniqueK
                                : sk_sp<GrGpuResource>(fCache->findAndRefUniqueResource(key));
 }
 
-sk_sp<const GrBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferType intendedType,
-                                                                 size_t size,
-                                                                 const void* data,
-                                                                 const GrUniqueKey& key) {
-    if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
+sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferType intendedType,
+                                                                    size_t size,
+                                                                    const void* data,
+                                                                    const GrUniqueKey& key) {
+    if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
         return std::move(buffer);
     }
-    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, Flags::kNone,
-                                         data)) {
+    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, data)) {
         // We shouldn't bin and/or cache static buffers.
-        SkASSERT(buffer->sizeInBytes() == size);
+        SkASSERT(buffer->size() == size);
         SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
         SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
         buffer->resourcePriv().setUniqueKey(key);
-        return sk_sp<const GrBuffer>(buffer);
+        return sk_sp<const GrGpuBuffer>(buffer);
     }
     return nullptr;
 }
 
-sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
-                                                                     int patternSize,
-                                                                     int reps,
-                                                                     int vertCount,
-                                                                     const GrUniqueKey& key) {
+sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
+                                                                        int patternSize,
+                                                                        int reps,
+                                                                        int vertCount,
+                                                                        const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
-    sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, GrGpuBufferType::kIndex,
-                                              kStatic_GrAccessPattern, Flags::kNone));
+    sk_sp<GrGpuBuffer> buffer(
+            this->createBuffer(bufferSize, GrGpuBufferType::kIndex, kStatic_GrAccessPattern));
     if (!buffer) {
         return nullptr;
     }
@@ -343,7 +341,7 @@ sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint1
 
 static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
 
-sk_sp<const GrBuffer> GrResourceProvider::createQuadIndexBuffer() {
+sk_sp<const GrGpuBuffer> GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
@@ -360,36 +358,24 @@ sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& 
     return this->gpu()->pathRendering()->createPath(path, style);
 }
 
-sk_sp<GrBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType intendedType,
-                                                 GrAccessPattern accessPattern, Flags flags,
-                                                 const void* data) {
+sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType intendedType,
+                                                    GrAccessPattern accessPattern,
+                                                    const void* data) {
     if (this->isAbandoned()) {
         return nullptr;
     }
     if (kDynamic_GrAccessPattern != accessPattern) {
         return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
     }
-    if (!(flags & Flags::kRequireGpuMemory) &&
-        this->gpu()->caps()->preferClientSideDynamicBuffers() &&
-        GrBufferTypeIsVertexOrIndex(intendedType) &&
-        kDynamic_GrAccessPattern == accessPattern) {
-        return GrBuffer::MakeCPUBacked(this->gpu(), size, intendedType, data);
-    }
-
     // bin by pow2 with a reasonable min
     static const size_t MIN_SIZE = 1 << 12;
     size_t allocSize = SkTMax(MIN_SIZE, GrNextSizePow2(size));
 
     GrScratchKey key;
-    GrBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
-    auto scratchFlags = GrResourceCache::ScratchFlags::kNone;
-    if (flags & Flags::kNoPendingIO) {
-        scratchFlags = GrResourceCache::ScratchFlags::kRequireNoPendingIO;
-    } else {
-        scratchFlags = GrResourceCache::ScratchFlags::kPreferNoPendingIO;
-    }
-    auto buffer = sk_sp<GrBuffer>(static_cast<GrBuffer*>(
-            this->cache()->findAndRefScratchResource(key, allocSize, scratchFlags)));
+    GrGpuBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
+    auto buffer =
+            sk_sp<GrGpuBuffer>(static_cast<GrGpuBuffer*>(this->cache()->findAndRefScratchResource(
+                    key, allocSize, GrResourceCache::ScratchFlags::kNone)));
     if (!buffer) {
         buffer = this->gpu()->createBuffer(allocSize, intendedType, kDynamic_GrAccessPattern);
         if (!buffer) {
@@ -399,7 +385,6 @@ sk_sp<GrBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType in
     if (data) {
         buffer->updateData(data, size);
     }
-    SkASSERT(!buffer->isCPUBacked()); // We should only cache real VBOs.
     return buffer;
 }
 

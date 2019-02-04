@@ -77,7 +77,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
     static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
-                                                     const SkTArray<sk_sp<GrBuffer>>& buffers) {
+                                                     const SkTArray<sk_sp<GrGpuBuffer>>& buffers) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(proxies, buffers));
     }
 
@@ -93,7 +93,8 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies, const SkTArray<sk_sp<GrBuffer>>& buffers)
+    TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+           const SkTArray<sk_sp<GrGpuBuffer>>& buffers)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
         for (const auto& proxy : proxies) {
             fSamplers.emplace_back(proxy);
@@ -185,7 +186,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         SkBudgeted::kYes);
                 {
                     SkTArray<sk_sp<GrTextureProxy>> proxies;
-                    SkTArray<sk_sp<GrBuffer>> buffers;
+                    SkTArray<sk_sp<GrGpuBuffer>> buffers;
                     proxies.push_back(proxy1);
                     auto fp = TestFP::Make(std::move(proxies), std::move(buffers));
                     for (int i = 0; i < parentCnt; ++i) {

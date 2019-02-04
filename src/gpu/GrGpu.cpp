@@ -10,7 +10,6 @@
 
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
-#include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -217,10 +216,10 @@ sk_sp<GrRenderTarget> GrGpu::onWrapVulkanSecondaryCBAsRenderTarget(const SkImage
     return nullptr;
 }
 
-sk_sp<GrBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType,
-                                    GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size, GrGpuBufferType intendedType,
+                                       GrAccessPattern accessPattern, const void* data) {
     this->handleDirtyContext();
-    sk_sp<GrBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
+    sk_sp<GrGpuBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern, data);
     if (!this->caps()->reuseScratchBuffers()) {
         buffer->resourcePriv().removeScratchKey();
     }
@@ -303,7 +302,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
 }
 
 bool GrGpu::transferPixels(GrTexture* texture, int left, int top, int width, int height,
-                           GrColorType bufferColorType, GrBuffer* transferBuffer, size_t offset,
+                           GrColorType bufferColorType, GrGpuBuffer* transferBuffer, size_t offset,
                            size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);

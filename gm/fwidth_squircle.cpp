@@ -141,8 +141,7 @@ private:
             {+1, +1},
         };
         sk_sp<const GrBuffer> vertexBuffer(flushState->resourceProvider()->createBuffer(
-                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern,
-                GrResourceProvider::Flags::kNone, vertices));
+                sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices));
         if (!vertexBuffer) {
             return;
         }
@@ -175,8 +174,7 @@ void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
 
     if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
-        SkTextUtils::DrawString(canvas, "Shader derivatives not supported.", 150,
-                                150 - 8, font, SkPaint(), SkTextUtils::kCenter_Align);
+        DrawFailureMessage(canvas, "Shader derivatives not supported.");
         return;
     }
 

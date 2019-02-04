@@ -9,6 +9,7 @@
 #define GrContext_Base_DEFINED
 
 #include "SkRefCnt.h"
+#include "GrContextOptions.h"
 #include "GrTypes.h"
 
 class GrBaseContextPriv;
@@ -32,7 +33,7 @@ public:
 protected:
     friend class GrBaseContextPriv; // for hidden functions
 
-    GrContext_Base(GrBackendApi backend, uint32_t uniqueID);
+    GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t uniqueID);
 
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
@@ -43,14 +44,20 @@ protected:
      */
     uint32_t contextID() const { return fContextID; }
 
+    /*
+     * The options in effect for this context
+     */
+    const GrContextOptions& options() const { return fOptions; }
+
     GrContext_Base* asBaseContext() { return this; }
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
 
 private:
-    const GrBackendApi fBackend;
-    const uint32_t     fContextID;
+    const GrBackendApi     fBackend;
+    const GrContextOptions fOptions;
+    const uint32_t         fContextID;
 
     typedef SkRefCnt INHERITED;
 };
