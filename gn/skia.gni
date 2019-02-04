@@ -1,0 +1,8 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
+}
+
