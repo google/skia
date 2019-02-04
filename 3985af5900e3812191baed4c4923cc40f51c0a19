@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "57c20e6a_334df0b9",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1835,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-02-04T15:21:07Z",
+      "side": 1,
+      "message": "I disagree on the documentation change here.\n\nAre you sure that users of this API don\u0027t expect kerning?",
+      "revId": "3985af5900e3812191baed4c4923cc40f51c0a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c6c7b09_ef4b737d",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 2
