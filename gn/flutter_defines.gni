@@ -11,7 +11,6 @@ flutter_defines = [
 
   # Remove software rasterizers to save some code size.
   "SK_DISABLE_AAA",
-  "SK_DISABLE_DAA",
 
   # API staging
 
