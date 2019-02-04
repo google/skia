@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "70a0d561_a9461ada",
+        "filename": "gm/fwidth_squircle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "I was under the impression that this change does not affect the actual behavior - the fact that coverage is mediump would cause all calculations in the assignment to it to be performed in mediump, which means fn and fnwidth would be converted to mediump before the divide. It\u0027s been a while since I went over the spec, so I could be mistaken.",
+      "parentUuid": "87d8ca78_14ea19d0",
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cac51e76_166cd1d7",
         "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
         "patchSetId": 4
@@ -39,6 +57,30 @@
       "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7b2c4df_eb868b32",
+        "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "It\u0027s a good change. If it\u0027s slower due to the polyfill, we\u0027ll just change it to an intrinsic.",
+      "parentUuid": "cac51e76_166cd1d7",
+      "range": {
+        "startLine": 80,
+        "startChar": 29,
+        "endLine": 80,
+        "endChar": 46
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "f4b0c2f0_66428f7e",
+        "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ae06142_7559b1b4",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 93,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7df69c5e_274fcfe3",
         "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
         "patchSetId": 4
@@ -135,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "2802a4a9_d46a1f6a",
+        "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "I went ahead and fixed it.",
+      "parentUuid": "a2a4f22a_ecd0eb83",
+      "range": {
+        "startLine": 152,
+        "startChar": 67,
+        "endLine": 152,
+        "endChar": 84
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b099523_c376be8d",
         "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
         "patchSetId": 4
@@ -158,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "f0a23297_f794e907",
+        "filename": "src/gpu/ccpr/GrCCCubicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b099523_c376be8d",
+      "range": {
+        "startLine": 147,
+        "startChar": 4,
+        "endLine": 149,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3342256_2c263048",
         "filename": "src/gpu/ccpr/GrCCQuadraticShader.cpp",
         "patchSetId": 4
@@ -178,6 +292,30 @@
       "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f6b53a8_31b3549e",
+        "filename": "src/gpu/ccpr/GrCCQuadraticShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-02-04T20:55:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3342256_2c263048",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
