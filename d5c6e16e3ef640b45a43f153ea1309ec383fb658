@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ff0a406_5c0e4528",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T13:12:08Z",
+      "side": 0,
+      "message": "Not hitting this?",
+      "revId": "d5c6e16e3ef640b45a43f153ea1309ec383fb658",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
