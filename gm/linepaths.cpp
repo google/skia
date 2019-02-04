@@ -136,8 +136,8 @@ static void draw(SkCanvas* canvas, bool doClose) {
         canvas->restore();
 }
 DEF_SIMPLE_GM(linepath, canvas, 1240, 390) {
-    draw(canvas, false);
+    ::draw(canvas, false);
 }
 DEF_SIMPLE_GM(lineclosepath, canvas, 1240, 390) {
-    draw(canvas, true);
+    ::draw(canvas, true);
 }
