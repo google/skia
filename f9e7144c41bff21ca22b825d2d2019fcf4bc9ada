@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "31d6b6df_aa4e4146",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-04T15:02:16Z",
+      "side": 1,
+      "message": "Done. It\u0027s basically a top-level special case for sanitize, because we used to assume that any sanitize string implied a non-MSVC compiler. In any case, it\u0027s now triggered by sanitize \u003d \"MSVC\", and the GN config is msvc_rtc, to better describe what it\u0027s doing.",
+      "parentUuid": "4a752f0a_ec3e555c",
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87e77240_8fdb8d24",
         "filename": "include/private/SkTFitsIn.h",
         "patchSetId": 6
@@ -130,6 +148,24 @@
       "side": 1,
       "message": "So don\u0027t we want to mask then trunc, rather than truncate the mask?\n\n  ((x \u0026 ~SK_G16_MASK_IN_PLACE) \u0026 0xFFFF) | ((x \u003e\u003e 16) \u0026 SK_G16_MASK_IN_PLACE)\n\n?",
       "parentUuid": "db28f86c_3c20fb61",
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1823aec5_fb797366",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-02-04T15:02:16Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s slightly clearer.",
+      "parentUuid": "66540d9b_dd402b30",
       "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
