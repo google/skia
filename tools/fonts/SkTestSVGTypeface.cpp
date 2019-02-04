@@ -172,13 +172,11 @@ protected:
     }
 
     unsigned generateGlyphCount() override {
-        return this->geTestSVGTypeface()->onCountGlyphs();
+        return this->geTestSVGTypeface()->countGlyphs();
     }
 
     uint16_t generateCharToGlyph(SkUnichar u) override {
-        uint16_t g;
-        (void) this->geTestSVGTypeface()->onCharsToGlyphs(&u, SkTypeface::kUTF32_Encoding, &g, 1);
-        return g;
+        return this->geTestSVGTypeface()->unicharToGlyph(u);
     }
 
     bool generateAdvance(SkGlyph* glyph) override {
