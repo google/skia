@@ -44,7 +44,7 @@ VkPipelineCache GrVkResourceProvider::pipelineCache() {
         createInfo.pNext = nullptr;
         createInfo.flags = 0;
 
-        auto persistentCache = fGpu->getContext()->contextPriv().getPersistentCache();
+        auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
         sk_sp<SkData> cached;
         if (persistentCache) {
             uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
@@ -386,7 +386,7 @@ void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResour
 }
 
 void GrVkResourceProvider::destroyResources(bool deviceLost) {
-    SkTaskGroup* taskGroup = fGpu->getContext()->contextPriv().getTaskGroup();
+    SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->wait();
     }
@@ -447,7 +447,7 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 }
 
 void GrVkResourceProvider::abandonResources() {
-    SkTaskGroup* taskGroup = fGpu->getContext()->contextPriv().getTaskGroup();
+    SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->wait();
     }
@@ -509,7 +509,7 @@ void GrVkResourceProvider::abandonResources() {
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
     SkASSERT(pool->unique());
     pool->releaseResources(fGpu);
-    SkTaskGroup* taskGroup = fGpu->getContext()->contextPriv().getTaskGroup();
+    SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->add([this, pool]() {
             this->reset(pool);
@@ -544,7 +544,7 @@ void GrVkResourceProvider::storePipelineCacheData() {
     uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
     sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));
 
-    fGpu->getContext()->contextPriv().getPersistentCache()->store(
+    fGpu->getContext()->priv().getPersistentCache()->store(
             *keyData, *SkData::MakeWithoutCopy(data.get(), dataSize));
 }
 

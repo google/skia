@@ -366,7 +366,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
 }
 
 sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
-    auto resourceProvider = fGpu->getContext()->contextPriv().resourceProvider();
+    auto resourceProvider = fGpu->getContext()->priv().resourceProvider();
 
     return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern,
             GrResourceProvider::Flags::kNone);

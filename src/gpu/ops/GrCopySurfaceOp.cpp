@@ -81,7 +81,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrContext* context,
         return nullptr;
     }
 
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrCopySurfaceOp>(dstProxy, srcProxy, clippedSrcRect, clippedDstPoint);
 }

@@ -18,14 +18,14 @@
 #if GR_TEST_UTILS
 
 GrResourceProvider* GrProcessorTestData::resourceProvider() {
-    return fContext->contextPriv().resourceProvider();
+    return fContext->priv().resourceProvider();
 }
 
 GrProxyProvider* GrProcessorTestData::proxyProvider() {
-    return fContext->contextPriv().proxyProvider();
+    return fContext->priv().proxyProvider();
 }
 
-const GrCaps* GrProcessorTestData::caps() { return fContext->contextPriv().caps(); }
+const GrCaps* GrProcessorTestData::caps() { return fContext->priv().caps(); }
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 class GrFragmentProcessor;

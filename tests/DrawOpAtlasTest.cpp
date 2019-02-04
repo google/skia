@@ -128,15 +128,15 @@ static bool fill_plot(GrDrawOpAtlas* atlas,
 // add and remove pages. Note that this is simulating flush-time behavior.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     auto context = ctxInfo.grContext();
-    auto proxyProvider = context->contextPriv().proxyProvider();
-    auto resourceProvider = context->contextPriv().resourceProvider();
-    auto drawingManager = context->contextPriv().drawingManager();
+    auto proxyProvider = context->priv().proxyProvider();
+    auto resourceProvider = context->priv().resourceProvider();
+    auto drawingManager = context->priv().drawingManager();
 
     GrOnFlushResourceProvider onFlushResourceProvider(drawingManager);
     TestingUploadTarget uploadTarget;
 
     GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
@@ -182,20 +182,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     auto context = ctxInfo.grContext();
 
-    auto gpu = context->contextPriv().getGpu();
-    auto resourceProvider = context->contextPriv().resourceProvider();
-    auto drawingManager = context->contextPriv().drawingManager();
+    auto gpu = context->priv().getGpu();
+    auto resourceProvider = context->priv().resourceProvider();
+    auto drawingManager = context->priv().drawingManager();
     auto textContext = drawingManager->getTextContext();
-    auto opMemoryPool = context->contextPriv().opMemoryPool();
+    auto opMemoryPool = context->priv().opMemoryPool();
 
     GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    auto rtc =  context->contextPriv().makeDeferredRenderTargetContext(format,
-                                                                       SkBackingFit::kApprox,
-                                                                       32, 32,
-                                                                       kRGBA_8888_GrPixelConfig,
-                                                                       nullptr);
+    auto rtc =  context->priv().makeDeferredRenderTargetContext(format,
+                                                                SkBackingFit::kApprox,
+                                                                32, 32,
+                                                                kRGBA_8888_GrPixelConfig,
+                                                                nullptr);
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
@@ -207,7 +207,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(
             context, textContext, rtc.get(), paint, font, SkMatrix::I(), text, 16, 16);
-    op->finalize(*context->contextPriv().caps(), nullptr);
+    op->finalize(*context->priv().caps(), nullptr);
 
     TestingUploadTarget uploadTarget;
 
@@ -222,7 +222,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     // Cripple the atlas manager so it can't allocate any pages. This will force a failure
     // in the preparation of the text op
-    auto atlasManager = context->contextPriv().getAtlasManager();
+    auto atlasManager = context->priv().getAtlasManager();
     unsigned int numProxies;
     atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
     atlasManager->setMaxPages_TestingOnly(0);

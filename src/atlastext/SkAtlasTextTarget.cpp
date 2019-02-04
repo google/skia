@@ -87,7 +87,7 @@ public:
             : GrTextTarget(width, height, kColorSpaceInfo)
             , SkAtlasTextTarget(std::move(context), width, height, handle)
             , fGlyphPainter(kProps, kColorSpaceInfo) {
-        fOpMemoryPool = fContext->internal().grContext()->contextPriv().refOpMemoryPool();
+        fOpMemoryPool = fContext->internal().grContext()->priv().refOpMemoryPool();
     }
 
     ~SkInternalAtlasTextTarget() override {
@@ -155,7 +155,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
 
     SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
     auto* grContext = this->context()->internal().grContext();
-    auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
+    auto atlasTextContext = grContext->priv().drawingManager()->getTextContext();
     SkGlyphRunBuilder builder;
     builder.drawGlyphsWithPositions(paint, font.makeFont(),
                                     SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)},
@@ -173,7 +173,7 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     if (op->maskType() != GrAtlasTextOp::kGrayscaleDistanceField_MaskType) {
         return;
     }
-    const GrCaps& caps = *this->context()->internal().grContext()->contextPriv().caps();
+    const GrCaps& caps = *this->context()->internal().grContext()->priv().caps();
     op->finalizeForTextTarget(fColor, caps);
     int n = SkTMin(kMaxBatchLookBack, fOps.count());
     for (int i = 0; i < n; ++i) {
@@ -219,9 +219,9 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     SkExclusiveStrikePtr autoGlyphCache;
     auto& context = target->context()->internal();
-    auto glyphCache = context.grContext()->contextPriv().getGlyphCache();
-    auto atlasManager = context.grContext()->contextPriv().getAtlasManager();
-    auto resourceProvider = context.grContext()->contextPriv().resourceProvider();
+    auto glyphCache = context.grContext()->priv().getGlyphCache();
+    auto atlasManager = context.grContext()->priv().getAtlasManager();
+    auto resourceProvider = context.grContext()->priv().resourceProvider();
 
     unsigned int numProxies;
     if (!atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)) {

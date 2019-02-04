@@ -321,10 +321,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     SkColorType colorType = outputProperties.colorType();
     GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(colorType);
+            context->priv().caps()->getBackendFormatFromColorType(colorType);
 
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        context->contextPriv().makeDeferredRenderTargetContext(
+        context->priv().makeDeferredRenderTargetContext(
                                     format, SkBackingFit::kApprox, bounds.width(), bounds.height(),
                                     SkColorType2GrPixelConfig(colorType),
                                     sk_ref_sp(outputProperties.colorSpace())));

@@ -70,7 +70,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     SkASSERT(filter);
     SkASSERT(!shape.style().applies());
 
-    auto proxyProvider = context->contextPriv().proxyProvider();
+    auto proxyProvider = context->priv().proxyProvider();
 
     sk_sp<GrTextureProxy> filteredMask;
 
@@ -176,9 +176,9 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
                                              const GrShape& shape,
                                              int sampleCnt) {
     GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> rtContext(
-        context->contextPriv().makeDeferredRenderTargetContextWithFallback(
+        context->priv().makeDeferredRenderTargetContextWithFallback(
             format, SkBackingFit::kApprox, maskRect.width(), maskRect.height(),
             kAlpha_8_GrPixelConfig, nullptr, sampleCnt, GrMipMapped::kNo,
             kTopLeft_GrSurfaceOrigin));
@@ -388,7 +388,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
 
         sk_sp<GrTextureProxy> filteredMask;
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         if (maskKey.isValid()) {
             // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
