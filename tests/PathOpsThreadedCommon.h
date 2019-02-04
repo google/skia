@@ -55,10 +55,10 @@ class PathOpsThreadedRunnable {
 public:
     PathOpsThreadedRunnable(void (*testFun)(PathOpsThreadState*), int a, int b, int c, int d,
             PathOpsThreadedTestRunner* runner) {
-        fState.fA = a;
-        fState.fB = b;
-        fState.fC = c;
-        fState.fD = d;
+        fState.fA = (a & 0xFF);
+        fState.fB = (b & 0xFF);
+        fState.fC = (c & 0xFF);
+        fState.fD = (d & 0xFF);
         fState.fReporter = runner->fReporter;
         fTestFun = testFun;
     }
