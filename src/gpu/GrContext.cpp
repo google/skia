@@ -426,7 +426,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath =
-            !fContext->contextPriv().caps()->avoidWritePixelsFastPath() &&
+            !fContext->priv().caps()->avoidWritePixelsFastPath() &&
             premul &&
             !dst->colorSpaceInfo().colorSpace() &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
@@ -434,7 +434,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
              dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
             !(pixelOpsFlags & kDontFlush_PixelOpsFlag) &&
-            fContext->contextPriv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
+            fContext->priv().caps()->isConfigTexturable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
     const GrCaps* caps = this->caps();
@@ -455,7 +455,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         if (canvas2DFastPath) {
             desc.fConfig = kRGBA_8888_GrPixelConfig;
             format =
-              fContext->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+              fContext->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
         } else {
             desc.fConfig =  dstProxy->config();
             format = dstProxy->backendFormat().makeTexture2D();
@@ -511,7 +511,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
         return false;
     }
 
-    GrColorType allowedColorType = fContext->contextPriv().caps()->supportedWritePixelsColorType(
+    GrColorType allowedColorType = fContext->priv().caps()->supportedWritePixelsColorType(
             dstProxy->config(), srcColorType);
     convert = convert || (srcColorType != allowedColorType);
 
@@ -627,10 +627,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
             SkToBool(srcProxy->asTextureProxy()) &&
             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
              srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
-            fContext->contextPriv().caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
+            fContext->priv().caps()->isConfigRenderable(kRGBA_8888_GrPixelConfig) &&
             fContext->validPMUPMConversionExists();
 
-    if (!fContext->contextPriv().caps()->surfaceSupportsReadPixels(srcSurface) ||
+    if (!fContext->priv().caps()->surfaceSupportsReadPixels(srcSurface) ||
         canvas2DFastPath) {
         GrSurfaceDesc desc;
         desc.fFlags = canvas2DFastPath ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
@@ -703,7 +703,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         top = srcSurface->height() - top - height;
     }
 
-    GrColorType allowedColorType = fContext->contextPriv().caps()->supportedReadPixelsColorType(
+    GrColorType allowedColorType = fContext->priv().caps()->supportedReadPixelsColorType(
             srcProxy->config(), dstColorType);
     convert = convert || (dstColorType != allowedColorType);
 
@@ -997,7 +997,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithF
                                                                  SkBudgeted budgeted) {
     GrBackendFormat localFormat = format;
     SkASSERT(sampleCnt > 0);
-    if (0 == fContext->contextPriv().caps()->getRenderTargetSampleCount(sampleCnt, config)) {
+    if (0 == fContext->priv().caps()->getRenderTargetSampleCount(sampleCnt, config)) {
         config = GrPixelConfigFallback(config);
         // TODO: First we should be checking the getRenderTargetSampleCount from the GrBackendFormat
         // and not GrPixelConfig. Besides that, we should implement the fallback in the caps, but

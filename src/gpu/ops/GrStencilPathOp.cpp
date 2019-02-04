@@ -21,7 +21,7 @@ std::unique_ptr<GrOp> GrStencilPathOp::Make(GrContext* context,
                                             bool hasStencilClip,
                                             const GrScissorState& scissor,
                                             const GrPath* path) {
-    GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
     return pool->allocate<GrStencilPathOp>(viewMatrix, useHWAA, fillType,
                                            hasStencilClip, scissor, path);

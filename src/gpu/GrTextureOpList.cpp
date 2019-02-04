@@ -148,7 +148,7 @@ bool GrTextureOpList::copySurface(GrContext* context,
         return false;
     }
 
-    const GrCaps* caps = context->contextPriv().caps();
+    const GrCaps* caps = context->priv().caps();
     auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
         this->addDependency(p, *caps);
     };

@@ -215,7 +215,7 @@ public:
                                           SkPaint::Cap cap,
                                           AAMode aaMode, bool fullDash,
                                           const GrUserStencilSettings* stencilSettings) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<DashOp>(std::move(paint), geometry, cap,
                                       aaMode, fullDash, stencilSettings);

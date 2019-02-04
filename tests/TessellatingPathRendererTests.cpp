@@ -668,8 +668,8 @@ static void test_path(GrContext* ctx,
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
     const GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
-    sk_sp<GrRenderTargetContext> rtc(ctx->contextPriv().makeDeferredRenderTargetContext(
+            ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+    sk_sp<GrRenderTargetContext> rtc(ctx->priv().makeDeferredRenderTargetContext(
             format, SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1,
             GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!rtc) {

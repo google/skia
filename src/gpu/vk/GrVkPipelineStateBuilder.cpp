@@ -222,7 +222,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String& vert,
 
     SkASSERT(offset == dataLength);
 
-    this->gpu()->getContext()->contextPriv().getPersistentCache()->store(
+    this->gpu()->getContext()->priv().getPersistentCache()->store(
                                                   *key,
                                                   *SkData::MakeWithoutCopy(data.get(), dataLength));
 }
@@ -277,11 +277,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
-                    this->gpu()->getContext()->contextPriv().options().fSharpenMipmappedTextures;
+                        this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     SkASSERT(!this->fragColorIsInOut());
 
     sk_sp<SkData> cached;
-    auto persistentCache = fGpu->getContext()->contextPriv().getPersistentCache();
+    auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
         sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
         cached = persistentCache->load(*key);

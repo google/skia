@@ -167,7 +167,7 @@ public:
         // on before releasing the GrVkSecondaryCBDrawContext resources. To simulate that for this
         // test (and since we are running single threaded anyways), we will just force a sync of
         // the gpu and cpu here.
-        td->fContext->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+        td->fContext->priv().getGpu()->testingOnly_flushGpuAndSync();
 
         td->fDrawContext->releaseResources();
         // We release the GrContext here manually to test that we waited long enough before
@@ -216,7 +216,7 @@ private:
 };
 
 void draw_drawable_test(skiatest::Reporter* reporter, GrContext* context, GrContext* childContext) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->priv().getGpu());
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);

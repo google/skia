@@ -303,9 +303,9 @@ private:
     friend class GrContext; // to construct/copy this type.
 };
 
-inline GrContextPriv GrContext::contextPriv() { return GrContextPriv(this); }
+inline GrContextPriv GrContext::priv() { return GrContextPriv(this); }
 
-inline const GrContextPriv GrContext::contextPriv () const {
+inline const GrContextPriv GrContext::priv() const {
     return GrContextPriv(const_cast<GrContext*>(this));
 }
 

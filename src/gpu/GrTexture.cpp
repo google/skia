@@ -57,7 +57,7 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
         return false;
     }
 #ifdef SK_DEBUG
-    GrResourceCache* cache = texture->getContext()->contextPriv().getResourceCache();
+    GrResourceCache* cache = texture->getContext()->priv().getResourceCache();
     int preCount = cache->getResourceCount();
 #endif
     // Ensure that the texture will be released by the cache when we drop the last ref.

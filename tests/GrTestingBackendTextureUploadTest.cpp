@@ -25,7 +25,7 @@ void testing_only_texture_test(skiatest::Reporter* reporter, GrContext* context,
     }
     SkAutoTMalloc<GrColor> dstBuffer(kWidth * kHeight);
 
-    GrGpu* gpu = context->contextPriv().getGpu();
+    GrGpu* gpu = context->priv().getGpu();
 
     GrPixelConfig config = GrColorTypeToPixelConfig(ct, GrSRGBEncoded::kNo);
     if (!gpu->caps()->isConfigTexturable(config)) {

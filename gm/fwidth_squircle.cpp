@@ -116,7 +116,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* ctx, const SkMatrix& viewMatrix) {
-        GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
         return pool->allocate<FwidthSquircleTestOp>(viewMatrix);
     }
 
@@ -173,7 +173,7 @@ void FwidthSquircleGM::onDraw(SkCanvas* canvas) {
         return;
     }
 
-    if (!ctx->contextPriv().caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
         SkFont font(sk_tool_utils::create_portable_typeface(), 15);
         DrawFailureMessage(canvas, "Shader derivatives not supported.");
         return;

@@ -48,7 +48,7 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
@@ -77,7 +77,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
-        sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
+        sk_sp<GrSurfaceContext> sContext(context->priv().makeWrappedSurfaceContext(
                                                                   std::move(proxy)));
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -195,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
-            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+            sk_sp<GrSurfaceContext> sContext = context->priv().makeWrappedSurfaceContext(
                     std::move(proxy));
 
             for (auto rowBytes : kRowBytes) {

@@ -41,7 +41,7 @@ private:
         out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     rtc->width(), rtc->height(),
-                                                    *context->contextPriv().caps()));
+                                                    *context->priv().caps()));
         return true;
     }
     bool quickContains(const SkRect&) const final { return false; }
@@ -60,9 +60,9 @@ class CCPRPathDrawer {
 public:
     CCPRPathDrawer(sk_sp<GrContext> ctx, skiatest::Reporter* reporter, bool doStroke)
             : fCtx(ctx)
-            , fCCPR(fCtx->contextPriv().drawingManager()->getCoverageCountingPathRenderer())
-            , fRTC(fCtx->contextPriv().makeDeferredRenderTargetContext(
-                ctx->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType),
+            , fCCPR(fCtx->priv().drawingManager()->getCoverageCountingPathRenderer())
+            , fRTC(fCtx->priv().makeDeferredRenderTargetContext(
+                ctx->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType),
                 SkBackingFit::kExact, kCanvasSize, kCanvasSize, kRGBA_8888_GrPixelConfig,
                 nullptr))
             , fDoStroke(doStroke) {
@@ -388,11 +388,11 @@ private:
 
     void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) final {
         RecordLastMockAtlasIDs atlasIDRecorder(sk_ref_sp(ccpr.ccpr()));
-        ccpr.ctx()->contextPriv().addOnFlushCallbackObject(&atlasIDRecorder);
+        ccpr.ctx()->priv().addOnFlushCallbackObject(&atlasIDRecorder);
 
         this->onRun(reporter, ccpr, atlasIDRecorder);
 
-        ccpr.ctx()->contextPriv().testingOnly_flushAndRemoveOnFlushCallbackObject(&atlasIDRecorder);
+        ccpr.ctx()->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&atlasIDRecorder);
     }
 
     virtual void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr,
@@ -858,7 +858,7 @@ DEF_CCPR_TEST(CCPR_unrefPerOpListPathsBeforeOps)
 class CCPRRenderingTest {
 public:
     void run(skiatest::Reporter* reporter, GrContext* ctx, bool doStroke) const {
-        if (!ctx->contextPriv().drawingManager()->getCoverageCountingPathRenderer()) {
+        if (!ctx->priv().drawingManager()->getCoverageCountingPathRenderer()) {
             return; // CCPR is not enabled on this GPU.
         }
         CCPRPathDrawer ccpr(sk_ref_sp(ctx), reporter, doStroke);

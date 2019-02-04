@@ -88,7 +88,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return curContext == context ? sk_sp<SkSpecialImage>(SkRef(this)) : nullptr;
     }
 
-    auto proxyProvider = context->contextPriv().proxyProvider();
+    auto proxyProvider = context->priv().proxyProvider();
     SkBitmap bmp;
     // At this point, we are definitely not texture-backed, so we must be raster or generator
     // backed. If we remove the special-wrapping-an-image subclass, we may be able to assert that
@@ -192,7 +192,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrContext* context,
 
 #if SK_SUPPORT_GPU
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
-        if (as_IB(image)->contextID() != context->contextPriv().contextID()) {
+        if (as_IB(image)->contextID() != context->priv().contextID()) {
             return nullptr;
         }
 
@@ -245,7 +245,7 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const override {
         if (context) {
-            return GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), fBitmap);
+            return GrMakeCachedBitmapProxy(context->priv().proxyProvider(), fBitmap);
         }
 
         return nullptr;
@@ -431,7 +431,7 @@ public:
         if (!rec) {
             return false;
         }
-        sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
+        sk_sp<GrSurfaceContext> sContext = fContext->priv().makeWrappedSurfaceContext(
                 fTextureProxy, fColorSpace);
         if (!sContext) {
             return false;
@@ -459,7 +459,7 @@ public:
         }
 
         GrBackendFormat format =
-            fContext->contextPriv().caps()->getBackendFormatFromColorType(outProps.colorType());
+            fContext->priv().caps()->getBackendFormatFromColorType(outProps.colorType());
 
         return SkSpecialSurface::MakeRenderTarget(
             fContext, format, size.width(), size.height(),

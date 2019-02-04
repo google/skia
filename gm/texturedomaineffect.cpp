@@ -95,7 +95,7 @@ protected:
             return;
         }
 
-        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
         if (fFilter == GrSamplerState::Filter::kMipMap) {
             SkBitmap copy;

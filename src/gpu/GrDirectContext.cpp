@@ -33,7 +33,7 @@ public:
     ~GrDirectContext() override {
         // this if-test protects against the case where the context is being destroyed
         // before having been fully created
-        if (this->contextPriv().getGpu()) {
+        if (this->priv().getGpu()) {
             this->flush();
         }
 
@@ -80,13 +80,13 @@ protected:
             allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
         }
 
-        GrStrikeCache* glyphCache = this->contextPriv().getGlyphCache();
-        GrProxyProvider* proxyProvider = this->contextPriv().proxyProvider();
+        GrStrikeCache* glyphCache = this->priv().getGlyphCache();
+        GrProxyProvider* proxyProvider = this->priv().proxyProvider();
 
         fAtlasManager = new GrAtlasManager(proxyProvider, glyphCache,
                                            this->options().fGlyphCacheTextureMaximumBytes,
                                            allowMultitexturing);
-        this->contextPriv().addOnFlushCallbackObject(fAtlasManager);
+        this->priv().addOnFlushCallbackObject(fAtlasManager);
 
         return true;
     }

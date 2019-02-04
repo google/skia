@@ -251,7 +251,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool doBicubic;
     GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
             paint.getFilterQuality(), viewMatrix, srcToDstMatrix,
-            fContext->contextPriv().options().fSharpenMipmappedTextures, &doBicubic);
+            fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     const GrSamplerState::Filter* filterMode = doBicubic ? nullptr : &fm;
 
     GrTextureProducer::FilterConstraint constraintMode;

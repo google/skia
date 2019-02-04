@@ -196,9 +196,9 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
     const GrBackendFormat format =
-            ctx->contextPriv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
+            ctx->priv().caps()->getBackendFormatFromColorType(kAlpha_8_SkColorType);
     sk_sp<GrRenderTargetContext> maskRTC(
-        ctx->contextPriv().makeDeferredRenderTargetContextWithFallback(
+        ctx->priv().makeDeferredRenderTargetContextWithFallback(
                                                          format, SkBackingFit::kExact,
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,

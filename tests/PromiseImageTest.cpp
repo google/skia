@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTestNoDelayedRelease, reporter, c
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     for (bool releaseImageEarly : {true, false}) {
         GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
@@ -295,7 +295,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTestDelayedRelease, reporter, ctx
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
             nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, true, GrMipMapped::kNo);
@@ -418,7 +418,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
             nullptr, kWidth, kHeight, GrColorType::kRGBA_8888, false, GrMipMapped::kNo);
@@ -493,7 +493,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
         texKey1 = keys[0];
     }
     REPORTER_ASSERT(reporter, texKey1.isValid());
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey1));
+    REPORTER_ASSERT(reporter, ctx->priv().resourceProvider()->findByUniqueKey<>(texKey1));
 
     gpu->testingOnly_flushGpuAndSync();
     balanceExpecation = ReleaseBalanceExpecation::kBalanced;
@@ -509,10 +509,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
                             promiseChecker.replaceTexture()->backendTexture(), backendTex1));
     gpu->deleteTestingOnlyBackendTexture(backendTex1);
 
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+    ctx->priv().getResourceCache()->purgeAsNeeded();
     // We should have invalidated the key on the previously cached texture (after ensuring
     // invalidation messages have been processed by calling purgeAsNeeded.)
-    REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey1));
+    REPORTER_ASSERT(reporter, !ctx->priv().resourceProvider()->findByUniqueKey<>(texKey1));
 
     promiseChecker.replaceTexture(backendTex2);
 
@@ -539,7 +539,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
         texKey2 = keys[0];
     }
     REPORTER_ASSERT(reporter, texKey2.isValid() && texKey2 != texKey1);
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
+    REPORTER_ASSERT(reporter, ctx->priv().resourceProvider()->findByUniqueKey<>(texKey2));
 
     REPORTER_ASSERT(reporter, check_fulfill_and_release_cnts(promiseChecker,
                                                              balanceExpecation,
@@ -563,8 +563,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
 
     // Because we have kept the SkPromiseImageTexture alive, we should be able to use it again and
     // hit the cache.
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
+    ctx->priv().getResourceCache()->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, ctx->priv().resourceProvider()->findByUniqueKey<>(texKey2));
 
     canvas->drawImage(refImg, 0, 0);
 
@@ -586,8 +586,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     if (keys.count()) {
         REPORTER_ASSERT(reporter, texKey2 == keys[0]);
     }
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
+    ctx->priv().getResourceCache()->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, ctx->priv().resourceProvider()->findByUniqueKey<>(texKey2));
 
     // Now we test keeping tex2 alive but fulfilling with a new texture.
     sk_sp<const SkPromiseImageTexture> promiseImageTexture2 =
@@ -615,9 +615,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     if (keys.count()) {
         texKey3 = keys[0];
     }
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey2));
-    REPORTER_ASSERT(reporter, ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));
+    ctx->priv().getResourceCache()->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, !ctx->priv().resourceProvider()->findByUniqueKey<>(texKey2));
+    REPORTER_ASSERT(reporter, ctx->priv().resourceProvider()->findByUniqueKey<>(texKey3));
     gpu->deleteTestingOnlyBackendTexture(promiseImageTexture2->backendTexture());
 
     // Make a new promise image also backed by texture 3.
@@ -654,15 +654,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuse, reporter, ctxInfo) 
     if (keys.count() > 0) {
         REPORTER_ASSERT(reporter, texKey3 == keys[0]);
     }
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+    ctx->priv().getResourceCache()->purgeAsNeeded();
 
     // If we delete the SkPromiseImageTexture we should trigger both key removals.
     REPORTER_ASSERT(reporter,
                     GrBackendTexture::TestingOnly_Equals(
                             promiseChecker.replaceTexture()->backendTexture(), backendTex3));
 
-    ctx->contextPriv().getResourceCache()->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, !ctx->contextPriv().resourceProvider()->findByUniqueKey<>(texKey3));
+    ctx->priv().getResourceCache()->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, !ctx->priv().resourceProvider()->findByUniqueKey<>(texKey3));
     gpu->deleteTestingOnlyBackendTexture(backendTex3);
 
     // After deleting each image we should get a done call.
@@ -695,7 +695,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex1 = gpu->createTestingOnlyBackendTexture(
             nullptr, kWidth, kHeight, GrColorType::kGray_8, false, GrMipMapped::kNo);
@@ -756,12 +756,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
 
         // Because they use different configs, each image should have created a different GrTexture
         // and they both should still be cached.
-        ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+        ctx->priv().getResourceCache()->purgeAsNeeded();
 
         auto keys = promiseChecker.uniqueKeys();
         REPORTER_ASSERT(reporter, keys.count() == 2);
         for (const auto& key : keys) {
-            auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+            auto surf = ctx->priv().resourceProvider()->findByUniqueKey<GrSurface>(key);
             REPORTER_ASSERT(reporter, surf && surf->asTexture());
             if (surf && surf->asTexture()) {
                 REPORTER_ASSERT(reporter,
@@ -772,10 +772,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
 
         // Change the backing texture, this should invalidate the keys.
         promiseChecker.replaceTexture();
-        ctx->contextPriv().getResourceCache()->purgeAsNeeded();
+        ctx->priv().getResourceCache()->purgeAsNeeded();
 
         for (const auto& key : keys) {
-            auto surf = ctx->contextPriv().resourceProvider()->findByUniqueKey<GrSurface>(key);
+            auto surf = ctx->priv().resourceProvider()->findByUniqueKey<GrSurface>(key);
             REPORTER_ASSERT(reporter, !surf);
         }
     }
@@ -814,7 +814,7 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             if (!ctx) {
                 continue;
             }
-            GrGpu* gpu = ctx->contextPriv().getGpu();
+            GrGpu* gpu = ctx->priv().getGpu();
 
             GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                     nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
@@ -863,7 +863,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
+    GrGpu* gpu = ctx->priv().getGpu();
 
     GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
             nullptr, kWidth, kHeight, GrColorType::kAlpha_8, false, GrMipMapped::kNo);
@@ -893,7 +893,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
         GrSurfaceDesc desc;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
-        textures[i] = ctx->contextPriv().resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+        textures[i] = ctx->priv().resourceProvider()->createTexture(desc, SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, textures[i]);
     }
 

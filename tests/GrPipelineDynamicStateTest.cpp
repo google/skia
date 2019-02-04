@@ -113,7 +113,7 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrScissorTest scissorTest,
                                           sk_sp<const GrBuffer> vbuff) {
-        GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         return pool->allocate<GrPipelineDynamicStateTestOp>(scissorTest, std::move(vbuff));
     }
@@ -158,12 +158,12 @@ private:
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrResourceProvider* rp = context->contextPriv().resourceProvider();
+    GrResourceProvider* rp = context->priv().resourceProvider();
 
     const GrBackendFormat format =
-            context->contextPriv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
+            context->priv().caps()->getBackendFormatFromColorType(kRGBA_8888_SkColorType);
 
-    sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeDeferredRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc(context->priv().makeDeferredRenderTargetContext(
                                                  format, SkBackingFit::kExact, kScreenSize,
                                                  kScreenSize, kRGBA_8888_GrPixelConfig, nullptr));
     if (!rtc) {
