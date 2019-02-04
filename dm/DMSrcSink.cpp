@@ -1436,7 +1436,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
     sk_sp<SkSurface> surface;
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
-    const int maxDimension = context->contextPriv().caps()->maxTextureSize();
+    const int maxDimension = context->priv().caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
@@ -1450,7 +1450,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                                                   &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
+            backendTexture = context->priv().getGpu()->createTestingOnlyBackendTexture(
                     nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
@@ -1459,7 +1459,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
             if (1 == fSampleCount) {
                 auto colorType = SkColorTypeToGrColorType(info.colorType());
-                backendRT = context->contextPriv().getGpu()->createTestingOnlyBackendRenderTarget(
+                backendRT = context->priv().getGpu()->createTestingOnlyBackendRenderTarget(
                         info.width(), info.height(), colorType);
                 surface = SkSurface::MakeFromBackendRenderTarget(
                         context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
@@ -1481,8 +1481,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     canvas->flush();
     if (FLAGS_gpuStats) {
-        canvas->getGrContext()->contextPriv().dumpCacheStats(log);
-        canvas->getGrContext()->contextPriv().dumpGpuStats(log);
+        canvas->getGrContext()->priv().dumpCacheStats(log);
+        canvas->getGrContext()->priv().dumpGpuStats(log);
     }
     if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
         info.colorType() == kRGB_888x_SkColorType) {
@@ -1501,10 +1501,10 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!context->abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTexture);
+            context->priv().getGpu()->deleteTestingOnlyBackendTexture(backendTexture);
         }
         if (backendRT.isValid()) {
-            context->contextPriv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+            context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
         }
     }
     if (grOptions.fPersistentCache) {
@@ -1969,7 +1969,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     }
     auto draw = [&](SkCanvas* canvas) -> Error {
         GrContext* context = canvas->getGrContext();
-        if (!context || !context->contextPriv().getGpu()) {
+        if (!context || !context->priv().getGpu()) {
             return SkStringPrintf("DDLs are GPU only");
         }
 
@@ -2003,7 +2003,7 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
             } else {
                 // This ought to ensure that all promise image textures from the last pass are
                 // released.
-                context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
+                context->priv().getGpu()->testingOnly_flushGpuAndSync();
                 promiseImageHelper.replaceEveryOtherPromiseTexture(context);
             }
 

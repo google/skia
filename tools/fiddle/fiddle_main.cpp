@@ -122,7 +122,7 @@ static bool setup_backend_objects(GrContext* context,
         return false;
     }
 
-    auto resourceProvider = context->contextPriv().resourceProvider();
+    auto resourceProvider = context->priv().resourceProvider();
 
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kNone_GrSurfaceFlags;
