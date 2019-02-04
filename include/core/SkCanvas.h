@@ -1915,9 +1915,9 @@ public:
         @param font    typeface, text size and so, used to describe the text
         @param paint   blend, color, and so on, used to draw
     */
-    void drawString(const SkString& str, SkScalar x, SkScalar y, const SkFont& font,
-                    const SkPaint& paint) {
-        this->drawSimpleText(str.c_str(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
+    template <typename T> void drawString(const T& str, SkScalar x, SkScalar y, const SkFont& font,
+                                          const SkPaint& paint) {
+        this->drawSimpleText(str.data(), str.size(), kUTF8_SkTextEncoding, x, y, font, paint);
     }
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
