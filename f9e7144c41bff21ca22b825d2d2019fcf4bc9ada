@@ -82,6 +82,24 @@
     },
     {
       "key": {
+        "uuid": "5125ad3b_d3e7d966",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T13:12:59Z",
+      "side": 1,
+      "message": "No chance the parens are in the wrong place?",
+      "parentUuid": "e3a88f5a_bce99202",
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f704680_4cb6ae41",
         "filename": "tests/FitsInTest.cpp",
         "patchSetId": 6
