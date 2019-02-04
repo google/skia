@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "0ae06142_7559b1b4",
+        "filename": "src/gpu/ccpr/GrCCConicShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-02-04T18:36:02Z",
+      "side": 1,
+      "message": "Make that:\n  outputCoverage \u003d max(half(curve_coverage + edge_coverage), 0);",
+      "parentUuid": "f147f8f3_c4117f77",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 93,
+        "endChar": 98
+      },
+      "revId": "27e8488345d5b43a5a217e77cea8f2558e5bddf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7df69c5e_274fcfe3",
         "filename": "src/gpu/ccpr/GrCCCoverageProcessor.cpp",
         "patchSetId": 4
