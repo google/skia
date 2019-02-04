@@ -327,35 +327,6 @@ void draw(SkCanvas* canvas) {
 #Line # metrics and attributes ##
 ##
 
-#Method SkMetaData& getMetaData()
-#In Property
-#In Utility
-#Line # associates additional data with the canvas ##
-#Populate
-
-#Example
-    const char* kHelloMetaData = "HelloMetaData";
-    SkCanvas canvas;
-    SkMetaData& metaData = canvas.getMetaData();
-    SkDebugf("before: %s\n", metaData.findString(kHelloMetaData));
-    metaData.setString(kHelloMetaData, "Hello!");
-    SkDebugf("during: %s\n", metaData.findString(kHelloMetaData));
-    metaData.removeString(kHelloMetaData);
-    SkDebugf("after: %s\n", metaData.findString(kHelloMetaData));
-
-    #StdOut
-        before: (null)
-        during: Hello!
-        after: (null)
-    #StdOut ##
-##
-
-#SeeAlso SkMetaData
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method SkImageInfo imageInfo() const
 #In Property
 #Line # returns Image_Info for Canvas ##
