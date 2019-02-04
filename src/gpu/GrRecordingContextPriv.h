@@ -20,6 +20,11 @@ public:
 
     const GrContextOptions& options() const { return fContext->options(); }
 
+    const GrCaps* caps() const { return fContext->caps(); }
+    sk_sp<const GrCaps> refCaps() const { return fContext->refCaps(); }
+
+    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache(); // { return fContext->getFPFactoryCache(); }
+
     // from GrImageContext
 
     // from GrRecordingContext
