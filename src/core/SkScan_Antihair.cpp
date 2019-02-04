@@ -112,7 +112,7 @@ public:
         fy += SK_Fixed1/2;
 
         int y = fy >> 16;
-        uint8_t  a = (uint8_t)(fy >> 8);
+        uint8_t  a = (uint8_t)((fy >> 8) & 0xFF);
 
         // lower line
         unsigned ma = SmallDot6Scale(a, mod64);
@@ -136,7 +136,7 @@ public:
         fy += SK_Fixed1/2;
 
         int y = fy >> 16;
-        uint8_t  a = (uint8_t)(fy >> 8);
+        uint8_t  a = (uint8_t)((fy >> 8) & 0xFF);
 
         // lower line
         if (a) {
@@ -159,7 +159,7 @@ public:
         fy += SK_Fixed1/2;
 
         int lower_y = fy >> 16;
-        uint8_t  a = (uint8_t)(fy >> 8);
+        uint8_t  a = (uint8_t)((fy >> 8) & 0xFF);
         unsigned a0 = SmallDot6Scale(255 - a, mod64);
         unsigned a1 = SmallDot6Scale(a, mod64);
         this->getBlitter()->blitAntiV2(x, lower_y - 1, a0, a1);
@@ -174,7 +174,7 @@ public:
         SkBlitter* blitter = this->getBlitter();
         do {
             int lower_y = fy >> 16;
-            uint8_t  a = (uint8_t)(fy >> 8);
+            uint8_t  a = (uint8_t)((fy >> 8) & 0xFF);
             blitter->blitAntiV2(x, lower_y - 1, 255 - a, a);
             fy += dy;
         } while (++x < stopx);
@@ -190,7 +190,7 @@ public:
         fx += SK_Fixed1/2;
 
         int x = fx >> 16;
-        int a = (uint8_t)(fx >> 8);
+        int a = (uint8_t)((fx >> 8) & 0xFF);
 
         unsigned ma = SmallDot6Scale(a, mod64);
         if (ma) {
@@ -210,7 +210,7 @@ public:
         fx += SK_Fixed1/2;
 
         int x = fx >> 16;
-        int a = (uint8_t)(fx >> 8);
+        int a = (uint8_t)((fx >> 8) & 0xFF);
 
         if (a) {
             this->getBlitter()->blitV(x, y, stopy - y, a);
@@ -230,7 +230,7 @@ public:
         fx += SK_Fixed1/2;
 
         int x = fx >> 16;
-        uint8_t a = (uint8_t)(fx >> 8);
+        uint8_t a = (uint8_t)((fx >> 8) & 0xFF);
         this->getBlitter()->blitAntiH2(x - 1, y,
                                        SmallDot6Scale(255 - a, mod64), SmallDot6Scale(a, mod64));
 
@@ -242,7 +242,7 @@ public:
         fx += SK_Fixed1/2;
         do {
             int x = fx >> 16;
-            uint8_t a = (uint8_t)(fx >> 8);
+            uint8_t a = (uint8_t)((fx >> 8) & 0xFF);
             this->getBlitter()->blitAntiH2(x - 1, y, 255 - a, a);
             fx += dx;
         } while (++y < stopy);
