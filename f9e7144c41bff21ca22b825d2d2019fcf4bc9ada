@@ -118,6 +118,24 @@
     },
     {
       "key": {
+        "uuid": "66540d9b_dd402b30",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T14:33:53Z",
+      "side": 1,
+      "message": "So don\u0027t we want to mask then trunc, rather than truncate the mask?\n\n  ((x \u0026 ~SK_G16_MASK_IN_PLACE) \u0026 0xFFFF) | ((x \u003e\u003e 16) \u0026 SK_G16_MASK_IN_PLACE)\n\n?",
+      "parentUuid": "db28f86c_3c20fb61",
+      "revId": "f9e7144c41bff21ca22b825d2d2019fcf4bc9ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f704680_4cb6ae41",
         "filename": "tests/FitsInTest.cpp",
         "patchSetId": 6
