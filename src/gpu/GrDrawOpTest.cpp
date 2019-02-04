@@ -16,7 +16,7 @@
 #if GR_TEST_UTILS
 
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext* context) {
-    if (context->contextPriv().caps()->avoidStencilBuffers()) {
+    if (context->priv().caps()->avoidStencilBuffers()) {
         return &GrUserStencilSettings::kUnused;
     }
     static constexpr GrUserStencilSettings kReads(

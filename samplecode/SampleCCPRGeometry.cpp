@@ -180,13 +180,13 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         GrContext* ctx = canvas->getGrContext();
         SkASSERT(ctx);
 
-        GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
+        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
 
         const GrBackendFormat format =
-                ctx->contextPriv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
+                ctx->priv().caps()->getBackendFormatFromGrColorType(GrColorType::kAlpha_F16,
                                                                            GrSRGBEncoded::kNo);
         sk_sp<GrRenderTargetContext> ccbuff =
-                ctx->contextPriv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
+                ctx->priv().makeDeferredRenderTargetContext(format, SkBackingFit::kApprox,
                                                                    this->width(), this->height(),
                                                                    kAlpha_half_GrPixelConfig,
                                                                    nullptr);
@@ -378,7 +378,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                        SkIRect::MakeWH(fView->width(), fView->height()), {0, 0});
         GrCCStroker::BatchID batchID = stroker.closeCurrentBatch();
 
-        GrOnFlushResourceProvider onFlushRP(context->contextPriv().drawingManager());
+        GrOnFlushResourceProvider onFlushRP(context->priv().drawingManager());
         stroker.prepareToDraw(&onFlushRP);
 
         SkIRect ibounds;
