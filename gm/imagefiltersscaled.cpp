@@ -68,7 +68,7 @@ protected:
         fGradientCircle = make_gradient_circle(64, 64);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         sk_sp<SkImageFilter> gradient(SkImageSource::Make(fGradientCircle));
@@ -151,6 +151,7 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height() * scales[j].fY + margin);
         }
+        return kDrawComplete;
     }
 
 private:

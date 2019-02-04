@@ -112,7 +112,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(800, 600); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -154,6 +154,7 @@ protected:
             canvas->drawIRect(rect, p);
             canvas->translate(75, 0);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -179,7 +180,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(360, 630); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPath path0, path1, path2;
         path0.addCircle(100, 100, 60);
         path1.moveTo(20, 20); path1.cubicTo(20, 180, 140, 0, 140, 140);
@@ -217,6 +218,7 @@ protected:
             canvas->restore();
             canvas->translate(180, 0);
         }
+        return kDrawComplete;
     }
 
 private:

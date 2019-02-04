@@ -55,7 +55,7 @@ protected:
         return SkISize::Make(1400, 740);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
@@ -105,6 +105,7 @@ protected:
             }
             paint.setStyle(SkPaint::kStrokeAndFill_Style);
         }
+        return kDrawComplete;
     }
 
 private:

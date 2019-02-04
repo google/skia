@@ -31,7 +31,7 @@ protected:
         return SkISize::Make(WIDTH, HEIGHT);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint blurPaint;
         blurPaint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));
         const SkScalar tileSize = SkIntToScalar(128);
@@ -56,6 +56,7 @@ protected:
                 canvas->drawImage(tileSurface->makeImageSnapshot().get(), x, y);
             }
         }
+        return kDrawComplete;
     }
 
 private:

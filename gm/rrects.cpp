@@ -60,18 +60,12 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (kEffect_Type == fType && !renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
-        }
-
         GrContext* context = canvas->getGrContext();
-        if (kEffect_Type == fType && !context) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+        if (kEffect_Type == fType && (!renderTargetContext || !context)) {
+            return kDrawSkippedGPUOnly;
         }
 
         SkPaint paint;
@@ -142,6 +136,7 @@ protected:
                 y += kTileY;
             }
         }
+        return kDrawComplete;
     }
 
     void setUpRRects() {

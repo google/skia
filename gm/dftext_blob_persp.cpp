@@ -45,7 +45,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* inputCanvas) override {
+    const char* onDraw(SkCanvas* inputCanvas) override {
     // set up offscreen rendering with distance field text
         GrContext* ctx = inputCanvas->getGrContext();
         SkISize size = this->onISize();
@@ -92,6 +92,7 @@ protected:
             inputCanvas->resetMatrix();
             inputCanvas->drawImage(surface->makeImageSnapshot().get(), 0, 0, nullptr);
         }
+        return kDrawComplete;
     }
 
 private:

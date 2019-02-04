@@ -47,7 +47,7 @@ protected:
         fBitmap = sk_tool_utils::create_string_bitmap(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(0xFF101010);
         SkPaint checkPaint;
         checkPaint.setColor(0xFF202020);
@@ -154,6 +154,7 @@ protected:
 
             y += 110;
         }
+        return kDrawComplete;
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {

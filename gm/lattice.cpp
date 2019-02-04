@@ -90,7 +90,7 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDrawHelper(SkCanvas* canvas, int padLeft, int padTop, int padRight, int padBottom) {
+    const char* onDrawHelper(SkCanvas* canvas, int padLeft, int padTop, int padRight, int padBottom) {
         canvas->save();
 
         int xDivs[5];
@@ -190,12 +190,14 @@ protected:
         }
 
         canvas->restore();
+        return kDrawComplete;
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         this->onDrawHelper(canvas, 0, 0, 0, 0);
         canvas->translate(0.0f, 400.0f);
         this->onDrawHelper(canvas, 3, 7, 4, 11);
+        return kDrawComplete;
     }
 
 private:
@@ -314,7 +316,7 @@ public:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         //draw a rectangle in the background with transparent pixels
         SkPaint paint;
@@ -330,6 +332,7 @@ public:
         canvas->translate(0.0f, 400.0f);
         paint.setBlendMode(SkBlendMode::kSrcATop);
         this->onDrawHelper(canvas, 0, 0, 0, 0, paint);
+        return kDrawComplete;
     }
 
 private:

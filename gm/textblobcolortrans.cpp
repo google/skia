@@ -57,7 +57,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
 
@@ -81,6 +81,7 @@ protected:
             canvas->drawTextBlob(fBlob, 0, 0, paint);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

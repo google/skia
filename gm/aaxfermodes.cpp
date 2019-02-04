@@ -169,7 +169,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         draw_pass(canvas, kCheckerboard_Pass);
         canvas->saveLayer(nullptr, nullptr);
 
@@ -190,6 +190,7 @@ protected:
 
         draw_pass(canvas, kShape_Pass);
         canvas->restore();
+        return kDrawComplete;
     }
 
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {

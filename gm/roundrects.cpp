@@ -137,7 +137,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkRandom rand(1);
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         const SkRect rect = SkRect::MakeLTRB(-20, -30, 20, 30);
@@ -362,6 +362,7 @@ protected:
             canvas->drawRRect(circleRect, p);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

@@ -34,7 +34,7 @@ protected:
         return SkISize::Make(630, 1215);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         SkFont font(sk_tool_utils::create_portable_typeface());
@@ -101,6 +101,7 @@ protected:
                 }
             }
         }
+        return kDrawComplete;
     }
 
 private:

@@ -125,7 +125,7 @@ protected:
         return SkISize::Make(6 * kWidth, 9 * kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType,
                 kPremul_SkAlphaType,
@@ -164,6 +164,7 @@ protected:
                 canvas->translate(0.0f, (float) kHeight);
             }
         }
+        return kDrawComplete;
     }
 
 private:
@@ -184,10 +185,9 @@ protected:
         return SkISize::Make(3 * (kEncodedWidth + 1), 12 * (kEncodedHeight + 1));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
+            return "This gm is only interesting in color correct modes.";
         }
 
         const SkAlphaType alphaTypes[] = {
@@ -224,6 +224,7 @@ protected:
             canvas->restore();
             canvas->translate((float) kEncodedWidth + 1, 0.0f);
         }
+        return kDrawComplete;
     }
 
 private:
@@ -247,10 +248,9 @@ protected:
         return SkISize::Make(3 * kWidth, 12 * kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         if (!canvas->imageInfo().colorSpace()) {
-            // This gm is only interesting in color correct modes.
-            return;
+            return "This gm is only interesting in color correct modes.";
         }
 
         const sk_sp<SkImage> images[] = {
@@ -291,6 +291,7 @@ protected:
                 canvas->translate((float) kWidth, 0.0f);
             }
         }
+        return kDrawComplete;
     }
 
 private:

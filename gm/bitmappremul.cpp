@@ -94,12 +94,13 @@ protected:
         return SkISize::Make(SLIDE_SIZE * 2, SLIDE_SIZE * 2);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkScalar slideSize = SkIntToScalar(SLIDE_SIZE);
         canvas->drawBitmap(make_argb8888_gradient(), 0, 0);
         canvas->drawBitmap(make_argb4444_gradient(), slideSize, 0);
         canvas->drawBitmap(make_argb8888_stripes(), 0, slideSize);
         canvas->drawBitmap(make_argb4444_stripes(), slideSize, slideSize);
+        return kDrawComplete;
     }
 
 private:

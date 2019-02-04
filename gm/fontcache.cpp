@@ -60,12 +60,11 @@ protected:
         fTypefaces[5] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         GrRenderTargetContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
         if (!renderTargetContext) {
-            skiagm::GM::DrawGpuOnlyMessage(canvas);
-            return;
+            return kDrawSkippedGPUOnly;
         }
 
         this->drawText(canvas);
@@ -77,6 +76,7 @@ protected:
                 canvas->drawImage(img, 0, 0);
             }
         }
+        return kDrawComplete;
     }
 
 private:

@@ -94,7 +94,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40(>= geometry width/height, make the contour filled in fact)
@@ -149,6 +149,7 @@ protected:
                 ++counter;
             }
         }
+        return kDrawComplete;
     }
 
 private:

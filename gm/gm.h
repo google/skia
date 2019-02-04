@@ -25,22 +25,31 @@ struct GrContextOptions;
     static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void*) { code; } \
     static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
-// a Simple GM is a rendering test that does not store state between
-// rendering calls or make use of the onOnceBeforeDraw() virtual; it
-// consists of:
+// A Simple GM is a rendering test that does not store state between rendering calls or make use of
+// the onOnceBeforeDraw() virtual; it consists of:
 //   *   A single void(*)(SkCanvas*) function.
 //   *   A name.
 //   *   Prefered width and height.
 //   *   Optionally, a background color (default is white).
 #define DEF_SIMPLE_GM(NAME, CANVAS, W, H) \
     DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, SK_ColorWHITE, SkString(#NAME))
-#define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR)\
+#define DEF_SIMPLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR) \
     DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, SkString(#NAME))
-#define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR)         \
-    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS);               \
-    DEF_GM(return new skiagm::SimpleGM(NAME_STR, SK_MACRO_CONCAT(NAME, _GM), \
-                                       SkISize::Make(W, H), BGCOLOR);)       \
+#define DEF_SIMPLE_GM_BG_NAME(NAME, CANVAS, W, H, BGCOLOR, NAME_STR) \
+    static void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS); \
+    DEF_GM(return skiagm::SimpleGM::Create(NAME_STR, SK_MACRO_CONCAT(NAME, _GM), \
+                                           SkISize::Make(W, H), BGCOLOR);) \
     void SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
+
+// A Skippable GM is a Simple GM whose draw function returns a string. The returned string will
+// cause the entire test to be silently skipped when it is not null.
+#define DEF_SKIPPABLE_GM(NAME, CANVAS, W, H) \
+    DEF_SKIPPABLE_GM_BG(NAME, CANVAS, W, H, SK_ColorWHITE)
+#define DEF_SKIPPABLE_GM_BG(NAME, CANVAS, W, H, BGCOLOR) \
+    static const char* SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS); \
+    DEF_GM(return skiagm::SimpleGM::CreateSkippable(SkString(#NAME), SK_MACRO_CONCAT(NAME, _GM), \
+                                                    SkISize::Make(W, H), BGCOLOR);) \
+    const char* SK_MACRO_CONCAT(NAME, _GM)(SkCanvas * CANVAS)
 
 namespace skiagm {
 
@@ -58,9 +67,21 @@ namespace skiagm {
         void setMode(Mode mode) { fMode = mode; }
         Mode getMode() const { return fMode; }
 
-        void draw(SkCanvas*);
+        // Common return values for draw().
+        static constexpr char* kDrawComplete = nullptr;
+        static constexpr char kDrawSkippedGPUOnly[] = "This test is for GPU configs only.";
+
+        // Returns kDrawComplete (nullptr) if meaningful pixels have been drawn into the canvas
+        // (whether successful, or unsuccessful with appropriate error information.)
+        //
+        // If this GM should be silently ignored (e.g., because it is trying to test a hardware
+        // feature that isn't supported in the current context), this method returns a string
+        // describing why. When a string is returned, the caller should not output any images or
+        // upload any data to Gold.
+        const char* draw(SkCanvas*);
+
         void drawBackground(SkCanvas*);
-        void drawContent(SkCanvas*);
+        const char* drawContent(SkCanvas*);
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();
@@ -96,14 +117,13 @@ namespace skiagm {
 
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
-        /** draws a standard message that the GM is only intended to be used with the GPU.*/
-        static void DrawGpuOnlyMessage(SkCanvas*);
-
         static void DrawFailureMessage(SkCanvas*, const char[], ...) SK_PRINTF_LIKE(2, 3);
 
     protected:
         virtual void onOnceBeforeDraw() {}
-        virtual void onDraw(SkCanvas*) = 0;
+        // Returns kDrawComplete if meaningful pixels have been drawn into the canvas, or a string
+        // if the GM should be skipped. (See the comment for draw().)
+        virtual const char* onDraw(SkCanvas*) = 0;
         virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
 
@@ -125,22 +145,28 @@ namespace skiagm {
 
     class SimpleGM : public skiagm::GM {
     public:
-        SimpleGM(const SkString& name,
-                 void (*drawProc)(SkCanvas*),
-                 const SkISize& size,
-                 SkColor backgroundColor)
+        static SimpleGM* Create(const SkString& name, std::function<void(SkCanvas*)> simpleDrawProc,
+                                const SkISize&, SkColor backgroundColor);
+        static SimpleGM* CreateSkippable(const SkString& name,
+                                         std::function<const char*(SkCanvas*)> drawProc,
+                                         const SkISize&, SkColor backgroundColor);
+
+    protected:
+        const char* onDraw(SkCanvas* canvas) override { return fDrawProc(canvas); }
+        SkISize onISize() override { return fSize; }
+        SkString onShortName() override { return fName; }
+
+    private:
+        SimpleGM(const SkString& name, std::function<const char*(SkCanvas*)> drawProc,
+                 const SkISize& size, SkColor backgroundColor)
             : fName(name), fDrawProc(drawProc), fSize(size) {
             if (backgroundColor != SK_ColorWHITE) {
                 this->setBGColor(backgroundColor);
             }
         }
-    protected:
-        void onDraw(SkCanvas* canvas) override;
-        SkISize onISize() override;
-        SkString onShortName() override;
-    private:
+
         SkString fName;
-        void (*fDrawProc)(SkCanvas*);
+        std::function<const char*(SkCanvas*)> fDrawProc;
         SkISize fSize;
     };
 }

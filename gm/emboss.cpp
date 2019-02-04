@@ -39,7 +39,7 @@ protected:
         return SkISize::Make(600, 120);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         SkBitmap bm = make_bm();
         canvas->drawBitmap(bm, 10, 10, &paint);
@@ -72,6 +72,7 @@ protected:
 
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawString("Hello", 0, 50, SkFont(nullptr, 50), paint);
+        return kDrawComplete;
     }
 
 private:

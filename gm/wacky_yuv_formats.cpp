@@ -847,7 +847,7 @@ protected:
         }
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         this->createImages(canvas->getGrContext());
 
         int x = kLabelWidth;
@@ -888,6 +888,7 @@ protected:
             }
         }
         SkASSERT(!fBackendTextures.count());
+        return kDrawComplete;
     }
 
 private:

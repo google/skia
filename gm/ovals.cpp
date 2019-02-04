@@ -136,7 +136,7 @@ protected:
         return sk_tool_utils::color_to_565(SkHSVToColor(hsv));
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkRandom rand(1);
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);
         SkRect oval = SkRect::MakeLTRB(-20, -30, 20, 30);
@@ -288,6 +288,7 @@ protected:
             canvas->drawOval(oval, fPaints[i]);
             canvas->restore();
         }
+        return kDrawComplete;
     }
 
 private:

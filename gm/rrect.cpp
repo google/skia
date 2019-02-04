@@ -136,7 +136,7 @@ protected:
         return SkISize::Make(820, 710);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         constexpr InsetProc insetProcs[] = {
             inset0, inset1, inset2, inset3
         };
@@ -162,6 +162,7 @@ protected:
             canvas->restore();
             canvas->translate(0, 170);
         }
+        return kDrawComplete;
     }
 
 private:

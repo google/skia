@@ -40,7 +40,7 @@ protected:
         fImage = SkImage::MakeFromBitmap(bm);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
         const SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
@@ -75,6 +75,7 @@ protected:
             fill_rect_filtered(canvas, clipRect, std::move(imageSourceDstRectOnly));
             canvas->translate(SkIntToScalar(100), 0);
         }
+        return kDrawComplete;
     }
 
 private:

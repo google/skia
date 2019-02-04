@@ -125,7 +125,7 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    const char* onDraw(SkCanvas* canvas) override {
         SkRect r;
 
         r = SkRect::MakeWH(SkIntToScalar(kTexSize), SkIntToScalar(kTexSize));
@@ -139,6 +139,7 @@ protected:
 
         r.offset(kTexSize - kGMSize, 0);
         this->drawPair(canvas, r, kHemi_NormalMap, SkVector::Make(0.0f, -1));
+        return kDrawComplete;
     }
 
 private:
