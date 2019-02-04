@@ -7,8 +7,10 @@
 
 #include "GrImageContext.h"
 
-GrImageContext::GrImageContext(GrBackendApi backend, uint32_t uniqueID)
-            : INHERITED(backend, uniqueID) {
+GrImageContext::GrImageContext(GrBackendApi backend,
+                               const GrContextOptions& options,
+                               uint32_t uniqueID)
+            : INHERITED(backend, options, uniqueID) {
 }
 
 GrImageContext::~GrImageContext() {}

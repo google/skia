@@ -18,6 +18,8 @@ public:
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
+    const GrContextOptions& options() const { return fContext->options(); }
+
 private:
     explicit GrBaseContextPriv(GrContext_Base* context) : fContext(context) {}
     GrBaseContextPriv(const GrBaseContextPriv&); // unimpl

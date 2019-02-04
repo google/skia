@@ -32,6 +32,8 @@ public:
     // from GrContext_Base
     uint32_t contextID() const { return fContext->contextID(); }
 
+    const GrContextOptions& options() const { return fContext->options(); }
+
     // from GrImageContext
 
     // from GrRecordingContext
@@ -87,9 +89,6 @@ public:
 
     sk_sp<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
             const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
-
-    bool disableGpuYUVConversion() const { return fContext->fDisableGpuYUVConversion; }
-    bool sharpenMipmappedTextures() const { return fContext->fSharpenMipmappedTextures; }
 
     /**
      * Call to ensure all drawing to the context has been issued to the

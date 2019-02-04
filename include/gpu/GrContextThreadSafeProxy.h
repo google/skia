@@ -10,6 +10,7 @@
 
 #include "GrContextOptions.h"
 #include "SkRefCnt.h"
+#include "../private/GrContext_Base.h"
 
 class GrBackendFormat;
 class GrCaps;
@@ -24,7 +25,7 @@ class SkSurfaceCharacterization;
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
-class SK_API GrContextThreadSafeProxy : public SkRefCnt {
+class SK_API GrContextThreadSafeProxy : public GrContext_Base {
 public:
     ~GrContextThreadSafeProxy() override;
 
@@ -72,7 +73,7 @@ public:
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
         // Each GrContext should only ever have a single thread-safe proxy.
-        SkASSERT((this == &that) == (fContextID == that.fContextID));
+        SkASSERT((this == &that) == (this->contextID() == that.contextID()));
         return this == &that;
     }
 
@@ -91,15 +92,12 @@ private:
                              sk_sp<GrSkSLFPFactoryCache> cache);
 
     sk_sp<const GrCaps>         fCaps;
-    const uint32_t              fContextID;
-    const GrBackendApi          fBackend;
-    const GrContextOptions      fOptions;
     sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 
     friend class GrDirectContext; // To construct this object
     friend class GrContextThreadSafeProxyPriv;
 
-    typedef SkRefCnt INHERITED;
+    typedef GrContext_Base INHERITED;
 };
 
 #endif

@@ -59,15 +59,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(GrBackendApi backend, int32_t id)
-        : INHERITED(backend, id) {
+GrContext::GrContext(GrBackendApi backend, const GrContextOptions& options, int32_t id)
+        : INHERITED(backend, options, id) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fProxyProvider = nullptr;
     fGlyphCache = nullptr;
 }
 
-bool GrContext::initCommon(const GrContextOptions& options) {
+bool GrContext::initCommon() {
     ASSERT_SINGLE_OWNER
     SkASSERT(fCaps);  // needs to have been initialized by derived classes
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
@@ -76,7 +76,7 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         fCaps = fGpu->refCaps();
         fResourceCache = new GrResourceCache(fCaps.get(), &fSingleOwner, this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner,
-                                                   options.fExplicitlyAllocateGPUResources);
+                                                   this->options().fExplicitlyAllocateGPUResources);
         fProxyProvider =
                 new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
     } else {
@@ -87,19 +87,17 @@ bool GrContext::initCommon(const GrContextOptions& options) {
         fResourceCache->setProxyProvider(fProxyProvider);
     }
 
-    fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
-    fSharpenMipmappedTextures = options.fSharpenMipmappedTextures;
     fDidTestPMConversions = false;
 
     GrPathRendererChain::Options prcOptions;
-    prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
+    prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
-    prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
+    prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
 #endif
-    if (options.fDisableCoverageCountingPaths) {
+    if (this->options().fDisableCoverageCountingPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kCoverageCounting;
     }
-    if (options.fDisableDistanceFieldPaths) {
+    if (this->options().fDisableDistanceFieldPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
@@ -112,11 +110,11 @@ bool GrContext::initCommon(const GrContextOptions& options) {
     }
 
     GrTextContext::Options textContextOptions;
-    textContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
-    textContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
+    textContextOptions.fMaxDistanceFieldFontSize = this->options().fGlyphsAsPathsFontSize;
+    textContextOptions.fMinDistanceFieldFontSize = this->options().fMinDistanceFieldFontSize;
     textContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
 #if SK_SUPPORT_ATLAS_TEXT
-    if (GrContextOptions::Enable::kYes == options.fDistanceFieldGlyphVerticesAlwaysHaveW) {
+    if (GrContextOptions::Enable::kYes == this->options().fDistanceFieldGlyphVerticesAlwaysHaveW) {
         textContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
     }
 #endif
@@ -126,20 +124,20 @@ bool GrContext::initCommon(const GrContextOptions& options) {
                                             : false;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, textContextOptions,
                                                &fSingleOwner, explicitlyAllocatingResources,
-                                               options.fSortRenderTargets,
-                                               options.fReduceOpListSplitting));
+                                               this->options().fSortRenderTargets,
+                                               this->options().fReduceOpListSplitting));
 
-    fGlyphCache = new GrStrikeCache(fCaps.get(), options.fGlyphCacheTextureMaximumBytes);
+    fGlyphCache = new GrStrikeCache(fCaps.get(), this->options().fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this, this->contextID()));
 
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
-    if (options.fExecutor) {
-        fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
+    if (this->options().fExecutor) {
+        fTaskGroup = skstd::make_unique<SkTaskGroup>(*this->options().fExecutor);
     }
 
-    fPersistentCache = options.fPersistentCache;
+    fPersistentCache = this->options().fPersistentCache;
 
     return true;
 }

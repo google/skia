@@ -17,12 +17,15 @@
  */
 class GrContextThreadSafeProxyPriv {
 public:
-    const GrContextOptions& contextOptions() { return fProxy->fOptions; }
+    // from GrContext_Base
+    uint32_t contextID() const { return fProxy->contextID(); }
 
+    const GrContextOptions& options() const { return fProxy->options(); }
+
+    //
     const GrCaps* caps() const { return fProxy->fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
-    uint32_t contextID() const { return fProxy->fContextID; }
-    GrBackendApi backend() const { return fProxy->fBackend; }
+
     sk_sp<GrSkSLFPFactoryCache> fpFactoryCache() const;
 
 private:

@@ -280,10 +280,10 @@ public:
     void storeVkPipelineCacheData();
 
 protected:
-    GrContext(GrBackendApi, int32_t id = SK_InvalidGenID);
+    GrContext(GrBackendApi, const GrContextOptions& options, int32_t id = SK_InvalidGenID);
 
-    bool initCommon(const GrContextOptions&);
-    virtual bool init(const GrContextOptions&) = 0; // must be called after the ctor!
+    bool initCommon();
+    virtual bool init() = 0; // must be called after the ctor!
 
     virtual GrAtlasManager* onGetAtlasManager() = 0;
 
@@ -308,8 +308,6 @@ private:
     GrStrikeCache*                           fGlyphCache;
     std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
-    bool                                    fDisableGpuYUVConversion;
-    bool                                    fSharpenMipmappedTextures;
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
     bool                                    fPMUPMConversionsRoundTrip;
