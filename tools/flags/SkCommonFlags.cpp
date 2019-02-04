@@ -93,16 +93,6 @@ DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the pa
                                     "whether it's concave or convex, we consider a path complicated"
                                     "if its number of points is comparable to its resolution.");
 
-#if (defined(_MSC_VER) && !defined(__clang__))
-constexpr bool kDefaultDeltaAA = false;
-#else
-constexpr bool kDefaultDeltaAA = true;
-#endif
-DEFINE_bool(deltaAA, kDefaultDeltaAA,
-            "If true, use delta anti-aliasing in suitable cases (it overrides forceAnalyticAA.");
-
-DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
-
 DEFINE_int32(backendTiles, 3, "Number of tiles in the experimental threaded backend.");
 DEFINE_int32(backendThreads, 2, "Number of threads in the experimental threaded backend.");
 
