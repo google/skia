@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d10c4b96_e0ed452d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1921,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-02-04T14:56:51Z",
+      "side": 1,
+      "message": "template \u003csize_t N\u003e\n    void draw(const char (\u0026array)[N]) {\n        printf(\"array\\n\");\n        this-\u003edraw(array, N);\n    }",
+      "revId": "bef82a8005c7c48a32f508844826a23d3ea2731b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
