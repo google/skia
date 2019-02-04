@@ -8,8 +8,9 @@
 #ifndef GrVkSecondaryCBDrawContext_DEFINED
 #define GrVkSecondaryCBDrawContext_DEFINED
 
-#include "SkTypes.h"
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
+#include "SkTypes.h"
 
 class GrBackendSemaphore;
 class GrContext;
@@ -17,7 +18,6 @@ struct GrVkDrawableInfo;
 class SkCanvas;
 class SkDeferredDisplayList;
 class SkGpuDevice;
-struct SkImageInfo;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
 

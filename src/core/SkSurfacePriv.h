@@ -9,8 +9,7 @@
 #define SkSurfacePriv_DEFINED
 
 #include "SkSurfaceProps.h"
-
-struct SkImageInfo;
+#include "SkImageInfo.h"
 
 static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* props) {
     if (props) {

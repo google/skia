@@ -9,6 +9,7 @@
 #define GrContextThreadSafeProxy_DEFINED
 
 #include "GrContextOptions.h"
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "../private/GrContext_Base.h"
 
@@ -18,7 +19,6 @@ class GrContext;
 class GrContext_Base;
 class GrContextThreadSafeProxyPriv;
 class GrSkSLFPFactoryCache;
-struct SkImageInfo;
 class SkSurfaceCharacterization;
 
 /**

@@ -9,6 +9,7 @@
 #define SkShaderBase_DEFINED
 
 #include "SkFilterQuality.h"
+#include "SkImageInfo.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
 #include "SkNoncopyable.h"
@@ -26,7 +27,6 @@ class SkArenaAlloc;
 class SkColorSpace;
 class SkColorSpaceXformer;
 class SkImage;
-struct SkImageInfo;
 class SkPaint;
 class SkRasterPipeline;
 

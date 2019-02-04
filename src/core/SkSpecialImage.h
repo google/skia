@@ -20,7 +20,6 @@ class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
 class SkImage;
-struct SkImageInfo;
 class SkPaint;
 class SkPixmap;
 class SkSpecialSurface;

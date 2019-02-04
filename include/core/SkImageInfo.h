@@ -29,6 +29,8 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+namespace skia {
+
 /** \enum SkImageInfo::SkAlphaType
     Describes how to interpret the alpha component of a pixel. A pixel may
     be opaque, or alpha, describing multiple levels of transparency.
@@ -619,5 +621,47 @@ private:
         , fAlphaType(at)
     {}
 };
+
+}  // namespace skia
+
+#if 1 || defined(SK_LEGACY_NAMESPACE)
+    using skia::SkAlphaType;
+    using skia::SkAlphaTypeIsOpaque;
+
+    using skia::kUnknown_SkAlphaType;
+    using skia::kOpaque_SkAlphaType;
+    using skia::kPremul_SkAlphaType;
+    using skia::kUnpremul_SkAlphaType;
+    using skia::kLastEnum_SkAlphaType;
+
+    using skia::SkColorType;
+    using skia::SkColorTypeBytesPerPixel;
+    using skia::SkColorTypeIsAlwaysOpaque;
+    using skia::SkColorTypeValidateAlphaType;
+
+    using skia::kUnknown_SkColorType;
+    using skia::kAlpha_8_SkColorType;
+    using skia::kRGB_565_SkColorType;
+    using skia::kARGB_4444_SkColorType;
+    using skia::kRGBA_8888_SkColorType;
+    using skia::kRGB_888x_SkColorType;
+    using skia::kBGRA_8888_SkColorType;
+    using skia::kRGBA_1010102_SkColorType;
+    using skia::kRGB_101010x_SkColorType;
+    using skia::kGray_8_SkColorType;
+    using skia::kRGBA_F16_SkColorType;
+    using skia::kRGBA_F32_SkColorType;
+    using skia::kN32_SkColorType;
+    using skia::kLastEnum_SkColorType;
+
+    using skia::SkYUVColorSpace;
+
+    using skia::kJPEG_SkYUVColorSpace;
+    using skia::kRec601_SkYUVColorSpace;
+    using skia::kRec709_SkYUVColorSpace;
+    using skia::kLastEnum_SkYUVColorSpace;
+
+    using skia::SkImageInfo;
+#endif
 
 #endif

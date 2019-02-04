@@ -10,6 +10,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+namespace skia {
+
 int SkColorTypeBytesPerPixel(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return 0;
@@ -94,6 +96,8 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
     }
     return true;
 }
+
+}  // namespace skia
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
