@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efd29ad4_b06e65a9",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-04T23:28:42Z",
+      "side": 1,
+      "message": "Note that this is always setting the alpha back to 0xFF (in cases other than A8). You may want to put the comment about 0xFF here, and note that when we stop canonicalizing the color we still need to ignore the alpha here. In fact, since we should always ignore the alpha, we should slam the alpha in MakeRecAndEffects where the limunance color is first computed (and move the comment there).",
+      "range": {
+        "startLine": 59,
+        "startChar": 39,
+        "endLine": 59,
+        "endChar": 53
+      },
+      "revId": "7c604e8f33475f8b8859694c6c0a3e126c38f717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9639d4d_ca447457",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-02-04T23:28:42Z",
+      "side": 1,
+      "message": "Like, slam the alpha here.",
+      "range": {
+        "startLine": 1041,
+        "startChar": 27,
+        "endLine": 1041,
+        "endChar": 68
+      },
+      "revId": "7c604e8f33475f8b8859694c6c0a3e126c38f717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
