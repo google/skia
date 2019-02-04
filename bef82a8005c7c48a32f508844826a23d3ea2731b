@@ -16,6 +16,24 @@
       "revId": "bef82a8005c7c48a32f508844826a23d3ea2731b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eecb54a3_6b86109e",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1921,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-02-04T15:13:39Z",
+      "side": 1,
+      "message": "thanks.",
+      "parentUuid": "d10c4b96_e0ed452d",
+      "revId": "bef82a8005c7c48a32f508844826a23d3ea2731b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
