@@ -10,9 +10,9 @@
 
 GrVkIndexBuffer::GrVkIndexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                                  const GrVkBuffer::Resource* bufferResource)
-    : INHERITED(gpu, desc.fSizeInBytes, kIndex_GrBufferType,
-                desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern)
-    , GrVkBuffer(desc, bufferResource) {
+        : INHERITED(gpu, desc.fSizeInBytes, GrGpuBufferType::kIndex,
+                    desc.fDynamic ? kDynamic_GrAccessPattern : kStatic_GrAccessPattern)
+        , GrVkBuffer(desc, bufferResource) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 

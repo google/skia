@@ -9,8 +9,8 @@
 #include "GrGpu.h"
 #include "GrCaps.h"
 
-sk_sp<GrBuffer> GrBuffer::MakeCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType intendedType,
-                                        const void* data) {
+sk_sp<GrBuffer> GrBuffer::MakeCPUBacked(GrGpu* gpu, size_t sizeInBytes,
+                                        GrGpuBufferType intendedType, const void* data) {
     SkASSERT(GrBufferTypeIsVertexOrIndex(intendedType));
     void* cpuData;
     if (gpu->caps()->mustClearUploadedBufferData()) {
@@ -24,7 +24,7 @@ sk_sp<GrBuffer> GrBuffer::MakeCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBuffer
     return sk_sp<GrBuffer>(new GrBuffer(gpu, sizeInBytes, intendedType, cpuData));
 }
 
-GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuData)
+GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type, void* cpuData)
     : INHERITED(gpu)
     , fMapPtr(nullptr)
     , fSizeInBytes(sizeInBytes)
@@ -34,7 +34,7 @@ GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuD
     this->registerWithCache(SkBudgeted::kNo);
 }
 
-GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, GrAccessPattern pattern)
+GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrGpuBufferType type, GrAccessPattern pattern)
     : INHERITED(gpu)
     , fMapPtr(nullptr)
     , fSizeInBytes(sizeInBytes)
@@ -44,14 +44,14 @@ GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, GrAccessPa
     // Subclass registers with cache.
 }
 
-void GrBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrBufferType intendedType,
+void GrBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType intendedType,
                                               GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
     // TODO: There's not always reason to cache a buffer by type. In some (all?) APIs it's just
     // a chunk of memory we can use/reuse for any type of data. We really only need to
     // differentiate between the "read" types (e.g. kGpuToCpu_BufferType) and "draw" types.
-    builder[0] = intendedType;
+    builder[0] = SkToU32(intendedType);
     builder[1] = (uint32_t)size;
     if (sizeof(size_t) > 4) {
         builder[2] = (uint32_t)((uint64_t)size >> 32);

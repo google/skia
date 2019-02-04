@@ -17,7 +17,7 @@ class GrMtlGpu;
 
 class GrMtlBuffer: public GrBuffer {
 public:
-    static sk_sp<GrMtlBuffer> Make(GrMtlGpu*, size_t size, GrBufferType intendedType,
+    static sk_sp<GrMtlBuffer> Make(GrMtlGpu*, size_t size, GrGpuBufferType intendedType,
                                    GrAccessPattern, const void* data = nullptr);
 
     ~GrMtlBuffer() override;
@@ -25,7 +25,7 @@ public:
     id<MTLBuffer> mtlBuffer() const { return fMtlBuffer; }
 
 protected:
-    GrMtlBuffer(GrMtlGpu*, size_t size, GrBufferType intendedType, GrAccessPattern);
+    GrMtlBuffer(GrMtlGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern);
 
     void onAbandon() override;
     void onRelease() override;
@@ -44,7 +44,7 @@ private:
     void validate() const;
 #endif
 
-    GrBufferType fIntendedType;
+    GrGpuBufferType fIntendedType;
     bool fIsDynamic;
     id<MTLBuffer> fMtlBuffer;
     id<MTLBuffer> fMappedBuffer;
